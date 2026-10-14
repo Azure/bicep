@@ -76,6 +76,32 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
+        public async Task VisualGraphLayout_ForCollapsedModule_AcceptsProjectedTopology()
+        {
+            using var helper = await StartServerAndOpenAsync();
+            var client = helper.Helper.Client;
+            var source = (await client.SendRequest(
+                new VisualGraphParams(new TextDocumentIdentifier(helper.MainUri)),
+                default)).Graph!;
+            var projected = VisualGraphTopology.Project(source, new HashSet<string>(["mod1"]));
+            var measured = new MeasuredGraph(
+                [.. projected.Nodes.Select(node => new MeasuredGraphNode(node.Id, node.Kind, node.ParentId, Width: 180, Height: 72))],
+                projected.Edges);
+
+            var result = await client.SendRequest(
+                new VisualGraphLayoutParams(
+                    new TextDocumentIdentifier(helper.MainUri),
+                    measured,
+                    Options: null,
+                    CollapsedNodeIds: ["mod1"]),
+                default);
+
+            result.Status.Should().Be(VisualGraphLayoutStatus.Ok);
+            result.Positions.Select(position => position.NodeId).Should().BeEquivalentTo("res1", "res2", "mod1");
+            result.Positions.Select(position => position.NodeId).Should().NotContain("mod1::res3");
+        }
+
+        [TestMethod]
         public async Task VisualGraphLayout_ForStaleMeasuredGraph_ReturnsGraphChanged()
         {
             using var helper = await StartServerAndOpenAsync();

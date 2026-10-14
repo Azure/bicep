@@ -12,6 +12,7 @@ import {
   indexGraph,
   measuredGraphsEqual,
   measureGraph,
+  projectGraph,
 } from "../graph-model";
 
 function node(overrides: Partial<GraphNode> = {}): GraphNode {
@@ -39,6 +40,73 @@ describe("indexGraph", () => {
 
     expect([...graph.nodes.keys()]).toEqual(["a", "b"]);
     expect(graph.edges.get("a->b")).toEqual({ id: "a->b", sourceId: "a", targetId: "b" });
+  });
+});
+
+describe("projectGraph", () => {
+  const moduleNode = node({
+    id: "module",
+    kind: "module",
+    type: "<module>",
+    hasChildren: true,
+  });
+  const childA = node({ id: "module::a", parentId: "module" });
+  const childB = node({ id: "module::b", parentId: "module" });
+  const outside = node({ id: "outside" });
+
+  it("returns the source graph when no module is collapsed", () => {
+    const graph = makeClientGraph([moduleNode, childA]);
+
+    expect(projectGraph(graph, new Set())).toBe(graph);
+    expect(projectGraph(graph, new Set(["missing"]))).toBe(graph);
+  });
+
+  it("keeps the module, hides descendants, and marks it collapsed", () => {
+    const projected = projectGraph(makeClientGraph([moduleNode, childA, childB, outside]), new Set(["module"]));
+
+    expect([...projected.nodes.keys()]).toEqual(["module", "outside"]);
+    expect(projected.nodes.get("module")).toMatchObject({ hasChildren: false, isCollapsed: true });
+  });
+
+  it("reroutes boundary edges, removes internal edges, and deduplicates visible relationships", () => {
+    const projected = projectGraph(
+      makeClientGraph(
+        [moduleNode, childA, childB, outside],
+        [
+          { id: "internal", sourceId: "module::a", targetId: "module::b" },
+          { id: "first", sourceId: "outside", targetId: "module::a" },
+          { id: "duplicate", sourceId: "outside", targetId: "module::b" },
+          { id: "outbound", sourceId: "module::b", targetId: "outside" },
+        ],
+      ),
+      new Set(["module"]),
+    );
+
+    expect([...projected.edges.values()]).toEqual([
+      { id: "outside->module", sourceId: "outside", targetId: "module" },
+      { id: "module->outside", sourceId: "module", targetId: "outside" },
+    ]);
+  });
+
+  it("projects nested collapsed modules to the outermost visible boundary", () => {
+    const nested = node({
+      id: "module::nested",
+      kind: "module",
+      parentId: "module",
+      type: "<module>",
+      hasChildren: true,
+    });
+    const nestedChild = node({ id: "module::nested::child", parentId: "module::nested" });
+    const projected = projectGraph(
+      makeClientGraph(
+        [moduleNode, nested, nestedChild, outside],
+        [{ id: "edge", sourceId: "module::nested::child", targetId: "outside" }],
+      ),
+      new Set(["module", "module::nested"]),
+    );
+
+    expect([...projected.nodes.keys()]).toEqual(["module", "outside"]);
+    expect([...projected.edges.values()]).toEqual([{ id: "module->outside", sourceId: "module", targetId: "outside" }]);
   });
 });
 

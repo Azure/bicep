@@ -12,6 +12,53 @@ namespace Bicep.LangServer.UnitTests.Features.Visualization;
 public class VisualGraphTopologyTests
 {
     [TestMethod]
+    public void Project_WithCollapsedModule_HidesDescendantsAndReroutesBoundaryEdges()
+    {
+        var graph = new CanonicalGraph(
+            Nodes:
+            [
+                Node("module", GraphNodeKind.Module, parentId: null, hasChildren: true),
+                Node("module::a", GraphNodeKind.Resource, parentId: "module"),
+                Node("module::b", GraphNodeKind.Resource, parentId: "module"),
+                Node("outside", GraphNodeKind.Resource, parentId: null),
+            ],
+            Edges:
+            [
+                Edge("internal", "module::a", "module::b"),
+                Edge("first", "outside", "module::a"),
+                Edge("duplicate", "outside", "module::b"),
+                Edge("outbound", "module::b", "outside"),
+            ]);
+
+        var projected = VisualGraphTopology.Project(graph, new HashSet<string>(["module"]));
+
+        projected.Nodes.Select(node => node.Id).Should().Equal("module", "outside");
+        projected.Nodes[0].HasChildren.Should().BeFalse();
+        projected.Edges.Should().Equal(
+            Edge("outside->module", "outside", "module"),
+            Edge("module->outside", "module", "outside"));
+    }
+
+    [TestMethod]
+    public void Project_WithNestedCollapsedModules_UsesOutermostVisibleBoundary()
+    {
+        var graph = new CanonicalGraph(
+            Nodes:
+            [
+                Node("module", GraphNodeKind.Module, parentId: null, hasChildren: true),
+                Node("module::nested", GraphNodeKind.Module, parentId: "module", hasChildren: true),
+                Node("module::nested::child", GraphNodeKind.Resource, parentId: "module::nested"),
+                Node("outside", GraphNodeKind.Resource, parentId: null),
+            ],
+            Edges: [Edge("edge", "module::nested::child", "outside")]);
+
+        var projected = VisualGraphTopology.Project(graph, new HashSet<string>(["module", "module::nested"]));
+
+        projected.Nodes.Select(node => node.Id).Should().Equal("module", "outside");
+        projected.Edges.Should().Equal(Edge("module->outside", "module", "outside"));
+    }
+
+    [TestMethod]
     public void Matches_WithEmptyMeasuredGraph_ReturnsFalseForNonEmptyLiveGraph()
     {
         var live = new CanonicalGraph([Node("a", GraphNodeKind.Resource, parentId: null)], []);
@@ -110,12 +157,34 @@ public class VisualGraphTopologyTests
         VisualGraphTopology.Matches(measured, live).Should().BeFalse();
     }
 
+    [TestMethod]
+    public void Matches_WithRetargetedEdgeKeepingTheSameId_ReturnsFalse()
+    {
+        var measured = new MeasuredGraph(
+            Nodes:
+            [
+                Measured("a", GraphNodeKind.Resource, parentId: null),
+                Measured("b", GraphNodeKind.Resource, parentId: null),
+            ],
+            Edges: [Edge("edge", "a", "b")]);
+        var live = new CanonicalGraph(
+            Nodes:
+            [
+                Node("a", GraphNodeKind.Resource, parentId: null),
+                Node("b", GraphNodeKind.Resource, parentId: null),
+            ],
+            Edges: [Edge("edge", "b", "a")]);
+
+        VisualGraphTopology.Matches(measured, live).Should().BeFalse();
+    }
+
     private static GraphNode Node(
         string id,
         string kind,
         string? parentId,
         string type = "Test.Rp/tests",
-        bool hasError = false) =>
+        bool hasError = false,
+        bool hasChildren = false) =>
         new(
             Id: id,
             Kind: kind,
@@ -123,7 +192,7 @@ public class VisualGraphTopologyTests
             Type: type,
             SymbolName: id,
             IsCollection: false,
-            HasChildren: false,
+            HasChildren: hasChildren,
             HasError: hasError);
 
     private static GraphEdge Edge(string id, string sourceId, string targetId) => new(id, sourceId, targetId);

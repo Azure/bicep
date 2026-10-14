@@ -3,7 +3,7 @@
 
 import type { createStore } from "jotai";
 import type { NodeState } from "@/lib/graph";
-import type { Point } from "@/lib/math";
+import type { Box, Point } from "@/lib/math";
 import type { ClientGraph } from "../graph-model";
 
 import { useStore } from "jotai";
@@ -36,14 +36,32 @@ function snapshotNodePositions(store: Store): Map<string, Point> {
 }
 
 /**
+ * How a node that is about to be mounted should arrive, for transitions that replace one node with
+ * another under the same id (a module collapsing into a card, or expanding back into a container).
+ */
+export interface NodeEntrance {
+  /** Where an atomic node's center starts. */
+  origin?: Point;
+  /** The box a compound node grows from; its `enterProgressAtom` drives the growth. */
+  enterFrom?: Box;
+  /** Extra data for the node's content, read once when it mounts. */
+  data?: Record<string, unknown>;
+}
+
+/**
  * Returns a function that mounts, updates, and removes canvas nodes and edges to match a graph. Positions
  * are left to layout; new nodes start at `newNodeOrigins`, where they were dropped, or near the others.
+ * `entrances` describes how particular new nodes arrive.
  */
 export function useApplyGraph(getViewportCenter: () => Point) {
   const store = useStore();
 
   return useCallback(
-    (graph: ClientGraph, newNodeOrigins: ReadonlyMap<string, Point> = new Map()) => {
+    (
+      graph: ClientGraph,
+      newNodeOrigins: ReadonlyMap<string, Point> = new Map(),
+      entrances: ReadonlyMap<string, NodeEntrance> = new Map(),
+    ) => {
       if (graph.nodes.size === 0) {
         // Empty graph — clear everything and re-engage the
         // visibility gate so the next non-empty graph can spawn
@@ -67,11 +85,10 @@ export function useApplyGraph(getViewportCenter: () => Point) {
         }
       }
 
-      // Build parent-child relationships from :: delimited IDs
+      // Build the visible parent-child relationships from the graph contract.
       for (const node of graph.nodes.values()) {
-        const segments = node.id.split("::");
-        if (segments.length > 1) {
-          parentChildMap.get(segments.slice(0, -1).join("::"))?.push(node.id);
+        if (node.parentId) {
+          parentChildMap.get(node.parentId)?.push(node.id);
         }
       }
 
@@ -121,31 +138,50 @@ export function useApplyGraph(getViewportCenter: () => Point) {
         const childIds = parentChildMap.get(node.id);
 
         if (childIds) {
-          const data = { symbolicName, isCollection: node.isCollection, hasError: node.hasError };
+          const data = {
+            nodeKind: node.kind,
+            symbolicName,
+            isCollection: node.isCollection,
+            hasError: node.hasError,
+            isCollapsed: false,
+            canCollapse: true,
+          };
           if (existing?.kind === "compound") {
             store.set(existing.childIdsAtom, childIds);
             store.set(existing.dataAtom, data);
             nextNodes[node.id] = existing;
           } else {
             // New, or an atomic node that gained children: a different node type, so it is replaced.
-            nextNodes[node.id] = createCompoundNode(node.id, childIds, data);
+            const entrance = entrances.get(node.id);
+            nextNodes[node.id] = createCompoundNode(
+              node.id,
+              childIds,
+              { ...data, ...entrance?.data },
+              entrance?.enterFrom,
+            );
           }
           continue;
         }
 
         const data = {
+          nodeKind: node.kind,
           symbolicName,
           resourceType: node.type,
           isCollection: node.isCollection,
           hasError: node.hasError,
+          isCollapsed: node.isCollapsed ?? false,
+          canCollapse: node.kind === "module" && (node.hasChildren || node.isCollapsed === true),
         };
         if (existing?.kind === "atomic") {
           store.set(existing.dataAtom, data);
           nextNodes[node.id] = existing;
         } else {
-          const origin = newNodeOrigins.get(node.id) ?? previousPositions.get(node.id) ?? defaultOrigin;
+          const entrance = entrances.get(node.id);
+          const origin =
+            newNodeOrigins.get(node.id) ?? entrance?.origin ?? previousPositions.get(node.id) ?? defaultOrigin;
           nextNodes[node.id] = createAtomicNode(node.id, origin, {
             ...data,
+            ...entrance?.data,
             replacesPlaceholder: newNodeOrigins.has(node.id),
           });
         }

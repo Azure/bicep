@@ -34,7 +34,8 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     public record VisualGraphLayoutParams(
         TextDocumentIdentifier TextDocument,
         MeasuredGraph Graph,
-        VisualGraphLayoutOptions? Options) : ITextDocumentIdentifierParams, IRequest<VisualGraphLayoutResult>;
+        VisualGraphLayoutOptions? Options,
+        IReadOnlyList<string>? CollapsedNodeIds = null) : ITextDocumentIdentifierParams, IRequest<VisualGraphLayoutResult>;
 
     public static class VisualGraphLayoutStatus
     {
