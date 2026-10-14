@@ -34,6 +34,9 @@ namespace Bicep.Core.Utils.Snapshots;
 
 public static class SnapshotHelper
 {
+    /// <summary>
+    /// Reconstructs the canonical ARM path for an extensible resource nested through Bicep modules.
+    /// </summary>
     private static string? BuildExtensibleResourcePath(ExtensibleResource resource)
     {
         if (resource.SymbolicName is not { } symbolicName)
@@ -41,6 +44,7 @@ public static class SnapshotHelper
             return null;
         }
 
+        // The engine supplies module symbols; rebuild the ARM nested-template boundaries between them.
         return resource.Context.DeploymentSymbolicNamePath is { } modulePath
             ? $"resources.{string.Join(".properties.template.resources.", modulePath.Segments)}.properties.template.resources.{symbolicName}"
             : $"resources.{symbolicName}";
@@ -75,6 +79,9 @@ public static class SnapshotHelper
             externalInputs,
             cancellationToken)).Snapshot;
 
+    /// <summary>
+    /// Creates the customer snapshot together with analyzer-only resource enrichment and provenance.
+    /// </summary>
     internal static async Task<SnapshotAnalysisResult> GetSnapshotForAnalysis(
         ResourceScope targetScope,
         string templateContent,
@@ -113,6 +120,7 @@ public static class SnapshotHelper
                     Identifiers = resource.Identifiers?.ToObject<JObject>(),
                     Properties = resource.Properties?.ToObject<JObject>(),
                 });
+                // The analysis copy should differ from the customer snapshot only by analyzer metadata.
                 using var stringReader = new StringReader(json);
                 using var jsonReader = new JsonTextReader(stringReader)
                 {
@@ -124,6 +132,7 @@ public static class SnapshotHelper
                     forAnalysis[Analyzers.ResourceSymbolicNameMapper.BicepSymbolicNameProperty] = symbolicName;
                 }
 
+                // Keep customer-facing snapshot bytes separate from analyzer-only enrichment.
                 return (
                     ForSnapshot: JsonElementFactory.CreateElement(json),
                     ForAnalysis: JsonElementFactory.CreateElement(forAnalysis.ToString()));

@@ -140,8 +140,12 @@ public class TemplateEmitter
         return new EmitResult(EmitStatus.Succeeded, diagnostics, model.Features, sourceMap);
     }
 
+    /// <summary>
+    /// Checks emit-blocking diagnostics without invoking aggregate diagnostics or linters.
+    /// </summary>
     private bool HasEmitBlockingErrors()
     {
+        // Analyzers call this while aggregate diagnostics are being assembled, so avoid GetAllDiagnostics() re-entry.
         var sourceFile = model.SourceFile;
         var diagnosticWriter = ToListDiagnosticWriter.Create();
         var visitor = new SemanticDiagnosticVisitor(diagnosticWriter);

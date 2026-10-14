@@ -18,10 +18,14 @@ namespace Bicep.Core.Analyzers
             Dictionary<string, DeclaredResourceMetadata> SymbolicNameMap,
             JContainer EnrichedResources);
 
+        /// <summary>
+        /// Builds the source lookup and enriches emitted resources only when attribution is unambiguous.
+        /// </summary>
         public static SourceMappingResult? BuildMapping(string templateJson, SemanticModel model)
         {
             try
             {
+                // Enrichment must preserve date-like strings exactly as the emitter produced them.
                 using var stringReader = new StringReader(templateJson);
                 using var jsonReader = new JsonTextReader(stringReader)
                 {
@@ -43,6 +47,7 @@ namespace Bicep.Core.Analyzers
                     symbolicNameMap[symbolicName] = resource;
 
                     var resourceType = resource.Type.TypeReference.FormatType();
+                    // Array output cannot distinguish module deployments from explicit deployment resources.
                     if (resource.IsExistingResource ||
                         (hasModules && resourceType.Equals(Emit.TemplateWriter.NestedDeploymentResourceType, StringComparison.OrdinalIgnoreCase)))
                     {
@@ -102,6 +107,9 @@ namespace Bicep.Core.Analyzers
 
         public static string? GetSymbolicName(JObject resource) => resource[BicepSymbolicNameProperty]?.ToString();
 
+        /// <summary>
+        /// Matches a legacy array resource to one literal Bicep resource declaration.
+        /// </summary>
         private static string? MatchResourceToSymbolicName(
             JObject resource,
             Dictionary<string, List<(string SymbolicName, DeclaredResourceMetadata Metadata)>> resourcesByType)
@@ -113,6 +121,7 @@ namespace Bicep.Core.Analyzers
             {
                 if (resourceName is not null && !resourceName.StartsWith('['))
                 {
+                    // Prefer no attribution over guessing when a literal name does not identify exactly one declaration.
                     var exactMatches = candidates
                         .Where(candidate =>
                             candidate.Metadata.TryGetNameSyntax() is StringSyntax nameSyntax &&
