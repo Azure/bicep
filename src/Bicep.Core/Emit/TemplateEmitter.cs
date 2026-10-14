@@ -5,6 +5,7 @@ using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit.Options;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
@@ -142,9 +143,23 @@ public class TemplateEmitter
     private bool HasEmitBlockingErrors()
     {
         var sourceFile = model.SourceFile;
+        var diagnosticWriter = ToListDiagnosticWriter.Create();
+        var visitor = new SemanticDiagnosticVisitor(diagnosticWriter);
+        visitor.Visit(model.Root);
+
+        foreach (var missingDeclarationSyntax in sourceFile.ProgramSyntax.Children.OfType<MissingDeclarationSyntax>())
+        {
+            model.TypeManager.GetTypeInfo(missingDeclarationSyntax);
+        }
+
+        diagnosticWriter.WriteMultiple(model.TypeManager.GetAllDiagnostics());
+        diagnosticWriter.WriteMultiple(model.EmitLimitationInfo.Diagnostics);
+        ScopeHelper.GetResourceScopeInfo(model, diagnosticWriter);
+        ScopeHelper.GetModuleScopeInfo(model, diagnosticWriter);
+
         return sourceFile.LexingErrorLookup.Any(diagnostic => diagnostic.IsError())
             || sourceFile.ParsingErrorLookup.Any(diagnostic => diagnostic.IsError())
-            || model.TypeManager.GetAllDiagnostics().Any(diagnostic => diagnostic.IsError());
+            || diagnosticWriter.GetDiagnostics().Any(diagnostic => diagnostic.IsError());
     }
 
     /// <summary>

@@ -64,6 +64,41 @@ namespace Bicep.Core.UnitTests.Emit
         }
 
         [TestMethod]
+        public void TemplateEmitter_ForcedPathRejectsBinderErrors()
+        {
+            var model = Services.BuildCompilation("""
+                var duplicate = 'first'
+                var duplicate = 'second'
+                """).GetEntrypointSemanticModel();
+
+            model.GetAllDiagnostics().Should().Contain(diagnostic => diagnostic.Code == "BCP028");
+            new TemplateEmitter(model).EmitWithForcedSymbolicNames().Should().BeNull();
+        }
+
+        [TestMethod]
+        public void TemplateEmitter_ForcedPathRejectsEmitLimitationErrors()
+        {
+            var model = Services.BuildCompilation("""
+                resource first 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                  name: 'duplicate'
+                  location: 'eastus'
+                  sku: { name: 'Standard_LRS' }
+                  kind: 'StorageV2'
+                }
+
+                resource second 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                  name: 'duplicate'
+                  location: 'eastus'
+                  sku: { name: 'Standard_LRS' }
+                  kind: 'StorageV2'
+                }
+                """).GetEntrypointSemanticModel();
+
+            model.GetAllDiagnostics().Should().Contain(diagnostic => diagnostic.Code == "BCP121");
+            new TemplateEmitter(model).EmitWithForcedSymbolicNames().Should().BeNull();
+        }
+
+        [TestMethod]
         public void TemplateEmitter_ForcedPathIsSafeDuringAggregateDiagnosticAssembly()
         {
             var analyzer = new ForcedEmissionAnalyzer();
