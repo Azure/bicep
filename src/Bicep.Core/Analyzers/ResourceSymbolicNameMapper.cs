@@ -130,25 +130,6 @@ namespace Bicep.Core.Analyzers
                         return null;
                     }
 
-                    var resourceNameSegments = resourceName.Split('/');
-                    List<string> pathSegmentMatches = [];
-                    foreach (var (symbolicName, metadata) in candidates)
-                    {
-                        if (metadata.TryGetNameSyntax() is StringSyntax nameSyntax &&
-                            nameSyntax.TryGetLiteralValue() is { } bicepName &&
-                            resourceNameSegments.Contains(bicepName, StringComparer.OrdinalIgnoreCase))
-                        {
-                            pathSegmentMatches.Add(symbolicName);
-                        }
-                    }
-
-                    var uniquePathSegmentMatches = pathSegmentMatches
-                        .Distinct(LanguageConstants.IdentifierComparer)
-                        .ToArray();
-                    if (uniquePathSegmentMatches is [var pathSegmentMatch])
-                    {
-                        return pathSegmentMatch;
-                    }
                 }
             }
 

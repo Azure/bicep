@@ -174,6 +174,42 @@ namespace Bicep.Core.UnitTests.Analyzers
         }
 
         [TestMethod]
+        public void BuildMapping_ArrayShape_DoesNotUseUnrelatedLiteralPathSegment()
+        {
+            var model = Services.BuildCompilation("""
+                resource subA 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' = {
+                  name: 'sub'
+                }
+
+                resource subB 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' = {
+                  name: any('other/sub')
+                }
+                """).GetEntrypointSemanticModel();
+            const string templateJson = """
+                {
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/virtualNetworks/subnets",
+                      "name": "sub"
+                    },
+                    {
+                      "type": "Microsoft.Network/virtualNetworks/subnets",
+                      "name": "other/sub"
+                    }
+                  ]
+                }
+                """;
+
+            var result = ResourceSymbolicNameMapper.BuildMapping(templateJson, model);
+
+            result.Should().NotBeNull();
+            var resources = result!.EnrichedResources.Should().BeOfType<JArray>().Subject;
+            resources.OfType<JObject>()
+                .Select(resource => resource[ResourceSymbolicNameMapper.BicepSymbolicNameProperty]?.ToString())
+                .Should().BeEquivalentTo(["subA", null]);
+        }
+
+        [TestMethod]
         public void BuildMapping_PreservesCaseDistinctBicepSymbols()
         {
             var model = Services.BuildCompilation("""
