@@ -33,13 +33,18 @@ namespace Bicep.Core.Analyzers
                     return null;
                 }
 
-                var symbolicNameMap = new Dictionary<string, DeclaredResourceMetadata>(StringComparer.OrdinalIgnoreCase);
+                var symbolicNameMap = new Dictionary<string, DeclaredResourceMetadata>(LanguageConstants.IdentifierComparer);
                 var resourcesByType = new Dictionary<string, List<(string SymbolicName, DeclaredResourceMetadata Metadata)>>(StringComparer.OrdinalIgnoreCase);
 
                 foreach (var resource in model.DeclaredResources)
                 {
                     var symbolicName = Emit.ExpressionConverter.GetSymbolicName(model.ResourceAncestors, resource);
                     symbolicNameMap[symbolicName] = resource;
+
+                    if (resource.IsExistingResource)
+                    {
+                        continue;
+                    }
 
                     var resourceType = resource.Type.TypeReference.FormatType();
                     if (!resourcesByType.TryGetValue(resourceType, out var resources))
@@ -112,11 +117,15 @@ namespace Bicep.Core.Analyzers
                             nameSyntax.TryGetLiteralValue() is { } bicepName &&
                             resourceName.Equals(bicepName, StringComparison.OrdinalIgnoreCase))
                         .Select(candidate => candidate.SymbolicName)
-                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .Distinct(LanguageConstants.IdentifierComparer)
                         .ToArray();
                     if (exactMatches is [var exactMatch])
                     {
                         return exactMatch;
+                    }
+                    if (exactMatches.Length > 1)
+                    {
+                        return null;
                     }
 
                     var resourceNameSegments = resourceName.Split('/');
@@ -132,7 +141,7 @@ namespace Bicep.Core.Analyzers
                     }
 
                     var uniquePathSegmentMatches = pathSegmentMatches
-                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .Distinct(LanguageConstants.IdentifierComparer)
                         .ToArray();
                     if (uniquePathSegmentMatches is [var pathSegmentMatch])
                     {

@@ -104,16 +104,8 @@ namespace Bicep.Core.UnitTests.Analyzers
         {
             var fileSet = MockFileSystemTestFileSet.Create(
                 ("main.bicep", """
-                    resource deployment 'Microsoft.Resources/deployments@2022-09-01' = {
-                      name: 'explicit'
-                      properties: {
-                        mode: 'Incremental'
-                        template: {
-                          '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
-                          contentVersion: '1.0.0.0'
-                          resources: {}
-                        }
-                      }
+                    resource prior 'Microsoft.Resources/deployments@2022-09-01' existing = {
+                      name: 'child'
                     }
 
                     module child './child.bicep' = {
@@ -135,7 +127,68 @@ namespace Bicep.Core.UnitTests.Analyzers
             var resources = result!.EnrichedResources.Should().BeOfType<JArray>().Subject;
             resources.OfType<JObject>()
                 .Select(resource => resource[ResourceSymbolicNameMapper.BicepSymbolicNameProperty]?.ToString())
-                .Should().BeEquivalentTo(["deployment", null]);
+                .Should().BeEquivalentTo([null]);
+        }
+
+        [TestMethod]
+        public void BuildMapping_ArrayShape_DoesNotFallThroughAfterAmbiguousExactMatch()
+        {
+            var model = Services.BuildCompilation("""
+                resource subA 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' = {
+                  name: 'vnet/sub'
+                }
+
+                resource subB 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' = {
+                  name: 'vnet/sub'
+                }
+
+                resource subC 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' = {
+                  name: 'sub'
+                }
+                """).GetEntrypointSemanticModel();
+            const string templateJson = """
+                {
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/virtualNetworks/subnets",
+                      "name": "vnet/sub"
+                    }
+                  ]
+                }
+                """;
+
+            var result = ResourceSymbolicNameMapper.BuildMapping(templateJson, model);
+
+            result.Should().NotBeNull();
+            var resources = result!.EnrichedResources.Should().BeOfType<JArray>().Subject;
+            resources[0]![ResourceSymbolicNameMapper.BicepSymbolicNameProperty].Should().BeNull();
+        }
+
+        [TestMethod]
+        public void BuildMapping_PreservesCaseDistinctBicepSymbols()
+        {
+            var model = Services.BuildCompilation("""
+                resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                  name: 'foo'
+                  location: 'eastus'
+                  sku: { name: 'Standard_LRS' }
+                  kind: 'StorageV2'
+                }
+
+                resource Storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                  name: 'bar'
+                  location: 'eastus'
+                  sku: { name: 'Standard_LRS' }
+                  kind: 'StorageV2'
+                }
+                """).GetEntrypointSemanticModel();
+
+            var result = ResourceSymbolicNameMapper.BuildMapping(EmitNormally(model), model);
+
+            result.Should().NotBeNull();
+            result!.SymbolicNameMap.Should().HaveCount(2);
+            result.SymbolicNameMap.Should().ContainKey("storage");
+            result.SymbolicNameMap.Should().ContainKey("Storage");
         }
 
         private static string EmitNormally(SemanticModel model)
