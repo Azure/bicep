@@ -1,7 +1,7 @@
 // $1 = script
 // $2 = 'inlinePS'
 // $3 = location
-// $4 = '11.0'
+// $4 = '16.2'
 // $5 = 'Write-Output "Hello world"'
 // $6 = 'PT1H'
 

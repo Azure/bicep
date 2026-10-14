@@ -26,6 +26,18 @@ public class UseRecentAzPowerShellVersionRuleTests : LinterRuleTestsBase
       }
     }
     """)]
+    [DataRow("""
+    resource script 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+      name: 'test-script'
+      location: resourceGroup().location
+      kind: 'AzurePowerShell'
+      properties: {
+        azPowerShellVersion: '14.0'
+        scriptContent: 'Write-Output "Hello World"'
+        retentionInterval: 'PT1H'
+      }
+    }
+    """)]
     [TestMethod]
     public void Linter_validation_should_warn_for_old_azpowershell_version(string text)
         => CompileAndTest(text, 1);
@@ -36,7 +48,7 @@ public class UseRecentAzPowerShellVersionRuleTests : LinterRuleTestsBase
       location: resourceGroup().location
       kind: 'AzurePowerShell'
       properties: {
-        azPowerShellVersion: '11.0'
+        azPowerShellVersion: '15.0'
         scriptContent: 'Write-Output "Hello World"'
         retentionInterval: 'PT1H'
       }

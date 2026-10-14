@@ -15,22 +15,22 @@
   "private": true,
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@playwright/test": "1.63.0",
+    "@playwright/test": "1.64.0",
     "@types/node": "26.6.4",
     "@types/pako": "3.0.0",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@vitejs/plugin-react": "6.1.1",
-    "eslint": "10.11.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "eslint": "10.12.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.6",
     "nerdbank-gitversioning": "3.10.94",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.71.0",
-    "vite": "8.3.2"
+    "typescript-eslint": "8.71.1",
+    "vite": "8.3.4"
   },
   "dependencies": {
-    "@microsoft/applicationinsights-web": "3.4.4",
+    "@microsoft/applicationinsights-web": "3.4.5",
     "monaco-editor": "0.57.0",
     "pako": "3.0.2",
     "react": "19.3.0",
