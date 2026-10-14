@@ -5,6 +5,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Analyzers
@@ -21,7 +22,12 @@ namespace Bicep.Core.Analyzers
         {
             try
             {
-                var resourcesToken = JObject.Parse(templateJson)["resources"];
+                using var stringReader = new StringReader(templateJson);
+                using var jsonReader = new JsonTextReader(stringReader)
+                {
+                    DateParseHandling = DateParseHandling.None,
+                };
+                var resourcesToken = JObject.Load(jsonReader)["resources"];
                 if (resourcesToken is null)
                 {
                     return null;
@@ -101,7 +107,7 @@ namespace Bicep.Core.Analyzers
                     return candidates[0].SymbolicName;
                 }
 
-                if (resourceName is not null)
+                if (resourceName is not null && !resourceName.StartsWith('['))
                 {
                     var exactMatches = candidates
                         .Where(candidate =>
@@ -116,32 +122,24 @@ namespace Bicep.Core.Analyzers
                         return exactMatch;
                     }
 
-                    List<string> heuristicMatches = [];
+                    var resourceNameSegments = resourceName.Split('/');
+                    List<string> pathSegmentMatches = [];
                     foreach (var (symbolicName, metadata) in candidates)
                     {
                         if (metadata.TryGetNameSyntax() is StringSyntax nameSyntax &&
                             nameSyntax.TryGetLiteralValue() is { } bicepName &&
-                            resourceName.Contains(bicepName, StringComparison.OrdinalIgnoreCase))
+                            resourceNameSegments.Contains(bicepName, StringComparer.OrdinalIgnoreCase))
                         {
-                            heuristicMatches.Add(symbolicName);
-                            continue;
-                        }
-
-                        var baseSymbolicName = symbolicName.Contains("::", StringComparison.Ordinal)
-                            ? symbolicName.Split("::").Last()
-                            : symbolicName;
-                        if (resourceName.Contains(baseSymbolicName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            heuristicMatches.Add(symbolicName);
+                            pathSegmentMatches.Add(symbolicName);
                         }
                     }
 
-                    var uniqueHeuristicMatches = heuristicMatches
+                    var uniquePathSegmentMatches = pathSegmentMatches
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .ToArray();
-                    if (uniqueHeuristicMatches is [var heuristicMatch])
+                    if (uniquePathSegmentMatches is [var pathSegmentMatch])
                     {
-                        return heuristicMatch;
+                        return pathSegmentMatch;
                     }
                 }
             }

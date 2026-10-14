@@ -29,6 +29,9 @@ namespace Bicep.Core.UnitTests.Analyzers
               location: 'eastus'
               sku: { name: 'Standard_LRS' }
               kind: 'StorageV2'
+              tags: {
+                timestamp: '2023-06-01T12:00:00+05:00'
+              }
             }
             """;
 
@@ -61,7 +64,38 @@ namespace Bicep.Core.UnitTests.Analyzers
             resources.OfType<JObject>()
                 .Select(resource => resource[ResourceSymbolicNameMapper.BicepSymbolicNameProperty]?.ToString())
                 .Should().BeEquivalentTo(["storageA", "storageB"]);
+            resources[1]!["tags"]!["timestamp"]!.ToString().Should().Be("2023-06-01T12:00:00+05:00");
             result.SymbolicNameMap.Keys.Should().BeEquivalentTo(["storageA", "storageB"]);
+        }
+
+        [TestMethod]
+        public void BuildMapping_ArrayShape_DoesNotUseLiteralSubstringInsideArmExpression()
+        {
+            var model = Services.BuildCompilation("""
+                param foo string
+
+                resource literalResource 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                  name: 'foo'
+                  location: 'eastus'
+                  sku: { name: 'Standard_LRS' }
+                  kind: 'StorageV2'
+                }
+
+                resource dynamicResource 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                  name: foo
+                  location: 'eastus'
+                  sku: { name: 'Standard_LRS' }
+                  kind: 'StorageV2'
+                }
+                """).GetEntrypointSemanticModel();
+
+            var result = ResourceSymbolicNameMapper.BuildMapping(EmitNormally(model), model);
+
+            result.Should().NotBeNull();
+            var resources = result!.EnrichedResources.Should().BeOfType<JArray>().Subject;
+            resources.OfType<JObject>()
+                .Select(resource => resource[ResourceSymbolicNameMapper.BicepSymbolicNameProperty]?.ToString())
+                .Should().BeEquivalentTo(["literalResource", "resource_1"]);
         }
 
         private static string EmitNormally(SemanticModel model)
