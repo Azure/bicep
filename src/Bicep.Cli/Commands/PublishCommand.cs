@@ -20,7 +20,6 @@ using Bicep.Core.SourceLink;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands
 {
@@ -142,46 +141,39 @@ namespace Bicep.Cli.Commands
             return moduleReference;
         }
 
-        internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+        internal static Command CreateCommand(CommandLineBuilderContext context)
         {
-            var command = new System.CommandLine.Command(Constants.Command.Publish, "Publishes the .bicep file to the module registry.");
-
-            var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
-            {
-                Description = "The path to the .bicep file to publish.",
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            var targetOption = new System.CommandLine.Option<string>(Option.Target)
+            var inputFileArgument = CommonArguments.OptionalInputFile("The path to the .bicep file to publish.");
+            var targetOption = new Option<string>(OptionNames.Target)
             {
                 Description = "The target module reference.",
             };
-            var documentationUriOption = new System.CommandLine.Option<string[]>(Option.DocumentationUri)
+            var documentationUriOption = new Option<string[]>(OptionNames.DocumentationUri)
             {
                 Description = "Module documentation URI.",
                 Arity = ArgumentArity.ZeroOrMore,
             };
-            var noRestoreOption = new System.CommandLine.Option<bool>(Option.NoRestore)
-            {
-                Description = "Do not restore modules prior to publishing.",
-            };
-            var forceOption = new System.CommandLine.Option<bool>(Option.Force)
-            {
-                Description = "Overwrite existing published module or file.",
-            };
-            var withSourceOption = new System.CommandLine.Option<bool>(Option.WithSource)
+            var noRestoreOption = CommonOptions.NoRestore("Do not restore modules prior to publishing.");
+            var forceOption = CommonOptions.Force("Overwrite existing published module or file.");
+            var withSourceOption = new Option<bool>(OptionNames.WithSource)
             {
                 Description = "[Experimental] Publish source code with the module.",
             };
+            var configOption = CommonOptions.Config();
 
-            command.Add(inputFileArgument);
-            command.Add(targetOption);
-            command.Add(documentationUriOption);
-            command.Add(noRestoreOption);
-            command.Add(forceOption);
-            command.Add(withSourceOption);
-            command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
+            var command = new Command(CommandNames.Publish, "Publishes the .bicep file to the module registry.")
+            {
+                inputFileArgument,
+                targetOption,
+                documentationUriOption,
+                noRestoreOption,
+                forceOption,
+                withSourceOption,
+                configOption,
+            };
+            command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
 
-            command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+            command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
             {
                 var inputFile = result.GetValue(inputFileArgument)
                     ?? throw new CommandLineException("The input file path was not specified");

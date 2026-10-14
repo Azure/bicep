@@ -45,7 +45,14 @@ public record VersionResponse(
 /// </summary>
 /// <param name="Path">The file path to the Bicep file to compile (e.g., <c>"./main.bicep"</c>).</param>
 public record CompileRequest(
-    string Path);
+    string Path)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
 
 /// <summary>
 /// Response from compiling a Bicep file.
@@ -65,7 +72,14 @@ public record CompileResponse(
 /// <param name="ParameterOverrides">A dictionary of parameter names to JSON values that override the defaults specified in the parameters file.</param>
 public record CompileParamsRequest(
     string Path,
-    Dictionary<string, JsonNode> ParameterOverrides);
+    Dictionary<string, JsonNode> ParameterOverrides)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
 
 /// <summary>
 /// Response from compiling a Bicep parameters file.
@@ -102,7 +116,14 @@ public record DiagnosticDefinition(
 /// </summary>
 /// <param name="Path">The file path to the Bicep file to analyze.</param>
 public record GetFileReferencesRequest(
-    string Path);
+    string Path)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
 
 /// <summary>
 /// Response containing all file references used by a Bicep file.
@@ -116,7 +137,14 @@ public record GetFileReferencesResponse(
 /// </summary>
 /// <param name="Path">The file path to the Bicep file to analyze.</param>
 public record GetMetadataRequest(
-    string Path);
+    string Path)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
 
 /// <summary>
 /// Request to generate a snapshot of a Bicep parameters file with deployment metadata.
@@ -131,6 +159,12 @@ public record GetSnapshotRequest(
     GetSnapshotRequest.MetadataDefinition Metadata,
     ImmutableArray<GetSnapshotRequest.ExternalInputValue>? ExternalInputs)
 {
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+
     /// <summary>
     /// Azure deployment metadata providing context for snapshot generation.
     /// All fields are optional and may be <see langword="null"/> if not applicable.
@@ -231,7 +265,14 @@ public record GetMetadataResponse(
 /// </summary>
 /// <param name="Path">The file path to the Bicep file to analyze.</param>
 public record GetDeploymentGraphRequest(
-    string Path);
+    string Path)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
 
 /// <summary>
 /// Response containing the deployment graph for a Bicep file.
@@ -273,7 +314,14 @@ public record GetDeploymentGraphResponse(
 /// </summary>
 /// <param name="Path">The file path to the Bicep file to format.</param>
 public record FormatRequest(
-    string Path);
+    string Path)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
 
 /// <summary>
 /// Response containing the formatted Bicep file content.
@@ -290,7 +338,14 @@ public record FormatResponse(
 /// <param name="CustomTemplateValues">Optional string values exposed to the configured template.</param>
 public record GenerateDocsRequest(
     string Path,
-    Dictionary<string, string>? CustomTemplateValues = null);
+    Dictionary<string, string>? CustomTemplateValues = null)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
 
 /// <summary>
 /// Contains rendered documentation and diagnostics for one module.

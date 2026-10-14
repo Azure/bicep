@@ -3,7 +3,7 @@
 
 namespace Bicep.Cli.Constants
 {
-    public static class Command
+    public static class CommandNames
     {
         public const string Build = "build";
         public const string Test = "test";
@@ -28,14 +28,14 @@ namespace Bicep.Cli.Constants
         public const string Root = "";
     }
 
-    public static class Argument
+    public static class ArgumentNames
     {
         public const string InputFile = "Input file";
         public const string IndexFile = "Index file";
         public const string ParametersFile = "Parameters file";
     }
 
-    public static class Option
+    public static class OptionNames
     {
         // Root options
         public const string Version = "--version";
@@ -86,6 +86,9 @@ namespace Bicep.Cli.Constants
 
         // Deploy / local-deploy / what-if / teardown
         public const string Format = "--format";
+
+        // Commands that load Bicep configuration
+        public const string Config = "--config";
 
         // Snapshot
         public const string Mode = "--mode";

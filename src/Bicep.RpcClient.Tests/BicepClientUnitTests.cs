@@ -173,6 +173,63 @@ public class BicepClientUnitTests
         rpc.CallCount("bicep/generateDocs").Should().Be(0);
     }
 
+    private static readonly IReadOnlyDictionary<string, (string Method, Func<BicepClient, CancellationToken, Task> Invoke)> RequestsWithConfigPath =
+        new Dictionary<string, (string, Func<BicepClient, CancellationToken, Task>)>
+        {
+            [nameof(BicepClient.Compile)] = ("bicep/compile", (client, token) => client.Compile(new("main.bicep") { ConfigPath = "bicepconfig.ci.json" }, token)),
+            [nameof(BicepClient.CompileParams)] = ("bicep/compileParams", (client, token) => client.CompileParams(new("main.bicepparam", new()) { ConfigPath = "bicepconfig.ci.json" }, token)),
+            [nameof(BicepClient.Format)] = ("bicep/format", (client, token) => client.Format(new("main.bicep") { ConfigPath = "bicepconfig.ci.json" }, token)),
+            [nameof(BicepClient.GenerateDocs)] = ("bicep/generateDocs", (client, token) => client.GenerateDocs(new("main.bicep") { ConfigPath = "bicepconfig.ci.json" }, token)),
+            [nameof(BicepClient.GetDeploymentGraph)] = ("bicep/getDeploymentGraph", (client, token) => client.GetDeploymentGraph(new("main.bicep") { ConfigPath = "bicepconfig.ci.json" }, token)),
+            [nameof(BicepClient.GetFileReferences)] = ("bicep/getFileReferences", (client, token) => client.GetFileReferences(new("main.bicep") { ConfigPath = "bicepconfig.ci.json" }, token)),
+            [nameof(BicepClient.GetMetadata)] = ("bicep/getMetadata", (client, token) => client.GetMetadata(new("main.bicep") { ConfigPath = "bicepconfig.ci.json" }, token)),
+            [nameof(BicepClient.GetSnapshot)] = ("bicep/getSnapshot", (client, token) => client.GetSnapshot(new("main.bicepparam", new(null, null, null, null, null, null), null) { ConfigPath = "bicepconfig.ci.json" }, token)),
+        };
+
+    private static IEnumerable<object[]> GetOperationsWithConfigPath() => RequestsWithConfigPath.Keys.Select(x => new object[] { x });
+
+    [DataTestMethod]
+    [DynamicData(nameof(GetOperationsWithConfigPath), DynamicDataSourceType.Method)]
+    public async Task Requests_with_config_path_throw_when_cli_version_is_below_minimum(string operationName)
+    {
+        var (method, invoke) = RequestsWithConfigPath[operationName];
+        var rpc = new FakeJsonRpcClient();
+        rpc.SetResponse("bicep/version", new VersionResponse("0.47.16"));
+        using var client = new BicepClient(rpc);
+
+        await FluentActions.Invoking(() => invoke(client, Token))
+            .Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage($"Operation '{operationName} with ConfigPath' requires Bicep CLI version '0.48.0' or later, whereas '0.47.16' is currently installed.");
+
+        rpc.CallCount(method).Should().Be(0);
+    }
+
+    [TestMethod]
+    public async Task Compile_with_config_path_succeeds_when_cli_version_meets_minimum()
+    {
+        var rpc = new FakeJsonRpcClient();
+        rpc.SetResponse("bicep/version", new VersionResponse("0.48.0"));
+        rpc.SetResponse("bicep/compile", new CompileResponse(true, [], "{}"));
+        using var client = new BicepClient(rpc);
+
+        var result = await client.Compile(new("main.bicep") { ConfigPath = "bicepconfig.ci.json" }, Token);
+
+        result.Success.Should().BeTrue();
+        rpc.CallCount("bicep/compile").Should().Be(1);
+    }
+
+    [TestMethod]
+    public async Task Compile_without_config_path_does_not_check_cli_version()
+    {
+        var rpc = new FakeJsonRpcClient();
+        rpc.SetResponse("bicep/compile", new CompileResponse(true, [], "{}"));
+        using var client = new BicepClient(rpc);
+
+        await client.Compile(new("main.bicep"), Token);
+
+        rpc.CallCount("bicep/version").Should().Be(0);
+    }
+
     [TestMethod]
     public void Dispose_disposes_the_underlying_rpc_client()
     {

@@ -33,7 +33,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
-using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;
 
@@ -149,54 +148,54 @@ public class SnapshotCommand(
         file.Write(contents);
     }
 
-    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    internal static Command CreateCommand(CommandLineBuilderContext context)
     {
-        var command = new System.CommandLine.Command(Constants.Command.Snapshot, "Generates or validates a deployment snapshot from a .bicepparam file.");
-
-        var inputFileArgument = new System.CommandLine.Argument<string>(Constants.Argument.ParametersFile)
-        {
-            Description = "The path to the .bicepparam file.",
-        };
-        var modeOption = new System.CommandLine.Option<SnapshotArguments.SnapshotMode?>(Option.Mode)
+        var inputFileArgument = CommonArguments.ParametersFile();
+        var modeOption = new Option<SnapshotArguments.SnapshotMode?>(OptionNames.Mode)
         {
             Description = "Sets the snapshot mode. Valid values are (overwrite, validate).",
         };
-        var tenantIdOption = new System.CommandLine.Option<string?>(Option.TenantId)
+        var tenantIdOption = new Option<string?>(OptionNames.TenantId)
         {
             Description = "The tenant ID to use for the deployment.",
         };
-        var subscriptionIdOption = new System.CommandLine.Option<string?>(Option.SubscriptionId)
+        var subscriptionIdOption = new Option<string?>(OptionNames.SubscriptionId)
         {
             Description = "The subscription ID to use for the deployment.",
         };
-        var locationOption = new System.CommandLine.Option<string?>(Option.Location)
+        var locationOption = new Option<string?>(OptionNames.Location)
         {
             Description = "The location to use for the deployment.",
         };
-        var resourceGroupOption = new System.CommandLine.Option<string?>(Option.ResourceGroup)
+        var resourceGroupOption = new Option<string?>(OptionNames.ResourceGroup)
         {
             Description = "The resource group name to use for the deployment.",
         };
-        var managementGroupIdOption = new System.CommandLine.Option<string?>(Option.ManagementGroupId)
+        var managementGroupIdOption = new Option<string?>(OptionNames.ManagementGroupId)
         {
             Description = "The management group ID to use for the deployment.",
         };
-        var deploymentNameOption = new System.CommandLine.Option<string?>(Option.DeploymentName)
+        var deploymentNameOption = new Option<string?>(OptionNames.DeploymentName)
         {
             Description = "The deployment name to use.",
         };
+        var configOption = CommonOptions.Config();
 
-        command.Add(inputFileArgument);
-        command.Add(modeOption);
-        command.Add(tenantIdOption);
-        command.Add(subscriptionIdOption);
-        command.Add(managementGroupIdOption);
-        command.Add(locationOption);
-        command.Add(resourceGroupOption);
-        command.Add(deploymentNameOption);
-        command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidateRequiredPositionalArgument(result, inputFileArgument));
+        var command = new Command(CommandNames.Snapshot, "Generates or validates a deployment snapshot from a .bicepparam file.")
+        {
+            inputFileArgument,
+            modeOption,
+            tenantIdOption,
+            subscriptionIdOption,
+            managementGroupIdOption,
+            locationOption,
+            resourceGroupOption,
+            deploymentNameOption,
+            configOption,
+        };
+        command.Validators.Add(result => CommandLineBuilderContext.ValidateRequiredPositionalArgument(result, inputFileArgument));
 
-        command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+        command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
         {
             var args = new SnapshotArguments(
                 result.GetRequiredValue(inputFileArgument),
