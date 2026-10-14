@@ -730,6 +730,59 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.TextEdit!.TextEdit!.Range.End.Character == expectedEnd);
         }
 
+        [DataTestMethod]
+        [DataRow("br:contoso.azurecr.io/bicep/modules:", "1.9.0,10.0.0,1.10.0,2.0.0", "10.0.0,2.0.0,1.10.0,1.9.0")]
+        [DataRow("br/test:bicep/modules:", "1.9,2,1.10,10", "10,2,1.10,1.9")]
+        [DataRow("br/test:bicep/modules:", "v9,v10,v2,v100", "v100,v10,v9,v2")]
+        [DataRow("br/public:bicep/modules:", "latest,1.9.0,1.10.0,dev", "latest,dev,1.10.0,1.9.0")]
+        [DataRow("br:contoso.azurecr.io/bicep/modules:", "", "")]
+        public async Task GetFilteredCompletions_WithPrivateVersionCompletionContext_SortsVersionsDescending(
+            string reference,
+            string tags,
+            string expectedTags)
+        {
+            var bicepConfigFileContents = """
+                {
+                  "moduleAliases": {
+                    "br": {
+                      "test": {
+                        "registry": "contoso.azurecr.io"
+                      },
+                      "public": {
+                        "registry": "contoso.azurecr.io",
+                        "modulePath": ""
+                      }
+                    }
+                  }
+                }
+                """;
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
+                null,
+                RegistryCatalogMocks.MockPrivateMetadataProvider(
+                    "contoso.azurecr.io",
+                    [("bicep/modules", null, null, tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(tag => new RegistryHelper.RepoTagDescriptor(tag, $"Description for {tag}")))]));
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext($"module test '{reference}|'", bicepConfigFileContents);
+            var provider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalog,
+                settingsProvider,
+                BicepTestConstants.TestRegistryConfiguration);
+            var completions = (await GetAndResolveCompletionItems(sourceFile, completionContext, provider))
+                .OrderBy(c => c.SortText, StringComparer.Ordinal)
+                .ToArray();
+
+            completions.Select(c => c.Label).Should().Equal(expectedTags.Split(',', StringSplitOptions.RemoveEmptyEntries));
+            for (int i = 0; i < completions.Length; i++)
+            {
+                var completion = completions[i];
+                completion.SortText.Should().Be(i.ToString().PadLeft(4, '0'));
+                completion.TextEdit!.TextEdit!.NewText.Should().Be($"'{reference}{completion.Label}'$0");
+                completion.Detail.Should().Be($"Description for {completion.Label}");
+            }
+        }
+
         [TestMethod]
         public async Task GetFilteredCompletions_WithMcrVersionCompletionContext_AndNoMatchingModuleName_ReturnsEmptyListOfCompletionItems()
         {
