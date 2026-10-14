@@ -35,18 +35,20 @@ namespace Bicep.Core.Analyzers
 
                 var symbolicNameMap = new Dictionary<string, DeclaredResourceMetadata>(LanguageConstants.IdentifierComparer);
                 var resourcesByType = new Dictionary<string, List<(string SymbolicName, DeclaredResourceMetadata Metadata)>>(StringComparer.OrdinalIgnoreCase);
+                var hasModules = model.Root.ModuleDeclarations.Any();
 
                 foreach (var resource in model.DeclaredResources)
                 {
                     var symbolicName = Emit.ExpressionConverter.GetSymbolicName(model.ResourceAncestors, resource);
                     symbolicNameMap[symbolicName] = resource;
 
-                    if (resource.IsExistingResource)
+                    var resourceType = resource.Type.TypeReference.FormatType();
+                    if (resource.IsExistingResource ||
+                        (hasModules && resourceType.Equals(Emit.TemplateWriter.NestedDeploymentResourceType, StringComparison.OrdinalIgnoreCase)))
                     {
                         continue;
                     }
 
-                    var resourceType = resource.Type.TypeReference.FormatType();
                     if (!resourcesByType.TryGetValue(resourceType, out var resources))
                     {
                         resources = [];

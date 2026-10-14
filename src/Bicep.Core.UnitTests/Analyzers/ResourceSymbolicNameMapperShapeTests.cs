@@ -104,12 +104,21 @@ namespace Bicep.Core.UnitTests.Analyzers
         {
             var fileSet = MockFileSystemTestFileSet.Create(
                 ("main.bicep", """
-                    resource prior 'Microsoft.Resources/deployments@2022-09-01' existing = {
+                    resource explicitDeployment 'Microsoft.Resources/deployments@2022-09-01' = {
                       name: 'child'
+                      properties: {
+                        mode: 'Incremental'
+                        template: {
+                          '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+                          contentVersion: '1.0.0.0'
+                          resources: {}
+                        }
+                      }
                     }
 
                     module child './child.bicep' = {
                       name: 'child'
+                      scope: resourceGroup('other-rg')
                     }
                     """),
                 ("child.bicep", "metadata description = 'child'"));
@@ -127,7 +136,7 @@ namespace Bicep.Core.UnitTests.Analyzers
             var resources = result!.EnrichedResources.Should().BeOfType<JArray>().Subject;
             resources.OfType<JObject>()
                 .Select(resource => resource[ResourceSymbolicNameMapper.BicepSymbolicNameProperty]?.ToString())
-                .Should().BeEquivalentTo([null]);
+                .Should().BeEquivalentTo([null, null]);
         }
 
         [TestMethod]
