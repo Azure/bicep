@@ -11,12 +11,18 @@ namespace Bicep.Core.Emit
     public class EmitterSettings
     {
         public EmitterSettings(SemanticModel model)
+            : this(model, forceEnableSymbolicNames: false)
+        {
+        }
+
+        internal EmitterSettings(SemanticModel model, bool forceEnableSymbolicNames)
         {
             FileKind = model.SourceFileKind;
             UseExperimentalTemplateLanguageVersion = model.Features.EnabledFeatureMetadata.Any(feature => feature.usesExperimentalArmEngineFeature);
 
             // Symbolic names are used if (evaluated in increasing order of computational cost):
             EnableSymbolicNames =
+                forceEnableSymbolicNames ||
                 // we're targeting an experimental language version
                 UseExperimentalTemplateLanguageVersion ||
                 // symbolic name codegen has been explicitly enabled

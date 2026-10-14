@@ -138,4 +138,45 @@ public class TemplateEmitter
 
         return new EmitResult(EmitStatus.Succeeded, diagnostics, model.Features, sourceMap);
     }
+
+    private bool HasEmitBlockingErrors()
+    {
+        var sourceFile = model.SourceFile;
+        return sourceFile.LexingErrorLookup.Any(diagnostic => diagnostic.IsError())
+            || sourceFile.ParsingErrorLookup.Any(diagnostic => diagnostic.IsError())
+            || model.TypeManager.GetAllDiagnostics().Any(diagnostic => diagnostic.IsError());
+    }
+
+    /// <summary>
+    /// Emits a symbolic-name-keyed ARM template without mutating the semantic model's normal emitter settings.
+    /// </summary>
+    internal string? EmitWithForcedSymbolicNames()
+    {
+        if (HasEmitBlockingErrors())
+        {
+            return null;
+        }
+
+        try
+        {
+            var settings = new EmitterSettings(model, forceEnableSymbolicNames: true);
+            using var stringWriter = new StringWriter { NewLine = "\n" };
+            using (var writer = new SourceAwareJsonTextWriter(stringWriter, sourceFileToTrack: null)
+            {
+                CloseOutput = false,
+                Formatting = Formatting.Indented,
+            })
+            {
+                var templateWriter = TemplateWriterFactory.CreateTemplateWriter(model, settings);
+                templateWriter.Write(writer);
+                writer.Flush();
+            }
+
+            return stringWriter.ToString();
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }

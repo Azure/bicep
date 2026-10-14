@@ -69,8 +69,13 @@ namespace Bicep.Core.Emit
         private ImmutableDictionary<string, DeclaredTypeExpression> declaredTypesByName;
 
         public TemplateWriter(SemanticModel semanticModel)
+            : this(semanticModel, semanticModel.EmitterSettings)
         {
-            ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
+        }
+
+        internal TemplateWriter(SemanticModel semanticModel, EmitterSettings settings)
+        {
+            ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel, settings));
             declaredTypesByName = [];
         }
 
