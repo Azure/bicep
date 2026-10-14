@@ -22,6 +22,7 @@ namespace Bicep.LanguageServer.Extensions
                 Range = diagnostic.ToRange(lineStarts),
                 Tags = ToDiagnosticTags(diagnostic.Styling),
                 CodeDescription = GetDiagnosticDocumentation(diagnostic),
+                RelatedInformation = ToRelatedInformation(diagnostic.RelatedInformation),
             };
 
         private static CodeDescription? GetDiagnosticDocumentation(IDiagnostic diagnostic)
@@ -45,5 +46,24 @@ namespace Bicep.LanguageServer.Extensions
             DiagnosticStyling.ShowCodeDeprecated => new Container<DiagnosticTag>(DiagnosticTag.Deprecated),
             _ => throw new ArgumentException($"Unrecognized {nameof(DiagnosticStyling)} {styling}"),
         };
+
+        private static Container<DiagnosticRelatedInformation>? ToRelatedInformation(ImmutableArray<DiagnosticRelatedInfo> relatedInformation)
+        {
+            if (relatedInformation.IsDefaultOrEmpty)
+            {
+                return null;
+            }
+
+            return new Container<DiagnosticRelatedInformation>(
+                relatedInformation.Select(info => new DiagnosticRelatedInformation
+                {
+                    Location = new Location
+                    {
+                        Uri = info.FileUri,
+                        Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(info.Line, 0, info.Line, 0),
+                    },
+                    Message = info.Message,
+                }));
+        }
     }
 }

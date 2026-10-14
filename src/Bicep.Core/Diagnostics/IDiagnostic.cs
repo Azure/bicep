@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Immutable;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Text;
 
@@ -18,4 +19,6 @@ public interface IDiagnostic : IFixable, IPositionable
     string Message { get; }
 
     Uri? Uri { get; }
+
+    ImmutableArray<DiagnosticRelatedInfo> RelatedInformation => [];
 }

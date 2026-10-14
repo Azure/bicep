@@ -72,5 +72,55 @@ namespace Bicep.LangServer.UnitTests
             );
 
         }
+
+        [TestMethod]
+        public void CreateOmnisharpDiagnosticWithRelatedInformation()
+        {
+            var policyUri = new Uri("file:///c:/policies/security.rego");
+            IEnumerable<IDiagnostic> diags =
+            [
+                new Diagnostic(new TextSpan(0, 0), DiagnosticLevel.Warning, DiagnosticSource.CoreLinter, "policy-test", "Policy violation")
+                {
+                    RelatedInformation = [new DiagnosticRelatedInfo(policyUri, 13, "Policy rule defined here")],
+                },
+            ];
+
+            var diagnostic = diags.ToDiagnostics([0]).Should().ContainSingle().Subject;
+            var related = diagnostic.RelatedInformation.Should().ContainSingle().Subject;
+
+            related.Message.Should().Be("Policy rule defined here");
+            related.Location.Uri.ToString().Should().Be(policyUri.AbsoluteUri);
+            related.Location.Range.Start.Line.Should().Be(13);
+            related.Location.Range.Start.Character.Should().Be(0);
+        }
+
+        [TestMethod]
+        public void CreateOmnisharpDiagnosticWithoutRelatedInformation()
+        {
+            IEnumerable<IDiagnostic> diags =
+            [
+                new Diagnostic(new TextSpan(0, 0), DiagnosticLevel.Warning, DiagnosticSource.CoreLinter, "test-code", "No related info"),
+            ];
+
+            diags.ToDiagnostics([0]).Should().ContainSingle().Which.RelatedInformation.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void CreateOmnisharpDiagnosticRelatedInformation_PreservesNonFileUri()
+        {
+            var policyUri = new Uri("https://example.com/policy.rego");
+            IEnumerable<IDiagnostic> diags =
+            [
+                new Diagnostic(new TextSpan(0, 0), DiagnosticLevel.Warning, DiagnosticSource.CoreLinter, "policy-test", "Remote policy")
+                {
+                    RelatedInformation = [new DiagnosticRelatedInfo(policyUri, 0, "Remote rule")],
+                },
+            ];
+
+            var related = diags.ToDiagnostics([0]).Should().ContainSingle().Subject
+                .RelatedInformation.Should().ContainSingle().Subject;
+
+            related.Location.Uri.ToString().Should().Be(policyUri.AbsoluteUri);
+        }
     }
 }

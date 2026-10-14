@@ -23,6 +23,8 @@ public record Diagnostic(
 
     public ImmutableArray<CodeFix> Fixes { get; init; } = [];
 
+    public ImmutableArray<DiagnosticRelatedInfo> RelatedInformation { get; init; } = [];
+
     IEnumerable<CodeFix> IFixable.Fixes => Fixes;
 
     public Diagnostic WithAppendedFixes(params CodeFix[] fixes) => this with { Fixes = [.. this.Fixes, .. fixes] };
