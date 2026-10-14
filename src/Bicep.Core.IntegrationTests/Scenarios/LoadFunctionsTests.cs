@@ -945,6 +945,28 @@ var fileObj = loadYamlContent('file.yaml')
         }
 
         [DataTestMethod]
+        [DataRow("|", "\n", "", "line one\nline two\n")]
+        [DataRow("|", "\n", "\n", "line one\nline two\n")]
+        [DataRow("|", "\r\n", "", "line one\nline two\n")]
+        [DataRow("|", "\r\n", "\r\n", "line one\nline two\n")]
+        [DataRow("|-", "\n", "", "line one\nline two")]
+        [DataRow("|+", "\n", "", "line one\nline two\n")]
+        [DataRow(">", "\n", "", "line one line two\n")]
+        public void LoadYamlFunction_preserves_block_scalar_line_endings(string style, string lineEnding, string finalLineEnding, string expected)
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", """
+                    var y = loadYamlContent('file.yaml')
+                    output s string = y.script
+                    """),
+                ("file.yaml", $"script: {style}{lineEnding}  line one{lineEnding}  line two{finalLineEnding}"));
+
+            diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+            template.Should().NotBeNull();
+            template!.SelectToken("$.variables['$fxv#0'].script")!.Value<string>().Should().Be(expected);
+        }
+
+        [DataTestMethod]
         [DataRow("$")]
         [DataRow(".propObject")]
         [DataRow(".propArrayFloat[0]")]
