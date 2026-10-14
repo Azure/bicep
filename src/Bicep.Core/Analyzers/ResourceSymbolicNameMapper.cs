@@ -58,7 +58,10 @@ namespace Bicep.Core.Analyzers
                         {
                             if (resourcesArray[index] is JObject resource)
                             {
-                                resource[BicepSymbolicNameProperty] = MatchResourceToSymbolicName(resource, resourcesByType, index);
+                                if (MatchResourceToSymbolicName(resource, resourcesByType) is { } symbolicName)
+                                {
+                                    resource[BicepSymbolicNameProperty] = symbolicName;
+                                }
                             }
                         }
 
@@ -92,21 +95,15 @@ namespace Bicep.Core.Analyzers
 
         public static string? GetSymbolicName(JObject resource) => resource[BicepSymbolicNameProperty]?.ToString();
 
-        private static string MatchResourceToSymbolicName(
+        private static string? MatchResourceToSymbolicName(
             JObject resource,
-            Dictionary<string, List<(string SymbolicName, DeclaredResourceMetadata Metadata)>> resourcesByType,
-            int index)
+            Dictionary<string, List<(string SymbolicName, DeclaredResourceMetadata Metadata)>> resourcesByType)
         {
             var resourceType = resource["type"]?.ToString();
             var resourceName = resource["name"]?.ToString();
 
             if (resourceType is not null && resourcesByType.TryGetValue(resourceType, out var candidates))
             {
-                if (candidates.Count == 1)
-                {
-                    return candidates[0].SymbolicName;
-                }
-
                 if (resourceName is not null && !resourceName.StartsWith('['))
                 {
                     var exactMatches = candidates
@@ -144,7 +141,7 @@ namespace Bicep.Core.Analyzers
                 }
             }
 
-            return $"resource_{index}";
+            return null;
         }
     }
 }

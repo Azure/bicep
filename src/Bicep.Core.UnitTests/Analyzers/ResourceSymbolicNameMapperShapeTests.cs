@@ -5,6 +5,7 @@ using Bicep.Core.Analyzers;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -81,7 +82,7 @@ namespace Bicep.Core.UnitTests.Analyzers
                   kind: 'StorageV2'
                 }
 
-                resource dynamicResource 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                resource resource_1 'Microsoft.Storage/storageAccounts@2023-01-01' = {
                   name: foo
                   location: 'eastus'
                   sku: { name: 'Standard_LRS' }
@@ -95,7 +96,46 @@ namespace Bicep.Core.UnitTests.Analyzers
             var resources = result!.EnrichedResources.Should().BeOfType<JArray>().Subject;
             resources.OfType<JObject>()
                 .Select(resource => resource[ResourceSymbolicNameMapper.BicepSymbolicNameProperty]?.ToString())
-                .Should().BeEquivalentTo(["literalResource", "resource_1"]);
+                .Should().BeEquivalentTo(["literalResource", null]);
+        }
+
+        [TestMethod]
+        public async Task BuildMapping_ArrayShape_DoesNotMapModuleToExplicitDeploymentResource()
+        {
+            var fileSet = MockFileSystemTestFileSet.Create(
+                ("main.bicep", """
+                    resource deployment 'Microsoft.Resources/deployments@2022-09-01' = {
+                      name: 'explicit'
+                      properties: {
+                        mode: 'Incremental'
+                        template: {
+                          '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+                          contentVersion: '1.0.0.0'
+                          resources: {}
+                        }
+                      }
+                    }
+
+                    module child './child.bicep' = {
+                      name: 'child'
+                    }
+                    """),
+                ("child.bicep", "metadata description = 'child'"));
+            var compiler = Services
+                .WithFileExplorer(fileSet.FileExplorer)
+                .WithFileSystem(fileSet.FileSystem)
+                .Build()
+                .GetCompiler();
+            var compilation = await compiler.CreateCompilation(fileSet.GetUri("main.bicep"));
+            var model = compilation.GetEntrypointSemanticModel();
+
+            var result = ResourceSymbolicNameMapper.BuildMapping(EmitNormally(model), model);
+
+            result.Should().NotBeNull();
+            var resources = result!.EnrichedResources.Should().BeOfType<JArray>().Subject;
+            resources.OfType<JObject>()
+                .Select(resource => resource[ResourceSymbolicNameMapper.BicepSymbolicNameProperty]?.ToString())
+                .Should().BeEquivalentTo(["deployment", null]);
         }
 
         private static string EmitNormally(SemanticModel model)
