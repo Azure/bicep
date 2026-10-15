@@ -210,6 +210,19 @@ describe("App", () => {
 
     expect(screen.getByText(/Expected ',' or '}' after property value/)).toBeInTheDocument();
   });
+
+  it("loads parameters from a picked Bicep parameters file", async () => {
+    const { container } = render(<App />);
+
+    await initialize({ parametersJson: emptyParametersJson });
+    sendMessage(
+      createDeploymentDataMessage("/tmp/main.bicepparam", false, templateJson, parametersJson),
+    );
+
+    expect(container.querySelector("vscode-textfield")?.getAttribute("value")).toBe("/tmp/main.bicepparam");
+    expect(screen.queryByText("Pick Parameters File")).not.toBeInTheDocument();
+    expect(screen.queryByText("Edit Parameters")).not.toBeInTheDocument();
+  });
 });
 
 async function initialize(data: { templateJson?: string; parametersJson?: string } = {}) {
