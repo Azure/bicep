@@ -66,11 +66,13 @@ namespace Bicep.Core.Analyzers
                 switch (resourcesToken)
                 {
                     case JArray resourcesArray:
+                        var emittedIdentityCounts = CountEmittedResourceIdentities(resourcesArray);
                         for (var index = 0; index < resourcesArray.Count; index++)
                         {
                             if (resourcesArray[index] is JObject resource)
                             {
-                                if (MatchResourceToSymbolicName(resource, resourcesByType) is { } symbolicName)
+                                if (HasUniqueEmittedIdentity(resource, emittedIdentityCounts) &&
+                                    MatchResourceToSymbolicName(resource, resourcesByType) is { } symbolicName)
                                 {
                                     resource[BicepSymbolicNameProperty] = symbolicName;
                                 }
@@ -106,6 +108,47 @@ namespace Bicep.Core.Analyzers
                 : TextSpan.TextDocumentStart;
 
         public static string? GetSymbolicName(JObject resource) => resource[BicepSymbolicNameProperty]?.ToString();
+
+        private static Dictionary<string, Dictionary<string, int>> CountEmittedResourceIdentities(JArray resources)
+        {
+            var counts = new Dictionary<string, Dictionary<string, int>>(StringComparer.OrdinalIgnoreCase);
+            foreach (var resource in resources.OfType<JObject>())
+            {
+                if (TryGetEmittedIdentity(resource) is not { } identity)
+                {
+                    continue;
+                }
+
+                if (!counts.TryGetValue(identity.Type, out var names))
+                {
+                    names = new(StringComparer.OrdinalIgnoreCase);
+                    counts[identity.Type] = names;
+                }
+
+                names.TryGetValue(identity.Name, out var count);
+                names[identity.Name] = count + 1;
+            }
+
+            return counts;
+        }
+
+        private static bool HasUniqueEmittedIdentity(
+            JObject resource,
+            Dictionary<string, Dictionary<string, int>> emittedIdentityCounts) =>
+            TryGetEmittedIdentity(resource) is { } identity &&
+            emittedIdentityCounts.TryGetValue(identity.Type, out var names) &&
+            names.TryGetValue(identity.Name, out var count) &&
+            count == 1;
+
+        private static (string Type, string Name)? TryGetEmittedIdentity(JObject resource)
+        {
+            var type = resource["type"]?.ToString();
+            var name = resource["name"]?.ToString();
+
+            return type is not null && name is not null
+                ? (type, name)
+                : null;
+        }
 
         /// <summary>
         /// Matches a legacy array resource to one literal Bicep resource declaration.

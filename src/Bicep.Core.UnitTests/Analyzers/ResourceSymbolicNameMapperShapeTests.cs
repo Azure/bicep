@@ -100,6 +100,48 @@ namespace Bicep.Core.UnitTests.Analyzers
         }
 
         [TestMethod]
+        public void BuildMapping_ArrayShape_DuplicateEmittedIdentityRemainsUnattributed()
+        {
+            var model = Services.BuildCompilation("""
+                resource literalLock 'Microsoft.Authorization/locks@2020-05-01' = {
+                  name: 'lock'
+                  properties: {
+                    level: 'CanNotDelete'
+                  }
+                }
+
+                resource expressionLock 'Microsoft.Authorization/locks@2020-05-01' = {
+                  name: any('lock')
+                  properties: {
+                    level: 'CanNotDelete'
+                  }
+                }
+                """).GetEntrypointSemanticModel();
+            const string templateJson = """
+                {
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/locks",
+                      "name": "lock"
+                    },
+                    {
+                      "type": "Microsoft.Authorization/locks",
+                      "name": "lock"
+                    }
+                  ]
+                }
+                """;
+
+            var result = ResourceSymbolicNameMapper.BuildMapping(templateJson, model);
+
+            result.Should().NotBeNull();
+            var resources = result!.EnrichedResources.Should().BeOfType<JArray>().Subject;
+            resources.OfType<JObject>()
+                .Select(resource => resource[ResourceSymbolicNameMapper.BicepSymbolicNameProperty]?.ToString())
+                .Should().Equal(null, null);
+        }
+
+        [TestMethod]
         public async Task BuildMapping_ArrayShape_DoesNotMapModuleToExplicitDeploymentResource()
         {
             var fileSet = MockFileSystemTestFileSet.Create(
