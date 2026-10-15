@@ -46,7 +46,7 @@ export class DeployPaneView extends Disposable {
 
   private readyToRender = false;
   private document?: TextDocument;
-  private localDeployDocumentUri: Uri;
+  private deploymentDocumentUri: Uri;
 
   private constructor(
     private readonly extensionContext: ExtensionContext,
@@ -59,7 +59,7 @@ export class DeployPaneView extends Disposable {
   ) {
     super();
 
-    this.localDeployDocumentUri = documentUri;
+    this.deploymentDocumentUri = documentUri;
     this.onDidDisposeEmitter = new EventEmitter<void>();
     this.onDidChangeViewStateEmitter = this.register(new EventEmitter<WebviewPanelOnDidChangeViewStateEvent>());
     this.ready = new Promise((resolve) => (this.resolveReady = resolve));
@@ -161,7 +161,7 @@ export class DeployPaneView extends Disposable {
     }
 
     try {
-      this.document = await workspace.openTextDocument(this.documentUri);
+      this.document = await workspace.openTextDocument(this.deploymentDocumentUri);
     } catch {
       this.webviewPanel.webview.html = this.createDocumentNotFoundHtml();
       return;
@@ -182,7 +182,7 @@ export class DeployPaneView extends Disposable {
     try {
       await this.webviewPanel.webview.postMessage(
         createDeploymentDataMessage(
-          this.documentUri.fsPath,
+          this.deploymentDocumentUri.fsPath,
           deploymentData.localDeployEnabled,
           deploymentData.templateJson,
           deploymentData.parametersJson,
@@ -229,7 +229,7 @@ export class DeployPaneView extends Disposable {
         });
         if (parametersFileUri[0].fsPath.endsWith(".bicepparam")) {
           const document = await workspace.openTextDocument(parametersFileUri[0]);
-          this.localDeployDocumentUri = parametersFileUri[0];
+          this.deploymentDocumentUri = parametersFileUri[0];
           const deploymentData = await this.languageClient.sendRequest(getDeploymentDataRequestType, {
             textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
           });
@@ -268,7 +268,7 @@ export class DeployPaneView extends Disposable {
         return;
       }
       case "LOCAL_DEPLOY": {
-        const document = await workspace.openTextDocument(this.localDeployDocumentUri);
+        const document = await workspace.openTextDocument(this.deploymentDocumentUri);
         const result = await this.languageClient.sendRequest(localDeployRequestType, {
           textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
         });
