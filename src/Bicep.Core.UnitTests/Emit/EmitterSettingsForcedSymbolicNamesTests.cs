@@ -27,6 +27,28 @@ namespace Bicep.Core.UnitTests.Emit
             }
             """;
 
+        private const string LegacyOuterScopedDeploymentBicep = """
+            param tags object
+
+            resource nestedDeployment 'Microsoft.Resources/deployments@2020-10-01' = {
+              name: 'nested'
+              properties: {
+                mode: 'Incremental'
+                template: {
+                  '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+                  contentVersion: '1.0.0.0'
+                  resources: []
+                  outputs: {
+                    tags: {
+                      type: 'object'
+                      value: tags
+                    }
+                  }
+                }
+              }
+            }
+            """;
+
         [TestMethod]
         public void EmitterSettings_Default_LeavesEnableSymbolicNamesOff()
         {
@@ -99,6 +121,37 @@ namespace Bicep.Core.UnitTests.Emit
         }
 
         [TestMethod]
+        public void TemplateEmitter_ForcedPathRejectsLegacyOuterScopedNestedDeploymentReferences()
+        {
+            var model = Services.BuildCompilation(LegacyOuterScopedDeploymentBicep).GetEntrypointSemanticModel();
+
+            new TemplateEmitter(model).EmitWithForcedSymbolicNames().Should().BeNull();
+        }
+
+        [TestMethod]
+        public void TemplateEmitter_ForcedPathAllowsNestedDeploymentWithoutOuterReferences()
+        {
+            var model = Services.BuildCompilation("""
+                resource nestedDeployment 'Microsoft.Resources/deployments@2020-10-01' = {
+                  name: 'nested'
+                  properties: {
+                    mode: 'Incremental'
+                    template: {
+                      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+                      contentVersion: '1.0.0.0'
+                      resources: []
+                    }
+                  }
+                }
+                """).GetEntrypointSemanticModel();
+
+            var forcedJson = new TemplateEmitter(model).EmitWithForcedSymbolicNames();
+
+            forcedJson.Should().NotBeNullOrEmpty();
+            JObject.Parse(forcedJson!)["languageVersion"]!.Value<string>().Should().Be("2.0");
+        }
+
+        [TestMethod]
         public void TemplateEmitter_ForcedPathIsSafeDuringAggregateDiagnosticAssembly()
         {
             var analyzer = new ForcedEmissionAnalyzer();
@@ -140,6 +193,30 @@ namespace Bicep.Core.UnitTests.Emit
             var normalTemplate = JObject.Parse(normalJson);
             normalTemplate["resources"]![0]!["properties"]!["template"]!["resources"]!.Type
                 .Should().Be(JTokenType.Array);
+        }
+
+        [TestMethod]
+        public async Task TemplateEmitter_ForcedPathRejectsLegacyOuterScopedNestedDeploymentReferencesInModules()
+        {
+            var fileSet = MockFileSystemTestFileSet.Create(
+                ("main.bicep", """
+                    module child './child.bicep' = {
+                      name: 'child'
+                      params: {
+                        tags: {}
+                      }
+                    }
+                    """),
+                ("child.bicep", LegacyOuterScopedDeploymentBicep));
+            var compiler = Services
+                .WithFileExplorer(fileSet.FileExplorer)
+                .WithFileSystem(fileSet.FileSystem)
+                .Build()
+                .GetCompiler();
+            var compilation = await compiler.CreateCompilation(fileSet.GetUri("main.bicep"));
+            var model = compilation.GetEntrypointSemanticModel();
+
+            new TemplateEmitter(model).EmitWithForcedSymbolicNames().Should().BeNull();
         }
 
         private static string EmitNormally(SemanticModel model)
