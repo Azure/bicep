@@ -6,6 +6,7 @@ using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
 using FluentAssertions;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.IO.UnitTests;
 
@@ -88,7 +89,7 @@ public class IOHandleReparsePointTests
                 Assert.Inconclusive("Creating symbolic links requires Developer Mode or elevated privileges on Windows.");
             }
 
-            var explorer = new FileSystemFileExplorer(new System.IO.Abstractions.FileSystem());
+            var explorer = new FileSystemFileExplorer(new LocalFileSystem());
             var linkUri = IOUri.FromFilePath(link);
             var targetUri = IOUri.FromFilePath(target);
             IIOHandle linkHandle = isDirectory ? explorer.GetDirectory(linkUri) : explorer.GetFile(linkUri);

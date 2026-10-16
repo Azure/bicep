@@ -23,6 +23,7 @@ using Bicep.Core.UnitTests.Mock.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -42,7 +43,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
         private static IOciRegistryTransportFactory CreateTransportFactory(IContainerRegistryClientFactory clientFactory)
         {
             var transport = new AzureContainerRegistryManager(clientFactory);
-            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new Bicep.IO.InMemory.InMemoryFileExplorer());
+            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new InMemoryFileExplorer());
             return new OciRegistryTransportFactory(transport, dockerCredentials);
         }
 

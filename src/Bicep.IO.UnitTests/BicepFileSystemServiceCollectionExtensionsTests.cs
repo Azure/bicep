@@ -8,6 +8,7 @@ using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.IO.UnitTests;
 
@@ -19,7 +20,7 @@ public class BicepFileSystemServiceCollectionExtensionsTests
     {
         using var provider = new ServiceCollection().AddBicepFileSystem().BuildServiceProvider();
 
-        provider.GetRequiredService<IFileSystem>().Should().BeOfType<System.IO.Abstractions.FileSystem>();
+        provider.GetRequiredService<IFileSystem>().Should().BeOfType<LocalFileSystem>();
         provider.GetRequiredService<IFileExplorer>().Should().BeOfType<FileSystemFileExplorer>();
     }
 
