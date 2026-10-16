@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
-using System.IO.Abstractions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Tracing;
 using Bicep.IO.Abstraction;

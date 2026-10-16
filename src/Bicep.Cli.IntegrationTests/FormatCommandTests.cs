@@ -153,7 +153,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
-        public async Task Format_should_format_files_matching_pattern(bool useRootPath)
+        public async Task Format_FilesMatchPattern_FormatsOnlyMatchingFiles(bool useRootPath)
         {
             var unformatted = """
 output     myOutput     string    =    'hello!'
@@ -163,7 +163,7 @@ output myOutput string = 'hello!'
 
 """;
 
-            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var outputPath = Path.GetFullPath("/pattern-format");
             var fileSystem = new MockFileSystem();
             var fileResults = new[]
             {
@@ -175,7 +175,6 @@ output myOutput string = 'hello!'
             foreach (var (input, _) in fileResults)
             {
                 fileSystem.AddFile($"{outputPath}/{input}", unformatted);
-                FileHelper.SaveResultFile(TestContext, input, unformatted, outputPath);
             }
 
             if (!useRootPath)
