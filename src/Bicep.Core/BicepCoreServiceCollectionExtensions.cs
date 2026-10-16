@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions;
 using System.Net;
 using Azure.Bicep.Types.Az;
 using Bicep.Core;
@@ -24,12 +23,9 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.Utils;
-using Bicep.IO.Abstraction;
-using Bicep.IO.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Environment = Bicep.Core.Utils.Environment;
-using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -63,8 +59,7 @@ public static class BicepCoreServiceCollectionExtensions
         services.TryAddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>();
         services.TryAddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
         services.TryAddSingleton<IEnvironment, Environment>();
-        services.TryAddSingleton<IFileSystem, LocalFileSystem>();
-        services.TryAddSingleton<IFileExplorer, FileSystemFileExplorer>();
+        services.AddBicepFileSystem();
         services.TryAddSingleton<IAuxiliaryFileCache, AuxiliaryFileCache>();
         services.TryAddSingleton<ExplicitConfigurationContext>();
         services.TryAddSingleton<BicepConfigurationManager>();
