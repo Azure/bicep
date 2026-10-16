@@ -5,6 +5,8 @@ using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit.Options;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Types;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
@@ -137,5 +139,98 @@ public class TemplateEmitter
         var sourceMap = write();
 
         return new EmitResult(EmitStatus.Succeeded, diagnostics, model.Features, sourceMap);
+    }
+
+    /// <summary>
+    /// Checks emit-blocking diagnostics without invoking aggregate diagnostics or linters.
+    /// </summary>
+    private bool HasEmitBlockingErrors()
+    {
+        // Analyzers call this while aggregate diagnostics are being assembled, so avoid GetAllDiagnostics() re-entry.
+        var sourceFile = model.SourceFile;
+        var diagnosticWriter = ToListDiagnosticWriter.Create();
+        var visitor = new SemanticDiagnosticVisitor(diagnosticWriter);
+        visitor.Visit(model.Root);
+
+        foreach (var missingDeclarationSyntax in sourceFile.ProgramSyntax.Children.OfType<MissingDeclarationSyntax>())
+        {
+            model.TypeManager.GetTypeInfo(missingDeclarationSyntax);
+        }
+
+        diagnosticWriter.WriteMultiple(model.TypeManager.GetAllDiagnostics());
+        diagnosticWriter.WriteMultiple(model.EmitLimitationInfo.Diagnostics);
+        ScopeHelper.GetResourceScopeInfo(model, diagnosticWriter);
+        ScopeHelper.GetModuleScopeInfo(model, diagnosticWriter);
+
+        return sourceFile.LexingErrorLookup.Any(diagnostic => diagnostic.IsError())
+            || sourceFile.ParsingErrorLookup.Any(diagnostic => diagnostic.IsError())
+            || diagnosticWriter.GetDiagnostics().Any(diagnostic => diagnostic.IsError());
+    }
+
+    private static bool HasLegacyOuterScopeReferences(SemanticModel semanticModel, HashSet<SemanticModel> visitedModels)
+    {
+        if (!visitedModels.Add(semanticModel))
+        {
+            return false;
+        }
+
+        var topLevelSymbols = semanticModel.Root.Declarations.ToHashSet();
+        foreach (var resource in semanticModel.DeclaredResources.Where(resource => resource.IsAzResource))
+        {
+            if (!LanguageConstants.ResourceTypeComparer.Equals(resource.TypeReference.FormatType(), TemplateWriter.NestedDeploymentResourceType) ||
+                resource.Symbol.DeclaringResource.TryGetBody()?.TryGetPropertyByName(LanguageConstants.ResourcePropertiesPropertyName)?.Value is not ObjectSyntax propertiesObject ||
+                propertiesObject.TryGetPropertyByName("template", StringComparison.OrdinalIgnoreCase)?.Value is not SyntaxBase nestedTemplate)
+            {
+                continue;
+            }
+
+            var explicitInnerScope = (propertiesObject.TryGetPropertyByName("expressionEvaluationOptions", StringComparison.OrdinalIgnoreCase)?.Value as ObjectSyntax)
+                ?.TryGetPropertyByName("scope", StringComparison.OrdinalIgnoreCase)?.Value is SyntaxBase explicitScope &&
+                semanticModel.GetTypeInfo(explicitScope) is StringLiteralType foldedScope &&
+                foldedScope.RawStringValue.Equals("inner", StringComparison.OrdinalIgnoreCase);
+
+            if (!explicitInnerScope &&
+                SymbolicReferenceCollector.CollectSymbolsReferenced(semanticModel.Binder, nestedTemplate).Keys.Any(topLevelSymbols.Contains))
+            {
+                return true;
+            }
+        }
+
+        return semanticModel.Root.ModuleDeclarations.Any(module =>
+            module.TryGetSemanticModel().TryUnwrap() is SemanticModel moduleModel &&
+            HasLegacyOuterScopeReferences(moduleModel, visitedModels));
+    }
+
+    /// <summary>
+    /// Emits a symbolic-name-keyed ARM template without mutating the semantic model's normal emitter settings.
+    /// </summary>
+    internal string? EmitWithForcedSymbolicNames()
+    {
+        if (HasEmitBlockingErrors() || HasLegacyOuterScopeReferences(model, []))
+        {
+            return null;
+        }
+
+        try
+        {
+            var settings = new EmitterSettings(model, forceEnableSymbolicNames: true);
+            using var stringWriter = new StringWriter { NewLine = "\n" };
+            using (var writer = new SourceAwareJsonTextWriter(stringWriter, sourceFileToTrack: null)
+            {
+                CloseOutput = false,
+                Formatting = Formatting.Indented,
+            })
+            {
+                var templateWriter = TemplateWriterFactory.CreateTemplateWriter(model, settings);
+                templateWriter.Write(writer);
+                writer.Flush();
+            }
+
+            return stringWriter.ToString();
+        }
+        catch
+        {
+            return null;
+        }
     }
 }
