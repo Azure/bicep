@@ -10,6 +10,7 @@ public static class DiagnosticSourceExtensions
         {
             DiagnosticSource.Compiler => "bicep",
             DiagnosticSource.CoreLinter => "bicep core linter",
+            DiagnosticSource.PolicyLinter => "bicep policy linter",
             _ => throw new ArgumentException($"Unrecognized source {source}"),
         };
 }

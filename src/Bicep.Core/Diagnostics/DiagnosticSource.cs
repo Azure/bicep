@@ -7,4 +7,5 @@ public enum DiagnosticSource
 {
     Compiler,
     CoreLinter,
+    PolicyLinter,
 }

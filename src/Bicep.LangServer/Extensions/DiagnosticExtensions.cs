@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using LspDiagnostic = OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic;
+using LspDiagnosticRelatedInformation = OmniSharp.Extensions.LanguageServer.Protocol.Models.DiagnosticRelatedInformation;
 
 namespace Bicep.LanguageServer.Extensions
 {
@@ -22,6 +23,7 @@ namespace Bicep.LanguageServer.Extensions
                 Range = diagnostic.ToRange(lineStarts),
                 Tags = ToDiagnosticTags(diagnostic.Styling),
                 CodeDescription = GetDiagnosticDocumentation(diagnostic),
+                RelatedInformation = ToRelatedInformation(diagnostic.RelatedInformation),
             };
 
         private static CodeDescription? GetDiagnosticDocumentation(IDiagnostic diagnostic)
@@ -45,5 +47,24 @@ namespace Bicep.LanguageServer.Extensions
             DiagnosticStyling.ShowCodeDeprecated => new Container<DiagnosticTag>(DiagnosticTag.Deprecated),
             _ => throw new ArgumentException($"Unrecognized {nameof(DiagnosticStyling)} {styling}"),
         };
+
+        private static Container<LspDiagnosticRelatedInformation>? ToRelatedInformation(ImmutableArray<Bicep.Core.Diagnostics.DiagnosticRelatedInformation> relatedInformation)
+        {
+            if (relatedInformation.IsDefaultOrEmpty)
+            {
+                return null;
+            }
+
+            return new Container<LspDiagnosticRelatedInformation>(
+                relatedInformation.Select(info => new LspDiagnosticRelatedInformation
+                {
+                    Location = new Location
+                    {
+                        Uri = info.FileUri,
+                        Range = info.Range.ToRange(),
+                    },
+                    Message = info.Message,
+                }));
+        }
     }
 }
