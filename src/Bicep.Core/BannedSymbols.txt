@@ -47,3 +47,5 @@ T:System.IO.DirectoryInfo;Don't use System.IO for file operations. Use APIs from
 T:System.IO.Path;Don't use System.IO for file operations. Use APIs from Bicep.IO.Abstraction instead.
 T:System.IO.Abstractions.IFileSystem;Don't use System.IO.Abstractions for file operations. Use APIs from Bicep.IO.Abstraction instead.
 T:System.IO.Abstractions.FileSystem;Don't use System.IO.Abstractions for file operations. Use APIs from Bicep.IO.Abstraction instead.
+M:Microsoft.Extensions.FileSystemGlobbing.MatcherExtensions.GetResultsInFullPath(Microsoft.Extensions.FileSystemGlobbing.Matcher,System.String);Reads the disk directly. Enumerate files through Bicep.IO.Abstraction and use Matcher.Match instead.
+T:Microsoft.Extensions.FileSystemGlobbing.Abstractions.DirectoryInfoWrapper;Reads the disk directly. Enumerate files through Bicep.IO.Abstraction and use Matcher.Match instead.
