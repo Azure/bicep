@@ -25,6 +25,8 @@ namespace Bicep.IO.InMemory
 
         public bool Exists() => throw new UnreachableException();
 
+        public bool IsReparsePoint() => throw new UnreachableException();
+
         public IDirectoryHandle GetParent() => throw new FileNotFoundException();
 
         public void MakeExecutable() => throw new UnreachableException();
