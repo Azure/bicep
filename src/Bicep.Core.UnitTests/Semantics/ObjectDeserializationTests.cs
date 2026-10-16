@@ -196,6 +196,36 @@ namespace Bicep.Core.UnitTests.Semantics
             Assert.AreEqual("Louaryland", jToken["addresses"]!["home"]!["city"]);
         }
 
+        [DataTestMethod]
+        [DataRow("script: |\n  line one\n  line two", "line one\nline two\n")]
+        [DataRow("script: |\n  line one\n  line two\n", "line one\nline two\n")]
+        [DataRow("script: |\r\n  line one\r\n  line two", "line one\nline two\n")]
+        [DataRow("script: |\r\n  line one\r\n  line two\r\n", "line one\nline two\n")]
+        [DataRow("script: |-\n  line one\n  line two", "line one\nline two")]
+        [DataRow("script: |-\n  line one\n  line two\n\n", "line one\nline two")]
+        [DataRow("script: |+\n  line one\n  line two", "line one\nline two\n")]
+        [DataRow("script: |+\n  line one\n  line two\n\n", "line one\nline two\n\n")]
+        [DataRow("script: |+\r  line one\r  line two\r", "line one\nline two\n")]
+        [DataRow("script: |+\n  line one\n  line two\u0085", "line one\nline two\n")]
+        [DataRow("script: |+\n  line one\n  line two\u2028", "line one\nline two\n")]
+        [DataRow("script: |+\n  line one\n  line two\u2029", "line one\nline two\n")]
+        [DataRow("script: >\n  line one\n  line two", "line one line two\n")]
+        [DataRow("script: >-\n  line one\n  line two", "line one line two")]
+        [DataRow("script: >+\n  line one\n  line two", "line one line two\n")]
+        [DataRow("script: >+\n  line one\n  line two\n\n", "line one line two\n\n")]
+        [DataRow("script: |", "")]
+        [DataRow("script: |-", "")]
+        [DataRow("script: |+", "")]
+        [DataRow("script: line one", "line one")]
+        [DataRow("script: \"line one\\nline two\\0\"", "line one\nline two\0")]
+        public void YAML_scalar_line_endings_are_preserved(string yml, string expected)
+        {
+            var span = new TextSpan(0, 0);
+            Assert.IsTrue(new YamlObjectParser().TryExtractFromObject(yml, null, [span]).IsSuccess(out var jToken));
+
+            Assert.AreEqual(expected, jToken!["script"]!.Value<string>());
+        }
+
         [TestMethod]
         public void YAML_scalar_alias_gets_deserialized_into_JSON()
         {
