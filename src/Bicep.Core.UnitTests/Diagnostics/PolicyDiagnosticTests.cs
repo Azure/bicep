@@ -63,10 +63,20 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         [TestMethod]
+        public void RelatedInformation_InterfaceRequiresAnImplementation()
+        {
+            var getter = typeof(IDiagnostic).GetProperty(nameof(IDiagnostic.RelatedInformation))?.GetMethod;
+
+            getter.Should().NotBeNull();
+            getter!.IsAbstract.Should().BeTrue();
+        }
+
+        [TestMethod]
         public void RelatedInformation_IsAnImmutableValueCollection()
         {
             var policyUri = new Uri("file:///c:/policies/security.rego");
-            var first = new DiagnosticRelatedInfo(policyUri, 13, "Rule defined here");
+            var range = new TextRange(13, 4, 15, 8);
+            var first = new DiagnosticRelatedInformation(policyUri, range, "Rule defined here");
             var diagnosticWithoutRelatedInformation = new Diagnostic(
                 TextSpan.TextDocumentStart,
                 DiagnosticLevel.Warning,
@@ -76,12 +86,14 @@ namespace Bicep.Core.UnitTests.Diagnostics
             var diagnostic = diagnosticWithoutRelatedInformation with { RelatedInformation = [first] };
 
             diagnosticWithoutRelatedInformation.RelatedInformation.Should().BeEmpty();
-            ImmutableArray<DiagnosticRelatedInfo> original = diagnostic.RelatedInformation;
-            var extended = original.Add(new DiagnosticRelatedInfo(policyUri, 20, "Condition defined here"));
+            ImmutableArray<DiagnosticRelatedInformation> original = diagnostic.RelatedInformation;
+            var extended = original.Add(new DiagnosticRelatedInformation(policyUri, new TextRange(20, 0, 20, 0), "Condition defined here"));
 
             original.Should().ContainSingle().Which.Should().Be(first);
             extended.Should().HaveCount(2);
-            new DiagnosticRelatedInfo(policyUri, 13, "Rule defined here").Should().Be(first);
+            first.Range.Should().Be(range);
+            new DiagnosticRelatedInformation(policyUri, range, "Rule defined here").Should().Be(first);
+            (first with { Range = new TextRange(13, 4, 15, 9) }).Should().NotBe(first);
             (diagnostic with { RelatedInformation = [] }).RelatedInformation.Should().BeEmpty();
         }
     }

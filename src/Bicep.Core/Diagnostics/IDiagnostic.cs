@@ -20,5 +20,5 @@ public interface IDiagnostic : IFixable, IPositionable
 
     Uri? Uri { get; }
 
-    ImmutableArray<DiagnosticRelatedInfo> RelatedInformation => [];
+    ImmutableArray<DiagnosticRelatedInformation> RelatedInformation { get; }
 }
