@@ -13,19 +13,30 @@ public class YamlObjectParser : ObjectParser
 {
     protected override ResultWithDiagnostic<JToken> ExtractTokenFromObject(string fileContent, IPositionable positionable)
     {
-        if (TryDeserialize(fileContent) is { } deserialized)
+        if (TryDeserialize(fileContent, out var hasMultipleDocuments) is { } deserialized)
         {
             return new(JToken.FromObject(deserialized));
         }
 
-        return new(DiagnosticBuilder.ForPosition(positionable).UnparsableYamlType());
+        var diagnosticBuilder = DiagnosticBuilder.ForPosition(positionable);
+        return new(hasMultipleDocuments
+            ? diagnosticBuilder.MultiDocumentYamlNotSupported()
+            : diagnosticBuilder.UnparsableYamlType());
     }
 
-    private static object? TryDeserialize(string fileContent)
+    private static object? TryDeserialize(string fileContent, out bool hasMultipleDocuments)
     {
+        hasMultipleDocuments = false;
+
         try
         {
             var yamlStream = YamlStream.Load(new StringReader(fileContent), null);
+            if (yamlStream.Count > 1)
+            {
+                hasMultipleDocuments = true;
+                return null;
+            }
+
             if (yamlStream.Count == 0 || yamlStream[0].Contents is not { } contents)
             {
                 return null;
