@@ -84,7 +84,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Returns(blobClient);
 
             var azureTransport = new AzureContainerRegistryManager(clientFactory.Object);
-            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new MockFileSystem());
+            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new Bicep.IO.InMemory.InMemoryFileExplorer());
             var transportFactory = new OciRegistryTransportFactory(azureTransport, dockerCredentials);
             var registry = new OciArtifactRegistry(
                 BicepTestConstants.TestRegistryConfiguration,

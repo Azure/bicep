@@ -73,7 +73,7 @@ public class OciRegistryTransportFactoryTests
     {
         var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
         var azure = new AzureContainerRegistryManager(clientFactory);
-        var docker = new DockerCredentialProvider(TestEnvironment.Default, new MockFileSystem());
+        var docker = new DockerCredentialProvider(TestEnvironment.Default, new Bicep.IO.InMemory.InMemoryFileExplorer());
         return (new OciRegistryTransportFactory(azure, docker), azure);
     }
 }

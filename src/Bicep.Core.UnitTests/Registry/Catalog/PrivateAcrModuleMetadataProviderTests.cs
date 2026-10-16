@@ -42,7 +42,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
         private static IOciRegistryTransportFactory CreateTransportFactory(IContainerRegistryClientFactory clientFactory)
         {
             var transport = new AzureContainerRegistryManager(clientFactory);
-            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new MockFileSystem());
+            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new Bicep.IO.InMemory.InMemoryFileExplorer());
             return new OciRegistryTransportFactory(transport, dockerCredentials);
         }
 
