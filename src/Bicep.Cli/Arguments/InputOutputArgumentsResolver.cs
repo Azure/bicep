@@ -3,6 +3,7 @@
 
 using System.IO.Abstractions;
 using Azure.Deployments.Core.Extensions;
+using Bicep.Cli.Helpers;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.FileSystemGlobbing;
 
@@ -210,13 +211,11 @@ namespace Bicep.Cli.Arguments
             Matcher matcher = new();
             matcher.AddInclude(relativePattern);
 
-            var relativePaths = new List<string>();
-            foreach (var filePath in matcher.GetResultsInFullPath(rootPath))
-            {
-                var fileUri = IOUri.FromFilePath(filePath);
-                var relativePath = fileUri.GetPathRelativeTo(rootUri);
-                relativePaths.Add(relativePath);
-            }
+            var root = new FileSystemGlobbingDirectory(this.fileSystem.DirectoryInfo.New(rootPath));
+            var relativePaths = matcher.Execute(root).Files
+                .Select(match => rootUri.Resolve(match.Path).GetPathRelativeTo(rootUri))
+                .Order(StringComparer.Ordinal)
+                .ToArray();
 
             return (rootUri, relativePaths);
         }

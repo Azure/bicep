@@ -95,14 +95,11 @@ public class ConfigOptionTests : TestBase
     [TestMethod]
     public async Task Build_WithPatternAndConfig_AppliesExplicitConfigurationToEveryInput()
     {
-        // --pattern globbing (Microsoft.Extensions.FileSystemGlobbing) reads the real disk rather than IFileSystem,
-        // so this test cannot use a mock file system.
-        var root = FileHelper.GetUniqueTestOutputPath(TestContext);
-        FileHelper.SaveResultFile(TestContext, "main.bicep", "param foo string", root);
-        FileHelper.SaveResultFile(TestContext, "modules/mod.bicep", "param bar string = 'bar'", root);
-        var configPath = FileHelper.SaveResultFile(TestContext, "eng/bicepconfig.ci.json", UnusedParamErrorConfig, root);
+        var fileSet = CreateProject();
+        var root = PathOf(fileSet, "");
+        var configPath = PathOf(fileSet, "eng/bicepconfig.ci.json");
 
-        var (_, error, result) = await Bicep("build", "--pattern", $"{root}/**/*.bicep", "--config", configPath);
+        var (_, error, result) = await Bicep(fileSet, "build", "--pattern", $"{root}/**/*.bicep", "--config", configPath);
 
         using (new AssertionScope())
         {

@@ -4,6 +4,14 @@ This document is the working playbook for making the `IFileSystem` ban in `Bicep
 
 Future cleanup PRs should update this document as work is completed or new constraints are discovered.
 
+## Scope Decision
+
+Keep the Core/Decompiler ban cleanup separate from CLI globbing. `Bicep.Cli` intentionally uses `IFileSystem` for command-line paths and working-directory handling; it should not migrate to `Bicep.IO` merely to satisfy a ban that applies to Core and Decompiler.
+
+WP8 is implemented using an `IFileSystem`-backed globbing matcher adapter. This makes pattern discovery mockable while retaining the matcher's directory pruning and existing symlink/junction traversal policy. It does not introduce a new `Bicep.IO` API.
+
+WP1-WP6 remain deferred pending a separate decision about the abstraction needed by documentation discovery. In particular, adding `IsReparsePoint` to every `Bicep.IO` handle is a proposal, not an agreed API.
+
 Status legend:
 
 - `[x]` Done
@@ -54,15 +62,15 @@ These files also contain `using System.IO.Abstractions;` with no other apparent 
 - `[ ]` WP5: Remove unused `System.IO.Abstractions` imports from `Bicep.Core`.
 - `[ ]` WP6: Correct the banned `IFileSystem` entries.
 - `[ ]` WP7: Ban `FileSystemGlobbing` APIs that read the disk.
-- `[ ]` WP8: Route CLI `--pattern` globbing through `IFileExplorer`.
+- `[x]` WP8: Route CLI `--pattern` globbing through its injected `IFileSystem`.
 
-WP1-WP6 can ship as one PR; order the commits WP1 -> WP5 -> WP6 so the final commit shows the analyzer enforcing the rule. WP7 and WP8 are independent.
+WP1-WP6 can ship as one PR after the handle API design is settled; order the commits WP1 -> WP5 -> WP6 so the final commit shows the analyzer enforcing the rule. WP7 and WP8 are independent.
 
 ## Work Packages
 
 ### WP1: Reparse-Point Check in `Bicep.IO`
 
-Add a way to ask whether a file or directory handle is a reparse point (symlink or junction), for example on `IIOHandle`.
+Deferred proposal: add a way to ask whether a file or directory handle is a reparse point (symlink or junction), for example on `IIOHandle`. First decide whether this platform-specific query belongs on the shared abstraction or whether discovery needs a different capability.
 
 - File-system implementation: check `FileAttributes.ReparsePoint` through the handle's `IFileSystem`.
 - In-memory implementation: return `false`.
@@ -107,11 +115,20 @@ Add to `Bicep.Core/BannedSymbols.txt`:
 - `MatcherExtensions.GetResultsInFullPath`
 - `Microsoft.Extensions.FileSystemGlobbing.Abstractions.DirectoryInfoWrapper`
 
-### WP8: CLI `--pattern` Globbing
+### WP8: CLI `--pattern` Globbing (Completed)
 
-`InputOutputArgumentsResolver.ResolveFilePattern` in `Bicep.Cli` calls `matcher.GetResultsInFullPath(rootPath)`, so `--pattern` reads the real disk even when tests inject a mock `IFileSystem`. As a result, pattern tests have to write fixtures to disk (`FormatCommandTests` writes to both the mock and the disk, and the `--pattern` test in `ConfigOptionTests` uses the real disk).
+`InputOutputArgumentsResolver.ResolveFilePattern` previously called `matcher.GetResultsInFullPath(rootPath)`, so `--pattern` read the real disk even when tests injected a mock `IFileSystem`.
 
-- Inject `IFileExplorer`, enumerate the files under the pattern root through `IDirectoryHandle`, compute relative paths with `GetPathRelativeTo`, filter with `matcher.Match(...)`, and sort the results so output order is deterministic.
-- Tradeoff: `GetResultsInFullPath` prunes directories that cannot match, while enumerate-then-filter visits everything under the pattern root. The root is already cut at the first wildcard, so common `dir/**/*.bicep` patterns are unaffected. If pruning matters later, adapt `IDirectoryHandle` to the matcher's `DirectoryInfoBase` instead (in `Bicep.Cli` or `Bicep.Core`, not `Bicep.IO`).
-- `--pattern` parsing and policy (working-directory resolution, root splitting, `--outdir` mapping) stay CLI-only. Extract a shared helper into `Bicep.Core` only if the enumeration turns out to match `BicepDocumentationExampleDiscovery`.
-- Validation: move the pattern tests in `FormatCommandTests` and `ConfigOptionTests` to the mock file system, then run `Bicep.Cli.IntegrationTests`.
+- Keep the existing `IFileSystem` constructor dependency.
+- Adapt `IDirectoryInfo` and `IFileInfo` to the matcher's abstractions in [`FileSystemGlobbingDirectory`](../src/Bicep.Cli/Helpers/FileSystemGlobbingDirectory.cs), and call `Matcher.Execute`. All directory access goes through the injected file system.
+- Preserve matcher-controlled directory pruning and symlink/junction behavior rather than recursively enumerating everything or adding a new link-skipping policy.
+- Sort matched relative paths with ordinal comparison for deterministic output.
+- Keep working-directory resolution, root splitting, and `--outdir` mapping unchanged and CLI-only.
+- Use mock-only fixtures in `FormatCommandTests` and `ConfigOptionTests`. Cover recursive and non-recursive matching, literal and missing paths, deterministic ordering, directory pruning, reparse-point attributes, and relative output mapping in `InputOutputArgumentsResolverTests`.
+
+Validation on Windows:
+
+- `dotnet build Bicep.slnx --no-restore -v quiet`: passed with zero warnings and errors.
+- `dotnet exec src\Bicep.Cli.UnitTests\bin\Debug\net10.0\Bicep.Cli.UnitTests.dll --filter FullyQualifiedName~InputOutputArgumentsResolverTests`: 41 passed, including physical directory-symlink comparisons against the previous globbing API.
+- `dotnet exec src\Bicep.Cli.IntegrationTests\bin\Debug\net10.0\Bicep.Cli.IntegrationTests.dll`: all 1,165 passed.
+- Linux validation was not run locally.
