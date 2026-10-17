@@ -19,7 +19,7 @@ import {
   window,
   workspace,
 } from "vscode";
-import { LanguageClient } from "vscode-languageclient/node";
+import { LanguageClient, State } from "vscode-languageclient/node";
 import { parseError } from "../../infrastructure/errors";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { getLogger } from "../../infrastructure/logging";
@@ -30,6 +30,7 @@ import {
   VisualGraphLayoutResult,
   visualGraphNodeSourceRequestType,
   visualGraphRequestType,
+  visualGraphRestoreModuleSourceRequestType,
   VisualGraphResult,
   VisualizerSettings,
   visualResourceTypesRequestType,
@@ -161,6 +162,15 @@ export class BicepVisualizerView extends Disposable {
       return;
     }
 
+    // A visualizer restored with the window can get here before the language client has started. The client
+    // syncs only visible documents that were already open when it starts, and the Bicep file is opened here in
+    // the background, so opening it first would leave the language server never compiling it.
+    await this.waitForLanguageClient();
+
+    if (this.isDisposed) {
+      return;
+    }
+
     try {
       await workspace.openTextDocument(this.documentUri);
     } catch {
@@ -173,6 +183,28 @@ export class BicepVisualizerView extends Disposable {
     }
 
     await this.notifyDocumentDidChange();
+  }
+
+  /** Resolves once the language client is running, or once this view is disposed. */
+  private waitForLanguageClient(): Promise<void> {
+    if (this.languageClient.isRunning()) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+      const subscription = this.languageClient.onDidChangeState(({ newState }) => {
+        if (newState === State.Running) {
+          wait.dispose();
+        }
+      });
+      // Registered with this view, so a view disposed before the client starts stops waiting too.
+      const wait = this.register({
+        dispose: () => {
+          subscription.dispose();
+          resolve();
+        },
+      });
+    });
   }
 
   private async notifyDocumentDidChange(): Promise<void> {
@@ -225,7 +257,8 @@ export class BicepVisualizerView extends Disposable {
   }
 
   private async handleLayoutGraph(id: string, params: unknown): Promise<void> {
-    const { graph, collapsedNodeIds } = (params as { graph?: unknown; collapsedNodeIds?: unknown }) ?? {};
+    const { graph, collapsedNodeIds, rootNodeId } =
+      (params as { graph?: unknown; collapsedNodeIds?: unknown; rootNodeId?: unknown }) ?? {};
     let result: VisualGraphLayoutResult = { status: "layoutFailed", positions: [], bounds: null };
 
     if (!graph) {
@@ -246,6 +279,7 @@ export class BicepVisualizerView extends Disposable {
         collapsedNodeIds: Array.isArray(collapsedNodeIds)
           ? collapsedNodeIds.filter((nodeId): nodeId is string => typeof nodeId === "string")
           : [],
+        ...(typeof rootNodeId === "string" ? { rootNodeId } : {}),
       });
     } catch (error) {
       getLogger().error(`Visual graph layout request failed: ${parseError(error).message}`);
@@ -375,6 +409,10 @@ export class BicepVisualizerView extends Disposable {
           void this.handleLayoutGraph(request.id, request.params);
           return;
 
+        case "module/restoreSource":
+          void this.handleRestoreModuleSource(request.id, request.params);
+          return;
+
         case "resources/create":
           void this.resourceEditing.createResource(request.id, request.params);
           return;
@@ -409,22 +447,59 @@ export class BicepVisualizerView extends Disposable {
         nodeId,
       });
 
-      if (this.isDisposed || !result.filePath || !result.range) {
+      if (this.isDisposed || !result.uri || !result.range) {
         return;
       }
 
-      this.revealFileRange(result.filePath, this.languageClient.protocol2CodeConverter.asRange(result.range));
+      this.revealSourceRange(Uri.parse(result.uri), this.languageClient.protocol2CodeConverter.asRange(result.range));
     } catch (error) {
       getLogger().error(`Visual graph node source request failed: ${parseError(error).message}`);
     }
   }
 
-  private revealFileRange(filePath: string, range: Range) {
+  /**
+   * Restore the registry module behind a remote module node, so its published source can be shown. A failure is part
+   * of the result, so the webview can show it on the module and offer to try again.
+   */
+  private async handleRestoreModuleSource(id: string, params: unknown): Promise<void> {
+    const nodeId = (params as { nodeId?: unknown } | undefined)?.nodeId;
+
+    if (typeof nodeId !== "string") {
+      await this.postErrorResponse(id, { message: "A module node is required." });
+      return;
+    }
+
+    try {
+      const document = await workspace.openTextDocument(this.documentUri);
+
+      if (this.isDisposed) {
+        return;
+      }
+
+      const { status, message } = await this.languageClient.sendRequest(visualGraphRestoreModuleSourceRequestType, {
+        textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+        nodeId,
+      });
+
+      await this.postResponse(id, message ? { status, message } : { status });
+    } catch (error) {
+      getLogger().error(`Module source restore request failed: ${parseError(error).message}`);
+      await this.postErrorResponse(id, { message: "Failed to restore the module's source." });
+    }
+  }
+
+  private revealSourceRange(uri: Uri, range: Range) {
+    const uriString = uri.toString();
+    const isTarget = (documentUri: Uri) =>
+      uri.scheme === "file"
+        ? documentUri.scheme === "file" && documentUri.fsPath === uri.fsPath
+        : documentUri.toString() === uriString;
+
     for (const visibleEditor of window.visibleTextEditors) {
-      if (visibleEditor.document.uri.fsPath === filePath) {
+      if (isTarget(visibleEditor.document.uri)) {
         window.showTextDocument(visibleEditor.document, visibleEditor.viewColumn).then(
           (editor) => this.revealEditorRange(editor, range),
-          (err) => getLogger().error(`Could not reveal file range in "${filePath}": ${parseError(err).message}`),
+          (err) => getLogger().error(`Could not reveal range in "${uriString}": ${parseError(err).message}`),
         );
         return;
       }
@@ -432,12 +507,13 @@ export class BicepVisualizerView extends Disposable {
 
     const targetColumn = this.getTextEditorViewColumn() ?? ViewColumn.Beside;
 
+    // A `bicep-extsrc:` URI opens a registry module's published source through the external source provider.
     workspace
-      .openTextDocument(filePath)
+      .openTextDocument(uri)
       .then((doc) => window.showTextDocument(doc, targetColumn))
       .then(
         (editor) => this.revealEditorRange(editor, range),
-        (err) => getLogger().error(`Could not open "${filePath}": ${parseError(err).message}`),
+        (err) => getLogger().error(`Could not open "${uriString}": ${parseError(err).message}`),
       );
   }
 

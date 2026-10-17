@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 import type { MouseEvent } from "react";
+import type { ModuleRestore } from "@/core";
+import type { NodeKind } from "@/lib/graph";
 
 import { AzureIcon, Codicon } from "@vscode-bicep-ui/components";
 import { useAtomValue, useStore } from "jotai";
@@ -9,29 +11,36 @@ import { animate } from "motion";
 import { motion } from "motion/react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { styled, useTheme } from "styled-components";
-import { isGraphChangeInProgressAtom, MODULE_MORPH_TRANSITION, useGraphActions } from "@/core";
-import { nodesByIdAtom, useIsNodeFocused } from "@/lib/graph";
-import { ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
+import {
+  isGraphChangeInProgressAtom,
+  MODULE_MORPH_TRANSITION,
+  moduleRestoresAtom,
+  motionPolicyAtom,
+  shouldReduceMotion,
+  useGraphActions,
+} from "@/core";
+import { beginNodeResize, nodesByIdAtom, useIsNodeFocused } from "@/lib/graph";
+import { ICON_BUTTON_ICON_SIZE, IconButton, Spinner } from "@/ui";
 
-/** Matches `ResourceNode`, so a collapsed module reads as one more card on the graph. */
-const CARD_HEIGHT = 76;
-const CARD_ICON_SIZE = 36;
+/** Matches `ResourceNode`, so a collapsed module reads as one more node on the graph. */
+const ATOMIC_HEIGHT = 76;
+const ATOMIC_ICON_SIZE = 36;
 /** The header must fit above a container's children, inside its top padding. */
 const HEADER_HEIGHT = 48;
 const HEADER_ICON_SIZE = 24;
 /** A fixed line height lets the type label animate to an exact height. */
 const TYPE_LABEL_LINE_HEIGHT = 16;
 
-/** The size a module had before it changed shape, or `"card"` when it is expanding from its card. */
-type MorphFrom = { width: number; height: number } | "card";
+/** The size a module had before it changed shape, or `"atomic"` when it is expanding from a single node. */
+type MorphFrom = { width: number; height: number } | "atomic";
 
 const LABEL_SHOWN = { height: TYPE_LABEL_LINE_HEIGHT, marginTop: 2, opacity: 1 } as const;
 const LABEL_HIDDEN = { height: 0, marginTop: 0, opacity: 0 } as const;
 
 export interface ModuleNodeProps {
   id: string;
-  /** `container` frames the module's children; `card` stands in for them when they are hidden. */
-  variant: "container" | "card";
+  /** `compound` frames the module's children; `atomic` stands in for them when they are hidden. */
+  kind: NodeKind;
   data: {
     symbolicName: string;
     isCollection?: boolean;
@@ -46,7 +55,7 @@ type FrameProps = {
   $hasError?: boolean;
   $isCollection?: boolean;
   $isFocused?: boolean;
-  $variant: ModuleNodeProps["variant"];
+  $kind: NodeKind;
 };
 
 const $Frame = styled.div<FrameProps>`
@@ -56,13 +65,13 @@ const $Frame = styled.div<FrameProps>`
   flex-direction: column;
   margin: 4px;
   box-sizing: border-box;
-  min-width: ${({ $variant }) => ($variant === "card" ? "220px" : "0")};
+  min-width: ${({ $kind }) => ($kind === "atomic" ? "220px" : "0")};
   border: ${({ $hasError, theme }) => ($hasError ? theme.node.errorBorderWidth : theme.node.borderWidth)} solid
     ${({ $hasError, $isFocused, theme }) =>
       $hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
   border-radius: 8px;
-  background-color: ${({ $variant, theme }) =>
-    $variant === "card" ? theme.node.background : theme.node.compoundBackground};
+  background-color: ${({ $kind, theme }) =>
+    $kind === "atomic" ? theme.node.background : theme.node.compoundBackground};
   box-shadow: ${({ $isFocused, $hasError, theme }) =>
     $isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
   transition:
@@ -78,7 +87,7 @@ const $Frame = styled.div<FrameProps>`
     }};
   }
 
-  ${({ $isCollection, $hasError, $isFocused, $variant, theme }) => {
+  ${({ $isCollection, $hasError, $isFocused, $kind, theme }) => {
     const offset = theme.node.collectionOffset;
     return $isCollection
       ? `
@@ -93,7 +102,7 @@ const $Frame = styled.div<FrameProps>`
       bottom: -${offset}px;
       border: ${$hasError ? theme.node.errorBorderWidth : theme.node.borderWidth} solid ${$hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
       border-radius: 10px;
-      background-color: ${$variant === "card" ? theme.node.background : theme.node.compoundBackground};
+      background-color: ${$kind === "atomic" ? theme.node.background : theme.node.compoundBackground};
       z-index: -1;
       box-shadow: ${$isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
       transition: border-color 180ms ease, box-shadow 180ms ease;
@@ -153,12 +162,14 @@ const $TypeLabel = styled(motion.div)`
 
 /**
  * Hidden until the module is hovered or selected, so a graph full of modules stays uncluttered. Keyboard
- * focus also reveals it. A disabled toggle stays hidden unless something would otherwise reveal it.
+ * focus also reveals it, and so does a restore in progress or failed. A disabled toggle stays hidden unless
+ * something would otherwise reveal it.
  */
-const $ToggleButton = styled(IconButton)<{ $isRevealed: boolean }>`
+const $ToggleButton = styled(IconButton)<{ $isRevealed: boolean; $isFailure: boolean }>`
   flex: 0 0 auto;
   margin-left: auto;
   opacity: ${({ $isRevealed }) => ($isRevealed ? 1 : 0)};
+  ${({ $isFailure, theme }) => ($isFailure ? `color: ${theme.error};` : "")}
   transition:
     opacity 120ms ease,
     background-color 150ms ease,
@@ -178,12 +189,34 @@ const $ToggleButton = styled(IconButton)<{ $isRevealed: boolean }>`
   }
 `;
 
-/** The row's height in each variant; the morph animates between them. */
-function getRowHeight(variant: ModuleNodeProps["variant"], borderWidth: string) {
-  return variant === "card" ? CARD_HEIGHT - 2 * parseFloat(borderWidth) : HEADER_HEIGHT;
+/** The row's height for each kind; the morph animates between them. */
+function getRowHeight(kind: NodeKind, borderWidth: string) {
+  return kind === "atomic" ? ATOMIC_HEIGHT - 2 * parseFloat(borderWidth) : HEADER_HEIGHT;
 }
 
-export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
+/** What the expand/collapse toggle says and shows, given any restore of the module in progress or failed. */
+function getToggleContent(symbolicName: string, isCollapsed: boolean, restore: ModuleRestore | undefined) {
+  if (restore?.status === "restoring") {
+    return { label: `Restoring module ${symbolicName}`, title: "Restoring module…", icon: "loading" };
+  }
+
+  if (restore?.status === "failed") {
+    return {
+      label: `Retry restoring module ${symbolicName}`,
+      title: `Couldn't restore the module. Click to try again.\n\n${restore.message}`,
+      icon: "error",
+    };
+  }
+
+  const action = isCollapsed ? "Expand" : "Collapse";
+  return {
+    label: `${action} module ${symbolicName}`,
+    title: `${action} module`,
+    icon: isCollapsed ? "unfold" : "fold",
+  };
+}
+
+export function ModuleNode({ id, kind, data }: ModuleNodeProps) {
   const { symbolicName, isCollection, hasError, isCollapsed = false, canCollapse = false } = data;
   const theme = useTheme();
   const frameRef = useRef<HTMLDivElement>(null);
@@ -191,17 +224,22 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
   const [morphFrom] = useState(data.morphFrom);
   const isFocused = useIsNodeFocused(id);
   const isGraphChangeInProgress = useAtomValue(isGraphChangeInProgressAtom);
+  const motionPolicy = useAtomValue(motionPolicyAtom);
+  // Expanding a remote module whose source is not cached restores it first.
+  const restore = useAtomValue(moduleRestoresAtom).get(id);
+  const isRestoring = restore?.status === "restoring";
+  const isRestoreFailed = restore?.status === "failed";
+  const toggle = getToggleContent(symbolicName, isCollapsed, restore);
   const { toggleModuleCollapsed } = useGraphActions();
-  const isCard = variant === "card";
+  const isAtomic = kind === "atomic";
   const borderWidth = hasError ? theme.node.errorBorderWidth : theme.node.borderWidth;
-  const rowHeight = getRowHeight(variant, borderWidth);
-  const otherRowHeight = getRowHeight(isCard ? "container" : "card", borderWidth);
-  const iconSize = isCard ? CARD_ICON_SIZE : HEADER_ICON_SIZE;
-  const otherIconSize = isCard ? HEADER_ICON_SIZE : CARD_ICON_SIZE;
-  const action = isCollapsed ? "Expand" : "Collapse";
+  const rowHeight = getRowHeight(kind, borderWidth);
+  const otherRowHeight = getRowHeight(isAtomic ? "compound" : "atomic", borderWidth);
+  const iconSize = isAtomic ? ATOMIC_ICON_SIZE : HEADER_ICON_SIZE;
+  const otherIconSize = isAtomic ? HEADER_ICON_SIZE : ATOMIC_ICON_SIZE;
 
   // A collapsing module mounts at the size of the container it replaces, so its node box -- and the
-  // edges attached to it -- start there, then shrink to the card. This runs before the node measures
+  // edges attached to it -- start there, then shrink to its collapsed size. This runs before the node measures
   // itself, because child layout effects run before their parents'.
   const store = useStore();
   useLayoutEffect(() => {
@@ -210,11 +248,11 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
       return;
     }
 
-    const fromBackground = isCard ? theme.node.compoundBackground : theme.node.background;
-    const toBackground = isCard ? theme.node.background : theme.node.compoundBackground;
+    const fromBackground = isAtomic ? theme.node.compoundBackground : theme.node.background;
+    const toBackground = isAtomic ? theme.node.background : theme.node.compoundBackground;
 
-    if (morphFrom === "card") {
-      // The container's box grows from the card on its own; only its color is left to blend.
+    if (morphFrom === "atomic") {
+      // The container's box grows from the collapsed module on its own; only its color is left to blend.
       const controls = animate(frame, { backgroundColor: [fromBackground, toBackground] }, MODULE_MORPH_TRANSITION);
       return () => {
         controls.stop();
@@ -223,16 +261,16 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
     }
 
     const node = frame.closest<HTMLElement>("[data-node-id]");
-    // The row starts at the header's height, so the card's height comes from its design, not the DOM.
+    // The row starts at the header's height, so the collapsed height comes from its design, not the DOM.
     const naturalWidth = frame.offsetWidth;
-    const naturalHeight = CARD_HEIGHT;
+    const naturalHeight = ATOMIC_HEIGHT;
     const marginsWidth = (node?.offsetWidth ?? naturalWidth) - naturalWidth;
     const marginsHeight = (node?.offsetHeight ?? frame.offsetHeight) - frame.offsetHeight;
     const fromWidth = Math.max(naturalWidth, morphFrom.width - marginsWidth);
     const fromHeight = Math.max(naturalHeight, morphFrom.height - marginsHeight);
 
     // The node has not measured itself yet, so its box is still the point it was created at: the
-    // container's center. The card shrinks toward it. Writing the box in the same tick as the size
+    // container's center. The module shrinks toward it. Writing the box in the same tick as the size
     // keeps them in step; the node's own resize measurement arrives a frame late.
     const graphNode = store.get(nodesByIdAtom)[id];
     const boxAtom = graphNode?.kind === "atomic" ? graphNode.boxAtom : undefined;
@@ -257,8 +295,12 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
       frame.style.width = "";
       frame.style.height = "";
       frame.style.backgroundColor = "";
+      // After the styles are cleared, so a layout waiting for the resize to end measures the module's own size.
+      endResize();
     };
 
+    // A layout must not measure the sizes the module passes through on its way.
+    const endResize = beginNodeResize(store);
     setSize(fromWidth, fromHeight);
     const sizeControls = animate(0, 1, {
       ...MODULE_MORPH_TRANSITION,
@@ -317,7 +359,7 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
       $hasError={hasError}
       $isCollection={isCollection}
       $isFocused={isFocused}
-      $variant={variant}
+      $kind={kind}
       data-module-collapsed={isCollapsed}
     >
       <$Row
@@ -334,12 +376,12 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
         </$Icon>
         <$Text>
           <$SymbolicName>{symbolicName}</$SymbolicName>
-          {/* Only the card names its type: a container's frame already says it is a module. While a
-              module changes shape, the label grows into or out of the card so the name glides. */}
-          {(isCard || morphFrom === "card") && (
+          {/* Only a module shown as a single node names its type: a container's frame already says it is a
+              module. While a module changes shape, the label grows or shrinks with it so the name glides. */}
+          {(isAtomic || morphFrom === "atomic") && (
             <$TypeLabel
-              initial={morphFrom ? (isCard ? LABEL_HIDDEN : LABEL_SHOWN) : false}
-              animate={isCard ? LABEL_SHOWN : LABEL_HIDDEN}
+              initial={morphFrom ? (isAtomic ? LABEL_HIDDEN : LABEL_SHOWN) : false}
+              animate={isAtomic ? LABEL_SHOWN : LABEL_HIDDEN}
               transition={MODULE_MORPH_TRANSITION}
             >
               Module
@@ -350,15 +392,21 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
           <$ToggleButton
             ref={toggleButtonRef}
             type="button"
-            aria-label={`${action} module ${symbolicName}`}
+            aria-label={toggle.label}
             aria-expanded={!isCollapsed}
-            title={`${action} module`}
+            aria-busy={isRestoring}
+            title={toggle.title}
             data-export-exclude=""
-            disabled={isGraphChangeInProgress}
-            $isRevealed={isFocused}
+            disabled={isGraphChangeInProgress || isRestoring}
+            $isRevealed={isFocused || isRestoring || isRestoreFailed}
+            $isFailure={isRestoreFailed}
             onClick={handleToggle}
           >
-            <Codicon name={isCollapsed ? "unfold" : "fold"} size={ICON_BUTTON_ICON_SIZE} />
+            {isRestoring ? (
+              <Spinner size={ICON_BUTTON_ICON_SIZE} isAnimated={!shouldReduceMotion(motionPolicy)} />
+            ) : (
+              <Codicon name={toggle.icon} size={ICON_BUTTON_ICON_SIZE} />
+            )}
           </$ToggleButton>
         )}
       </$Row>

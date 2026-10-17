@@ -42,8 +42,8 @@ function ActivePaletteDragOverlay({
 
   return createPortal(
     <$Positioner ref={previewRef} $x={drag.clientX} $y={drag.clientY} data-testid="palette-drag-preview">
-      <div data-testid="palette-drag-preview-card-wrapper" style={{ scale: `${scale}` }}>
-        <ResourceNodePreview fullyQualifiedType={drag.item.fullyQualifiedType} testId="palette-drag-preview-card" />
+      <div data-testid="palette-drag-preview-node-wrapper" style={{ scale: `${scale}` }}>
+        <ResourceNodePreview fullyQualifiedType={drag.item.fullyQualifiedType} testId="palette-drag-preview-node" />
       </div>
     </$Positioner>,
     document.body,

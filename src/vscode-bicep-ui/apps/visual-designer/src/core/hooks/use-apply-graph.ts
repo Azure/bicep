@@ -37,7 +37,7 @@ function snapshotNodePositions(store: Store): Map<string, Point> {
 
 /**
  * How a node that is about to be mounted should arrive, for transitions that replace one node with
- * another under the same id (a module collapsing into a card, or expanding back into a container).
+ * another under the same id (a module collapsing into a single node, or expanding back into a container).
  */
 export interface NodeEntrance {
   /** Where an atomic node's center starts. */
@@ -48,10 +48,22 @@ export interface NodeEntrance {
   data?: Record<string, unknown>;
 }
 
+export interface ApplyGraphOptions {
+  /** Where newly created nodes were dropped. */
+  newNodeOrigins?: ReadonlyMap<string, Point>;
+  /** How particular new nodes arrive. */
+  entrances?: ReadonlyMap<string, NodeEntrance>;
+  /**
+   * Whether a layout of the whole graph will position the new nodes. When most of the graph is new, the graph is
+   * then hidden until that layout reveals it, rather than showing new nodes piled at their origins. A caller that
+   * positions every new node itself (a module expanding in place) passes false, since no such reveal follows.
+   */
+  awaitsLayout?: boolean;
+}
+
 /**
  * Returns a function that mounts, updates, and removes canvas nodes and edges to match a graph. Positions
- * are left to layout; new nodes start at `newNodeOrigins`, where they were dropped, or near the others.
- * `entrances` describes how particular new nodes arrive.
+ * are left to layout; new nodes start at their `newNodeOrigins`, where they were dropped, or near the others.
  */
 export function useApplyGraph(getViewportCenter: () => Point) {
   const store = useStore();
@@ -59,8 +71,7 @@ export function useApplyGraph(getViewportCenter: () => Point) {
   return useCallback(
     (
       graph: ClientGraph,
-      newNodeOrigins: ReadonlyMap<string, Point> = new Map(),
-      entrances: ReadonlyMap<string, NodeEntrance> = new Map(),
+      { newNodeOrigins = new Map(), entrances = new Map(), awaitsLayout = true }: ApplyGraphOptions = {},
     ) => {
       if (graph.nodes.size === 0) {
         // Empty graph — clear everything and re-engage the
@@ -109,7 +120,7 @@ export function useApplyGraph(getViewportCenter: () => Point) {
       // so the user doesn't see new nodes piled at the spawn origin while
       // graph layout computes. Incremental edits (adding/removing a few nodes)
       // keep the graph visible for smooth in-place animation.
-      if (survivingCount / graph.nodes.size < 0.5) {
+      if (awaitsLayout && survivingCount / graph.nodes.size < 0.5) {
         store.set(layoutReadyAtom, false);
       }
 
@@ -163,14 +174,16 @@ export function useApplyGraph(getViewportCenter: () => Point) {
           continue;
         }
 
+        // A module that requires restoring is collapsed in effect: expanding it restores, then shows its contents.
+        const isCollapsed = node.isCollapsed === true || node.requiresRestore;
         const data = {
           nodeKind: node.kind,
           symbolicName,
           resourceType: node.type,
           isCollection: node.isCollection,
           hasError: node.hasError,
-          isCollapsed: node.isCollapsed ?? false,
-          canCollapse: node.kind === "module" && (node.hasChildren || node.isCollapsed === true),
+          isCollapsed,
+          canCollapse: node.kind === "module" && (node.hasChildren || isCollapsed),
         };
         if (existing?.kind === "atomic") {
           store.set(existing.dataAtom, data);

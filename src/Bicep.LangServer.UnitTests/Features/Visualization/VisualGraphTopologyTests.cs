@@ -59,6 +59,47 @@ public class VisualGraphTopologyTests
     }
 
     [TestMethod]
+    public void Subtree_ReturnsTheModuleItsDescendantsAndTheirInternalEdges()
+    {
+        var graph = new CanonicalGraph(
+            Nodes:
+            [
+                Node("module", GraphNodeKind.Module, parentId: null, hasChildren: true),
+                Node("module::nested", GraphNodeKind.Module, parentId: "module", hasChildren: true),
+                Node("module::nested::child", GraphNodeKind.Resource, parentId: "module::nested"),
+                Node("module::a", GraphNodeKind.Resource, parentId: "module"),
+                Node("modulePrefixed", GraphNodeKind.Resource, parentId: null),
+            ],
+            Edges:
+            [
+                Edge("inside", "module::a", "module::nested"),
+                Edge("boundary", "modulePrefixed", "module"),
+            ]);
+
+        var subtree = VisualGraphTopology.Subtree(graph, "module");
+
+        subtree!.Nodes.Select(node => node.Id).Should().Equal("module", "module::nested", "module::nested::child", "module::a");
+        subtree.Nodes[0].ParentId.Should().BeNull();
+        subtree.Edges.Should().Equal(Edge("inside", "module::a", "module::nested"));
+    }
+
+    [TestMethod]
+    public void Subtree_OfAResourceOrLeafModule_IsNull()
+    {
+        var graph = new CanonicalGraph(
+            Nodes:
+            [
+                Node("leaf", GraphNodeKind.Module, parentId: null),
+                Node("resource", GraphNodeKind.Resource, parentId: null),
+            ],
+            Edges: []);
+
+        VisualGraphTopology.Subtree(graph, "leaf").Should().BeNull();
+        VisualGraphTopology.Subtree(graph, "resource").Should().BeNull();
+        VisualGraphTopology.Subtree(graph, "missing").Should().BeNull();
+    }
+
+    [TestMethod]
     public void Matches_WithEmptyMeasuredGraph_ReturnsFalseForNonEmptyLiveGraph()
     {
         var live = new CanonicalGraph([Node("a", GraphNodeKind.Resource, parentId: null)], []);
@@ -193,6 +234,7 @@ public class VisualGraphTopologyTests
             SymbolName: id,
             IsCollection: false,
             HasChildren: hasChildren,
+            RequiresRestore: false,
             HasError: hasError);
 
     private static GraphEdge Edge(string id, string sourceId, string targetId) => new(id, sourceId, targetId);

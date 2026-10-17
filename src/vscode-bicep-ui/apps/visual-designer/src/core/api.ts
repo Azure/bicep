@@ -164,12 +164,37 @@ export interface GetGraphResult {
 
 export type TargetScope = "resourceGroup" | "subscription" | "managementGroup" | "tenant";
 
+/**
+ * Restore the registry module behind a remote module node into the local module cache, so its published
+ * source can be shown. Sent only when the user expands such a module. It never edits the Bicep file; the
+ * next graph shows the module's contents.
+ */
+export const restoreModuleSource = defineRequest<RestoreModuleSourceParams, RestoreModuleSourceResult>(
+  "module/restoreSource",
+);
+
+export interface RestoreModuleSourceParams {
+  nodeId: string;
+}
+
+export interface RestoreModuleSourceResult {
+  /** `notFound` when the node is no longer a registry module. */
+  status: "restored" | "failed" | "notFound";
+  /** Why the restore failed, when `status` is `failed`. */
+  message?: string;
+}
+
 export const layoutGraph = defineRequest<LayoutGraphParams, LayoutGraphResult>("graph/layout");
 
 export interface LayoutGraphParams {
   graph: MeasuredGraph;
   /** Module IDs whose descendants are omitted from the measured graph. */
   collapsedNodeIds: string[];
+  /**
+   * Lay out only this expanded module: `graph` holds it and its descendants, the positions put the module's
+   * top-left corner at the origin, and the bounds are the module's size.
+   */
+  rootNodeId?: string;
 }
 
 /**
@@ -202,6 +227,11 @@ export interface GraphNode {
   symbolName: string;
   isCollection: boolean;
   hasChildren: boolean;
+  /**
+   * A registry module whose published source is not in the local module cache. Expanding it restores the module,
+   * which may supply its contents.
+   */
+  requiresRestore: boolean;
   hasError: boolean;
 }
 
@@ -261,6 +291,7 @@ export function useGraphApi() {
       createResource: (params: CreateResourceParams) => channel.request(createResource, params),
       replaySourceStep: (params: ReplaySourceStepParams) => channel.request(replaySourceStep, params),
       revealNode: (nodeId: string) => channel.notify(revealNode, { nodeId }),
+      restoreModuleSource: (nodeId: string) => channel.request(restoreModuleSource, { nodeId }),
     }),
     [channel],
   );

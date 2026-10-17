@@ -60,6 +60,51 @@ async function expectNodePosition(page: Page, nodeId: string, position: { x: num
     .toBe(true);
 }
 
+/** Every node's position in graph coordinates, which do not depend on the zoom, once none is moving. */
+async function waitForStableNodePositions(page: Page) {
+  const read = () =>
+    page.locator("[data-node-id]").evaluateAll((elements) =>
+      Object.fromEntries(
+        elements.map((element) => {
+          const [x = 0, y = 0] = (element as HTMLElement).style.translate.split(" ").map(Number.parseFloat);
+          return [element.getAttribute("data-node-id") ?? "", { x: Math.round(x), y: Math.round(y) }];
+        }),
+      ),
+    );
+  let previous = "";
+  await expect
+    .poll(async () => {
+      const current = JSON.stringify(await read());
+      const isStable = current === previous;
+      previous = current;
+      return isStable;
+    })
+    .toBe(true);
+
+  return read();
+}
+
+/**
+ * Once the graph settles, Reset Layout moves no node. It lays the graph out again at the sizes the nodes have now, so
+ * this holds only if the last layout used them too. Nothing should move, so there is no end state to wait for: a reset
+ * that did move nodes is given time to.
+ */
+async function expectResetLayoutToMoveNothing(page: Page) {
+  const laidOut = await waitForStableNodePositions(page);
+
+  await page.getByTestId("control-reset-layout").click();
+  await page.waitForTimeout(2_000);
+  const reset = await waitForStableNodePositions(page);
+
+  const movedNodeIds = Object.entries(laidOut)
+    .filter(([nodeId, { x, y }]) => {
+      const position = reset[nodeId];
+      return !position || Math.abs(position.x - x) > 1 || Math.abs(position.y - y) > 1;
+    })
+    .map(([nodeId]) => nodeId);
+  expect(movedNodeIds).toEqual([]);
+}
+
 function nodeGraphX(page: Page, nodeId: string) {
   return page
     .locator(`[data-node-id="${nodeId}"]`)
@@ -147,6 +192,27 @@ test.describe("Status bar", () => {
 
     await expect(page.getByTestId("status-bar")).toHaveAttribute("data-status", "empty");
     await expect(page.getByTestId("status-empty-message")).toBeVisible();
+  });
+});
+
+test.describe("Status bar while the first graph loads", () => {
+  test("shows loading rather than an empty graph until the first graph arrives", async ({ page }) => {
+    await page.goto("/?graphDelay=1500");
+    await expect(page.getByTestId("graph-canvas")).toBeVisible();
+
+    await expect(page.getByTestId("status-bar")).toHaveAttribute("data-status", "loading");
+    await expect(page.getByTestId("status-loading-message")).toHaveText("Loading…");
+    await expect(page.getByTestId("status-empty-message")).toHaveCount(0);
+
+    await expect(page.getByTestId("graph-node").first()).toBeVisible();
+    await expect(page.getByTestId("status-bar")).toHaveAttribute("data-status", "ready");
+    await expect(page.getByTestId("status-loading-message")).toHaveCount(0);
+  });
+
+  test("keeps the loading spinner still under reduced motion", async ({ page }) => {
+    await page.goto("/?graphDelay=1500&motionPolicy=reduce");
+
+    await expect(page.getByTestId("status-loading-message").getByTestId("spinner")).toHaveCSS("animation-name", "none");
   });
 });
 
@@ -251,6 +317,48 @@ test.describe("Control bar", () => {
     await page.getByTestId("control-reset-layout").click();
 
     await expectNodePosition(page, "subnet", laidOut);
+  });
+
+  test("lays out a new graph at the sizes its nodes measured, even when they mount late", async ({ page }) => {
+    test.slow();
+    // On a busy machine, React mounts the nodes of a new graph a frame or more after the graph arrives. Before they
+    // mount they have no size, and a layout that measured them then would place them at a default size instead.
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: 6 });
+    await loadSampleGraph(page, "flat");
+
+    await expectResetLayoutToMoveNothing(page);
+  });
+
+  test("lays out at the size a node takes in the same update, before the browser reports its resize", async ({
+    page,
+  }) => {
+    await loadSampleGraph(page, "flat");
+    await waitForStableNodePositions(page);
+    const vnet = page.locator('[data-node-id="vnet"]');
+    const heightBefore = await vnet.evaluate((element) => (element as HTMLElement).offsetHeight);
+
+    // A collection draws a stack behind the node, which makes it larger, and is a change that is laid out.
+    await page.getByTestId("dev-mutation-toggle-collection").click();
+    await expect
+      .poll(() => vnet.evaluate((element) => (element as HTMLElement).offsetHeight))
+      .toBeGreaterThan(heightBefore);
+
+    await expectResetLayoutToMoveNothing(page);
+  });
+
+  test("lays out a collapsing module at the size it is collapsing to, not a size it passes through", async ({
+    page,
+  }) => {
+    await loadSampleGraph(page, "module");
+    await waitForStableNodePositions(page);
+
+    // The module shrinks for a moment after its contents fade, and the added node is laid out while it does.
+    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await page.getByTestId("dev-mutation-add-node").click();
+    await expect(page.locator('[data-node-id="myModule"]')).toHaveAttribute("data-node-kind", "atomic");
+
+    await expectResetLayoutToMoveNothing(page);
   });
 
   test("node drags and Reset Layout are separate undo steps without changing the camera", async ({ page }) => {

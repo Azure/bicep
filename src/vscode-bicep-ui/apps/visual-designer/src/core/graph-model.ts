@@ -20,6 +20,16 @@ export interface ClientGraph {
 
 export const EMPTY_CLIENT_GRAPH: ClientGraph = { nodes: new Map(), edges: new Map() };
 
+/**
+ * The graphs the client holds: the latest from the host, what the canvas shows of it, and the last measured graph
+ * submitted for a layout of the whole graph -- kept so a layout can skip when measured sizes are unchanged.
+ */
+export interface ClientGraphs {
+  source: ClientGraph;
+  rendered: ClientGraph;
+  measured: MeasuredGraph | null;
+}
+
 export function indexGraph({ nodes, edges }: Graph): ClientGraph {
   return {
     nodes: new Map(nodes.map((node) => [node.id, node])),
@@ -98,10 +108,24 @@ export function projectGraph(graph: ClientGraph, collapsedNodeIds: ReadonlySet<s
 }
 
 /**
+ * A module and its descendants, with the dependencies wholly among them: what laying out that module
+ * on its own measures.
+ */
+export function subtreeGraph(graph: ClientGraph, rootNodeId: string): ClientGraph {
+  const isInSubtree = (nodeId: string) => nodeId === rootNodeId || nodeId.startsWith(`${rootNodeId}::`);
+
+  return {
+    nodes: new Map([...graph.nodes].filter(([nodeId]) => isInSubtree(nodeId))),
+    edges: new Map([...graph.edges].filter(([, edge]) => isInSubtree(edge.sourceId) && isInSubtree(edge.targetId))),
+  };
+}
+
+/**
  * The graph as rendered, with each node's measured size: what the host lays out.
  *
  * `measuredBoxes` supplies those sizes, keyed by node id; a node with no entry reports zero, which is
- * the state before it has been laid out and measured.
+ * the state before it has been laid out and measured. Sizes are rounded to whole pixels, as the page measures them:
+ * moving a box adds the same offset to both corners, which can leave its size a hair off in floating point.
  */
 export function measureGraph(graph: ClientGraph, measuredBoxes: ReadonlyMap<string, Box>): MeasuredGraph {
   return {
@@ -112,8 +136,8 @@ export function measureGraph(graph: ClientGraph, measuredBoxes: ReadonlyMap<stri
         id,
         kind,
         parentId,
-        width: box ? box.max.x - box.min.x : 0,
-        height: box ? box.max.y - box.min.y : 0,
+        width: box ? Math.round(box.max.x - box.min.x) : 0,
+        height: box ? Math.round(box.max.y - box.min.y) : 0,
       };
     }),
     edges: [...graph.edges.values()],
@@ -146,6 +170,7 @@ export function clientGraphsRenderEqually(left: ClientGraph, right: ClientGraph)
       leftNode.isCollection !== rightNode.isCollection ||
       leftNode.hasChildren !== rightNode.hasChildren ||
       leftNode.hasError !== rightNode.hasError ||
+      leftNode.requiresRestore !== rightNode.requiresRestore ||
       leftNode.isCollapsed !== rightNode.isCollapsed
     ) {
       return false;

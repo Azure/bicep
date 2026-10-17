@@ -4,7 +4,7 @@
 import type { GraphEdge, GraphNode } from "../api";
 
 import { describe, expect, it } from "vitest";
-import { centerGraphLayout, graphChangeMayAffectLayout } from "../graph-layout";
+import { centerGraphLayout, findRestoredModules, graphChangeMayAffectLayout } from "../graph-layout";
 import { indexGraph } from "../graph-model";
 
 function node(overrides: Partial<GraphNode> = {}): GraphNode {
@@ -16,6 +16,7 @@ function node(overrides: Partial<GraphNode> = {}): GraphNode {
     symbolName: "n",
     isCollection: false,
     hasChildren: false,
+    requiresRestore: false,
     hasError: false,
     ...overrides,
   };
@@ -95,6 +96,68 @@ describe("graphChangeMayAffectLayout", () => {
     expect(graphChangeMayAffectLayout(previous, graphOf([{ ...a, type: "Microsoft.Web/sites" }]))).toBe(true);
     expect(graphChangeMayAffectLayout(previous, graphOf([{ ...a, isCollection: true }]))).toBe(true);
     expect(graphChangeMayAffectLayout(previous, graphOf([{ ...a, hasChildren: true }]))).toBe(true);
+  });
+
+  it("reflows when a module stops or starts requiring a restore", () => {
+    const module = node({ id: "m", kind: "module", type: "<module>" });
+    const restorable = { ...module, requiresRestore: true };
+
+    expect(graphChangeMayAffectLayout(graphOf([module]), graphOf([restorable]))).toBe(true);
+    expect(graphChangeMayAffectLayout(graphOf([restorable]), graphOf([module]))).toBe(true);
+  });
+});
+
+describe("restored modules", () => {
+  const unrestored = node({ id: "m", kind: "module", type: "<module>", requiresRestore: true });
+  const restored = { ...unrestored, hasChildren: true, requiresRestore: false };
+  const child = node({ id: "m::a", parentId: "m" });
+  const sibling = node({ id: "m::b", parentId: "m" });
+  const outside = node({ id: "outside" });
+
+  it("finds modules that required restoring and now have contents", () => {
+    const previous = graphOf([unrestored, outside]);
+
+    expect(findRestoredModules(previous, graphOf([restored, child, outside]))).toEqual(new Set(["m"]));
+    expect(findRestoredModules(previous, graphOf([unrestored, outside]))).toEqual(new Set());
+    expect(
+      findRestoredModules(graphOf([{ ...unrestored, requiresRestore: false }]), graphOf([restored, child])),
+    ).toEqual(new Set());
+  });
+
+  it("does not reflow the graph for a restored module's contents and their dependencies", () => {
+    const previous = graphOf([unrestored, outside], [edge("outside", "m")]);
+    const next = graphOf([restored, child, sibling, outside], [edge("outside", "m"), edge("m::a", "m::b")]);
+
+    expect(graphChangeMayAffectLayout(previous, next, { restoredModuleIds: new Set(["m"]) })).toBe(false);
+    expect(graphChangeMayAffectLayout(previous, next)).toBe(true);
+  });
+
+  it("still reflows for changes outside the restored module", () => {
+    const previous = graphOf([unrestored, outside]);
+    const exemptions = { restoredModuleIds: new Set(["m"]) };
+
+    expect(
+      graphChangeMayAffectLayout(previous, graphOf([restored, child, outside, node({ id: "new" })]), exemptions),
+    ).toBe(true);
+    expect(
+      graphChangeMayAffectLayout(previous, graphOf([restored, child, outside], [edge("outside", "m::a")]), exemptions),
+    ).toBe(true);
+    expect(
+      graphChangeMayAffectLayout(previous, graphOf([{ ...restored, isCollection: true }, child, outside]), exemptions),
+    ).toBe(true);
+  });
+
+  it("exempts exactly what each restored module's own layout covers", () => {
+    const unrestoredSibling = node({ id: "s", kind: "module", type: "<module>", requiresRestore: true });
+    const restoredSibling = { ...unrestoredSibling, hasChildren: true, requiresRestore: false };
+    const previous = graphOf([unrestored, unrestoredSibling]);
+    const nodes = [restored, child, restoredSibling, node({ id: "s::a", parentId: "s" })];
+    const exemptions = { restoredModuleIds: new Set(["m", "s"]) };
+
+    // A dependency between a module and its own contents is laid out with the module...
+    expect(graphChangeMayAffectLayout(previous, graphOf(nodes, [edge("m", "m::a")]), exemptions)).toBe(false);
+    // ...but one between two restored modules belongs to the graph around them, which is not laid out again.
+    expect(graphChangeMayAffectLayout(previous, graphOf(nodes, [edge("m", "s")]), exemptions)).toBe(true);
   });
 });
 

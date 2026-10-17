@@ -13,6 +13,7 @@ import {
   measuredGraphsEqual,
   measureGraph,
   projectGraph,
+  subtreeGraph,
 } from "../graph-model";
 
 function node(overrides: Partial<GraphNode> = {}): GraphNode {
@@ -24,6 +25,7 @@ function node(overrides: Partial<GraphNode> = {}): GraphNode {
     symbolName: "n",
     isCollection: false,
     hasChildren: false,
+    requiresRestore: false,
     hasError: false,
     ...overrides,
   };
@@ -110,6 +112,28 @@ describe("projectGraph", () => {
   });
 });
 
+describe("subtreeGraph", () => {
+  it("keeps a module, its descendants, and the dependencies among them", () => {
+    const graph = makeClientGraph(
+      [
+        node({ id: "m", kind: "module", type: "<module>", hasChildren: true }),
+        node({ id: "m::a", parentId: "m" }),
+        node({ id: "m::b", parentId: "m" }),
+        node({ id: "mPrefixed" }),
+      ],
+      [
+        { id: "m::a->m::b", sourceId: "m::a", targetId: "m::b" },
+        { id: "mPrefixed->m", sourceId: "mPrefixed", targetId: "m" },
+      ],
+    );
+
+    const subtree = subtreeGraph(graph, "m");
+
+    expect([...subtree.nodes.keys()]).toEqual(["m", "m::a", "m::b"]);
+    expect([...subtree.edges.keys()]).toEqual(["m::a->m::b"]);
+  });
+});
+
 describe("measureGraph", () => {
   it("reports measured sizes, and zero for a node not yet measured", () => {
     const graph = indexGraph({
@@ -132,6 +156,14 @@ describe("measureGraph", () => {
     });
 
     expect(measureGraph(graph, new Map()).edges).toEqual([{ id: "a->b", sourceId: "a", targetId: "b" }]);
+  });
+
+  it("rounds sizes to whole pixels, absorbing floating-point drift from moving a box", () => {
+    const graph = indexGraph({ nodes: [node({ id: "a" })], edges: [] });
+
+    expect(measureGraph(graph, new Map([["a", box(228.0000000001, 83.9999999999)]])).nodes).toEqual([
+      { id: "a", kind: "resource", parentId: null, width: 228, height: 84 },
+    ]);
   });
 });
 
@@ -221,6 +253,7 @@ describe("clientGraphsRenderEqually", () => {
     ["isCollection", { isCollection: true }],
     ["hasChildren", { hasChildren: true }],
     ["hasError", { hasError: true }],
+    ["requiresRestore", { requiresRestore: true }],
   ])("reports a change when %s differs", (_field, overrides) => {
     const before = makeClientGraph([node()]);
     const after = makeClientGraph([node(overrides as Partial<GraphNode>)]);

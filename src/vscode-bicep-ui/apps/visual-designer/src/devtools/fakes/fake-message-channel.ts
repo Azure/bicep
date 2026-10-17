@@ -15,8 +15,11 @@ import type {
   GetGraphParams,
   GetGraphResult,
   LayoutGraphParams,
+  LayoutGraphResult,
   ReplaySourceStepParams,
   ReplaySourceStepResult,
+  RestoreModuleSourceParams,
+  RestoreModuleSourceResult,
   Settings,
   SourceStepReference,
   TargetScope,
@@ -33,6 +36,7 @@ import {
   layoutGraph as layoutGraphRequest,
   ready,
   replaySourceStep,
+  restoreModuleSource,
   revealNode,
   settingsDidChange,
 } from "@/core";
@@ -44,6 +48,12 @@ import { getCatalogDelayMs, getSampleApiVersions, getSampleResourceTypes } from 
 
 const FAKE_FILE_PATH = "file:///main.bicep";
 
+/** A delay in milliseconds from the page's query string, or `fallback` when it is absent or not a valid delay. */
+function getDelayParam(name: string, fallback: number): number {
+  const delay = Number(new URLSearchParams(window.location.search).get(name) ?? fallback);
+  return Number.isFinite(delay) && delay >= 0 ? delay : fallback;
+}
+
 /**
  * A fake message channel that simulates the VS Code extension host for dev-mode usage.
  * Graph changes are announced with `document/didChange`; the webview then pulls the graph
@@ -54,6 +64,8 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   private readonly createdResources = new Map<string, { node: SampleGraphNode; isInSource: boolean }>();
   private catalogRevision = 0;
   private versionRequestCount = 0;
+  private restoreRequestCount = 0;
+  private moduleLayoutRequestCount = 0;
   private targetScope: TargetScope = "resourceGroup";
   private colorThemeMatched = new URLSearchParams(window.location.search).get("matchColorTheme") === "true";
   /** Set by `skipGraphUpdateAfterUndo`: graph updates omit an undone creation until the graph changes again. */
@@ -139,8 +151,21 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
     }
 
     if (requestMessage.method === layoutGraphRequest.method) {
-      const { graph, collapsedNodeIds } = requestMessage.params as LayoutGraphParams;
-      return Promise.resolve(layoutGraph(graph, this.servedGraph, new Set(collapsedNodeIds)) as T);
+      const { graph, collapsedNodeIds, rootNodeId } = requestMessage.params as LayoutGraphParams;
+      // `moduleLayout=graphChanged` or `moduleLayout=layoutFailed` answers the first layout of a module on its own
+      // with that status, to exercise the retry and the fallback to laying out the whole graph.
+      const forcedStatus = new URLSearchParams(window.location.search).get("moduleLayout");
+      if (
+        rootNodeId !== undefined &&
+        this.moduleLayoutRequestCount++ === 0 &&
+        (forcedStatus === "graphChanged" || forcedStatus === "layoutFailed")
+      ) {
+        return Promise.resolve({ status: forcedStatus, positions: [], bounds: null } satisfies LayoutGraphResult as T);
+      }
+      // Laid out against the graph served when the request arrives, like the language server; `layoutDelay` holds the
+      // response back, so a local change can land while it is in flight.
+      const result = layoutGraph(graph, this.servedGraph, new Set(collapsedNodeIds), rootNodeId);
+      return new Promise<T>((resolve) => setTimeout(() => resolve(result as T), getDelayParam("layoutDelay", 0)));
     }
     if (requestMessage.method === createResource.method) {
       if (new URLSearchParams(window.location.search).get("resourceEditing") === "false") {
@@ -162,27 +187,30 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
       }
 
       return new Promise<T>((resolve) => {
-        setTimeout(() => {
-          const node: SampleGraphNode = {
-            id: symbolicName,
-            type: request.resourceType.fullyQualifiedType,
-            isCollection: false,
-            hasChildren: false,
-            hasError: true,
-          };
-          this.pushGraph({
-            ...current,
-            nodes: [...current.nodes, node],
-          });
-          this.createdResources.set(request.operationId, { node, isInSource: true });
+        setTimeout(
+          () => {
+            const node: SampleGraphNode = {
+              id: symbolicName,
+              type: request.resourceType.fullyQualifiedType,
+              isCollection: false,
+              hasChildren: false,
+              hasError: true,
+            };
+            this.pushGraph({
+              ...current,
+              nodes: [...current.nodes, node],
+            });
+            this.createdResources.set(request.operationId, { node, isInSource: true });
 
-          resolve({
-            version: 1,
-            operationId: request.operationId,
-            expectedNodeId: symbolicName,
-            unresolvedRequiredProperties: ["name"],
-          } satisfies CreateResourceResult as T);
-        }, 300);
+            resolve({
+              version: 1,
+              operationId: request.operationId,
+              expectedNodeId: symbolicName,
+              unresolvedRequiredProperties: ["name"],
+            } satisfies CreateResourceResult as T);
+          },
+          getDelayParam("createDelay", 300),
+        );
       });
     }
 
@@ -211,7 +239,61 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
       } satisfies ReplaySourceStepResult as T);
     }
 
+    if (requestMessage.method === restoreModuleSource.method) {
+      return this.restoreModuleSource(requestMessage.params as RestoreModuleSourceParams) as Promise<T>;
+    }
+
     return Promise.reject(new Error(`FakeMessageChannel does not support request: ${requestMessage.method}`));
+  }
+
+  /**
+   * Like the language server, restore a remote module whose source is not cached. `restoreDelay` holds the
+   * restore open, and `restoreFailures=N` makes the first N attempts fail. The webview fetches the graph afterwards.
+   */
+  private restoreModuleSource({ nodeId }: RestoreModuleSourceParams): Promise<RestoreModuleSourceResult> {
+    const fails =
+      this.restoreRequestCount++ < Number(new URLSearchParams(window.location.search).get("restoreFailures") ?? 0);
+
+    return new Promise((resolve) => {
+      setTimeout(
+        () => {
+          const current = this.currentGraph;
+          const node = current?.nodes.find((candidate) => candidate.id === nodeId);
+          if (!current || !node?.requiresRestore) {
+            resolve({ status: "notFound" });
+            return;
+          }
+
+          if (fails) {
+            resolve({ status: "failed", message: "The registry could not be reached." });
+            return;
+          }
+
+          const child = (name: string, type: string): SampleGraphNode => ({
+            id: `${nodeId}::${name}`,
+            type,
+            isCollection: false,
+            hasChildren: false,
+            hasError: false,
+          });
+
+          // A restore changes no document, so the host announces nothing: the webview's own fetch picks it up.
+          this.currentGraph = {
+            ...current,
+            nodes: [
+              ...current.nodes.map((candidate) =>
+                candidate.id === nodeId ? { ...candidate, hasChildren: true, requiresRestore: false } : candidate,
+              ),
+              child("thing", "Microsoft.Network/networkSecurityGroups"),
+              child("lock", "Microsoft.Authorization/locks"),
+            ],
+            edges: [...current.edges, { sourceId: `${nodeId}::lock`, targetId: `${nodeId}::thing` }],
+          };
+          resolve({ status: "restored" });
+        },
+        getDelayParam("restoreDelay", 300),
+      );
+    });
   }
 
   /** The last graph pushed, so mutations can build on top of it. */
@@ -236,11 +318,9 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   sendNotification(notificationMessage: WebviewNotificationMessage) {
     if (notificationMessage.method === ready.method) {
       this.sendSettings();
-      // Simulate async response from the extension host:
-      // after a short delay, present the sample deployment graph.
-      setTimeout(() => {
-        this.pushGraph(MODULE_GRAPH);
-      }, 50);
+      // Simulate async response from the extension host: after a short delay (or `graphDelay`, standing in for
+      // a language server that is still starting), present the sample deployment graph.
+      setTimeout(() => this.pushGraph(MODULE_GRAPH), getDelayParam("graphDelay", 50));
     } else if (notificationMessage.method === revealNode.method) {
       // The real host would resolve the node's source location via the language server and reveal it.
       console.log("[FakeMessageChannel] revealNode:", notificationMessage.params);

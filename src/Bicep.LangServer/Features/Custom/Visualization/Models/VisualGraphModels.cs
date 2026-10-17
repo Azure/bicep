@@ -20,9 +20,14 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
     /// A node in the server's canonical visual graph. Sizes are intentionally absent: the webview owns node
     /// measurement, so the layout engine receives sizes from the client (<see cref="MeasuredGraphNode"/>).
     /// <para>
-    /// The node carries no source location (<c>filePath</c>/<c>range</c>). Those change on nearly every edit,
+    /// The node carries no source location (<c>uri</c>/<c>range</c>). Those change on nearly every edit,
     /// so they are resolved on demand when the user reveals a node (see <c>textDocument/visualGraphNodeSource</c>),
     /// which keeps an unchanged graph identical from one edit to the next.
+    /// </para>
+    /// <para>
+    /// <see cref="RequiresRestore"/> marks a registry module whose published source is not in the local module cache:
+    /// restoring it may supply its contents. It is false for everything else, including a remote module whose
+    /// contents can never be shown (published without source, or a template spec).
     /// </para>
     /// </summary>
     public record GraphNode(
@@ -33,13 +38,15 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
         string SymbolName,
         bool IsCollection,
         bool HasChildren,
+        bool RequiresRestore,
         bool HasError);
 
     /// <summary>
     /// The source location of a node, resolved on demand from the live compilation so that volatile
-    /// <c>filePath</c>/<c>range</c> data never travels with the graph. See <see cref="GraphNode"/>.
+    /// <c>uri</c>/<c>range</c> data never travels with the graph. See <see cref="GraphNode"/>. The URI is a
+    /// <c>file:</c> URI for local files and a <c>bicep-extsrc:</c> URI for a remote module's published source.
     /// </summary>
-    public record NodeSource(string? FilePath, Range Range);
+    public record NodeSource(string Uri, Range Range);
 
     /// <summary>
     /// A directed dependency edge in the server's canonical visual graph. Containment (parent/child)

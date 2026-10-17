@@ -14,7 +14,7 @@ export function shouldReduceMotion(policy: MotionPolicy): boolean {
 }
 
 /**
- * How a module frame morphs between its expanded container and its collapsed card. The frame and its
+ * How a module frame morphs between its expanded container and its collapsed node. The frame and its
  * header share it so they move as one.
  */
 export const MODULE_MORPH_TRANSITION = {

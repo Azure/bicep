@@ -3,45 +3,42 @@
 
 import type { createStore } from "jotai";
 import type { Box, Point } from "@/lib/math";
-import type { GetGraphResult, MeasuredGraph } from "../api";
+import type { GetGraphResult } from "../api";
 import type { GraphActions } from "../context/GraphActionsContext";
-import type { ClientGraph } from "../graph-model";
-import type { GraphLayoutMode, GraphLayoutResult } from "../graph-update-coordinator";
+import type { ClientGraph, ClientGraphs } from "../graph-model";
+import type { GraphLayoutMode, GraphLayoutRequest, GraphLayoutResult } from "../graph-update-coordinator";
 import type { NodePositions } from "../node-positions";
-import type { NodeEntrance } from "./use-apply-graph";
 
 import { useStore } from "jotai";
-import { animate } from "motion";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { fadedNodeIdsAtom, focusedNodeIdAtom, nodesByIdAtom } from "@/lib/graph";
+import { nodesByIdAtom, waitForNodeSizes } from "@/lib/graph";
 import { getErrorMessage } from "@/utils";
 import { useGraphApi } from "../api";
 import {
   commitPendingResourcesAtom,
   documentErrorCountAtom,
-  isGraphChangeInProgressAtom,
-  motionPolicyAtom,
+  isGraphLoadedAtom,
   pendingPlacementsAtom,
   pendingRemovalNodeIdsAtom,
   replayableSourceStepKeysAtom,
   targetScopeAtom,
   undoHistoryAtom,
 } from "../atoms";
-import { centerGraphLayout, graphChangeMayAffectLayout } from "../graph-layout";
+import { centerGraphLayout, findRestoredModules, graphChangeMayAffectLayout } from "../graph-layout";
 import {
   clientGraphsRenderEqually,
   EMPTY_CLIENT_GRAPH,
   indexGraph,
   measuredGraphsEqual,
   measureGraph,
-  projectGraph,
+  subtreeGraph,
 } from "../graph-model";
-import { GraphUpdateCoordinator } from "../graph-update-coordinator";
-import { MODULE_CONTENTS_FADE_MS, MODULE_MORPH_TRANSITION, shouldReduceMotion } from "../motion";
-import { captureNodePositions, getAtomicNodeIds } from "../node-positions";
+import { AUTO_LAYOUT, GraphUpdateCoordinator } from "../graph-update-coordinator";
+import { applyNodePositions, captureNodePositions } from "../node-positions";
 import { forgetRemovedNodes, getSourceStepKey, getSourceStepReferences, recordLayoutChange } from "../undo-history";
 import { useApplyGraph } from "./use-apply-graph";
 import { useApplyGraphLayout } from "./use-apply-graph-layout";
+import { useModuleExpansion } from "./use-module-expansion";
 import { useResourceCreation } from "./use-resource-creation";
 import { useTrackGraphChange } from "./use-track-graph-change";
 import { useUndoRedo } from "./use-undo-redo";
@@ -51,43 +48,46 @@ type Store = ReturnType<typeof createStore>;
 /** How long document changes must pause before the graph is fetched again. */
 const GRAPH_UPDATE_DELAY_MS = 200;
 
-function waitForAnimationFrame(): Promise<void> {
-  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+interface LayoutPolicy {
+  /** Whether the layout is skipped when the measured graph is unchanged since the last layout of the whole graph. */
+  readonly skipsUnchangedInput: boolean;
+  /** `fit` frames what was laid out; `keep` leaves the camera where the user put it. */
+  readonly viewport: "fit" | "keep";
+  /** Whether the layout is one undoable step. */
+  readonly recordsUndoStep: boolean;
 }
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
-}
+/**
+ * What each kind of layout may disturb. Where it puts its result follows from what it covers: the whole graph is
+ * centered in the viewport, and a module where it was before it expanded.
+ *
+ * - `auto` follows a change to the graph. It skips when nothing was resized, and frames what arrived.
+ * - `reset` is the user re-tidying the graph they are looking at, so it always runs: the measurements are unchanged
+ *   when the user has only dragged nodes, which is exactly when it must still run. It keeps their camera and is one
+ *   undoable step.
+ * - `module` places the contents of a restored module, leaving the camera and the rest of the graph where they are.
+ */
+const LAYOUT_POLICIES: Readonly<Record<GraphLayoutMode | "module", LayoutPolicy>> = {
+  auto: { skipsUnchangedInput: true, viewport: "fit", recordsUndoStep: false },
+  reset: { skipsUnchangedInput: false, viewport: "keep", recordsUndoStep: true },
+  module: { skipsUnchangedInput: false, viewport: "keep", recordsUndoStep: false },
+};
 
-/** Snapshot the measured box of every mounted node, keyed by id. */
+/**
+ * The box of every mounted atomic node, keyed by id. A container is sized from its contents, so it has no size of its
+ * own to lay out -- and the box it draws is in motion while it grows or shrinks.
+ */
 function measureNodes(store: Store): Map<string, Box> {
   const renderedNodes = store.get(nodesByIdAtom);
   const boxes = new Map<string, Box>();
 
   for (const [nodeId, rendered] of Object.entries(renderedNodes)) {
-    boxes.set(nodeId, store.get(rendered.boxAtom));
-  }
-
-  return boxes;
-}
-
-function getNodeCenter(box: Box): Point {
-  return {
-    x: (box.min.x + box.max.x) / 2,
-    y: (box.min.y + box.max.y) / 2,
-  };
-}
-
-function captureAtomicNodeCenters(store: Store, rootNodeId: string): Map<string, Point> {
-  const centers = new Map<string, Point>();
-
-  for (const [nodeId, node] of Object.entries(store.get(nodesByIdAtom))) {
-    if (node.kind === "atomic" && nodeId.startsWith(`${rootNodeId}::`)) {
-      centers.set(nodeId, getNodeCenter(store.get(node.boxAtom)));
+    if (rendered.kind === "atomic") {
+      boxes.set(nodeId, store.get(rendered.boxAtom));
     }
   }
 
-  return centers;
+  return boxes;
 }
 
 export interface GraphSync extends GraphActions {
@@ -99,9 +99,9 @@ export interface GraphSync extends GraphActions {
  * Keeps the client graph in step with the Bicep file: graph updates, layout, and recording node
  * drags and Reset Layout in the undo history. Mounted once, by `GraphActionsProvider`.
  *
- * Resource creation and undo/redo live in their own hooks. They share state with this one only
- * through atoms: the undo history, the pending resources and removals, and the graph changes in
- * progress.
+ * Resource creation, undo/redo, and how modules show their contents live in their own hooks. They share state with
+ * this one only through atoms -- the undo history, the pending resources and removals, and the graph changes in
+ * progress -- except module expansion, which also shares the client graphs: collapsing a module changes what is shown.
  *
  * Ordering lives in `GraphUpdateCoordinator`, which has no React dependency and is unit tested
  * directly — the rules there govern hazards that are impractical to force end to end.
@@ -117,21 +117,19 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
   const createResourceAt = useResourceCreation(coordinator);
   const { undo, redo } = useUndoRedo(coordinator, { animateNodePositions, stopNodeAnimations });
 
-  /**
-   * The two graphs the client holds: the latest graph from the host, and the last measured graph it
-   * submitted for layout — kept so a pass can skip layout when measured sizes are unchanged.
-   */
-  const clientGraphsRef = useRef<{ source: ClientGraph; rendered: ClientGraph; measured: MeasuredGraph | null }>({
+  const clientGraphsRef = useRef<ClientGraphs>({
     source: EMPTY_CLIENT_GRAPH,
     rendered: EMPTY_CLIENT_GRAPH,
     measured: null,
   });
-  /** Module IDs the user collapsed. A local view choice: the host's graph never changes. */
-  const collapsedNodeIdsRef = useRef(new Set<string>());
-  /** Where the contents of collapsed modules were, so expanding puts them back. */
-  const hiddenNodeCentersRef = useRef(new Map<string, Point>());
-  /** Each collapsed module's top-left corner when it collapsed, to tell how far its card has moved since. */
-  const collapsedModuleAnchorsRef = useRef(new Map<string, Point>());
+  const {
+    getCollapsedNodeIds,
+    reconcileModules,
+    prepareExpansions,
+    getExpansionAnchor,
+    revealExpansions,
+    toggleModuleCollapsed,
+  } = useModuleExpansion(clientGraphsRef, coordinator, { applyGraph, stopNodeAnimations });
 
   /** For each node drag in progress, the positions of the dragged subtree when it started moving. */
   const dragStartPositionsRef = useRef(new Map<string, NodePositions>());
@@ -167,39 +165,40 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
   );
 
   const applyUpdate = useCallback(
-    async (response: GetGraphResult): Promise<{ layoutRequired: boolean }> => {
+    async (response: GetGraphResult): Promise<{ layouts: GraphLayoutRequest[] }> => {
       // Offer only the source steps the host confirmed for this update. The rest stay in the history,
       // disabled, since an edit in progress can make a step replayable again. The coordinator never
       // applies a response fetched before the latest document change, so these match the current file.
       store.set(replayableSourceStepKeysAtom, new Set((response.replayableSourceSteps ?? []).map(getSourceStepKey)));
 
       if (!response.graph) {
-        return { layoutRequired: false };
+        return { layouts: [] };
       }
 
+      store.set(isGraphLoadedAtom, true);
       store.set(targetScopeAtom, response.targetScope);
       store.set(documentErrorCountAtom, response.errorCount);
       const previousSource = clientGraphsRef.current.source;
       const previousRendered = clientGraphsRef.current.rendered;
       const source = indexGraph(response.graph);
-      collapsedNodeIdsRef.current = new Set(
-        [...collapsedNodeIdsRef.current].filter((nodeId) => {
-          const node = source.nodes.get(nodeId);
-          return node?.kind === "module" && node.hasChildren;
-        }),
-      );
-      const graph = projectGraph(source, collapsedNodeIdsRef.current);
+      const graph = reconcileModules(source);
       clientGraphsRef.current.source = source;
       clientGraphsRef.current.rendered = graph;
 
       const placements = store.get(pendingPlacementsAtom);
       const pendingRemovalNodeIds = store.get(pendingRemovalNodeIdsAtom);
+      const restoredModuleIds = findRestoredModules(previousRendered, graph);
       const layoutRequired =
         graph.nodes.size > 0 &&
         graphChangeMayAffectLayout(previousRendered, graph, {
           explicitlyPlacedNodeIds: new Set(placements.keys()),
           pendingRemovalNodeIds,
+          restoredModuleIds,
         });
+      // A restored module expands in place, laid out on its own, unless the whole graph needs laying out anyway.
+      const layouts: GraphLayoutRequest[] = layoutRequired
+        ? [AUTO_LAYOUT]
+        : [...restoredModuleIds].map((nodeId) => ({ scope: "module", nodeId }));
 
       // A removal the designer was expecting has happened once the node is gone.
       store.set(pendingRemovalNodeIdsAtom, new Set([...pendingRemovalNodeIds].filter((id) => source.nodes.has(id))));
@@ -215,16 +214,19 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
       // Nothing the canvas shows has changed, so leave the mounted nodes alone rather than tearing the
       // graph down and re-laying it out. Most keystrokes land here.
       if (clientGraphsRenderEqually(previousRendered, graph)) {
-        return { layoutRequired };
+        return { layouts };
       }
+
       // Apply the new topology. Visibility is preserved for incremental edits (so nodes animate in
-      // place) and gated for major changes; positions arrive with the layout.
+      // place) and gated for major changes; positions arrive with the layout. A restored module's contents start
+      // hidden where the module was until its own layout places them.
+      const entrances = prepareExpansions(graph, layoutRequired ? [] : restoredModuleIds);
       const previousNodesById = store.get(nodesByIdAtom);
-      applyGraph(graph, newNodeOrigins);
+      applyGraph(graph, { newNodeOrigins, entrances, awaitsLayout: layoutRequired });
       if (store.get(nodesByIdAtom) !== previousNodesById) {
         const liveNodeIds = new Set([
           ...[...source.nodes.values()].filter((node) => !node.hasChildren).map((node) => node.id),
-          ...collapsedNodeIdsRef.current,
+          ...getCollapsedNodeIds(),
           ...placements.keys(),
         ]);
         store.set(undoHistoryAtom, (history) => forgetRemovedNodes(history, liveNodeIds));
@@ -240,81 +242,127 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
         }
       }
 
-      return { layoutRequired };
+      return { layouts };
     },
-    [applyGraph, applyGraphLayout, store],
+    [applyGraph, applyGraphLayout, getCollapsedNodeIds, prepareExpansions, reconcileModules, store],
   );
 
-  const runGraphLayout = useCallback(
-    async (mode: GraphLayoutMode): Promise<GraphLayoutResult> => {
-      const isReset = mode === "reset";
-      const graph = clientGraphsRef.current.rendered;
+  /**
+   * Lay out what a request covers: measure it, have the host lay it out, and place the result as its policy says.
+   * What to retry or fall back to afterwards is the coordinator's decision, made from the result.
+   */
+  const layOut = useCallback(
+    async (request: GraphLayoutRequest): Promise<GraphLayoutResult> => {
+      const policy = LAYOUT_POLICIES[request.scope === "graph" ? request.mode : "module"];
+      const cover = (shown: ClientGraph) => (request.scope === "graph" ? shown : subtreeGraph(shown, request.nodeId));
 
-      if (graph.nodes.size === 0) {
-        clientGraphsRef.current.measured = null;
+      // Read what is shown once its sizes have settled: a collapse or expand can change it meanwhile.
+      await waitForNodeSizes(store);
+
+      const graph = clientGraphsRef.current.rendered;
+      // A module is laid out on its own only while its contents wait to be placed in its container.
+      const expansionAnchor = request.scope === "module" ? getExpansionAnchor(request.nodeId) : undefined;
+
+      if (graph.nodes.size === 0 || (request.scope === "module" && !expansionAnchor)) {
         return "completed";
       }
 
-      await waitForAnimationFrame();
+      const target = cover(graph);
+      const measuredGraph = measureGraph(target, measureNodes(store));
 
-      const measuredGraph = measureGraph(graph, measureNodes(store));
-
-      if (!isReset && measuredGraphsEqual(clientGraphsRef.current.measured, measuredGraph)) {
+      if (policy.skipsUnchangedInput && measuredGraphsEqual(clientGraphsRef.current.measured, measuredGraph)) {
         // Nothing was resized since the last layout, so the positions still hold. Reveal the graph in
-        // case it is still behind the visibility gate. A reset skips this: the measurements are
-        // unchanged when the user has only dragged nodes, which is exactly when it must still run.
+        // case it is still behind the visibility gate.
         await applyGraphLayout(new Map());
         return "completed";
       }
 
-      const layoutResponse = await api.layoutGraph({
+      const response = await api.layoutGraph({
         graph: measuredGraph,
-        collapsedNodeIds: [...collapsedNodeIdsRef.current],
+        collapsedNodeIds: [...getCollapsedNodeIds()],
+        rootNodeId: request.scope === "module" ? request.nodeId : undefined,
       });
 
-      // A local collapse/expand can replace the rendered projection while this request is in flight.
-      // Its response describes the old projection, so it must not move nodes in the new one.
-      if (clientGraphsRef.current.rendered !== graph) {
-        return "completed";
-      }
-
-      if (layoutResponse.status === "graphChanged") {
+      // A local collapse or expand can change what is shown while the request is in flight. The response describes
+      // what was measured, so it must not move nodes in what is shown now -- but the layout is still owed, so it runs
+      // again, against what is shown then.
+      if (!clientGraphsRenderEqually(cover(clientGraphsRef.current.rendered), target)) {
         return "graphChanged";
       }
 
-      if (layoutResponse.status === "layoutFailed") {
+      if (response.status === "graphChanged") {
+        return "graphChanged";
+      }
+
+      if (response.status === "layoutFailed") {
         // No usable layout — reveal the graph as-is so it isn't stuck hidden.
         await applyGraphLayout(new Map());
-        return "completed";
+        return "layoutFailed";
       }
 
-      const { positions: centeredPositions, bounds } = centerGraphLayout(
-        layoutResponse.positions,
-        layoutResponse.bounds,
-        getViewportCenter(),
+      // An undoable layout is one step from where the nodes were settling: undoing it must not stop partway through
+      // an animation that it interrupted.
+      const positionsBefore = policy.recordsUndoStep ? captureSettledNodePositions() : null;
+      if (positionsBefore) {
+        stopNodeAnimations();
+      }
+
+      // The layout puts its top-left corner at the origin and reports its size, so centering it on the anchor -- the
+      // viewport's center, or where a module was before it expanded -- needs no measuring.
+      const { positions, bounds } = centerGraphLayout(
+        response.positions,
+        response.bounds,
+        expansionAnchor ?? getViewportCenter(),
       );
-      clientGraphsRef.current.measured = measuredGraph;
 
-      if (!isReset) {
-        // Fit the viewport to the server-computed graph bounds before the nodes settle there.
-        if (bounds) {
-          fitViewToBounds(bounds);
-        }
-        await applyGraphLayout(centeredPositions);
-        return "completed";
+      if (policy.viewport === "fit" && bounds) {
+        // Fit the viewport to the laid-out bounds before the nodes settle there.
+        fitViewToBounds(bounds);
       }
 
-      // A reset re-arranges the graph the user is already looking at, so it keeps their camera. It is
-      // one undoable step, from where the nodes were settling to the new layout: undoing it must not
-      // stop partway through an animation that the reset interrupted.
-      const positionsBefore = captureSettledNodePositions();
-      stopNodeAnimations();
-      await applyGraphLayout(centeredPositions);
-      store.set(undoHistoryAtom, (history) => recordLayoutChange(history, positionsBefore, centeredPositions));
+      if (expansionAnchor) {
+        // The module's contents stay hidden until it is revealed, so they jump into place.
+        applyNodePositions(store, positions);
+      } else {
+        clientGraphsRef.current.measured = measuredGraph;
+        await applyGraphLayout(positions);
+      }
+
+      if (positionsBefore) {
+        store.set(undoHistoryAtom, (history) => recordLayoutChange(history, positionsBefore, positions));
+      }
 
       return "completed";
     },
-    [api, applyGraphLayout, captureSettledNodePositions, fitViewToBounds, getViewportCenter, stopNodeAnimations, store],
+    [
+      api,
+      applyGraphLayout,
+      captureSettledNodePositions,
+      fitViewToBounds,
+      getCollapsedNodeIds,
+      getExpansionAnchor,
+      getViewportCenter,
+      stopNodeAnimations,
+      store,
+    ],
+  );
+
+  const runGraphLayout = useCallback(
+    async (request: GraphLayoutRequest): Promise<GraphLayoutResult> => {
+      let isRetried = false;
+      try {
+        const result = await layOut(request);
+        isRetried = result === "graphChanged";
+        return result;
+      } finally {
+        // A restored module's hidden contents are shown once a layout covering the module is done with them, placed or
+        // not, unless the coordinator runs it again. Nothing else would show them.
+        if (!isRetried) {
+          revealExpansions(request.scope === "module" ? [request.nodeId] : undefined);
+        }
+      }
+    },
+    [layOut, revealExpansions],
   );
 
   useEffect(() => {
@@ -344,147 +392,6 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
         );
       }),
     [coordinator, trackGraphChange],
-  );
-
-  const toggleModuleCollapsed = useCallback(
-    (nodeId: string) => {
-      if (store.get(isGraphChangeInProgressAtom)) {
-        return;
-      }
-
-      const sourceNode = clientGraphsRef.current.source.nodes.get(nodeId);
-      const renderedNode = store.get(nodesByIdAtom)[nodeId];
-      const isCollapsing = !collapsedNodeIdsRef.current.has(nodeId);
-
-      if (
-        sourceNode?.kind !== "module" ||
-        !sourceNode.hasChildren ||
-        !renderedNode ||
-        renderedNode.kind !== (isCollapsing ? "compound" : "atomic")
-      ) {
-        return;
-      }
-
-      const isDescendant = (id: string) => id.startsWith(`${nodeId}::`);
-      const fade = (ids: readonly string[]) => store.set(fadedNodeIdsAtom, (faded) => new Set([...faded, ...ids]));
-      const unfade = (ids: readonly string[]) =>
-        store.set(fadedNodeIdsAtom, (faded) => new Set([...faded].filter((id) => !ids.includes(id))));
-
-      const toggle = async () => {
-        stopNodeAnimations();
-        const reduceMotion = shouldReduceMotion(store.get(motionPolicyAtom));
-        const moduleBox = store.get(renderedNode.boxAtom);
-        const collapsedNodeIds = new Set(collapsedNodeIdsRef.current);
-        const entrances = new Map<string, NodeEntrance>();
-        let hiddenNodeIds: string[] = [];
-
-        if (isCollapsing) {
-          for (const [hiddenNodeId, center] of captureAtomicNodeCenters(store, nodeId)) {
-            hiddenNodeCentersRef.current.set(hiddenNodeId, center);
-          }
-          // The card shrinks to the container's center, so restoring the contents is relative to it.
-          collapsedModuleAnchorsRef.current.set(nodeId, getNodeCenter(moduleBox));
-
-          if (!reduceMotion) {
-            hiddenNodeIds = Object.keys(store.get(nodesByIdAtom)).filter(isDescendant);
-            fade(hiddenNodeIds);
-            await delay(MODULE_CONTENTS_FADE_MS);
-
-            // A graph update while the contents faded may have removed the module.
-            if (!clientGraphsRef.current.source.nodes.get(nodeId)?.hasChildren) {
-              unfade(hiddenNodeIds);
-              return;
-            }
-          }
-
-          collapsedNodeIds.add(nodeId);
-          entrances.set(nodeId, {
-            data: {
-              morphFrom: reduceMotion
-                ? undefined
-                : { width: moduleBox.max.x - moduleBox.min.x, height: moduleBox.max.y - moduleBox.min.y },
-            },
-          });
-        } else {
-          // Restore the contents relative to wherever the card was moved while collapsed.
-          const cardCenter = getNodeCenter(moduleBox);
-          const anchor = collapsedModuleAnchorsRef.current.get(nodeId) ?? cardCenter;
-          const dx = cardCenter.x - anchor.x;
-          const dy = cardCenter.y - anchor.y;
-
-          for (const [hiddenNodeId, center] of hiddenNodeCentersRef.current) {
-            if (isDescendant(hiddenNodeId)) {
-              hiddenNodeCentersRef.current.set(hiddenNodeId, { x: center.x + dx, y: center.y + dy });
-            }
-          }
-
-          collapsedModuleAnchorsRef.current.delete(nodeId);
-          collapsedNodeIds.delete(nodeId);
-          if (!reduceMotion) {
-            entrances.set(nodeId, { enterFrom: moduleBox, data: { morphFrom: "card" } });
-          }
-        }
-
-        collapsedNodeIdsRef.current = collapsedNodeIds;
-        const graph = projectGraph(clientGraphsRef.current.source, collapsedNodeIds);
-        clientGraphsRef.current.rendered = graph;
-        clientGraphsRef.current.measured = null;
-
-        const revealedNodeIds = isCollapsing ? [] : [...graph.nodes.keys()].filter(isDescendant);
-        const moduleCenter = getNodeCenter(moduleBox);
-        for (const revealedNodeId of revealedNodeIds) {
-          entrances.set(revealedNodeId, {
-            origin: hiddenNodeCentersRef.current.get(revealedNodeId) ?? moduleCenter,
-          });
-        }
-
-        if (!reduceMotion) {
-          // Mount the contents transparent, so they fade in once the frame has grown around them.
-          fade(revealedNodeIds);
-        }
-
-        applyGraph(graph, new Map(), entrances);
-        // The hidden contents are unmounted now, so they no longer need fading.
-        unfade(hiddenNodeIds);
-
-        const focusedNodeId = store.get(focusedNodeIdAtom);
-        if (isCollapsing && focusedNodeId && isDescendant(focusedNodeId)) {
-          store.set(focusedNodeIdAtom, nodeId);
-        }
-
-        if (isCollapsing) {
-          if (!reduceMotion) {
-            // The card centers itself as it shrinks. Keep the change in progress until it settles,
-            // so a drag cannot fight the morph for the card's position.
-            await delay(MODULE_MORPH_TRANSITION.duration * 1000);
-          }
-          return;
-        }
-
-        store.set(undoHistoryAtom, (history) => forgetRemovedNodes(history, getAtomicNodeIds(store)));
-
-        const expandedNode = store.get(nodesByIdAtom)[nodeId];
-        if (reduceMotion || expandedNode?.kind !== "compound") {
-          unfade(revealedNodeIds);
-          return;
-        }
-
-        const growth = animate(0, 1, {
-          ...MODULE_MORPH_TRANSITION,
-          onUpdate: (progress) => store.set(expandedNode.enterProgressAtom, progress),
-        });
-        // Bring the contents in while the frame is still settling around them.
-        await delay(MODULE_MORPH_TRANSITION.duration * 500);
-        unfade(revealedNodeIds);
-        await growth;
-        store.set(expandedNode.enterProgressAtom, 1);
-      };
-
-      trackGraphChange(toggle).catch((error: unknown) => {
-        console.error("Visual designer module toggle failed:", getErrorMessage(error, "Failed to toggle the module."));
-      });
-    },
-    [applyGraph, stopNodeAnimations, store, trackGraphChange],
   );
 
   return {

@@ -14,7 +14,8 @@ interaction.
 
 The webview message contracts are defined by feature:
 
-- [Core API](../src/core/api.ts): settings, graph, layout, source navigation, resource creation, and undo
+- [Core API](../src/core/api.ts): settings, graph, layout, source navigation, remote-module restore,
+  resource creation, and undo
 - [Palette API](../src/features/palette/api.ts): resource type catalog and API versions
 
 ## Graph synchronization
@@ -60,7 +61,12 @@ sequenceDiagram
 `graph/get` returns the whole graph (`nodes`, `edges`) built from the live compilation, the document's
 `targetScope: "resourceGroup" | "subscription" | "managementGroup" | "tenant" | null`, and the
 document's `errorCount`, which includes errors that belong to no node. The graph
-is null when no compiled model is available, and the webview then keeps what it shows. A whole graph
+is null when no compiled model is available, and the webview then keeps what it shows. Until the first
+graph arrives, the status bar shows a loading indicator rather than the empty-graph message: the
+language server may still be starting or compiling the file, which for registry modules includes
+compiling their published sources. A visualizer restored with the window waits for the language client
+to be running before it opens its Bicep file, because the client does not sync a document that was
+already open in the background when it started. A whole graph
 rather than a delta means no response depends on what the webview showed before, so the host keeps no
 state and responses need no ordering. The webview compares each graph with the previous one to decide
 what to mount and whether layout is stale. Only accepted coordinator updates publish scope to canvas
@@ -73,28 +79,73 @@ are omitted, and dependencies crossing its boundary terminate at the collapsed m
 graph is unchanged. Collapse state survives graph refreshes while the same module ID and available
 children remain.
 
+### Remote modules
+
+Registry (`br:`) modules expand like local modules when their published Bicep source is in the local
+module cache. The language server reads each module's `source.tgz` and compiles every archived Bicep file on
+its own, without restoring or touching the file system. It then follows the archive's document links
+instead of the module paths: a link to an archived Bicep file is a local module inside the remote one, and
+a link carrying a source artifact ID is a nested registry module, resolved the same way. The compiled
+sources are cached per module and keyed by the archive's hash, so a forced restore is picked up. The
+compiled sources live only in the language server's memory; what survives a restart is the local
+module cache on disk (`~/.bicep/br/...`), so a module restored once expands on every later load without
+restoring again. Remote
+children use the same `parent::symbol` IDs as local children and never report `hasError`: the published
+source is not the user's to fix, and compiled alone it reports errors that the module does not have.
+
+A remote module whose contents cannot be shown is a leaf module card. When its source is simply not in
+the local module cache, the node has `requiresRestore: true` and the card shows the usual expand
+toggle; otherwise (published without source, a template spec, or an unreadable archive) it has no toggle,
+like a local module with no declarations.
+
+Restoring is the only network access the viewer starts, and only when the user asks: nested registry
+modules are never restored while the parent compiles, so expanding one sends `module/restoreSource`. The
+extension forwards it as `textDocument/visualGraphRestoreModuleSource`, and the language server restores
+that artifact without forcing, which fills the local module cache and edits nothing. If the document
+references the module directly, the language server also recompiles the document. The result is
+`restored`, `failed` with a message, or `notFound`. The toggle shows a spinner while the restore runs and
+until the next graph arrives. A failure turns the toggle into an error icon, always visible, whose tooltip
+carries the message; clicking it retries. Restore state is session-local webview state, cleared once the
+module no longer requires restoring. Each restore settles only the state it started: one that finishes after its
+module was removed, or after a module added back under the same ID began a restore of its own, changes nothing.
+
+A restored module expands in place: the webview lays out only that module (see the layout contract) and
+centers its container on the card it replaces, growing the frame from the card while the contents fade in.
+Until that layout places them, the contents wait hidden on the card. The rest of the graph and the camera stay
+put, so the grown container may overlap its neighbors until Reset Layout. If the update also changed something
+else that affects layout, the whole graph is laid out instead, and a module that cannot be laid out on its own
+falls back to that.
+
 The passive scope indicator is outside the export canvas subtree, like the palette and controls.
 It uses Azure resource-group, subscription-alias, and management-group icons; tenant uses the neutral
 organization Codicon. It stays visible when resource creation is disabled.
 
 ### Layout contract
 
-`graph/layout` submits a `MeasuredGraph`: node identity and containment, measured node dimensions,
-and edges, plus the module IDs collapsed in that projection. Positions are not sent to the server.
+`graph/layout` submits a `MeasuredGraph`: node identity and containment, measured node dimensions in whole
+pixels, and edges, plus the module IDs collapsed in that projection. A module shown as a container reports no
+size: it is sized from its contents. Positions are not sent to the server.
 The language server applies the same projection to the live graph before validating topology and
 laying it out. An `ok` response carries the positions of the visible nodes the engine laid out and
 the bounds of the projected graph.
 
+With a `rootNodeId`, the request lays out only that expanded module: the measured graph holds the module
+and its descendants with their dependencies, the server validates it against the same subtree of the
+projection, the positions put the module's top-left corner at the origin, and the bounds are the module's
+size. The webview centers the result on where the module was, so the camera and the rest of the graph do
+not move. The module padding is the same on both sides, so the bounds match the box the canvas draws.
+
 The response status controls the next step:
 
-| Status         | Client action                                 |
-| -------------- | --------------------------------------------- |
-| `ok`           | Apply node positions and fit the graph bounds |
-| `graphChanged` | Reconcile and retry the same layout mode      |
-| `layoutFailed` | Reveal the graph at its current positions     |
+| Status         | Client action                                                                     |
+| -------------- | --------------------------------------------------------------------------------- |
+| `ok`           | Place the nodes: the graph centered in the viewport, or the module on its card    |
+| `graphChanged` | Reconcile and retry the same layout, keeping its scope and mode                   |
+| `layoutFailed` | Reveal the graph at its current positions; a module falls back to the whole graph |
 
 Source locations are resolved on demand through `document/revealNode` and are not stored in graph
-metadata.
+metadata. The language server returns a `file:` URI, or a `bicep-extsrc:` URI for a node inside a
+registry module's published source, which the extension opens through its external-source provider.
 
 ### Layout invalidation
 
@@ -102,19 +153,37 @@ Layout may be stale when, compared with the previous graph:
 
 - A node or edge was added or removed
 - A node changed kind or container
-- A node's `type`, `isCollection`, or `hasChildren` changed
+- A node's `type`, `isCollection`, `hasChildren`, or `requiresRestore` changed
 
 A correlated resource node with an explicit placement does not invalidate layout by itself.
 Undo of an independent top-level resource creation likewise removes only that node;
-surviving positions and the camera stay put, even if the graph update arrives late. An edge
+surviving positions and the camera stay put, even if the graph update arrives late. A module that
+required restoring and now has contents, with the contents and dependencies inside it, does not
+invalidate layout either: it is laid out on its own. An edge
 change or another layout-affecting change still requests layout. Changes limited to `hasError` or
 the error count do not invalidate layout.
 
-After an invalidating change, the webview renders and measures the graph. It requests layout only when
-topology or dimensions differ from the last successful layout input.
+After an invalidating change, the webview renders and measures the graph. A layout first waits until every
+node's size is settled, so it never measures a size a node does not keep:
+
+- The canvas has mounted every node it was given, which React can do a frame or more after the graph is
+  applied. A node has no size until it mounts.
+- No module is morphing between its shapes. A collapsing module passes through sizes it does not keep.
+- Each node has read its size from the page again. A node already on the canvas that changes size in the
+  same update learns of it otherwise only when the browser reports the resize, a frame later.
+
+The webview requests layout only when
+topology or dimensions differ from the last successful layout input. When most of the rendered nodes
+are new, the graph stays hidden until that layout reveals it. Changes the webview positions itself
+(collapse, expand, and a restored module expanding in place) never hide it.
 
 - Automatic layout may skip unchanged input and fits the viewport after success.
 - **Reset Graph Layout** bypasses the unchanged-input check and preserves the viewport.
+- A restored module's layout centers the module on its card and preserves the viewport.
+
+One layout operation serves all three; they differ only in what they cover, where the result goes, and these
+policies. A response that arrives after a local collapse or expand changed what it measured moves nothing, and
+the layout runs again against what is shown then.
 
 Collapsing a module does not run layout. Its contents and their edges fade out, then the container
 shrinks toward its center into a resource-style card. The card writes its own box on each animation
@@ -163,7 +232,8 @@ Text fields and the source editor retain their native undo behavior. See the
 | [undo-history.ts](../src/core/undo-history.ts)                              | Pure undo/redo stacks of layout and source steps                      |
 | [node-positions.ts](../src/core/node-positions.ts)                          | Capture and restore atomic node positions                             |
 | [graph-update-coordinator.ts](../src/core/graph-update-coordinator.ts)      | Update/layout ordering, coalescing, and mutation serialization        |
-| [use-graph-sync.ts](../src/core/hooks/use-graph-sync.ts)                    | Graph updates, layout, and node-drag and Reset Layout history         |
+| [use-graph-sync.ts](../src/core/hooks/use-graph-sync.ts)                    | Graph updates, scoped layout, and node-drag and Reset Layout history  |
+| [use-module-expansion.ts](../src/core/hooks/use-module-expansion.ts)        | Module collapse/expand, restores, and in-place expansion transitions  |
 | [GraphActionsProvider.tsx](../src/core/components/GraphActionsProvider.tsx) | Mounts graph sync and Undo/Redo shortcuts; provides `useGraphActions` |
 | [use-resource-creation.ts](../src/core/hooks/use-resource-creation.ts)      | Placeholder, extension insertion, and creation history step           |
 | [use-undo-redo.ts](../src/core/hooks/use-undo-redo.ts)                      | Undo/redo of layout and resource-creation steps                       |
@@ -173,11 +243,15 @@ Text fields and the source editor retain their native undo behavior. See the
 The coordinator tracks pending update and layout work independently:
 
 - Reconciliation runs before layout.
-- Reset layout takes precedence over automatic layout.
+- Reset layout takes precedence over automatic layout, and a layout of the whole graph replaces the module
+  layouts owed, since it places their contents too.
+- Modules owed a layout of their own are laid out one at a time.
 - The host sends `document/didChange` on every change. The webview discards any response in flight at
   once and requests the update after changes pause for 200 ms; repeated requests coalesce.
 - Responses superseded by notifications or mutations are discarded before applying graph or scope state.
-- `graphChanged` schedules reconciliation and retries the same layout mode.
+- `graphChanged` schedules reconciliation and retries the same layout, keeping its scope and mode.
+- A module that cannot be laid out on its own falls back to an automatic layout of the whole graph. A failed
+  layout of the whole graph is not retried.
 - Request promises settle after all currently pending work completes.
 
 The language server is stateless between requests. It rebuilds the authoritative graph from the live
@@ -403,23 +477,27 @@ CSS variable on `<html>`. [atoms.ts](../src/ui/theme/atoms.ts) observes both and
 
 Jotai stores shared observable state, including undo/redo availability. `useGraphSync` owns the
 client graph and the mutation queue; pending resources, pending removals, and the chronological
-undo history are core atoms. The extension owns the validated source insertion/inverse for each
+undo history are core atoms. `useModuleExpansion` owns which modules are collapsed and the transitions
+between a module's card and its frame; module restores are a core atom it changes only through actions that
+let each request settle only its own entry. The extension owns the validated source insertion/inverse for each
 operation ID. Features change the graph through `useGraphActions`; the palette drops resources
 through the canvas's `useCanvasDropTarget`.
 
 ## Errors and limitations
 
-| Case                                        | Behavior                                    |
-| ------------------------------------------- | ------------------------------------------- |
-| Layout computation fails                    | Keep current positions and reveal the graph |
-| Catalog request fails                       | Show retry UI                               |
-| Drop is outside the canvas                  | Cancel without changing source              |
-| Resource type or API version is unavailable | Remove pending state and log the failure    |
-| Document version changed                    | Reject the edit                             |
-| Resource editing disabled                   | Reject creation without changing source     |
-| Source step can no longer replay exactly    | Disable it until a graph update confirms it |
-| Workspace edit rejected                     | Remove pending state and log the failure    |
-| Required values are unresolved              | Emit empty values for later source editing  |
+| Case                                        | Behavior                                     |
+| ------------------------------------------- | -------------------------------------------- |
+| Layout computation fails                    | Keep current positions and reveal the graph  |
+| Catalog request fails                       | Show retry UI                                |
+| Drop is outside the canvas                  | Cancel without changing source               |
+| Resource type or API version is unavailable | Remove pending state and log the failure     |
+| Document version changed                    | Reject the edit                              |
+| Resource editing disabled                   | Reject creation without changing source      |
+| Source step can no longer replay exactly    | Disable it until a graph update confirms it  |
+| Workspace edit rejected                     | Remove pending state and log the failure     |
+| Required values are unresolved              | Emit empty values for later source editing   |
+| Remote module source is unavailable         | Show the module as a leaf without a toggle   |
+| Remote module restore fails                 | Error toggle with the message; click retries |
 
 Graph reconciliation silently discards stale history entries when resources disappear. Failed
 designer actions are logged to the webview console, without an in-canvas notification.
@@ -457,12 +535,14 @@ Both are timing-dependent and have not been reproduced on demand.
 
 ## Validation
 
-- Language-server tests cover graph building, topology checks, layout, catalog behavior, naming,
-  source generation, insertion, and replay.
-- Extension tests cover forwarding, settings, document version checks, and edit application.
+- Language-server tests cover graph building, remote-module expansion and restore, topology checks,
+  layout, catalog behavior, naming, source generation, insertion, and replay.
+- Extension tests cover forwarding (including module restore and source reveal by URI), settings,
+  document version checks, and edit application.
 - Vitest covers webview atoms, graph model/layout behavior, mixed undo history, export state,
   coordinator ordering, color parsing and contrast, and color-theme derivation against every
   built-in VS Code theme.
-- Playwright covers graph interaction, export, palette behavior and views, loading, search, pointer
-  placement, drop rejection, drag-only creation, flag-off viewing, color-theme matching, and local
-  layout undo/redo.
+- Playwright covers graph interaction, nested-module collapse/expand, remote-module restore-on-expand
+  (in place, with failure and retry, and with the module's own layout retried or falling back), export, palette
+  behavior and views, loading, search, pointer placement, drop rejection, drag-only creation, flag-off
+  viewing, color-theme matching, and local layout undo/redo.

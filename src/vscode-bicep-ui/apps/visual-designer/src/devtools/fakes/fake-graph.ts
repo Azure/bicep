@@ -4,7 +4,7 @@
 import type { Graph, GraphBounds, GraphNode, LayoutGraphResult, MeasuredGraph, NodePosition } from "@/core";
 import type { SampleGraph, SampleGraphNode } from "./sample-graphs";
 
-import { indexGraph, projectGraph } from "@/core/graph-model";
+import { indexGraph, projectGraph, subtreeGraph } from "@/core/graph-model";
 
 /**
  * Dev-only stand-ins for the language server's graph and layout requests, so the dev playground can run
@@ -31,6 +31,7 @@ function toGraphNode(node: SampleGraphNode): GraphNode {
     symbolName: node.id.split("::").pop() ?? node.id,
     isCollection: node.isCollection,
     hasChildren: node.hasChildren,
+    requiresRestore: node.requiresRestore ?? false,
     hasError: node.hasError,
   };
 }
@@ -47,8 +48,17 @@ export function toGraph(sample: SampleGraph | null): Graph {
   };
 }
 
-/** Stack each scope's children vertically, sizing modules from their contents. */
-function buildFakeLayout(nodes: GraphNode[]): { positions: NodePosition[]; bounds: GraphBounds } {
+/** The size the fake lays a node out at before it has been measured, like the language server's default node size. */
+const DEFAULT_NODE_SIZE = { width: 220, height: 80 };
+
+/**
+ * Stack each scope's children vertically, sizing modules from their contents and other nodes as measured, like the
+ * language server.
+ */
+function buildFakeLayout(
+  nodes: GraphNode[],
+  measuredSizes: ReadonlyMap<string, { width: number; height: number }>,
+): { positions: NodePosition[]; bounds: GraphBounds } {
   const nodesByParent = new Map<string | null, GraphNode[]>();
   const positions: NodePosition[] = [];
 
@@ -70,8 +80,9 @@ function buildFakeLayout(nodes: GraphNode[]): { positions: NodePosition[]; bound
     for (const node of siblings) {
       positions.push({ nodeId: node.id, x: offsetX, y: offsetY + cursorY });
 
-      let width = 220;
-      let height = 80;
+      const measuredSize = measuredSizes.get(node.id);
+      let { width, height } =
+        measuredSize && measuredSize.width > 0 && measuredSize.height > 0 ? measuredSize : DEFAULT_NODE_SIZE;
 
       if (node.hasChildren) {
         const childBounds = layoutScope(node.id, offsetX + 40, offsetY + cursorY + 50);
@@ -91,17 +102,23 @@ function buildFakeLayout(nodes: GraphNode[]): { positions: NodePosition[]; bound
   return { positions, bounds: { width: root.width, height: root.height } };
 }
 
-/** Like the language server, refuse to lay out a measured graph whose topology is out of date. */
+/**
+ * Like the language server, refuse to lay out a measured graph whose topology is out of date. With `rootNodeId`, lay
+ * out only that expanded module, with its corner at the origin.
+ */
 export function layoutGraph(
   measured: MeasuredGraph,
   sample: SampleGraph | null,
   collapsedNodeIds: ReadonlySet<string>,
+  rootNodeId?: string,
 ): LayoutGraphResult {
   const projected = projectGraph(indexGraph(toGraph(sample)), collapsedNodeIds);
-  const graph: Graph = { nodes: [...projected.nodes.values()], edges: [...projected.edges.values()] };
+  const target = rootNodeId === undefined ? projected : subtreeGraph(projected, rootNodeId);
+  const graph: Graph = { nodes: [...target.nodes.values()], edges: [...target.edges.values()] };
   const liveNodes = new Map(graph.nodes.map((node) => [node.id, node]));
   const liveEdgeIds = new Set(graph.edges.map((edge) => edge.id));
   const matches =
+    (rootNodeId === undefined || liveNodes.get(rootNodeId)?.hasChildren === true) &&
     measured.nodes.length === liveNodes.size &&
     measured.edges.length === liveEdgeIds.size &&
     measured.nodes.every(
@@ -113,5 +130,7 @@ export function layoutGraph(
     return { status: "graphChanged", positions: [], bounds: null };
   }
 
-  return { status: "ok", ...buildFakeLayout(graph.nodes) };
+  const nodes = graph.nodes.map((node) => (node.id === rootNodeId ? { ...node, parentId: null } : node));
+  const measuredSizes = new Map(measured.nodes.map(({ id, width, height }) => [id, { width, height }]));
+  return { status: "ok", ...buildFakeLayout(nodes, measuredSizes) };
 }

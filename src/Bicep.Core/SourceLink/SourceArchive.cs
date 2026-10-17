@@ -155,6 +155,13 @@ namespace Bicep.Core.SourceLink
         public ImmutableArray<ArchivedSourceFileLink> FindDocumentLinks(string path) =>
             this.metadata.DocumentLinks.TryGetValue(path, out var documentLinks) ? documentLinks : [];
 
+        public ArchivedSourceFile? TryFindSourceFile(string path)
+        {
+            var metadata = this.metadata.SourceFiles.FirstOrDefault(x => x.Path.Equals(path, StringComparison.Ordinal));
+
+            return metadata is not null && this.fileEntries.TryGetValue(metadata.ArchivePath, out var contents) ? new(metadata, contents) : null;
+        }
+
         public ArchivedSourceFile FindSourceFile(string path)
         {
             // TODO(shenglol): Binary search.
