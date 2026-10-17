@@ -277,6 +277,7 @@ public class MsaglVisualGraphLayoutEngineTests
             SymbolName: id,
             IsCollection: false,
             HasChildren: hasChildren,
+            RequiresRestore: false,
             HasError: false);
 
     private static GraphEdge Edge(string sourceId, string targetId) =>

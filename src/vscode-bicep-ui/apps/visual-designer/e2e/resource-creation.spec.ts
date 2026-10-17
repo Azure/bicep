@@ -58,7 +58,9 @@ test.describe("resource creation", () => {
   });
 
   test("opens the Resource Palette and keeps zoomed preview and pending nodes aligned", async ({ page }) => {
-    await openVisualDesigner(page);
+    // The placeholder is checked once dropped, so the creation is held open: otherwise the node replaces it within
+    // half a second, which a busy machine can take just to run the checks.
+    await openVisualDesigner(page, { createDelay: "3000" });
     await loadSampleGraph(page, "flat");
     await page.waitForTimeout(1_000);
     await page.getByTestId("control-zoom-in").click();
@@ -83,21 +85,21 @@ test.describe("resource creation", () => {
     await page.mouse.down();
     await expect(page.getByText("storageAccounts", { exact: true }).last()).toBeVisible();
     await page.mouse.move(dropPoint.x, dropPoint.y, { steps: 10 });
-    const previewBox = await page.getByTestId("palette-drag-preview-card").boundingBox();
+    const previewBox = await page.getByTestId("palette-drag-preview-node").boundingBox();
     expect(previewBox).not.toBeNull();
     expect(previewBox!.width).toBeGreaterThan(140);
-    await expect(page.getByTestId("palette-drag-preview-card")).toHaveCSS("opacity", "1");
-    await expect(page.getByTestId("palette-drag-preview-card").getByText("2025-01-01")).toHaveCount(0);
+    await expect(page.getByTestId("palette-drag-preview-node")).toHaveCSS("opacity", "1");
+    await expect(page.getByTestId("palette-drag-preview-node").getByText("2025-01-01")).toHaveCount(0);
     expect(previewBox!.x + previewBox!.width / 2).toBeCloseTo(dropPoint.x, 0);
     expect(previewBox!.y + previewBox!.height / 2).toBeCloseTo(dropPoint.y, 0);
     await page.mouse.up();
 
     const pendingNode = page.getByTestId("pending-resource-node");
     await expect(pendingNode).toBeVisible();
-    const pendingBox = await page.getByTestId("pending-resource-card").boundingBox();
+    const pendingBox = await page.getByTestId("pending-resource-preview").boundingBox();
     expect(pendingBox).not.toBeNull();
-    await expect(page.getByTestId("pending-resource-card")).toHaveCSS("opacity", "1");
-    await expect(page.getByTestId("pending-resource-card").getByText("2025-01-01")).toHaveCount(0);
+    await expect(page.getByTestId("pending-resource-preview")).toHaveCSS("opacity", "1");
+    await expect(page.getByTestId("pending-resource-preview").getByText("2025-01-01")).toHaveCount(0);
     expect(pendingBox!.x + pendingBox!.width / 2).toBeCloseTo(dropPoint.x, 0);
     expect(pendingBox!.y + pendingBox!.height / 2).toBeCloseTo(dropPoint.y, 0);
     expect(pendingBox!.width).toBeCloseTo(previewBox!.width, 0);

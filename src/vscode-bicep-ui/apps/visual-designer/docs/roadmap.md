@@ -45,6 +45,10 @@ criteria. Uncompleted stages are not a commitment to a particular release. See
 - Local modules expand as containers with child resources and can be collapsed manually into
   resource-style module cards. Collapse state is session-local, survives graph refreshes while IDs remain stable,
   and does not edit Bicep source or move the camera and unrelated nodes.
+- Registry modules whose published Bicep source is in the local module cache expand the same way, and
+  their children reveal the published source. A nested registry module that isn't cached is restored only
+  when the user expands it, which fills the module cache without editing source, and then expands in
+  place; a failed restore shows on its toggle, which retries.
 
 These details are documented in [Architecture](./architecture.md), the
 [dock](../src/features/dock/components/Dock.tsx),
@@ -55,9 +59,9 @@ These details are documented in [Architecture](./architecture.md), the
 
 ## Recommended delivery order
 
-Stages 0 through 2 are complete. Dependencies, not calendar dates, gate the remaining stages. Stages 3
-and 4 are viewer-only: they make no source edits, do not depend on the editing setting, and
-benefit everyone who views a graph, so they come first.
+Stages 0 through 3 are complete. Dependencies, not calendar dates, gate the remaining stages. Stage 4 is
+viewer-only: it makes no source edits, does not depend on the editing setting, and benefits everyone
+who views a graph, so it comes first.
 
 Module presentation (stage 2) precedes the editing stages. Its partial relayout, which updates
 affected nodes while preserving the camera and unaffected positions, is the same capability that
@@ -70,18 +74,18 @@ Resource placeholders in stage 7 depend only on the stage 0 mutation and layout 
 proceed alongside stages 5 and 6; module references also build on stage 2. The order within stages
 6 and 7 can respond to user feedback.
 
-| Stage                             | Deliverable                                                                    | Depends on | Exit criterion                                                                                    |
-| --------------------------------- | ------------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------- |
-| 0. Foundations (complete)         | Viewer regression coverage, gesture fix, mutation rules, undo/layout rules     | —          | Disabled editing still behaves as before; every source mutation is version-checked and reversible |
-| 1. Low-risk discovery (complete)  | Optional VS Code theme matching; Featured/All and then Recent palette views    | —          | Theme and palette changes do not create source edits or surprise existing viewers                 |
-| 2. Module presentation (complete) | Distinct collapsed-module styling and manual collapse/expand                   | 0          | Local modules toggle without source edits or loss of graph context                                |
-| 3. Remote-module expansion        | Linked-source remote modules with child resources                              | 2          | Remote children and source links work; unavailable source is explicit                             |
-| 4. Resource containers            | Source-defined RG/MG/VNet/subnet containers                                    | Design     | Agreed containment rules yield readable nested containers in themes and exports                   |
-| 5. Interaction model              | Experimental Select/Hand, selection state, contextual toolbar and context menu | 0          | Gestures and shortcuts are predictable without changing the default viewer mode                   |
-| 6. Focused source edits           | LSP-backed rename, then Convert to existing                                    | 5          | Edits preview/validate correctly, preserve graph context, and undo/redo in the editor             |
-| 7. Drag-first creation            | Placeholder-first resources; references to existing local modules              | 0, 2       | Cancel does not edit or lay out the graph; commit honors the placement/layout contract            |
-| 8. Module authoring               | New local module files                                                         | 7          | The new file and parent declaration are one previewed, undoable operation                         |
-| 9. Module refactoring             | Multi-select and Extract to Module                                             | 5, 8       | A language-server refactoring safely rewrites files and references in one operation               |
+| Stage                                 | Deliverable                                                                    | Depends on | Exit criterion                                                                                    |
+| ------------------------------------- | ------------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------- |
+| 0. Foundations (complete)             | Viewer regression coverage, gesture fix, mutation rules, undo/layout rules     | —          | Disabled editing still behaves as before; every source mutation is version-checked and reversible |
+| 1. Low-risk discovery (complete)      | Optional VS Code theme matching; Featured/All and then Recent palette views    | —          | Theme and palette changes do not create source edits or surprise existing viewers                 |
+| 2. Module presentation (complete)     | Distinct collapsed-module styling and manual collapse/expand                   | 0          | Local modules toggle without source edits or loss of graph context                                |
+| 3. Remote-module expansion (complete) | Linked-source remote modules with child resources                              | 2          | Remote children and source links work; restore failures are explicit and retryable                |
+| 4. Resource containers                | Source-defined RG/MG/VNet/subnet containers                                    | Design     | Agreed containment rules yield readable nested containers in themes and exports                   |
+| 5. Interaction model                  | Experimental Select/Hand, selection state, contextual toolbar and context menu | 0          | Gestures and shortcuts are predictable without changing the default viewer mode                   |
+| 6. Focused source edits               | LSP-backed rename, then Convert to existing                                    | 5          | Edits preview/validate correctly, preserve graph context, and undo/redo in the editor             |
+| 7. Drag-first creation                | Placeholder-first resources; references to existing local modules              | 0, 2       | Cancel does not edit or lay out the graph; commit honors the placement/layout contract            |
+| 8. Module authoring                   | New local module files                                                         | 7          | The new file and parent declaration are one previewed, undoable operation                         |
+| 9. Module refactoring                 | Multi-select and Extract to Module                                             | 5, 8       | A language-server refactoring safely rewrites files and references in one operation               |
 
 ### Stage 0: viewer safety and undo foundation (complete)
 
@@ -147,16 +151,32 @@ Descendant positions are cached and restored exactly on expand, translated when 
 so the camera and unrelated nodes do not move.
 The language server validates and lays out the same projection for Reset Layout and later graph
 updates. State survives refreshes while the module ID remains stable and is not an undo step. Stage 3
-supplies remote contents through the same controls; unavailable remote source still needs an explicit
-explanation rather than an empty-module presentation.
+supplies remote contents through the same controls.
 
-### Stage 3: remote-module expansion
+### Stage 3: remote-module expansion (complete)
 
-When a remote module has linked Bicep source files, render it as an expanded module container with
-its resources inside, using the same hierarchy as local modules and the controls from stage 2.
-Preserve source navigation for the module declaration and its child resources, and respect the
-user's collapsed state when the graph refreshes. If linked source is unavailable, keep the
-module-specific collapsed appearance and explain why its contents cannot be expanded.
+**Linked source.** A registry module whose published Bicep source is in the local module cache renders
+as an expanded module container with its resources and modules inside, using the same hierarchy, IDs,
+and collapse controls as local modules. Collapse state survives refreshes the same way. The language
+server compiles the archived files and follows the archive's links rather than the file system, so
+local modules inside the remote one and nested registry modules expand too. Revealing a remote child
+opens the published source (a `bicep-extsrc:` document) at its declaration; the module declaration
+itself still reveals the user's file. Remote children never show errors, since the published source is
+not the user's to fix.
+
+**Unavailable source.** A remote module whose contents cannot be shown keeps the collapsed-card
+appearance. Its toggle is the only affordance: an expand toggle when restoring the module may supply its
+source, and none when it never can (published without source, a template spec, or an unreadable archive),
+like a local module without declarations. There is no separate explanation icon.
+
+**Restore on expand.** Nested registry modules are not restored when the parent compiles, so their
+source is usually missing. Restoring their artifact (the source is a layer of it) is the only network
+access the viewer starts, and it happens only when the user expands such a module. It fills the local
+module cache, edits no Bicep source, and is not an undo step. The toggle shows a spinner until the next
+graph arrives. The restored module then expands in place: only it is laid out, centered on its card, and
+the rest of the graph and the camera stay put (it may overlap its neighbors until Reset Layout). A failed
+restore turns the toggle into an always-visible error icon whose tooltip carries the message; clicking it
+retries.
 
 ### Stage 4: resource containers
 
@@ -300,8 +320,9 @@ refactoring.
   controls, and stay legible in themes and exports. Toggles animate, respect reduced motion, and
   preserve boundary dependencies, camera context, and unaffected node positions.
 - **Remote modules (stage 3):** linked remote source supplies child resources with working source links
-  and the same collapse/expand controls as local modules. Unavailable source is explained explicitly,
-  and graph refreshes respect the user's collapsed state.
+  and the same collapse/expand controls as local modules. Graph refreshes respect the user's collapsed
+  state, the viewer restores a module only when the user expands it, a restored module expands in place,
+  and restore failures are explicit and retryable.
 - **Resource containers (stage 4):** containers reflect the agreed containment rules, including nested
   containers, remain distinct from modules, and stay legible in themes and exports with editing
   disabled.

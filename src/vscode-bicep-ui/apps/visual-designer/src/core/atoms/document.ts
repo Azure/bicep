@@ -15,3 +15,9 @@ export const targetScopeAtom = atom<TargetScope | null>(null);
 
 /** The errors reported for the Bicep file, including those that belong to no node. */
 export const documentErrorCountAtom = atom(0);
+
+/**
+ * Whether the host has sent a graph yet. Until then the language server is still starting or compiling the
+ * file, so an empty canvas means "loading", not "nothing to show".
+ */
+export const isGraphLoadedAtom = atom(false);

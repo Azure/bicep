@@ -78,6 +78,32 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         }
 
         /// <summary>
+        /// Returns an expanded module and its descendants, with the dependencies wholly among them, or null when
+        /// <paramref name="rootNodeId"/> is not a module with children in <paramref name="graph"/>. Node parents are
+        /// unchanged, so the result can be matched against a measured subtree.
+        /// </summary>
+        public static CanonicalGraph? Subtree(CanonicalGraph graph, string rootNodeId)
+        {
+            var root = graph.Nodes.FirstOrDefault(node => node.Id == rootNodeId);
+
+            if (root is not { Kind: GraphNodeKind.Module, HasChildren: true })
+            {
+                return null;
+            }
+
+            var descendantPrefix = $"{rootNodeId}::";
+            var nodes = graph.Nodes
+                .Where(node => node.Id == rootNodeId || node.Id.StartsWith(descendantPrefix, StringComparison.Ordinal))
+                .ToArray();
+            var nodeIds = nodes.Select(node => node.Id).ToHashSet(StringComparer.Ordinal);
+            var edges = graph.Edges
+                .Where(edge => nodeIds.Contains(edge.SourceId) && nodeIds.Contains(edge.TargetId))
+                .ToArray();
+
+            return new CanonicalGraph(nodes, edges);
+        }
+
+        /// <summary>
         /// Returns whether a measured graph has the same topology as the live graph: the same nodes (by id, kind,
         /// and parent) and the same edges (by id and endpoints). Metadata such as error state is not topology, so a
         /// metadata-only edit never invalidates a layout request.

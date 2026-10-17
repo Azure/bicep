@@ -95,6 +95,12 @@ The playground's own theme picker switches between VS Code's built-in color them
 | `sourceReplay=unavailable`               | Report every resource creation as no longer replayable, as if edited in the file      |
 | `catalogSize=2300`                       | Add N synthetic types shaped like the real Azure catalog, for profiling at scale      |
 | `matchColorTheme=true`                   | Start with `bicep.visualizer.matchColorTheme` on                                      |
+| `graphDelay=2000`                        | Hold the first graph back, as a language server that is still starting would          |
+| `restoreDelay=1000`                      | Delay remote-module restores in milliseconds                                          |
+| `restoreFailures=1`                      | Fail the first N remote-module restores to exercise retry                             |
+| `moduleLayout=layoutFailed`              | Answer the first layout of a module on its own with `graphChanged` or `layoutFailed`  |
+| `layoutDelay=800`                        | Delay layout responses in milliseconds                                                |
+| `createDelay=3000`                       | Delay resource creation in milliseconds, which keeps its placeholder on the canvas    |
 
 The fake catalog includes stable, preview, and preview-only fixtures with per-type deployment scopes,
 filtered by the selected document target scope like the language server.
@@ -219,24 +225,30 @@ point. It reads the canvas element from core's `canvasElementAtom`, so the palet
 `src/core` keeps a client replica of the server graph and requests layout after React has measured
 node sizes.
 
-| Module                                | Responsibility                                                         |
-| ------------------------------------- | ---------------------------------------------------------------------- |
-| `graph-model.ts`                      | Indexed client graph, measured projection, render comparison           |
-| `graph-layout.ts`                     | Layout invalidation and viewport centering                             |
-| `graph-update-coordinator.ts`         | Update/layout ordering, coalescing, and mutation serialization         |
-| `undo-history.ts`                     | Pure undo/redo stacks of layout and source steps                       |
-| `node-positions.ts`                   | Capture and restore atomic node positions                              |
-| `GraphActionsProvider.tsx`            | Mounts graph sync and the Undo/Redo shortcuts; provides `GraphActions` |
-| `use-graph-sync.ts`                   | Graph updates, layout, and node-drag and Reset Layout history          |
-| `use-resource-creation.ts`            | Placeholder, extension insertion, and creation history step            |
-| `use-undo-redo.ts`                    | Undo/redo of layout and resource-creation steps                        |
-| `use-apply-graph.ts`                  | Reconcile graph nodes and edges                                        |
-| `use-apply-graph-layout.ts`           | Reveal and animate node positions                                      |
-| The coordinator enforces these rules: |
+| Module                        | Responsibility                                                         |
+| ----------------------------- | ---------------------------------------------------------------------- |
+| `graph-model.ts`              | Indexed client graph, measured projection, render comparison           |
+| `graph-layout.ts`             | Layout invalidation and viewport centering                             |
+| `graph-update-coordinator.ts` | Update/layout ordering, coalescing, and mutation serialization         |
+| `undo-history.ts`             | Pure undo/redo stacks of layout and source steps                       |
+| `node-positions.ts`           | Capture and restore atomic node positions                              |
+| `GraphActionsProvider.tsx`    | Mounts graph sync and the Undo/Redo shortcuts; provides `GraphActions` |
+| `use-graph-sync.ts`           | Graph updates, scoped layout, and node-drag and Reset Layout history   |
+| `use-module-expansion.ts`     | Module collapse/expand, restores, and in-place expansion transitions   |
+| `use-resource-creation.ts`    | Placeholder, extension insertion, and creation history step            |
+| `use-undo-redo.ts`            | Undo/redo of layout and resource-creation steps                        |
+| `use-apply-graph.ts`          | Reconcile graph nodes and edges                                        |
+| `use-apply-graph-layout.ts`   | Reveal and animate node positions                                      |
+
+The coordinator enforces these rules:
 
 - Reconcile before layout.
-- A reset layout takes precedence over automatic layout.
-- A `graphChanged` layout response schedules reconciliation and retries the same layout mode.
+- A reset layout takes precedence over automatic layout, and a layout of the whole graph replaces the module
+  layouts owed, since it places their contents too.
+- Modules owed a layout of their own are laid out one at a time.
+- A `graphChanged` layout response schedules reconciliation and retries the same layout, keeping its scope and
+  mode.
+- A module that cannot be laid out on its own falls back to an automatic layout of the whole graph.
 - Source mutations run serially.
 - An update response that overlaps a mutation is discarded and fetched again.
 - A response superseded by a document notification is discarded, including its target-scope metadata.

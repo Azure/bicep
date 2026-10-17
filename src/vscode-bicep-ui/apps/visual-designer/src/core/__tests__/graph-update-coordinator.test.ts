@@ -2,12 +2,17 @@
 // Licensed under the MIT License.
 
 import type { GetGraphResult } from "../api";
-import type { GraphLayoutMode, GraphLayoutResult, GraphUpdateOperations } from "../graph-update-coordinator";
+import type {
+  GraphLayoutMode,
+  GraphLayoutRequest,
+  GraphLayoutResult,
+  GraphUpdateOperations,
+} from "../graph-update-coordinator";
 
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
 import { targetScopeAtom } from "../atoms";
-import { GraphUpdateCoordinator } from "../graph-update-coordinator";
+import { AUTO_LAYOUT, GraphUpdateCoordinator } from "../graph-update-coordinator";
 
 /** A promise the test resolves by hand, so request completion order is exact rather than timed. */
 function deferred<T>() {
@@ -37,16 +42,32 @@ async function flush() {
   }
 }
 
-type Call = "fetch" | "apply" | `layout:${GraphLayoutMode}`;
+type Call = "fetch" | "apply" | `layout:${GraphLayoutMode}` | `layout:module:${string}`;
+
+function describeLayout(request: GraphLayoutRequest): Call {
+  return request.scope === "graph" ? `layout:${request.mode}` : `layout:module:${request.nodeId}`;
+}
+
+function moduleLayout(nodeId: string): GraphLayoutRequest {
+  return { scope: "module", nodeId };
+}
 
 /**
  * Records the operation sequence and lets each test decide what every call returns.
  *
  * Operations resolve immediately unless the test installs a gate, which is how a mutation can be made
- * to start while a response is in flight, or a request made to arrive mid-pass.
+ * to start while a response is in flight, or a request made to arrive mid-pass. Each `apply` owes the
+ * next of `appliedLayouts`, then an automatic layout if `layoutRequired`, else none.
  */
-function createHarness(overrides: Partial<{ layoutRequired: boolean; layoutResults: GraphLayoutResult[] }> = {}) {
+function createHarness(
+  overrides: Partial<{
+    layoutRequired: boolean;
+    appliedLayouts: GraphLayoutRequest[][];
+    layoutResults: GraphLayoutResult[];
+  }> = {},
+) {
   const calls: Call[] = [];
+  const appliedLayouts = [...(overrides.appliedLayouts ?? [])];
   const layoutResults = [...(overrides.layoutResults ?? [])];
   let fetchCount = 0;
   let fetchGateAt = 1;
@@ -69,10 +90,10 @@ function createHarness(overrides: Partial<{ layoutRequired: boolean; layoutResul
     },
     applyUpdate: async () => {
       calls.push("apply");
-      return { layoutRequired: overrides.layoutRequired ?? false };
+      return { layouts: appliedLayouts.shift() ?? (overrides.layoutRequired ? [AUTO_LAYOUT] : []) };
     },
-    runGraphLayout: async (mode) => {
-      calls.push(`layout:${mode}`);
+    runGraphLayout: async (request) => {
+      calls.push(describeLayout(request));
       if (layoutGate) {
         await layoutGate.promise;
       }
@@ -186,7 +207,7 @@ describe("update and layout ordering", () => {
       applyUpdate: async (update) => {
         store.set(targetScopeAtom, update.targetScope);
         accepted.push(store.get(targetScopeAtom));
-        return { layoutRequired: false };
+        return { layouts: [] };
       },
       runGraphLayout: async () => {
         throw new Error("Scope metadata must not request layout.");
@@ -253,6 +274,88 @@ describe("layout mode precedence", () => {
     // The retry must be a reset. An automatic layout short-circuits when measured sizes are unchanged,
     // which is exactly the case Reset Layout exists to override.
     expect(harness.calls).toEqual(["fetch", "apply", "layout:auto", "fetch", "apply", "layout:reset"]);
+  });
+});
+
+describe("module layouts", () => {
+  it("lays out each module whose contents arrived on its own, after the update that brought them", async () => {
+    const harness = createHarness({ appliedLayouts: [[moduleLayout("a"), moduleLayout("b")]] });
+
+    await harness.coordinator.requestUpdate();
+
+    expect(harness.calls).toEqual(["fetch", "apply", "layout:module:a", "layout:module:b"]);
+  });
+
+  it("reconciles and retries a module layout when the graph changed", async () => {
+    const harness = createHarness({
+      appliedLayouts: [[moduleLayout("a")]],
+      layoutResults: ["graphChanged", "completed"],
+    });
+
+    await harness.coordinator.requestUpdate();
+
+    // The retry must happen: the module's contents are still waiting to be placed.
+    expect(harness.calls).toEqual(["fetch", "apply", "layout:module:a", "fetch", "apply", "layout:module:a"]);
+  });
+
+  it("lays out the whole graph instead when a retried module layout's update owes that", async () => {
+    const harness = createHarness({
+      appliedLayouts: [[moduleLayout("a")], [AUTO_LAYOUT]],
+      layoutResults: ["graphChanged", "completed"],
+    });
+
+    await harness.coordinator.requestUpdate();
+
+    expect(harness.calls).toEqual(["fetch", "apply", "layout:module:a", "fetch", "apply", "layout:auto"]);
+  });
+
+  it("lays out the whole graph when a module can't be laid out on its own", async () => {
+    const harness = createHarness({
+      appliedLayouts: [[moduleLayout("a"), moduleLayout("b")]],
+      layoutResults: ["layoutFailed", "completed"],
+    });
+
+    await harness.coordinator.requestUpdate();
+
+    // The layout of the whole graph places the other module's contents too.
+    expect(harness.calls).toEqual(["fetch", "apply", "layout:module:a", "layout:auto"]);
+  });
+
+  it("does not retry a layout of the whole graph that failed", async () => {
+    const harness = createHarness({ layoutRequired: true, layoutResults: ["layoutFailed"] });
+
+    await harness.coordinator.requestUpdate();
+
+    expect(harness.calls).toEqual(["fetch", "apply", "layout:auto"]);
+  });
+
+  it("drops the module layouts owed once Reset Layout lays out the whole graph", async () => {
+    const harness = createHarness({ appliedLayouts: [[moduleLayout("a")]] });
+    const gate = harness.gateFetch();
+
+    // Reset Layout arrives while the update that brings the module's contents is in flight.
+    const update = harness.coordinator.requestUpdate();
+    const reset = harness.coordinator.requestResetGraphLayout();
+    gate.resolve();
+    await Promise.all([update, reset]);
+
+    expect(harness.calls).toEqual(["fetch", "apply", "layout:reset"]);
+  });
+
+  it("reconciles before the next module layout when the document changes meanwhile", async () => {
+    const harness = createHarness({ appliedLayouts: [[moduleLayout("a"), moduleLayout("b")]] });
+    const layoutGate = harness.gateLayout();
+
+    const first = harness.coordinator.requestUpdate();
+    await flush();
+
+    // The document changes while the first module's layout is in flight.
+    const second = harness.coordinator.requestUpdate();
+    layoutGate.resolve();
+    harness.openLayoutGate();
+    await Promise.all([first, second]);
+
+    expect(harness.calls).toEqual(["fetch", "apply", "layout:module:a", "fetch", "apply", "layout:module:b"]);
   });
 });
 

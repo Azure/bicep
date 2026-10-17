@@ -15,6 +15,8 @@ export const SAMPLE_GRAPHS = {
   flat: { slug: "dev-graph-flat-graph", label: "Flat graph", nodeId: "subnet" },
   error: { slug: "dev-graph-error-graph", label: "Error graph", nodeId: "brokenStorage" },
   complex: { slug: "dev-graph-complex-graph", label: "Complex graph", nodeId: "hubrg" },
+  nested: { slug: "dev-graph-nested-module-graph", label: "Nested module graph", nodeId: "ama::identity" },
+  remote: { slug: "dev-graph-remote-module-graph", label: "Remote module graph", nodeId: "plain" },
   empty: { slug: "dev-graph-empty-null", label: "Empty (null)", nodeId: null },
 } as const;
 

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { Atom, PrimitiveAtom } from "jotai";
+import type { Atom, createStore, PrimitiveAtom } from "jotai";
 import type { Box, Point } from "@/lib/math";
 
 import { atom } from "jotai";
@@ -31,7 +31,93 @@ export type NodeState = AtomicNodeState | CompoundNodeState;
 
 export type NodeKind = NodeState["kind"];
 
+type Store = ReturnType<typeof createStore>;
+
 export const nodesByIdAtom = atom<Record<string, NodeState>>({});
+
+/**
+ * `nodesByIdAtom` as of the canvas's last commit, when every node in it had mounted. Undefined while no canvas is
+ * mounted. Set by `NodeLayer`.
+ */
+export const mountedNodesByIdAtom = atom<Readonly<Record<string, NodeState>> | undefined>(undefined);
+
+/** One entry for each node changing size on purpose, until it ends (see `beginNodeResize`). */
+const nodeResizesAtom = atom<ReadonlySet<object>>(new Set<object>());
+
+/**
+ * Mark a node as changing size on purpose, such as a module morphing between shapes, until the returned function is
+ * called: what it measures meanwhile is not its size. Call that function once the node has its final size.
+ */
+export function beginNodeResize(store: Store): () => void {
+  const resize = {};
+  store.set(nodeResizesAtom, (resizes) => new Set(resizes).add(resize));
+
+  return () =>
+    store.set(nodeResizesAtom, (resizes) => {
+      if (!resizes.has(resize)) {
+        return resizes;
+      }
+      const next = new Set(resizes);
+      next.delete(resize);
+      return next;
+    });
+}
+
+/**
+ * For each store, how each mounted atomic node reads its size from the page into its box. A store-scoped registry
+ * rather than an atom: the functions are called, never observed.
+ */
+const nodeMeasurersByStore = new WeakMap<Store, Set<() => void>>();
+
+/** Let `waitForNodeSizes` read a mounted node's size, until the returned function is called. */
+export function registerNodeMeasurer(store: Store, measure: () => void): () => void {
+  const measurers = nodeMeasurersByStore.get(store) ?? new Set<() => void>();
+  nodeMeasurersByStore.set(store, measurers);
+  measurers.add(measure);
+
+  return () => measurers.delete(measure);
+}
+
+/**
+ * Resolves once every node's box holds the size it has on the page: the canvas has mounted every node in
+ * `nodesByIdAtom`, no node is changing size on purpose (see `beginNodeResize`), and each mounted atomic node has read
+ * its size again. Resolves at once when no canvas is mounted.
+ *
+ * Each is needed. A node has no size until it mounts, and nodes added outside a React event mount when React next
+ * commits, which can be a frame or more later. A node that is already mounted and changes size learns of it only when
+ * the browser reports the resize, a frame later. And a node changing size on purpose measures sizes it only passes
+ * through.
+ */
+export function waitForNodeSizes(store: Store): Promise<void> {
+  const isSettled = () => {
+    const mountedNodes = store.get(mountedNodesByIdAtom);
+    const isMounted = mountedNodes === undefined || mountedNodes === store.get(nodesByIdAtom);
+    return isMounted && store.get(nodeResizesAtom).size === 0;
+  };
+  const measure = () => {
+    for (const measureNode of nodeMeasurersByStore.get(store) ?? []) {
+      measureNode();
+    }
+  };
+
+  if (isSettled()) {
+    measure();
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    const check = () => {
+      if (isSettled()) {
+        unsubscribeFromMounts();
+        unsubscribeFromResizes();
+        measure();
+        resolve();
+      }
+    };
+    const unsubscribeFromMounts = store.sub(mountedNodesByIdAtom, check);
+    const unsubscribeFromResizes = store.sub(nodeResizesAtom, check);
+  });
+}
 
 /**
  * The ID of the currently focused node, or `null` if nothing is focused.
@@ -105,23 +191,37 @@ export function computeFocusTier(nodeId: string, focusedId: string): number {
 }
 
 /**
+ * How far apart consecutive focus tiers are stacked. Wider than any nesting can reach, so depth orders nodes
+ * within a tier but never lifts a node into a closer one.
+ */
+const FOCUS_TIER_Z_SPAN = 1000;
+
+/** How many containers a node is nested in: 0 for a top-level node. */
+function getNodeDepth(nodeId: string): number {
+  return nodeId.split("::").length - 1;
+}
+
+/**
  * Returns the effective z-index for a node given the current focus state.
  *
- * Without focus every compound sits at 0 and every atomic at 2.
- * With focus the focused group is boosted highest, siblings next, then
- * parent, and so on up the ancestor chain.
+ * Nodes stack by nesting, so a container is drawn over everything outside it: a compound at depth d sits at
+ * 2d, the edges between its children at 2d + 1 (see `EdgeLayer`), and its children from 2d + 2 up. An atomic
+ * node sits one above a compound at the same depth.
+ *
+ * With focus the focused group is boosted highest, siblings next, then parent, and so on up the ancestor
+ * chain; nesting still orders nodes within each of those tiers.
  */
 export function getNodeZIndex(nodeId: string, nodeKind: NodeKind, focusedId: string | null): number {
-  const baseZ = nodeKind === "atomic" ? 2 : 0;
+  const nestingZ = 2 * getNodeDepth(nodeId) + (nodeKind === "atomic" ? 1 : 0);
 
-  if (focusedId === null) return baseZ;
+  if (focusedId === null) return nestingZ;
 
   const tier = computeFocusTier(nodeId, focusedId);
-  if (tier < 0) return baseZ;
+  if (tier < 0) return nestingZ;
 
   // Decrease boost as the relationship becomes more distant.
   const boost = Math.max(10, 100 - tier * 15);
-  return baseZ + boost;
+  return boost * FOCUS_TIER_Z_SPAN + nestingZ;
 }
 
 /**

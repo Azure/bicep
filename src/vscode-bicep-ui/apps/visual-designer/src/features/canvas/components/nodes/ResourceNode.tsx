@@ -131,15 +131,15 @@ export function ResourceNode({ id, data }: ResourceNodeProps) {
   // compound module styling.
   const iconType = normalizedResourceType === "<module>" ? "folder" : normalizedResourceType;
   const isFocused = useIsNodeFocused(id);
-  const initialCardScaleX = RESOURCE_NODE_PREVIEW_WIDTH / 220;
-  const initialCardScaleY = RESOURCE_NODE_PREVIEW_HEIGHT / 76;
-  const initialIconScaleX = 18 / (36 * initialCardScaleX);
-  const initialIconScaleY = 18 / (36 * initialCardScaleY);
+  const initialNodeScaleX = RESOURCE_NODE_PREVIEW_WIDTH / 220;
+  const initialNodeScaleY = RESOURCE_NODE_PREVIEW_HEIGHT / 76;
+  const initialIconScaleX = 18 / (36 * initialNodeScaleX);
+  const initialIconScaleY = 18 / (36 * initialNodeScaleY);
 
   return (
     <$ResourceNode
       // Motion reads `initial` only on mount, so later updates to the node never replay the growth.
-      initial={replacesPlaceholder ? { scaleX: initialCardScaleX, scaleY: initialCardScaleY } : false}
+      initial={replacesPlaceholder ? { scaleX: initialNodeScaleX, scaleY: initialNodeScaleY } : false}
       animate={{ scaleX: 1, scaleY: 1 }}
       transition={EXPAND_TRANSITION}
       $hasError={hasError}

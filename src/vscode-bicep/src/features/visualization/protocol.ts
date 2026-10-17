@@ -42,6 +42,8 @@ export interface VisualGraphLayoutParams {
   graph: unknown;
   /** Module IDs whose descendants are omitted from the measured graph. */
   collapsedNodeIds: string[];
+  /** Lay out only this expanded module: `graph` holds it and its descendants. */
+  rootNodeId?: string;
 }
 
 export interface VisualGraphLayoutResult {
@@ -63,7 +65,8 @@ export interface VisualGraphNodeSourceParams {
 }
 
 export interface VisualGraphNodeSourceResult {
-  filePath: string | null;
+  /** A `file:` URI, or a `bicep-extsrc:` URI for a node inside a registry module's published source. */
+  uri: string | null;
   range: Range | null;
 }
 
@@ -74,6 +77,26 @@ export const visualGraphNodeSourceRequestType = new ProtocolRequestType<
   void,
   void
 >("textDocument/visualGraphNodeSource");
+
+export interface VisualGraphRestoreModuleSourceParams {
+  textDocument: TextDocumentIdentifier;
+  nodeId: string;
+}
+
+export interface VisualGraphRestoreModuleSourceResult {
+  status: "restored" | "failed" | "notFound";
+  /** Why the restore failed, when `status` is `failed`. */
+  message?: string | null;
+}
+
+/** Restores the registry module behind a remote module node into the local cache. Never edits the document. */
+export const visualGraphRestoreModuleSourceRequestType = new ProtocolRequestType<
+  VisualGraphRestoreModuleSourceParams,
+  VisualGraphRestoreModuleSourceResult,
+  never,
+  void,
+  void
+>("textDocument/visualGraphRestoreModuleSource");
 
 export interface VisualResourceTypeReference {
   fullyQualifiedType: string;

@@ -13,12 +13,15 @@ export {
   documentUriAtom,
   graphHasNodesAtom,
   isGraphChangeInProgressAtom,
+  isGraphLoadedAtom,
   isColorThemeMatchedSettingAtom,
   isResourceEditingEnabledAtom,
   motionPolicyAtom,
   pendingResourcesAtom,
+  moduleRestoresAtom,
   targetScopeAtom,
 } from "./atoms";
+export type { ModuleRestore } from "./atoms";
 export * from "./api";
 export * from "./motion";
 export * from "./types";

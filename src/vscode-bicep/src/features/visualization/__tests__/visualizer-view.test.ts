@@ -10,6 +10,7 @@ import {
   prepareVisualResourceReplayRequestType,
   visualGraphLayoutRequestType,
   visualGraphRequestType,
+  visualGraphRestoreModuleSourceRequestType,
   visualResourceTypesRequestType,
   visualResourceTypeVersionsRequestType,
 } from "../protocol";
@@ -33,6 +34,9 @@ const host = vi.hoisted(() => ({
   resourceEditingEnabled: true,
   colorThemeMatched: true,
   error: vi.fn(),
+  showTextDocument: vi.fn(),
+  languageClientRunning: true,
+  languageClientStateListeners: new Set<(event: { newState: number }) => void>(),
 }));
 
 vi.mock("vscode", () => {
@@ -40,9 +44,21 @@ vi.mock("vscode", () => {
   return {
     Uri: {
       file: (fsPath: string) => ({ fsPath, toString: () => "file:///main.bicep" }),
+      parse: (value: string) => ({
+        scheme: value.slice(0, value.indexOf(":")),
+        fsPath: value,
+        toString: () => value,
+      }),
       joinPath: () => "mock-resource-uri",
     },
-    ViewColumn: { One: 1 },
+    ViewColumn: { One: 1, Beside: -2 },
+    Selection: class {
+      constructor(
+        public anchor: unknown,
+        public active: unknown,
+      ) {}
+    },
+    TextEditorRevealType: { InCenter: 2 },
     Range: class {
       constructor(
         public start: { line: number; character: number },
@@ -80,6 +96,8 @@ vi.mock("vscode", () => {
         onDidChangeViewState: disposable,
         dispose: vi.fn(),
       }),
+      visibleTextEditors: [],
+      showTextDocument: host.showTextDocument,
     },
     workspace: {
       openTextDocument: host.openTextDocument,
@@ -91,8 +109,14 @@ vi.mock("vscode", () => {
 });
 
 vi.mock("vscode-languageclient/node", () => ({
+  State: { Stopped: 1, Starting: 3, Running: 2 },
   LanguageClient: class {
     sendRequest = host.sendRequest;
+    isRunning = () => host.languageClientRunning;
+    onDidChangeState = (listener: (event: { newState: number }) => void) => {
+      host.languageClientStateListeners.add(listener);
+      return { dispose: () => host.languageClientStateListeners.delete(listener) };
+    };
     code2ProtocolConverter = {
       asTextDocumentIdentifier: () => ({ uri: "file:///main.bicep" }),
       asVersionedTextDocumentIdentifier: (document: { version: number }) => ({
@@ -127,6 +151,8 @@ describe("visualizer palette host requests", () => {
     host.sendRequest.mockReset();
     host.resourceEditingEnabled = true;
     host.colorThemeMatched = true;
+    host.languageClientRunning = true;
+    host.languageClientStateListeners.clear();
     host.document.version = 1;
     host.document.isClosed = false;
     host.document.text = "base";
@@ -165,6 +191,79 @@ describe("visualizer palette host requests", () => {
     }
     host.receiveMessage({ id: "request-1", method, params });
   }
+
+  it("forwards a module source restore and returns its status", async () => {
+    host.sendRequest.mockResolvedValue({ status: "restored", message: null });
+
+    request("module/restoreSource", { nodeId: "storage::leaf" });
+
+    await vi.waitFor(() =>
+      expect(host.postMessage).toHaveBeenCalledWith({ id: "request-1", result: { status: "restored" } }),
+    );
+    expect(host.sendRequest).toHaveBeenCalledWith(visualGraphRestoreModuleSourceRequestType, {
+      textDocument: { uri: "file:///main.bicep" },
+      nodeId: "storage::leaf",
+    });
+  });
+
+  it("returns why a module source restore failed", async () => {
+    host.sendRequest.mockResolvedValue({ status: "failed", message: "The registry could not be reached." });
+
+    request("module/restoreSource", { nodeId: "storage::leaf" });
+
+    await vi.waitFor(() =>
+      expect(host.postMessage).toHaveBeenCalledWith({
+        id: "request-1",
+        result: { status: "failed", message: "The registry could not be reached." },
+      }),
+    );
+  });
+
+  it("forwards the module to lay out on its own", async () => {
+    const graph = { nodes: [{ id: "m", kind: "module", parentId: null, width: 0, height: 0 }], edges: [] };
+    host.sendRequest.mockResolvedValue({ status: "ok", positions: [], bounds: null });
+
+    request("graph/layout", { graph, collapsedNodeIds: [], rootNodeId: "m" });
+
+    await vi.waitFor(() =>
+      expect(host.sendRequest).toHaveBeenCalledWith(visualGraphLayoutRequestType, {
+        textDocument: { uri: "file:///main.bicep" },
+        graph,
+        collapsedNodeIds: [],
+        rootNodeId: "m",
+      }),
+    );
+  });
+
+  it("rejects a module source restore without a node", async () => {
+    request("module/restoreSource", {});
+
+    await vi.waitFor(() =>
+      expect(host.postMessage).toHaveBeenCalledWith({
+        id: "request-1",
+        error: { message: "A module node is required." },
+      }),
+    );
+    expect(host.sendRequest).not.toHaveBeenCalled();
+  });
+
+  it("reveals a node in a registry module's published source by its URI", async () => {
+    const uri = "bicep-extsrc:br:mockregistry.io/test/storage:v1%20-%3E%20main.bicep?br%3Amockregistry.io#main.bicep";
+    const range = { start: { line: 1, character: 0 }, end: { line: 3, character: 1 } };
+    const sourceDocument = { uri: { toString: () => uri } };
+    const editor = { selection: { active: { with: () => "cursor" } }, revealRange: vi.fn() };
+    host.sendRequest.mockResolvedValue({ uri, range });
+    host.openTextDocument.mockImplementation(async (target: unknown) =>
+      typeof target === "object" && target !== null && "scheme" in target ? sourceDocument : host.document,
+    );
+    host.showTextDocument.mockResolvedValue(editor);
+
+    host.receiveMessage?.({ method: "document/revealNode", params: { nodeId: "storage::nsg" } });
+
+    await vi.waitFor(() => expect(editor.revealRange).toHaveBeenCalledWith(range, 2));
+    expect(host.openTextDocument).toHaveBeenCalledWith(expect.objectContaining({ scheme: "bicep-extsrc" }));
+    expect(host.showTextDocument).toHaveBeenCalledWith(sourceDocument, -2);
+  });
 
   it("forwards the measured graph for layout and returns the positions", async () => {
     const graph = { nodes: [{ id: "a", kind: "resource", parentId: null, width: 200, height: 76 }], edges: [] };
@@ -513,6 +612,39 @@ describe("visualizer palette host requests", () => {
       method: "settings/didChange",
       params: { motionPolicy: "reduce", isResourceEditingEnabled: true, isColorThemeMatched: false },
     });
+  });
+
+  it("opens the document only once the language client is running", async () => {
+    host.languageClientRunning = false;
+
+    host.receiveMessage?.({ method: "webview/ready" });
+    await Promise.resolve();
+
+    expect(host.openTextDocument).not.toHaveBeenCalled();
+
+    host.languageClientRunning = true;
+    for (const listener of host.languageClientStateListeners) {
+      listener({ newState: 2 });
+    }
+
+    await vi.waitFor(() =>
+      expect(host.postMessage).toHaveBeenCalledWith(expect.objectContaining({ method: "document/didChange" })),
+    );
+    expect(host.openTextDocument).toHaveBeenCalled();
+    expect(host.languageClientStateListeners.size).toBe(0);
+  });
+
+  it("stops waiting for the language client once the view is disposed", async () => {
+    host.languageClientRunning = false;
+    host.receiveMessage?.({ method: "webview/ready" });
+    await Promise.resolve();
+    expect(host.languageClientStateListeners.size).toBe(1);
+
+    view.dispose();
+    await Promise.resolve();
+
+    expect(host.languageClientStateListeners.size).toBe(0);
+    expect(host.openTextDocument).not.toHaveBeenCalled();
   });
 
   it("tells the webview about every document change right away", async () => {

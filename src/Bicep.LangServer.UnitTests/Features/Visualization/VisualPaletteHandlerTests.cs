@@ -33,7 +33,7 @@ public class VisualPaletteHandlerTests
     public async Task GraphUpdate_ReturnsScopeEvenForEmptyOrInvalidDocuments(string text, string expectedScope)
     {
         var manager = CreateCompilationManager(text);
-        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object);
+        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object, Mock.Of<IVisualModuleSourceProvider>());
 
         var response = await handler.Handle(new(new() { Uri = DocumentUri }), CancellationToken.None);
 
@@ -44,7 +44,7 @@ public class VisualPaletteHandlerTests
     public async Task GraphUpdate_ReportsEveryDocumentErrorEvenWithoutNodes()
     {
         var manager = CreateCompilationManager("var broken =\nvar alsoBroken =");
-        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object);
+        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object, Mock.Of<IVisualModuleSourceProvider>());
 
         var response = await handler.Handle(new(new() { Uri = DocumentUri }), CancellationToken.None);
 
@@ -56,7 +56,7 @@ public class VisualPaletteHandlerTests
     public async Task GraphUpdate_ReflectsScopeOnlyChanges()
     {
         var manager = CreateCompilationManager("targetScope = 'subscription'");
-        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object);
+        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object, Mock.Of<IVisualModuleSourceProvider>());
         var request = new VisualGraphParams(new() { Uri = DocumentUri });
 
         var first = await handler.Handle(request, CancellationToken.None);
@@ -74,7 +74,7 @@ public class VisualPaletteHandlerTests
     {
         var manager = new Mock<ICompilationManager>(MockBehavior.Strict);
         manager.Setup(x => x.GetCompilation(DocumentUri)).Returns((CompilationContext?)null);
-        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object);
+        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object, Mock.Of<IVisualModuleSourceProvider>());
 
         var response = await handler.Handle(new(new() { Uri = DocumentUri }), CancellationToken.None);
 

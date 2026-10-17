@@ -48,8 +48,8 @@ function groupByScope(edges: EdgeAtomValue[]): EdgeScope[] {
  *
  * Nodes are absolutely positioned siblings stacked by z-index, and one SVG occupies one place in that
  * stack, so edges are drawn in one SVG per scope: those between top-level nodes below every node, and
- * those inside a compound just above it -- over its frame, under its children -- following it as focus
- * restacks the graph.
+ * those inside a compound just above it -- over its frame, under its children, including the frames of
+ * nested compounds an edge happens to cross -- following it as focus restacks the graph.
  */
 export function EdgeLayer() {
   const edges = useAtomValue(edgesAtom);

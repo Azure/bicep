@@ -10,7 +10,7 @@
  */
 
 /**
- * Who asked for the layout, which decides both how it runs and what it is allowed to disturb.
+ * Who asked for a layout of the whole graph, which decides both how it runs and what it is allowed to disturb.
  *
  * `auto` follows a change to the graph: it may skip when nothing was resized, and frames what
  * arrived. `reset` is the user asking to re-tidy the same graph, so it must run unconditionally —
@@ -19,22 +19,34 @@
  */
 export type GraphLayoutMode = "auto" | "reset";
 
-/** `graphChanged` means the server's graph moved on; the client must reconcile and retry. */
-export type GraphLayoutResult = "completed" | "graphChanged";
+/**
+ * What a layout covers. `graph` is everything the canvas shows. `module` is one expanded module whose contents just
+ * arrived: it is laid out on its own and placed where the module was, so the rest of the graph and the camera stay put.
+ */
+export type GraphLayoutRequest =
+  { readonly scope: "graph"; readonly mode: GraphLayoutMode } | { readonly scope: "module"; readonly nodeId: string };
+
+export const AUTO_LAYOUT: GraphLayoutRequest = { scope: "graph", mode: "auto" };
+
+/**
+ * `graphChanged` means the server's graph moved on; the client must reconcile and retry. `layoutFailed` means no
+ * layout was produced, so what the layout covered stays where it is.
+ */
+export type GraphLayoutResult = "completed" | "graphChanged" | "layoutFailed";
 
 export interface GraphUpdateOperations<TUpdate> {
   /** Submit the displayed graph and return the server's delta. */
   fetchUpdate: () => Promise<TUpdate>;
-  /** Apply a delta, reporting whether the result still owes a layout. */
-  applyUpdate: (update: TUpdate) => Promise<{ layoutRequired: boolean }>;
-  /** Measure and lay out the displayed graph. */
-  runGraphLayout: (mode: GraphLayoutMode) => Promise<GraphLayoutResult>;
+  /** Apply a delta, reporting the layouts the result still owes. */
+  applyUpdate: (update: TUpdate) => Promise<{ layouts: readonly GraphLayoutRequest[] }>;
+  /** Measure and lay out what the request covers. */
+  runGraphLayout: (request: GraphLayoutRequest) => Promise<GraphLayoutResult>;
 }
 
 /**
  * What is owed, as opposed to what is running.
  *
- * `update` and `layout` are tracked apart because they answer different questions: whether the
+ * `update` and the layouts are tracked apart because they answer different questions: whether the
  * server's graph may have moved, and whether what we display has been laid out. Collapsing them is
  * what let a `graphChanged` layout response drop the second question and leave the graph hidden
  * behind its visibility gate.
@@ -45,28 +57,47 @@ export interface GraphUpdateOperations<TUpdate> {
  */
 interface PendingWork {
   readonly update: boolean;
+  /** A layout of the whole graph. */
   readonly layout: GraphLayoutMode | "none";
+  /**
+   * Modules to lay out on their own, in turn. A layout of the whole graph places their contents too, so none are
+   * owed while one is.
+   */
+  readonly moduleLayouts: readonly string[];
 }
 
-const NOTHING_PENDING: PendingWork = { update: false, layout: "none" };
+const NOTHING_PENDING: PendingWork = { update: false, layout: "none", moduleLayouts: [] };
 
 function isPending(work: PendingWork): boolean {
-  return work.update || work.layout !== "none";
+  return work.update || work.layout !== "none" || work.moduleLayouts.length > 0;
 }
 
 function pendUpdate(work: PendingWork): PendingWork {
   return { ...work, update: true };
 }
 
-/** A reset outranks an automatic layout: Reset Layout must not be downgraded by an ordinary pass. */
-function pendLayout(work: PendingWork, mode: GraphLayoutMode): PendingWork {
-  return mode === "reset" || work.layout === "none" ? { ...work, layout: mode } : work;
+/**
+ * A reset outranks an automatic layout: Reset Layout must not be downgraded by an ordinary pass. A layout of the
+ * whole graph outranks module layouts, since it places their contents too.
+ */
+function pendLayout(work: PendingWork, request: GraphLayoutRequest): PendingWork {
+  if (request.scope === "module") {
+    return work.layout !== "none" || work.moduleLayouts.includes(request.nodeId)
+      ? work
+      : { ...work, moduleLayouts: [...work.moduleLayouts, request.nodeId] };
+  }
+
+  return {
+    ...work,
+    layout: request.mode === "reset" || work.layout === "none" ? request.mode : work.layout,
+    moduleLayouts: [],
+  };
 }
 
 /** The next thing to do, and what is still owed once it has been taken. */
 type NextStep =
   | { kind: "update"; remaining: PendingWork }
-  | { kind: "layout"; mode: GraphLayoutMode; remaining: PendingWork }
+  | { kind: "layout"; request: GraphLayoutRequest; remaining: PendingWork }
   | { kind: "idle" };
 
 /**
@@ -79,7 +110,12 @@ function takeNextStep(work: PendingWork): NextStep {
   }
 
   if (work.layout !== "none") {
-    return { kind: "layout", mode: work.layout, remaining: { ...work, layout: "none" } };
+    return { kind: "layout", request: { scope: "graph", mode: work.layout }, remaining: { ...work, layout: "none" } };
+  }
+
+  const [nodeId, ...rest] = work.moduleLayouts;
+  if (nodeId !== undefined) {
+    return { kind: "layout", request: { scope: "module", nodeId }, remaining: { ...work, moduleLayouts: rest } };
   }
 
   return { kind: "idle" };
@@ -121,7 +157,7 @@ export class GraphUpdateCoordinator<TUpdate> {
 
   /** Reset Layout. Runs against the reconciled graph, not whatever is displayed now. */
   requestResetGraphLayout(): Promise<void> {
-    this.pending = pendLayout(this.pending, "reset");
+    this.pending = pendLayout(this.pending, { scope: "graph", mode: "reset" });
 
     return this.drain();
   }
@@ -224,10 +260,10 @@ export class GraphUpdateCoordinator<TUpdate> {
       return false;
     }
 
-    const { layoutRequired } = await this.requireOperations().applyUpdate(update);
+    const { layouts } = await this.requireOperations().applyUpdate(update);
 
-    if (layoutRequired) {
-      this.pending = pendLayout(this.pending, "auto");
+    for (const layout of layouts) {
+      this.pending = pendLayout(this.pending, layout);
     }
 
     return true;
@@ -284,10 +320,17 @@ export class GraphUpdateCoordinator<TUpdate> {
         continue;
       }
 
-      if ((await this.requireOperations().runGraphLayout(step.mode)) === "graphChanged") {
-        // Reconcile, then retry this layout — keeping its mode, so a Reset Layout stays a reset and
-        // a graph still behind its visibility gate is guaranteed another chance to be revealed.
-        this.pending = pendLayout(pendUpdate(this.pending), step.mode);
+      const result = await this.requireOperations().runGraphLayout(step.request);
+
+      if (result === "graphChanged") {
+        // Reconcile, then retry this layout — keeping its scope and mode, so a Reset Layout stays a reset, a graph
+        // still behind its visibility gate is guaranteed another chance to be revealed, and a module still waiting
+        // for its contents to be placed gets them placed.
+        this.pending = pendLayout(pendUpdate(this.pending), step.request);
+      } else if (result === "layoutFailed" && step.request.scope === "module") {
+        // The module could not be laid out on its own, so lay out the whole graph, which places its contents too. A
+        // layout of the whole graph that failed is not retried: that would hammer an operation that has just failed.
+        this.pending = pendLayout(this.pending, AUTO_LAYOUT);
       }
     }
   }

@@ -73,27 +73,27 @@ describe("createColorTheme", () => {
     expect(theme.iconButton.hoverBackground).toBe("rgba(90, 93, 94, 0.31)");
   });
 
-  it("gives floating chrome the card surface, as the curated palettes do", () => {
+  it("gives floating chrome the node surface, as the curated palettes do", () => {
     const theme = createColorTheme(lightTheme, tokensOf(lightSolarized));
 
     expect(theme.panel.background).toBe(formatColor({ ...color(theme.node.background), a: 0.92 }));
   });
 
-  it("keeps a navy dark background's cards navy rather than tinting them toward warm gray text", () => {
+  it("keeps nodes on a navy dark background navy rather than tinting them toward warm gray text", () => {
     // Ayu Dark: a blue-black editor under warm gray text.
     const theme = createColorTheme(darkTheme, { "editor-background": "#0d1017", "editor-foreground": "#bfbdb6" });
     const canvas = toOklch(color(theme.viewport.background));
-    const card = color(theme.node.background);
+    const nodeColor = color(theme.node.background);
 
     expect(theme.viewport.background).toBe("#0d1017");
-    expect(card.b - card.r).toBeGreaterThanOrEqual(10);
-    expect(toOklch(card).c).toBeGreaterThanOrEqual(canvas.c * 0.95);
+    expect(nodeColor.b - nodeColor.r).toBeGreaterThanOrEqual(10);
+    expect(toOklch(nodeColor).c).toBeGreaterThanOrEqual(canvas.c * 0.95);
     expect(contrast(theme.node.background, theme.viewport.background)).toBeGreaterThanOrEqual(
       contrast(darkTheme.node.background, darkTheme.viewport.background) - 0.001,
     );
   });
 
-  it("keeps a pure white editor background on the canvas and firms up the card border instead", () => {
+  it("keeps a pure white editor background on the canvas and firms up the node border instead", () => {
     const theme = createColorTheme(lightTheme, tokensOf(lightV2));
     const darkerBackground = createColorTheme(lightTheme, { ...tokensOf(lightV2), "editor-background": "#f0f0f0" });
 
@@ -102,14 +102,14 @@ describe("createColorTheme", () => {
     expect(color(theme.node.border).a).toBeGreaterThan(color(darkerBackground.node.border).a);
   });
 
-  it("keeps Solarized Light's cream on the canvas and puts lighter cream on cards and floating chrome", () => {
+  it("keeps Solarized Light's cream on the canvas and puts lighter cream on nodes and floating chrome", () => {
     const theme = createColorTheme(lightTheme, tokensOf(lightSolarized));
-    const card = color(theme.node.background);
+    const nodeColor = color(theme.node.background);
 
     expect(theme.viewport.background).toBe("#fdf6e3");
-    expect(relativeLuminance(card)).toBeGreaterThan(relativeLuminance(color("#fdf6e3")));
-    expect(card.b).toBeLessThan(card.r - 10);
-    expect(theme.panel.background).toBe(formatColor({ ...card, a: 0.92 }));
+    expect(relativeLuminance(nodeColor)).toBeGreaterThan(relativeLuminance(color("#fdf6e3")));
+    expect(nodeColor.b).toBeLessThan(nodeColor.r - 10);
+    expect(theme.panel.background).toBe(formatColor({ ...nodeColor, a: 0.92 }));
   });
 
   it("follows the color theme rather than only its kind", () => {
@@ -120,7 +120,7 @@ describe("createColorTheme", () => {
     expect(monokai.node.background).not.toBe(solarized.node.background);
   });
 
-  it("keeps the curated card depth for the theme kind", () => {
+  it("keeps the curated node depth for the theme kind", () => {
     const theme = createColorTheme(lightTheme, tokensOf(lightSolarized));
 
     expect(theme.node.shadow).toBe(lightTheme.node.shadow);
@@ -130,15 +130,18 @@ describe("createColorTheme", () => {
     expect(theme.grabCursor).toBe(lightTheme.grabCursor);
   });
 
-  it("keeps the editor background on the canvas and lifts cards above it", () => {
-    const darkCards = createColorTheme(darkTheme, { "editor-background": "#202020", "editor-foreground": "#e0e0e0" });
-    const lightCards = createColorTheme(lightTheme, { "editor-background": "#f0f0f0", "editor-foreground": "#202020" });
+  it("keeps the editor background on the canvas and lifts nodes above it", () => {
+    const neutralDark = createColorTheme(darkTheme, { "editor-background": "#202020", "editor-foreground": "#e0e0e0" });
+    const neutralLight = createColorTheme(lightTheme, {
+      "editor-background": "#f0f0f0",
+      "editor-foreground": "#202020",
+    });
 
-    expect(darkCards.viewport.background).toBe("#202020");
-    expect(color(darkCards.node.background).r).toBeGreaterThan(0x20);
-    expect(lightCards.viewport.background).toBe("#f0f0f0");
-    // A neutral background has no tint to lose, so its cards reach the curated separation.
-    expect(contrast(lightCards.node.background, "#f0f0f0")).toBeGreaterThanOrEqual(
+    expect(neutralDark.viewport.background).toBe("#202020");
+    expect(color(neutralDark.node.background).r).toBeGreaterThan(0x20);
+    expect(neutralLight.viewport.background).toBe("#f0f0f0");
+    // A neutral background has no tint to lose, so its nodes reach the curated separation.
+    expect(contrast(neutralLight.node.background, "#f0f0f0")).toBeGreaterThanOrEqual(
       contrast(lightTheme.node.background, lightTheme.viewport.background) - 0.001,
     );
   });
@@ -221,7 +224,7 @@ describe("createColorTheme", () => {
       expect(color(theme.node.background).a).toBe(1);
     });
 
-    it("keeps text legible on cards and the canvas", () => {
+    it("keeps text legible on nodes and the canvas", () => {
       for (const surface of [theme.node.background, theme.viewport.background]) {
         expect(contrast(theme.text.primary, surface)).toBeGreaterThanOrEqual(textMinimum);
         expect(contrast(theme.text.secondary, surface)).toBeGreaterThanOrEqual(textMinimum);
@@ -252,25 +255,25 @@ describe("createColorTheme", () => {
       }
     });
 
-    it.skipIf(isHighContrast)("sets cards lighter than the canvas, at most as far as the curated palette", () => {
-      const cardSeparation = contrast(theme.node.background, theme.viewport.background);
+    it.skipIf(isHighContrast)("sets nodes lighter than the canvas, at most as far as the curated palette", () => {
+      const nodeSeparation = contrast(theme.node.background, theme.viewport.background);
 
       expect(relativeLuminance(color(theme.node.background))).toBeGreaterThanOrEqual(
         relativeLuminance(color(theme.viewport.background)),
       );
-      expect(cardSeparation).toBeLessThanOrEqual(contrast(base.node.background, base.viewport.background) + 0.05);
+      expect(nodeSeparation).toBeLessThanOrEqual(contrast(base.node.background, base.viewport.background) + 0.05);
       if (kind === "dark") {
-        expect(cardSeparation).toBeGreaterThanOrEqual(contrast(base.node.background, base.viewport.background) - 0.001);
+        expect(nodeSeparation).toBeGreaterThanOrEqual(contrast(base.node.background, base.viewport.background) - 0.001);
       }
     });
 
-    it.skipIf(isHighContrast)("keeps the background's hue and most of its tint on cards", () => {
+    it.skipIf(isHighContrast)("keeps the background's hue and most of its tint on nodes", () => {
       const canvas = toOklch(color(theme.viewport.background));
-      const card = toOklch(color(theme.node.background));
+      const nodeColor = toOklch(color(theme.node.background));
 
-      expect(card.c).toBeGreaterThanOrEqual(canvas.c * 0.75 - 0.002);
+      expect(nodeColor.c).toBeGreaterThanOrEqual(canvas.c * 0.75 - 0.002);
       if (canvas.c > 0.01) {
-        expect(Math.abs(card.h - canvas.h)).toBeLessThan(0.1);
+        expect(Math.abs(nodeColor.h - canvas.h)).toBeLessThan(0.1);
       }
     });
   });

@@ -19,6 +19,8 @@ export interface SampleGraphNode {
   isCollection: boolean;
   hasChildren: boolean;
   hasError: boolean;
+  /** A registry module whose source is not cached; the fake host's restore supplies two children. */
+  requiresRestore?: boolean;
 }
 
 export interface SampleGraphEdge {
@@ -482,6 +484,111 @@ const COMPLEX_GRAPH: SampleGraph = {
 };
 
 /**
+ * Modules three deep, shaped like `br/public:avm/ptn/alz/ama:0.2.0` with its nested managed-identity
+ * module restored: a module containing a module containing a looped module.
+ */
+export const NESTED_MODULE_GRAPH: SampleGraph = {
+  nodes: [
+    { id: "ama", type: "<module>", isCollection: false, hasChildren: true, hasError: false },
+    {
+      id: "ama::changeTracking",
+      type: "Microsoft.Insights/dataCollectionRules",
+      isCollection: false,
+      hasChildren: false,
+      hasError: false,
+    },
+    {
+      id: "ama::changeTrackingLock",
+      type: "Microsoft.Authorization/locks",
+      isCollection: false,
+      hasChildren: false,
+      hasError: false,
+    },
+    { id: "ama::identity", type: "<module>", isCollection: false, hasChildren: true, hasError: false },
+    {
+      id: "ama::identity::userAssignedIdentity",
+      type: "Microsoft.ManagedIdentity/userAssignedIdentities",
+      isCollection: false,
+      hasChildren: false,
+      hasError: false,
+    },
+    {
+      id: "ama::identity::lock",
+      type: "Microsoft.Authorization/locks",
+      isCollection: false,
+      hasChildren: false,
+      hasError: false,
+    },
+    { id: "ama::identity::credentials", type: "<module>", isCollection: true, hasChildren: true, hasError: false },
+    {
+      id: "ama::identity::credentials::credential",
+      type: "Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials",
+      isCollection: false,
+      hasChildren: false,
+      hasError: false,
+    },
+    {
+      id: "workspace",
+      type: "Microsoft.OperationalInsights/workspaces",
+      isCollection: false,
+      hasChildren: false,
+      hasError: false,
+    },
+  ],
+  edges: [
+    { sourceId: "ama", targetId: "workspace" },
+    { sourceId: "ama::changeTrackingLock", targetId: "ama::changeTracking" },
+    { sourceId: "ama::identity::lock", targetId: "ama::identity::userAssignedIdentity" },
+    { sourceId: "ama::identity::credentials", targetId: "ama::identity::userAssignedIdentity" },
+  ],
+  errorCount: 0,
+};
+
+/**
+ * Registry modules: one whose published source is cached (expanded, containing a nested registry
+ * module that is not cached yet), and one whose contents can't be shown (published without source).
+ * Expanding `storage::leaf` restores it through the fake host.
+ */
+export const REMOTE_MODULE_GRAPH: SampleGraph = {
+  nodes: [
+    {
+      id: "storage",
+      type: "<module>",
+      isCollection: false,
+      hasChildren: true,
+      hasError: false,
+    },
+    {
+      id: "storage::account",
+      type: "Microsoft.Storage/storageAccounts",
+      isCollection: false,
+      hasChildren: false,
+      hasError: false,
+    },
+    {
+      id: "storage::leaf",
+      type: "<module>",
+      isCollection: false,
+      hasChildren: false,
+      hasError: false,
+      requiresRestore: true,
+    },
+    {
+      id: "plain",
+      type: "<module>",
+      isCollection: false,
+      hasChildren: false,
+      hasError: false,
+    },
+  ],
+  edges: [
+    { sourceId: "storage::leaf", targetId: "storage::account" },
+    { sourceId: "plain", targetId: "storage" },
+  ],
+  errorCount: 0,
+};
+
+/**
  * Named sample graphs available in the dev toolbar.
  */
 export const SAMPLE_GRAPHS: Record<string, SampleGraph | null> = {
@@ -489,6 +596,8 @@ export const SAMPLE_GRAPHS: Record<string, SampleGraph | null> = {
   "Flat graph": FLAT_GRAPH,
   "Error graph": ERROR_GRAPH,
   "Complex graph": COMPLEX_GRAPH,
+  "Nested module graph": NESTED_MODULE_GRAPH,
+  "Remote module graph": REMOTE_MODULE_GRAPH,
   "Empty (null)": null,
 };
 

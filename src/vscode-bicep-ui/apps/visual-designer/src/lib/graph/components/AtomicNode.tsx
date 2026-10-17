@@ -7,6 +7,7 @@ import useResizeObserver from "@react-hook/resize-observer";
 import { useStore } from "jotai";
 import { useContext, useLayoutEffect, useRef } from "react";
 import { translateBox } from "@/lib/math";
+import { registerNodeMeasurer } from "../atoms";
 import { NodeDragCallbacksContext } from "../context/NodeDragCallbacksContext";
 import { useBoxUpdate, useDragListener, useNodeZIndex } from "../hooks";
 import { BaseNode } from "./BaseNode";
@@ -19,23 +20,34 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
 
   useNodeZIndex(store, ref, id, "atomic");
 
+  // Measured when the node mounts, and again whenever a layout is about to read the size (see `waitForNodeSizes`): the
+  // resize observer below reports a change only at the next frame.
   useLayoutEffect(() => {
-    if (!ref.current) {
-      return;
-    }
+    const measure = () => {
+      if (!ref.current) {
+        return;
+      }
 
-    const { offsetWidth, offsetHeight } = ref.current;
+      const { offsetWidth: width, offsetHeight: height } = ref.current;
 
-    store.set(boxAtom, (box) => {
-      // On first measurement the box is a zero-size point placed at the spawn origin.
-      const isInitial = box.min.x === box.max.x && box.min.y === box.max.y;
-      const min = isInitial ? { x: box.min.x - offsetWidth / 2, y: box.min.y - offsetHeight / 2 } : box.min;
+      store.set(boxAtom, (box) => {
+        // On first measurement the box is a zero-size point placed at the spawn origin.
+        const isInitial = box.min.x === box.max.x && box.min.y === box.max.y;
+        if (!isInitial && box.max.x - box.min.x === width && box.max.y - box.min.y === height) {
+          return box;
+        }
 
-      return {
-        min,
-        max: { x: min.x + offsetWidth, y: min.y + offsetHeight },
-      };
-    });
+        const min = isInitial ? { x: box.min.x - width / 2, y: box.min.y - height / 2 } : box.min;
+
+        return {
+          min,
+          max: { x: min.x + width, y: min.y + height },
+        };
+      });
+    };
+
+    measure();
+    return registerNodeMeasurer(store, measure);
   }, [boxAtom, store]);
 
   useResizeObserver(ref, (entry) => {

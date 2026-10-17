@@ -5,7 +5,8 @@ import { Codicon } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import { useCallback } from "react";
 import { styled } from "styled-components";
-import { FLOATING_PANEL_THICKNESS, FloatingPanel } from "@/ui";
+import { motionPolicyAtom, shouldReduceMotion } from "@/core";
+import { FLOATING_PANEL_THICKNESS, FloatingPanel, Spinner } from "@/ui";
 import { useStatusApi } from "../api";
 import { graphStatusAtom } from "../atoms";
 
@@ -74,9 +75,10 @@ const $ErrorLink = styled.button`
   }
 `;
 
-/** Speaks up only when the graph needs attention; a healthy graph shows nothing. */
+/** Speaks up only when the graph needs attention or is still loading; a healthy graph shows nothing. */
 export function StatusBar() {
   const graphStatus = useAtomValue(graphStatusAtom);
+  const motionPolicy = useAtomValue(motionPolicyAtom);
   const api = useStatusApi();
 
   const handleShowProblems = useCallback(() => {
@@ -102,6 +104,14 @@ export function StatusBar() {
           >
             {errorLabel}
           </$ErrorLink>
+        </$StatusChip>
+      )}
+      {graphStatus.kind === "loading" && (
+        <$StatusChip data-testid="status-loading-message" title="Loading the graph" role="status">
+          <$StatusIcon $tone="info" data-testid="status-indicator">
+            <Spinner size={STATUS_ICON_SIZE} isAnimated={!shouldReduceMotion(motionPolicy)} />
+          </$StatusIcon>
+          <$StatusDetail>Loading…</$StatusDetail>
         </$StatusChip>
       )}
       {graphStatus.kind === "empty" && (

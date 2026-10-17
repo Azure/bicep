@@ -12,7 +12,10 @@ export interface GraphActions {
   resetGraphLayout: () => Promise<void>;
   /** Create a resource at a graph-coordinate point. */
   createResourceAt: (resourceType: ResourceTypeReference, origin: Point) => Promise<void>;
-  /** Toggle a module's session-local collapsed state without editing Bicep source. */
+  /**
+   * Toggle a module's session-local collapsed state without editing Bicep source. Expanding a remote module
+   * whose source is not cached restores it first, which fills the local module cache but edits nothing.
+   */
   toggleModuleCollapsed: (nodeId: string) => void;
   /** Called by `Graph` when a node drag starts moving and when it ends, to record the move. */
   handleNodeDragStart: (nodeId: string) => void;
