@@ -120,8 +120,6 @@ Compilation and rendering complete before any output is written for that module.
 | Option | Argument | Description |
 | :-- | :-- | :-- |
 | `--stdout` | flag | Print one rendered document to stdout. |
-| `--template-file` | path | Use a custom Scriban template file. |
-| `--template-root` | directory | Set the root directory for template includes. Defaults to the module directory. |
 | `--pattern` | glob | Generate documentation for every matched Bicep file. |
 | `--outdir` | directory | Write generated documentation beneath this directory. |
 | `--outfile` | path | Write one generated document to this exact path. |
