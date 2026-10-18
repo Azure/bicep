@@ -10,7 +10,7 @@ import type {
 } from "../graph-update-coordinator";
 
 import { createStore } from "jotai";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { targetScopeAtom } from "../atoms";
 import { AUTO_LAYOUT, GraphUpdateCoordinator } from "../graph-update-coordinator";
 
@@ -74,6 +74,7 @@ function createHarness(
   let fetchGate: { promise: Promise<void>; resolve: (value: void) => void } | null = null;
   let layoutGate: { promise: Promise<void>; resolve: (value: void) => void } | null = null;
   let failFetch = false;
+  const completeLayouts = vi.fn(async () => {});
 
   const operations: GraphUpdateOperations<{ id: number }> = {
     fetchUpdate: async () => {
@@ -99,6 +100,7 @@ function createHarness(
       }
       return layoutResults.shift() ?? "completed";
     },
+    completeLayouts,
   };
 
   const coordinator = new GraphUpdateCoordinator(operations);
@@ -107,6 +109,7 @@ function createHarness(
     calls,
     operations,
     coordinator,
+    completeLayouts,
     /** Stall the nth `fetchUpdate`, so a request can be made to arrive while it is in flight. */
     gateFetch(occurrence = 1) {
       fetchGateAt = occurrence;
@@ -212,6 +215,7 @@ describe("update and layout ordering", () => {
       runGraphLayout: async () => {
         throw new Error("Scope metadata must not request layout.");
       },
+      completeLayouts: async () => {},
     });
     const first = coordinator.requestUpdate();
     const second = coordinator.requestUpdate();
@@ -319,6 +323,55 @@ describe("module layouts", () => {
 
     // The layout of the whole graph places the other module's contents too.
     expect(harness.calls).toEqual(["fetch", "apply", "layout:module:a", "layout:auto"]);
+    expect(harness.completeLayouts).toHaveBeenCalledOnce();
+  });
+
+  it("completes placement only after a retry and its fallback finish", async () => {
+    const harness = createHarness({
+      appliedLayouts: [[moduleLayout("a")]],
+      layoutResults: ["graphChanged", "layoutFailed", "completed"],
+    });
+    harness.completeLayouts.mockImplementation(async () => {
+      expect(harness.calls).toEqual([
+        "fetch",
+        "apply",
+        "layout:module:a",
+        "fetch",
+        "apply",
+        "layout:module:a",
+        "layout:auto",
+      ]);
+    });
+
+    await harness.coordinator.requestUpdate();
+
+    expect(harness.completeLayouts).toHaveBeenCalledOnce();
+  });
+
+  it("waits for placement completion before resolving requests", async () => {
+    const harness = createHarness();
+    const reveal = deferred<void>();
+    harness.completeLayouts.mockImplementation(() => reveal.promise);
+    const request = harness.coordinator.requestModuleLayouts(["a"]);
+    const state = trackSettled(request);
+    await flush();
+    expect(harness.calls).toEqual(["layout:module:a"]);
+    expect(state.settled).toBe(false);
+
+    reveal.resolve();
+    await request;
+    expect(state.settled).toBe(true);
+  });
+
+  it("completes placement and releases callers when reconciliation after a retry fails", async () => {
+    const harness = createHarness({ layoutResults: ["graphChanged"] });
+    harness.failNextFetch();
+
+    await expect(harness.coordinator.requestModuleLayouts(["a"])).rejects.toThrow("host unavailable");
+    expect(harness.completeLayouts).toHaveBeenCalledOnce();
+
+    await harness.coordinator.requestUpdate();
+    expect(harness.completeLayouts).toHaveBeenCalledTimes(2);
   });
 
   it("does not retry a layout of the whole graph that failed", async () => {

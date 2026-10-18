@@ -65,6 +65,7 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   private catalogRevision = 0;
   private versionRequestCount = 0;
   private restoreRequestCount = 0;
+  private restoreRefreshFailuresRemaining = 0;
   private moduleLayoutRequestCount = 0;
   private targetScope: TargetScope = "resourceGroup";
   private colorThemeMatched = new URLSearchParams(window.location.search).get("matchColorTheme") === "true";
@@ -133,6 +134,10 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
     }
 
     if (requestMessage.method === getGraph.method) {
+      if (this.restoreRefreshFailuresRemaining > 0) {
+        this.restoreRefreshFailuresRemaining--;
+        return Promise.reject(new Error("The restored module's graph could not be loaded."));
+      }
       const { sourceSteps } = requestMessage.params as GetGraphParams;
       const isWithholding =
         this.isWithholdingUndoneRemoval ||
@@ -289,6 +294,7 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
             ],
             edges: [...current.edges, { sourceId: `${nodeId}::lock`, targetId: `${nodeId}::thing` }],
           };
+          this.restoreRefreshFailuresRemaining = getDelayParam("restoreRefreshFailures", 0);
           resolve({ status: "restored" });
         },
         getDelayParam("restoreDelay", 300),

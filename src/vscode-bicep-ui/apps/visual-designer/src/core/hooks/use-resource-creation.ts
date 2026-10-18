@@ -16,10 +16,10 @@ import {
   bindExpectedNodeAtom,
   cancelNodeRemovalAtom,
   discardPendingResourceAtom,
+  trackGraphChangeAtom,
   undoHistoryAtom,
 } from "../atoms";
 import { recordStep, recordUntrackedAction } from "../undo-history";
-import { useTrackGraphChange } from "./use-track-graph-change";
 
 /**
  * Returns a function that creates a resource where the user dropped it.
@@ -31,7 +31,6 @@ import { useTrackGraphChange } from "./use-track-graph-change";
 export function useResourceCreation(coordinator: GraphUpdateCoordinator<GetGraphResult>) {
   const store = useStore();
   const api = useGraphApi();
-  const trackGraphChange = useTrackGraphChange();
 
   return useCallback(
     (resourceType: ResourceTypeReference, origin: Point): Promise<void> => {
@@ -68,13 +67,15 @@ export function useResourceCreation(coordinator: GraphUpdateCoordinator<GetGraph
         }
       };
 
-      return trackGraphChange(() => coordinator.runMutation(createResource)).catch((error: unknown) => {
-        console.error(
-          "Visual designer graph refresh failed:",
-          getErrorMessage(error, "The graph could not refresh after resource creation."),
-        );
-      });
+      return store
+        .set(trackGraphChangeAtom, () => coordinator.runMutation(createResource))
+        .catch((error: unknown) => {
+          console.error(
+            "Visual designer graph refresh failed:",
+            getErrorMessage(error, "The graph could not refresh after resource creation."),
+          );
+        });
     },
-    [api, coordinator, store, trackGraphChange],
+    [api, coordinator, store],
   );
 }

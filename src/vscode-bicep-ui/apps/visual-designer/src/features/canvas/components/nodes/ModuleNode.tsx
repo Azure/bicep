@@ -9,7 +9,7 @@ import { AzureIcon, Codicon } from "@vscode-bicep-ui/components";
 import { useAtomValue, useStore } from "jotai";
 import { animate } from "motion";
 import { motion } from "motion/react";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { styled, useTheme } from "styled-components";
 import {
   isGraphChangeInProgressAtom,
@@ -189,6 +189,15 @@ const $ToggleButton = styled(IconButton)<{ $isRevealed: boolean; $isFailure: boo
   }
 `;
 
+const $RestoreStatus = styled.span`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+`;
+
 /** The row's height for each kind; the morph animates between them. */
 function getRowHeight(kind: NodeKind, borderWidth: string) {
   return kind === "atomic" ? ATOMIC_HEIGHT - 2 * parseFloat(borderWidth) : HEADER_HEIGHT;
@@ -202,8 +211,10 @@ function getToggleContent(symbolicName: string, isCollapsed: boolean, restore: M
 
   if (restore?.status === "failed") {
     return {
-      label: `Retry restoring module ${symbolicName}`,
-      title: `Couldn't restore the module. Click to try again.\n\n${restore.message}`,
+      label: restore.sourceRestored
+        ? `Retry expanding module ${symbolicName}`
+        : `Retry restoring module ${symbolicName}`,
+      title: `${restore.sourceRestored ? "Couldn't load the restored module" : "Couldn't restore the module"}. Click to try again.\n\n${restore.message}`,
       icon: "error",
     };
   }
@@ -229,6 +240,7 @@ export function ModuleNode({ id, kind, data }: ModuleNodeProps) {
   const restore = useAtomValue(moduleRestoresAtom).get(id);
   const isRestoring = restore?.status === "restoring";
   const isRestoreFailed = restore?.status === "failed";
+  const restoreStatusId = useId();
   const toggle = getToggleContent(symbolicName, isCollapsed, restore);
   const { toggleModuleCollapsed } = useGraphActions();
   const isAtomic = kind === "atomic";
@@ -395,6 +407,7 @@ export function ModuleNode({ id, kind, data }: ModuleNodeProps) {
             aria-label={toggle.label}
             aria-expanded={!isCollapsed}
             aria-busy={isRestoring}
+            aria-describedby={isRestoreFailed ? restoreStatusId : undefined}
             title={toggle.title}
             data-export-exclude=""
             disabled={isGraphChangeInProgress || isRestoring}
@@ -409,6 +422,9 @@ export function ModuleNode({ id, kind, data }: ModuleNodeProps) {
             )}
           </$ToggleButton>
         )}
+        <$RestoreStatus id={restoreStatusId} role="status">
+          {restore?.status === "failed" ? restore.message : isRestoring ? toggle.label : ""}
+        </$RestoreStatus>
       </$Row>
     </$Frame>
   );

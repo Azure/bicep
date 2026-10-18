@@ -9,8 +9,8 @@ import { lazy } from "react";
  * Development scaffolding: a fake extension host so the webview runs standalone.
  *
  * This is deliberately *not* a feature. Features are slices of the product; devtools impersonates
- * the other side of the wire, which is why it is the one module allowed to import every feature's
- * `api.ts`. Nothing but `app` may import it.
+ * the other side of the wire, so it consumes host contracts exposed by core and feature barrels.
+ * Nothing but `app` may import it.
  */
 
 /**

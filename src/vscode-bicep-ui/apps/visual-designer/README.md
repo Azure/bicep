@@ -98,6 +98,7 @@ The playground's own theme picker switches between VS Code's built-in color them
 | `graphDelay=2000`                        | Hold the first graph back, as a language server that is still starting would          |
 | `restoreDelay=1000`                      | Delay remote-module restores in milliseconds                                          |
 | `restoreFailures=1`                      | Fail the first N remote-module restores to exercise retry                             |
+| `restoreRefreshFailures=1`               | Fail N graph fetches after a successful restore to exercise refresh-only retry        |
 | `moduleLayout=layoutFailed`              | Answer the first layout of a module on its own with `graphChanged` or `layoutFailed`  |
 | `layoutDelay=800`                        | Delay layout responses in milliseconds                                                |
 | `createDelay=3000`                       | Delay resource creation in milliseconds, which keeps its placeholder on the canvas    |
@@ -129,7 +130,16 @@ lib       -> lib, utils
 utils     -> utils
 ```
 
-Feature-to-feature imports go through the target feature's `index.ts` and must remain acyclic.
+Feature-to-feature imports use public barrels and follow this one-way graph:
+
+```text
+dock     -> palette -> canvas -> export
+controls ---------------------> export
+status   (no feature dependencies)
+```
+
+The palette uses canvas drop coordinates and its resource preview; the canvas hosts export overlays;
+controls only open export. ESLint checks these edges as well as the layer boundaries.
 
 ### Source layout
 
@@ -140,7 +150,7 @@ src/
     AppEnvironment.tsx
     GlobalStyle.ts
   core/
-    atoms/            document, graph, history, pending-changes, settings
+    atoms/            state and actions grouped by responsibility (see State modules below)
     components/
     context/
     hooks/
@@ -148,7 +158,9 @@ src/
     api.ts
     graph-layout.ts
     graph-model.ts
+    graph-renderer.ts
     graph-update-coordinator.ts
+    graph-view-state.ts
     node-positions.ts
     types.ts
     undo-history.ts
@@ -156,7 +168,6 @@ src/
     canvas/
       components/
       hooks/
-      atoms.ts
     controls/
     export/
     palette/
@@ -185,11 +196,36 @@ Components use PascalCase filenames. Hooks, non-component files, and folders use
 
 ### Public boundaries
 
-Each feature, library, and `src/core` exposes one barrel:
+Each feature, library, and `src/core` exposes a public barrel:
 
 - Import other modules through `@/core`, `@/features/*`, `@/lib/*`, `@/ui`, or `@/utils`.
+- Theme is a separate public surface at `@/ui/theme`; UI components and motion use `@/ui`.
 - Use relative imports within the same module.
-- Export only symbols intended for other modules.
+- Export only symbols intended for other modules, not every internal atom, hook, or component.
+- Devtools uses the same public barrels for host contracts and shared graph calculations.
+
+ESLint rejects private alias subpaths such as `@/core/atoms` or `@/features/export/atoms`.
+An internal file can still export symbols to its siblings without making them part of the module's
+public API: only the barrel defines that API.
+
+### State modules
+
+Atom files are named for the state they own, not for whether they contain data or actions. A concern
+can contain stored state, derived reads, and the actions that preserve its invariants:
+
+| Core module                                            | Owns                                                                                    |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| [document](./src/core/atoms/document.ts)               | Host document URI, target scope, error count, and whether the first graph arrived       |
+| [settings](./src/core/atoms/settings.ts)               | Host settings and derived feature/motion flags                                          |
+| [graph](./src/core/atoms/graph.ts)                     | Graph snapshot, canvas/history commit, interaction activity, and Undo/Redo availability |
+| [module-restores](./src/core/atoms/module-restores.ts) | Read-only restore progress/failures and request-owned begin/settle/reconcile actions    |
+| [pending-changes](./src/core/atoms/pending-changes.ts) | Resource placeholders, expected placement, and removals awaiting a source update        |
+| [history](./src/core/atoms/history.ts)                 | Undo/redo stacks, next steps, and host replay confirmations                             |
+| [canvas](./src/core/atoms/canvas.ts)                   | The shared canvas element used for drops and export                                     |
+
+Feature-local state stays in its feature: palette catalog choices and drag state, export options,
+and derived status-bar intent. Private backing atoms protect graph-view and restore invariants;
+consumers read them through read-only atoms and use the owning actions to change them.
 
 ### App environment and state
 
@@ -201,6 +237,12 @@ inside both.
 Use Jotai for shared observable state and local React state for component-local interaction. Prefer
 derived and action atoms over exposing writable atoms across feature boundaries.
 
+Use `useAtomValue` for values rendered by React and `useSetAtom` for writes to a known atom.
+Use `useStore` when an event or async operation needs current state, accesses dynamically selected
+node atoms, or explicitly subscribes to updates for DOM animation. `store.get` is a snapshot read,
+not a React subscription; it must not replace `useAtomValue` for changing rendered values.
+Multi-atom state transitions belong in action atoms rather than scattered imperative writes.
+
 `GraphActionsProvider` keeps the graph in step with the Bicep file and publishes the actions that
 change it through `useGraphActions`:
 
@@ -208,6 +250,7 @@ change it through `useGraphActions`:
 interface GraphActions {
   resetGraphLayout(): Promise<void>;
   createResourceAt(resourceType, graphPoint): Promise<void>;
+  toggleModuleCollapsed(nodeId): void;
   handleNodeDragStart(nodeId): void;
   handleNodeDragEnd(nodeId): void;
   undo(): Promise<void>;
@@ -225,40 +268,32 @@ point. It reads the canvas element from core's `canvasElementAtom`, so the palet
 `src/core` keeps a client replica of the server graph and requests layout after React has measured
 node sizes.
 
-| Module                        | Responsibility                                                         |
-| ----------------------------- | ---------------------------------------------------------------------- |
-| `graph-model.ts`              | Indexed client graph, measured projection, render comparison           |
-| `graph-layout.ts`             | Layout invalidation and viewport centering                             |
-| `graph-update-coordinator.ts` | Update/layout ordering, coalescing, and mutation serialization         |
-| `undo-history.ts`             | Pure undo/redo stacks of layout and source steps                       |
-| `node-positions.ts`           | Capture and restore atomic node positions                              |
-| `GraphActionsProvider.tsx`    | Mounts graph sync and the Undo/Redo shortcuts; provides `GraphActions` |
-| `use-graph-sync.ts`           | Graph updates, scoped layout, and node-drag and Reset Layout history   |
-| `use-module-expansion.ts`     | Module collapse/expand, restores, and in-place expansion transitions   |
-| `use-resource-creation.ts`    | Placeholder, extension insertion, and creation history step            |
-| `use-undo-redo.ts`            | Undo/redo of layout and resource-creation steps                        |
-| `use-apply-graph.ts`          | Reconcile graph nodes and edges                                        |
-| `use-apply-graph-layout.ts`   | Reveal and animate node positions                                      |
+The state flow is **intent → pure view calculation → Jotai commit → measured layout → reveal**.
+`graphViewAtom` is the read-only snapshot of the source, visible projection, and collapsed-module
+snapshots. Both host updates and module toggles use `commitGraphViewAtom`; it updates that snapshot,
+reconciles canvas nodes, and prunes history in one transaction. See
+[Reading the graph lifecycle](./docs/architecture.md#reading-the-graph-lifecycle) for the entry points.
 
-The coordinator enforces these rules:
+Read the part relevant to the change:
 
-- Reconcile before layout.
-- A reset layout takes precedence over automatic layout, and a layout of the whole graph replaces the module
-  layouts owed, since it places their contents too.
-- Modules owed a layout of their own are laid out one at a time.
-- A `graphChanged` layout response schedules reconciliation and retries the same layout, keeping its scope and
-  mode.
-- A module that cannot be laid out on its own falls back to an automatic layout of the whole graph.
-- Source mutations run serially.
-- An update response that overlaps a mutation is discarded and fetched again.
-- A response superseded by a document notification is discarded, including its target-scope metadata.
-- Request promises settle when all currently pending work has completed.
+| Reviewing                                                 | Start here                                                                                                          |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| What the user sees after a source update or toggle        | [Pure graph-view rules](./src/core/graph-view-state.ts)                                                             |
+| How that view reaches mounted nodes and history           | [Graph commit action](./src/core/atoms/graph.ts)                                                                    |
+| Host refreshes, measurement, and scoped layout            | [Graph synchronization](./src/core/hooks/use-graph-sync.ts)                                                         |
+| Async ordering, coalescing, retries, and source mutations | [Graph update coordinator](./src/core/graph-update-coordinator.ts)                                                  |
+| Restore progress and retry                                | [Restore workflow](./src/core/hooks/use-module-restore.ts) and [restore atoms](./src/core/atoms/module-restores.ts) |
+| Collapse/expand animations and deferred placement         | [Module transitions](./src/core/hooks/use-module-expansion.ts)                                                      |
 
-See [Architecture](./docs/architecture.md) for graph synchronization, layout, and resource creation.
+The coordinator reconciles before layout, rejects superseded responses, and serializes source
+mutations. Layout retries retain their scope; module layout can fall back to whole-graph layout.
+See [Architecture](./docs/architecture.md#client-implementation) for the complete module map and
+ordering rules rather than duplicating them here.
 
 ## Testing
 
-- Vitest covers atoms, graph model/layout behavior, export state, coordinator ordering, and color-theme derivation.
+- Vitest covers atoms, graph model/layout behavior, export state, coordinator ordering, color-theme derivation,
+  and the ESLint module/feature boundary rules.
 - Playwright covers canvas interaction, resource creation, catalog loading, palette views, search, theme matching, and export.
 - E2E assertions should poll animated state rather than sample positions immediately.
 

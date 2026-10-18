@@ -41,6 +41,8 @@ export interface GraphUpdateOperations<TUpdate> {
   applyUpdate: (update: TUpdate) => Promise<{ layouts: readonly GraphLayoutRequest[] }>;
   /** Measure and lay out what the request covers. */
   runGraphLayout: (request: GraphLayoutRequest) => Promise<GraphLayoutResult>;
+  /** Reveal placed contents and release placement interlocks after all retries/fallbacks, or an aborted pass. */
+  completeLayouts: () => Promise<void>;
 }
 
 /**
@@ -162,6 +164,15 @@ export class GraphUpdateCoordinator<TUpdate> {
     return this.drain();
   }
 
+  /** Place newly visible contents whose restore completed while an ancestor was collapsed. */
+  requestModuleLayouts(nodeIds: readonly string[]): Promise<void> {
+    for (const nodeId of nodeIds) {
+      this.pending = pendLayout(this.pending, { scope: "module", nodeId });
+    }
+
+    return this.drain();
+  }
+
   /** Run a source mutation, serialized against other mutations and against reconciliation. */
   runMutation(mutate: () => Promise<void>): Promise<void> {
     const run = async () => {
@@ -204,7 +215,7 @@ export class GraphUpdateCoordinator<TUpdate> {
    *
    * This is what a caller arriving mid-pass gets back. Resolving such a call immediately would
    * report the work done when it is merely recorded, and callers use that promise to decide when to
-   * let the next request through: `trackGraphChange` keeps Reset Layout disabled for exactly this
+   * let the next request through: `trackGraphChangeAtom` keeps Reset Layout disabled for exactly this
    * long, so an early resolution lets a second click queue a second server layout behind the first.
    *
    * Waiting for quiescence rather than for the caller's own work is deliberate — passes coalesce, so
@@ -279,13 +290,20 @@ export class GraphUpdateCoordinator<TUpdate> {
 
     try {
       await this.runPasses();
+      if (!this.mutating && !isPending(this.pending)) {
+        await this.requireOperations().completeLayouts();
+      }
     } catch (error) {
       // A failed pass still ends this drain. Release anyone waiting on it before rethrowing to the
       // caller that started it: their promise would otherwise never settle at all, and a caller that
-      // gates on it — `trackGraphChange` keeps Reset Layout disabled for exactly that long — would
+      // gates on it — `trackGraphChangeAtom` keeps Reset Layout disabled for exactly that long — would
       // stay locked for the rest of the session.
-      this.draining = false;
-      this.releaseIdle();
+      try {
+        await this.requireOperations().completeLayouts();
+      } finally {
+        this.draining = false;
+        this.releaseIdle();
+      }
 
       throw error;
     }

@@ -4,7 +4,7 @@
 import type { Graph, GraphBounds, GraphNode, LayoutGraphResult, MeasuredGraph, NodePosition } from "@/core";
 import type { SampleGraph, SampleGraphNode } from "./sample-graphs";
 
-import { indexGraph, projectGraph, subtreeGraph } from "@/core/graph-model";
+import { indexGraph, projectGraph, subtreeGraph } from "@/core";
 
 /**
  * Dev-only stand-ins for the language server's graph and layout requests, so the dev playground can run

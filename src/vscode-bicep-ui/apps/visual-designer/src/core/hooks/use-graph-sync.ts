@@ -3,9 +3,9 @@
 
 import type { createStore } from "jotai";
 import type { Box, Point } from "@/lib/math";
-import type { GetGraphResult } from "../api";
+import type { GetGraphResult, MeasuredGraph } from "../api";
 import type { GraphActions } from "../context/GraphActionsContext";
-import type { ClientGraph, ClientGraphs } from "../graph-model";
+import type { ClientGraph } from "../graph-model";
 import type { GraphLayoutMode, GraphLayoutRequest, GraphLayoutResult } from "../graph-update-coordinator";
 import type { NodePositions } from "../node-positions";
 
@@ -15,32 +15,31 @@ import { nodesByIdAtom, waitForNodeSizes } from "@/lib/graph";
 import { getErrorMessage } from "@/utils";
 import { useGraphApi } from "../api";
 import {
+  collapsedModuleIdsAtom,
+  commitGraphViewAtom,
   commitPendingResourcesAtom,
   documentErrorCountAtom,
+  graphViewAtom,
+  isGraphChangeInProgressAtom,
   isGraphLoadedAtom,
   pendingPlacementsAtom,
   pendingRemovalNodeIdsAtom,
+  reconcileModuleRestoresAtom,
   replayableSourceStepKeysAtom,
   targetScopeAtom,
+  trackGraphChangeAtom,
   undoHistoryAtom,
 } from "../atoms";
 import { centerGraphLayout, findRestoredModules, graphChangeMayAffectLayout } from "../graph-layout";
-import {
-  clientGraphsRenderEqually,
-  EMPTY_CLIENT_GRAPH,
-  indexGraph,
-  measuredGraphsEqual,
-  measureGraph,
-  subtreeGraph,
-} from "../graph-model";
+import { clientGraphsRenderEqually, indexGraph, measuredGraphsEqual, measureGraph, subtreeGraph } from "../graph-model";
 import { AUTO_LAYOUT, GraphUpdateCoordinator } from "../graph-update-coordinator";
+import { updateGraphSource } from "../graph-view-state";
 import { applyNodePositions, captureNodePositions } from "../node-positions";
-import { forgetRemovedNodes, getSourceStepKey, getSourceStepReferences, recordLayoutChange } from "../undo-history";
-import { useApplyGraph } from "./use-apply-graph";
+import { getSourceStepKey, getSourceStepReferences, recordLayoutChange } from "../undo-history";
 import { useApplyGraphLayout } from "./use-apply-graph-layout";
 import { useModuleExpansion } from "./use-module-expansion";
+import { useModuleRestore } from "./use-module-restore";
 import { useResourceCreation } from "./use-resource-creation";
-import { useTrackGraphChange } from "./use-track-graph-change";
 import { useUndoRedo } from "./use-undo-redo";
 
 type Store = ReturnType<typeof createStore>;
@@ -99,37 +98,46 @@ export interface GraphSync extends GraphActions {
  * Keeps the client graph in step with the Bicep file: graph updates, layout, and recording node
  * drags and Reset Layout in the undo history. Mounted once, by `GraphActionsProvider`.
  *
- * Resource creation, undo/redo, and how modules show their contents live in their own hooks. They share state with
- * this one only through atoms -- the undo history, the pending resources and removals, and the graph changes in
- * progress -- except module expansion, which also shares the client graphs: collapsing a module changes what is shown.
+ * `graphViewAtom` holds the accepted source and local projection. Both host updates here and local module toggles
+ * commit through `commitGraphViewAtom`, which mounts the projection and prunes history in one transaction.
+ * Source restoration, creation, and undo/redo request updates through the coordinator.
  *
  * Ordering lives in `GraphUpdateCoordinator`, which has no React dependency and is unit tested
  * directly — the rules there govern hazards that are impractical to force end to end.
  */
 export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (bounds: Box) => void): GraphSync {
   const store = useStore();
-  const applyGraph = useApplyGraph(getViewportCenter);
-  const { applyGraphLayout, animateNodePositions, stopNodeAnimations, captureSettledNodePositions } =
+  const { revealGraph, applyGraphLayout, animateNodePositions, stopNodeAnimations, captureSettledNodePositions } =
     useApplyGraphLayout();
   const api = useGraphApi();
-  const trackGraphChange = useTrackGraphChange();
   const [coordinator] = useState(() => new GraphUpdateCoordinator<GetGraphResult>());
   const createResourceAt = useResourceCreation(coordinator);
   const { undo, redo } = useUndoRedo(coordinator, { animateNodePositions, stopNodeAnimations });
 
-  const clientGraphsRef = useRef<ClientGraphs>({
-    source: EMPTY_CLIENT_GRAPH,
-    rendered: EMPTY_CLIENT_GRAPH,
-    measured: null,
-  });
+  const lastWholeGraphLayoutInputRef = useRef<MeasuredGraph | null>(null);
+
+  const restoreModuleSource = useModuleRestore(coordinator);
   const {
-    getCollapsedNodeIds,
-    reconcileModules,
+    reconcileExpansions,
     prepareExpansions,
     getExpansionAnchor,
     revealExpansions,
-    toggleModuleCollapsed,
-  } = useModuleExpansion(clientGraphsRef, coordinator, { applyGraph, stopNodeAnimations });
+    toggleModuleCollapsed: toggleCachedModule,
+  } = useModuleExpansion(coordinator, { getViewportCenter, stopNodeAnimations });
+
+  const toggleModuleCollapsed = useCallback(
+    (nodeId: string) => {
+      if (store.get(isGraphChangeInProgressAtom)) {
+        return;
+      }
+      if (store.get(graphViewAtom).source.nodes.get(nodeId)?.requiresRestore) {
+        restoreModuleSource(nodeId);
+      } else {
+        toggleCachedModule(nodeId);
+      }
+    },
+    [restoreModuleSource, store, toggleCachedModule],
+  );
 
   /** For each node drag in progress, the positions of the dragged subtree when it started moving. */
   const dragStartPositionsRef = useRef(new Map<string, NodePositions>());
@@ -178,12 +186,13 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
       store.set(isGraphLoadedAtom, true);
       store.set(targetScopeAtom, response.targetScope);
       store.set(documentErrorCountAtom, response.errorCount);
-      const previousSource = clientGraphsRef.current.source;
-      const previousRendered = clientGraphsRef.current.rendered;
-      const source = indexGraph(response.graph);
-      const graph = reconcileModules(source);
-      clientGraphsRef.current.source = source;
-      clientGraphsRef.current.rendered = graph;
+      const previousView = store.get(graphViewAtom);
+      const previousSource = previousView.source;
+      const previousRendered = previousView.rendered;
+      const view = updateGraphSource(previousView, indexGraph(response.graph));
+      const { source, rendered: graph } = view;
+      store.set(reconcileModuleRestoresAtom, source);
+      reconcileExpansions(previousSource, source);
 
       const placements = store.get(pendingPlacementsAtom);
       const pendingRemovalNodeIds = store.get(pendingRemovalNodeIdsAtom);
@@ -207,29 +216,17 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
         [...placements].filter(([nodeId]) => graph.nodes.has(nodeId) && !previousSource.nodes.has(nodeId)),
       );
 
-      if (graph.nodes.size === 0) {
-        clientGraphsRef.current.measured = null;
-      }
-
-      // Nothing the canvas shows has changed, so leave the mounted nodes alone rather than tearing the
-      // graph down and re-laying it out. Most keystrokes land here.
-      if (clientGraphsRenderEqually(previousRendered, graph)) {
-        return { layouts };
-      }
-
       // Apply the new topology. Visibility is preserved for incremental edits (so nodes animate in
       // place) and gated for major changes; positions arrive with the layout. A restored module's contents start
       // hidden where the module was until its own layout places them.
-      const entrances = prepareExpansions(graph, layoutRequired ? [] : restoredModuleIds);
-      const previousNodesById = store.get(nodesByIdAtom);
-      applyGraph(graph, { newNodeOrigins, entrances, awaitsLayout: layoutRequired });
-      if (store.get(nodesByIdAtom) !== previousNodesById) {
-        const liveNodeIds = new Set([
-          ...[...source.nodes.values()].filter((node) => !node.hasChildren).map((node) => node.id),
-          ...getCollapsedNodeIds(),
-          ...placements.keys(),
-        ]);
-        store.set(undoHistoryAtom, (history) => forgetRemovedNodes(history, liveNodeIds));
+      const entrances = prepareExpansions(graph);
+      store.set(commitGraphViewAtom, {
+        view,
+        viewportCenter: getViewportCenter(),
+        options: { newNodeOrigins, entrances, awaitsLayout: layoutRequired },
+      });
+      if (graph.nodes.size === 0) {
+        lastWholeGraphLayoutInputRef.current = null;
       }
 
       if (newNodeOrigins.size > 0) {
@@ -238,13 +235,13 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
         if (!layoutRequired) {
           // An explicitly placed node is already where the user dropped it, so no layout is owed --
           // but the graph may still be behind the visibility gate, so reveal it.
-          await applyGraphLayout(new Map());
+          await revealGraph();
         }
       }
 
       return { layouts };
     },
-    [applyGraph, applyGraphLayout, getCollapsedNodeIds, prepareExpansions, reconcileModules, store],
+    [getViewportCenter, prepareExpansions, reconcileExpansions, revealGraph, store],
   );
 
   /**
@@ -259,7 +256,7 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
       // Read what is shown once its sizes have settled: a collapse or expand can change it meanwhile.
       await waitForNodeSizes(store);
 
-      const graph = clientGraphsRef.current.rendered;
+      const graph = store.get(graphViewAtom).rendered;
       // A module is laid out on its own only while its contents wait to be placed in its container.
       const expansionAnchor = request.scope === "module" ? getExpansionAnchor(request.nodeId) : undefined;
 
@@ -270,23 +267,23 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
       const target = cover(graph);
       const measuredGraph = measureGraph(target, measureNodes(store));
 
-      if (policy.skipsUnchangedInput && measuredGraphsEqual(clientGraphsRef.current.measured, measuredGraph)) {
+      if (policy.skipsUnchangedInput && measuredGraphsEqual(lastWholeGraphLayoutInputRef.current, measuredGraph)) {
         // Nothing was resized since the last layout, so the positions still hold. Reveal the graph in
         // case it is still behind the visibility gate.
-        await applyGraphLayout(new Map());
+        await revealGraph();
         return "completed";
       }
 
       const response = await api.layoutGraph({
         graph: measuredGraph,
-        collapsedNodeIds: [...getCollapsedNodeIds()],
+        collapsedNodeIds: [...store.get(collapsedModuleIdsAtom)],
         rootNodeId: request.scope === "module" ? request.nodeId : undefined,
       });
 
       // A local collapse or expand can change what is shown while the request is in flight. The response describes
       // what was measured, so it must not move nodes in what is shown now -- but the layout is still owed, so it runs
       // again, against what is shown then.
-      if (!clientGraphsRenderEqually(cover(clientGraphsRef.current.rendered), target)) {
+      if (!clientGraphsRenderEqually(cover(store.get(graphViewAtom).rendered), target)) {
         return "graphChanged";
       }
 
@@ -296,7 +293,7 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
 
       if (response.status === "layoutFailed") {
         // No usable layout — reveal the graph as-is so it isn't stuck hidden.
-        await applyGraphLayout(new Map());
+        await revealGraph();
         return "layoutFailed";
       }
 
@@ -324,7 +321,7 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
         // The module's contents stay hidden until it is revealed, so they jump into place.
         applyNodePositions(store, positions);
       } else {
-        clientGraphsRef.current.measured = measuredGraph;
+        lastWholeGraphLayoutInputRef.current = measuredGraph;
         await applyGraphLayout(positions);
       }
 
@@ -339,35 +336,17 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
       applyGraphLayout,
       captureSettledNodePositions,
       fitViewToBounds,
-      getCollapsedNodeIds,
       getExpansionAnchor,
       getViewportCenter,
+      revealGraph,
       stopNodeAnimations,
       store,
     ],
   );
 
-  const runGraphLayout = useCallback(
-    async (request: GraphLayoutRequest): Promise<GraphLayoutResult> => {
-      let isRetried = false;
-      try {
-        const result = await layOut(request);
-        isRetried = result === "graphChanged";
-        return result;
-      } finally {
-        // A restored module's hidden contents are shown once a layout covering the module is done with them, placed or
-        // not, unless the coordinator runs it again. Nothing else would show them.
-        if (!isRetried) {
-          revealExpansions(request.scope === "module" ? [request.nodeId] : undefined);
-        }
-      }
-    },
-    [layOut, revealExpansions],
-  );
-
   useEffect(() => {
-    coordinator.setOperations({ fetchUpdate, applyUpdate, runGraphLayout });
-  }, [applyUpdate, coordinator, fetchUpdate, runGraphLayout]);
+    coordinator.setOperations({ fetchUpdate, applyUpdate, runGraphLayout: layOut, completeLayouts: revealExpansions });
+  }, [applyUpdate, coordinator, fetchUpdate, layOut, revealExpansions]);
 
   const handleDocumentChange = useCallback(() => {
     // Replay confirmations describe the previous content, so none holds until the update for this change.
@@ -385,13 +364,15 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
 
   const resetGraphLayout = useCallback(
     () =>
-      trackGraphChange(() => coordinator.requestResetGraphLayout()).catch((error: unknown) => {
-        console.error(
-          "Visual designer layout reset failed:",
-          getErrorMessage(error, "Failed to reset the graph layout."),
-        );
-      }),
-    [coordinator, trackGraphChange],
+      store
+        .set(trackGraphChangeAtom, () => coordinator.requestResetGraphLayout())
+        .catch((error: unknown) => {
+          console.error(
+            "Visual designer layout reset failed:",
+            getErrorMessage(error, "Failed to reset the graph layout."),
+          );
+        }),
+    [coordinator, store],
   );
 
   return {

@@ -5,5 +5,6 @@ export * from "./canvas";
 export * from "./document";
 export * from "./graph";
 export * from "./history";
+export * from "./module-restores";
 export * from "./pending-changes";
 export * from "./settings";

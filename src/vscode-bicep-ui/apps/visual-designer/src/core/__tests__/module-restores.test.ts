@@ -37,7 +37,11 @@ describe("module restores", () => {
 
     store.set(beginModuleRestoreAtom, { nodeId: "leaf", requestId: "a" });
     store.set(settleModuleRestoreAtom, { nodeId: "leaf", requestId: "a", failure: "Unauthorized." });
-    expect(store.get(moduleRestoresAtom).get("leaf")).toEqual({ status: "failed", message: "Unauthorized." });
+    expect(store.get(moduleRestoresAtom).get("leaf")).toEqual({
+      status: "failed",
+      message: "Unauthorized.",
+      sourceRestored: false,
+    });
 
     // Retrying replaces the failure.
     expect(store.set(beginModuleRestoreAtom, { nodeId: "leaf", requestId: "b" })).toBe(true);
@@ -68,7 +72,7 @@ describe("module restores", () => {
 
     expect(store.get(moduleRestoresAtom)).toEqual(
       new Map([
-        ["failed", { status: "failed", message: "Unauthorized." }],
+        ["failed", { status: "failed", message: "Unauthorized.", sourceRestored: false }],
         ["pending", { status: "restoring", requestId: "d" }],
       ]),
     );
@@ -94,6 +98,27 @@ describe("module restores", () => {
     // Nor can it clear the failure of the restore that replaced it.
     store.set(settleModuleRestoreAtom, { nodeId: "leaf", requestId: "b", failure: "Unauthorized." });
     store.set(settleModuleRestoreAtom, { nodeId: "leaf", requestId: "a" });
-    expect(store.get(moduleRestoresAtom).get("leaf")).toEqual({ status: "failed", message: "Unauthorized." });
+    expect(store.get(moduleRestoresAtom).get("leaf")).toEqual({
+      status: "failed",
+      message: "Unauthorized.",
+      sourceRestored: false,
+    });
+  });
+
+  it("retains a successful restore when its graph refresh failed", () => {
+    const store = createStore();
+    store.set(beginModuleRestoreAtom, { nodeId: "leaf", requestId: "a" });
+    store.set(settleModuleRestoreAtom, {
+      nodeId: "leaf",
+      requestId: "a",
+      failure: "Graph unavailable.",
+      sourceRestored: true,
+    });
+
+    expect(store.get(moduleRestoresAtom).get("leaf")).toEqual({
+      status: "failed",
+      message: "Graph unavailable.",
+      sourceRestored: true,
+    });
   });
 });

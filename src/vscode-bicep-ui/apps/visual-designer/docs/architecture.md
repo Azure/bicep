@@ -20,6 +20,40 @@ The webview message contracts are defined by feature:
 
 ## Graph synchronization
 
+### Reading the graph lifecycle
+
+Start with the action being reviewed, not with every atom or rendering component:
+
+| Action                             | Flow                                                                                                           |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Source document changes            | `useGraphSync.handleDocumentChange` debounces a coordinator update                                             |
+| Expand an uncached module          | `useModuleRestore` restores its source, then requests the same coordinator update                              |
+| Accept a host graph                | `useGraphSync.applyUpdate` calculates the next view, prepares arriving contents, and commits it                |
+| Collapse or reopen a cached module | `useModuleExpansion` calculates the next view and its entrances, then commits it without a host fetch          |
+| Commit either kind of change       | `commitGraphViewAtom` publishes the view, reconciles canvas nodes, and prunes history in one Jotai transaction |
+| Place arriving contents            | The coordinator requests measured layout, retries or falls back if needed, then completes the reveal           |
+
+The state has three distinct jobs:
+
+- **View rules:** [graph-view-state.ts](../src/core/graph-view-state.ts) is ordinary, immutable
+  TypeScript. It projects source updates and calculates collapsed-module snapshots and expansion
+  positions. Its tests need neither React nor Jotai.
+- **Observable state and atomic commits:** [graph atoms](../src/core/atoms/graph.ts) expose
+  a read-only `graphViewAtom` and the one `commitGraphViewAtom` action. Readers cannot replace the
+  view independently of its mounted nodes and history. This uses Jotai's transaction boundary rather
+  than passing a mutable graph ref between hooks.
+- **Async ordering:** [the coordinator](../src/core/graph-update-coordinator.ts) decides when to fetch,
+  lay out, retry, and finish. Animation handles and expansions waiting for placement remain private
+  to the transition hook; the last whole-graph layout input remains a private cache in graph sync.
+
+The snapshot contains the authoritative `source`, its locally `rendered` projection, and
+`collapsedModules`. Each collapsed module saves one anchor and the centers of the atomic nodes
+visible inside it. If a nested module was also collapsed, the ancestor saves its card, while the
+nested module retains its own snapshot. This avoids moving hidden coordinates in several maps:
+each snapshot is translated once, when its own module reopens.
+
+### Host update and layout
+
 Graph reconciliation and layout are separate phases because layout uses dimensions measured after
 React renders the nodes.
 
@@ -108,6 +142,8 @@ until the next graph arrives. A failure turns the toggle into an error icon, alw
 carries the message; clicking it retries. Restore state is session-local webview state, cleared once the
 module no longer requires restoring. Each restore settles only the state it started: one that finishes after its
 module was removed, or after a module added back under the same ID began a restore of its own, changes nothing.
+If restoring succeeds but fetching the updated graph fails, the toggle retains that failure and retries only
+the graph fetch. Restore errors are also described on the button and announced as status updates.
 
 A restored module expands in place: the webview lays out only that module (see the layout contract) and
 centers its container on the card it replaces, growing the frame from the card while the contents fade in.
@@ -115,6 +151,10 @@ Until that layout places them, the contents wait hidden on the card. The rest of
 put, so the grown container may overlap its neighbors until Reset Layout. If the update also changed something
 else that affects layout, the whole graph is laid out instead, and a module that cannot be laid out on its own
 falls back to that.
+Restored contents remain pending even when a collapsed ancestor hides them; opening that ancestor places
+the new contents without disturbing the cached positions of its other children. Network restores do not
+block canvas gestures. Once visible contents start placement, the existing interaction interlock prevents
+drags from invalidating their anchor until placement and reveal finish.
 
 The passive scope indicator is outside the export canvas subtree, like the palette and controls.
 It uses Azure resource-group, subscription-alias, and management-group icons; tenant uses the neutral
@@ -228,16 +268,20 @@ Text fields and the source editor retain their native undo behavior. See the
 | Module                                                                      | Responsibility                                                        |
 | --------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | [graph-model.ts](../src/core/graph-model.ts)                                | Indexed client graph, measured projection, and render comparison      |
+| [graph-view-state.ts](../src/core/graph-view-state.ts)                      | Pure graph-view updates and per-module position snapshots             |
+| [graph atoms](../src/core/atoms/graph.ts)                                   | View commits, interaction activity, and command availability          |
+| [module-restore atoms](../src/core/atoms/module-restores.ts)                | Read-only restore state and request-owned settlement                  |
 | [graph-layout.ts](../src/core/graph-layout.ts)                              | Layout invalidation and centering                                     |
 | [undo-history.ts](../src/core/undo-history.ts)                              | Pure undo/redo stacks of layout and source steps                      |
 | [node-positions.ts](../src/core/node-positions.ts)                          | Capture and restore atomic node positions                             |
 | [graph-update-coordinator.ts](../src/core/graph-update-coordinator.ts)      | Update/layout ordering, coalescing, and mutation serialization        |
 | [use-graph-sync.ts](../src/core/hooks/use-graph-sync.ts)                    | Graph updates, scoped layout, and node-drag and Reset Layout history  |
-| [use-module-expansion.ts](../src/core/hooks/use-module-expansion.ts)        | Module collapse/expand, restores, and in-place expansion transitions  |
+| [use-module-expansion.ts](../src/core/hooks/use-module-expansion.ts)        | Module collapse/expand and in-place expansion transitions             |
+| [use-module-restore.ts](../src/core/hooks/use-module-restore.ts)            | Source restoration and retry, independent of visual transitions       |
 | [GraphActionsProvider.tsx](../src/core/components/GraphActionsProvider.tsx) | Mounts graph sync and Undo/Redo shortcuts; provides `useGraphActions` |
 | [use-resource-creation.ts](../src/core/hooks/use-resource-creation.ts)      | Placeholder, extension insertion, and creation history step           |
 | [use-undo-redo.ts](../src/core/hooks/use-undo-redo.ts)                      | Undo/redo of layout and resource-creation steps                       |
-| [use-apply-graph.ts](../src/core/hooks/use-apply-graph.ts)                  | Node and edge reconciliation                                          |
+| [graph-renderer.ts](../src/core/graph-renderer.ts)                          | Node and edge reconciliation, invoked by the commit transaction       |
 | [use-apply-graph-layout.ts](../src/core/hooks/use-apply-graph-layout.ts)    | Graph reveal and position animation                                   |
 
 The coordinator tracks pending update and layout work independently:
@@ -252,6 +296,8 @@ The coordinator tracks pending update and layout work independently:
 - `graphChanged` schedules reconciliation and retries the same layout, keeping its scope and mode.
 - A module that cannot be laid out on its own falls back to an automatic layout of the whole graph. A failed
   layout of the whole graph is not retried.
+- Expansion visibility is completed once the coordinator finishes all pending placement, including retries
+  and fallback, or aborts a failed pass. Individual layout attempts never finalize an expansion.
 - Request promises settle after all currently pending work completes.
 
 The language server is stateless between requests. It rebuilds the authoritative graph from the live
@@ -475,13 +521,24 @@ CSS variable on `<html>`. [atoms.ts](../src/ui/theme/atoms.ts) observes both and
 | Status          | User-facing graph status, derived from core graph facts                               |
 | App environment | Jotai store, message channel, theme, and mounting the core host syncs                 |
 
-Jotai stores shared observable state, including undo/redo availability. `useGraphSync` owns the
-client graph and the mutation queue; pending resources, pending removals, and the chronological
-undo history are core atoms. `useModuleExpansion` owns which modules are collapsed and the transitions
-between a module's card and its frame; module restores are a core atom it changes only through actions that
-let each request settle only its own entry. The extension owns the validated source insertion/inverse for each
+Jotai stores shared observable state, including the coherent graph view and undo/redo availability.
+Only `commitGraphViewAtom` writes the graph view and reconciles its mounted nodes and history.
+`useGraphSync` owns the host update/layout workflow and mounts the coordinator, which owns the mutation
+queue. Pending resources, pending removals, and the chronological undo history are core atoms.
+`useModuleExpansion` owns visual transitions, not the graph snapshot; it uses pure view calculations
+and the shared commit action. `useModuleRestore` owns the restore request; restore atoms let each
+request settle only its own entry. The extension owns the validated source insertion/inverse for each
 operation ID. Features change the graph through `useGraphActions`; the palette drops resources
 through the canvas's `useCanvasDropTarget`.
+
+The graph atom module also owns interaction activity, separately from pending source changes: a local collapse or placement can hold
+the lock without changing source, while a restore can use the network without blocking gestures.
+`trackGraphChangeAtom` holds the lock for one promise; `beginGraphChangeAtom` returns a release
+function for placement completed across coordinator callbacks. Their backing counter is private.
+Undo/Redo availability is derived here from that activity, settings, and the history's next step
+and host confirmations. History state does not depend on the view, avoiding a circular dependency.
+See the [state-module map](../README.md#state-modules) for the ownership of each core atom group and
+the [public boundaries](../README.md#public-boundaries) for permitted imports.
 
 ## Errors and limitations
 

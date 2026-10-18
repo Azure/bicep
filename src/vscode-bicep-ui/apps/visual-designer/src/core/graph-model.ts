@@ -20,16 +20,6 @@ export interface ClientGraph {
 
 export const EMPTY_CLIENT_GRAPH: ClientGraph = { nodes: new Map(), edges: new Map() };
 
-/**
- * The graphs the client holds: the latest from the host, what the canvas shows of it, and the last measured graph
- * submitted for a layout of the whole graph -- kept so a layout can skip when measured sizes are unchanged.
- */
-export interface ClientGraphs {
-  source: ClientGraph;
-  rendered: ClientGraph;
-  measured: MeasuredGraph | null;
-}
-
 export function indexGraph({ nodes, edges }: Graph): ClientGraph {
   return {
     nodes: new Map(nodes.map((node) => [node.id, node])),

@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 import type { createStore } from "jotai";
-import type { RefObject } from "react";
 import type { Point } from "@/lib/math";
 import type { GetGraphResult } from "../api";
-import type { ClientGraph, ClientGraphs } from "../graph-model";
+import type { ClientGraph } from "../graph-model";
+import type { NodeEntrance } from "../graph-renderer";
 import type { GraphUpdateCoordinator } from "../graph-update-coordinator";
-import type { ApplyGraphOptions, NodeEntrance } from "./use-apply-graph";
+import type { GraphViewState } from "../graph-view-state";
 
 import { useStore } from "jotai";
 import { animate } from "motion";
@@ -15,20 +15,16 @@ import { useCallback, useRef } from "react";
 import { fadedNodeIdsAtom, focusedNodeIdAtom, nodesByIdAtom } from "@/lib/graph";
 import { getBoxCenter } from "@/lib/math";
 import { getErrorMessage } from "@/utils";
-import { useGraphApi } from "../api";
 import {
-  beginModuleRestoreAtom,
-  isGraphChangeInProgressAtom,
+  beginGraphChangeAtom,
+  commitGraphViewAtom,
+  graphViewAtom,
   motionPolicyAtom,
-  reconcileModuleRestoresAtom,
-  settleModuleRestoreAtom,
-  undoHistoryAtom,
+  trackGraphChangeAtom,
 } from "../atoms";
-import { projectGraph } from "../graph-model";
+import { findRestoredModules } from "../graph-layout";
+import { collapseModule, expandModule } from "../graph-view-state";
 import { MODULE_CONTENTS_FADE_MS, MODULE_MORPH_TRANSITION, shouldReduceMotion } from "../motion";
-import { getAtomicNodeIds } from "../node-positions";
-import { forgetRemovedNodes } from "../undo-history";
-import { useTrackGraphChange } from "./use-track-graph-change";
 
 type Store = ReturnType<typeof createStore>;
 
@@ -53,42 +49,30 @@ function captureAtomicNodeCenters(store: Store, rootNodeId: string): Map<string,
   return centers;
 }
 
-/** A restored module whose contents mounted hidden where it was, waiting for a layout to place them. */
-interface PendingExpansion {
-  /** The module's center before it expanded: the point its container expands around. */
-  anchor: Point;
-  contentIds: readonly string[];
-}
+/** Placement is deferred while an ancestor hides the restored contents. */
+type PendingExpansion =
+  { status: "waiting" } | { status: "placing"; anchor: Point; contentIds: readonly string[]; finish: () => void };
 
 export interface ModuleExpansionDependencies {
-  applyGraph: (graph: ClientGraph, options: ApplyGraphOptions) => void;
+  getViewportCenter: () => Point;
   stopNodeAnimations: () => void;
 }
 
 /**
- * Owns how modules show their contents: the modules the user collapsed, restores of remote modules, and the
- * transitions between a collapsed module and its container. `useGraphSync` reconciles and lays out the graph around it.
+ * Owns module view choices and transitions, never the source graph or mounted graph. Both a local toggle and
+ * a host update go through `commitGraphViewAtom`; the coordinator orders placement before reveal.
  *
  * A module the user collapses or expands changes shape at once, positioned from where its contents were. A restored
  * module expands in place instead: its contents arrive with a graph update, mount hidden where the module was, and wait
  * for a layout to place them before its container grows around them.
  */
 export function useModuleExpansion(
-  clientGraphsRef: RefObject<ClientGraphs>,
   coordinator: GraphUpdateCoordinator<GetGraphResult>,
-  { applyGraph, stopNodeAnimations }: ModuleExpansionDependencies,
+  { getViewportCenter, stopNodeAnimations }: ModuleExpansionDependencies,
 ) {
   const store = useStore();
-  const api = useGraphApi();
-  const trackGraphChange = useTrackGraphChange();
 
-  /** Module IDs the user collapsed. A local view choice: the host's graph never changes. */
-  const collapsedNodeIdsRef = useRef(new Set<string>());
-  /** Where the contents of collapsed modules were, so expanding puts them back. */
-  const hiddenNodeCentersRef = useRef(new Map<string, Point>());
-  /** Each collapsed module's center when it collapsed, to tell how far it has moved since. */
-  const collapsedModuleAnchorsRef = useRef(new Map<string, Point>());
-  /** Restored modules whose contents are hidden until a layout places them. */
+  /** Restored contents that still need placement, whether currently visible or not. */
   const pendingExpansionsRef = useRef(new Map<string, PendingExpansion>());
 
   const fade = useCallback(
@@ -102,28 +86,25 @@ export function useModuleExpansion(
     [store],
   );
 
-  const getCollapsedNodeIds = useCallback((): ReadonlySet<string> => collapsedNodeIdsRef.current, []);
-
   /**
-   * Bring module state in step with a new source graph and return what the canvas shows of it. A collapse lasts while
-   * its module has contents to hide, and a restore while its module still needs restoring.
+   * Remember newly restored contents even when a collapsed ancestor currently hides them.
    */
-  const reconcileModules = useCallback(
-    (source: ClientGraph): ClientGraph => {
-      collapsedNodeIdsRef.current = new Set(
-        [...collapsedNodeIdsRef.current].filter((nodeId) => {
-          const node = source.nodes.get(nodeId);
-          return node?.kind === "module" && node.hasChildren;
-        }),
-      );
-
-      // Settled before a restored module remounts as a container, so the container never starts out showing a stale
-      // restore.
-      store.set(reconcileModuleRestoresAtom, source);
-
-      return projectGraph(source, collapsedNodeIdsRef.current);
+  const reconcileExpansions = useCallback(
+    (previousSource: ClientGraph, source: ClientGraph): void => {
+      for (const [nodeId, expansion] of pendingExpansionsRef.current) {
+        if (!source.nodes.get(nodeId)?.hasChildren) {
+          if (expansion.status === "placing") {
+            unfade(expansion.contentIds);
+            expansion.finish();
+          }
+          pendingExpansionsRef.current.delete(nodeId);
+        }
+      }
+      for (const nodeId of findRestoredModules(previousSource, source)) {
+        pendingExpansionsRef.current.set(nodeId, { status: "waiting" });
+      }
     },
-    [store],
+    [unfade],
   );
 
   /**
@@ -134,6 +115,9 @@ export function useModuleExpansion(
     async (nodeId: string, contentIds: readonly string[], reduceMotion: boolean) => {
       const expandedNode = store.get(nodesByIdAtom)[nodeId];
       if (reduceMotion || expandedNode?.kind !== "compound") {
+        if (expandedNode?.kind === "compound") {
+          store.set(expandedNode.enterProgressAtom, 1);
+        }
         unfade(contentIds);
         return;
       }
@@ -157,29 +141,44 @@ export function useModuleExpansion(
    * center. Returns how the nodes of `graph` arrive.
    */
   const prepareExpansions = useCallback(
-    (graph: ClientGraph, moduleIds: Iterable<string>): ReadonlyMap<string, NodeEntrance> => {
+    (graph: ClientGraph, origins: ReadonlyMap<string, NodeEntrance> = new Map()): ReadonlyMap<string, NodeEntrance> => {
       const reduceMotion = shouldReduceMotion(store.get(motionPolicyAtom));
       const nodesById = store.get(nodesByIdAtom);
       const entrances = new Map<string, NodeEntrance>();
 
-      for (const nodeId of moduleIds) {
-        const collapsed = nodesById[nodeId];
-        if (!collapsed) {
+      for (const [nodeId, expansion] of pendingExpansionsRef.current) {
+        if (expansion.status !== "waiting" || !graph.nodes.get(nodeId)?.hasChildren) {
           continue;
         }
 
-        const collapsedBox = store.get(collapsed.boxAtom);
-        const anchor = getBoxCenter(collapsedBox);
+        const collapsed = nodesById[nodeId];
+        const collapsedBox = collapsed && store.get(collapsed.boxAtom);
+        let anchor = collapsedBox ? getBoxCenter(collapsedBox) : origins.get(nodeId)?.origin;
+        let parentId = graph.nodes.get(nodeId)?.parentId;
+        while (!anchor && parentId) {
+          const parent = nodesById[parentId];
+          anchor = parent && getBoxCenter(store.get(parent.boxAtom));
+          parentId = graph.nodes.get(parentId)?.parentId;
+        }
+        if (!anchor) {
+          continue;
+        }
+
         const contentIds = [...graph.nodes.keys()].filter((id) => isInsideModule(id, nodeId));
         for (const contentId of contentIds) {
           entrances.set(contentId, { origin: anchor });
         }
-        if (!reduceMotion) {
+        if (!reduceMotion && collapsedBox) {
           entrances.set(nodeId, { enterFrom: collapsedBox, data: { morphFrom: "atomic" } });
         }
 
         fade(contentIds);
-        pendingExpansionsRef.current.set(nodeId, { anchor, contentIds });
+        pendingExpansionsRef.current.set(nodeId, {
+          status: "placing",
+          anchor,
+          contentIds,
+          finish: store.set(beginGraphChangeAtom),
+        });
       }
 
       return entrances;
@@ -195,94 +194,42 @@ export function useModuleExpansion(
     (nodeId: string): Point | undefined => {
       const expansion = pendingExpansionsRef.current.get(nodeId);
 
-      return store.get(nodesByIdAtom)[nodeId]?.kind === "compound" ? expansion?.anchor : undefined;
+      return expansion?.status === "placing" && store.get(nodesByIdAtom)[nodeId]?.kind === "compound"
+        ? expansion.anchor
+        : undefined;
     },
     [store],
   );
 
   /**
-   * Show the contents of expanding modules, placed or not: each container grows from where its module was while its
-   * contents fade in. A layout calls this once it is done with the modules it covers, so contents are never left
-   * hidden. Without `nodeIds`, every expanding module.
+   * Complete visible expansions once the coordinator has finished placing them, including fallback layouts.
+   * Deferred expansions stay pending until their ancestor is opened.
    */
-  const revealExpansions = useCallback(
-    (nodeIds?: readonly string[]) => {
-      const reduceMotion = shouldReduceMotion(store.get(motionPolicyAtom));
-
-      for (const [nodeId, { contentIds }] of pendingExpansionsRef.current) {
-        if (nodeIds && !nodeIds.includes(nodeId)) {
-          continue;
-        }
-
-        pendingExpansionsRef.current.delete(nodeId);
-        // Not awaited: the layout can finish while the container grows.
-        trackGraphChange(() => revealExpandedModule(nodeId, contentIds, reduceMotion)).catch((error: unknown) => {
-          console.error(
-            "Visual designer module expansion failed:",
-            getErrorMessage(error, "Failed to expand the module."),
-          );
-        });
-      }
-    },
-    [revealExpandedModule, store, trackGraphChange],
-  );
-
-  const restoreModuleSource = useCallback(
-    (nodeId: string) => {
-      const requestId = window.crypto.randomUUID();
-      if (!store.set(beginModuleRestoreAtom, { nodeId, requestId })) {
-        return;
+  const revealExpansions = useCallback(async () => {
+    const reduceMotion = shouldReduceMotion(store.get(motionPolicyAtom));
+    const reveals: Promise<void>[] = [];
+    for (const [nodeId, expansion] of pendingExpansionsRef.current) {
+      if (expansion.status !== "placing") {
+        continue;
       }
 
-      const restore = async () => {
-        let failure: string | undefined;
-        try {
-          const result = await api.restoreModuleSource(nodeId);
-          if (result.status === "failed") {
-            failure = result.message || "The module could not be restored.";
-          }
-        } catch (error) {
-          failure = getErrorMessage(error, "The module could not be restored.");
-        }
-
-        if (failure === undefined) {
-          // Restoring changes no document, so no document change follows. The next graph brings the module's
-          // contents, and it expands in place; the toggle shows progress until then.
-          try {
-            await coordinator.requestUpdate();
-          } catch (error) {
-            console.error(
-              "Visual designer graph update failed:",
-              getErrorMessage(error, "Failed to update the graph."),
-            );
-          }
-        }
-
-        store.set(settleModuleRestoreAtom, { nodeId, requestId, failure });
-      };
-
-      void restore();
-    },
-    [api, coordinator, store],
-  );
+      pendingExpansionsRef.current.delete(nodeId);
+      reveals.push(
+        revealExpandedModule(nodeId, expansion.contentIds, reduceMotion).finally(() => {
+          unfade(expansion.contentIds);
+          expansion.finish();
+        }),
+      );
+    }
+    await Promise.all(reveals);
+  }, [revealExpandedModule, store, unfade]);
 
   const toggleModuleCollapsed = useCallback(
     (nodeId: string) => {
-      // A module whose contents still wait to be placed has nowhere to put them back, so it cannot collapse yet.
-      if (store.get(isGraphChangeInProgressAtom) || pendingExpansionsRef.current.has(nodeId)) {
-        return;
-      }
-
-      const sourceNode = clientGraphsRef.current.source.nodes.get(nodeId);
-
-      // A remote module whose source is not cached expands by restoring it first.
-      if (sourceNode?.kind === "module" && sourceNode.requiresRestore) {
-        restoreModuleSource(nodeId);
-        return;
-      }
-
+      const view = store.get(graphViewAtom);
+      const sourceNode = view.source.nodes.get(nodeId);
       const renderedNode = store.get(nodesByIdAtom)[nodeId];
-      const isCollapsing = !collapsedNodeIdsRef.current.has(nodeId);
+      const isCollapsing = !view.collapsedModules.has(nodeId);
 
       if (
         sourceNode?.kind !== "module" ||
@@ -299,16 +246,14 @@ export function useModuleExpansion(
         stopNodeAnimations();
         const reduceMotion = shouldReduceMotion(store.get(motionPolicyAtom));
         const moduleBox = store.get(renderedNode.boxAtom);
-        const collapsedNodeIds = new Set(collapsedNodeIdsRef.current);
+        const moduleCenter = getBoxCenter(moduleBox);
         const entrances = new Map<string, NodeEntrance>();
+        let origins: ReadonlyMap<string, Point> = new Map();
         let hiddenNodeIds: string[] = [];
+        let nextView: GraphViewState;
 
         if (isCollapsing) {
-          for (const [hiddenNodeId, center] of captureAtomicNodeCenters(store, nodeId)) {
-            hiddenNodeCentersRef.current.set(hiddenNodeId, center);
-          }
-          // The module shrinks to the container's center, so restoring the contents is relative to it.
-          collapsedModuleAnchorsRef.current.set(nodeId, getBoxCenter(moduleBox));
+          const contents = captureAtomicNodeCenters(store, nodeId);
 
           if (!reduceMotion) {
             hiddenNodeIds = Object.keys(store.get(nodesByIdAtom)).filter(isDescendant);
@@ -316,13 +261,16 @@ export function useModuleExpansion(
             await delay(MODULE_CONTENTS_FADE_MS);
 
             // A graph update while the contents faded may have removed the module.
-            if (!clientGraphsRef.current.source.nodes.get(nodeId)?.hasChildren) {
+            if (!store.get(graphViewAtom).source.nodes.get(nodeId)?.hasChildren) {
               unfade(hiddenNodeIds);
               return;
             }
           }
 
-          collapsedNodeIds.add(nodeId);
+          nextView = collapseModule(store.get(graphViewAtom), nodeId, {
+            anchor: moduleCenter,
+            contents,
+          });
           entrances.set(nodeId, {
             data: {
               morphFrom: reduceMotion
@@ -331,36 +279,25 @@ export function useModuleExpansion(
             },
           });
         } else {
-          // Restore the contents relative to wherever the collapsed module was moved.
-          const collapsedCenter = getBoxCenter(moduleBox);
-          const anchor = collapsedModuleAnchorsRef.current.get(nodeId) ?? collapsedCenter;
-          const dx = collapsedCenter.x - anchor.x;
-          const dy = collapsedCenter.y - anchor.y;
-
-          for (const [hiddenNodeId, center] of hiddenNodeCentersRef.current) {
-            if (isDescendant(hiddenNodeId)) {
-              hiddenNodeCentersRef.current.set(hiddenNodeId, { x: center.x + dx, y: center.y + dy });
-            }
-          }
-
-          collapsedModuleAnchorsRef.current.delete(nodeId);
-          collapsedNodeIds.delete(nodeId);
+          const expanded = expandModule(store.get(graphViewAtom), nodeId, moduleCenter);
+          nextView = expanded.view;
+          origins = expanded.origins;
           if (!reduceMotion) {
             entrances.set(nodeId, { enterFrom: moduleBox, data: { morphFrom: "atomic" } });
           }
         }
 
-        collapsedNodeIdsRef.current = collapsedNodeIds;
-        const graph = projectGraph(clientGraphsRef.current.source, collapsedNodeIds);
-        clientGraphsRef.current.rendered = graph;
-        clientGraphsRef.current.measured = null;
+        const graph = nextView.rendered;
 
         const revealedNodeIds = isCollapsing ? [] : [...graph.nodes.keys()].filter(isDescendant);
-        const moduleCenter = getBoxCenter(moduleBox);
         for (const revealedNodeId of revealedNodeIds) {
           entrances.set(revealedNodeId, {
-            origin: hiddenNodeCentersRef.current.get(revealedNodeId) ?? moduleCenter,
+            origin: origins.get(revealedNodeId) ?? moduleCenter,
           });
+        }
+
+        for (const [id, entrance] of prepareExpansions(graph, entrances)) {
+          entrances.set(id, entrance);
         }
 
         if (!reduceMotion) {
@@ -368,7 +305,11 @@ export function useModuleExpansion(
           fade(revealedNodeIds);
         }
 
-        applyGraph(graph, { entrances, awaitsLayout: false });
+        store.set(commitGraphViewAtom, {
+          view: nextView,
+          viewportCenter: getViewportCenter(),
+          options: { entrances, awaitsLayout: false },
+        });
         // The hidden contents are unmounted now, so they no longer need fading.
         unfade(hiddenNodeIds);
 
@@ -386,31 +327,24 @@ export function useModuleExpansion(
           return;
         }
 
-        store.set(undoHistoryAtom, (history) => forgetRemovedNodes(history, getAtomicNodeIds(store)));
-
+        const moduleIds = [...pendingExpansionsRef.current]
+          .filter(([, expansion]) => expansion.status === "placing")
+          .map(([id]) => id);
+        if (moduleIds.length > 0) {
+          await coordinator.requestModuleLayouts(moduleIds);
+        }
         await revealExpandedModule(nodeId, revealedNodeIds, reduceMotion);
       };
 
-      trackGraphChange(toggle).catch((error: unknown) => {
+      store.set(trackGraphChangeAtom, toggle).catch((error: unknown) => {
         console.error("Visual designer module toggle failed:", getErrorMessage(error, "Failed to toggle the module."));
       });
     },
-    [
-      applyGraph,
-      clientGraphsRef,
-      fade,
-      restoreModuleSource,
-      revealExpandedModule,
-      stopNodeAnimations,
-      store,
-      trackGraphChange,
-      unfade,
-    ],
+    [coordinator, fade, getViewportCenter, prepareExpansions, revealExpandedModule, stopNodeAnimations, store, unfade],
   );
 
   return {
-    getCollapsedNodeIds,
-    reconcileModules,
+    reconcileExpansions,
     prepareExpansions,
     getExpansionAnchor,
     revealExpansions,

@@ -2,5 +2,5 @@
 // Licensed under the MIT License.
 
 export { Palette } from "./components/Palette";
-export * from "./api";
-export * from "./types";
+export { getResourceTypeVersions, listResourceTypes } from "./api";
+export type { ListResourceTypesParams, ListResourceTypesResult } from "./api";

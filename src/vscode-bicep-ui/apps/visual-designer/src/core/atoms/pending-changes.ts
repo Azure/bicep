@@ -7,19 +7,9 @@ import type { ResourceTypeReference } from "../types";
 import { atom } from "jotai";
 
 /**
- * Graph changes the designer has started but a graph update has not yet shown: resources being
- * created, nodes being removed by undo, and the edits still in flight.
+ * Source changes the designer has started but a graph update has not yet shown:
+ * resources being created and nodes being removed by undo.
  */
-
-// ── Changes in flight ──
-
-/**
- * How many source edits and layout resets are in flight. Undo, redo, Reset Layout, and node
- * gestures wait until it drops back to zero, so they never act on a graph that is about to change.
- */
-export const graphChangesInProgressCountAtom = atom(0);
-
-export const isGraphChangeInProgressAtom = atom((get) => get(graphChangesInProgressCountAtom) > 0);
 
 // ── Pending resources ──
 

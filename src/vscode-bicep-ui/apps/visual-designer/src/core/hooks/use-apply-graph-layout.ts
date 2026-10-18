@@ -105,17 +105,20 @@ export function useApplyGraphLayout() {
     [stopNodeAnimations, store],
   );
 
+  const revealGraph = useCallback(async (): Promise<void> => {
+    if (!store.get(layoutReadyAtom)) {
+      await waitForAnimationFrame();
+      setLayoutReady(true);
+    }
+  }, [setLayoutReady, store]);
+
   const applyGraphLayout = useCallback(
     async (positions: ReadonlyMap<string, Point>): Promise<void> => {
-      if (!store.get(layoutReadyAtom)) {
-        await waitForAnimationFrame();
-        setLayoutReady(true);
-      }
-
+      await revealGraph();
       animateNodePositions(positions);
     },
-    [animateNodePositions, setLayoutReady, store],
+    [animateNodePositions, revealGraph],
   );
 
-  return { applyGraphLayout, animateNodePositions, stopNodeAnimations, captureSettledNodePositions };
+  return { revealGraph, applyGraphLayout, animateNodePositions, stopNodeAnimations, captureSettledNodePositions };
 }

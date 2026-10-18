@@ -1,78 +1,107 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ClientGraph } from "../graph-model";
+import type { Point } from "@/lib/math";
+import type { ReplayDirection } from "../api";
+import type { ApplyGraphOptions } from "../graph-renderer";
+import type { GraphViewState } from "../graph-view-state";
 
 import { atom } from "jotai";
 import { nodesByIdAtom } from "@/lib/graph";
+import { clientGraphsRenderEqually } from "../graph-model";
+import { applyGraph } from "../graph-renderer";
+import { EMPTY_GRAPH_VIEW } from "../graph-view-state";
+import { forgetRemovedNodes, getSourceStepKey, isSourceStep } from "../undo-history";
+import { nextRedoStepAtom, nextUndoStepAtom, replayableSourceStepKeysAtom, undoHistoryAtom } from "./history";
+import { pendingPlacementsAtom } from "./pending-changes";
+import { isResourceEditingEnabledAtom } from "./settings";
+
+const graphViewStateAtom = atom(EMPTY_GRAPH_VIEW);
+
+/** The accepted source graph and its local projection. Only `commitGraphViewAtom` can replace this snapshot. */
+export const graphViewAtom = atom((get) => get(graphViewStateAtom));
 
 /** Whether the canvas shows any nodes. */
 export const graphHasNodesAtom = atom((get) => Object.keys(get(nodesByIdAtom)).length > 0);
 
-/**
- * A restore of a remote module's source the user asked for by expanding it. A restore in progress names the request
- * that owns it.
- */
-export type ModuleRestore = { status: "restoring"; requestId: string } | { status: "failed"; message: string };
+export const collapsedModuleIdsAtom = atom<ReadonlySet<string>>(
+  (get) => new Set(get(graphViewAtom).collapsedModules.keys()),
+);
 
-/**
- * Restores in progress or failed, by module node ID. A failure stays until the user retries or the module no
- * longer needs restoring; a successful restore leaves no entry, since the module then shows its contents.
- *
- * A request can outlive its entry: a graph update clears the entry once the module is gone, and a module added back
- * under the same ID can start a restore of its own. Change entries only through the actions below, which let a request
- * settle only the entry it began.
- */
-export const moduleRestoresAtom = atom<ReadonlyMap<string, ModuleRestore>>(new Map<string, ModuleRestore>());
-
-interface ModuleRestoreRequest {
-  nodeId: string;
-  requestId: string;
-}
-
-/** Start restoring a module, unless a restore of it is already in progress. Returns whether this one started. */
-export const beginModuleRestoreAtom = atom(null, (get, set, { nodeId, requestId }: ModuleRestoreRequest): boolean => {
-  if (get(moduleRestoresAtom).get(nodeId)?.status === "restoring") {
-    return false;
-  }
-
-  set(moduleRestoresAtom, (restores) => new Map(restores).set(nodeId, { status: "restoring", requestId }));
-  return true;
-});
-
-/**
- * Settle a restore: record why it failed, or clear it once it succeeded. Does nothing when the entry is no longer this
- * request's -- cleared by a graph update, or begun again since.
- */
-export const settleModuleRestoreAtom = atom(
+/** Both host updates and local toggles commit through this transaction; neither mounts nodes independently. */
+export const commitGraphViewAtom = atom(
   null,
-  (get, set, { nodeId, requestId, failure }: ModuleRestoreRequest & { failure?: string }) => {
-    const restore = get(moduleRestoresAtom).get(nodeId);
-    if (restore?.status !== "restoring" || restore.requestId !== requestId) {
+  (
+    get,
+    set,
+    { view, viewportCenter, options }: { view: GraphViewState; viewportCenter: Point; options: ApplyGraphOptions },
+  ) => {
+    const previous = get(graphViewAtom).rendered;
+    set(graphViewStateAtom, view);
+    if (clientGraphsRenderEqually(previous, view.rendered)) {
       return;
     }
 
-    set(moduleRestoresAtom, (restores) => {
-      const next = new Map(restores);
-      if (failure === undefined) {
-        next.delete(nodeId);
-      } else {
-        next.set(nodeId, { status: "failed", message: failure });
-      }
-      return next;
-    });
+    const previousNodes = get(nodesByIdAtom);
+    applyGraph({ get, set }, view.rendered, viewportCenter, options);
+    if (get(nodesByIdAtom) !== previousNodes) {
+      // Hidden source nodes and collapsed cards are still live history targets.
+      const liveNodeIds = new Set([
+        ...[...view.source.nodes.values()].filter((node) => !node.hasChildren).map((node) => node.id),
+        ...view.collapsedModules.keys(),
+        ...get(pendingPlacementsAtom).keys(),
+      ]);
+      set(undoHistoryAtom, (history) => forgetRemovedNodes(history, liveNodeIds));
+    }
   },
 );
 
-/**
- * Bring restores in step with a new source graph. A restore, in progress or failed, is over once its module no longer
- * needs restoring: it was removed, or its contents arrived.
- */
-export const reconcileModuleRestoresAtom = atom(null, (get, set, source: ClientGraph) => {
-  const restores = get(moduleRestoresAtom);
-  const ongoing = [...restores].filter(([nodeId]) => source.nodes.get(nodeId)?.requiresRestore);
+const graphChangesInProgressCountAtom = atom(0);
 
-  if (ongoing.length !== restores.size) {
-    set(moduleRestoresAtom, new Map(ongoing));
+/** Gestures, Undo/Redo, and Reset Layout wait for source mutations, local transitions, and placement to finish. */
+export const isGraphChangeInProgressAtom = atom((get) => get(graphChangesInProgressCountAtom) > 0);
+
+/** Hold the interaction lock until the returned release function is called. Releasing twice is harmless. */
+export const beginGraphChangeAtom = atom(null, (_get, set): (() => void) => {
+  set(graphChangesInProgressCountAtom, (count) => count + 1);
+  let finished = false;
+
+  return () => {
+    if (!finished) {
+      finished = true;
+      set(graphChangesInProgressCountAtom, (count) => count - 1);
+    }
+  };
+});
+
+/** Hold the same lock for an operation whose lifetime is a single promise, including failure. */
+export const trackGraphChangeAtom = atom(null, async (_get, set, operation: () => Promise<void>): Promise<void> => {
+  const finish = set(beginGraphChangeAtom);
+  try {
+    await operation();
+  } finally {
+    finish();
   }
 });
+
+/**
+ * View-level availability: history supplies the next step and host confirmations; current activity and settings
+ * decide whether the user can replay it now. History state itself does not depend on the graph view.
+ */
+function canReplayAtom(direction: ReplayDirection) {
+  return atom((get) => {
+    const step = get(direction === "undo" ? nextUndoStepAtom : nextRedoStepAtom);
+
+    return (
+      step !== null &&
+      !get(isGraphChangeInProgressAtom) &&
+      (!isSourceStep(step) ||
+        (get(isResourceEditingEnabledAtom) &&
+          get(replayableSourceStepKeysAtom).has(getSourceStepKey({ operationId: step.operationId, direction }))))
+    );
+  });
+}
+
+export const canUndoAtom = canReplayAtom("undo");
+
+export const canRedoAtom = canReplayAtom("redo");

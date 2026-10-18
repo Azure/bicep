@@ -21,11 +21,11 @@ import {
   expectNodeRemovalAtom,
   nextRedoStepAtom,
   nextUndoStepAtom,
+  trackGraphChangeAtom,
   undoHistoryAtom,
 } from "../atoms";
 import { getAtomicNodeIds } from "../node-positions";
 import { completeReplay, dropStep, forgetRemovedNodes } from "../undo-history";
-import { useTrackGraphChange } from "./use-track-graph-change";
 
 function isReplayUnavailableError(error: unknown): boolean {
   return typeof error === "object" && error !== null && "code" in error && error.code === "replayUnavailable";
@@ -50,7 +50,6 @@ export function useUndoRedo(
 ) {
   const store = useStore();
   const api = useGraphApi();
-  const trackGraphChange = useTrackGraphChange();
 
   const replayLayoutStep = useCallback(
     (step: LayoutStep, direction: ReplayDirection) => {
@@ -97,17 +96,19 @@ export function useUndoRedo(
         store.set(undoHistoryAtom, (history) => completeReplay(history, step, direction));
       };
 
-      return trackGraphChange(() => coordinator.runMutation(replay)).catch((error: unknown) => {
-        if (isReplayUnavailableError(error)) {
-          discardSourceStep(step);
-        }
-        console.error(
-          "Visual designer undo/redo failed:",
-          getErrorMessage(error, "Failed to replay the designer source edit."),
-        );
-      });
+      return store
+        .set(trackGraphChangeAtom, () => coordinator.runMutation(replay))
+        .catch((error: unknown) => {
+          if (isReplayUnavailableError(error)) {
+            discardSourceStep(step);
+          }
+          console.error(
+            "Visual designer undo/redo failed:",
+            getErrorMessage(error, "Failed to replay the designer source edit."),
+          );
+        });
     },
-    [api, coordinator, discardSourceStep, stopNodeAnimations, store, trackGraphChange],
+    [api, coordinator, discardSourceStep, stopNodeAnimations, store],
   );
 
   const replayNextStep = useCallback(

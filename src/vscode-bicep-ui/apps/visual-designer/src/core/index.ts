@@ -5,6 +5,7 @@ export { GraphActionsProvider } from "./components/GraphActionsProvider";
 export { useGraphActions } from "./context/use-graph-actions";
 export { useDocumentSync } from "./hooks/use-document-sync";
 export { useSettingsSync } from "./hooks/use-settings-sync";
+export { indexGraph, projectGraph, subtreeGraph } from "./graph-model";
 export {
   canRedoAtom,
   canUndoAtom,
