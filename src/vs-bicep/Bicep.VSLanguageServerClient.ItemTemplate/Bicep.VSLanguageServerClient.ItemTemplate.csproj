@@ -59,6 +59,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.CoreUtility" Version="17.12.215" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.12.19" />
   </ItemGroup>
   <ItemGroup>
     <None Include="main.bicep" />
