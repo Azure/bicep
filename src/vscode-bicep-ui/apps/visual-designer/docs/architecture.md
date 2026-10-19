@@ -68,11 +68,11 @@ what to mount and whether layout is stale. Only accepted coordinator updates pub
 state; superseded responses and responses overlapping mutations cannot overwrite it. Scope-only
 changes do not invalidate graph layout or adjust zoom.
 
-The webview also holds a session-local set of collapsed module IDs. It projects the authoritative
-graph before rendering: descendants of a collapsed module are omitted, dependencies wholly inside it
-are omitted, and dependencies crossing its boundary terminate at the collapsed module card. The source
-graph is unchanged. Collapse state survives graph refreshes while the same module ID and available
-children remain.
+The webview also holds a session-local set of collapsed module IDs: the user's choice, kept through
+graph refreshes even while a module is missing or empty, so a module that comes back is still
+collapsed. It projects the authoritative graph before rendering: descendants of a collapsed module
+that has children are omitted, dependencies wholly inside it are omitted, and dependencies crossing
+its boundary terminate at the collapsed module card. The source graph is unchanged.
 
 The passive scope indicator is outside the export canvas subtree, like the palette and controls.
 It uses Azure resource-group, subscription-alias, and management-group icons; tenant uses the neutral
@@ -122,31 +122,56 @@ topology or dimensions differ from the last successful layout input.
 - Automatic layout may skip unchanged input and fits the viewport after success.
 - **Reset Graph Layout** bypasses the unchanged-input check and preserves the viewport.
 
-Collapsing a module does not run layout. Its contents and their edges fade out, then the container
-shrinks toward its center into a resource-style card. The card writes its own box on each animation
-tick, because node size measurement lags a frame, so it stays centered and edges follow it. Expanding
-reverses this: the frame grows from the card back around the restored contents, which fade in.
-Descendant positions are cached on collapse and restored on expand; if the card moved while
-collapsed, the restored subtree receives the same translation. The camera and unrelated nodes stay
-fixed. Under reduced motion the frame snaps instead of morphing. Collapse/expand is visual session
-state and is not an undo step.
+Collapsing a module does not run layout. The card is centered where the container was, and the
+graph morphs the module's node from the container's box to the card while the contents and their
+edges fade out. Expanding reverses this: the frame grows from the card around the contents, which fade
+in. The node and its element are kept throughout, so the content animates its own header in step.
+Hidden contents keep their positions in the one positions map, and they move with the card however it
+moves (a drag, a layout, or undo), so they are in place when the module opens. Contents that were
+never shown, because they arrived while the module was collapsed, appear at the card and are laid out.
+The camera and unrelated nodes stay fixed. Under reduced motion the frame snaps and nothing fades.
+Collapse/expand is visual session state and is not an undo step.
+
+### Positions and drawing
+
+Core owns one map of node **centers**, including those of nodes hidden in a collapsed module.
+Containers have none: they enclose their contents. Layout, drags, and undo write the map, each saying
+whether nodes animate there or move at once; the server's top-left layout positions are converted to
+centers with the measured sizes. `lib/graph` derives each node's target box from its center and the
+size it measured, and owns where each node is drawn: a node springs toward its target, a container
+encloses where its children are drawn, and a node that becomes a container or stops being one morphs
+from the box it was drawn at. Only the drawn boxes move during an animation, so the positions core
+saves, sends, and records are always where nodes are going.
+
+Later stages extend these boundaries rather than move them:
+
+- Remote modules (stage 3) and resource containers (stage 4) are more containers from the server.
+  `lib/graph` needs no change; which containers can collapse is a predicate in `projectGraph`.
+- Selection (stage 5) is view state beside focus. The canvas raises it through `Graph`, and dragging a
+  selection moves several nodes through the same position rules.
+- Rename (stage 6) remaps IDs in the view state, the positions map, and the undo history.
+- Placeholders (stage 7) stay outside the graph; a committed drop becomes a position. A module dropped
+  collapsed is added to the collapsed set before its node arrives. Keeping placed nodes fixed while
+  others are laid out is a layout request option, not a client concern.
 
 ### Undo history
 
-A node drag records its atomic node position at the first actual movement and commits one history
-step at the end of the gesture. Dragging a module records the positions of all its descendants in
-one step. A successful Reset Layout records one step from the positions the nodes are settling at (the
-targets of any animation it interrupts) to the server's layout; a failed or unchanged layout adds none. **Undo** and **Redo** are buttons in their own panel below the control bar;
+A node drag records the positions at the first actual movement and commits one history step at the end
+of the gesture: the nodes whose positions changed, including the hidden contents of a dragged
+collapsed module. Dragging a module moves everything inside it in one step. A successful Reset Layout
+records one step from the positions to the server's layout; a failed or unchanged layout adds none.
+Positions are where nodes are going, so a reset or drag that interrupts an animation records its target. **Undo** and **Redo** are buttons in their own panel below the control bar;
 the focused designer also accepts Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z, and Ctrl+Y (Windows/Linux). Both
 traverse one session-local timeline of layout steps **and** designer-created resource
 declarations. Layout replay uses the same spring as automatic layout
 without requesting server layout, changing the camera, or editing Bicep source. A subsequent
-layout action retargets an in-progress animation; a drag or successful source replay cancels it.
+layout action retargets an in-progress animation, and a drag moves the dragged nodes at once. Replay
+also restores the positions of nodes hidden in a collapsed module.
 Under the effective VS Code or system reduced-motion preference, positions snap to their target.
 
 Pan, zoom, focus, and graph reconciliation are not history steps. Reconciliation keeps layout
-history for surviving atomic node IDs and discards entries for removed IDs, including when a
-symbolic rename changes an ID. A node removed by _undo of its creation_ keeps its redo
+history for nodes still in the graph, shown or hidden, and discards entries for removed IDs,
+including when a symbolic rename changes an ID. A node removed by _undo of its creation_ keeps its redo
 snapshots; other removed nodes cannot inherit stale position history. History is local to the
 visualizer session, not persisted in the Bicep file.
 
@@ -162,19 +187,20 @@ Text fields and the source editor retain their native undo behavior. See the
 
 ### Client implementation
 
-| Module                                                                      | Responsibility                                                        |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [graph-model.ts](../src/core/graph-model.ts)                                | Indexed client graph, measured projection, and render comparison      |
-| [graph-layout.ts](../src/core/graph-layout.ts)                              | Layout invalidation and centering                                     |
-| [undo-history.ts](../src/core/undo-history.ts)                              | Pure undo/redo stacks of layout and source steps                      |
-| [node-positions.ts](../src/core/node-positions.ts)                          | Capture and restore atomic node positions                             |
-| [graph-update-coordinator.ts](../src/core/graph-update-coordinator.ts)      | Update/layout ordering, coalescing, and mutation serialization        |
-| [use-graph-sync.ts](../src/core/hooks/use-graph-sync.ts)                    | Graph updates, layout, and node-drag and Reset Layout history         |
-| [GraphActionsProvider.tsx](../src/core/components/GraphActionsProvider.tsx) | Mounts graph sync and Undo/Redo shortcuts; provides `useGraphActions` |
-| [use-resource-creation.ts](../src/core/hooks/use-resource-creation.ts)      | Placeholder, extension insertion, and creation history step           |
-| [use-undo-redo.ts](../src/core/hooks/use-undo-redo.ts)                      | Undo/redo of layout and resource-creation steps                       |
-| [use-apply-graph.ts](../src/core/hooks/use-apply-graph.ts)                  | Node and edge reconciliation                                          |
-| [use-apply-graph-layout.ts](../src/core/hooks/use-apply-graph-layout.ts)    | Graph reveal and position animation                                   |
+| Module                                                                      | Responsibility                                                         |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| [graph-model.ts](../src/core/graph-model.ts)                                | Indexed client graph, collapse projection, measurement, and comparison |
+| [graph-layout.ts](../src/core/graph-layout.ts)                              | Layout invalidation, centering, and layout centers                     |
+| [node-positions.ts](../src/core/node-positions.ts)                          | The positions map and the pure rules for changing it                   |
+| [show-graph.ts](../src/core/show-graph.ts)                                  | Hands the shown graph and node data to `lib/graph`                     |
+| [undo-history.ts](../src/core/undo-history.ts)                              | Pure undo/redo stacks of layout and source steps                       |
+| [graph-update-coordinator.ts](../src/core/graph-update-coordinator.ts)      | Update/layout ordering, coalescing, and mutation serialization         |
+| [GraphActionsProvider.tsx](../src/core/components/GraphActionsProvider.tsx) | Composes the hooks below and provides `useGraphActions`                |
+| [use-graph-sync.ts](../src/core/hooks/use-graph-sync.ts)                    | Graph updates, layout, and Reset Layout                                |
+| [use-node-drag.ts](../src/core/hooks/use-node-drag.ts)                      | Moving dragged nodes and their drag history                            |
+| [use-module-collapse.ts](../src/core/hooks/use-module-collapse.ts)          | Collapse and expand                                                    |
+| [use-resource-creation.ts](../src/core/hooks/use-resource-creation.ts)      | Placeholder, extension insertion, and creation history step            |
+| [use-undo-redo.ts](../src/core/hooks/use-undo-redo.ts)                      | Undo/redo of layout and resource-creation steps                        |
 
 The coordinator tracks pending update and layout work independently:
 
@@ -400,6 +426,9 @@ CSS variable on `<html>`. [atoms.ts](../src/ui/theme/atoms.ts) observes both and
 | Area            | State                                                                                 |
 | --------------- | ------------------------------------------------------------------------------------- |
 | Core            | Client graph, graph facts, pending resources and removals, undo history, coordination |
+| Core view       | Focused node and collapsed modules: local view choices that never edit source         |
+| Core layout     | Node positions (centers), including those of hidden nodes                             |
+| `lib/graph`     | Shown nodes and edges, measured sizes, drawn boxes, animation, and paint order        |
 | Canvas          | The rendered surface and its drop target                                              |
 | Dock            | Creation tools and palette launcher                                                   |
 | Palette         | Catalog, search, browsing view, recent types, drag state, and preview                 |
@@ -407,9 +436,9 @@ CSS variable on `<html>`. [atoms.ts](../src/ui/theme/atoms.ts) observes both and
 | Status          | User-facing graph status, derived from core graph facts                               |
 | App environment | Jotai store, message channel, theme, and mounting the core host syncs                 |
 
-Jotai stores shared observable state, including undo/redo availability. `useGraphSync` owns the
-client graph and the mutation queue; pending resources, pending removals, and the chronological
-undo history are core atoms. The extension owns the validated source insertion/inverse for each
+Jotai stores shared observable state, including undo/redo availability. The client graph, view
+choices, pending resources, pending removals, and the chronological undo history are core atoms;
+`GraphActionsProvider` owns the coordinator that orders host requests. The extension owns the validated source insertion/inverse for each
 operation ID. Features change the graph through `useGraphActions`; the palette drops resources
 through the canvas's `useCanvasDropTarget`.
 
