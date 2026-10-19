@@ -30,6 +30,8 @@ export interface VisualGraphResult {
   targetScope: "resourceGroup" | "subscription" | "managementGroup" | "tenant" | null;
   /** The errors reported for the document, including those that belong to no node. */
   errorCount: number;
+  /** Identifies the graph's topology; the webview sends it back with a layout request. */
+  revision?: string | null;
 }
 
 export const visualGraphRequestType = new ProtocolRequestType<VisualGraphParams, VisualGraphResult, never, void, void>(
@@ -38,10 +40,10 @@ export const visualGraphRequestType = new ProtocolRequestType<VisualGraphParams,
 
 export interface VisualGraphLayoutParams {
   textDocument: TextDocumentIdentifier;
-  /** The graph the webview rendered, with the size it measured for each node. */
+  /** The graph the webview renders, with the size it measured for each node. It is laid out as sent. */
   graph: unknown;
-  /** Module IDs whose descendants are omitted from the measured graph. */
-  collapsedNodeIds: string[];
+  /** The revision of the graph it was rendered from, so the server can tell whether it is still current. */
+  revision: string | null;
 }
 
 export interface VisualGraphLayoutResult {

@@ -145,8 +145,8 @@ boundary terminate at the module card. Collapsing fades the contents out, then m
 into the card at its center; expanding grows the frame back and fades the contents in.
 Descendant positions are cached and restored exactly on expand, translated when the card was moved,
 so the camera and unrelated nodes do not move.
-The language server validates and lays out the same projection for Reset Layout and later graph
-updates. State survives refreshes while the module ID remains stable and is not an undo step. Stage 3
+The language server lays out the rendered graph for Reset Layout and later graph updates, checking
+only that the graph revision it came from is current. State survives refreshes while the module ID remains stable and is not an undo step. Stage 3
 supplies remote contents through the same controls; unavailable remote source still needs an explicit
 explanation rather than an empty-module presentation.
 

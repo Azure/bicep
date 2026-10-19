@@ -121,8 +121,14 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
    * The two graphs the client holds: the latest graph from the host, and the last measured graph it
    * submitted for layout — kept so a pass can skip layout when measured sizes are unchanged.
    */
-  const clientGraphsRef = useRef<{ source: ClientGraph; rendered: ClientGraph; measured: MeasuredGraph | null }>({
+  const clientGraphsRef = useRef<{
+    source: ClientGraph;
+    revision: string | null;
+    rendered: ClientGraph;
+    measured: MeasuredGraph | null;
+  }>({
     source: EMPTY_CLIENT_GRAPH,
+    revision: null,
     rendered: EMPTY_CLIENT_GRAPH,
     measured: null,
   });
@@ -190,6 +196,7 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
       );
       const graph = projectGraph(source, collapsedNodeIdsRef.current);
       clientGraphsRef.current.source = source;
+      clientGraphsRef.current.revision = response.revision ?? null;
       clientGraphsRef.current.rendered = graph;
 
       const placements = store.get(pendingPlacementsAtom);
@@ -269,7 +276,7 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
 
       const layoutResponse = await api.layoutGraph({
         graph: measuredGraph,
-        collapsedNodeIds: [...collapsedNodeIdsRef.current],
+        revision: clientGraphsRef.current.revision,
       });
 
       // A local collapse/expand can replace the rendered projection while this request is in flight.

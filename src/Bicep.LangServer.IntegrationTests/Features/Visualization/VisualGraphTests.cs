@@ -54,6 +54,7 @@ namespace Bicep.LangServer.IntegrationTests
             graph.Edges.Select(edge => (edge.SourceId, edge.TargetId)).Should().Contain(("res2", "mod1"));
             result.ErrorCount.Should().Be(0);
             result.TargetScope.Should().Be("resourceGroup");
+            result.Revision.Should().Be(graph.GetRevision());
         }
 
         [TestMethod]
@@ -61,9 +62,10 @@ namespace Bicep.LangServer.IntegrationTests
         {
             using var helper = await StartServerAndOpenAsync();
             var client = helper.Helper.Client;
+            var (measured, revision) = await MeasureGraph(helper);
 
             var result = await client.SendRequest(
-                new VisualGraphLayoutParams(new TextDocumentIdentifier(helper.MainUri), await MeasureGraph(helper), Options: null),
+                new VisualGraphLayoutParams(new TextDocumentIdentifier(helper.MainUri), measured, Options: null, revision),
                 default);
 
             result.Status.Should().Be(VisualGraphLayoutStatus.Ok);
@@ -76,47 +78,59 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
-        public async Task VisualGraphLayout_ForCollapsedModule_AcceptsProjectedTopology()
+        public async Task VisualGraphLayout_ForGraphRenderedWithHiddenModuleContents_LaysOutTheRenderedGraph()
         {
             using var helper = await StartServerAndOpenAsync();
             var client = helper.Helper.Client;
-            var source = (await client.SendRequest(
-                new VisualGraphParams(new TextDocumentIdentifier(helper.MainUri)),
-                default)).Graph!;
-            var projected = VisualGraphTopology.Project(source, new HashSet<string>(["mod1"]));
-            var measured = new MeasuredGraph(
-                [.. projected.Nodes.Select(node => new MeasuredGraphNode(node.Id, node.Kind, node.ParentId, Width: 180, Height: 72))],
-                projected.Edges);
+            var (measured, revision) = await MeasureGraph(helper);
+
+            // The client collapsed mod1: it renders the module as a card and omits its contents.
+            var rendered = measured with
+            {
+                Nodes = [.. measured.Nodes.Where(node => node.ParentId != "mod1")],
+                Edges = [.. measured.Edges.Where(edge => edge.SourceId != "mod1::res3" && edge.TargetId != "mod1::res3")],
+            };
 
             var result = await client.SendRequest(
-                new VisualGraphLayoutParams(
-                    new TextDocumentIdentifier(helper.MainUri),
-                    measured,
-                    Options: null,
-                    CollapsedNodeIds: ["mod1"]),
+                new VisualGraphLayoutParams(new TextDocumentIdentifier(helper.MainUri), rendered, Options: null, revision),
                 default);
 
             result.Status.Should().Be(VisualGraphLayoutStatus.Ok);
             result.Positions.Select(position => position.NodeId).Should().BeEquivalentTo("res1", "res2", "mod1");
-            result.Positions.Select(position => position.NodeId).Should().NotContain("mod1::res3");
         }
 
         [TestMethod]
-        public async Task VisualGraphLayout_ForStaleMeasuredGraph_ReturnsGraphChanged()
+        public async Task VisualGraphLayout_ForStaleRevision_ReturnsGraphChanged()
         {
             using var helper = await StartServerAndOpenAsync();
             var client = helper.Helper.Client;
-            var stale = new MeasuredGraph(
-                Nodes: [new MeasuredGraphNode("missing", GraphNodeKind.Resource, ParentId: null, Width: 180, Height: 72)],
-                Edges: []);
+            var (measured, _) = await MeasureGraph(helper);
 
             var result = await client.SendRequest(
-                new VisualGraphLayoutParams(new TextDocumentIdentifier(helper.MainUri), stale, Options: null),
+                new VisualGraphLayoutParams(new TextDocumentIdentifier(helper.MainUri), measured, Options: null, Revision: "stale"),
                 default);
 
             result.Status.Should().Be(VisualGraphLayoutStatus.GraphChanged);
             result.Positions.Should().BeEmpty();
             result.Bounds.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task VisualGraphLayout_ForMalformedGraph_ReturnsLayoutFailed()
+        {
+            using var helper = await StartServerAndOpenAsync();
+            var client = helper.Helper.Client;
+            var (_, revision) = await MeasureGraph(helper);
+            var malformed = new MeasuredGraph(
+                Nodes: [new MeasuredGraphNode("orphan", GraphNodeKind.Resource, ParentId: "missing", Width: 180, Height: 72)],
+                Edges: []);
+
+            var result = await client.SendRequest(
+                new VisualGraphLayoutParams(new TextDocumentIdentifier(helper.MainUri), malformed, Options: null, revision),
+                default);
+
+            result.Status.Should().Be(VisualGraphLayoutStatus.LayoutFailed);
+            result.Positions.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -130,25 +144,29 @@ namespace Bicep.LangServer.IntegrationTests
             using var helper = await StartServerAndOpenAsync(
                 services => services.AddSingleton<IVisualGraphLayoutEngine>(partialEngine));
             var client = helper.Helper.Client;
+            var (measured, revision) = await MeasureGraph(helper);
 
             var result = await client.SendRequest(
-                new VisualGraphLayoutParams(new TextDocumentIdentifier(helper.MainUri), await MeasureGraph(helper), Options: null),
+                new VisualGraphLayoutParams(new TextDocumentIdentifier(helper.MainUri), measured, Options: null, revision),
                 default);
 
             result.Status.Should().Be(VisualGraphLayoutStatus.Ok);
             result.Positions.Select(position => position.NodeId).Should().BeEquivalentTo("res1");
         }
 
-        /// <summary>Fetches the server's graph and measures it as the webview would.</summary>
-        private static async Task<MeasuredGraph> MeasureGraph(TestServer helper)
+        /// <summary>Fetches the server's graph and measures it as the webview would, returning its revision too.</summary>
+        private static async Task<(MeasuredGraph Graph, string? Revision)> MeasureGraph(TestServer helper)
         {
             var result = await helper.Helper.Client.SendRequest(new VisualGraphParams(new TextDocumentIdentifier(helper.MainUri)), default);
             var graph = result.Graph!;
 
-            return new MeasuredGraph(
-                [.. graph.Nodes.Select(node => new MeasuredGraphNode(node.Id, node.Kind, node.ParentId, Width: 180, Height: 72))],
-                graph.Edges);
+            return (
+                new MeasuredGraph(
+                    [.. graph.Nodes.Select(node => new MeasuredGraphNode(node.Id, node.Kind, node.ParentId, Width: 180, Height: 72))],
+                    graph.Edges),
+                result.Revision);
         }
+
         private async Task<TestServer> StartServerAndOpenAsync(Action<IServiceCollection>? configureServices = null)
         {
             var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();

@@ -160,6 +160,8 @@ export interface GetGraphResult {
    * no longer be. Null when the host could not tell, so none should be offered until the next update.
    */
   replayableSourceSteps: SourceStepReference[] | null;
+  /** Identifies the graph's topology. A layout request sends it back so the host can tell whether it is current. */
+  revision?: string | null;
 }
 
 export type TargetScope = "resourceGroup" | "subscription" | "managementGroup" | "tenant";
@@ -167,13 +169,14 @@ export type TargetScope = "resourceGroup" | "subscription" | "managementGroup" |
 export const layoutGraph = defineRequest<LayoutGraphParams, LayoutGraphResult>("graph/layout");
 
 export interface LayoutGraphParams {
+  /** The graph the webview renders, which may omit hidden nodes. The host lays it out as sent. */
   graph: MeasuredGraph;
-  /** Module IDs whose descendants are omitted from the measured graph. */
-  collapsedNodeIds: string[];
+  /** The revision of the graph it was rendered from. */
+  revision: string | null;
 }
 
 /**
- * `graphChanged` means the host's graph no longer matches the measured one: fetch the graph and retry.
+ * `graphChanged` means the host's graph has moved past the revision sent: fetch the graph and retry.
  * `layoutFailed` means no layout was produced: keep the current positions.
  */
 export interface LayoutGraphResult {

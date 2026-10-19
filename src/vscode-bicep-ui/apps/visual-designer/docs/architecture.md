@@ -31,15 +31,15 @@ sequenceDiagram
     Ext-->>UI: document/didChange
     UI->>Ext: graph/get
     Ext->>LS: textDocument/visualGraph
-    LS-->>Ext: graph + targetScope
-    Ext-->>UI: graph + targetScope
+    LS-->>Ext: graph + revision + targetScope
+    Ext-->>UI: graph + revision + targetScope
     UI->>UI: Compare with the previous graph and update the canvas
 
     opt layout required
         UI->>UI: Render and measure nodes
-        UI->>Ext: graph/layout(measured graph)
+        UI->>Ext: graph/layout(rendered measured graph, revision)
         Ext->>LS: textDocument/visualGraphLayout
-        alt graph still matches
+        alt revision still current
             LS-->>Ext: ok + positions + bounds
             Ext-->>UI: ok + positions + bounds
             UI->>UI: Center and apply positions
@@ -59,7 +59,8 @@ sequenceDiagram
 
 `graph/get` returns the whole graph (`nodes`, `edges`) built from the live compilation, the document's
 `targetScope: "resourceGroup" | "subscription" | "managementGroup" | "tenant" | null`, and the
-document's `errorCount`, which includes errors that belong to no node. The graph
+document's `errorCount`, which includes errors that belong to no node, and the graph's topology
+`revision` (see [Layout contract](#layout-contract)). The graph
 is null when no compiled model is available, and the webview then keeps what it shows. A whole graph
 rather than a delta means no response depends on what the webview showed before, so the host keeps no
 state and responses need no ordering. The webview compares each graph with the previous one to decide
@@ -79,11 +80,16 @@ organization Codicon. It stays visible when resource creation is disabled.
 
 ### Layout contract
 
-`graph/layout` submits a `MeasuredGraph`: node identity and containment, measured node dimensions,
-and edges, plus the module IDs collapsed in that projection. Positions are not sent to the server.
-The language server applies the same projection to the live graph before validating topology and
-laying it out. An `ok` response carries the positions of the visible nodes the engine laid out and
-the bounds of the projected graph.
+`graph/layout` submits a `MeasuredGraph`, the graph the webview renders: node identity and containment,
+measured node dimensions, and edges. It may omit nodes the webview hides, such as the contents of a
+collapsed module. Positions are not sent to the server. The request also carries the `revision` that
+`graph/get` returned with the graph it was rendered from: a hash of the graph's topology (node IDs,
+kinds, and parents, and edge IDs and endpoints) that ignores metadata such as errors. The language
+server rebuilds the live graph and answers `graphChanged` when its revision differs; otherwise it lays
+out the measured graph exactly as sent. It knows nothing about collapsed modules. An `ok` response
+carries the positions of the nodes the engine laid out and the bounds of the measured graph. A
+measured graph that is not well formed (a duplicate ID, or a parent or edge endpoint that is not in
+the graph) yields `layoutFailed`.
 
 The response status controls the next step:
 

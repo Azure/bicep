@@ -38,7 +38,7 @@ import {
 } from "@/core";
 import { getResourceTypeVersions, listResourceTypes } from "@/features/palette";
 import { showProblems } from "@/features/status";
-import { layoutGraph, toGraph } from "./fake-graph";
+import { getGraphRevision, layoutGraph, toGraph } from "./fake-graph";
 import { MODULE_GRAPH } from "./sample-graphs";
 import { getCatalogDelayMs, getSampleApiVersions, getSampleResourceTypes } from "./sample-resource-types";
 
@@ -130,8 +130,11 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
         this.servedGraph = this.currentGraph;
       }
 
+      const graph = toGraph(this.servedGraph);
+
       return Promise.resolve({
-        graph: toGraph(this.servedGraph),
+        graph,
+        revision: getGraphRevision(graph),
         targetScope: this.servedGraph ? this.targetScope : null,
         errorCount: this.servedGraph?.errorCount ?? 0,
         replayableSourceSteps: sourceSteps.filter((step) => this.canReplay(step)),
@@ -139,8 +142,8 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
     }
 
     if (requestMessage.method === layoutGraphRequest.method) {
-      const { graph, collapsedNodeIds } = requestMessage.params as LayoutGraphParams;
-      return Promise.resolve(layoutGraph(graph, this.servedGraph, new Set(collapsedNodeIds)) as T);
+      const { graph, revision } = requestMessage.params as LayoutGraphParams;
+      return Promise.resolve(layoutGraph(graph, revision, this.servedGraph) as T);
     }
     if (requestMessage.method === createResource.method) {
       if (new URLSearchParams(window.location.search).get("resourceEditing") === "false") {
