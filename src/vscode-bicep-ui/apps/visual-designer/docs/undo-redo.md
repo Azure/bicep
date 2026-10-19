@@ -3,7 +3,8 @@
 ## Scope and ownership
 
 The visual designer has **one chronological, session-local history** of actions initiated in the
-designer. Stage 0 records resource creation, node drags, and Reset Layout. **Undo** and **Redo**
+designer. Stage 0 records resource creation, node drags, and Reset Layout; stage 2 adds collapsing and
+expanding a module. **Undo** and **Redo**
 traverse that history from the history-bar buttons or keyboard shortcuts while the designer has focus.
 They do not present separate source and layout commands.
 Source edits made directly in the Bicep editor are **not** designer actions.
@@ -103,8 +104,10 @@ Node movement starts a snapshot at the first actual drag movement and commits on
 A module drag records all atomic descendants as one step, and dragging a collapsed module records its
 hidden contents too. Reset Layout records the positions before and after as one step **only after a
 successful layout**. Positions are targets, so a reset or drag that interrupts an animation records
-where the nodes were heading, and undoing it never stops partway through one. History never records
-pan, zoom, focus, collapsing or expanding a module, chooser opening, cancellation, automatic layout, or
+where the nodes were heading, and undoing it never stops partway through one. Collapsing or expanding
+a module records one step, replayed as the toggle does, so undo never moves contents the user cannot
+see: a drag inside a module that was collapsed afterwards is undone only after the module is expanded
+again. History never records pan, zoom, focus, chooser opening, cancellation, automatic layout, or
 animation frames.
 Layout undo/redo springs between recorded positions using the graph's existing animation, including
 the positions of nodes hidden in a collapsed module, which are in place when it opens. A new layout
@@ -116,9 +119,10 @@ not change the camera, issue a layout request, or add extra history steps.
 
 - The graph coordinator serializes source mutations and reconciles the document after both
   successful and failed attempts. While a source action or Reset Layout request is pending,
-  Undo, Redo, and Reset Layout are disabled and a node drag that starts is ignored; the canvas shows a
-  progress cursor. Collapsing and expanding modules, focus, source reveal, and pan and zoom stay
-  available. Undo and Redo also wait for a node drag to end, so a replay never lands mid-gesture.
+  Undo, Redo, and Reset Layout are disabled, and a node drag or module toggle that starts is ignored
+  because it would record a step above the one in flight; the canvas shows a progress cursor. Focus,
+  source reveal, and pan and zoom stay available. Undo and Redo also wait for a node drag to end, so a
+  replay never lands mid-gesture.
 - A failed edit, disabled setting, or rejected workspace edit leaves the history cursor in place
   and logs an error without an in-canvas notification. A step that fails the language server's
   check when clicked leaves the history and the failure is logged. No unverified inverse is applied.

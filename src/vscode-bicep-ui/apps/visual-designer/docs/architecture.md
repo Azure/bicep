@@ -130,7 +130,9 @@ Hidden contents keep their positions in the one positions map, and they move wit
 moves (a drag, a layout, or undo), so they are in place when the module opens. Contents that were
 never shown, because they arrived while the module was collapsed, appear at the card and are laid out.
 The camera and unrelated nodes stay fixed. Under reduced motion the frame snaps and nothing fades.
-Collapse/expand is visual session state and is not an undo step.
+Collapsing or expanding is an undo step that replays as the toggle does, so a step is always undone in the
+collapse state it was recorded in. Like a drag, the toggle is ignored while a source edit or Reset Layout is
+in flight.
 
 ### Positions and drawing
 
@@ -165,7 +167,8 @@ Later stages extend these boundaries rather than move them:
 
 A node drag records the positions at the first actual movement and commits one history step at the end
 of the gesture: the nodes whose positions changed, including the hidden contents of a dragged
-collapsed module. Dragging a module moves everything inside it in one step. A successful Reset Layout
+collapsed module. Dragging a module moves everything inside it in one step. Collapsing or expanding a
+module is one step. A successful Reset Layout
 records one step from the positions to the server's layout; a failed or unchanged layout adds none.
 Positions are where nodes are going, so a reset or drag that interrupts an animation records its target. **Undo** and **Redo** are buttons in their own panel below the control bar;
 the focused designer also accepts Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z, and Ctrl+Y (Windows/Linux). Both

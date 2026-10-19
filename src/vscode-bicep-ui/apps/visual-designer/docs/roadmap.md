@@ -146,7 +146,9 @@ boundary terminate at the module card. The container morphs into the card at its
 frame back and fades the contents in. Hidden contents keep their positions and move with the card,
 so they come back exactly where they were, and the camera and unrelated nodes do not move.
 The language server lays out the rendered graph for Reset Layout and later graph updates, checking
-only that the graph revision it came from is current. State survives refreshes, even while a module is missing or empty, and is not an undo step. Stage 3
+only that the graph revision it came from is current. State survives refreshes, even while a module is missing or empty. Collapsing or expanding is an undo
+step, so undo never changes contents the user cannot see: undoing a drag inside a module that was collapsed
+afterwards expands it first. Stage 3
 supplies remote contents through the same controls; unavailable remote source still needs an explicit
 explanation rather than an empty-module presentation.
 

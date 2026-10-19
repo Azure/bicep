@@ -4,7 +4,7 @@
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
 import { activeNodeDragCountAtom, canRedoAtom, canUndoAtom, undoHistoryAtom } from "../atoms";
-import { recordLayoutChange } from "../undo-history";
+import { recordLayoutChange, recordStep } from "../undo-history";
 
 describe("canUndoAtom and canRedoAtom", () => {
   it("wait for node drags to end", () => {
@@ -19,6 +19,15 @@ describe("canUndoAtom and canRedoAtom", () => {
     expect(store.get(canRedoAtom)).toBe(false);
 
     store.set(activeNodeDragCountAtom, 0);
+    expect(store.get(canUndoAtom)).toBe(true);
+  });
+
+  it("replay a module collapse without the host's confirmation", () => {
+    const store = createStore();
+    store.set(undoHistoryAtom, (history) =>
+      recordStep(history, { kind: "moduleCollapse", moduleId: "module", collapsed: true }),
+    );
+
     expect(store.get(canUndoAtom)).toBe(true);
   });
 });

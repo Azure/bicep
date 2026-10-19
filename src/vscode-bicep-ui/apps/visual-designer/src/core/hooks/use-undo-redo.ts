@@ -3,7 +3,8 @@
 
 import type { GetGraphResult, ReplayDirection } from "../api";
 import type { GraphUpdateCoordinator } from "../graph-update-coordinator";
-import type { LayoutStep, ResourceCreationStep } from "../undo-history";
+import type { LayoutStep, ModuleCollapseStep, ResourceCreationStep } from "../undo-history";
+import type { ModuleCollapse } from "./use-module-collapse";
 
 import { useStore } from "jotai";
 import { useCallback } from "react";
@@ -38,10 +39,14 @@ function isReplayUnavailableError(error: unknown): boolean {
  *
  * - A layout step replays locally: nodes animate to the recorded positions, including nodes hidden in a
  *   collapsed module, which are there when it opens.
+ * - A module collapse step collapses or expands the module again, as the toggle does.
  * - A resource creation step asks the extension to remove or reinsert the declaration, then the
  *   graph update removes or restores the node without disturbing the other nodes.
  */
-export function useUndoRedo(coordinator: GraphUpdateCoordinator<GetGraphResult>) {
+export function useUndoRedo(
+  coordinator: GraphUpdateCoordinator<GetGraphResult>,
+  setModuleCollapsed: ModuleCollapse["setModuleCollapsed"],
+) {
   const store = useStore();
   const api = useGraphApi();
   const trackGraphChange = useTrackGraphChange();
@@ -58,6 +63,14 @@ export function useUndoRedo(coordinator: GraphUpdateCoordinator<GetGraphResult>)
       store.set(undoHistoryAtom, (history) => completeReplay(history, step, direction));
     },
     [store],
+  );
+
+  const replayModuleCollapseStep = useCallback(
+    (step: ModuleCollapseStep, direction: ReplayDirection) => {
+      setModuleCollapsed(step.moduleId, direction === "undo" ? !step.collapsed : step.collapsed);
+      store.set(undoHistoryAtom, (history) => completeReplay(history, step, direction));
+    },
+    [setModuleCollapsed, store],
   );
 
   /** The extension can no longer replay this step exactly, so drop it and anything that depended on it. */
@@ -120,12 +133,15 @@ export function useUndoRedo(coordinator: GraphUpdateCoordinator<GetGraphResult>)
         case "layout":
           replayLayoutStep(step, direction);
           return;
+        case "moduleCollapse":
+          replayModuleCollapseStep(step, direction);
+          return;
         case "resourceCreation":
           await replayResourceCreationStep(step, direction);
           return;
       }
     },
-    [replayLayoutStep, replayResourceCreationStep, store],
+    [replayLayoutStep, replayModuleCollapseStep, replayResourceCreationStep, store],
   );
 
   const undo = useCallback(() => replayNextStep("undo"), [replayNextStep]);

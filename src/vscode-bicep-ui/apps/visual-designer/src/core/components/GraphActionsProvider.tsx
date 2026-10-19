@@ -38,9 +38,9 @@ export function GraphActionsProvider({ children }: { children: ReactNode }) {
 
   const { handleDocumentChange, resetGraphLayout } = useGraphSync(coordinator, getViewportCenter, fitViewToBounds);
   const createResourceAt = useResourceCreation(coordinator);
-  const toggleModuleCollapsed = useModuleCollapse(coordinator, getViewportCenter);
+  const { toggleModuleCollapsed, setModuleCollapsed } = useModuleCollapse(coordinator, getViewportCenter);
   const { handleNodeDragStart, handleNodeDrag, handleNodeDragEnd } = useNodeDrag();
-  const { undo, redo } = useUndoRedo(coordinator);
+  const { undo, redo } = useUndoRedo(coordinator, setModuleCollapsed);
 
   useNotification(documentDidChange, handleDocumentChange);
 

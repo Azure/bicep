@@ -26,8 +26,9 @@ export const replayableSourceStepKeysAtom = atom<ReadonlySet<string>>(new Set<st
 
 /**
  * Whether the next step in `direction` can be replayed now. Nothing replays while a graph change or a node
- * drag is in progress: a drag ending after a replay would record a step that clears the redo stack. A step that edits Bicep source also needs resource editing enabled and the host's confirmation,
- * with the latest graph update, that it can replay the step exactly. Layout steps always can.
+ * drag is in progress: a drag ending after a replay would record a step that clears the redo stack. A step
+ * that edits Bicep source also needs resource editing enabled and the host's confirmation, with the latest
+ * graph update, that it can replay the step exactly. Layout and module collapse steps always can.
  */
 function canReplayAtom(direction: ReplayDirection) {
   return atom((get) => {

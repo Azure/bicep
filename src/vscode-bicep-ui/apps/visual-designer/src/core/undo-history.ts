@@ -20,6 +20,14 @@ export interface LayoutStep {
   after: NodePositions;
 }
 
+/** A module collapsed into a card or expanded again. Replaying it never edits Bicep source. */
+export interface ModuleCollapseStep {
+  kind: "moduleCollapse";
+  moduleId: string;
+  /** Whether the module was collapsed rather than expanded. Undo does the opposite. */
+  collapsed: boolean;
+}
+
 /** A resource declaration the designer inserted. The extension keeps the text needed to replay it. */
 export interface ResourceCreationStep {
   kind: "resourceCreation";
@@ -34,7 +42,7 @@ export interface ResourceCreationStep {
 /** A step that edits Bicep source. Replaying one requires resource editing to be enabled. */
 export type SourceStep = ResourceCreationStep;
 
-export type HistoryStep = LayoutStep | SourceStep;
+export type HistoryStep = LayoutStep | ModuleCollapseStep | SourceStep;
 
 export interface UndoHistory {
   /** Oldest first, so the last step is the next one to undo. */
@@ -46,7 +54,7 @@ export interface UndoHistory {
 export const EMPTY_UNDO_HISTORY: UndoHistory = { undoStack: [], redoStack: [] };
 
 export function isSourceStep(step: HistoryStep): step is SourceStep {
-  return step.kind !== "layout";
+  return step.kind === "resourceCreation";
 }
 
 /** Add a new step. A new action makes the redo stack unreachable, so it is cleared. */
@@ -102,12 +110,16 @@ export function completeReplay(history: UndoHistory, step: HistoryStep, directio
 }
 
 /**
- * Keep only the parts of a layout step that refer to kept nodes. Returns an empty list if nothing is left.
+ * Keep only the parts of a step that refer to kept nodes. Returns an empty list if nothing is left.
  * Source steps are always kept: whether one can still be replayed is the host's call, not the graph's.
  */
 function keepNodes(step: HistoryStep, isKept: (nodeId: string) => boolean): HistoryStep[] {
   if (isSourceStep(step)) {
     return [step];
+  }
+
+  if (step.kind === "moduleCollapse") {
+    return isKept(step.moduleId) ? [step] : [];
   }
 
   const isKeptEntry = ([nodeId]: [string, Point]) => isKept(nodeId);
@@ -123,8 +135,8 @@ function keepNodes(step: HistoryStep, isKept: (nodeId: string) => boolean): Hist
 }
 
 /**
- * Drop layout history for nodes that no longer exist, so a later node that reuses an ID cannot inherit
- * stale positions. `liveNodeIds` are the nodes on the canvas plus those whose creation is pending.
+ * Drop layout and collapse history for nodes that no longer exist, so a later node that reuses an ID
+ * cannot inherit stale positions. `liveNodeIds` are the nodes on the canvas plus those whose creation is pending.
  *
  * A node whose creation was undone is missing now but comes back on redo, so the redo stack keeps
  * its steps. Source steps stay even when their node is missing: an edit such as a half-typed rename

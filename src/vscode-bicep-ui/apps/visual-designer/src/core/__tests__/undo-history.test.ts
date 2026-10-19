@@ -114,6 +114,18 @@ describe("undo history", () => {
     expect(forgetRemovedNodes(history, new Set(["a"])).undoStack[0]).toBe(history.undoStack[0]);
   });
 
+  it("forgets collapsing or expanding a removed module", () => {
+    const history = recordStep(
+      recordStep(EMPTY_UNDO_HISTORY, { kind: "moduleCollapse", moduleId: "removed", collapsed: true }),
+      { kind: "moduleCollapse", moduleId: "survivor", collapsed: true },
+    );
+
+    expect(forgetRemovedNodes(history, new Set(["survivor"])).undoStack).toEqual([
+      { kind: "moduleCollapse", moduleId: "survivor", collapsed: true },
+    ]);
+    expect(getSourceStepReferences(history)).toEqual([]);
+  });
+
   it("keeps the creation of a node that disappeared without a designer undo, for the host to judge", () => {
     const history = recordStep(EMPTY_UNDO_HISTORY, resourceCreation("created"));
 

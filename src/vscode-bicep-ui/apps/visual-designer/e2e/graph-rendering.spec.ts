@@ -231,25 +231,36 @@ test.describe("Graph rendering", () => {
       .toBe(true);
   });
 
-  test("undo while a module is collapsed restores its hidden contents", async ({ page }) => {
+  test("undoes collapsing a module before what was done inside it, and redoes both", async ({ page }) => {
+    const moduleNode = page.locator('[data-node-id="myModule"]');
     await loadSampleGraph(page, "module");
     await waitForStableNodePosition(page, "myModule::storageAccount");
     const storageBefore = await getNodeBoxes(page, ["myModule::storageAccount"]);
     await dragNode(page, "myModule::storageAccount", -160, 0);
     await waitForStableNodePosition(page, "myModule::storageAccount");
+    const storageDragged = await getNodeBoxes(page, ["myModule::storageAccount"]);
     await expect.poll(() => nodesAreAt(page, storageBefore)).toBe(false);
     await page.getByRole("button", { name: "Collapse module myModule" }).click();
     await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
     await waitForStableNodePosition(page, "myModule");
 
     await clickHistoryButton(page, "Undo");
-    await page.getByRole("button", { name: "Expand module myModule" }).click();
+    await expect(moduleNode).toHaveAttribute("data-node-kind", "compound");
+    await expect.poll(() => nodesAreAt(page, storageDragged)).toBe(true);
 
+    await clickHistoryButton(page, "Undo");
     await expect.poll(() => nodesAreAt(page, storageBefore)).toBe(true);
+
+    await clickHistoryButton(page, "Redo");
+    await expect.poll(() => nodesAreAt(page, storageDragged)).toBe(true);
+
+    await clickHistoryButton(page, "Redo");
+    await expect(moduleNode).toHaveAttribute("data-node-kind", "atomic");
+    await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
   });
 
-  test("toggles a module during Reset Layout and ignores a node drag that starts meanwhile", async ({ page }) => {
-    await openVisualDesigner(page, { layoutDelay: "1500" });
+  test("ignores a module toggle or node drag during Reset Layout", async ({ page }) => {
+    await openVisualDesigner(page, { layoutDelay: "4000" });
     await loadSampleGraph(page, "module");
     await waitForStableNodePosition(page, "myModule::storageAccount");
     const reset = page.getByTestId("control-reset-layout");
@@ -258,19 +269,17 @@ test.describe("Graph rendering", () => {
     await expect(reset).toBeDisabled();
 
     await page.getByRole("button", { name: "Collapse module myModule" }).click();
-    await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
-
     const unrelatedBefore = await waitForStableNodePosition(page, "networkInterface");
     await dragNode(page, "networkInterface", 200, 0);
     const unrelatedAfter = await page.locator('[data-node-id="networkInterface"]').boundingBox();
     // Both happened while the reset was still in flight.
     await expect(reset).toBeDisabled();
+    await expect(page.locator('[data-node-id="myModule"]')).toHaveAttribute("data-node-kind", "compound");
     expect(unrelatedAfter?.x).toBeCloseTo(unrelatedBefore.x, 0);
 
-    // The reset lays out what is shown once it completes: the collapsed card.
     await expect(reset).toBeEnabled({ timeout: 15_000 });
+    await page.getByRole("button", { name: "Collapse module myModule" }).click();
     await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
-    await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
   });
 
   test("preserves collapsed state across graph refreshes", async ({ page }) => {

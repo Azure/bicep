@@ -28,9 +28,10 @@ const $CanvasWrapper = styled.div`
     outline-offset: -2px;
   }
 
-  /* Node drags are ignored while a source edit or Reset Layout is in flight; say so. */
+  /* Node drags and module toggles are ignored while a source edit or Reset Layout is in flight; say so. */
   &[aria-busy="true"],
-  &[aria-busy="true"] [data-node-id] {
+  &[aria-busy="true"] [data-node-id],
+  &[aria-busy="true"] [data-node-id] button {
     cursor: progress;
   }
 `;
