@@ -78,6 +78,7 @@ namespace Bicep.Cli.Constants
         public const string BinOsxArm64 = "--bin-osx-arm64";
         public const string BinWinX64 = "--bin-win-x64";
         public const string BinWinArm64 = "--bin-win-arm64";
+        public const string Contract = "--contract";
 
         // JsonRpc
         public const string Pipe = "--pipe";

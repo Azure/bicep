@@ -383,7 +383,7 @@ namespace Bicep.Core.Registry
 
         public override async Task PublishExtension(OciArtifactReference reference, ExtensionPackage package)
         {
-            OciExtensionV1Config configData = package.LocalDeployEnabled ? new(
+            OciExtensionV1Config configData = package.LocalDeployEnabled && package.BinaryLayerVersion == ExtensionBinaryLayerVersion.V1 ? new(
                 localDeployEnabled: true,
                 supportedArchitectures: package.Binaries.Select(x => x.Architecture.Name).ToImmutableArray()) :
                 new(null, null);
@@ -397,11 +397,13 @@ namespace Bicep.Core.Registry
                 new(package.Types, BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip, new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
             };
 
-            if (configData.LocalDeployEnabled == true)
+            if (configData.LocalDeployEnabled == true || package.BinaryLayerVersion == ExtensionBinaryLayerVersion.V2)
             {
                 foreach (var binary in package.Binaries)
                 {
-                    var layerName = BicepMediaTypes.GetExtensionArtifactLayerV1Binary(binary.Architecture);
+                    var layerName = package.BinaryLayerVersion == ExtensionBinaryLayerVersion.V2
+                        ? BicepMediaTypes.GetExtensionArtifactLayerV2Binary(binary.Architecture)
+                        : BicepMediaTypes.GetExtensionArtifactLayerV1Binary(binary.Architecture);
                     layers.Add(new(binary.Data, layerName, new OciManifestAnnotationsBuilder().WithTitle("extension.bin").Build()));
                 }
             }

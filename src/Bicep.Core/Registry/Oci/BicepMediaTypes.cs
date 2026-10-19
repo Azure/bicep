@@ -16,6 +16,9 @@ namespace Bicep.Core.Registry.Oci
         public const string BicepExtensionArtifactLayerV1TarGzip = "application/vnd.ms.bicep.provider.layer.v1.tar+gzip";
         public static string GetExtensionArtifactLayerV1Binary(SupportedArchitecture architecture)
             => $"application/vnd.ms.bicep.provider.layer.v1.{architecture.Name}.binary";
+        // A binary that implements the Extension API Contract V2 over HTTP, rather than the v1 gRPC protocol.
+        public static string GetExtensionArtifactLayerV2Binary(SupportedArchitecture architecture)
+            => $"application/vnd.ms.bicep.provider.layer.v2.{architecture.Name}.binary";
 
         // Module Media Types
         public const string BicepModuleArtifactType = "application/vnd.ms.bicep.module.artifact";
