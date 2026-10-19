@@ -163,6 +163,7 @@ export function clientGraphsRenderEqually(left: ClientGraph, right: ClientGraph)
       leftNode.kind !== rightNode.kind ||
       leftNode.parentId !== rightNode.parentId ||
       leftNode.type !== rightNode.type ||
+      leftNode.symbolName !== rightNode.symbolName ||
       leftNode.isCollection !== rightNode.isCollection ||
       leftNode.hasChildren !== rightNode.hasChildren ||
       leftNode.hasError !== rightNode.hasError ||

@@ -213,13 +213,6 @@ describe("clientGraphsRenderEqually", () => {
     expect(clientGraphsRenderEqually(makeClientGraph([a, b]), makeClientGraph([b, a]))).toBe(true);
   });
 
-  it("ignores fields the canvas never reads", () => {
-    const before = makeClientGraph([node({ symbolName: "before" })]);
-    const after = makeClientGraph([node({ symbolName: "after" })]);
-
-    expect(clientGraphsRenderEqually(before, after)).toBe(true);
-  });
-
   it("reports a change from or to an empty graph", () => {
     expect(clientGraphsRenderEqually(EMPTY_CLIENT_GRAPH, EMPTY_CLIENT_GRAPH)).toBe(true);
     expect(clientGraphsRenderEqually(EMPTY_CLIENT_GRAPH, makeClientGraph([node()]))).toBe(false);
@@ -229,9 +222,11 @@ describe("clientGraphsRenderEqually", () => {
   it.each([
     ["id", { id: "other" }],
     ["type", { type: "Microsoft.Web/sites" }],
+    ["symbolName", { symbolName: "other" }],
     ["isCollection", { isCollection: true }],
     ["hasChildren", { hasChildren: true }],
     ["hasError", { hasError: true }],
+    ["isCollapsed", { isCollapsed: true }],
   ])("reports a change when %s differs", (_field, overrides) => {
     const before = makeClientGraph([node()]);
     const after = makeClientGraph([node(overrides as Partial<GraphNode>)]);

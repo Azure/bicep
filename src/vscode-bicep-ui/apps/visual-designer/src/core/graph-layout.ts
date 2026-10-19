@@ -9,7 +9,7 @@ import type { ClientGraph } from "./graph-model";
  * The node metadata fields that influence rendered size and therefore layout. Node content is
  * measured, so keep this consistent with what the canvas renders.
  */
-const LAYOUT_AFFECTING_NODE_FIELDS = ["type", "isCollection", "hasChildren"] as const;
+const LAYOUT_AFFECTING_NODE_FIELDS = ["type", "symbolName", "isCollection", "hasChildren"] as const;
 
 export interface LayoutExemptions {
   /** Nodes placed where the user dropped them. Adding one does not require a layout. */
