@@ -6,8 +6,8 @@ import type { GraphBounds, MeasuredGraph, NodePosition } from "./api";
 import type { ClientGraph } from "./graph-model";
 
 /**
- * The node metadata fields that influence rendered size and therefore layout. Keep this consistent
- * with the measured graph comparison and the language server's layout validation.
+ * The node metadata fields that influence rendered size and therefore layout. Node content is
+ * measured, so keep this consistent with what the canvas renders.
  */
 const LAYOUT_AFFECTING_NODE_FIELDS = ["type", "isCollection", "hasChildren"] as const;
 
@@ -38,7 +38,7 @@ export function graphChangeMayAffectLayout(
       return true;
     }
 
-    // A node whose kind or container changed is replaced rather than updated.
+    // A node that moved to another container, changed kind, or may render at another size needs a layout.
     if (
       nextNode.kind !== node.kind ||
       nextNode.parentId !== node.parentId ||

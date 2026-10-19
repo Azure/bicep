@@ -7,6 +7,7 @@ import type { ClientGraph, ClientGraphNode } from "./graph-model";
 
 import { layoutReadyAtom, setGraphAtom } from "@/lib/graph";
 import { shownGraphAtom } from "./atoms";
+import { isCollapsible } from "./graph-model";
 import { getCentroid, getNodePositions, getPositionedNodeIds, setNodePositions } from "./node-positions";
 
 type Store = ReturnType<typeof createStore>;
@@ -34,7 +35,7 @@ function toCanvasNodeData(node: ClientGraphNode, replacesPlaceholder: boolean): 
     isCollection: node.isCollection,
     hasError: node.hasError,
     isCollapsed: node.isCollapsed === true,
-    canCollapse: node.kind === "module" && node.hasChildren,
+    canCollapse: isCollapsible(node),
     replacesPlaceholder,
   };
 }

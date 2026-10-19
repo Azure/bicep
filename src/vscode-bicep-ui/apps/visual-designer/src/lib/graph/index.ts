@@ -4,6 +4,6 @@
 export * from "./atoms";
 export * from "./components";
 export { useFitView, useFitViewToBounds } from "./hooks/use-fit-view";
-export * from "./interactive";
+export { graphInteractiveProps } from "./interactive";
 export * from "./motion";
 export * from "./theme";

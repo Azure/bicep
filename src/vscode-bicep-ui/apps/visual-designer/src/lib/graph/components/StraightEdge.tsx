@@ -45,7 +45,7 @@ export function StraightEdge({ id, from, to, stackAnchors, isEntering, isExiting
   const svgRef = useRef<SVGSVGElement>(null);
   const ref = useRef<SVGPathElement>(null);
   const store = useStore();
-  const { paintOrderAtom } = useContext(GraphContext);
+  const { paintOrderAtom, reduceMotion } = useContext(GraphContext);
   const zIndexAtom = useMemo(
     () => atom((get) => getEdgeZIndex(get(paintOrderAtom), stackAnchors)),
     [paintOrderAtom, stackAnchors],
@@ -110,8 +110,8 @@ export function StraightEdge({ id, from, to, stackAnchors, isEntering, isExiting
     <$EdgeSvg ref={svgRef} data-edge-id={id}>
       <$EdgePath
         ref={ref}
-        // An edge that appears with a graph change fades in rather than popping into view.
-        initial={{ opacity: 0 }}
+        // An edge that appears with a graph change fades in rather than popping into view, unless motion is reduced.
+        initial={reduceMotion ? false : { opacity: 0 }}
         animate={{ opacity: isExiting ? 0 : 1 }}
         transition={isExiting ? NODE_EXIT_TRANSITION : isEntering ? NODE_ENTER_TRANSITION : EDGE_FADE_TRANSITION}
         fill="none"

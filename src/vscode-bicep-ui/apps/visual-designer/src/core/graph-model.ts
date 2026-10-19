@@ -43,20 +43,22 @@ export function isDescendant(graph: ClientGraph, nodeId: string, ancestorId: str
   return false;
 }
 
+/** Whether `node` is a module with contents to hide: the one rule for what can be collapsed. */
+export function isCollapsible(node: GraphNode | undefined): boolean {
+  return node?.kind === "module" && node.hasChildren;
+}
+
 /**
  * Project the source graph into the locally visible graph.
  *
- * A module listed in `collapsedNodeIds` that has children is shown collapsed: its descendants are
+ * A module listed in `collapsedModuleIds` that is collapsible is shown collapsed: its descendants are
  * omitted, dependencies that cross its boundary terminate at the module so the relationship remains
  * visible, and dependencies wholly inside it disappear. Other IDs in the set are ignored, so the set
  * can hold the user's choice for modules that are absent or empty for now.
  */
-export function projectGraph(graph: ClientGraph, collapsedNodeIds: ReadonlySet<string>): ClientGraph {
+export function projectGraph(graph: ClientGraph, collapsedModuleIds: ReadonlySet<string>): ClientGraph {
   const validCollapsedNodeIds = new Set(
-    [...collapsedNodeIds].filter((nodeId) => {
-      const node = graph.nodes.get(nodeId);
-      return node?.kind === "module" && node.hasChildren;
-    }),
+    [...collapsedModuleIds].filter((nodeId) => isCollapsible(graph.nodes.get(nodeId))),
   );
 
   if (validCollapsedNodeIds.size === 0) {

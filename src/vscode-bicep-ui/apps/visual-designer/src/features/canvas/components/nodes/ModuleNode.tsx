@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { MouseEvent } from "react";
 import type { CanvasNodeData } from "@/core";
 
 import { AzureIcon, Codicon } from "@vscode-bicep-ui/components";
@@ -218,13 +217,7 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
     };
   }, [iconSize, isCard, reduceMotion, theme, variant]);
 
-  const handleToggle = useCallback(
-    (event: MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
-      toggleModuleCollapsed(id);
-    },
-    [id, toggleModuleCollapsed],
-  );
+  const handleToggle = useCallback(() => toggleModuleCollapsed(id), [id, toggleModuleCollapsed]);
 
   return (
     <$Frame

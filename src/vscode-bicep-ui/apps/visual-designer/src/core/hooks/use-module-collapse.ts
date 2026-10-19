@@ -11,7 +11,7 @@ import { getNodeTargetBox } from "@/lib/graph";
 import { getBoxCenter } from "@/lib/math";
 import { getErrorMessage } from "@/utils";
 import { collapsedModuleIdsAtom, focusedNodeIdAtom, focusNodeAtom, shownGraphAtom, sourceGraphAtom } from "../atoms";
-import { getDescendantIds, isDescendant, projectGraph } from "../graph-model";
+import { getDescendantIds, isCollapsible, isDescendant, projectGraph } from "../graph-model";
 import { getNodePositions, setNodePositions } from "../node-positions";
 import { showGraph } from "../show-graph";
 
@@ -34,9 +34,8 @@ export function useModuleCollapse(
     (moduleId: string) => {
       const source = store.get(sourceGraphAtom);
       const shown = store.get(shownGraphAtom);
-      const moduleNode = source.nodes.get(moduleId);
 
-      if (moduleNode?.kind !== "module" || !moduleNode.hasChildren || !shown.nodes.has(moduleId)) {
+      if (!isCollapsible(source.nodes.get(moduleId)) || !shown.nodes.has(moduleId)) {
         return;
       }
 
