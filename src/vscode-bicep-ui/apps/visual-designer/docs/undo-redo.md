@@ -116,8 +116,9 @@ not change the camera, issue a layout request, or add extra history steps.
 
 - The graph coordinator serializes source mutations and reconciles the document after both
   successful and failed attempts. While a source action or Reset Layout request is pending,
-  Undo, Redo, and Reset Layout are disabled and a node drag that starts is ignored. Collapsing and
-  expanding modules, focus, source reveal, and pan and zoom stay available.
+  Undo, Redo, and Reset Layout are disabled and a node drag that starts is ignored; the canvas shows a
+  progress cursor. Collapsing and expanding modules, focus, source reveal, and pan and zoom stay
+  available. Undo and Redo also wait for a node drag to end, so a replay never lands mid-gesture.
 - A failed edit, disabled setting, or rejected workspace edit leaves the history cursor in place
   and logs an error without an in-canvas notification. A step that fails the language server's
   check when clicked leaves the history and the failure is logged. No unverified inverse is applied.

@@ -15,7 +15,7 @@ export interface DragListeners {
   onDragStart: () => void;
   /** Called on every movement with the distance moved in graph coordinates. */
   onDrag: (dx: number, dy: number) => void;
-  /** Called when a drag that started moving is released. */
+  /** Called when a drag that started moving is released, or its element goes away mid-drag. */
   onDragEnd: () => void;
 }
 
@@ -63,6 +63,12 @@ export function useDragListener(ref: RefObject<HTMLDivElement | null>, listeners
 
     return () => {
       selection.on(".drag", null);
+
+      // A node removed mid-drag never sees the release, so end the drag here for whoever tracks it.
+      if (hasMoved) {
+        hasMoved = false;
+        onDragEnd();
+      }
     };
   }, [ref, getPanZoomTransform]);
 }

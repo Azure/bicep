@@ -29,3 +29,6 @@ export const focusNodeAtom = atom(null, (_get, set, nodeId: string | null) => {
  * that comes back is still collapsed.
  */
 export const collapsedModuleIdsAtom = atom<ReadonlySet<string>>(new Set<string>());
+
+/** How many node drags are in progress. Undo and Redo wait for them to end, so a replay never races a drag. */
+export const activeNodeDragCountAtom = atom(0);

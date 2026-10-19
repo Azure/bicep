@@ -7,6 +7,7 @@ import { useStore } from "jotai";
 import { useCallback, useMemo, useRef } from "react";
 import { getDrawnCenters } from "@/lib/graph";
 import {
+  activeNodeDragCountAtom,
   collapsedModuleIdsAtom,
   isGraphChangeInProgressAtom,
   raisedNodeIdAtom,
@@ -32,9 +33,10 @@ export interface NodeDragHandlers {
 }
 
 /**
- * Moves dragged nodes, and records each drag as one undo step. A dragged node is raised above the others. Dragging a container moves what is inside
- * it, and dragging a collapsed module moves its hidden contents with it. A drag that starts while a source
- * edit or Reset Layout is in flight is ignored.
+ * Moves dragged nodes, and records each drag as one undo step. A dragged node is raised above the
+ * others. Dragging a container moves what is inside it, and dragging a collapsed module moves its hidden
+ * contents with it. A drag that starts while a source edit or Reset Layout is in flight is ignored, and
+ * Undo and Redo wait for drags to end.
  */
 export function useNodeDrag(): NodeDragHandlers {
   const store = useStore();
@@ -63,6 +65,7 @@ export function useNodeDrag(): NodeDragHandlers {
       setNodePositions(store, grabbed, "instant");
 
       dragsRef.current.set(nodeId, { positionsBefore, movedNodeIds });
+      store.set(activeNodeDragCountAtom, dragsRef.current.size);
       store.set(raisedNodeIdAtom, nodeId);
     },
     [store],
@@ -91,6 +94,7 @@ export function useNodeDrag(): NodeDragHandlers {
     (nodeId: string) => {
       const drag = dragsRef.current.get(nodeId);
       dragsRef.current.delete(nodeId);
+      store.set(activeNodeDragCountAtom, dragsRef.current.size);
 
       if (drag) {
         const positionsAfter = getNodePositions(store);

@@ -27,6 +27,12 @@ const $CanvasWrapper = styled.div`
     outline: 2px solid ${({ theme }) => theme.focusBorder};
     outline-offset: -2px;
   }
+
+  /* Node drags are ignored while a source edit or Reset Layout is in flight; say so. */
+  &[aria-busy="true"],
+  &[aria-busy="true"] [data-node-id] {
+    cursor: progress;
+  }
 `;
 
 /** The surface that renders the graph. */
