@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { CanvasNodeData } from "@/core";
+
 import { AzureIcon } from "@vscode-bicep-ui/components";
 import { motion } from "motion/react";
 import { styled } from "styled-components";
@@ -11,14 +13,7 @@ import { RESOURCE_NODE_PREVIEW_HEIGHT, RESOURCE_NODE_PREVIEW_WIDTH } from "./Res
 
 export interface ResourceNodeProps {
   id: string;
-  data: {
-    symbolicName: string;
-    resourceType: string;
-    isCollection?: boolean;
-    hasError?: boolean;
-    /** Replaces the placeholder shown where the resource was dropped, so it grows from the placeholder's size. */
-    replacesPlaceholder?: boolean;
-  };
+  data: CanvasNodeData;
 }
 
 const $ResourceNode = styled(motion.div)<{
@@ -123,9 +118,8 @@ const $ResourceTypeContainer = styled.div`
 `;
 
 export function ResourceNode({ id, data }: ResourceNodeProps) {
-  const { symbolicName, resourceType, isCollection, hasError, replacesPlaceholder = false } = data;
-  const normalizedResourceType = resourceType ?? "<unknown>";
-  const resourceTypeDisplayName = camelCaseToWords(normalizedResourceType.split("/").pop());
+  const { symbolicName, resourceType, isCollection, hasError, replacesPlaceholder } = data;
+  const resourceTypeDisplayName = camelCaseToWords(resourceType.split("/").pop());
   const isFocused = useIsNodeFocused(id);
   const initialCardScaleX = RESOURCE_NODE_PREVIEW_WIDTH / 220;
   const initialCardScaleY = RESOURCE_NODE_PREVIEW_HEIGHT / 76;
@@ -148,7 +142,7 @@ export function ResourceNode({ id, data }: ResourceNodeProps) {
         animate={{ scaleX: 1, scaleY: 1 }}
         transition={EXPAND_TRANSITION}
       >
-        <AzureIcon resourceType={normalizedResourceType} size={36} />
+        <AzureIcon resourceType={resourceType} size={36} />
       </$ResourceIcon>
       <$TextContainer>
         <$SymbolicNameContainer>{symbolicName}</$SymbolicNameContainer>

@@ -5,6 +5,7 @@ import type { Page } from "@playwright/test";
 
 import { expect, test } from "@playwright/test";
 import {
+  clickHistoryButton,
   getGraphTransform,
   loadSampleGraph,
   nodeCount,
@@ -175,6 +176,31 @@ test.describe("Node interactions", () => {
 
     await expect.poll(async () => (await target.boundingBox())?.x).toBeGreaterThan(original.x + 4);
     await expect.poll(() => focusedNodeId(page)).toBe("subnet");
+  });
+
+  test("a node grabbed while it animates stays under the pointer", async ({ page }) => {
+    await waitForStableNodePosition(page, "vnet");
+    const target = page.locator('[data-node-id="vnet"]');
+    const settled = (await target.boundingBox())!;
+    await page.mouse.move(settled.x + settled.width / 2, settled.y + settled.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(settled.x + settled.width / 2 + 300, settled.y + settled.height / 2, { steps: 10 });
+    await page.mouse.up();
+    await waitForStableNodePosition(page, "vnet");
+
+    // Undo springs the node back; grab it partway.
+    await clickHistoryButton(page, "Undo");
+    await page.waitForTimeout(150);
+    const moving = (await target.boundingBox())!;
+    const grab = { x: moving.x + moving.width / 2, y: moving.y + moving.height / 2 };
+    await page.mouse.move(grab.x, grab.y);
+    await page.mouse.down();
+    await page.mouse.move(grab.x, grab.y + 120, { steps: 10 });
+    await page.mouse.up();
+
+    const dropped = await waitForStableNodePosition(page, "vnet");
+    expect(Math.abs(dropped.x + moving.width / 2 - grab.x)).toBeLessThan(40);
+    expect(Math.abs(dropped.y + moving.height / 2 - (grab.y + 120))).toBeLessThan(5);
   });
 
   test("pointercancel discards pending focus and allows the next click", async ({ page }) => {

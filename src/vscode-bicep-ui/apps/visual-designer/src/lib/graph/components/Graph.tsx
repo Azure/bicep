@@ -11,6 +11,7 @@ import { useMemo } from "react";
 import { styled } from "styled-components";
 import { layoutReadyAtom } from "../atoms";
 import { createPaintOrderAtom, GraphContext, ignoreNodeEvent } from "../context/GraphContext";
+import { usePresence } from "../hooks/use-presence";
 import { EdgeLayer } from "./EdgeLayer";
 import { EdgeMarkerDefs } from "./EdgeMarkerDefs";
 import { NodeLayer } from "./NodeLayer";
@@ -34,12 +35,15 @@ export type GraphProps = PropsWithChildren<
   Partial<GraphNodeEvents> & {
     /** The node painted above the others, with its subtree. Its ancestors are raised above their siblings. */
     raisedNodeIdAtom?: Atom<string | null>;
+    /** Snap nodes to new positions and shapes, and show and hide them without fading. */
+    reduceMotion?: boolean;
   }
 >;
 
 export function Graph({
   children,
   raisedNodeIdAtom,
+  reduceMotion = false,
   onNodeDragStart = ignoreNodeEvent,
   onNodeDrag = ignoreNodeEvent,
   onNodeDragEnd = ignoreNodeEvent,
@@ -47,12 +51,14 @@ export function Graph({
 }: GraphProps) {
   const layoutReady = useAtomValue(layoutReadyAtom);
   const paintOrderAtom = useMemo(() => createPaintOrderAtom(raisedNodeIdAtom), [raisedNodeIdAtom]);
+  const { exitingNodes, exitingEdges, enteringNodeIds } = usePresence(reduceMotion);
   const context = useMemo<GraphContextValue>(
     () => ({
       events: { onNodeDragStart, onNodeDrag, onNodeDragEnd, onNodeDoubleClick },
+      reduceMotion,
       paintOrderAtom,
     }),
-    [onNodeDoubleClick, onNodeDrag, onNodeDragEnd, onNodeDragStart, paintOrderAtom],
+    [onNodeDoubleClick, onNodeDrag, onNodeDragEnd, onNodeDragStart, paintOrderAtom, reduceMotion],
   );
 
   return (
@@ -62,8 +68,8 @@ export function Graph({
           <EdgeMarkerDefs />
         </$SharedDefs>
         {children}
-        <EdgeLayer />
-        <NodeLayer />
+        <EdgeLayer exitingNodes={exitingNodes} exitingEdges={exitingEdges} enteringNodeIds={enteringNodeIds} />
+        <NodeLayer exitingNodes={exitingNodes} enteringNodeIds={enteringNodeIds} />
       </$PanZoomTransformed>
     </GraphContext.Provider>
   );

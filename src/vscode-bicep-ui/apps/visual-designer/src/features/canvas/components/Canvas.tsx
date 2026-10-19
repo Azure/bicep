@@ -10,6 +10,7 @@ import {
   isGraphChangeInProgressAtom,
   useGraphActions,
   useGraphApi,
+  useIsMotionReduced,
 } from "@/core";
 import { effectiveExportThemeAtom, ExportAreaCover, ExportPreviewLayer } from "@/features/export";
 import { Graph, Viewport } from "@/lib/graph";
@@ -40,6 +41,7 @@ export function Canvas() {
   const api = useGraphApi();
   const setFocusedNodeId = useSetAtom(focusedNodeIdAtom);
   const revealNode = useCallback((nodeId: string) => api.revealNode(nodeId), [api]);
+  const reduceMotion = useIsMotionReduced();
   const isGraphChangeInProgress = useAtomValue(isGraphChangeInProgressAtom);
   const exportTheme = useAtomValue(effectiveExportThemeAtom);
   const setCanvasElement = useSetAtom(canvasElementAtom);
@@ -59,6 +61,7 @@ export function Canvas() {
               <PendingResourceLayer />
               <Graph
                 raisedNodeIdAtom={focusedNodeIdAtom}
+                reduceMotion={reduceMotion}
                 onNodeDragStart={handleNodeDragStart}
                 onNodeDrag={handleNodeDrag}
                 onNodeDragEnd={handleNodeDragEnd}

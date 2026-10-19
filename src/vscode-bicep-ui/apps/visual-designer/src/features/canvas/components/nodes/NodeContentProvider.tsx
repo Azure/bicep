@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 import type { ReactNode } from "react";
+import type { CanvasNodeData } from "@/core";
 import type { NodeContentRenderProps, NodeKind } from "@/lib/graph";
-import type { ModuleNodeProps } from "./ModuleNode";
-import type { ResourceNodeProps } from "./ResourceNode";
 
 import { useStore } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
@@ -16,10 +15,13 @@ import { ResourceNode } from "./ResourceNode";
 const COMPOUND_NODE_LABEL_INSET = 50;
 
 function renderNodeContent(kind: NodeKind, { id, data }: NodeContentRenderProps) {
-  return (data as { nodeKind?: string }).nodeKind === "module" ? (
-    <ModuleNode id={id} variant={kind === "compound" ? "container" : "card"} data={data as ModuleNodeProps["data"]} />
+  // Core shows every node with `CanvasNodeData`.
+  const nodeData = data as CanvasNodeData;
+
+  return nodeData.nodeKind === "module" ? (
+    <ModuleNode id={id} variant={kind === "compound" ? "container" : "card"} data={nodeData} />
   ) : (
-    <ResourceNode id={id} data={data as ResourceNodeProps["data"]} />
+    <ResourceNode id={id} data={nodeData} />
   );
 }
 

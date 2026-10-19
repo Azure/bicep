@@ -5,7 +5,7 @@ import type { Box } from "@/lib/math";
 import type { Graph, GraphEdge, GraphNode, MeasuredGraph } from "./api";
 
 export interface ClientGraphNode extends GraphNode {
-  /** View-only state. Collapsing a module never changes the host graph. */
+  /** Shown as a card with its contents hidden. A local view choice: the host graph never changes. */
   readonly isCollapsed?: boolean;
 }
 
@@ -27,6 +27,11 @@ export function indexGraph({ nodes, edges }: Graph): ClientGraph {
   };
 }
 
+/** The IDs of the nodes inside `ancestorId`, at any depth. */
+export function getDescendantIds(graph: ClientGraph, ancestorId: string): string[] {
+  return [...graph.nodes.keys()].filter((nodeId) => isDescendant(graph, nodeId, ancestorId));
+}
+
 /** Whether `nodeId` is inside `ancestorId`, at any depth. */
 export function isDescendant(graph: ClientGraph, nodeId: string, ancestorId: string): boolean {
   for (let id = graph.nodes.get(nodeId)?.parentId ?? null; id !== null; id = graph.nodes.get(id)?.parentId ?? null) {
@@ -41,8 +46,10 @@ export function isDescendant(graph: ClientGraph, nodeId: string, ancestorId: str
 /**
  * Project the source graph into the locally visible graph.
  *
- * Descendants of collapsed modules are omitted. Dependencies that cross a collapsed boundary terminate
- * at the collapsed module so the relationship remains visible; dependencies wholly inside it disappear.
+ * A module listed in `collapsedNodeIds` that has children is shown collapsed: its descendants are
+ * omitted, dependencies that cross its boundary terminate at the module so the relationship remains
+ * visible, and dependencies wholly inside it disappear. Other IDs in the set are ignored, so the set
+ * can hold the user's choice for modules that are absent or empty for now.
  */
 export function projectGraph(graph: ClientGraph, collapsedNodeIds: ReadonlySet<string>): ClientGraph {
   const validCollapsedNodeIds = new Set(
@@ -85,7 +92,7 @@ export function projectGraph(graph: ClientGraph, collapsedNodeIds: ReadonlySet<s
       continue;
     }
 
-    nodes.set(node.id, validCollapsedNodeIds.has(node.id) ? { ...node, hasChildren: false, isCollapsed: true } : node);
+    nodes.set(node.id, validCollapsedNodeIds.has(node.id) ? { ...node, isCollapsed: true } : node);
   }
 
   const edges = new Map<string, GraphEdge>();

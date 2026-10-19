@@ -19,7 +19,10 @@
  */
 export type GraphLayoutMode = "auto" | "reset";
 
-/** `graphChanged` means the server's graph moved on; the client must reconcile and retry. */
+/**
+ * `graphChanged` means the graph moved on while the layout was computed, on the server or because the
+ * client shows a different projection of it; the client must reconcile and retry.
+ */
 export type GraphLayoutResult = "completed" | "graphChanged";
 
 export interface GraphUpdateOperations<TUpdate> {
@@ -119,9 +122,9 @@ export class GraphUpdateCoordinator<TUpdate> {
     this.updateGeneration++;
   }
 
-  /** Reset Layout. Runs against the reconciled graph, not whatever is displayed now. */
-  requestResetGraphLayout(): Promise<void> {
-    this.pending = pendLayout(this.pending, "reset");
+  /** Lay out the graph. Runs against the reconciled graph, not whatever is displayed now. */
+  requestGraphLayout(mode: GraphLayoutMode): Promise<void> {
+    this.pending = pendLayout(this.pending, mode);
 
     return this.drain();
   }

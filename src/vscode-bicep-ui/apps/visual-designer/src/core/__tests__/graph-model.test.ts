@@ -54,6 +54,17 @@ describe("projectGraph", () => {
   const childB = node({ id: "module::b", parentId: "module" });
   const outside = node({ id: "outside" });
 
+  it("keeps a collapse choice for a module that is empty for now, and applies it once it has contents", () => {
+    const emptyModule = { ...moduleNode, hasChildren: false };
+
+    expect(projectGraph(makeClientGraph([emptyModule, outside]), new Set(["module"])).nodes.get("module")).toEqual(
+      emptyModule,
+    );
+    expect(
+      projectGraph(makeClientGraph([moduleNode, childA, outside]), new Set(["module"])).nodes.get("module"),
+    ).toMatchObject({ isCollapsed: true });
+  });
+
   it("returns the source graph when no module is collapsed", () => {
     const graph = makeClientGraph([moduleNode, childA]);
 
@@ -65,7 +76,7 @@ describe("projectGraph", () => {
     const projected = projectGraph(makeClientGraph([moduleNode, childA, childB, outside]), new Set(["module"]));
 
     expect([...projected.nodes.keys()]).toEqual(["module", "outside"]);
-    expect(projected.nodes.get("module")).toMatchObject({ hasChildren: false, isCollapsed: true });
+    expect(projected.nodes.get("module")).toMatchObject({ hasChildren: true, isCollapsed: true });
   });
 
   it("reroutes boundary edges, removes internal edges, and deduplicates visible relationships", () => {

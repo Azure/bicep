@@ -3,12 +3,10 @@
 
 import type { GetGraphResult, ReplayDirection } from "../api";
 import type { GraphUpdateCoordinator } from "../graph-update-coordinator";
-import type { NodePositions } from "../node-positions";
 import type { LayoutStep, ResourceCreationStep } from "../undo-history";
 
 import { useStore } from "jotai";
 import { useCallback } from "react";
-import { nodesByIdAtom } from "@/lib/graph";
 import { getErrorMessage } from "@/utils";
 import { useGraphApi } from "../api";
 import {
@@ -17,13 +15,16 @@ import {
   cancelNodeRemovalAtom,
   canRedoAtom,
   canUndoAtom,
+  collapsedModuleIdsAtom,
   discardPendingResourceAtom,
   expectNodeRemovalAtom,
   nextRedoStepAtom,
   nextUndoStepAtom,
+  pendingPlacementsAtom,
+  sourceGraphAtom,
   undoHistoryAtom,
 } from "../atoms";
-import { getAtomicNodeIds } from "../node-positions";
+import { getNodePositions, moveNodes, setNodePositions } from "../node-positions";
 import { completeReplay, dropStep, forgetRemovedNodes } from "../undo-history";
 import { useTrackGraphChange } from "./use-track-graph-change";
 
@@ -31,40 +32,39 @@ function isReplayUnavailableError(error: unknown): boolean {
   return typeof error === "object" && error !== null && "code" in error && error.code === "replayUnavailable";
 }
 
-export interface NodeMotion {
-  animateNodePositions: (positions: NodePositions) => void;
-  stopNodeAnimations: () => void;
-}
-
 /**
  * Returns Undo and Redo for the undo history. Each does nothing unless `canUndoAtom` or `canRedoAtom`
  * allows it, and logs failures rather than throwing.
  *
- * - A layout step replays locally: nodes animate to the recorded positions.
+ * - A layout step replays locally: nodes animate to the recorded positions, including nodes hidden in a
+ *   collapsed module, which are there when it opens.
  * - A resource creation step asks the extension to remove or reinsert the declaration, then the
  *   graph update removes or restores the node without disturbing the other nodes.
  */
-export function useUndoRedo(
-  coordinator: GraphUpdateCoordinator<GetGraphResult>,
-  { animateNodePositions, stopNodeAnimations }: NodeMotion,
-) {
+export function useUndoRedo(coordinator: GraphUpdateCoordinator<GetGraphResult>) {
   const store = useStore();
   const api = useGraphApi();
   const trackGraphChange = useTrackGraphChange();
 
   const replayLayoutStep = useCallback(
     (step: LayoutStep, direction: ReplayDirection) => {
-      animateNodePositions(direction === "undo" ? step.before : step.after);
+      const positions = moveNodes(
+        getNodePositions(store),
+        direction === "undo" ? step.before : step.after,
+        store.get(sourceGraphAtom),
+        store.get(collapsedModuleIdsAtom),
+      );
+      setNodePositions(store, positions, "animate");
       store.set(undoHistoryAtom, (history) => completeReplay(history, step, direction));
     },
-    [animateNodePositions, store],
+    [store],
   );
 
   /** The extension can no longer replay this step exactly, so drop it and anything that depended on it. */
   const discardSourceStep = useCallback(
     (step: ResourceCreationStep) => {
-      const mountedNodeIds = getAtomicNodeIds(store);
-      store.set(undoHistoryAtom, (history) => forgetRemovedNodes(dropStep(history, step), mountedNodeIds));
+      const liveNodeIds = new Set([...getNodePositions(store).keys(), ...store.get(pendingPlacementsAtom).keys()]);
+      store.set(undoHistoryAtom, (history) => forgetRemovedNodes(dropStep(history, step), liveNodeIds));
     },
     [store],
   );
@@ -74,17 +74,16 @@ export function useUndoRedo(
       const replay = async () => {
         await api.replaySourceStep({ version: 1, operationId: step.operationId, direction });
 
-        stopNodeAnimations();
-        const isNodeMounted = store.get(nodesByIdAtom)[step.nodeId] !== undefined;
+        const isNodeInGraph = store.get(sourceGraphAtom).nodes.has(step.nodeId);
         if (direction === "undo") {
-          if (isNodeMounted) {
+          if (isNodeInGraph) {
             store.set(expectNodeRemovalAtom, step.nodeId);
           }
           // Drop the placeholder too, in case the node never arrived.
           store.set(discardPendingResourceAtom, step.operationId);
         } else {
           store.set(cancelNodeRemovalAtom, step.nodeId);
-          if (!isNodeMounted) {
+          if (!isNodeInGraph) {
             // Show the placeholder at the original drop point again until the node arrives.
             store.set(beginResourceCreationAtom, {
               operationId: step.operationId,
@@ -107,7 +106,7 @@ export function useUndoRedo(
         );
       });
     },
-    [api, coordinator, discardSourceStep, stopNodeAnimations, store, trackGraphChange],
+    [api, coordinator, discardSourceStep, store, trackGraphChange],
   );
 
   const replayNextStep = useCallback(

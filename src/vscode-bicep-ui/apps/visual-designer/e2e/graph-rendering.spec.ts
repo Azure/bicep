@@ -5,6 +5,7 @@ import type { Page } from "@playwright/test";
 
 import { expect, test } from "@playwright/test";
 import {
+  clickHistoryButton,
   getGraphTransform,
   loadSampleGraph,
   nodeCount,
@@ -33,6 +34,33 @@ async function getNodeBoxes(page: Page, nodeIds: readonly string[]): Promise<Rec
 
     return boxes;
   }, nodeIds);
+}
+
+/** Drag a node by a screen-space offset, in small steps so the drag is not mistaken for a click. */
+async function dragNode(page: Page, nodeId: string, dx: number, dy: number): Promise<void> {
+  const box = await page.locator(`[data-node-id="${nodeId}"]`).boundingBox();
+  if (!box) {
+    throw new Error(`Node ${nodeId} is not visible.`);
+  }
+
+  const start = { x: box.x + box.width / 2, y: box.y + 12 };
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await page.mouse.move(start.x + dx, start.y + dy, { steps: 10 });
+  await page.mouse.up();
+}
+
+/** Whether every node is within a pixel of `expected`, offset by `dx`, `dy`. */
+async function nodesAreAt(page: Page, expected: Record<string, NodeBox> | null, dx = 0, dy = 0): Promise<boolean> {
+  if (!expected) {
+    return false;
+  }
+
+  const actual = await getNodeBoxes(page, Object.keys(expected));
+  return Object.entries(expected).every(([nodeId, box]) => {
+    const current = actual?.[nodeId];
+    return current !== undefined && Math.abs(current.x - box.x - dx) <= 1 && Math.abs(current.y - box.y - dy) <= 1;
+  });
 }
 
 function followsFlatServerLayout(boxes: Record<string, NodeBox> | null): boolean {
@@ -166,15 +194,58 @@ test.describe("Graph rendering", () => {
       .toBe(true);
   });
 
-  test("resets layout while a module is collapsed", async ({ page }) => {
+  test("resets layout while a module is collapsed and keeps its contents inside it", async ({ page }) => {
     await loadSampleGraph(page, "module");
+    await waitForStableNodePosition(page, "myModule::storageAccount");
     await page.getByRole("button", { name: "Collapse module myModule" }).click();
     await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
+    await dragNode(page, "myModule", 200, 0);
 
     await page.getByRole("button", { name: "Reset Layout" }).click();
 
     await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
     await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
+    await waitForStableNodePosition(page, "myModule");
+
+    await page.getByRole("button", { name: "Expand module myModule" }).click();
+
+    await expect
+      .poll(async () => followsModuleServerLayout(await getNodeBoxes(page, MODULE_LAYOUT_NODES)), { timeout: 5_000 })
+      .toBe(true);
+  });
+
+  test("moves a collapsed module's hidden contents with its card", async ({ page }) => {
+    await loadSampleGraph(page, "module");
+    await waitForStableNodePosition(page, "myModule::storageAccount");
+    const childrenBefore = await getNodeBoxes(page, ["myModule::storageAccount", "myModule::vmResource"]);
+    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
+    const cardBefore = await waitForStableNodePosition(page, "myModule");
+
+    await dragNode(page, "myModule", 150, 40);
+    const cardAfter = await waitForStableNodePosition(page, "myModule");
+    await page.getByRole("button", { name: "Expand module myModule" }).click();
+
+    await expect
+      .poll(() => nodesAreAt(page, childrenBefore, cardAfter.x - cardBefore.x, cardAfter.y - cardBefore.y))
+      .toBe(true);
+  });
+
+  test("undo while a module is collapsed restores its hidden contents", async ({ page }) => {
+    await loadSampleGraph(page, "module");
+    await waitForStableNodePosition(page, "myModule::storageAccount");
+    const storageBefore = await getNodeBoxes(page, ["myModule::storageAccount"]);
+    await dragNode(page, "myModule::storageAccount", -160, 0);
+    await waitForStableNodePosition(page, "myModule::storageAccount");
+    await expect.poll(() => nodesAreAt(page, storageBefore)).toBe(false);
+    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
+    await waitForStableNodePosition(page, "myModule");
+
+    await clickHistoryButton(page, "Undo");
+    await page.getByRole("button", { name: "Expand module myModule" }).click();
+
+    await expect.poll(() => nodesAreAt(page, storageBefore)).toBe(true);
   });
 
   test("preserves collapsed state across graph refreshes", async ({ page }) => {

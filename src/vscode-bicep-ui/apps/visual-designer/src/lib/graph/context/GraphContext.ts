@@ -21,6 +21,8 @@ export interface GraphNodeEvents {
 
 export interface GraphContextValue {
   events: GraphNodeEvents;
+  /** Whether nodes snap to new positions and shapes rather than animating. */
+  reduceMotion: boolean;
   /** Each node's index in back-to-front paint order. */
   paintOrderAtom: Atom<ReadonlyMap<string, number>>;
 }
@@ -43,5 +45,6 @@ export function createPaintOrderAtom(raisedNodeIdAtom: Atom<string | null> | und
 /** Provided by `Graph` from its props. */
 export const GraphContext = createContext<GraphContextValue>({
   events: IGNORE_NODE_EVENTS,
+  reduceMotion: false,
   paintOrderAtom: createPaintOrderAtom(undefined),
 });

@@ -2,77 +2,112 @@
 // Licensed under the MIT License.
 
 import type { createStore } from "jotai";
-import type { NodeState } from "@/lib/graph";
+import type { PositionTransition } from "@/lib/graph";
 import type { Point } from "@/lib/math";
+import type { ClientGraph } from "./graph-model";
 
-import { nodesByIdAtom } from "@/lib/graph";
-import { translateBox } from "@/lib/math";
+import { nodePositionsAtom } from "@/lib/graph";
+import { getDescendantIds } from "./graph-model";
 
 type Store = ReturnType<typeof createStore>;
 
-/** Top-left corners of atomic nodes, keyed by node ID. */
+/**
+ * Node centers keyed by node ID: the one record of where nodes are, including nodes hidden inside a
+ * collapsed module, so they come back where they were. Containers have no position of their own; they
+ * are placed by their contents. Snapshots are immutable, so keeping one is free.
+ */
 export type NodePositions = ReadonlyMap<string, Point>;
 
-/** Whether `nodeId` is `rootNodeId` or drawn inside it. */
-function isInSubtree(nodesById: Readonly<Record<string, NodeState>>, nodeId: string, rootNodeId: string): boolean {
-  for (let id: string | null = nodeId; id !== null; id = nodesById[id]?.parentId ?? null) {
-    if (id === rootNodeId) {
-      return true;
-    }
-  }
-
-  return false;
+export function getNodePositions(store: Store): NodePositions {
+  return store.get(nodePositionsAtom).centers;
 }
 
-/** IDs of the mounted atomic nodes: the only nodes with positions of their own. */
-export function getAtomicNodeIds(store: Store): Set<string> {
-  return new Set(
-    Object.values(store.get(nodesByIdAtom))
-      .filter((node) => node.kind === "atomic")
-      .map((node) => node.id),
-  );
+/** Replace the node positions. `animate` moves the nodes there; `instant` puts them there. */
+export function setNodePositions(store: Store, positions: NodePositions, transition: PositionTransition): void {
+  store.set(nodePositionsAtom, { centers: positions, transition });
 }
 
 /**
- * Read the positions of every atomic node, or only those in the subtree rooted at `rootNodeId`.
+ * Apply `changes` to `positions`.
  *
- * Compound nodes are skipped: their boxes are derived from their children, so they have no
- * position of their own to save or restore.
+ * The hidden contents of a collapsed module move with its card, so they are still inside it when it
+ * opens, unless `changes` moves them itself. This holds however the card moves: a drag, a layout, or
+ * undo. Nested collapsed modules move with the outermost one that moves.
  */
-export function captureNodePositions(store: Store, rootNodeId?: string): NodePositions {
-  const positions = new Map<string, Point>();
+export function moveNodes(
+  positions: NodePositions,
+  changes: NodePositions,
+  graph: ClientGraph,
+  collapsedModuleIds: ReadonlySet<string>,
+): NodePositions {
+  const next = new Map(positions);
 
-  const nodesById = store.get(nodesByIdAtom);
+  for (const [nodeId, position] of changes) {
+    const previous = positions.get(nodeId);
+    next.set(nodeId, position);
 
-  for (const [nodeId, node] of Object.entries(nodesById)) {
-    if (node.kind === "atomic" && (rootNodeId === undefined || isInSubtree(nodesById, nodeId, rootNodeId))) {
-      const { x, y } = store.get(node.boxAtom).min;
-      positions.set(nodeId, { x, y });
+    if (!previous || !collapsedModuleIds.has(nodeId)) {
+      continue;
+    }
+
+    const dx = position.x - previous.x;
+    const dy = position.y - previous.y;
+
+    for (const descendantId of getDescendantIds(graph, nodeId)) {
+      const descendant = next.get(descendantId);
+      if (descendant && !changes.has(descendantId)) {
+        next.set(descendantId, { x: descendant.x + dx, y: descendant.y + dy });
+      }
     }
   }
 
-  return positions;
+  return next;
 }
 
-/** Move atomic nodes to the given positions immediately, keeping their sizes. Unknown IDs are ignored. */
-export function applyNodePositions(store: Store, positions: NodePositions): void {
-  const nodesById = store.get(nodesByIdAtom);
+/** The changes that move each of `nodeIds` that has a position by `dx`, `dy`. */
+export function translateNodes(
+  positions: NodePositions,
+  nodeIds: Iterable<string>,
+  dx: number,
+  dy: number,
+): NodePositions {
+  const changes = new Map<string, Point>();
 
-  for (const [nodeId, position] of positions) {
-    const node = nodesById[nodeId];
-    if (node?.kind === "atomic") {
-      store.set(node.boxAtom, (box) => translateBox(box, position.x - box.min.x, position.y - box.min.y));
+  for (const nodeId of nodeIds) {
+    const position = positions.get(nodeId);
+    if (position) {
+      changes.set(nodeId, { x: position.x + dx, y: position.y + dy });
     }
   }
+
+  return changes;
 }
 
-/** Move a node, or every node drawn inside it, by `dx`, `dy`. */
-export function translateSubtree(store: Store, rootNodeId: string, dx: number, dy: number): void {
-  const nodesById = store.get(nodesByIdAtom);
+/** Drop the positions of nodes that are no longer in the graph. */
+export function forgetRemovedNodePositions(positions: NodePositions, graph: ClientGraph): NodePositions {
+  const kept = [...positions].filter(([nodeId]) => graph.nodes.has(nodeId));
+  return kept.length === positions.size ? positions : new Map(kept);
+}
 
-  for (const [nodeId, node] of Object.entries(nodesById)) {
-    if (node.kind === "atomic" && isInSubtree(nodesById, nodeId, rootNodeId)) {
-      store.set(node.boxAtom, (box) => translateBox(box, dx, dy));
-    }
+/** The shown nodes that are positioned by their own center rather than by their contents. */
+export function getPositionedNodeIds(shown: ClientGraph): string[] {
+  const containerIds = new Set(
+    [...shown.nodes.values()].flatMap((node) => (node.parentId === null ? [] : [node.parentId])),
+  );
+  return [...shown.nodes.keys()].filter((nodeId) => !containerIds.has(nodeId));
+}
+
+/** The center of the given positions, or null when there are none. */
+export function getCentroid(positions: Iterable<Point>): Point | null {
+  let count = 0;
+  let x = 0;
+  let y = 0;
+
+  for (const position of positions) {
+    count++;
+    x += position.x;
+    y += position.y;
   }
+
+  return count === 0 ? null : { x: x / count, y: y / count };
 }

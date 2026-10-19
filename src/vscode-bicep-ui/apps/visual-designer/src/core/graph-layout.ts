@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { Box, Point } from "@/lib/math";
-import type { GraphBounds, NodePosition } from "./api";
+import type { GraphBounds, MeasuredGraph, NodePosition } from "./api";
 import type { ClientGraph } from "./graph-model";
 
 /**
@@ -81,4 +81,22 @@ export function centerGraphLayout(
       max: { x: offsetX + graphBounds.width, y: offsetY + graphBounds.height },
     },
   };
+}
+
+/**
+ * The centers of the laid-out nodes that are positioned by their own center, from the top-left corners
+ * the host returns. Containers are skipped: they are placed by their contents.
+ */
+export function getLayoutCenters(topLeftCorners: ReadonlyMap<string, Point>, graph: MeasuredGraph): Map<string, Point> {
+  const containerIds = new Set(graph.nodes.flatMap((node) => (node.parentId === null ? [] : [node.parentId])));
+  const centers = new Map<string, Point>();
+
+  for (const { id, width, height } of graph.nodes) {
+    const corner = topLeftCorners.get(id);
+    if (corner && !containerIds.has(id)) {
+      centers.set(id, { x: corner.x + width / 2, y: corner.y + height / 2 });
+    }
+  }
+
+  return centers;
 }
