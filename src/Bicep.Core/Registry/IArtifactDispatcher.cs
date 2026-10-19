@@ -17,7 +17,10 @@ namespace Bicep.Core.Registry
     public record ExtensionPackage(
         BinaryData Types,
         bool LocalDeployEnabled,
-        ImmutableArray<ExtensionBinary> Binaries);
+        ImmutableArray<ExtensionBinary> Binaries)
+    {
+        public ExtensionBinaryLayerVersion BinaryLayerVersion { get; init; } = ExtensionBinaryLayerVersion.V1;
+    }
 
     public interface IModuleDispatcher : IArtifactReferenceFactory
     {

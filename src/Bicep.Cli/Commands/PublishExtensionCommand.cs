@@ -61,7 +61,15 @@ namespace Bicep.Cli.Commands
             {
                 throw new CommandLineException("The target extension was not specified.");
             }
+            if (args.Contract == ExtensionBinaryLayerVersion.V2 && (args.IndexFile is null || args.Binaries.Count == 0))
+            {
+                throw new CommandLineException($"An index file and at least one binary must be specified with {OptionNames.Contract} v2.");
+            }
             var reference = ValidateReference(args.TargetExtensionReference);
+            if (args.Contract == ExtensionBinaryLayerVersion.V2 && reference is not OciArtifactReference)
+            {
+                throw new CommandLineException($"Only registry (br:) targets are supported with {OptionNames.Contract} v2.");
+            }
             var overwriteIfExists = args.Force;
 
             Trace.WriteLine($"Preparing to publish extension \"{reference.FullyQualifiedReference}\" (force={overwriteIfExists}, indexFile={args.IndexFile ?? "<none>"}, binariesSpecified={args.Binaries.Count}).");
@@ -72,7 +80,10 @@ namespace Bicep.Cli.Commands
             var package = new ExtensionPackage(
                 Types: tarPayload,
                 LocalDeployEnabled: binaries.Any(),
-                Binaries: binaries);
+                Binaries: binaries)
+            {
+                BinaryLayerVersion = args.Contract,
+            };
 
             await this.PublishExtensionAsync(reference, package, overwriteIfExists);
             return 0;
@@ -234,6 +245,12 @@ namespace Bicep.Cli.Commands
             var binOsxArm64Option = new Option<string?>(OptionNames.BinOsxArm64) { Description = "Path to the osx-arm64 binary." };
             var binWinX64Option = new Option<string?>(OptionNames.BinWinX64) { Description = "Path to the win-x64 binary." };
             var binWinArm64Option = new Option<string?>(OptionNames.BinWinArm64) { Description = "Path to the win-arm64 binary." };
+            var contractOption = new Option<string>(OptionNames.Contract)
+            {
+                Description = "The protocol the binaries implement: v1 (gRPC, default) or v2 (Extension API Contract V2 over HTTP). v2 requires an index file, at least one binary, and a br: target.",
+                DefaultValueFactory = _ => "v1",
+            };
+            contractOption.AcceptOnlyFromAmong("v1", "v2");
             var configOption = CommonOptions.Config();
 
             var command = new Command(CommandNames.PublishExtension, "[Experimental] Publishes a Bicep extension to a registry.")
@@ -247,6 +264,7 @@ namespace Bicep.Cli.Commands
                 binOsxArm64Option,
                 binWinX64Option,
                 binWinArm64Option,
+                contractOption,
                 configOption,
             };
             command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, indexFileArgument));
@@ -265,7 +283,8 @@ namespace Bicep.Cli.Commands
                     result.GetValue(indexFileArgument),
                     result.GetValue(targetOption),
                     binaries,
-                    result.GetValue(forceOption));
+                    result.GetValue(forceOption),
+                    result.GetValue(contractOption) == "v2" ? ExtensionBinaryLayerVersion.V2 : ExtensionBinaryLayerVersion.V1);
 
                 return await context.GetCommand<PublishExtensionCommand>().RunAsync(args, ct);
             }));
