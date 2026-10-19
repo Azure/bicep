@@ -6,19 +6,20 @@ import { describe, expect, it } from "vitest";
 import { createAtomicNode, createCompoundNode, nodesByIdAtom } from "@/lib/graph";
 import { applyNodePositions, captureNodePositions } from "../node-positions";
 
-function addNode(store: ReturnType<typeof createStore>, nodeId: string, x: number, y: number) {
-  store.set(nodesByIdAtom, (nodes) => ({ ...nodes, [nodeId]: createAtomicNode(nodeId, { x, y }, null) }));
+function addNode(store: ReturnType<typeof createStore>, nodeId: string, parentId: string | null, x: number, y: number) {
+  store.set(nodesByIdAtom, (nodes) => ({ ...nodes, [nodeId]: createAtomicNode(nodeId, parentId, { x, y }, null) }));
 }
 
 describe("node positions", () => {
   it("captures atomic nodes only, optionally limited to one subtree", () => {
     const store = createStore();
-    addNode(store, "module::a", 10, 20);
-    addNode(store, "module::nested::b", 30, 40);
-    addNode(store, "other", 50, 60);
+    addNode(store, "module::a", "module", 10, 20);
+    addNode(store, "module::nested::b", "nested", 30, 40);
+    addNode(store, "other", null, 50, 60);
     store.set(nodesByIdAtom, (nodes) => ({
       ...nodes,
-      module: createCompoundNode("module", ["module::a", "module::nested::b"], null),
+      module: createCompoundNode("module", null, ["module::a", "nested"], null),
+      nested: createCompoundNode("nested", "module", ["module::nested::b"], null),
     }));
 
     expect(captureNodePositions(store)).toEqual(
@@ -34,7 +35,7 @@ describe("node positions", () => {
 
   it("moves nodes without changing their size and ignores unknown IDs", () => {
     const store = createStore();
-    addNode(store, "resource", 0, 0);
+    addNode(store, "resource", null, 0, 0);
     const node = store.get(nodesByIdAtom).resource;
     if (node?.kind !== "atomic") {
       throw new Error("Expected an atomic node.");

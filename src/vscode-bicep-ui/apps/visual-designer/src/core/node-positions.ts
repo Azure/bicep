@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import type { createStore } from "jotai";
+import type { NodeState } from "@/lib/graph";
 import type { Point } from "@/lib/math";
 
 import { nodesByIdAtom } from "@/lib/graph";
@@ -12,9 +13,15 @@ type Store = ReturnType<typeof createStore>;
 /** Top-left corners of atomic nodes, keyed by node ID. */
 export type NodePositions = ReadonlyMap<string, Point>;
 
-/** Node IDs nest with `::`, so `module::storage` is inside `module`. */
-function isInSubtree(nodeId: string, rootNodeId: string): boolean {
-  return nodeId === rootNodeId || nodeId.startsWith(`${rootNodeId}::`);
+/** Whether `nodeId` is `rootNodeId` or drawn inside it. */
+function isInSubtree(nodesById: Readonly<Record<string, NodeState>>, nodeId: string, rootNodeId: string): boolean {
+  for (let id: string | null = nodeId; id !== null; id = nodesById[id]?.parentId ?? null) {
+    if (id === rootNodeId) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /** IDs of the mounted atomic nodes: the only nodes with positions of their own. */
@@ -35,8 +42,10 @@ export function getAtomicNodeIds(store: Store): Set<string> {
 export function captureNodePositions(store: Store, rootNodeId?: string): NodePositions {
   const positions = new Map<string, Point>();
 
-  for (const [nodeId, node] of Object.entries(store.get(nodesByIdAtom))) {
-    if (node.kind === "atomic" && (rootNodeId === undefined || isInSubtree(nodeId, rootNodeId))) {
+  const nodesById = store.get(nodesByIdAtom);
+
+  for (const [nodeId, node] of Object.entries(nodesById)) {
+    if (node.kind === "atomic" && (rootNodeId === undefined || isInSubtree(nodesById, nodeId, rootNodeId))) {
       const { x, y } = store.get(node.boxAtom).min;
       positions.set(nodeId, { x, y });
     }
@@ -53,6 +62,17 @@ export function applyNodePositions(store: Store, positions: NodePositions): void
     const node = nodesById[nodeId];
     if (node?.kind === "atomic") {
       store.set(node.boxAtom, (box) => translateBox(box, position.x - box.min.x, position.y - box.min.y));
+    }
+  }
+}
+
+/** Move a node, or every node drawn inside it, by `dx`, `dy`. */
+export function translateSubtree(store: Store, rootNodeId: string, dx: number, dy: number): void {
+  const nodesById = store.get(nodesByIdAtom);
+
+  for (const [nodeId, node] of Object.entries(nodesById)) {
+    if (node.kind === "atomic" && isInSubtree(nodesById, nodeId, rootNodeId)) {
+      store.set(node.boxAtom, (box) => translateBox(box, dx, dy));
     }
   }
 }

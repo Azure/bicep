@@ -134,7 +134,7 @@ export function useApplyGraph(getViewportCenter: () => Point) {
 
       for (const node of graph.nodes.values()) {
         const existing = currentNodes[node.id];
-        const symbolicName = node.id.split("::").pop() ?? node.id;
+        const symbolicName = node.symbolName;
         const childIds = parentChildMap.get(node.id);
 
         if (childIds) {
@@ -155,6 +155,7 @@ export function useApplyGraph(getViewportCenter: () => Point) {
             const entrance = entrances.get(node.id);
             nextNodes[node.id] = createCompoundNode(
               node.id,
+              node.parentId,
               childIds,
               { ...data, ...entrance?.data },
               entrance?.enterFrom,
@@ -179,7 +180,7 @@ export function useApplyGraph(getViewportCenter: () => Point) {
           const entrance = entrances.get(node.id);
           const origin =
             newNodeOrigins.get(node.id) ?? entrance?.origin ?? previousPositions.get(node.id) ?? defaultOrigin;
-          nextNodes[node.id] = createAtomicNode(node.id, origin, {
+          nextNodes[node.id] = createAtomicNode(node.id, node.parentId, origin, {
             ...data,
             ...entrance?.data,
             replacesPlaceholder: newNodeOrigins.has(node.id),

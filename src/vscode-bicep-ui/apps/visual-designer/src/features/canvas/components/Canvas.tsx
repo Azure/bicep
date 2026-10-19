@@ -2,8 +2,15 @@
 // Licensed under the MIT License.
 
 import { useAtomValue, useSetAtom } from "jotai";
+import { useCallback } from "react";
 import { styled, ThemeProvider } from "styled-components";
-import { canvasElementAtom, isGraphChangeInProgressAtom, useGraphActions } from "@/core";
+import {
+  canvasElementAtom,
+  focusedNodeIdAtom,
+  isGraphChangeInProgressAtom,
+  useGraphActions,
+  useGraphApi,
+} from "@/core";
 import { effectiveExportThemeAtom, ExportAreaCover, ExportPreviewLayer } from "@/features/export";
 import { Graph, Viewport } from "@/lib/graph";
 import { NodeContentProvider } from "./nodes/NodeContentProvider";
@@ -29,7 +36,10 @@ const $InteractionShield = styled.div`
 
 /** The surface that renders the graph. */
 export function Canvas() {
-  const { handleNodeDragStart, handleNodeDragEnd } = useGraphActions();
+  const { handleNodeDragStart, handleNodeDrag, handleNodeDragEnd } = useGraphActions();
+  const api = useGraphApi();
+  const setFocusedNodeId = useSetAtom(focusedNodeIdAtom);
+  const revealNode = useCallback((nodeId: string) => api.revealNode(nodeId), [api]);
   const isGraphChangeInProgress = useAtomValue(isGraphChangeInProgressAtom);
   const exportTheme = useAtomValue(effectiveExportThemeAtom);
   const setCanvasElement = useSetAtom(canvasElementAtom);
@@ -45,9 +55,15 @@ export function Canvas() {
             aria-busy={isGraphChangeInProgress}
             tabIndex={0}
           >
-            <Viewport>
+            <Viewport onNodeClick={setFocusedNodeId}>
               <PendingResourceLayer />
-              <Graph onNodeDragStart={handleNodeDragStart} onNodeDragEnd={handleNodeDragEnd}>
+              <Graph
+                raisedNodeIdAtom={focusedNodeIdAtom}
+                onNodeDragStart={handleNodeDragStart}
+                onNodeDrag={handleNodeDrag}
+                onNodeDragEnd={handleNodeDragEnd}
+                onNodeDoubleClick={revealNode}
+              >
                 <ExportAreaCover />
               </Graph>
             </Viewport>

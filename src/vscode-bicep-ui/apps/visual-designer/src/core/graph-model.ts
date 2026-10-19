@@ -27,6 +27,17 @@ export function indexGraph({ nodes, edges }: Graph): ClientGraph {
   };
 }
 
+/** Whether `nodeId` is inside `ancestorId`, at any depth. */
+export function isDescendant(graph: ClientGraph, nodeId: string, ancestorId: string): boolean {
+  for (let id = graph.nodes.get(nodeId)?.parentId ?? null; id !== null; id = graph.nodes.get(id)?.parentId ?? null) {
+    if (id === ancestorId) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /**
  * Project the source graph into the locally visible graph.
  *

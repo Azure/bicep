@@ -1,15 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { Atom } from "jotai";
 import type { PropsWithChildren } from "react";
-import type { NodeDragCallbacks } from "../context/NodeDragCallbacksContext";
+import type { GraphContextValue, GraphNodeEvents } from "../context/GraphContext";
 
 import { PanZoomTransformed } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { styled } from "styled-components";
 import { layoutReadyAtom } from "../atoms";
-import { ignoreNodeDrag, NodeDragCallbacksContext } from "../context/NodeDragCallbacksContext";
+import { createPaintOrderAtom, GraphContext, ignoreNodeEvent } from "../context/GraphContext";
 import { EdgeLayer } from "./EdgeLayer";
 import { EdgeMarkerDefs } from "./EdgeMarkerDefs";
 import { NodeLayer } from "./NodeLayer";
@@ -29,14 +30,33 @@ const $SharedDefs = styled.svg`
   pointer-events: none;
 `;
 
-export type GraphProps = PropsWithChildren<Partial<NodeDragCallbacks>>;
+export type GraphProps = PropsWithChildren<
+  Partial<GraphNodeEvents> & {
+    /** The node painted above the others, with its subtree. Its ancestors are raised above their siblings. */
+    raisedNodeIdAtom?: Atom<string | null>;
+  }
+>;
 
-export function Graph({ children, onNodeDragStart = ignoreNodeDrag, onNodeDragEnd = ignoreNodeDrag }: GraphProps) {
+export function Graph({
+  children,
+  raisedNodeIdAtom,
+  onNodeDragStart = ignoreNodeEvent,
+  onNodeDrag = ignoreNodeEvent,
+  onNodeDragEnd = ignoreNodeEvent,
+  onNodeDoubleClick = ignoreNodeEvent,
+}: GraphProps) {
   const layoutReady = useAtomValue(layoutReadyAtom);
-  const nodeDragCallbacks = useMemo(() => ({ onNodeDragStart, onNodeDragEnd }), [onNodeDragEnd, onNodeDragStart]);
+  const paintOrderAtom = useMemo(() => createPaintOrderAtom(raisedNodeIdAtom), [raisedNodeIdAtom]);
+  const context = useMemo<GraphContextValue>(
+    () => ({
+      events: { onNodeDragStart, onNodeDrag, onNodeDragEnd, onNodeDoubleClick },
+      paintOrderAtom,
+    }),
+    [onNodeDoubleClick, onNodeDrag, onNodeDragEnd, onNodeDragStart, paintOrderAtom],
+  );
 
   return (
-    <NodeDragCallbacksContext.Provider value={nodeDragCallbacks}>
+    <GraphContext.Provider value={context}>
       <$PanZoomTransformed $visible={layoutReady} data-export-graph="">
         <$SharedDefs>
           <EdgeMarkerDefs />
@@ -45,6 +65,6 @@ export function Graph({ children, onNodeDragStart = ignoreNodeDrag, onNodeDragEn
         <EdgeLayer />
         <NodeLayer />
       </$PanZoomTransformed>
-    </NodeDragCallbacksContext.Provider>
+    </GraphContext.Provider>
   );
 }

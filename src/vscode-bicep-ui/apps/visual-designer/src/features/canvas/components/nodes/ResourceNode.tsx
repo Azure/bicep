@@ -4,9 +4,9 @@
 import { AzureIcon } from "@vscode-bicep-ui/components";
 import { motion } from "motion/react";
 import { styled } from "styled-components";
-import { useIsNodeFocused } from "@/lib/graph";
 import { EXPAND_TRANSITION } from "@/ui";
 import { camelCaseToWords } from "@/utils";
+import { useIsNodeFocused } from "../../hooks/use-is-node-focused";
 import { RESOURCE_NODE_PREVIEW_HEIGHT, RESOURCE_NODE_PREVIEW_WIDTH } from "./ResourceNodePreview";
 
 export interface ResourceNodeProps {
@@ -126,10 +126,6 @@ export function ResourceNode({ id, data }: ResourceNodeProps) {
   const { symbolicName, resourceType, isCollection, hasError, replacesPlaceholder = false } = data;
   const normalizedResourceType = resourceType ?? "<unknown>";
   const resourceTypeDisplayName = camelCaseToWords(normalizedResourceType.split("/").pop());
-  // Modules demoted to atomic (no children) render here with
-  // resourceType "<module>".  Use the folder icon to match the
-  // compound module styling.
-  const iconType = normalizedResourceType === "<module>" ? "folder" : normalizedResourceType;
   const isFocused = useIsNodeFocused(id);
   const initialCardScaleX = RESOURCE_NODE_PREVIEW_WIDTH / 220;
   const initialCardScaleY = RESOURCE_NODE_PREVIEW_HEIGHT / 76;
@@ -145,13 +141,14 @@ export function ResourceNode({ id, data }: ResourceNodeProps) {
       $hasError={hasError}
       $isCollection={isCollection}
       $isFocused={isFocused}
+      data-focused={isFocused}
     >
       <$ResourceIcon
         initial={replacesPlaceholder ? { scaleX: initialIconScaleX, scaleY: initialIconScaleY } : false}
         animate={{ scaleX: 1, scaleY: 1 }}
         transition={EXPAND_TRANSITION}
       >
-        <AzureIcon resourceType={iconType} size={36} />
+        <AzureIcon resourceType={normalizedResourceType} size={36} />
       </$ResourceIcon>
       <$TextContainer>
         <$SymbolicNameContainer>{symbolicName}</$SymbolicNameContainer>

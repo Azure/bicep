@@ -14,8 +14,9 @@ export interface GraphActions {
   createResourceAt: (resourceType: ResourceTypeReference, origin: Point) => Promise<void>;
   /** Toggle a module's session-local collapsed state without editing Bicep source. */
   toggleModuleCollapsed: (nodeId: string) => void;
-  /** Called by `Graph` when a node drag starts moving and when it ends, to record the move. */
+  /** Called by `Graph` as a node is dragged: moves the node with its contents and records the move. */
   handleNodeDragStart: (nodeId: string) => void;
+  handleNodeDrag: (nodeId: string, dx: number, dy: number) => void;
   handleNodeDragEnd: (nodeId: string) => void;
   /** Undo the most recent action: a resource creation, node move, or Reset Layout. Never throws. */
   undo: () => Promise<void>;

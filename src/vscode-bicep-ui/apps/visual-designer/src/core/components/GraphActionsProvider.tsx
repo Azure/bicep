@@ -31,6 +31,7 @@ export function GraphActionsProvider({ children }: { children: ReactNode }) {
     createResourceAt,
     toggleModuleCollapsed,
     handleNodeDragStart,
+    handleNodeDrag,
     handleNodeDragEnd,
     undo,
     redo,
@@ -46,11 +47,21 @@ export function GraphActionsProvider({ children }: { children: ReactNode }) {
       createResourceAt,
       toggleModuleCollapsed,
       handleNodeDragStart,
+      handleNodeDrag,
       handleNodeDragEnd,
       undo,
       redo,
     }),
-    [createResourceAt, handleNodeDragEnd, handleNodeDragStart, redo, resetGraphLayout, toggleModuleCollapsed, undo],
+    [
+      createResourceAt,
+      handleNodeDrag,
+      handleNodeDragEnd,
+      handleNodeDragStart,
+      redo,
+      resetGraphLayout,
+      toggleModuleCollapsed,
+      undo,
+    ],
   );
 
   return <GraphActionsContext.Provider value={actions}>{children}</GraphActionsContext.Provider>;

@@ -203,16 +203,24 @@ interface GraphActions {
   resetGraphLayout(): Promise<void>;
   createResourceAt(resourceType, graphPoint): Promise<void>;
   handleNodeDragStart(nodeId): void;
+  handleNodeDrag(nodeId, dx, dy): void;
   handleNodeDragEnd(nodeId): void;
   undo(): Promise<void>;
   redo(): Promise<void>;
 }
 ```
 
-`ControlBar` uses them for Reset Layout, and `HistoryBar` for Undo and Redo. The canvas feature adds only what depends on
+`ControlBar` uses them for Reset Layout, `HistoryBar` for Undo and Redo, and `Canvas` for node drags. The canvas feature adds only what depends on
 its own element and camera: `useCanvasDropTarget` converts a palette drop's client point to a graph
 point. It reads the canvas element from core's `canvasElementAtom`, so the palette can use it without
 `Canvas` being an ancestor; export reads the same atom to capture the canvas.
+
+`lib/graph` treats node IDs as opaque and knows nothing about Bicep, focus, or modules. Containment
+comes from each node's `parentId`. `Graph` paints containers before their contents and raises the
+node in `raisedNodeIdAtom` (the canvas passes core's `focusedNodeIdAtom`) above the others. It reports
+gestures for the app to act on: `onNodeDragStart`, `onNodeDrag`, `onNodeDragEnd`, and
+`onNodeDoubleClick` on `Graph`, and `onNodeClick` on `Viewport`. Node content marks its own controls
+with `graphInteractiveProps`, so pressing one neither drags or focuses the node nor pans the canvas.
 
 ## Graph synchronization
 

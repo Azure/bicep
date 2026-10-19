@@ -11,6 +11,7 @@ export {
   canvasElementAtom,
   documentErrorCountAtom,
   documentUriAtom,
+  focusedNodeIdAtom,
   graphHasNodesAtom,
   isGraphChangeInProgressAtom,
   isColorThemeMatchedSettingAtom,

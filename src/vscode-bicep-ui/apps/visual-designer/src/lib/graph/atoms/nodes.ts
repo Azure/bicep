@@ -10,6 +10,8 @@ import { nodeConfigAtom } from "./configs";
 export interface AtomicNodeState {
   kind: "atomic";
   id: string;
+  /** The container node this node is drawn inside, or null at the root. */
+  parentId: string | null;
   boxAtom: PrimitiveAtom<Box>;
   dataAtom: PrimitiveAtom<unknown>;
 }
@@ -17,6 +19,8 @@ export interface AtomicNodeState {
 export interface CompoundNodeState {
   kind: "compound";
   id: string;
+  /** The container node this node is drawn inside, or null at the root. */
+  parentId: string | null;
   childIdsAtom: PrimitiveAtom<string[]>;
   boxAtom: Atom<Box>;
   dataAtom: PrimitiveAtom<unknown>;
@@ -34,104 +38,20 @@ export type NodeKind = NodeState["kind"];
 export const nodesByIdAtom = atom<Record<string, NodeState>>({});
 
 /**
- * The ID of the currently focused node, or `null` if nothing is focused.
- * Set after a node click; cleared after a click on the canvas background.
- */
-export const focusedNodeIdAtom = atom<string | null>(null);
-
-/**
  * Nodes drawn fully transparent, along with their edges. Adding a node fades it out and removing it
  * fades it in, so nodes can leave or arrive without popping.
  */
 export const fadedNodeIdsAtom = atom<ReadonlySet<string>>(new Set<string>());
 
 /**
- * Extracts the parent node ID from a composite `::` delimited ID.
- * Returns `null` for top-level nodes.
- */
-export function getParentId(nodeId: string): string | null {
-  const lastSep = nodeId.lastIndexOf("::");
-  return lastSep >= 0 ? nodeId.slice(0, lastSep) : null;
-}
-
-/**
- * Computes how closely related `nodeId` is to `focusedId`.
- *
- * Tier values (lower = closer):
- *  - 0: the focused node itself, or a descendant of the focused node
- *  - 1: a sibling of the focused node, or a descendant of such a sibling
- *  - 2: the parent of the focused node
- *  - 3: a sibling of the parent (or descendant thereof)
- *  - 4: the grandparent
- *  - …and so on recursively
- *  - -1: unrelated (should not happen for valid graph IDs)
- */
-export function computeFocusTier(nodeId: string, focusedId: string): number {
-  // Self.
-  if (nodeId === focusedId) return 0;
-
-  // Descendant of the focused node (e.g. children inside a focused module).
-  if (nodeId.startsWith(focusedId + "::")) return 0;
-
-  // Walk up the focused node's ancestor chain.
-  let ancestorId: string | null = focusedId;
-  let tier = 0;
-
-  while (ancestorId !== null) {
-    if (nodeId === ancestorId) return tier;
-
-    const parentOfAncestor = getParentId(ancestorId);
-
-    // Sibling: same parent as this ancestor.
-    if (getParentId(nodeId) === parentOfAncestor) {
-      return tier + 1;
-    }
-
-    // Descendant of a sibling of this ancestor.
-    if (parentOfAncestor !== null && nodeId.startsWith(parentOfAncestor + "::")) {
-      return tier + 1;
-    }
-
-    // Reached the root — every remaining node is a top-level peer.
-    if (parentOfAncestor === null) {
-      return tier + 1;
-    }
-
-    ancestorId = parentOfAncestor;
-    tier += 2;
-  }
-
-  return -1;
-}
-
-/**
- * Returns the effective z-index for a node given the current focus state.
- *
- * Without focus every compound sits at 0 and every atomic at 2.
- * With focus the focused group is boosted highest, siblings next, then
- * parent, and so on up the ancestor chain.
- */
-export function getNodeZIndex(nodeId: string, nodeKind: NodeKind, focusedId: string | null): number {
-  const baseZ = nodeKind === "atomic" ? 2 : 0;
-
-  if (focusedId === null) return baseZ;
-
-  const tier = computeFocusTier(nodeId, focusedId);
-  if (tier < 0) return baseZ;
-
-  // Decrease boost as the relationship becomes more distant.
-  const boost = Math.max(10, 100 - tier * 15);
-  return baseZ + boost;
-}
-
-/**
  * A leaf node whose box starts as a point at `origin`; it grows to its measured size when it mounts.
  * Add it to `nodesByIdAtom`.
  */
-export function createAtomicNode(id: string, origin: Point, data: unknown): AtomicNodeState {
+export function createAtomicNode(id: string, parentId: string | null, origin: Point, data: unknown): AtomicNodeState {
   return {
     kind: "atomic",
     id,
+    parentId,
     boxAtom: atom({ min: { ...origin }, max: { ...origin } }),
     dataAtom: atom(data),
   };
@@ -144,7 +64,13 @@ export function createAtomicNode(id: string, origin: Point, data: unknown): Atom
  * With `enterFrom`, the box starts there instead and grows to enclose the children as
  * `enterProgressAtom` goes from 0 to 1.
  */
-export function createCompoundNode(id: string, childIds: string[], data: unknown, enterFrom?: Box): CompoundNodeState {
+export function createCompoundNode(
+  id: string,
+  parentId: string | null,
+  childIds: string[],
+  data: unknown,
+  enterFrom?: Box,
+): CompoundNodeState {
   const childIdsAtom = atom(childIds);
   const enterProgressAtom = atom(enterFrom ? 0 : 1);
   const enclosingBoxAtom = atom((get) => {
@@ -186,5 +112,5 @@ export function createCompoundNode(id: string, childIds: string[], data: unknown
     };
   });
 
-  return { kind: "compound", id, childIdsAtom, boxAtom, dataAtom: atom(data), enterProgressAtom };
+  return { kind: "compound", id, parentId, childIdsAtom, boxAtom, dataAtom: atom(data), enterProgressAtom };
 }

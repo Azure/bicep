@@ -8,6 +8,7 @@ import { useGetPanZoomTransform } from "@vscode-bicep-ui/components";
 import { drag } from "d3-drag";
 import { select } from "d3-selection";
 import { useEffect, useEffectEvent } from "react";
+import { isGraphInteractiveTarget } from "../interactive";
 
 export interface DragListeners {
   /** Called once, on the first movement. A press that is released without moving is a click. */
@@ -18,6 +19,7 @@ export interface DragListeners {
   onDragEnd: () => void;
 }
 
+/** Reports drags of an element, except those that start on interactive content inside it. */
 export function useDragListener(ref: RefObject<HTMLDivElement | null>, listeners: DragListeners) {
   const getPanZoomTransform = useGetPanZoomTransform();
   const onDragStart = useEffectEvent(listeners.onDragStart);
@@ -32,6 +34,7 @@ export function useDragListener(ref: RefObject<HTMLDivElement | null>, listeners
     const selection = select(ref.current);
     let hasMoved = false;
     const dragBehavior = drag<HTMLDivElement, unknown>()
+      .filter((event: MouseEvent) => !event.ctrlKey && !event.button && !isGraphInteractiveTarget(event.target))
       .on("start", () => {
         hasMoved = false;
       })

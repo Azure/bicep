@@ -13,12 +13,13 @@ import type { NodeEntrance } from "./use-apply-graph";
 import { useStore } from "jotai";
 import { animate } from "motion";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { fadedNodeIdsAtom, focusedNodeIdAtom, nodesByIdAtom } from "@/lib/graph";
+import { fadedNodeIdsAtom, nodesByIdAtom } from "@/lib/graph";
 import { getErrorMessage } from "@/utils";
 import { useGraphApi } from "../api";
 import {
   commitPendingResourcesAtom,
   documentErrorCountAtom,
+  focusedNodeIdAtom,
   isGraphChangeInProgressAtom,
   motionPolicyAtom,
   pendingPlacementsAtom,
@@ -32,13 +33,14 @@ import {
   clientGraphsRenderEqually,
   EMPTY_CLIENT_GRAPH,
   indexGraph,
+  isDescendant,
   measuredGraphsEqual,
   measureGraph,
   projectGraph,
 } from "../graph-model";
 import { GraphUpdateCoordinator } from "../graph-update-coordinator";
 import { MODULE_CONTENTS_FADE_MS, MODULE_MORPH_TRANSITION, shouldReduceMotion } from "../motion";
-import { captureNodePositions, getAtomicNodeIds } from "../node-positions";
+import { captureNodePositions, getAtomicNodeIds, translateSubtree } from "../node-positions";
 import { forgetRemovedNodes, getSourceStepKey, getSourceStepReferences, recordLayoutChange } from "../undo-history";
 import { useApplyGraph } from "./use-apply-graph";
 import { useApplyGraphLayout } from "./use-apply-graph-layout";
@@ -78,11 +80,11 @@ function getNodeCenter(box: Box): Point {
   };
 }
 
-function captureAtomicNodeCenters(store: Store, rootNodeId: string): Map<string, Point> {
+function captureAtomicNodeCenters(store: Store, graph: ClientGraph, rootNodeId: string): Map<string, Point> {
   const centers = new Map<string, Point>();
 
   for (const [nodeId, node] of Object.entries(store.get(nodesByIdAtom))) {
-    if (node.kind === "atomic" && nodeId.startsWith(`${rootNodeId}::`)) {
+    if (node.kind === "atomic" && isDescendant(graph, nodeId, rootNodeId)) {
       centers.set(nodeId, getNodeCenter(store.get(node.boxAtom)));
     }
   }
@@ -152,6 +154,11 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
       dragStartPositionsRef.current.set(nodeId, captureNodePositions(store, nodeId));
     },
     [stopNodeAnimations, store],
+  );
+
+  const handleNodeDrag = useCallback(
+    (nodeId: string, dx: number, dy: number) => translateSubtree(store, nodeId, dx, dy),
+    [store],
   );
 
   const handleNodeDragEnd = useCallback(
@@ -372,7 +379,7 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
         return;
       }
 
-      const isDescendant = (id: string) => id.startsWith(`${nodeId}::`);
+      const isInModule = (id: string) => isDescendant(clientGraphsRef.current.source, id, nodeId);
       const fade = (ids: readonly string[]) => store.set(fadedNodeIdsAtom, (faded) => new Set([...faded, ...ids]));
       const unfade = (ids: readonly string[]) =>
         store.set(fadedNodeIdsAtom, (faded) => new Set([...faded].filter((id) => !ids.includes(id))));
@@ -386,14 +393,18 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
         let hiddenNodeIds: string[] = [];
 
         if (isCollapsing) {
-          for (const [hiddenNodeId, center] of captureAtomicNodeCenters(store, nodeId)) {
+          for (const [hiddenNodeId, center] of captureAtomicNodeCenters(
+            store,
+            clientGraphsRef.current.source,
+            nodeId,
+          )) {
             hiddenNodeCentersRef.current.set(hiddenNodeId, center);
           }
           // The card shrinks to the container's center, so restoring the contents is relative to it.
           collapsedModuleAnchorsRef.current.set(nodeId, getNodeCenter(moduleBox));
 
           if (!reduceMotion) {
-            hiddenNodeIds = Object.keys(store.get(nodesByIdAtom)).filter(isDescendant);
+            hiddenNodeIds = Object.keys(store.get(nodesByIdAtom)).filter(isInModule);
             fade(hiddenNodeIds);
             await delay(MODULE_CONTENTS_FADE_MS);
 
@@ -420,7 +431,7 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
           const dy = cardCenter.y - anchor.y;
 
           for (const [hiddenNodeId, center] of hiddenNodeCentersRef.current) {
-            if (isDescendant(hiddenNodeId)) {
+            if (isInModule(hiddenNodeId)) {
               hiddenNodeCentersRef.current.set(hiddenNodeId, { x: center.x + dx, y: center.y + dy });
             }
           }
@@ -437,7 +448,7 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
         clientGraphsRef.current.rendered = graph;
         clientGraphsRef.current.measured = null;
 
-        const revealedNodeIds = isCollapsing ? [] : [...graph.nodes.keys()].filter(isDescendant);
+        const revealedNodeIds = isCollapsing ? [] : [...graph.nodes.keys()].filter(isInModule);
         const moduleCenter = getNodeCenter(moduleBox);
         for (const revealedNodeId of revealedNodeIds) {
           entrances.set(revealedNodeId, {
@@ -455,7 +466,7 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
         unfade(hiddenNodeIds);
 
         const focusedNodeId = store.get(focusedNodeIdAtom);
-        if (isCollapsing && focusedNodeId && isDescendant(focusedNodeId)) {
+        if (isCollapsing && focusedNodeId && isInModule(focusedNodeId)) {
           store.set(focusedNodeIdAtom, nodeId);
         }
 
@@ -500,6 +511,7 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
     createResourceAt,
     toggleModuleCollapsed,
     handleNodeDragStart,
+    handleNodeDrag,
     handleNodeDragEnd,
     undo,
     redo,

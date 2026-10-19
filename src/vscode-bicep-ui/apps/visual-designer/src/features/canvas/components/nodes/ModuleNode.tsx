@@ -7,11 +7,12 @@ import { AzureIcon, Codicon } from "@vscode-bicep-ui/components";
 import { useAtomValue, useStore } from "jotai";
 import { animate } from "motion";
 import { motion } from "motion/react";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { styled, useTheme } from "styled-components";
 import { isGraphChangeInProgressAtom, MODULE_MORPH_TRANSITION, useGraphActions } from "@/core";
-import { nodesByIdAtom, useIsNodeFocused } from "@/lib/graph";
+import { graphInteractiveProps, nodesByIdAtom } from "@/lib/graph";
 import { ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
+import { useIsNodeFocused } from "../../hooks/use-is-node-focused";
 
 /** Matches `ResourceNode`, so a collapsed module reads as one more card on the graph. */
 const CARD_HEIGHT = 76;
@@ -280,29 +281,6 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [morphFrom]);
 
-  const toggleButtonRef = useRef<HTMLButtonElement>(null);
-
-  // The canvas reads presses (focus, node drag, pan) and double-clicks (reveal source) with native
-  // listeners on the node's ancestors, which React's synthetic stopPropagation runs too late to stop.
-  useEffect(() => {
-    const button = toggleButtonRef.current;
-    if (!button) {
-      return;
-    }
-
-    const stop = (event: Event) => event.stopPropagation();
-    const events = ["pointerdown", "mousedown", "touchstart", "dblclick"] as const;
-    for (const type of events) {
-      button.addEventListener(type, stop);
-    }
-
-    return () => {
-      for (const type of events) {
-        button.removeEventListener(type, stop);
-      }
-    };
-  }, [canCollapse]);
-
   const handleToggle = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
@@ -317,6 +295,7 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
       $hasError={hasError}
       $isCollection={isCollection}
       $isFocused={isFocused}
+      data-focused={isFocused}
       $variant={variant}
       data-module-collapsed={isCollapsed}
     >
@@ -348,7 +327,7 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
         </$Text>
         {canCollapse && (
           <$ToggleButton
-            ref={toggleButtonRef}
+            {...graphInteractiveProps}
             type="button"
             aria-label={`${action} module ${symbolicName}`}
             aria-expanded={!isCollapsed}

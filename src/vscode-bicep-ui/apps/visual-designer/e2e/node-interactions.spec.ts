@@ -12,14 +12,20 @@ import {
   waitForStableNodePosition,
 } from "./fixtures";
 
+/** The focused node, which must also be painted above every other node. */
 async function focusedNodeId(page: Page): Promise<string | null> {
   return page.evaluate(() => {
-    const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-node-id]"))
-      .map((element) => ({ id: element.dataset.nodeId ?? "", z: Number(getComputedStyle(element).zIndex) || 0 }))
-      .sort((a, b) => b.z - a.z);
-    const [top, next] = nodes;
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-node-id]"));
+    const focused = nodes.filter((element) => element.querySelector('[data-focused="true"]') !== null);
+    const [node] = focused;
+    if (!node || focused.length > 1) {
+      return focused.length > 1 ? "<several>" : null;
+    }
 
-    return top && (!next || top.z > next.z) ? top.id : null;
+    const zIndex = (element: HTMLElement) => Number(getComputedStyle(element).zIndex) || 0;
+    return nodes.every((other) => other === node || zIndex(other) < zIndex(node))
+      ? (node.dataset.nodeId ?? "")
+      : "<not raised>";
   });
 }
 
