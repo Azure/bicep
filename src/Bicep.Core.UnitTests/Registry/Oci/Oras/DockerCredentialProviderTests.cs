@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.IO.Abstractions.TestingHelpers;
 using System.Threading;
 using Bicep.Core.Registry.Oci.Oras;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OrasProject.Oras.Registry.Remote.Auth;
@@ -16,15 +16,45 @@ namespace Bicep.Core.UnitTests.Registry.Oci.Oras;
 public class DockerCredentialProviderTests
 {
     [TestMethod]
+    [DataRow("DOCKER_CONFIG", "/docker-config", "/docker-config/config.json")]
+    [DataRow("DOCKER_CONFIG", "docker-config", "/docker-config/config.json")]
+    [DataRow("HOME", "/home/user", "/home/user/.docker/config.json")]
+    [DataRow("USERPROFILE", "/home/user", "/home/user/.docker/config.json")]
+    public async Task ResolveCredentialAsync_ConfigLocationFromEnvironment_ReadsConfigFile(string variable, string directory, string configPath)
+    {
+        var fileSet = new MockFileSystemTestFileSet();
+        fileSet.AddFile(configPath, """{"auths":{"example.com":{"username":"user","password":"pass"}}}""");
+        var variableValue = directory.StartsWith('/') ? fileSet.GetUri(directory).GetFilePath() : directory;
+        var environment = (TestEnvironment.Default with { CurrentDirectory = fileSet.GetUri("").GetFilePath() })
+            .WithVariables((variable, variableValue));
+        var provider = new DockerCredentialProvider(environment, fileSet.FileExplorer);
+
+        var credential = await provider.ResolveCredentialAsync("example.com", default);
+
+        credential.Username.Should().Be("user");
+        credential.Password.Should().Be("pass");
+    }
+
+    [TestMethod]
+    public async Task ResolveCredentialAsync_InvalidConfigPath_ReturnsEmptyCredential()
+    {
+        var environment = TestEnvironment.Default.WithVariables(("DOCKER_CONFIG", "\\\\?\\invalid"));
+        var provider = new DockerCredentialProvider(environment, new MockFileSystemTestFileSet().FileExplorer);
+
+        var credential = await provider.ResolveCredentialAsync("example.com", default);
+
+        credential.Username.Should().BeNull();
+    }
+
+    [TestMethod]
     public async Task ResolveCredentialAsync_ShouldReadCredentialsFromDockerConfig()
     {
         const string registry = "localhost:5000";
         var dockerConfigRoot = "/tmp/docker";
         var configPath = $"{dockerConfigRoot}/config.json";
 
-        var fileSystem = new MockFileSystem();
-        fileSystem.AddFile(configPath,
-            new MockFileData(
+        var fileSet = new MockFileSystemTestFileSet();
+        fileSet.AddFile(configPath,
                 """
 {
   "auths": {
@@ -33,10 +63,10 @@ public class DockerCredentialProviderTests
     }
   }
 }
-"""));
+""");
 
-        var environment = TestEnvironment.Default.WithVariables(("DOCKER_CONFIG", dockerConfigRoot));
-        var provider = new DockerCredentialProvider(environment, fileSystem);
+        var environment = TestEnvironment.Default.WithVariables(("DOCKER_CONFIG", fileSet.GetUri(dockerConfigRoot).GetFilePath()));
+        var provider = new DockerCredentialProvider(environment, fileSet.FileExplorer);
 
         Credential credential = await provider.ResolveCredentialAsync(registry, default);
 
@@ -51,9 +81,8 @@ public class DockerCredentialProviderTests
         var dockerConfigRoot = "/tmp/docker";
         var configPath = $"{dockerConfigRoot}/config.json";
 
-        var fileSystem = new MockFileSystem();
-        fileSystem.AddFile(configPath,
-            new MockFileData(
+        var fileSet = new MockFileSystemTestFileSet();
+        fileSet.AddFile(configPath,
                 """
 {
   "auths": {},
@@ -61,9 +90,9 @@ public class DockerCredentialProviderTests
     "ghcr.io": "gh"
   }
 }
-"""));
+""");
 
-        var environment = TestEnvironment.Default.WithVariables(("DOCKER_CONFIG", dockerConfigRoot));
+        var environment = TestEnvironment.Default.WithVariables(("DOCKER_CONFIG", fileSet.GetUri(dockerConfigRoot).GetFilePath()));
         var helperInvoker = new TestDockerCredentialHelperInvoker((helper, targetRegistry) =>
         {
             helper.Should().Be("gh");
@@ -71,7 +100,7 @@ public class DockerCredentialProviderTests
             return new Credential("helperUser", "helperPass");
         });
 
-        var provider = new DockerCredentialProvider(environment, fileSystem, helperInvoker);
+        var provider = new DockerCredentialProvider(environment, fileSet.FileExplorer, helperInvoker);
 
         var credential = await provider.ResolveCredentialAsync(registry, CancellationToken.None);
 
@@ -87,17 +116,16 @@ public class DockerCredentialProviderTests
         var dockerConfigRoot = "/tmp/docker";
         var configPath = $"{dockerConfigRoot}/config.json";
 
-        var fileSystem = new MockFileSystem();
-        fileSystem.AddFile(configPath,
-            new MockFileData(
+        var fileSet = new MockFileSystemTestFileSet();
+        fileSet.AddFile(configPath,
                 """
 {
   "auths": {},
   "credsStore": "desktop"
 }
-"""));
+""");
 
-        var environment = TestEnvironment.Default.WithVariables(("DOCKER_CONFIG", dockerConfigRoot));
+        var environment = TestEnvironment.Default.WithVariables(("DOCKER_CONFIG", fileSet.GetUri(dockerConfigRoot).GetFilePath()));
         var helperInvoker = new TestDockerCredentialHelperInvoker((helper, targetRegistry) =>
         {
             helper.Should().Be("desktop");
@@ -105,7 +133,7 @@ public class DockerCredentialProviderTests
             return new Credential("storeUser", "storePass");
         });
 
-        var provider = new DockerCredentialProvider(environment, fileSystem, helperInvoker);
+        var provider = new DockerCredentialProvider(environment, fileSet.FileExplorer, helperInvoker);
 
         var credential = await provider.ResolveCredentialAsync(registry, CancellationToken.None);
 
@@ -117,12 +145,12 @@ public class DockerCredentialProviderTests
     [TestMethod]
     public async Task ResolveCredentialAsync_ShouldUseEnvironmentVariables_WhenScopedToMatchingRegistry()
     {
-        var fileSystem = new MockFileSystem();
+        var fileSet = new MockFileSystemTestFileSet();
         var environment = TestEnvironment.Default.WithVariables(
             ("DOCKER_REGISTRY", "example.com"),
             ("DOCKER_USERNAME", "envUser"),
             ("DOCKER_PASSWORD", "envPass"));
-        var provider = new DockerCredentialProvider(environment, fileSystem);
+        var provider = new DockerCredentialProvider(environment, fileSet.FileExplorer);
 
         Credential credential = await provider.ResolveCredentialAsync("example.com", default);
 
@@ -135,9 +163,9 @@ public class DockerCredentialProviderTests
     {
         // Security: without DOCKER_REGISTRY scoping, ambient DOCKER_USERNAME/PASSWORD must NOT be sent
         // to an arbitrary (possibly attacker-controlled) host.
-        var fileSystem = new MockFileSystem();
+        var fileSet = new MockFileSystemTestFileSet();
         var environment = TestEnvironment.Default.WithVariables(("DOCKER_USERNAME", "envUser"), ("DOCKER_PASSWORD", "envPass"));
-        var provider = new DockerCredentialProvider(environment, fileSystem);
+        var provider = new DockerCredentialProvider(environment, fileSet.FileExplorer);
 
         Credential credential = await provider.ResolveCredentialAsync("attacker.example", default);
 
@@ -149,12 +177,12 @@ public class DockerCredentialProviderTests
     public async Task ResolveCredentialAsync_ShouldNotLeakEnvironmentVariables_ToNonMatchingRegistry()
     {
         // Security: env credentials scoped to one registry must never be sent to a different host.
-        var fileSystem = new MockFileSystem();
+        var fileSet = new MockFileSystemTestFileSet();
         var environment = TestEnvironment.Default.WithVariables(
             ("DOCKER_REGISTRY", "trusted.example.com"),
             ("DOCKER_USERNAME", "envUser"),
             ("DOCKER_PASSWORD", "envPass"));
-        var provider = new DockerCredentialProvider(environment, fileSystem);
+        var provider = new DockerCredentialProvider(environment, fileSet.FileExplorer);
 
         Credential credential = await provider.ResolveCredentialAsync("attacker.example", default);
 
@@ -165,7 +193,7 @@ public class DockerCredentialProviderTests
     [TestMethod]
     public async Task ResolveCredentialAsync_ShouldReturnEmptyCredential_WhenNoSourcesPresent()
     {
-        var provider = new DockerCredentialProvider(TestEnvironment.Default, new MockFileSystem());
+        var provider = new DockerCredentialProvider(TestEnvironment.Default, new MockFileSystemTestFileSet().FileExplorer);
 
         Credential credential = await provider.ResolveCredentialAsync("example.com", default);
 
