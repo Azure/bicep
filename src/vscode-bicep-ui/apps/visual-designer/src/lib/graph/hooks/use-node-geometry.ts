@@ -114,6 +114,20 @@ export function useNodeGeometry(
     }
   });
 
+  // Measure whenever the node renders, so content that changed has its new size by the end of the commit
+  // (see `graphCommittedAtom`). The resize observer catches changes between renders, such as a font loading.
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element || isSizedByBoxRef.current || isFrozen) {
+      return;
+    }
+
+    const size = { width: element.offsetWidth, height: element.offsetHeight };
+    if (!sizesEqual(store.get(node.sizeAtom), size)) {
+      store.set(node.sizeAtom, size);
+    }
+  });
+
   useLayoutEffect(() => {
     const element = ref.current;
     if (!element || isFrozen) {

@@ -4,12 +4,11 @@
 import type { createStore } from "jotai";
 import type { Box, Point } from "@/lib/math";
 import type { GetGraphResult, MeasuredGraph } from "../api";
-import type { ClientGraph } from "../graph-model";
 import type { GraphLayoutMode, GraphLayoutResult, GraphUpdateCoordinator } from "../graph-update-coordinator";
 
 import { useStore } from "jotai";
 import { useCallback, useEffect, useRef } from "react";
-import { getNodeTargetBoxes, layoutReadyAtom } from "@/lib/graph";
+import { getNodeTargetBoxes, graphCommittedAtom, layoutReadyAtom } from "@/lib/graph";
 import { getErrorMessage } from "@/utils";
 import { useGraphApi } from "../api";
 import {
@@ -37,26 +36,24 @@ type Store = ReturnType<typeof createStore>;
 /** How long document changes must pause before the graph is fetched again. */
 const GRAPH_UPDATE_DELAY_MS = 200;
 
-/** How many frames layout waits for newly shown nodes to render and measure themselves. */
-const MAX_MEASUREMENT_FRAMES = 30;
+/** Resolves once React has committed the graph last given to `lib/graph`. */
+function whenGraphCommitted(store: Store): Promise<void> {
+  if (store.get(graphCommittedAtom)) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    const unsubscribe = store.sub(graphCommittedAtom, () => {
+      if (store.get(graphCommittedAtom)) {
+        unsubscribe();
+        resolve();
+      }
+    });
+  });
+}
 
 function waitForAnimationFrame(): Promise<void> {
   return new Promise((resolve) => requestAnimationFrame(() => resolve()));
-}
-
-/**
- * Wait until every node of `graph` has rendered and measured itself, so layout gets real sizes and
- * centers are computed from them. React may take more than a frame to commit a large graph.
- */
-async function waitForMeasuredNodes(store: Store, graph: ClientGraph): Promise<void> {
-  for (let frame = 0; frame < MAX_MEASUREMENT_FRAMES; frame++) {
-    await waitForAnimationFrame();
-
-    const boxes = getNodeTargetBoxes(store);
-    if ([...graph.nodes.keys()].every((nodeId) => boxes.has(nodeId))) {
-      return;
-    }
-  }
 }
 
 export interface GraphSync {
@@ -195,7 +192,8 @@ export function useGraphSync(
         return "completed";
       }
 
-      await waitForMeasuredNodes(store, shown);
+      // Measure once React has committed the shown nodes, so each has measured what it now renders.
+      await whenGraphCommitted(store);
 
       // A module opened or closed meanwhile, so lay out what is shown now.
       if (store.get(shownGraphAtom) !== shown) {

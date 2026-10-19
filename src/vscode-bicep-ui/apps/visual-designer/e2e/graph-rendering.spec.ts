@@ -284,6 +284,23 @@ test.describe("Graph rendering", () => {
     await expect.poll(async () => (await zIndex(edge)) < (await zIndex('[data-node-id="publicIp"]'))).toBe(true);
   });
 
+  test("lays out a node whose size changed at its new size", async ({ page }) => {
+    await loadSampleGraph(page, "flat");
+    await waitForStableNodePosition(page, "vnet");
+
+    // Becoming a collection changes a node's size without changing which nodes are shown.
+    await page.getByRole("button", { name: "Toggle collection" }).click();
+    for (const nodeId of FLAT_LAYOUT_ORDER) {
+      await waitForStableNodePosition(page, nodeId);
+    }
+    const afterChange = await getNodeBoxes(page, FLAT_LAYOUT_ORDER);
+
+    // Reset Layout lays out the same graph again, with every node certainly measured.
+    await page.getByTestId("control-reset-layout").click();
+
+    await expect.poll(() => nodesAreAt(page, afterChange)).toBe(true);
+  });
+
   test("renders a richer topology for the complex graph", async ({ page }) => {
     await loadSampleGraph(page, "complex");
 

@@ -4,8 +4,11 @@
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
 import {
+  committedGraphVersionAtom,
   getNodeTargetBox,
   graphBoundsAtom,
+  graphCommittedAtom,
+  graphVersionAtom,
   nodeConfigAtom,
   nodePositionsAtom,
   nodesByIdAtom,
@@ -87,5 +90,28 @@ describe("target boxes", () => {
     expect(getNodeTargetBox(store, "a")).toEqual({ min: { x: -10, y: -5 }, max: { x: 10, y: 5 } });
     expect(getNodeTargetBox(store, "container")).toEqual({ min: { x: -20, y: -15 }, max: { x: 120, y: 15 } });
     expect(store.get(graphBoundsAtom)).toEqual({ min: { x: -20, y: -15 }, max: { x: 120, y: 15 } });
+  });
+});
+
+describe("graphCommittedAtom", () => {
+  it("is false from setting a graph until the node layer commits it", () => {
+    const store = createGraphStore();
+    expect(store.get(graphCommittedAtom)).toBe(true);
+
+    store.set(setGraphAtom, graph);
+    expect(store.get(graphCommittedAtom)).toBe(false);
+
+    store.set(committedGraphVersionAtom, store.get(graphVersionAtom));
+    expect(store.get(graphCommittedAtom)).toBe(true);
+  });
+
+  it("is false again when only node data changes", () => {
+    const store = createGraphStore();
+    store.set(setGraphAtom, graph);
+    store.set(committedGraphVersionAtom, store.get(graphVersionAtom));
+
+    store.set(setGraphAtom, { ...graph, nodes: graph.nodes.map((node) => ({ ...node, data: "changed" })) });
+
+    expect(store.get(graphCommittedAtom)).toBe(false);
   });
 });

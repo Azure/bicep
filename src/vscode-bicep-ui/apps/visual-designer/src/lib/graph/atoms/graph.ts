@@ -30,6 +30,18 @@ export interface GraphInput {
   edges: readonly GraphEdgeInput[];
 }
 
+/** Counts `setGraphAtom` calls. */
+export const graphVersionAtom = atom(0);
+
+/** The `graphVersionAtom` value whose nodes React last committed. Set by `NodeLayer`. */
+export const committedGraphVersionAtom = atom(0);
+
+/**
+ * Whether React has committed the graph last set: every node in it has rendered its current data and
+ * measured itself, so the nodes' target boxes are up to date.
+ */
+export const graphCommittedAtom = atom((get) => get(committedGraphVersionAtom) === get(graphVersionAtom));
+
 function sameIds(left: readonly string[], right: readonly string[]): boolean {
   return left.length === right.length && left.every((id, index) => id === right[index]);
 }
@@ -87,6 +99,8 @@ export const setGraphAtom = atom(null, (get, set, graph: GraphInput) => {
   if (isNodeSetChanged) {
     set(nodesByIdAtom, nextNodes);
   }
+
+  set(graphVersionAtom, (version) => version + 1);
 
   const nextEdges = graph.edges.map(({ id, sourceId, targetId }) => ({ id, fromId: sourceId, toId: targetId }));
   if (!sameEdges(get(edgesAtom), nextEdges)) {

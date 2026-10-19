@@ -3,8 +3,9 @@
 
 import type { NodeState } from "../atoms";
 
-import { useAtomValue } from "jotai";
-import { nodesByIdAtom } from "../atoms";
+import { useAtomValue, useStore } from "jotai";
+import { useLayoutEffect } from "react";
+import { committedGraphVersionAtom, graphVersionAtom, nodesByIdAtom } from "../atoms";
 import { GraphNode } from "./GraphNode";
 
 export interface NodeLayerProps {
@@ -15,7 +16,15 @@ export interface NodeLayerProps {
 }
 
 export function NodeLayer({ exitingNodes, enteringNodeIds }: NodeLayerProps) {
+  const store = useStore();
   const nodesById = useAtomValue(nodesByIdAtom);
+  const graphVersion = useAtomValue(graphVersionAtom);
+
+  // Layout effects run children first, so by now every node in this commit has rendered and measured
+  // itself. Nodes are memoized, so rendering this layer for a new version re-renders only changed nodes.
+  useLayoutEffect(() => {
+    store.set(committedGraphVersionAtom, graphVersion);
+  }, [graphVersion, store]);
 
   return [
     ...Object.values(nodesById).map((node) => (
