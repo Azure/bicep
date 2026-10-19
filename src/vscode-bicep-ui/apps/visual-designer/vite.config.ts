@@ -69,7 +69,7 @@ function previewMock(): Plugin {
   return {
     name: "preview-mock",
     configurePreviewServer(server) {
-      const distDir = path.resolve(__dirname, "dist");
+      const distDir = path.resolve(import.meta.dirname, "dist");
       server.middlewares.use((req, res, next) => {
         if (req.url === "/" || req.url === "/index.html") {
           const html = fs.readFileSync(path.join(distDir, "index.html"), "utf-8");
@@ -97,11 +97,11 @@ export default defineConfig({
     alias: [
       {
         find: "@/",
-        replacement: path.resolve(__dirname, "src") + "/",
+        replacement: path.resolve(import.meta.dirname, "src") + "/",
       },
       {
         find: "@node_modules",
-        replacement: path.resolve(__dirname, "../../node_modules"),
+        replacement: path.resolve(import.meta.dirname, "../../node_modules"),
       },
     ],
   },
