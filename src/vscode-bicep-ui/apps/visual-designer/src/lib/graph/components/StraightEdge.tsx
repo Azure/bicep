@@ -2,23 +2,37 @@
 // Licensed under the MIT License.
 
 import type { NodeState } from "../atoms";
+import type { EdgeStackAnchor } from "../paint-order";
 
 import { atom, useStore } from "jotai";
 import { motion } from "motion/react";
-import { useEffect, useMemo, useRef } from "react";
+import { useContext, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { styled, useTheme } from "styled-components";
 import { boxesOverlap, getBoxCenter, getBoxCenterSegmentIntersection } from "@/lib/math";
+import { GraphContext } from "../context/GraphContext";
+import { cancelWrite, scheduleWrite } from "../hooks/batched-writes";
 import { NODE_ENTER_TRANSITION, NODE_EXIT_TRANSITION } from "../motion";
+import { getEdgeZIndex } from "../paint-order";
 
 const EDGE_FADE_TRANSITION = { duration: 0.1, ease: "easeOut" } as const;
+
+/** One SVG per edge, so each edge takes its own place in the stack of nodes. */
+const $EdgeSvg = styled.svg`
+  overflow: visible;
+  position: absolute;
+  pointer-events: none;
+`;
 
 const $EdgePath = styled(motion.path)`
   transition: stroke 180ms ease;
 `;
 
 export interface StraightEdgeProps {
+  id: string;
   from: NodeState;
   to: NodeState;
+  /** What the edge is stacked against as nodes are restacked. */
+  stackAnchors: readonly EdgeStackAnchor[];
   /** The edge appeared with a node that fades in, so it fades in with that node. */
   isEntering: boolean;
   /** The edge has left the graph and fades out. */
@@ -26,10 +40,34 @@ export interface StraightEdgeProps {
 }
 
 /** A straight edge between the boxes its nodes are drawn at, following them as they move. */
-export function StraightEdge({ from, to, isEntering, isExiting }: StraightEdgeProps) {
+export function StraightEdge({ id, from, to, stackAnchors, isEntering, isExiting }: StraightEdgeProps) {
   const theme = useTheme();
+  const svgRef = useRef<SVGSVGElement>(null);
   const ref = useRef<SVGPathElement>(null);
   const store = useStore();
+  const { paintOrderAtom } = useContext(GraphContext);
+  const zIndexAtom = useMemo(
+    () => atom((get) => getEdgeZIndex(get(paintOrderAtom), stackAnchors)),
+    [paintOrderAtom, stackAnchors],
+  );
+
+  // Restacking writes the z-index directly, so it re-renders no edges.
+  useLayoutEffect(() => {
+    const key = {};
+    const write = () => {
+      if (svgRef.current) {
+        svgRef.current.style.zIndex = String(store.get(zIndexAtom));
+      }
+    };
+
+    scheduleWrite(key, write);
+    const unsubscribe = store.sub(zIndexAtom, () => scheduleWrite(key, write));
+
+    return () => {
+      unsubscribe();
+      cancelWrite(key);
+    };
+  }, [store, zIndexAtom]);
   const segmentAtom = useMemo(
     () =>
       atom((get) => {
@@ -69,18 +107,20 @@ export function StraightEdge({ from, to, isEntering, isExiting }: StraightEdgePr
   }, [store, segmentAtom]);
 
   return (
-    <$EdgePath
-      ref={ref}
-      // An edge that appears with a graph change fades in rather than popping into view.
-      initial={{ opacity: 0 }}
-      animate={{ opacity: isExiting ? 0 : 1 }}
-      transition={isExiting ? NODE_EXIT_TRANSITION : isEntering ? NODE_ENTER_TRANSITION : EDGE_FADE_TRANSITION}
-      fill="none"
-      stroke={theme.edge.color}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.5}
-      markerEnd="url(#line-arrow)"
-    />
+    <$EdgeSvg ref={svgRef} data-edge-id={id}>
+      <$EdgePath
+        ref={ref}
+        // An edge that appears with a graph change fades in rather than popping into view.
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isExiting ? 0 : 1 }}
+        transition={isExiting ? NODE_EXIT_TRANSITION : isEntering ? NODE_ENTER_TRANSITION : EDGE_FADE_TRANSITION}
+        fill="none"
+        stroke={theme.edge.color}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        markerEnd="url(#line-arrow)"
+      />
+    </$EdgeSvg>
   );
 }

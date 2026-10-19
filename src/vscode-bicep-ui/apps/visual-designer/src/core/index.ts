@@ -13,12 +13,14 @@ export {
   documentErrorCountAtom,
   documentUriAtom,
   focusedNodeIdAtom,
+  focusNodeAtom,
   graphHasNodesAtom,
   isGraphChangeInProgressAtom,
   isColorThemeMatchedSettingAtom,
   isResourceEditingEnabledAtom,
   motionPolicyAtom,
   pendingResourcesAtom,
+  raisedNodeIdAtom,
   targetScopeAtom,
 } from "./atoms";
 export * from "./api";

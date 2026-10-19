@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { describe, expect, it } from "vitest";
-import { computePaintOrder } from "../paint-order";
+import { computePaintOrder, getEdgeZIndex, getNodeZIndex } from "../paint-order";
 
 const nodes = [
   { id: "a", parentId: null },
@@ -45,5 +45,37 @@ describe("computePaintOrder", () => {
 
   it("ignores a raised node that is not in the graph", () => {
     expect(order("missing")).toEqual(order(null));
+  });
+});
+
+describe("getEdgeZIndex", () => {
+  const paintOrder = computePaintOrder(nodes, null);
+  const below = (nodeId: string) => ({ nodeId, placement: "below" as const });
+
+  it("paints an edge just below its higher endpoint", () => {
+    const zIndex = getEdgeZIndex(paintOrder, [below("a"), below("b")]);
+
+    expect(zIndex).toBe(getNodeZIndex(paintOrder, "b") - 1);
+    expect(zIndex).toBeGreaterThan(getNodeZIndex(paintOrder, "m"));
+    expect(zIndex).toBeGreaterThan(getNodeZIndex(paintOrder, "z"));
+  });
+
+  it("paints an edge inside a container over its frame and under the higher endpoint", () => {
+    const zIndex = getEdgeZIndex(paintOrder, [below("y"), below("z")]);
+
+    expect(zIndex).toBeGreaterThan(getNodeZIndex(paintOrder, "n"));
+    expect(zIndex).toBeGreaterThan(getNodeZIndex(paintOrder, "y"));
+    expect(zIndex).toBeLessThan(getNodeZIndex(paintOrder, "z"));
+  });
+
+  it("raises an edge with a raised endpoint", () => {
+    const raised = computePaintOrder(nodes, "a");
+
+    expect(getEdgeZIndex(raised, [below("a"), below("b")])).toBeGreaterThan(getNodeZIndex(raised, "m"));
+  });
+
+  it("paints an edge leaving a container above it, and one with no anchors at the bottom", () => {
+    expect(getEdgeZIndex(paintOrder, [{ nodeId: "n", placement: "above" }])).toBe(getNodeZIndex(paintOrder, "n") + 1);
+    expect(getEdgeZIndex(paintOrder, [below("missing")])).toBe(0);
   });
 });

@@ -6,8 +6,9 @@ import { useCallback } from "react";
 import { styled, ThemeProvider } from "styled-components";
 import {
   canvasElementAtom,
-  focusedNodeIdAtom,
+  focusNodeAtom,
   isGraphChangeInProgressAtom,
+  raisedNodeIdAtom,
   useGraphActions,
   useGraphApi,
   useIsMotionReduced,
@@ -39,7 +40,7 @@ const $InteractionShield = styled.div`
 export function Canvas() {
   const { handleNodeDragStart, handleNodeDrag, handleNodeDragEnd } = useGraphActions();
   const api = useGraphApi();
-  const setFocusedNodeId = useSetAtom(focusedNodeIdAtom);
+  const focusNode = useSetAtom(focusNodeAtom);
   const revealNode = useCallback((nodeId: string) => api.revealNode(nodeId), [api]);
   const reduceMotion = useIsMotionReduced();
   const isGraphChangeInProgress = useAtomValue(isGraphChangeInProgressAtom);
@@ -57,10 +58,10 @@ export function Canvas() {
             aria-busy={isGraphChangeInProgress}
             tabIndex={0}
           >
-            <Viewport onNodeClick={setFocusedNodeId}>
+            <Viewport onNodeClick={focusNode}>
               <PendingResourceLayer />
               <Graph
-                raisedNodeIdAtom={focusedNodeIdAtom}
+                raisedNodeIdAtom={raisedNodeIdAtom}
                 reduceMotion={reduceMotion}
                 onNodeDragStart={handleNodeDragStart}
                 onNodeDrag={handleNodeDrag}

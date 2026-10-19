@@ -6,7 +6,7 @@ import type { NodePositions } from "../node-positions";
 import { useStore } from "jotai";
 import { useCallback, useMemo, useRef } from "react";
 import { getDrawnCenters } from "@/lib/graph";
-import { collapsedModuleIdsAtom, shownGraphAtom, sourceGraphAtom, undoHistoryAtom } from "../atoms";
+import { collapsedModuleIdsAtom, raisedNodeIdAtom, shownGraphAtom, sourceGraphAtom, undoHistoryAtom } from "../atoms";
 import { getDescendantIds } from "../graph-model";
 import { getNodePositions, getPositionedNodeIds, moveNodes, setNodePositions, translateNodes } from "../node-positions";
 import { recordLayoutChange } from "../undo-history";
@@ -25,7 +25,7 @@ export interface NodeDragHandlers {
 }
 
 /**
- * Moves dragged nodes, and records each drag as one undo step. Dragging a container moves what is inside
+ * Moves dragged nodes, and records each drag as one undo step. A dragged node is raised above the others. Dragging a container moves what is inside
  * it, and dragging a collapsed module moves its hidden contents with it.
  */
 export function useNodeDrag(): NodeDragHandlers {
@@ -50,6 +50,7 @@ export function useNodeDrag(): NodeDragHandlers {
       setNodePositions(store, grabbed, "instant");
 
       dragsRef.current.set(nodeId, { positionsBefore, movedNodeIds });
+      store.set(raisedNodeIdAtom, nodeId);
     },
     [store],
   );

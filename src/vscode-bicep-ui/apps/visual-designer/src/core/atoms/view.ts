@@ -5,9 +5,23 @@ import { atom } from "jotai";
 
 /**
  * The ID of the focused node, or null when nothing is focused. Clicking a node focuses it and
- * clicking the canvas background clears it. The canvas raises the focused node above the others.
+ * clicking the canvas background clears it.
  */
 export const focusedNodeIdAtom = atom<string | null>(null);
+
+/**
+ * The node painted above the others: the one most recently focused or dragged. Dragging a node raises
+ * it without focusing it, and it stays raised until another node is focused or dragged.
+ */
+export const raisedNodeIdAtom = atom<string | null>(null);
+
+/** Focus a node, which also raises it, or clear focus with null. */
+export const focusNodeAtom = atom(null, (_get, set, nodeId: string | null) => {
+  set(focusedNodeIdAtom, nodeId);
+  if (nodeId !== null) {
+    set(raisedNodeIdAtom, nodeId);
+  }
+});
 
 /**
  * The modules the user collapsed: a local view choice that never edits Bicep source and is not an

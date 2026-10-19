@@ -141,7 +141,14 @@ centers with the measured sizes. `lib/graph` derives each node's target box from
 size it measured, and owns where each node is drawn: a node springs toward its target, a container
 encloses where its children are drawn, and a node that becomes a container or stops being one morphs
 from the box it was drawn at. Only the drawn boxes move during an animation, so the positions core
-saves, sends, and records are always where nodes are going.
+saves, sends, and records are always where nodes are going. Layout waits until every shown node
+has measured itself, so the centers it computes use real sizes.
+
+Nodes are stacked in tree order, containers before their contents, with the node most recently
+focused or dragged raised above its siblings along with each of its ancestors. Dragging raises a node
+without focusing it. Each edge is painted just below its higher endpoint, so it rises with a raised
+node instead of passing under a container that node is above. Bicep edges always join siblings, so
+an edge is never painted over another container's contents.
 
 Later stages extend these boundaries rather than move them:
 

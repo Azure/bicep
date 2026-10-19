@@ -219,7 +219,10 @@ point. It reads the canvas element from core's `canvasElementAtom`, so the palet
 
 `lib/graph` treats node IDs as opaque and knows nothing about Bicep, focus, or modules. Containment
 comes from each node's `parentId`. `Graph` paints containers before their contents and raises the
-node in `raisedNodeIdAtom` (the canvas passes core's `focusedNodeIdAtom`) above the others. It reports
+node in `raisedNodeIdAtom` above the others; the canvas passes core's, which holds the node most
+recently focused or dragged, so dragging raises a node without focusing it. Each edge is painted just
+below its higher endpoint, so it comes up with a raised node and is never hidden under a container
+that node is above. It reports
 gestures for the app to act on: `onNodeDragStart`, `onNodeDrag`, `onNodeDragEnd`, and
 `onNodeDoubleClick` on `Graph`, and `onNodeClick` on `Viewport`. Node content marks its own controls
 with `graphInteractiveProps`, so pressing one neither drags or focuses the node nor pans the canvas.

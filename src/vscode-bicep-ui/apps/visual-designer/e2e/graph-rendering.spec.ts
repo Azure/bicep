@@ -259,6 +259,31 @@ test.describe("Graph rendering", () => {
     await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
   });
 
+  test("paints an edge with its higher endpoint, above a module it crosses", async ({ page }) => {
+    await loadSampleGraph(page, "module");
+    const zIndex = (selector: string) =>
+      page.locator(selector).evaluate((element) => Number(getComputedStyle(element).zIndex) || 0);
+    const edge = '[data-edge-id="networkInterface->publicIp"]';
+    const moduleNode = '[data-node-id="myModule"]';
+
+    await page.locator('[data-node-id="myModule::vmResource"]').click();
+    await expect.poll(async () => (await zIndex(edge)) < (await zIndex(moduleNode))).toBe(true);
+
+    // Dragging an endpoint over the module raises it, and its edge comes up with it.
+    await waitForStableNodePosition(page, "publicIp");
+    const moduleBox = (await page.locator(moduleNode).boundingBox())!;
+    const publicIpBox = (await page.locator('[data-node-id="publicIp"]').boundingBox())!;
+    await dragNode(
+      page,
+      "publicIp",
+      moduleBox.x + moduleBox.width / 2 - (publicIpBox.x + publicIpBox.width / 2),
+      moduleBox.y + moduleBox.height / 2 - (publicIpBox.y + 12),
+    );
+
+    await expect.poll(async () => (await zIndex(edge)) > (await zIndex(moduleNode))).toBe(true);
+    await expect.poll(async () => (await zIndex(edge)) < (await zIndex('[data-node-id="publicIp"]'))).toBe(true);
+  });
+
   test("renders a richer topology for the complex graph", async ({ page }) => {
     await loadSampleGraph(page, "complex");
 

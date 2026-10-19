@@ -10,7 +10,7 @@ import { useCallback } from "react";
 import { getNodeTargetBox } from "@/lib/graph";
 import { getBoxCenter } from "@/lib/math";
 import { getErrorMessage } from "@/utils";
-import { collapsedModuleIdsAtom, focusedNodeIdAtom, shownGraphAtom, sourceGraphAtom } from "../atoms";
+import { collapsedModuleIdsAtom, focusedNodeIdAtom, focusNodeAtom, shownGraphAtom, sourceGraphAtom } from "../atoms";
 import { getDescendantIds, isDescendant, projectGraph } from "../graph-model";
 import { getNodePositions, setNodePositions } from "../node-positions";
 import { showGraph } from "../show-graph";
@@ -54,7 +54,7 @@ export function useModuleCollapse(
 
         const focusedNodeId = store.get(focusedNodeIdAtom);
         if (focusedNodeId !== null && isDescendant(source, focusedNodeId, moduleId)) {
-          store.set(focusedNodeIdAtom, moduleId);
+          store.set(focusNodeAtom, moduleId);
         }
       } else {
         collapsedModuleIds.delete(moduleId);

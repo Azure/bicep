@@ -13,20 +13,26 @@ import {
   waitForStableNodePosition,
 } from "./fixtures";
 
-/** The focused node, which must also be painted above every other node. */
+/** The focused node, or null when no node is focused. */
 async function focusedNodeId(page: Page): Promise<string | null> {
   return page.evaluate(() => {
-    const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-node-id]"));
-    const focused = nodes.filter((element) => element.querySelector('[data-focused="true"]') !== null);
-    const [node] = focused;
-    if (!node || focused.length > 1) {
-      return focused.length > 1 ? "<several>" : null;
-    }
+    const focused = Array.from(document.querySelectorAll<HTMLElement>("[data-node-id]")).filter(
+      (element) => element.querySelector('[data-focused="true"]') !== null,
+    );
 
-    const zIndex = (element: HTMLElement) => Number(getComputedStyle(element).zIndex) || 0;
-    return nodes.every((other) => other === node || zIndex(other) < zIndex(node))
-      ? (node.dataset.nodeId ?? "")
-      : "<not raised>";
+    return focused.length > 1 ? "<several>" : (focused[0]?.dataset.nodeId ?? null);
+  });
+}
+
+/** The node painted above every other node. */
+async function topNodeId(page: Page): Promise<string | null> {
+  return page.evaluate(() => {
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-node-id]"))
+      .map((element) => ({ id: element.dataset.nodeId ?? "", z: Number(getComputedStyle(element).zIndex) || 0 }))
+      .sort((a, b) => b.z - a.z);
+    const [top, next] = nodes;
+
+    return top && (!next || top.z > next.z) ? top.id : null;
   });
 }
 
@@ -43,6 +49,7 @@ test.describe("Node interactions", () => {
     await target.click();
 
     await expect.poll(() => focusedNodeId(page)).toBe("vnet");
+    await expect.poll(() => topNodeId(page)).toBe("vnet");
   });
 
   test("a click with less than 4px of pointer movement still focuses a node", async ({ page }) => {
@@ -157,7 +164,7 @@ test.describe("Node interactions", () => {
     await expect(canvas).not.toHaveClass(/\bgrabbing\b/);
   });
 
-  test("slow multi-event node dragging does not steal focus", async ({ page }) => {
+  test("slow multi-event node dragging raises the node without stealing focus", async ({ page }) => {
     await page.locator('[data-node-id="subnet"]').click();
     await expect.poll(() => focusedNodeId(page)).toBe("subnet");
     const original = await waitForStableNodePosition(page, "vnet");
@@ -176,6 +183,7 @@ test.describe("Node interactions", () => {
 
     await expect.poll(async () => (await target.boundingBox())?.x).toBeGreaterThan(original.x + 4);
     await expect.poll(() => focusedNodeId(page)).toBe("subnet");
+    await expect.poll(() => topNodeId(page)).toBe("vnet");
   });
 
   test("a node grabbed while it animates stays under the pointer", async ({ page }) => {

@@ -51,14 +51,35 @@ export function computePaintOrder(nodes: Iterable<PaintOrderNode>, raisedNodeId:
   return order;
 }
 
-/** Edges between root nodes are painted below every node. */
-export const ROOT_EDGES_Z_INDEX = -1;
-
 export function getNodeZIndex(paintOrder: ReadonlyMap<string, number>, nodeId: string): number {
   return 2 * (paintOrder.get(nodeId) ?? 0) + 2;
 }
 
-/** Edges inside a container are painted over its frame and under its children. */
-export function getContainerEdgesZIndex(paintOrder: ReadonlyMap<string, number>, containerId: string): number {
-  return getNodeZIndex(paintOrder, containerId) + 1;
+/**
+ * A node an edge is stacked against: just below an endpoint, or just above the container that an exiting
+ * endpoint is leaving.
+ */
+export interface EdgeStackAnchor {
+  nodeId: string;
+  placement: "below" | "above";
+}
+
+/** An edge with nothing to stack against is painted below every node. */
+const BOTTOM_Z_INDEX = 0;
+
+/**
+ * The z-index of an edge: just below its higher endpoint, so an edge comes up with a node that is raised
+ * above a container, and it never covers its own endpoints. Edges between nodes inside a container are
+ * therefore painted over its frame. Each z-index sits between two nodes', so edges never tie with nodes.
+ */
+export function getEdgeZIndex(paintOrder: ReadonlyMap<string, number>, anchors: readonly EdgeStackAnchor[]): number {
+  let zIndex = BOTTOM_Z_INDEX;
+
+  for (const { nodeId, placement } of anchors) {
+    if (paintOrder.has(nodeId)) {
+      zIndex = Math.max(zIndex, getNodeZIndex(paintOrder, nodeId) + (placement === "below" ? -1 : 1));
+    }
+  }
+
+  return zIndex;
 }
