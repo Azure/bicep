@@ -15,10 +15,10 @@
     <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.940" />
     <PackageVersion Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
     <PackageVersion Include="Azure.Containers.ContainerRegistry" Version="1.3.0" />
-    <PackageVersion Include="Azure.Deployments.Engine" Version="1.765.0" />
+    <PackageVersion Include="Azure.Deployments.Engine" Version="1.812.0" />
     <PackageVersion Include="Azure.Deployments.Extensibility.Core" Version="0.1.67" />
     <PackageVersion Include="Azure.Deployments.Internal.GenerateNotice" Version="0.1.60" />
-    <PackageVersion Include="Azure.Deployments.Templates" Version="1.765.0" />
+    <PackageVersion Include="Azure.Deployments.Templates" Version="1.812.0" />
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
     <PackageVersion Include="Azure.ResourceManager.ResourceGraph" Version="1.1.1" />
     <PackageVersion Include="Azure.ResourceManager.Resources" Version="1.11.2" />
@@ -41,7 +41,7 @@
     <PackageVersion Include="JsonSchema.Net" Version="7.3.3" />
     <PackageVersion Include="MSTest" Version="3.9.2" />
     <PackageVersion Include="Markdig" Version="1.3.2" />
-    <PackageVersion Include="MessagePack" Version="3.1.7" />
+    <PackageVersion Include="MessagePack" Version="3.1.9" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.9" />
     <PackageVersion Include="Microsoft.Build.Framework" Version="18.10.1" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.10.1" />
@@ -105,7 +105,8 @@
     <!-- force an upgrade of this dependency as it seems to cause build flakiness for unknown reasons -->
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
     <!-- pin to patched version to resolve known vulnerabilities -->
-    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.10" />
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.13" />
     <PackageVersion Include="System.Text.Json" Version="10.0.12" />
     <PackageVersion Include="Tools.InnoSetup" Version="6.0.5" />
   </ItemGroup>
