@@ -62,7 +62,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="main.bicep" />
-    <None Include="packages.lock.json" />
   </ItemGroup>
   <ItemGroup>
     <VSTemplate Include="CSharp.vstemplate">
