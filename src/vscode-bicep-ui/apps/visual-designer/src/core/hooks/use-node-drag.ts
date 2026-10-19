@@ -6,7 +6,14 @@ import type { NodePositions } from "../node-positions";
 import { useStore } from "jotai";
 import { useCallback, useMemo, useRef } from "react";
 import { getDrawnCenters } from "@/lib/graph";
-import { collapsedModuleIdsAtom, raisedNodeIdAtom, shownGraphAtom, sourceGraphAtom, undoHistoryAtom } from "../atoms";
+import {
+  collapsedModuleIdsAtom,
+  isGraphChangeInProgressAtom,
+  raisedNodeIdAtom,
+  shownGraphAtom,
+  sourceGraphAtom,
+  undoHistoryAtom,
+} from "../atoms";
 import { getDescendantIds } from "../graph-model";
 import { getNodePositions, getPositionedNodeIds, moveNodes, setNodePositions, translateNodes } from "../node-positions";
 import { recordLayoutChange } from "../undo-history";
@@ -26,7 +33,8 @@ export interface NodeDragHandlers {
 
 /**
  * Moves dragged nodes, and records each drag as one undo step. A dragged node is raised above the others. Dragging a container moves what is inside
- * it, and dragging a collapsed module moves its hidden contents with it.
+ * it, and dragging a collapsed module moves its hidden contents with it. A drag that starts while a source
+ * edit or Reset Layout is in flight is ignored.
  */
 export function useNodeDrag(): NodeDragHandlers {
   const store = useStore();
@@ -34,6 +42,11 @@ export function useNodeDrag(): NodeDragHandlers {
 
   const handleNodeDragStart = useCallback(
     (nodeId: string) => {
+      // A drag records an undo step, so none starts while a source edit or Reset Layout is in flight.
+      if (store.get(isGraphChangeInProgressAtom)) {
+        return;
+      }
+
       const source = store.get(sourceGraphAtom);
       const shown = store.get(shownGraphAtom);
       const subtreeIds = new Set([nodeId, ...getDescendantIds(shown, nodeId)]);

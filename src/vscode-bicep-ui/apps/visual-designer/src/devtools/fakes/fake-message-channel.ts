@@ -143,7 +143,13 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
 
     if (requestMessage.method === layoutGraphRequest.method) {
       const { graph, revision } = requestMessage.params as LayoutGraphParams;
-      return Promise.resolve(layoutGraph(graph, revision, this.servedGraph) as T);
+      // Read when the host answers, so a layout held open by `layoutDelay` sees later graph changes.
+      const answer = () => layoutGraph(graph, revision, this.servedGraph) as T;
+      const delay = Number(new URLSearchParams(window.location.search).get("layoutDelay") ?? 0);
+
+      return Number.isFinite(delay) && delay > 0
+        ? new Promise<T>((resolve) => setTimeout(() => resolve(answer()), delay))
+        : Promise.resolve(answer());
     }
     if (requestMessage.method === createResource.method) {
       if (new URLSearchParams(window.location.search).get("resourceEditing") === "false") {

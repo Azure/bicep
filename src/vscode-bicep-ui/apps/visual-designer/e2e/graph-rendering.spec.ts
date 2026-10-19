@@ -248,6 +248,31 @@ test.describe("Graph rendering", () => {
     await expect.poll(() => nodesAreAt(page, storageBefore)).toBe(true);
   });
 
+  test("toggles a module during Reset Layout and ignores a node drag that starts meanwhile", async ({ page }) => {
+    await openVisualDesigner(page, { layoutDelay: "1500" });
+    await loadSampleGraph(page, "module");
+    await waitForStableNodePosition(page, "myModule::storageAccount");
+    const reset = page.getByTestId("control-reset-layout");
+
+    await reset.click();
+    await expect(reset).toBeDisabled();
+
+    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
+
+    const unrelatedBefore = await waitForStableNodePosition(page, "networkInterface");
+    await dragNode(page, "networkInterface", 200, 0);
+    const unrelatedAfter = await page.locator('[data-node-id="networkInterface"]').boundingBox();
+    // Both happened while the reset was still in flight.
+    await expect(reset).toBeDisabled();
+    expect(unrelatedAfter?.x).toBeCloseTo(unrelatedBefore.x, 0);
+
+    // The reset lays out what is shown once it completes: the collapsed card.
+    await expect(reset).toBeEnabled({ timeout: 15_000 });
+    await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
+    await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
+  });
+
   test("preserves collapsed state across graph refreshes", async ({ page }) => {
     await loadSampleGraph(page, "module");
     await page.getByRole("button", { name: "Collapse module myModule" }).click();

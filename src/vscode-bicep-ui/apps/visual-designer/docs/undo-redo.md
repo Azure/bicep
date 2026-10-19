@@ -100,26 +100,30 @@ The extension stores each creation's node ID and inserted text, not offsets, has
 copies, so unrelated edits and designer replays never need to be reconciled with it.
 
 Node movement starts a snapshot at the first actual drag movement and commits once at gesture end.
-A module drag records all atomic descendants as one step. Reset Layout records the settled and
-server target positions as one step **only after a successful layout**. Settled positions are the
-targets of any animation the reset interrupts, so undoing it never stops partway through one. History never records
-pan, zoom, focus, chooser opening, cancellation, automatic layout, or animation frames.
-Layout undo/redo springs between recorded positions using the graph's existing animation. A
-new layout action retargets an in-flight spring from the current visual position; a drag stops
-it. Effective reduced motion snaps directly to the target. These visual transitions do not
-change the camera, issue a layout request, or add extra history steps.
+A module drag records all atomic descendants as one step, and dragging a collapsed module records its
+hidden contents too. Reset Layout records the positions before and after as one step **only after a
+successful layout**. Positions are targets, so a reset or drag that interrupts an animation records
+where the nodes were heading, and undoing it never stops partway through one. History never records
+pan, zoom, focus, collapsing or expanding a module, chooser opening, cancellation, automatic layout, or
+animation frames.
+Layout undo/redo springs between recorded positions using the graph's existing animation, including
+the positions of nodes hidden in a collapsed module, which are in place when it opens. A new layout
+action retargets an in-flight spring from the current visual position; a drag picks a moving node up
+where it is drawn. Effective reduced motion snaps directly to the target. These visual transitions do
+not change the camera, issue a layout request, or add extra history steps.
 
 ## Ordering and conflicts
 
 - The graph coordinator serializes source mutations and reconciles the document after both
   successful and failed attempts. While a source action or Reset Layout request is pending,
-  Undo, Redo, and Reset Layout are disabled and a canvas shield prevents another node gesture
-  from starting.
+  Undo, Redo, and Reset Layout are disabled and a node drag that starts is ignored. Collapsing and
+  expanding modules, focus, source reveal, and pan and zoom stay available.
 - A failed edit, disabled setting, or rejected workspace edit leaves the history cursor in place
   and logs an error without an in-canvas notification. A step that fails the language server's
   check when clicked leaves the history and the failure is logged. No unverified inverse is applied.
-- Reconciliation removes layout snapshots for nodes that disappear or change kind. A node
-  temporarily absent because its **designer creation was undone** retains its redo snapshots;
+- Reconciliation removes layout snapshots for nodes that leave the source graph. Nodes hidden in a
+  collapsed module are still in it, so they keep theirs. A node temporarily absent because its
+  **designer creation was undone** retains its redo snapshots;
   replaying creation restores its drop point before later layout steps can be redone.
 - A source edit made directly in the Bicep editor, an editor Undo/Redo, another extension, or
   another visualizer panel triggers a graph update like any other change. If it edited, referenced,

@@ -89,6 +89,7 @@ The playground's own theme picker switches between VS Code's built-in color them
 | `catalogDelay=5000`                      | Delay the resource type catalog response in milliseconds                              |
 | `versionsDelay=1000`                     | Delay per-type API-version responses in milliseconds                                  |
 | `versionFailures=1`                      | Fail the first N version requests to exercise retry                                   |
+| `layoutDelay=1500`                       | Delay layout responses in milliseconds, holding layouts and Reset Layout open         |
 | `motionPolicy=reduce`                    | Use reduced motion for graph layout and designer undo/redo in the fake host           |
 | `withholdGraphUpdatesAfterCreation=true` | Return empty graph updates while a designer-created resource is in source             |
 | `skipGraphUpdateAfterUndo=true`          | Withhold an undone creation's removal until the graph changes again                   |

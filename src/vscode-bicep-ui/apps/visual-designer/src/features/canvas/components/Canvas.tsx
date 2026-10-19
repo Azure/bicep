@@ -29,13 +29,6 @@ const $CanvasWrapper = styled.div`
   }
 `;
 
-const $InteractionShield = styled.div`
-  position: absolute;
-  inset: 0;
-  z-index: 80;
-  cursor: progress;
-`;
-
 /** The surface that renders the graph. */
 export function Canvas() {
   const { handleNodeDragStart, handleNodeDrag, handleNodeDragEnd } = useGraphActions();
@@ -71,8 +64,6 @@ export function Canvas() {
                 <ExportAreaCover />
               </Graph>
             </Viewport>
-            {/* Blocks node gestures while a source edit or layout reset is in flight. */}
-            {isGraphChangeInProgress && <$InteractionShield />}
           </$CanvasWrapper>
         </ThemeProvider>
       </NodeContentProvider>
