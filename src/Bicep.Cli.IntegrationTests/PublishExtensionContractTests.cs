@@ -57,6 +57,32 @@ public class PublishExtensionContractTests : TestBase
     }
 
     [TestMethod]
+    public async Task Publish_extension_with_contract_v2_should_push_one_v2_binary_layer_per_rid()
+    {
+        var (settings, blobClient) = CreateRegistrySettings();
+        var indexPath = SaveTestExtensionIndex();
+        var linuxBinaryPath = FileHelper.SaveResultFile(TestContext, "linux-x64.bin", "linux-x64 binary");
+        var windowsBinaryPath = FileHelper.SaveResultFile(TestContext, "win-x64.bin", "win-x64 binary");
+
+        var result = await Bicep(settings, "publish-extension", indexPath, "--contract", "v2", "--bin-linux-x64", linuxBinaryPath, "--bin-win-x64", windowsBinaryPath, "--target", Target);
+
+        result.Should().Succeed();
+
+        var manifest = GetManifest(blobClient);
+        var binaryLayers = manifest.Layers.Skip(1).ToDictionary(x => x.MediaType, x => blobClient.Blobs[x.Digest].ToString());
+        using (new AssertionScope())
+        {
+            manifest.Layers[0].MediaType.Should().Be(TypesLayerMediaType);
+            binaryLayers.Should().BeEquivalentTo(new Dictionary<string, string>
+            {
+                [V2LinuxX64BinaryMediaType] = "linux-x64 binary",
+                ["application/vnd.ms.bicep.provider.layer.v2.win-x64.binary"] = "win-x64 binary",
+            });
+            GetConfig(blobClient, manifest).EnumerateObject().Should().BeEmpty();
+        }
+    }
+
+    [TestMethod]
     public async Task Publish_extension_without_contract_should_use_v1_binary_layers()
     {
         var (settings, blobClient) = CreateRegistrySettings();
