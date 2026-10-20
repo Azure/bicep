@@ -47,8 +47,8 @@ namespace Bicep.Core.IntegrationTests.Semantics
                 .ThenBy(x => x.Span.Length)
                 .ThenBy(x => x.Message, StringComparer.Ordinal);
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", diagnostics,
-                diag => OutputHelper.GetDiagLoggingString(data.Parameters.EmbeddedFile.Contents, data.FileSet.OutputDirectoryPath, diag));
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.GetContents(), "\n", diagnostics,
+                diag => OutputHelper.GetDiagLoggingString(data.Parameters.EmbeddedFile.GetContents(), data.FileSet.OutputDirectoryPath, diag));
 
             sourceTextWithDiags.Should().MatchTextBaseline(data.Diagnostics);
         }
@@ -74,7 +74,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                 return $"{symbol.Kind} {symbol.Name}. Type: {symbol.Type}. Declaration start char: {startChar}, length: {symbol.DeclaringSyntax.Span.Length}";
             }
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", symbols, symb => symb.NameSource.Span, getLoggingString);
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.GetContents(), "\n", symbols, symb => symb.NameSource.Span, getLoggingString);
 
             sourceTextWithDiags.Should().MatchTextBaseline(data.Symbols);
         }

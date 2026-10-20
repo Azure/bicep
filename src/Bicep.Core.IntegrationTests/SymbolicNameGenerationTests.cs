@@ -20,7 +20,7 @@ public class SymbolicNameTests
 
     [TestMethod]
     [TestCategory(TestCategories.Baseline)]
-    [TestEmbeddedFileData(@"Files/SymbolicNameTests/ResourceInfo/.*/main\.bicep")]
+    [TestEmbeddedFiles(@"Files/SymbolicNameTests/ResourceInfo/.*/main\.bicep")]
     public async Task ResourceInfoCodegenEnabled_output_is_valid(EmbeddedFile bicepFile)
         => await ExamplesTests.RunExampleTest(TestContext, bicepFile, new(TestContext, ResourceInfoCodegenEnabled: true));
 

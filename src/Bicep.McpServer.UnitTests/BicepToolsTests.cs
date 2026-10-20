@@ -57,7 +57,7 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    [TestEmbeddedFileData(@"Files/GetAzResourceSchema/.*\.json")]
+    [TestEmbeddedFiles(@"Files/GetAzResourceSchema/.*\.json")]
     [TestCategory(TestCategories.Baseline)]
     public void GetAzureResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
     {
@@ -72,7 +72,7 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    [TestEmbeddedFileData(@"Files/GetAzResourceSchemaTrimmed/.*\.json")]
+    [TestEmbeddedFiles(@"Files/GetAzResourceSchemaTrimmed/.*\.json")]
     [TestCategory(TestCategories.Baseline)]
     public void GetAzureResourceTypeSchema_returns_trimmed_resource_schema(EmbeddedFile jsonFile)
     {
@@ -332,7 +332,7 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    [TestEmbeddedFileData(@"Files/GetExtensionResourceSchema/.*\.json")]
+    [TestEmbeddedFiles(@"Files/GetExtensionResourceSchema/.*\.json")]
     [TestCategory(TestCategories.Baseline)]
     public async Task GetExtensionResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
     {
@@ -358,7 +358,7 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    [TestEmbeddedFileData(@"Files/GetExtensionResourceSchemaTrimmed/.*\.json")]
+    [TestEmbeddedFiles(@"Files/GetExtensionResourceSchemaTrimmed/.*\.json")]
     [TestCategory(TestCategories.Baseline)]
     public async Task GetExtensionResourceTypeSchema_returns_trimmed_resource_schema(EmbeddedFile jsonFile)
     {

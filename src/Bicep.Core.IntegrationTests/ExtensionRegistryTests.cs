@@ -32,7 +32,7 @@ public class ExtensionRegistryTests : TestBase
 
     [TestMethod]
     [TestCategory(TestCategories.Baseline)]
-    [TestEmbeddedFileData(@"Files/ExtensionRegistryTests/http/types/index.json")]
+    [TestEmbeddedFiles(@"Files/ExtensionRegistryTests/http/types/index.json")]
     public void Http_extension_can_be_generated(EmbeddedFile indexJson)
     {
         var baselineFiles = TestContext.MaterializeBaseline(indexJson);
@@ -991,7 +991,7 @@ resource bazRes 'bar:fooType@v1' = {
 
         var services = ExtensionTestHelper.GetServiceBuilder(new MockFileSystem(), registry, repository, AllFeaturesEnabled);
         var typesTgz = new EmbeddedFile(typeof(ExtensionRegistryTests).Assembly, "Files/ExtensionTypes/msgraph-1.0.0-types.tgz");
-        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.0.0", typesTgz.BinaryData);
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.0.0", typesTgz.GetBinaryData());
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
             param application object

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Testing.Assertions.Json;
+using Bicep.Testing.IO;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using FluentAssertions;
@@ -21,8 +22,8 @@ public static class BaselineAssertionsExtensions
 
         return instance.MatchTextBaseline(
             baselineFile.TestContext,
-            baselineFile.EmbeddedFile.Contents,
-            baselineFile.EmbeddedFile.RelativeSourcePath,
+            baselineFile.EmbeddedFile.GetContents(),
+            baselineFile.EmbeddedFile.GetRelativeSourcePath(),
             baselineFile.OutputFilePath,
             because,
             becauseArgs);
@@ -34,8 +35,8 @@ public static class BaselineAssertionsExtensions
 
         JToken.Parse(instance.Subject).Should().MatchJsonBaseline(
             baselineFile.TestContext,
-            JToken.Parse(baselineFile.EmbeddedFile.Contents),
-            baselineFile.EmbeddedFile.RelativeSourcePath,
+            JToken.Parse(baselineFile.EmbeddedFile.GetContents()),
+            baselineFile.EmbeddedFile.GetRelativeSourcePath(),
             baselineFile.OutputFilePath,
             because,
             validateLocation: true,
@@ -74,8 +75,8 @@ public static class BaselineAssertionsExtensions
 
         return instance.MatchJsonBaseline(
             baselineFile.TestContext,
-            JToken.Parse(baselineFile.EmbeddedFile.Contents),
-            baselineFile.EmbeddedFile.RelativeSourcePath,
+            JToken.Parse(baselineFile.EmbeddedFile.GetContents()),
+            baselineFile.EmbeddedFile.GetRelativeSourcePath(),
             baselineFile.OutputFilePath,
             because,
             validateLocation: true,

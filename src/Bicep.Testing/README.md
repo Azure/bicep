@@ -45,12 +45,12 @@ using Bicep.Testing.Assertions.Json;
 
 ## Baselines
 
-Use `TestEmbeddedFileData` for embedded baseline test data and materialize its file set through the test context:
+Use `TestEmbeddedFiles` for embedded baseline test data and materialize its file set through the test context:
 
 ```csharp
 [TestMethod]
 [TestCategory(TestCategories.Baseline)]
-[TestEmbeddedFileData(@"Files/Scenarios/.*/main\.bicep")]
+[TestEmbeddedFiles(@"Files/Scenarios/.*/main\.bicep")]
 public void Produces_expected_output(EmbeddedFile inputFile)
 {
     var files = TestContext.MaterializeBaseline(inputFile);
@@ -62,6 +62,15 @@ public void Produces_expected_output(EmbeddedFile inputFile)
 ```
 
 Use `MatchTextBaseline(...)` for text and `MatchJsonBaseline(...)` for JSON. Both write the actual result to `OutputFilePath`, support baseline updates, and report a diff against the checked-in embedded file. `BaselineDirectory` exposes `EntryFile`, `OutputDirectoryPath`, `GetFile(...)`, and `GetFileForPath(...)` without introducing URI conversions.
+
+`EmbeddedFile` and `EmbeddedFilesTestDataAttribute` come from the `Azure.Deployments.Testing.Utilities` package. Import them with type aliases rather than the package namespace, which also defines `JToken.Should()` and `TestContext` extensions that conflict with `Bicep.Testing`. Alias the attribute as `TestEmbeddedFiles`:
+
+```csharp
+global using EmbeddedFile = Azure.Deployments.Testing.Utilities.EmbeddedFile;
+global using TestEmbeddedFilesAttribute = Azure.Deployments.Testing.Utilities.EmbeddedFilesTestDataAttribute;
+```
+
+Use `GetContents()` and `GetBinaryData()` from `Bicep.Testing.IO` to read embedded files; they fail if the resource is missing.
 
 ## Compiler Recipes
 
@@ -215,7 +224,7 @@ services
 - Public compiler and service test toolkit types live in the `Bicep.Testing` root namespace.
 - `Fake*`, `Mock*`, and `Dummy*` implementations live under `Fakes`, `Mocks`, and `Dummies`.
 - Assertion infrastructure that is not itself a public `Test*` type lives under `Assertions`.
-- `EmbeddedFile`, `TestFileData`, `TestFileSet`, `TestFileUri`, and virtual file-set implementations live under `IO`.
+- `EmbeddedFile` extensions, `TestFileData`, `TestFileSet`, `TestFileUri`, and virtual file-set implementations live under `IO`.
 - Do not create a catch-all `Bicep.Testing.Utils` namespace.
 
 ## Migration Rules

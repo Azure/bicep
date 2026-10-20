@@ -25,7 +25,7 @@ public class ServerTests
     public TestContext? TestContext { get; set; }
 
     [TestMethod]
-    [TestEmbeddedFileData(@"Files/ServerTests/tools.json")]
+    [TestEmbeddedFiles(@"Files/ServerTests/tools.json")]
     [TestCategory(TestCategories.Baseline)]
     public async Task List_tools_returns_full_list_of_tools(EmbeddedFile toolsJson)
     {

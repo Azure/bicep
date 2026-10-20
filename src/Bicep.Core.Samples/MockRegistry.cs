@@ -17,6 +17,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
+using EmbeddedFile = Azure.Deployments.Testing.Utilities.EmbeddedFile;
 
 namespace Bicep.Core.Samples;
 
@@ -31,27 +32,27 @@ public static class MockRegistry
 
     public static IEnumerable<TestExternalArtifactManager.RegistryModulePublishArguments> CreateDefaultMockModules()
     {
-        var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true).ToArray();
-        var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryCatalog>();
+        var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, streamName => streamName.StartsWith("Files/mockregistry/", StringComparison.Ordinal)).ToArray();
+        var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").GetContents().FromJson<MockRegistryCatalog>();
 
         foreach (var (registryPath, filePath) in index.modules.Where(x => x.Key.StartsWith(OciArtifactReferenceFacts.SchemeWithColon)))
         {
             var sourceFile = registryFiles.First(x => x.StreamPath == $"Files/mockregistry/{filePath}");
 
-            yield return new TestExternalArtifactManager.RegistryModulePublishArguments(registryPath, sourceFile.Contents);
+            yield return new TestExternalArtifactManager.RegistryModulePublishArguments(registryPath, sourceFile.GetContents());
         }
     }
 
     public static IEnumerable<MockTemplateSpecData> CreateDefaultMockTemplateSpecs()
     {
-        var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true).ToArray();
-        var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryCatalog>();
+        var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, streamName => streamName.StartsWith("Files/mockregistry/", StringComparison.Ordinal)).ToArray();
+        var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").GetContents().FromJson<MockRegistryCatalog>();
 
         foreach (var (registryPath, filePath) in index.modules.Where(x => x.Key.StartsWith("ts:")))
         {
             var sourceFile = registryFiles.First(x => x.StreamPath == $"Files/mockregistry/{filePath}");
 
-            var compilationResult = CompilationHelper.Compile(sourceFile.Contents);
+            var compilationResult = CompilationHelper.Compile(sourceFile.GetContents());
             compilationResult.Template.Should().NotBeNull();
 
             if (!TryParseTemplateSpecReference(registryPath, out var specReference, out var errorDiagnostic))

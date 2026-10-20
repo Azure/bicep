@@ -8,6 +8,7 @@ using Bicep.Testing.IO;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using EmbeddedFile = Azure.Deployments.Testing.Utilities.EmbeddedFile;
 
 namespace Bicep.Core.Samples
 {
@@ -95,8 +96,7 @@ namespace Bicep.Core.Samples
         {
             var embeddedFiles = EmbeddedFile.LoadAll(
                 typeof(AssemblyInitializer).Assembly,
-                "baselines_bicepparam",
-                streamName => Path.GetFileName(streamName) == "parameters.bicepparam");
+                streamName => streamName.StartsWith("Files/baselines_bicepparam/", StringComparison.Ordinal) && Path.GetFileName(streamName) == "parameters.bicepparam");
 
             // ensure this list is kept up-to-date to validate that we're picking all of the baseline tests
             embeddedFiles.Select(x => x.StreamPath).Should().BeEquivalentTo(

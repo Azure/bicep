@@ -89,7 +89,7 @@ namespace Bicep.Core.IntegrationTests
             var baselineFiles = TestContext.MaterializeBaseline(embeddedBicep);
             var bicepFile = baselineFiles.EntryFile;
 
-            var program = ParserHelper.Parse(embeddedBicep.Contents, out var lexingErrorLookup, out var parsingErrorLookup);
+            var program = ParserHelper.Parse(embeddedBicep.GetContents(), out var lexingErrorLookup, out var parsingErrorLookup);
             var context = PrettyPrinterV2Context.Create(PrettyPrinterV2Options.Default, lexingErrorLookup, parsingErrorLookup);
             var formattedContents = PrettyPrinterV2.Print(program, context);
             formattedContents.Should().NotBeNull();
@@ -129,8 +129,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 var embeddedFiles = EmbeddedFile.LoadAll(
                     typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly,
-                    "user_submitted",
-                    streamName => Path.GetExtension(streamName) == ".bicep");
+                    streamName => streamName.StartsWith("Files/user_submitted/", StringComparison.Ordinal) && Path.GetExtension(streamName) == ".bicep");
 
                 foreach (var bicepFile in embeddedFiles)
                 {

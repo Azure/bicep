@@ -17,6 +17,8 @@ using Bicep.Testing;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using EmbeddedFile = Azure.Deployments.Testing.Utilities.EmbeddedFile;
+using TestEmbeddedFilesAttribute = Azure.Deployments.Testing.Utilities.EmbeddedFilesTestDataAttribute;
 
 namespace Bicep.Decompiler.IntegrationTests
 {
@@ -29,7 +31,7 @@ namespace Bicep.Decompiler.IntegrationTests
         private TestDecompiler CreateDecompilerWithEmptyAzResourceTypes() => new TestDecompiler().ConfigureServices(services => services.AddAzureResourceTypes([]));
 
         [TestMethod]
-        [TestEmbeddedFileData(@"Files/Working/.*\.json")]
+        [TestEmbeddedFiles(@"Files/Working/.*\.json")]
         [TestCategory(TestCategories.Baseline)]
         public async Task Decompiler_generates_expected_bicep_files_with_diagnostics(EmbeddedFile embeddedJson)
         {
@@ -37,7 +39,7 @@ namespace Bicep.Decompiler.IntegrationTests
             var jsonFile = baselineFiles.EntryFile;
 
             var jsonUri = IOUri.FromFilePath(jsonFile.OutputFilePath);
-            var (bicepUri, filesToSave) = await new TestDecompiler().Decompile(jsonUri.WithExtension(LanguageConstants.LanguageFileExtension), jsonFile.EmbeddedFile.Contents);
+            var (bicepUri, filesToSave) = await new TestDecompiler().Decompile(jsonUri.WithExtension(LanguageConstants.LanguageFileExtension), jsonFile.EmbeddedFile.GetContents());
 
             var compilation = new ServiceBuilder().BuildCompilation(filesToSave, bicepUri);
             var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile();
@@ -58,7 +60,7 @@ namespace Bicep.Decompiler.IntegrationTests
         }
 
         [TestMethod]
-        [TestEmbeddedFileData(@"Files/Parameters/.*\.json")]
+        [TestEmbeddedFiles(@"Files/Parameters/.*\.json")]
         [TestCategory(TestCategories.Baseline)]
         public void Decompiler_generates_expected_bicepparam_files_with_diagnostics(EmbeddedFile embeddedJson)
         {
@@ -67,7 +69,7 @@ namespace Bicep.Decompiler.IntegrationTests
 
             var jsonUri = IOUri.FromFilePath(jsonFile.OutputFilePath);
 
-            var (entryPointUri, filesToSave) = new TestDecompiler().DecompileParameters(jsonFile.EmbeddedFile.Contents, jsonUri.WithExtension(LanguageConstants.ParamsFileExtension), null);
+            var (entryPointUri, filesToSave) = new TestDecompiler().DecompileParameters(jsonFile.EmbeddedFile.GetContents(), jsonUri.WithExtension(LanguageConstants.ParamsFileExtension), null);
 
             var baselineFile = baselineFiles.GetFileForPath(entryPointUri.GetFilePath());
             filesToSave[entryPointUri].Should().MatchTextBaseline(baselineFile);

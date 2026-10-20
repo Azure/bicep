@@ -9,7 +9,7 @@ public static class TestFileSetExtensions
         where T : TestFileSet
     {
         fileSet.AddFiles(entryFile.GetDirectoryFiles()
-            .Select(file => (file.GetPathRelativeToDirectory(entryFile.StreamDirectoryPath), (TestFileData)file.BinaryData))
+            .Select(file => (file.GetPathRelativeToDirectory(entryFile.GetStreamDirectoryPath()), (TestFileData)file.GetBinaryData()))
             .ToArray());
 
         return fileSet;

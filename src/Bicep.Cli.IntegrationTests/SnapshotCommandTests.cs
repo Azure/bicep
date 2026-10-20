@@ -123,7 +123,7 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
     }
 
     [TestMethod]
-    [TestEmbeddedFileData(@"Files/SnapshotCommandTests/.*/main\.bicepparam")]
+    [TestEmbeddedFiles(@"Files/SnapshotCommandTests/.*/main\.bicepparam")]
     [TestCategory(TestCategories.Baseline)]
     public async Task Snapshot_generates_correct_format(EmbeddedFile paramFile)
     {

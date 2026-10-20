@@ -20,17 +20,17 @@ public record BaselineDirectory(
     {
         var outputDirectory = testContext.GetUniqueOutputPath();
         var baselines = embeddedFile.GetDirectoryFiles().ToImmutableDictionary(
-            file => file.GetPathRelativeToDirectory(embeddedFile.StreamDirectoryPath),
+            file => file.GetPathRelativeToDirectory(embeddedFile.GetStreamDirectoryPath()),
             file => new BaselineFile(
                 testContext,
                 file,
-                testContext.SaveResultFile(file.GetPathRelativeToDirectory(embeddedFile.StreamDirectoryPath), file.Contents, outputDirectory)));
+                testContext.SaveResultFile(file.GetPathRelativeToDirectory(embeddedFile.GetStreamDirectoryPath()), file.GetContents(), outputDirectory)));
 
         return new(
             outputDirectory,
-            embeddedFile.StreamDirectoryPath,
+            embeddedFile.GetStreamDirectoryPath(),
             baselines,
-            baselines[embeddedFile.GetPathRelativeToDirectory(embeddedFile.StreamDirectoryPath)]);
+            baselines[embeddedFile.GetPathRelativeToDirectory(embeddedFile.GetStreamDirectoryPath())]);
     }
 
     public BaselineFile? TryGetFile(string relativePath)
@@ -55,7 +55,7 @@ public record BaselineDirectory(
         "".Should().MatchTextBaseline(
             EntryFile.TestContext,
             "<missing>",
-            expectedPath: embeddedFile.RelativeSourcePath,
+            expectedPath: embeddedFile.GetRelativeSourcePath(),
             actualPath: outputFile);
         throw new NotImplementedException("Code cannot reach this point as the previous line will always throw");
     }

@@ -79,7 +79,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         public void Print_ParamDataSet_ProducesExpectedOutput(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-            var output = Print(data.Parameters.EmbeddedFile.Contents, PrettyPrinterV2Options.Default, isParamFile: true);
+            var output = Print(data.Parameters.EmbeddedFile.GetContents(), PrettyPrinterV2Options.Default, isParamFile: true);
 
             output.Should().MatchTextBaseline(data.Formatted);
 
@@ -92,7 +92,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         public void Print_ParamDataSet_ProducesConsistentNewlines(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-            var output = Print(data.Parameters.EmbeddedFile.Contents, PrettyPrinterV2Options.Default, isParamFile: true);
+            var output = Print(data.Parameters.EmbeddedFile.GetContents(), PrettyPrinterV2Options.Default, isParamFile: true);
 
             NewlinePattern().Matches(output)
                 .Select(x => x.Value)

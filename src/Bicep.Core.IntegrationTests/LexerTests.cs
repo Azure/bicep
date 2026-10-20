@@ -124,7 +124,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var data = baselineData.GetData(TestContext);
 
-            var lexer = new Lexer(new SlidingTextWindow(data.Parameters.EmbeddedFile.Contents), ToListDiagnosticWriter.Create());
+            var lexer = new Lexer(new SlidingTextWindow(data.Parameters.EmbeddedFile.GetContents()), ToListDiagnosticWriter.Create());
             lexer.Lex();
 
             string getLoggingString(Token token)
@@ -132,7 +132,7 @@ namespace Bicep.Core.IntegrationTests
                 return $"{token.Type} |{token.Text}|";
             }
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", lexer.GetTokens(), getLoggingString);
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.GetContents(), "\n", lexer.GetTokens(), getLoggingString);
 
             sourceTextWithDiags.Should().MatchTextBaseline(data.Tokens);
 

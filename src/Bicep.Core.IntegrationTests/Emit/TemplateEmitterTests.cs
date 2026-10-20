@@ -129,7 +129,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         }
 
         [TestMethod]
-        [TestEmbeddedFileData(@"Files/SourceMapping/.*/main.bicep")]
+        [TestEmbeddedFiles(@"Files/SourceMapping/.*/main.bicep")]
         [TestCategory(TestCategories.Baseline)]
         public async Task Source_map_generation_should_work(EmbeddedFile file)
         {
