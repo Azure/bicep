@@ -49,6 +49,34 @@ public static class SnapshotHelper
         string? deploymentName,
         string? location,
         ImmutableArray<ExternalInputValue> externalInputs,
+        CancellationToken cancellationToken) => CreateSnapshot(await ExpandAsync(
+            targetScope,
+            templateContent,
+            parametersContent,
+            tenantId,
+            managementGroupId,
+            subscriptionId,
+            resourceGroup,
+            deploymentName,
+            location,
+            externalInputs,
+            cancellationToken));
+
+    /// <summary>
+    /// Runs the engine's nested-deployment expansion once, so the customer snapshot and the policy analyzer can
+    /// each build what they need from the engine objects.
+    /// </summary>
+    internal static async Task<SnapshotExpansion> ExpandAsync(
+        ResourceScope targetScope,
+        string templateContent,
+        string parametersContent,
+        string? tenantId,
+        string? managementGroupId,
+        string? subscriptionId,
+        string? resourceGroup,
+        string? deploymentName,
+        string? location,
+        ImmutableArray<ExternalInputValue> externalInputs,
         CancellationToken cancellationToken)
     {
         var parameters = parametersContent.FromJson<DeploymentParametersDefinition>();
@@ -57,7 +85,7 @@ public static class SnapshotHelper
         var scope = EnumConverter.ToTemplateDeploymentScope(targetScope)
             ?? throw new InvalidOperationException($"Cannot create snapshot of template with a target scope of {targetScope}");
 
-        var expansionResult = await TemplateEngine.ExpandNestedDeployments(
+        var (diagnostics, preflightResources, extensibleResources, outputs) = await TemplateEngine.ExpandNestedDeployments(
             EmitConstants.NestedDeploymentResourceApiVersion,
             scope,
             template,
@@ -66,22 +94,81 @@ public static class SnapshotHelper
             referenceFunctionPreflightEnabled: true,
             cancellationToken: cancellationToken);
 
-        return new(
-            [
-                .. expansionResult.preflightResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(DeploymentPreflightResourceWithParsedExpressions.From(x)))),
-                .. expansionResult.extensibleResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(new DeploymentWhatIfExtensibleResource
-                    {
-                        Type = x.Type,
-                        ApiVersion = x.ApiVersion,
-                        Identifiers = x.Identifiers?.ToObject<JObject>(),
-                        Properties = x.Properties?.ToObject<JObject>(),
-                    }))),
-            ],
-            [
-                .. expansionResult.diagnostics.Select(d => $"{d.Target} {d.Level} {d.Code}: {d.Message}")
-            ],
-            (expansionResult.outputs ?? []).ToImmutableDictionary(kvp => kvp.Key, kvp => JsonElementFactory.CreateElement(JsonExtensions.ToJson(ConvertToJToken(kvp.Value)))));
+        return new(diagnostics, preflightResources, extensibleResources, outputs);
     }
+
+    internal static Snapshot CreateSnapshot(SnapshotExpansion expansion) => new(
+        [
+            .. expansion.PreflightResources.Select(ToPredictedResource),
+            .. expansion.ExtensibleResources.Select(ToPredictedResource),
+        ],
+        [
+            .. expansion.Diagnostics.Select(d => $"{d.Target} {d.Level} {d.Code}: {d.Message}")
+        ],
+        (expansion.Outputs ?? []).ToImmutableDictionary(kvp => kvp.Key, kvp => JsonElementFactory.CreateElement(JsonExtensions.ToJson(ConvertToJToken(kvp.Value)))));
+
+    /// <summary>
+    /// Pairs each predicted resource with its origin, in <see cref="Snapshot.PredictedResources"/> order.
+    /// </summary>
+    internal static ImmutableArray<SnapshotAnalysisResource> CreateAnalysisResources(SnapshotExpansion expansion) =>
+    [
+        .. expansion.PreflightResources.Select(resource => new SnapshotAnalysisResource(
+            ToPredictedResource(resource),
+            new(PadToDepth([.. resource.ParentSymbolicNamePath?.Segments ?? [], resource.SymbolicName], GetNestingDepth(resource.Path)), resource.Path),
+            IsExtensible: false)),
+        .. expansion.ExtensibleResources.Select(resource => new SnapshotAnalysisResource(
+            ToPredictedResource(resource),
+            new(
+                resource.Context.DeploymentSymbolicNamePath?.Segments is { } parentSegments
+                    ? [.. parentSegments, resource.SymbolicName]
+                    // Nested (non-root deployment id) but the engine dropped every ancestor.
+                    : resource.Context.DeploymentId is not null ? [null, resource.SymbolicName] : [resource.SymbolicName],
+                TemplatePath: null),
+            IsExtensible: true)),
+    ];
+
+    private const string NestedTemplateSegment = ".properties.template.";
+
+    // ARM property names are case-insensitive, and the engine path keeps the authored casing.
+    private static int GetNestingDepth(string? templatePath)
+    {
+        if (templatePath is null)
+        {
+            return 0;
+        }
+
+        var depth = 0;
+        for (var index = templatePath.IndexOf(NestedTemplateSegment, StringComparison.OrdinalIgnoreCase);
+            index >= 0;
+            index = templatePath.IndexOf(NestedTemplateSegment, index + NestedTemplateSegment.Length, StringComparison.OrdinalIgnoreCase))
+        {
+            depth++;
+        }
+
+        return depth;
+    }
+
+    /// <summary>
+    /// The engine drops every ancestor above a deployment without a symbolic name. Padding to the nesting depth keeps
+    /// the known names at their real depth instead of letting a truncated chain look rooted.
+    /// </summary>
+    private static ImmutableArray<string?> PadToDepth(ImmutableArray<string?> symbolicNamePath, int nestingDepth)
+    {
+        var missing = nestingDepth + 1 - symbolicNamePath.Length;
+        return missing > 0 ? [.. Enumerable.Repeat<string?>(null, missing), .. symbolicNamePath] : symbolicNamePath;
+    }
+
+    private static JsonElement ToPredictedResource(DeploymentResourceWithParsedExpressions resource) =>
+        JsonElementFactory.CreateElement(JsonExtensions.ToJson(DeploymentPreflightResourceWithParsedExpressions.From(resource)));
+
+    private static JsonElement ToPredictedResource(ExtensibleResource resource) =>
+        JsonElementFactory.CreateElement(JsonExtensions.ToJson(new DeploymentWhatIfExtensibleResource
+        {
+            Type = resource.Type,
+            ApiVersion = resource.ApiVersion,
+            Identifiers = resource.Identifiers?.ToObject<JObject>(),
+            Properties = resource.Properties?.ToObject<JObject>(),
+        }));
 
     private static JToken? TryGetExternalInputValue(DeploymentExternalInputDefinition externalInputDefinition, ImmutableArray<ExternalInputValue> externalInputs)
     {
@@ -310,3 +397,12 @@ public static class SnapshotHelper
         return output.Value.SerializeToString();
     }
 }
+
+/// <summary>
+/// The engine objects from one nested-deployment expansion.
+/// </summary>
+internal sealed record SnapshotExpansion(
+    ImmutableArray<DeploymentDiagnosticDefinition> Diagnostics,
+    ImmutableArray<DeploymentResourceWithParsedExpressions> PreflightResources,
+    ImmutableArray<ExtensibleResource> ExtensibleResources,
+    ImmutableDictionary<string, TemplateOutputParameterWithParsedExpressions>? Outputs);
