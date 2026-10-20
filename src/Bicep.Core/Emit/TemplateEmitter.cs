@@ -217,7 +217,7 @@ public class TemplateEmitter
         }
 
         if (SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(semanticModel.Root.Syntax)
-            .Any(functionCall => IsUnsafeNameBasedResourceFunction(semanticModel, functionCall)))
+            .Any(functionCall => IsRuntimeFunctionWithStaticallyUnknownResourceId(semanticModel, functionCall)))
         {
             return true;
         }
@@ -236,7 +236,7 @@ public class TemplateEmitter
             HasUnsupportedForcedEmissionConstructs(moduleModel, visitedModels));
     }
 
-    private static bool IsUnsafeNameBasedResourceFunction(
+    private static bool IsRuntimeFunctionWithStaticallyUnknownResourceId(
         SemanticModel semanticModel,
         FunctionCallSyntaxBase functionCall)
     {
