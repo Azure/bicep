@@ -53,12 +53,31 @@
       "type": "string",
       "minimumCount": 1
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(resourceId: string, resourceType: string, ... : string): string",
     "parameterTypeSignatures": [
       "resourceId: string",
       "resourceType: string",
       "... : string"
+    ]
+  },
+  {
+    "name": "getRoleAssignmentName",
+    "description": "Returns a deterministic name for a role assignment.",
+    "fixedParameters": [
+      {
+        "name": "inputs",
+        "description": "The role assignment inputs",
+        "type": "inputs",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "pure",
+    "typeSignature": "(inputs: inputs): string",
+    "parameterTypeSignatures": [
+      "inputs: inputs"
     ]
   },
   {
@@ -578,7 +597,7 @@
       "type": "string",
       "minimumCount": 1
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(resourceType: string, ... : string): string",
     "parameterTypeSignatures": [
       "resourceType: string",

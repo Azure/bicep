@@ -34,10 +34,11 @@ public class BicepClientTests
     public void TestCleanup()
     {
         Bicep.Dispose();
-        if (Directory.Exists(TestContext.TestResultsDirectory))
+        var testOutputRootPath = TestContext.GetOutputRootPath();
+        if (Directory.Exists(testOutputRootPath))
         {
             // This test creates a new Bicep CLI install for each test run, so we need to clean it up afterwards
-            Directory.Delete(TestContext.TestResultsDirectory, true);
+            Directory.Delete(testOutputRootPath, true);
         }
     }
 
@@ -180,7 +181,7 @@ public class BicepClientTests
             .Should().ThrowAsync<ArgumentException>().WithMessage("Invalid Bicep version format 'v0.1.1'. Expected format: 'x.y.z' where x, y, and z are integers.");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2", "Invalid Bicep version format '1.2'. Expected format: 'x.y.z' where x, y, and z are integers.")]
     [DataRow("v1.2.3", "Invalid Bicep version format 'v1.2.3'. Expected format: 'x.y.z' where x, y, and z are integers.")]
     [DataRow("1.2.3.4", "Invalid Bicep version format '1.2.3.4'. Expected format: 'x.y.z' where x, y, and z are integers.")]
@@ -191,7 +192,7 @@ public class BicepClientTests
             .Should().Throw<ArgumentException>().WithMessage(expectedMessage);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2.3")]
     [DataRow("0.0.0")]
     [DataRow("100.200.300")]
@@ -401,12 +402,48 @@ public class BicepClientTests
 
         var result = await Bicep.GetSnapshot(new(Path.Combine(outputPath, "main.bicepparam"), new(
             TenantId: null,
+            ManagementGroupId: null,
             SubscriptionId: "0910bc80-1614-479b-a3f4-07178d3ea77b",
             ResourceGroup: "ant-test",
             Location: "West US",
             DeploymentName: "main"), []));
 
         result.Snapshot.Should().Contain("/subscriptions/0910bc80-1614-479b-a3f4-07178d3ea77b/resourceGroups/ant-test/providers/Microsoft.Storage/storageAccounts/myStgAct");
+    }
+
+    [TestMethod]
+    public async Task GetSnapshot_supports_management_group_scope()
+    {
+        var outputPath = TestContext.SaveResultFiles([
+            new("main.bicep", """
+            targetScope = 'managementGroup'
+
+            param policyAssignmentName string
+
+            resource policyAssignment 'Microsoft.Authorization/policyAssignments@2022-06-01' = {
+              name: policyAssignmentName
+              properties: {
+                policyDefinitionId: '/providers/Microsoft.Management/managementGroups/${managementGroup().name}/providers/Microsoft.Authorization/policyDefinitions/00000000-0000-0000-0000-000000000000'
+              }
+            }
+            """),
+            new("main.bicepparam", """
+            using 'main.bicep'
+
+            param policyAssignmentName = 'myAssignment'
+            """),
+        ]);
+
+        var result = await Bicep.GetSnapshot(new(Path.Combine(outputPath, "main.bicepparam"), new(
+            TenantId: null,
+            ManagementGroupId: "myManagementGroup",
+            SubscriptionId: null,
+            ResourceGroup: null,
+            Location: "West US",
+            DeploymentName: "main"), []));
+
+        result.Snapshot.Should().Contain("/providers/Microsoft.Management/managementGroups/myManagementGroup/providers/Microsoft.Authorization/policyAssignments/myAssignment");
+        result.Snapshot.Should().Contain("/providers/Microsoft.Management/managementGroups/myManagementGroup/providers/Microsoft.Authorization/policyDefinitions/00000000-0000-0000-0000-000000000000");
     }
 
     [TestMethod]

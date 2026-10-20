@@ -17,9 +17,9 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
-using Bicep.Testing.IO;
 using Bicep.Testing;
 using Bicep.Testing.Fakes.TypeSystem;
+using Bicep.Testing.IO;
 
 namespace Bicep.Core.UnitTests.Utils;
 
@@ -59,13 +59,13 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithNamespaceProvider(this ServiceBuilder serviceBuilder, INamespaceProvider namespaceProvider)
         => serviceBuilder.WithRegistration(x => x.WithNamespaceProvider(namespaceProvider));
 
-    public static ServiceBuilder WithConfigurationPatch(this ServiceBuilder serviceBuilder, Func<RootConfiguration, RootConfiguration> patchFunc)
+    public static ServiceBuilder WithConfigurationPatch(this ServiceBuilder serviceBuilder, Func<IBicepConfiguration, IBicepConfiguration> patchFunc)
         => serviceBuilder.WithRegistration(x => x.WithConfigurationPatch(patchFunc));
 
     public static ServiceBuilder WithDisabledAnalyzersConfiguration(this ServiceBuilder serviceBuilder)
         => serviceBuilder.WithRegistration(x => x.WithDisabledAnalyzersConfiguration());
 
-    public static ServiceBuilder WithConfiguration(this ServiceBuilder serviceBuilder, RootConfiguration configuration)
+    public static ServiceBuilder WithConfiguration(this ServiceBuilder serviceBuilder, IBicepConfiguration configuration)
         => serviceBuilder.WithRegistration(x => x.WithConfiguration(configuration));
 
     public static ServiceBuilder WithBicepAnalyzer(this ServiceBuilder serviceBuilder, IBicepAnalyzer bicepAnalyzer)
@@ -82,6 +82,12 @@ public static class ServiceBuilderExtensions
 
     public static ServiceBuilder WithEnvironmentVariables(this ServiceBuilder serviceBuilder, params (string key, string? value)[] variables)
         => serviceBuilder.WithRegistration(x => x.WithEnvironmentVariables(variables));
+
+    public static ServiceBuilder WithBicepVersion(this ServiceBuilder serviceBuilder, string version, string? commitRef = null)
+        => serviceBuilder.WithRegistration(x => x.WithBicepVersion(version, commitRef));
+
+    public static ServiceBuilder WithCompilerVersionCheckOptions(this ServiceBuilder serviceBuilder, CompilerVersionCheckOptions compilerVersionCheckOptions)
+        => serviceBuilder.WithRegistration(x => x.WithCompilerVersionCheckOptions(compilerVersionCheckOptions));
 
     public static ServiceBuilder WithFileSystem(this ServiceBuilder serviceBuilder, IFileSystem fileSystem)
         => serviceBuilder.WithRegistration(x => x.WithFileSystem(fileSystem));

@@ -9,6 +9,7 @@ using System.Runtime;
 using Azure.Core.Diagnostics;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Commands;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Helpers.Repl;
@@ -22,8 +23,6 @@ using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
-
-using SclRootCommand = System.CommandLine.RootCommand;
 
 namespace Bicep.Cli
 {
@@ -94,20 +93,20 @@ namespace Bicep.Cli
             return await rootCommand.Parse(args).InvokeAsync(invocationConfig, cancellationToken);
         }
 
-        private SclRootCommand BuildCommandLine()
+        private RootCommand BuildCommandLine()
         {
-            var rootCommand = new SclRootCommand("Bicep CLI");
+            var rootCommand = new RootCommand("Bicep CLI");
             var context = new CommandLineBuilderContext(services, io);
 
-            var builtInVersion = rootCommand.Options.FirstOrDefault(o => o.Name == Constants.Option.Version);
+            var builtInVersion = rootCommand.Options.FirstOrDefault(o => o.Name == OptionNames.Version);
             if (builtInVersion is not null)
             {
                 rootCommand.Options.Remove(builtInVersion);
             }
 
-            var versionOption = new Option<bool>(Constants.Option.Version, Constants.Option.VersionShort) { Description = "Shows bicep version information." };
-            var licenseOption = new Option<bool>(Constants.Option.License) { Description = "Prints license information." };
-            var thirdPartyNoticesOption = new Option<bool>(Constants.Option.ThirdPartyNotices) { Description = "Prints third-party notices." };
+            var versionOption = new Option<bool>(OptionNames.Version, OptionNames.VersionShort) { Description = "Shows bicep version information." };
+            var licenseOption = new Option<bool>(OptionNames.License) { Description = "Prints license information." };
+            var thirdPartyNoticesOption = new Option<bool>(OptionNames.ThirdPartyNotices) { Description = "Prints third-party notices." };
 
             rootCommand.Add(versionOption);
             rootCommand.Add(licenseOption);
@@ -158,6 +157,7 @@ namespace Bicep.Cli
             rootCommand.Add(WhatIfCommand.CreateCommand(context));
             rootCommand.Add(TeardownCommand.CreateCommand(context));
             rootCommand.Add(ConsoleCommand.CreateCommand(context));
+            rootCommand.Add(DocsGenerateCommand.CreateCommand(context));
 
             return rootCommand;
         }
@@ -203,8 +203,11 @@ namespace Bicep.Cli
                 .AddCommands()
                 .AddSingleton(CreateLoggerFactory(io).CreateLogger("bicep"))
                 .AddSingleton<InputOutputArgumentsResolver>()
+                .AddSingleton<ExplicitConfigurationScopeFactory>()
                 .AddSingleton<DiagnosticLogger>()
                 .AddSingleton<OutputWriter>()
+                .AddSingleton<DocsGenerationOptionsResolver>()
+                .AddSingleton<DocsCommandRunner>()
                 .AddSingleton<PlaceholderParametersWriter>()
                 .AddSingleton(io)
                 .AddSingleton<ReplEnvironment>()

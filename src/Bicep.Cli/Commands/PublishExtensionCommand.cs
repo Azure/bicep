@@ -25,7 +25,6 @@ using Bicep.Local.Deploy.Helpers;
 using Bicep.Local.Deploy.Types;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands
 {
@@ -57,7 +56,7 @@ namespace Bicep.Cli.Commands
                 throw new CommandLineException($"The input file path was not specified.");
             }
 
-            logger.LogWarning($"WARNING: The '{Constants.Command.PublishExtension}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
+            logger.LogWarning($"WARNING: The '{CommandNames.PublishExtension}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
             if (args.TargetExtensionReference is null)
             {
                 throw new CommandLineException("The target extension was not specified.");
@@ -217,42 +216,42 @@ namespace Bicep.Cli.Commands
             return indexHandle;
         }
 
-        internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+        internal static Command CreateCommand(CommandLineBuilderContext context)
         {
-            var command = new System.CommandLine.Command(Constants.Command.PublishExtension, "[Experimental] Publishes a Bicep extension to a registry.");
-
-            var indexFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.IndexFile)
+            var indexFileArgument = new Argument<string?>(ArgumentNames.IndexFile)
             {
                 Description = "The path to the index file.",
                 Arity = ArgumentArity.ZeroOrOne,
             };
-            var targetOption = new System.CommandLine.Option<string?>(Option.Target)
+            var targetOption = new Option<string?>(OptionNames.Target)
             {
                 Description = "The target extension reference.",
             };
-            var forceOption = new System.CommandLine.Option<bool>(Option.Force)
+            var forceOption = CommonOptions.Force("Force publish even if the extension already exists.");
+            var binLinuxX64Option = new Option<string?>(OptionNames.BinLinuxX64) { Description = "Path to the linux-x64 binary." };
+            var binLinuxArm64Option = new Option<string?>(OptionNames.BinLinuxArm64) { Description = "Path to the linux-arm64 binary." };
+            var binOsxX64Option = new Option<string?>(OptionNames.BinOsxX64) { Description = "Path to the osx-x64 binary." };
+            var binOsxArm64Option = new Option<string?>(OptionNames.BinOsxArm64) { Description = "Path to the osx-arm64 binary." };
+            var binWinX64Option = new Option<string?>(OptionNames.BinWinX64) { Description = "Path to the win-x64 binary." };
+            var binWinArm64Option = new Option<string?>(OptionNames.BinWinArm64) { Description = "Path to the win-arm64 binary." };
+            var configOption = CommonOptions.Config();
+
+            var command = new Command(CommandNames.PublishExtension, "[Experimental] Publishes a Bicep extension to a registry.")
             {
-                Description = "Force publish even if the extension already exists.",
+                indexFileArgument,
+                targetOption,
+                forceOption,
+                binLinuxX64Option,
+                binLinuxArm64Option,
+                binOsxX64Option,
+                binOsxArm64Option,
+                binWinX64Option,
+                binWinArm64Option,
+                configOption,
             };
-            var binLinuxX64Option = new System.CommandLine.Option<string?>(Option.BinLinuxX64) { Description = "Path to the linux-x64 binary." };
-            var binLinuxArm64Option = new System.CommandLine.Option<string?>(Option.BinLinuxArm64) { Description = "Path to the linux-arm64 binary." };
-            var binOsxX64Option = new System.CommandLine.Option<string?>(Option.BinOsxX64) { Description = "Path to the osx-x64 binary." };
-            var binOsxArm64Option = new System.CommandLine.Option<string?>(Option.BinOsxArm64) { Description = "Path to the osx-arm64 binary." };
-            var binWinX64Option = new System.CommandLine.Option<string?>(Option.BinWinX64) { Description = "Path to the win-x64 binary." };
-            var binWinArm64Option = new System.CommandLine.Option<string?>(Option.BinWinArm64) { Description = "Path to the win-arm64 binary." };
+            command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, indexFileArgument));
 
-            command.Add(indexFileArgument);
-            command.Add(targetOption);
-            command.Add(forceOption);
-            command.Add(binLinuxX64Option);
-            command.Add(binLinuxArm64Option);
-            command.Add(binOsxX64Option);
-            command.Add(binOsxArm64Option);
-            command.Add(binWinX64Option);
-            command.Add(binWinArm64Option);
-            command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidatePositionalArgument(result, indexFileArgument));
-
-            command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+            command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
             {
                 var binaries = new Dictionary<string, string>();
                 if (result.GetValue(binLinuxX64Option) is { } p1) { binaries["linux-x64"] = p1; }

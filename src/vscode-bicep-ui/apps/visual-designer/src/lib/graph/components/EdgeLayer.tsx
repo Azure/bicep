@@ -1,92 +1,77 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { EdgeAtomValue } from "../atoms/edges";
+
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { styled } from "styled-components";
-import { edgesAtom } from "@/lib/graph/atoms/edges";
-import { focusedNodeIdAtom, getNodeZIndex } from "@/lib/graph/atoms/nodes";
+import { edgesAtom } from "../atoms/edges";
+import { focusedNodeIdAtom, getNodeZIndex, getParentId } from "../atoms/nodes";
 import { StraightEdge } from "./StraightEdge";
 
-const $Svg = styled.svg<{ $zIndex: number }>`
+/** Edges between top-level nodes sit below every node. */
+const ROOT_SCOPE_Z_INDEX = -1;
+
+const $ScopeSvg = styled.svg.attrs<{ $zIndex: number }>(({ $zIndex }) => ({ style: { zIndex: $zIndex } }))`
   overflow: visible;
   position: absolute;
   pointer-events: none;
-  z-index: ${({ $zIndex }) => $zIndex};
 `;
 
-/**
- * Outer edges sit below all nodes (z-index: -1).
- * Inner edges sit above their parent compound but below its atomic children,
- * with a per-group z-index that tracks the compound's focus elevation.
- */
-export function OuterEdgeLayer() {
-  const edges = useAtomValue(edgesAtom);
-
-  const filtered = useMemo(() => {
-    return edges.filter((edge) => {
-      const fromParent = edge.fromId.includes("::") ? edge.fromId.split("::").slice(0, -1).join("::") : null;
-      const toParent = edge.toId.includes("::") ? edge.toId.split("::").slice(0, -1).join("::") : null;
-      return !(fromParent !== null && toParent !== null && fromParent === toParent);
-    });
-  }, [edges]);
-
-  if (filtered.length === 0) {
-    return null;
-  }
-
-  return (
-    <$Svg $zIndex={-1}>
-      {filtered.map((edge) => (
-        <StraightEdge key={edge.id} {...edge} />
-      ))}
-    </$Svg>
-  );
+interface EdgeScope {
+  /** The compound node both endpoints sit in, or null for top-level edges. */
+  parentId: string | null;
+  edges: EdgeAtomValue[];
 }
 
-export function InnerEdgeLayer() {
+function groupByScope(edges: EdgeAtomValue[]): EdgeScope[] {
+  const edgesByScope = new Map<string | null, EdgeAtomValue[]>();
+
+  for (const edge of edges) {
+    const fromParentId = getParentId(edge.fromId);
+    const parentId = fromParentId === getParentId(edge.toId) ? fromParentId : null;
+    const scopeEdges = edgesByScope.get(parentId);
+
+    if (scopeEdges) {
+      scopeEdges.push(edge);
+    } else {
+      edgesByScope.set(parentId, [edge]);
+    }
+  }
+
+  return [...edgesByScope].map(([parentId, scopeEdges]) => ({ parentId, edges: scopeEdges }));
+}
+
+/**
+ * Draws every edge.
+ *
+ * Nodes are absolutely positioned siblings stacked by z-index, and one SVG occupies one place in that
+ * stack, so edges are drawn in one SVG per scope: those between top-level nodes below every node, and
+ * those inside a compound just above it -- over its frame, under its children -- following it as focus
+ * restacks the graph.
+ */
+export function EdgeLayer() {
   const edges = useAtomValue(edgesAtom);
   const focusedNodeId = useAtomValue(focusedNodeIdAtom);
 
-  // Group inner edges by their shared parent compound ID so each
-  // group can be rendered at the correct z-index relative to its
-  // parent compound (which may be elevated due to focus).
-  const groups = useMemo(() => {
-    const map = new Map<string, typeof edges>();
-
-    for (const edge of edges) {
-      const fromParent = edge.fromId.includes("::") ? edge.fromId.split("::").slice(0, -1).join("::") : null;
-      const toParent = edge.toId.includes("::") ? edge.toId.split("::").slice(0, -1).join("::") : null;
-
-      if (fromParent !== null && toParent !== null && fromParent === toParent) {
-        let group = map.get(fromParent);
-        if (!group) {
-          group = [];
-          map.set(fromParent, group);
-        }
-        group.push(edge);
-      }
-    }
-
-    return map;
-  }, [edges]);
-
-  if (groups.size === 0) {
-    return null;
-  }
-
-  return (
-    <>
-      {[...groups.entries()].map(([parentId, groupEdges]) => {
-        const parentZ = getNodeZIndex(parentId, "compound", focusedNodeId);
-        return (
-          <$Svg key={parentId} $zIndex={parentZ + 1}>
-            {groupEdges.map((edge) => (
-              <StraightEdge key={edge.id} {...edge} />
-            ))}
-          </$Svg>
-        );
-      })}
-    </>
+  // The edge elements are created once per edge change, so restacking on focus re-renders no edges.
+  const scopes = useMemo(
+    () =>
+      groupByScope(edges).map(({ parentId, edges: scopeEdges }) => ({
+        parentId,
+        children: scopeEdges.map((edge) => <StraightEdge key={edge.id} {...edge} />),
+      })),
+    [edges],
   );
+
+  return scopes.map(({ parentId, children }) => (
+    <$ScopeSvg
+      // Node IDs are never empty, so the root scope's key cannot collide with a compound's.
+      key={parentId ?? ""}
+      $zIndex={parentId === null ? ROOT_SCOPE_Z_INDEX : getNodeZIndex(parentId, "compound", focusedNodeId) + 1}
+    >
+      {children}
+    </$ScopeSvg>
+  ));
 }

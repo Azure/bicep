@@ -18,7 +18,6 @@ using Bicep.Core.Text;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
-using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;
 
@@ -32,7 +31,7 @@ public class FormatCommand(
     {
         if (args.FilePattern is not null && args.OutputDir is not null)
         {
-            throw new CommandLineException($"The {Option.OutDir} parameter cannot be used with the {Option.Pattern} parameter");
+            throw new CommandLineException($"The {OptionNames.OutDir} parameter cannot be used with the {OptionNames.Pattern} parameter");
         }
         ArgumentHelper.ValidateOutputOptions(args.OutputToStdOut, args.OutputDir, args.OutputFile, args.FilePattern);
 
@@ -58,7 +57,7 @@ public class FormatCommand(
             throw new InvalidOperationException("Unable to create Bicep source file.");
         }
 
-        if (sourceFile.Features.LegacyFormatterEnabled)
+        if (sourceFile.LoadFeatures().LegacyFormatterEnabled)
         {
             var v2Options = GetPrettyPrinterOptions(sourceFile, args);
             var legacyOptions = PrettyPrintOptions.FromV2Options(v2Options);
@@ -100,7 +99,7 @@ public class FormatCommand(
 
     private static PrettyPrinterV2Options GetPrettyPrinterOptions(BicepSourceFile sourceFile, FormatArguments args)
     {
-        var options = sourceFile.Configuration.Formatting.Data;
+        var options = sourceFile.LoadConfiguration().Formatting.Data;
 
         if (args.NewlineKind is not null)
         {
@@ -125,60 +124,47 @@ public class FormatCommand(
         return options;
     }
 
-    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    internal static Command CreateCommand(CommandLineBuilderContext context)
     {
-        var command = new System.CommandLine.Command(Constants.Command.Format, "Formats a .bicep file.");
-
-        var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
-        {
-            Description = "The path to the input .bicep file.",
-            Arity = ArgumentArity.ZeroOrOne,
-        };
-        var stdoutOption = new System.CommandLine.Option<bool>(Option.Stdout)
-        {
-            Description = "Prints the output to stdout.",
-        };
-        var outDirOption = new System.CommandLine.Option<string?>(Option.OutDir)
-        {
-            Description = "Saves the output at the specified directory.",
-        };
-        var outFileOption = new System.CommandLine.Option<string?>(Option.OutFile)
-        {
-            Description = "Saves the output as the specified file path.",
-        };
-        var filePatternOption = new System.CommandLine.Option<string?>(Option.Pattern)
-        {
-            Description = "Formats all files matching the specified glob pattern.",
-        };
-        var newlineKindOption = new System.CommandLine.Option<NewlineKind?>(Option.NewlineKind)
+        var inputFileArgument = CommonArguments.OptionalInputFile("The path to the input .bicep file.");
+        var stdoutOption = CommonOptions.Stdout();
+        var outDirOption = CommonOptions.OutDir();
+        var outFileOption = CommonOptions.OutFile();
+        var filePatternOption = CommonOptions.Pattern("Formats all files matching the specified glob pattern.");
+        var newlineKindOption = new Option<NewlineKind?>(OptionNames.NewlineKind)
         {
             Description = "Set newline char. Valid values are (Auto, LF, CRLF, CR).",
         };
-        var indentKindOption = new System.CommandLine.Option<IndentKind?>(Option.IndentKind)
+        var indentKindOption = new Option<IndentKind?>(OptionNames.IndentKind)
         {
             Description = "Set indentation kind. Valid values are (Space, Tab).",
         };
-        var indentSizeOption = new System.CommandLine.Option<int?>(Option.IndentSize)
+        var indentSizeOption = new Option<int?>(OptionNames.IndentSize)
         {
             Description = "Number of spaces to indent with (only valid with --indent-kind set to Space).",
         };
-        var insertFinalNewlineOption = new System.CommandLine.Option<bool?>(Option.InsertFinalNewline)
+        var insertFinalNewlineOption = new Option<bool?>(OptionNames.InsertFinalNewline)
         {
             Description = "Insert a final newline.",
         };
+        var configOption = CommonOptions.Config();
 
-        command.Add(inputFileArgument);
-        command.Add(stdoutOption);
-        command.Add(outDirOption);
-        command.Add(outFileOption);
-        command.Add(filePatternOption);
-        command.Add(newlineKindOption);
-        command.Add(indentKindOption);
-        command.Add(indentSizeOption);
-        command.Add(insertFinalNewlineOption);
-        command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
+        var command = new Command(CommandNames.Format, "Formats a .bicep file.")
+        {
+            inputFileArgument,
+            stdoutOption,
+            outDirOption,
+            outFileOption,
+            filePatternOption,
+            newlineKindOption,
+            indentKindOption,
+            indentSizeOption,
+            insertFinalNewlineOption,
+            configOption,
+        };
+        command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
 
-        command.SetAction((result, ct) => context.RunCommandAsync(() =>
+        command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), () =>
         {
             var args = new FormatArguments(
                 result.GetValue(stdoutOption),

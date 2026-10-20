@@ -9,9 +9,9 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Deploy;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Compilation;
+using Bicep.LanguageServer.Features.Custom.Deployments;
+using Bicep.LanguageServer.Features.Custom.Deployments.Services;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -132,7 +132,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [DataRow(LanguageConstants.TargetScopeTypeSubscription, LanguageConstants.TargetScopeTypeSubscription)]
         [DataRow(LanguageConstants.TargetScopeTypeTenant, LanguageConstants.TargetScopeTypeTenant)]
         [DataRow("Invalid_Scope", "None")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Handle_WithValidInputFile_VerifyDeploymentScope(string scope, string result)
         {
             string bicepFileContents = @"targetScope = '" + scope + "\'" + "\n" +

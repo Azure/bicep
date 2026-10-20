@@ -16,9 +16,10 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.LangServer.IntegrationTests.Helpers;
-using Bicep.LanguageServer.Handlers;
-using Bicep.Testing.Dummies;
+using Bicep.LanguageServer.Features.Language.CodeLens;
+using Bicep.LanguageServer.Features.Language.DocumentLink;
 using Bicep.Testing;
+using Bicep.Testing.Dummies;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -98,7 +99,7 @@ namespace Bicep.LangServer.IntegrationTests
             return defaultServer;
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow($"file://{ROOT}path/to/localfile.bicep")]
         [DataRow($"file://{ROOT}path/to/localfile.json")]
         [DataRow($"file://{ROOT}path/to/localfile.bicepparam")]

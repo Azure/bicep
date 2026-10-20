@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.Configuration
     [TestClass]
     public class ImplicitExtensionsTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(new string[] { "extension1", "extension2" }, 2)]
         [DataRow(new string[] { "extension1" }, 1)]
         [DataRow(new string[] { }, 0)]
@@ -22,7 +22,7 @@ namespace Bicep.Core.UnitTests.Configuration
             }
             """;
             var element = JsonElementFactory.CreateElement(json);
-            var configuration = ImplicitExtensionsConfiguration.Bind(element.GetProperty(RootConfiguration.ImplicitExtensionsKey));
+            var configuration = ImplicitExtensionsConfiguration.Bind(element.GetProperty(BicepConfiguration.ImplicitExtensionsKey));
 
             Assert.AreEqual(expectedCount, configuration.GetImplicitExtensionNames().Count());
         }

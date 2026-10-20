@@ -39,7 +39,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         @export()
         var v% = %
         ", new string[] { })]
-        [DataTestMethod]
+        [TestMethod]
         public void TooManyVariables(int i, int j, string pattern, string[] expectedMessages)
         {
             CompileAndTest(GenerateText(i, j, pattern), MaxNumberVariablesRule.Code, DiagnosticLevel.Error, expectedMessages);
@@ -88,7 +88,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 p1: 'test'
             }
         }")]
-        [DataTestMethod]
+        [TestMethod]
         public void TooManyVariablesWithDeploymentSyntax(string deployableSyntaxDeclaration)
         {
             var variablesWithExport = GenerateText(2, 514, """

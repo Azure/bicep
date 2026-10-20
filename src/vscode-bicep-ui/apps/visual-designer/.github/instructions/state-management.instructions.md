@@ -9,22 +9,25 @@ description: "Use when working with shared state, atoms, Jotai, or state managem
 
 - Use Jotai as the default for shared feature state.
 - Co-locate atoms with the feature they belong to.
-- Export feature atoms through the feature `index.ts` barrel.
+- Export only the atoms other layers need through the feature `index.ts` barrel; keep the rest internal.
 - Prefer small atoms over one large object atom.
 - Use derived atoms for view intent (e.g. `isExportCanvasCoverVisibleAtom`).
-- Use action atoms (`open*`, `close*`, `reset*`) when the action touches multiple atoms.
+- Use action atoms (`open*`, `close*`, `report*`, `reset*`) when the action touches multiple atoms, and
+  expose those rather than raw writable atoms across a feature boundary.
 - Use `useAtomValue` for reads and `useSetAtom` for writes to reduce accidental subscriptions.
 
 ## Project Layout
 
-Core libraries: `src/lib/` (`graph/`, `messaging/`, `theming/`, `utils/`).
-Feature slices: `src/features/` (`controls/`, `export/`, `layout/`, `status/`, `visualization/`, `devtools/`).
+See the app [README](../../README.md) for module structure, dependency direction, and naming. Do not
+duplicate that guidance here.
 
-Per feature:
+Atom placement follows from it:
 
-- `feature/atoms.ts` — primary atoms, action atoms, derived atoms.
-- `feature/components/*` — use atoms directly where practical.
-- `feature/hooks/*` — orchestration logic that reacts to external events and writes atoms.
+- `feature/atoms.ts` — primary atoms, action atoms, derived atoms. It sits at the feature root beside
+  `index.ts`, not inside `components/` or `hooks/`. Split into `atoms/` with an `index.ts` only once it
+  holds distinct state concerns.
+- Components in `feature/components/` read atoms directly where practical.
+- Orchestration that reacts to external events and writes atoms belongs in `feature/hooks/`.
 
 ## When NOT to Use Atoms
 

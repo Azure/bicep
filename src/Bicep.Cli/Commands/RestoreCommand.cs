@@ -9,7 +9,6 @@ using Bicep.Cli.Logging;
 using Bicep.Core;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
-using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;
 
@@ -43,30 +42,23 @@ public class RestoreCommand(
         return summary;
     }
 
-    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    internal static Command CreateCommand(CommandLineBuilderContext context)
     {
-        var command = new System.CommandLine.Command(Constants.Command.Restore, "Restores external modules from the specified Bicep file to the local module cache.");
+        var inputFileArgument = CommonArguments.OptionalInputFile("The path to the .bicep file.");
+        var filePatternOption = CommonOptions.Pattern("Restores all files matching the specified glob pattern.");
+        var forceOption = CommonOptions.Force("Force restore even if modules are already cached.");
+        var configOption = CommonOptions.Config();
 
-        var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
+        var command = new Command(CommandNames.Restore, "Restores external modules from the specified Bicep file to the local module cache.")
         {
-            Description = "The path to the .bicep file.",
-            Arity = ArgumentArity.ZeroOrOne,
+            inputFileArgument,
+            filePatternOption,
+            forceOption,
+            configOption,
         };
-        var filePatternOption = new System.CommandLine.Option<string?>(Option.Pattern)
-        {
-            Description = "Restores all files matching the specified glob pattern.",
-        };
-        var forceOption = new System.CommandLine.Option<bool>(Option.Force)
-        {
-            Description = "Force restore even if modules are already cached.",
-        };
+        command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
 
-        command.Add(inputFileArgument);
-        command.Add(filePatternOption);
-        command.Add(forceOption);
-        command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
-
-        command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+        command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
         {
             var args = new RestoreArguments(
                 result.GetValue(inputFileArgument),

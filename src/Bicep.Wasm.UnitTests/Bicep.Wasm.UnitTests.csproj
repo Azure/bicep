@@ -24,4 +24,8 @@
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Files\create-vm.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

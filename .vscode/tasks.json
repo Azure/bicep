@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Bicep.sln",
+                "${workspaceFolder}/Bicep.slnx",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -97,7 +97,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/Bicep.sln",
+                "${workspaceFolder}/Bicep.slnx",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],

@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Oci.Oras;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -16,7 +16,7 @@ namespace Bicep.Core.UnitTests.Registry;
 [TestClass]
 public class OciRegistryTransportFactoryTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("example.azurecr.io")]
     [DataRow("example.azurecr.cn")]
     [DataRow("example.azurecr.us")]
@@ -26,7 +26,7 @@ public class OciRegistryTransportFactoryTests
         OciRegistryTransportFactory.IsAzureSdkHost(host).Should().BeTrue();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("ghcr.io")]
     [DataRow("localhost:5000")]
     [DataRow("docker.io")]
@@ -73,7 +73,7 @@ public class OciRegistryTransportFactoryTests
     {
         var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
         var azure = new AzureContainerRegistryManager(clientFactory);
-        var docker = new DockerCredentialProvider(TestEnvironment.Default, new MockFileSystem());
+        var docker = new DockerCredentialProvider(TestEnvironment.Default, new InMemoryFileExplorer());
         return (new OciRegistryTransportFactory(azure, docker), azure);
     }
 }

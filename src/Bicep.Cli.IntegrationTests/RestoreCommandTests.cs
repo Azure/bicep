@@ -48,7 +48,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetAllDataSetsWithPublishSource))]
         public async Task Restore_ShouldSucceed(string testName, DataSet dataSet, bool publishSource)
         {
             TestContext.WriteLine(testName);
@@ -158,8 +158,8 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
                 .And.AllSatisfy(m => m.Should().NotHaveSource());
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetAllDataSetsWithPublishSource))]
         public async Task Restore_ShouldSucceedWithAnonymousClient(string testName, DataSet dataSet, bool publishSource)
         {
             TestContext.WriteLine(testName);
@@ -213,7 +213,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
         //
         //
         // No errors
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(null, null, null)]
         [DataRow(null, "application/vnd.ms.bicep.module.artifact", null)]
         [DataRow("application/vnd.oci.image.manifest.v1+json", null, null)]
@@ -280,7 +280,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // *** Valid Cases ***
         [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json }, null)]
         [DataRow(new string[] { "unknown1", "unknown2", BicepMediaTypes.BicepModuleLayerV1Json }, null)]
@@ -482,7 +482,7 @@ output o1 string = '${p1}${p2}'");
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public async Task Restore_ByDigest_ShouldSucceed(bool publishSource)
@@ -538,8 +538,8 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithExternalModulesAndPublishSource), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSetsWithExternalModulesAndPublishSource))]
         public async Task Restore_NonExistentModules_ShouldFail(string testName, DataSet dataSet, bool publishSource)
         {
             var clientFactory = dataSet.CreateMockRegistryClients();

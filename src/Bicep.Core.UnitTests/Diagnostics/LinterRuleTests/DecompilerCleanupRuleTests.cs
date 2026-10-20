@@ -9,7 +9,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class DecompilerCleanupRuleTests : LinterRuleTestsBase
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             @"
             ",
@@ -148,7 +148,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 new() { IncludePosition = IncludePosition.None });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             @"
             ",
@@ -229,7 +229,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 new() { IncludePosition = IncludePosition.None });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             @"
             ",

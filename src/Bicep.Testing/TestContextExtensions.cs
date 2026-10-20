@@ -13,8 +13,13 @@ public static class TestContextExtensions
     public static BaselineDirectory MaterializeBaseline(this TestContext testContext, EmbeddedFile embeddedFile)
         => BaselineDirectory.Materialize(testContext, embeddedFile);
 
+    // MSTest only creates isolated run directories when deployment items are used. Otherwise, ResultsDirectory is the
+    // build output directory, so test outputs are kept in a dedicated subdirectory to avoid mixing them with binaries.
+    public static string GetOutputRootPath(this TestContext testContext)
+        => Path.Combine(testContext.ResultsDirectory!, "TestOutput");
+
     public static string GetUniqueOutputPath(this TestContext testContext)
-        => Path.Combine(testContext.ResultsDirectory!, Guid.NewGuid().ToString());
+        => Path.Combine(testContext.GetOutputRootPath(), Guid.NewGuid().ToString());
 
     public static string GetResultFilePath(this TestContext testContext, string fileName, string? outputPath = null)
     {

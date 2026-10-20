@@ -172,7 +172,7 @@ namespace Bicep.Core.SourceGraph
 
         private void PopulateRecursive(BicepSourceFile file, FrozenSet<ISourceFile>? sourceFileExplorerBuild)
         {
-            var config = file.Configuration;
+            var config = file.LoadConfiguration();
             implicitExtensions[file] = [];
 
             // process "implicit" extensions (extensions defined in bicepconfig.json)
@@ -231,7 +231,7 @@ namespace Bicep.Core.SourceGraph
             }
         }
 
-        private ImplicitExtension GetImplicitExtension(string extensionName, BicepSourceFile referencingFile, RootConfiguration config)
+        private ImplicitExtension GetImplicitExtension(string extensionName, BicepSourceFile referencingFile, IBicepConfiguration config)
         {
             if (!config.Extensions.TryGetExtensionSource(extensionName).IsSuccess(out var extensionEntry, out var errorBuilder))
             {

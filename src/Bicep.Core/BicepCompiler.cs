@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
-using System.IO.Abstractions;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
@@ -38,6 +36,7 @@ public class BicepCompiler
     private readonly IBicepAnalyzer bicepAnalyzer;
     private readonly IFileExplorer fileExplorer;
     private readonly IModuleDispatcher moduleDispatcher;
+    private readonly CompilerVersionCheckOptions compilerVersionCheckOptions;
 
     public BicepCompiler(
         IEnvironment environment,
@@ -45,7 +44,8 @@ public class BicepCompiler
         IBicepAnalyzer bicepAnalyzer,
         IFileExplorer fileExplorer,
         IModuleDispatcher moduleDispatcher,
-        ISourceFileFactory sourceFileFactory)
+        ISourceFileFactory sourceFileFactory,
+        CompilerVersionCheckOptions compilerVersionCheckOptions)
     {
         this.environment = environment;
         this.namespaceProvider = namespaceProvider;
@@ -53,6 +53,7 @@ public class BicepCompiler
         this.fileExplorer = fileExplorer;
         this.moduleDispatcher = moduleDispatcher;
         this.SourceFileFactory = sourceFileFactory;
+        this.compilerVersionCheckOptions = compilerVersionCheckOptions;
     }
 
     public ISourceFileFactory SourceFileFactory { get; }
@@ -113,7 +114,8 @@ public class BicepCompiler
             bicepAnalyzer,
             moduleDispatcher,
             this.SourceFileFactory,
-            []);
+            [],
+            compilerVersionCheckOptions);
 
     private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ArtifactResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
     {

@@ -4,10 +4,10 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.LanguageServer.Features.Language.Completion.Snippets;
 using Bicep.Testing;
 using Bicep.Testing.Baselines;
 using Bicep.Testing.IO;
-using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -119,7 +119,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         text.Should().Be(string.Empty);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("", "")]
     [DataRow("   ", "   ")]
     public void RemoveSnippetPlaceholderComments_WithInvalidInput_ReturnsInputTextAsIs(string input, string expected)

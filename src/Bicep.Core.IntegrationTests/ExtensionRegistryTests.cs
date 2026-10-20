@@ -13,9 +13,9 @@ using FluentAssertions;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using Bicep.Testing.Assertions;
 using Bicep.Testing.IO;
-using Bicep.Testing;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -49,7 +49,7 @@ public class ExtensionRegistryTests : TestBase
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(false, "", false)]
     [DataRow(false, "as fooExt", false)]
     [DataRow(true, "", true)]
@@ -94,7 +94,7 @@ public class ExtensionRegistryTests : TestBase
         result.Template.Should().NotBeNull();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(false, "", false)]
     [DataRow(false, "as fooExt", false)]
     [DataRow(true, "", true)]

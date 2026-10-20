@@ -12,7 +12,7 @@ internal static class BaselineUpdate
     private const string SetBaselineSettingName = "SetBaseLine";
 
     public static bool IsEnabled(TestContext testContext) =>
-        testContext.Properties.Contains(SetBaselineSettingName) &&
+        testContext.Properties.ContainsKey(SetBaselineSettingName) &&
         string.Equals(testContext.Properties[SetBaselineSettingName] as string, bool.TrueString, StringComparison.OrdinalIgnoreCase);
 
     public static void Apply(string actualPath, string expectedPath)

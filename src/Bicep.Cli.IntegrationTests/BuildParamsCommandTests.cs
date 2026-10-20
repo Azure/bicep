@@ -342,7 +342,7 @@ namespace Bicep.Cli.IntegrationTests
                 """,
                 rootDir);
 
-            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            var environment = TestEnvironment.Default.WithVariables((BicepEnvironmentVariables.ParametersOverrides, new
             {
                 rgName = "override-rg"
             }.ToJson()));
@@ -463,7 +463,7 @@ namespace Bicep.Cli.IntegrationTests
                 """,
                 rootDir);
 
-            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            var environment = TestEnvironment.Default.WithVariables((BicepEnvironmentVariables.ParametersOverrides, new
             {
                 namePrefix = "wrong"
             }.ToJson()));
@@ -507,7 +507,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
 
-            result.Should().Fail().And.HaveStderrMatch("*Error BCP033: Expected a value of type \"string\" but the provided value is of type \"42\".*");
+            result.Should().Fail().And.HaveStderrMatch("*Error BCP033: The value inherited for parameter \"rgName\" from \"shared.bicepparam\": Expected a value of type \"string\" but the provided value is of type \"42\".*");
         }
 
         [TestMethod]
@@ -1178,7 +1178,7 @@ namespace Bicep.Cli.IntegrationTests
             var settings = CreateDefaultSettings() with
             {
                 Environment = TestEnvironment.Default.WithVariables(
-                    ("BICEP_PARAMETERS_OVERRIDES", paramsOverrides)
+                    (BicepEnvironmentVariables.ParametersOverrides, paramsOverrides)
                 )
             };
 
@@ -1222,7 +1222,7 @@ output foo string = foo
 """,
                 Path.GetDirectoryName(bicepparamsPath));
 
-            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            var environment = TestEnvironment.Default.WithVariables((BicepEnvironmentVariables.ParametersOverrides, new
             {
                 foo = "bar"
             }.ToJson()));
@@ -1266,7 +1266,7 @@ output foo string = foo
 """,
                 Path.GetDirectoryName(bicepparamsPath));
 
-            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            var environment = TestEnvironment.Default.WithVariables((BicepEnvironmentVariables.ParametersOverrides, new
             {
                 wrongName = "bar"
             }.ToJson()));
@@ -1305,7 +1305,7 @@ output foo string = foo
             var settings = CreateDefaultSettings() with
             {
                 Environment = TestEnvironment.Default.WithVariables(
-                    ("BICEP_PARAMETERS_OVERRIDES", paramsOverrides)
+                    (BicepEnvironmentVariables.ParametersOverrides, paramsOverrides)
                 )
             };
 
@@ -1343,7 +1343,7 @@ param objParam object
             result.Stderr.Should().Contain("Error BCP033: Expected a value of type \"object\" but the provided value is of type \"'notAnObject'\".");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
         [TestCategory(TestCategories.Baseline)]
         public async Task Build_Valid_Params_File_Should_Succeed(BaselineData_Bicepparam baselineData)
@@ -1363,7 +1363,7 @@ param objParam object
             data.Compiled!.Read().Should().MatchJsonBaseline(data.Compiled);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
         [TestCategory(TestCategories.Baseline)]
         public async Task Build_Valid_Params_File_To_Outdir_Should_Succeed(BaselineData_Bicepparam baselineData)
@@ -1384,7 +1384,7 @@ param objParam object
             data.Compiled.Read().Should().MatchJsonBaseline(data.Compiled);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
         [TestCategory(TestCategories.Baseline)]
         public async Task Build_Valid_Params_File_ToStdOut_Should_Succeed(BaselineData_Bicepparam baselineData)
@@ -1407,7 +1407,7 @@ param objParam object
             parametersStdout.parametersJson.Should().MatchJsonBaseline(data.Compiled!);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.InvalidOnly)]
         public async Task Build_Invalid_Single_Params_File_ShouldFail_WithExpectedErrorMessage(BaselineData_Bicepparam baselineData)
         {
@@ -1886,6 +1886,7 @@ param objParam object
             result.ExitCode.Should().Be(0);
         }
 
+        [TestMethod]
         public async Task BuildParams_Extends_InvalidType_ThrowsError()
         {
             var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
@@ -1909,7 +1910,7 @@ param objParam object
             File.Exists(expectedOutputFile).Should().BeFalse();
 
             output.Should().BeEmpty();
-            error.Should().Contain("Error BCP033: Expected a value of type \"string\" but the provided value is of type \"42\".");
+            error.Should().Contain("Error BCP033: The value inherited for parameter \"tag\" from \"base.bicepparam\": Expected a value of type \"string\" but the provided value is of type \"42\".");
             result.Should().Be(1);
         }
 
@@ -1940,9 +1941,9 @@ param objParam object
             files.FileSystem.File.Exists(files.GetUri("main.json").GetFilePath()).Should().BeFalse();
 
             output.Should().BeEmpty();
-            error.Should().Contain("Error BCP033: Expected a value of type \"int\" but the provided value is of type \"'42'\".");
-            error.Should().Contain("Error BCP033: Expected a value of type \"string\" but the provided value is of type \"object\".");
-            error.Should().Contain("Error BCP033: Expected a value of type \"bool\" but the provided value is of type \"<empty array>\".");
+            error.Should().Contain("Error BCP033: The value inherited for parameter \"myInt\" from \"base.bicepparam\": Expected a value of type \"int\" but the provided value is of type \"'42'\".");
+            error.Should().Contain("Error BCP033: The value inherited for parameter \"myString\" from \"base.bicepparam\": Expected a value of type \"string\" but the provided value is of type \"object\".");
+            error.Should().Contain("Error BCP033: The value inherited for parameter \"myBool\" from \"base.bicepparam\": Expected a value of type \"bool\" but the provided value is of type \"<empty array>\".");
             result.Should().Be(1);
         }
 

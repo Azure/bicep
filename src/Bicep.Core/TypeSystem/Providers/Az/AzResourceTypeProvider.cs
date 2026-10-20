@@ -67,6 +67,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             "managedBy",
             "extendedLocation",
             "zones",
+            "placement",
             "plan",
             ResourceSkuPropertyName,
             "identity",
@@ -162,6 +163,20 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 
             yield return new NamedTypeProperty("zones", stringArray);
 
+            var zonePlacementPolicyType = TypeHelper.CreateTypeUnion(
+                TypeFactory.CreateStringLiteralType("NotSpecified"),
+                TypeFactory.CreateStringLiteralType("Any"),
+                TypeFactory.CreateStringLiteralType("None"),
+                TypeFactory.CreateStringLiteralType("Auto"),
+                LanguageConstants.String);
+
+            yield return new NamedTypeProperty("placement", new ObjectType("placement", TypeSymbolValidationFlags.Default, new[]
+            {
+                new NamedTypeProperty("zonePlacementPolicy", zonePlacementPolicyType, TypePropertyFlags.Required),
+                new NamedTypeProperty("includeZones", stringArray),
+                new NamedTypeProperty("excludeZones", stringArray),
+            }, null));
+
             yield return new NamedTypeProperty("plan", LanguageConstants.Object);
 
             yield return new NamedTypeProperty("eTag", LanguageConstants.String);
@@ -199,7 +214,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         }
 
         public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader)
-            : base([.. resourceTypeLoader.GetAvailableTypes()])
+            : base(resourceTypeLoader.GetAvailableTypes())
         {
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();
@@ -493,7 +508,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)
-            => availableResourceTypes.Contains(typeReference);
+            => resourceTypeLoader.HasType(typeReference);
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;

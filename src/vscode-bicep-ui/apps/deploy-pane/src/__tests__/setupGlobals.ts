@@ -22,22 +22,16 @@ const validityStateKeys = [
 ] as const;
 
 const setValidity = PolyfilledElementInternals.prototype.setValidity;
-PolyfilledElementInternals.prototype.setValidity = function (
-  validityFlags = {},
-  validationMessage,
-  anchor,
-) {
+PolyfilledElementInternals.prototype.setValidity = function (validityFlags = {}, validationMessage, anchor) {
   const standardValidityFlags = Object.fromEntries(
-    validityStateKeys
-      .filter((key) => key in validityFlags)
-      .map((key) => [key, validityFlags[key]]),
+    validityStateKeys.filter((key) => key in validityFlags).map((key) => [key, validityFlags[key]]),
   );
 
   setValidity.call(this, standardValidityFlags, validationMessage, anchor);
 };
 
 vi.spyOn(Math, "random").mockReturnValue(0.123456789);
-global.ResizeObserver = class implements ResizeObserver {
+globalThis.ResizeObserver = class implements ResizeObserver {
   observe = vi.fn();
   unobserve = vi.fn();
   disconnect = vi.fn();

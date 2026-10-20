@@ -58,13 +58,16 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, BicepSourceFile sourceFile)
+        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, BicepSourceFile sourceFile, CompilerVersionCheckOptions compilerVersionCheckOptions)
         {
             this.ArtifactReferenceFactory = artifactReferenceFactory;
             this.ModelLookup = modelLookup;
             this.SourceFileGrouping = sourceFileGrouping;
             this.SourceFile = sourceFile;
             this.Environment = environment;
+            this.CompilerVersionCheckOptions = compilerVersionCheckOptions;
+            this.Features = sourceFile.LoadFeatures();
+            this.Configuration = sourceFile.LoadConfiguration();
             TraceBuildOperation(sourceFile, Features, Configuration);
 
             // create this in locked mode by default
@@ -205,7 +208,7 @@ namespace Bicep.Core.Semantics
                 new(f.Overload.TypeSignatureSymbol, null),
                 DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction)));
 
-        private static void TraceBuildOperation(BicepSourceFile sourceFile, IFeatureProvider features, RootConfiguration configuration)
+        private static void TraceBuildOperation(BicepSourceFile sourceFile, IFeatureProvider features, IBicepConfiguration configuration)
         {
             var sb = new StringBuilder();
 
@@ -232,11 +235,13 @@ namespace Bicep.Core.Semantics
 
         public IEnvironment Environment { get; }
 
+        public CompilerVersionCheckOptions CompilerVersionCheckOptions { get; }
+
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
 
-        public RootConfiguration Configuration => this.SourceFile.Configuration;
+        public IBicepConfiguration Configuration { get; }
 
-        public IFeatureProvider Features => this.SourceFile.Features;
+        public IFeatureProvider Features { get; }
 
         public IBinder Binder { get; }
 
@@ -332,13 +337,32 @@ namespace Bicep.Core.Semantics
         }
 
         /// <summary>
+        /// Gets the diagnostic emitted when the running compiler version does not satisfy the "bicep.version"
+        /// constraint from the effective configuration, if any.
+        /// </summary>
+        private IReadOnlyList<IDiagnostic> GetCompilerVersionDiagnostics()
+        {
+            // Prefer the URI of the config file that actually declared "bicep.version" (walking the "extends"
+            // chain), falling back to the leaf config's URI defensively if that couldn't be determined.
+            var configFileUri = this.Configuration.Compiler.DeclaringConfigUri ?? this.Configuration.ConfigFileUri;
+
+            if (CompilerVersionValidator.Validate(this.Configuration.Compiler.Version, this.Environment.CurrentVersion.Version, configFileUri, this.CompilerVersionCheckOptions.ConstraintViolationLevel) is { } diagnostic)
+            {
+                return [diagnostic];
+            }
+
+            return [];
+        }
+
+        /// <summary>
         /// Cached diagnostics from compilation
         /// </summary>
         public ImmutableArray<IDiagnostic> GetAllDiagnostics() => allDiagnostics.Value;
 
         private ImmutableArray<IDiagnostic> AssembleDiagnostics()
         {
-            var diagnostics = this.Configuration.Diagnostics
+            var diagnostics = this.Configuration.GetDiagnostics()
+                .Concat(GetCompilerVersionDiagnostics())
                 .Concat(this.LexingErrorLookup)
                 .Concat(this.ParsingErrorLookup)
                 .Concat(GetSemanticDiagnostics())
@@ -687,7 +711,7 @@ namespace Bicep.Core.Semantics
             {
                 yield return DiagnosticBuilder.ForPosition(usingDeclarationSyntax.Path!)
                     .MissingExtensionConfigAssignments(missingRequiredAssignments.Select(kvp => kvp.Key))
-                    .WithAppendedFixes(CodeFixHelper.GetCodeFixForMissingBicepExtensionConfigAssignments(Root.Syntax, SourceFile, missingRequiredAssignments));
+                    .WithAppendedFixes(CodeFixHelper.GetCodeFixForMissingBicepExtensionConfigAssignments(Root.Syntax, this, missingRequiredAssignments));
             }
 
             foreach (var assignmentAlias in assignmentAliasesWithMissingExtension)
@@ -699,6 +723,8 @@ namespace Bicep.Core.Semantics
 
         private IEnumerable<IDiagnostic> GatherTypeMismatchDiagnostics()
         {
+            var extendsPath = SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>().FirstOrDefault()?.Path;
+
             foreach (var assignmentSymbol in Root.ParameterAssignments)
             {
                 var isFromSameFile = assignmentSymbol.Context.SourceFile == Root.Context.SourceFile;
@@ -726,7 +752,14 @@ namespace Bicep.Core.Semantics
 
                     foreach (var diagnostic in diagnostics.GetDiagnostics())
                     {
-                        yield return diagnostic;
+                        yield return !isFromSameFile && extendsPath is not null && diagnostic is Diagnostic concreteDiagnostic
+                            ? concreteDiagnostic with
+                            {
+                                Span = extendsPath.Span,
+                                Message = $"The value inherited for parameter \"{assignmentSymbol.Name}\" from \"{assignmentSymbol.Context.SourceFile.GetFileName()}\": {concreteDiagnostic.Message}",
+                                Fixes = [],
+                            }
+                            : diagnostic;
                     }
                 }
             }

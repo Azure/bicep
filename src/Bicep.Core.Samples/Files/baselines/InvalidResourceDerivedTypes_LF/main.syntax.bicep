@@ -1,5 +1,5 @@
 type invalid1 = resourceInput
-//@[000:1707) ProgramSyntax
+//@[000:3258) ProgramSyntax
 //@[000:0029) ├─TypeDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |type|
 //@[005:0013) | ├─IdentifierSyntax
@@ -254,6 +254,470 @@ type shouldNotBeSealable = resourceInput<'Microsoft.Storage/storageAccounts@2022
 //@[041:0087) |   |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
 //@[087:0088) |   └─Token(RightChevron) |>|
 //@[088:0090) ├─Token(NewLine) |\n\n|
+
+@sealed()
+//@[000:0110) ├─TypeDeclarationSyntax
+//@[000:0009) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0009) | | └─FunctionCallSyntax
+//@[001:0007) | |   ├─IdentifierSyntax
+//@[001:0007) | |   | └─Token(Identifier) |sealed|
+//@[007:0008) | |   ├─Token(LeftParen) |(|
+//@[008:0009) | |   └─Token(RightParen) |)|
+//@[009:0010) | ├─Token(NewLine) |\n|
+type shouldNotBeSealable2 = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0025) | ├─IdentifierSyntax
+//@[005:0025) | | └─Token(Identifier) |shouldNotBeSealable2|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0100) | └─TypePropertyAccessSyntax
+//@[028:0089) |   ├─ParameterizedTypeInstantiationSyntax
+//@[028:0041) |   | ├─IdentifierSyntax
+//@[028:0041) |   | | └─Token(Identifier) |resourceInput|
+//@[041:0042) |   | ├─Token(LeftChevron) |<|
+//@[042:0088) |   | ├─ParameterizedTypeArgumentSyntax
+//@[042:0088) |   | | └─StringTypeLiteralSyntax
+//@[042:0088) |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[088:0089) |   | └─Token(RightChevron) |>|
+//@[089:0090) |   ├─Token(Dot) |.|
+//@[090:0100) |   └─IdentifierSyntax
+//@[090:0100) |     └─Token(Identifier) |properties|
+//@[100:0102) ├─Token(NewLine) |\n\n|
+
+@sealed()
+//@[000:0112) ├─TypeDeclarationSyntax
+//@[000:0009) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0009) | | └─FunctionCallSyntax
+//@[001:0007) | |   ├─IdentifierSyntax
+//@[001:0007) | |   | └─Token(Identifier) |sealed|
+//@[007:0008) | |   ├─Token(LeftParen) |(|
+//@[008:0009) | |   └─Token(RightParen) |)|
+//@[009:0010) | ├─Token(NewLine) |\n|
+type shouldNotBeSealable3 = resourceOutput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties?
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0025) | ├─IdentifierSyntax
+//@[005:0025) | | └─Token(Identifier) |shouldNotBeSealable3|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0102) | └─NullableTypeSyntax
+//@[028:0101) |   ├─TypePropertyAccessSyntax
+//@[028:0090) |   | ├─ParameterizedTypeInstantiationSyntax
+//@[028:0042) |   | | ├─IdentifierSyntax
+//@[028:0042) |   | | | └─Token(Identifier) |resourceOutput|
+//@[042:0043) |   | | ├─Token(LeftChevron) |<|
+//@[043:0089) |   | | ├─ParameterizedTypeArgumentSyntax
+//@[043:0089) |   | | | └─StringTypeLiteralSyntax
+//@[043:0089) |   | | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[089:0090) |   | | └─Token(RightChevron) |>|
+//@[090:0091) |   | ├─Token(Dot) |.|
+//@[091:0101) |   | └─IdentifierSyntax
+//@[091:0101) |   |   └─Token(Identifier) |properties|
+//@[101:0102) |   └─Token(Question) |?|
+//@[102:0104) ├─Token(NewLine) |\n\n|
+
+@sealed()
+//@[000:0124) ├─TypeDeclarationSyntax
+//@[000:0009) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0009) | | └─FunctionCallSyntax
+//@[001:0007) | |   ├─IdentifierSyntax
+//@[001:0007) | |   | └─Token(Identifier) |sealed|
+//@[007:0008) | |   ├─Token(LeftParen) |(|
+//@[008:0009) | |   └─Token(RightParen) |)|
+//@[009:0010) | ├─Token(NewLine) |\n|
+type shouldNotBeSealable4 = resourceInput<'Microsoft.Web/customApis@2016-06-01'>.properties.connectionParameters.*
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0025) | ├─IdentifierSyntax
+//@[005:0025) | | └─Token(Identifier) |shouldNotBeSealable4|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0114) | └─TypeAdditionalPropertiesAccessSyntax
+//@[028:0112) |   ├─TypePropertyAccessSyntax
+//@[028:0091) |   | ├─TypePropertyAccessSyntax
+//@[028:0080) |   | | ├─ParameterizedTypeInstantiationSyntax
+//@[028:0041) |   | | | ├─IdentifierSyntax
+//@[028:0041) |   | | | | └─Token(Identifier) |resourceInput|
+//@[041:0042) |   | | | ├─Token(LeftChevron) |<|
+//@[042:0079) |   | | | ├─ParameterizedTypeArgumentSyntax
+//@[042:0079) |   | | | | └─StringTypeLiteralSyntax
+//@[042:0079) |   | | | |   └─Token(StringComplete) |'Microsoft.Web/customApis@2016-06-01'|
+//@[079:0080) |   | | | └─Token(RightChevron) |>|
+//@[080:0081) |   | | ├─Token(Dot) |.|
+//@[081:0091) |   | | └─IdentifierSyntax
+//@[081:0091) |   | |   └─Token(Identifier) |properties|
+//@[091:0092) |   | ├─Token(Dot) |.|
+//@[092:0112) |   | └─IdentifierSyntax
+//@[092:0112) |   |   └─Token(Identifier) |connectionParameters|
+//@[112:0113) |   ├─Token(Dot) |.|
+//@[113:0114) |   └─Token(Asterisk) |*|
+//@[114:0116) ├─Token(NewLine) |\n\n|
+
+@sealed()
+//@[000:0058) ├─TypeDeclarationSyntax
+//@[000:0009) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0009) | | └─FunctionCallSyntax
+//@[001:0007) | |   ├─IdentifierSyntax
+//@[001:0007) | |   | └─Token(Identifier) |sealed|
+//@[007:0008) | |   ├─Token(LeftParen) |(|
+//@[008:0009) | |   └─Token(RightParen) |)|
+//@[009:0010) | ├─Token(NewLine) |\n|
+type shouldNotBeSealable5 = shouldNotBeSealable2
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0025) | ├─IdentifierSyntax
+//@[005:0025) | | └─Token(Identifier) |shouldNotBeSealable5|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0048) | └─TypeVariableAccessSyntax
+//@[028:0048) |   └─IdentifierSyntax
+//@[028:0048) |     └─Token(Identifier) |shouldNotBeSealable2|
+//@[048:0050) ├─Token(NewLine) |\n\n|
+
+@sealed()
+//@[000:0109) ├─ParameterDeclarationSyntax
+//@[000:0009) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0009) | | └─FunctionCallSyntax
+//@[001:0007) | |   ├─IdentifierSyntax
+//@[001:0007) | |   | └─Token(Identifier) |sealed|
+//@[007:0008) | |   ├─Token(LeftParen) |(|
+//@[008:0009) | |   └─Token(RightParen) |)|
+//@[009:0010) | ├─Token(NewLine) |\n|
+param shouldNotBeSealable6 resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+//@[000:0005) | ├─Token(Identifier) |param|
+//@[006:0026) | ├─IdentifierSyntax
+//@[006:0026) | | └─Token(Identifier) |shouldNotBeSealable6|
+//@[027:0099) | └─TypePropertyAccessSyntax
+//@[027:0088) |   ├─ParameterizedTypeInstantiationSyntax
+//@[027:0040) |   | ├─IdentifierSyntax
+//@[027:0040) |   | | └─Token(Identifier) |resourceInput|
+//@[040:0041) |   | ├─Token(LeftChevron) |<|
+//@[041:0087) |   | ├─ParameterizedTypeArgumentSyntax
+//@[041:0087) |   | | └─StringTypeLiteralSyntax
+//@[041:0087) |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[087:0088) |   | └─Token(RightChevron) |>|
+//@[088:0089) |   ├─Token(Dot) |.|
+//@[089:0099) |   └─IdentifierSyntax
+//@[089:0099) |     └─Token(Identifier) |properties|
+//@[099:0101) ├─Token(NewLine) |\n\n|
+
+@sealed()
+//@[000:0057) ├─ParameterDeclarationSyntax
+//@[000:0009) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0009) | | └─FunctionCallSyntax
+//@[001:0007) | |   ├─IdentifierSyntax
+//@[001:0007) | |   | └─Token(Identifier) |sealed|
+//@[007:0008) | |   ├─Token(LeftParen) |(|
+//@[008:0009) | |   └─Token(RightParen) |)|
+//@[009:0010) | ├─Token(NewLine) |\n|
+param shouldNotBeSealable7 shouldNotBeSealable2
+//@[000:0005) | ├─Token(Identifier) |param|
+//@[006:0026) | ├─IdentifierSyntax
+//@[006:0026) | | └─Token(Identifier) |shouldNotBeSealable7|
+//@[027:0047) | └─TypeVariableAccessSyntax
+//@[027:0047) |   └─IdentifierSyntax
+//@[027:0047) |     └─Token(Identifier) |shouldNotBeSealable2|
+//@[047:0049) ├─Token(NewLine) |\n\n|
+
+type shouldNotBeSealable8 = {
+//@[000:0124) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0025) | ├─IdentifierSyntax
+//@[005:0025) | | └─Token(Identifier) |shouldNotBeSealable8|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0124) | └─ObjectTypeSyntax
+//@[028:0029) |   ├─Token(LeftBrace) |{|
+//@[029:0030) |   ├─Token(NewLine) |\n|
+  @sealed()
+//@[002:0092) |   ├─ObjectTypePropertySyntax
+//@[002:0011) |   | ├─DecoratorSyntax
+//@[002:0003) |   | | ├─Token(At) |@|
+//@[003:0011) |   | | └─FunctionCallSyntax
+//@[003:0009) |   | |   ├─IdentifierSyntax
+//@[003:0009) |   | |   | └─Token(Identifier) |sealed|
+//@[009:0010) |   | |   ├─Token(LeftParen) |(|
+//@[010:0011) |   | |   └─Token(RightParen) |)|
+//@[011:0012) |   | ├─Token(NewLine) |\n|
+  prop: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |prop|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0080) |   | └─TypePropertyAccessSyntax
+//@[008:0069) |   |   ├─ParameterizedTypeInstantiationSyntax
+//@[008:0021) |   |   | ├─IdentifierSyntax
+//@[008:0021) |   |   | | └─Token(Identifier) |resourceInput|
+//@[021:0022) |   |   | ├─Token(LeftChevron) |<|
+//@[022:0068) |   |   | ├─ParameterizedTypeArgumentSyntax
+//@[022:0068) |   |   | | └─StringTypeLiteralSyntax
+//@[022:0068) |   |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[068:0069) |   |   | └─Token(RightChevron) |>|
+//@[069:0070) |   |   ├─Token(Dot) |.|
+//@[070:0080) |   |   └─IdentifierSyntax
+//@[070:0080) |   |     └─Token(Identifier) |properties|
+//@[080:0081) |   ├─Token(NewLine) |\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+type containsResourceDerivedTypes = {
+//@[000:0374) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0033) | ├─IdentifierSyntax
+//@[005:0033) | | └─Token(Identifier) |containsResourceDerivedTypes|
+//@[034:0035) | ├─Token(Assignment) |=|
+//@[036:0374) | └─ObjectTypeSyntax
+//@[036:0037) |   ├─Token(LeftBrace) |{|
+//@[037:0038) |   ├─Token(NewLine) |\n|
+  prop: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+//@[002:0080) |   ├─ObjectTypePropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |prop|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0080) |   | └─TypePropertyAccessSyntax
+//@[008:0069) |   |   ├─ParameterizedTypeInstantiationSyntax
+//@[008:0021) |   |   | ├─IdentifierSyntax
+//@[008:0021) |   |   | | └─Token(Identifier) |resourceInput|
+//@[021:0022) |   |   | ├─Token(LeftChevron) |<|
+//@[022:0068) |   |   | ├─ParameterizedTypeArgumentSyntax
+//@[022:0068) |   |   | | └─StringTypeLiteralSyntax
+//@[022:0068) |   |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[068:0069) |   |   | └─Token(RightChevron) |>|
+//@[069:0070) |   |   ├─Token(Dot) |.|
+//@[070:0080) |   |   └─IdentifierSyntax
+//@[070:0080) |   |     └─Token(Identifier) |properties|
+//@[080:0081) |   ├─Token(NewLine) |\n|
+  tuple: [string, resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties]
+//@[002:0091) |   ├─ObjectTypePropertySyntax
+//@[002:0007) |   | ├─IdentifierSyntax
+//@[002:0007) |   | | └─Token(Identifier) |tuple|
+//@[007:0008) |   | ├─Token(Colon) |:|
+//@[009:0091) |   | └─TupleTypeSyntax
+//@[009:0010) |   |   ├─Token(LeftSquare) |[|
+//@[010:0016) |   |   ├─TupleTypeItemSyntax
+//@[010:0016) |   |   | └─TypeVariableAccessSyntax
+//@[010:0016) |   |   |   └─IdentifierSyntax
+//@[010:0016) |   |   |     └─Token(Identifier) |string|
+//@[016:0017) |   |   ├─Token(Comma) |,|
+//@[018:0090) |   |   ├─TupleTypeItemSyntax
+//@[018:0090) |   |   | └─TypePropertyAccessSyntax
+//@[018:0079) |   |   |   ├─ParameterizedTypeInstantiationSyntax
+//@[018:0031) |   |   |   | ├─IdentifierSyntax
+//@[018:0031) |   |   |   | | └─Token(Identifier) |resourceInput|
+//@[031:0032) |   |   |   | ├─Token(LeftChevron) |<|
+//@[032:0078) |   |   |   | ├─ParameterizedTypeArgumentSyntax
+//@[032:0078) |   |   |   | | └─StringTypeLiteralSyntax
+//@[032:0078) |   |   |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[078:0079) |   |   |   | └─Token(RightChevron) |>|
+//@[079:0080) |   |   |   ├─Token(Dot) |.|
+//@[080:0090) |   |   |   └─IdentifierSyntax
+//@[080:0090) |   |   |     └─Token(Identifier) |properties|
+//@[090:0091) |   |   └─Token(RightSquare) |]|
+//@[091:0092) |   ├─Token(NewLine) |\n|
+  array: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties[]
+//@[002:0083) |   ├─ObjectTypePropertySyntax
+//@[002:0007) |   | ├─IdentifierSyntax
+//@[002:0007) |   | | └─Token(Identifier) |array|
+//@[007:0008) |   | ├─Token(Colon) |:|
+//@[009:0083) |   | └─ArrayTypeSyntax
+//@[009:0081) |   |   ├─ArrayTypeMemberSyntax
+//@[009:0081) |   |   | └─TypePropertyAccessSyntax
+//@[009:0070) |   |   |   ├─ParameterizedTypeInstantiationSyntax
+//@[009:0022) |   |   |   | ├─IdentifierSyntax
+//@[009:0022) |   |   |   | | └─Token(Identifier) |resourceInput|
+//@[022:0023) |   |   |   | ├─Token(LeftChevron) |<|
+//@[023:0069) |   |   |   | ├─ParameterizedTypeArgumentSyntax
+//@[023:0069) |   |   |   | | └─StringTypeLiteralSyntax
+//@[023:0069) |   |   |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[069:0070) |   |   |   | └─Token(RightChevron) |>|
+//@[070:0071) |   |   |   ├─Token(Dot) |.|
+//@[071:0081) |   |   |   └─IdentifierSyntax
+//@[071:0081) |   |   |     └─Token(Identifier) |properties|
+//@[081:0082) |   |   ├─Token(LeftSquare) |[|
+//@[082:0083) |   |   └─Token(RightSquare) |]|
+//@[083:0084) |   ├─Token(NewLine) |\n|
+  *: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+//@[002:0077) |   ├─ObjectTypeAdditionalPropertiesSyntax
+//@[002:0003) |   | ├─Token(Asterisk) |*|
+//@[003:0004) |   | ├─Token(Colon) |:|
+//@[005:0077) |   | └─TypePropertyAccessSyntax
+//@[005:0066) |   |   ├─ParameterizedTypeInstantiationSyntax
+//@[005:0018) |   |   | ├─IdentifierSyntax
+//@[005:0018) |   |   | | └─Token(Identifier) |resourceInput|
+//@[018:0019) |   |   | ├─Token(LeftChevron) |<|
+//@[019:0065) |   |   | ├─ParameterizedTypeArgumentSyntax
+//@[019:0065) |   |   | | └─StringTypeLiteralSyntax
+//@[019:0065) |   |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[065:0066) |   |   | └─Token(RightChevron) |>|
+//@[066:0067) |   |   ├─Token(Dot) |.|
+//@[067:0077) |   |   └─IdentifierSyntax
+//@[067:0077) |   |     └─Token(Identifier) |properties|
+//@[077:0078) |   ├─Token(NewLine) |\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+@sealed()
+//@[000:0071) ├─TypeDeclarationSyntax
+//@[000:0009) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0009) | | └─FunctionCallSyntax
+//@[001:0007) | |   ├─IdentifierSyntax
+//@[001:0007) | |   | └─Token(Identifier) |sealed|
+//@[007:0008) | |   ├─Token(LeftParen) |(|
+//@[008:0009) | |   └─Token(RightParen) |)|
+//@[009:0010) | ├─Token(NewLine) |\n|
+type shouldNotBeSealable9 = containsResourceDerivedTypes.prop
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0025) | ├─IdentifierSyntax
+//@[005:0025) | | └─Token(Identifier) |shouldNotBeSealable9|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0061) | └─TypePropertyAccessSyntax
+//@[028:0056) |   ├─TypeVariableAccessSyntax
+//@[028:0056) |   | └─IdentifierSyntax
+//@[028:0056) |   |   └─Token(Identifier) |containsResourceDerivedTypes|
+//@[056:0057) |   ├─Token(Dot) |.|
+//@[057:0061) |   └─IdentifierSyntax
+//@[057:0061) |     └─Token(Identifier) |prop|
+//@[061:0063) ├─Token(NewLine) |\n\n|
+
+@sealed()
+//@[000:0076) ├─TypeDeclarationSyntax
+//@[000:0009) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0009) | | └─FunctionCallSyntax
+//@[001:0007) | |   ├─IdentifierSyntax
+//@[001:0007) | |   | └─Token(Identifier) |sealed|
+//@[007:0008) | |   ├─Token(LeftParen) |(|
+//@[008:0009) | |   └─Token(RightParen) |)|
+//@[009:0010) | ├─Token(NewLine) |\n|
+type shouldNotBeSealable10 = containsResourceDerivedTypes.tuple[1]
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0026) | ├─IdentifierSyntax
+//@[005:0026) | | └─Token(Identifier) |shouldNotBeSealable10|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0066) | └─TypeArrayAccessSyntax
+//@[029:0063) |   ├─TypePropertyAccessSyntax
+//@[029:0057) |   | ├─TypeVariableAccessSyntax
+//@[029:0057) |   | | └─IdentifierSyntax
+//@[029:0057) |   | |   └─Token(Identifier) |containsResourceDerivedTypes|
+//@[057:0058) |   | ├─Token(Dot) |.|
+//@[058:0063) |   | └─IdentifierSyntax
+//@[058:0063) |   |   └─Token(Identifier) |tuple|
+//@[063:0064) |   ├─Token(LeftSquare) |[|
+//@[064:0065) |   ├─IntegerLiteralSyntax
+//@[064:0065) |   | └─Token(Integer) |1|
+//@[065:0066) |   └─Token(RightSquare) |]|
+//@[066:0068) ├─Token(NewLine) |\n\n|
+
+@sealed()
+//@[000:0076) ├─TypeDeclarationSyntax
+//@[000:0009) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0009) | | └─FunctionCallSyntax
+//@[001:0007) | |   ├─IdentifierSyntax
+//@[001:0007) | |   | └─Token(Identifier) |sealed|
+//@[007:0008) | |   ├─Token(LeftParen) |(|
+//@[008:0009) | |   └─Token(RightParen) |)|
+//@[009:0010) | ├─Token(NewLine) |\n|
+type shouldNotBeSealable11 = containsResourceDerivedTypes.array[*]
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0026) | ├─IdentifierSyntax
+//@[005:0026) | | └─Token(Identifier) |shouldNotBeSealable11|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0066) | └─TypeItemsAccessSyntax
+//@[029:0063) |   ├─TypePropertyAccessSyntax
+//@[029:0057) |   | ├─TypeVariableAccessSyntax
+//@[029:0057) |   | | └─IdentifierSyntax
+//@[029:0057) |   | |   └─Token(Identifier) |containsResourceDerivedTypes|
+//@[057:0058) |   | ├─Token(Dot) |.|
+//@[058:0063) |   | └─IdentifierSyntax
+//@[058:0063) |   |   └─Token(Identifier) |array|
+//@[063:0064) |   ├─Token(LeftSquare) |[|
+//@[064:0065) |   ├─Token(Asterisk) |*|
+//@[065:0066) |   └─Token(RightSquare) |]|
+//@[066:0068) ├─Token(NewLine) |\n\n|
+
+@sealed()
+//@[000:0069) ├─TypeDeclarationSyntax
+//@[000:0009) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0009) | | └─FunctionCallSyntax
+//@[001:0007) | |   ├─IdentifierSyntax
+//@[001:0007) | |   | └─Token(Identifier) |sealed|
+//@[007:0008) | |   ├─Token(LeftParen) |(|
+//@[008:0009) | |   └─Token(RightParen) |)|
+//@[009:0010) | ├─Token(NewLine) |\n|
+type shouldNotBeSealable12 = containsResourceDerivedTypes.*
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0026) | ├─IdentifierSyntax
+//@[005:0026) | | └─Token(Identifier) |shouldNotBeSealable12|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0059) | └─TypeAdditionalPropertiesAccessSyntax
+//@[029:0057) |   ├─TypeVariableAccessSyntax
+//@[029:0057) |   | └─IdentifierSyntax
+//@[029:0057) |   |   └─Token(Identifier) |containsResourceDerivedTypes|
+//@[057:0058) |   ├─Token(Dot) |.|
+//@[058:0059) |   └─Token(Asterisk) |*|
+//@[059:0061) ├─Token(NewLine) |\n\n|
+
+@sealed()
+//@[000:0075) ├─TypeDeclarationSyntax
+//@[000:0009) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0009) | | └─FunctionCallSyntax
+//@[001:0007) | |   ├─IdentifierSyntax
+//@[001:0007) | |   | └─Token(Identifier) |sealed|
+//@[007:0008) | |   ├─Token(LeftParen) |(|
+//@[008:0009) | |   └─Token(RightParen) |)|
+//@[009:0010) | ├─Token(NewLine) |\n|
+type shouldNotBeSealable13 = containsResourceDerivedTypes['prop']
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0026) | ├─IdentifierSyntax
+//@[005:0026) | | └─Token(Identifier) |shouldNotBeSealable13|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0065) | └─TypeArrayAccessSyntax
+//@[029:0057) |   ├─TypeVariableAccessSyntax
+//@[029:0057) |   | └─IdentifierSyntax
+//@[029:0057) |   |   └─Token(Identifier) |containsResourceDerivedTypes|
+//@[057:0058) |   ├─Token(LeftSquare) |[|
+//@[058:0064) |   ├─StringSyntax
+//@[058:0064) |   | └─Token(StringComplete) |'prop'|
+//@[064:0065) |   └─Token(RightSquare) |]|
+//@[065:0067) ├─Token(NewLine) |\n\n|
+
+@sealed()
+//@[000:0088) ├─TypeDeclarationSyntax
+//@[000:0009) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0009) | | └─FunctionCallSyntax
+//@[001:0007) | |   ├─IdentifierSyntax
+//@[001:0007) | |   | └─Token(Identifier) |sealed|
+//@[007:0008) | |   ├─Token(LeftParen) |(|
+//@[008:0009) | |   └─Token(RightParen) |)|
+//@[009:0010) | ├─Token(NewLine) |\n|
+type sealableUserDefinedObject = {
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0030) | ├─IdentifierSyntax
+//@[005:0030) | | └─Token(Identifier) |sealableUserDefinedObject|
+//@[031:0032) | ├─Token(Assignment) |=|
+//@[033:0078) | └─ObjectTypeSyntax
+//@[033:0034) |   ├─Token(LeftBrace) |{|
+//@[034:0035) |   ├─Token(NewLine) |\n|
+  prop: containsResourceDerivedTypes.prop
+//@[002:0041) |   ├─ObjectTypePropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |prop|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0041) |   | └─TypePropertyAccessSyntax
+//@[008:0036) |   |   ├─TypeVariableAccessSyntax
+//@[008:0036) |   |   | └─IdentifierSyntax
+//@[008:0036) |   |   |   └─Token(Identifier) |containsResourceDerivedTypes|
+//@[036:0037) |   |   ├─Token(Dot) |.|
+//@[037:0041) |   |   └─IdentifierSyntax
+//@[037:0041) |   |     └─Token(Identifier) |prop|
+//@[041:0042) |   ├─Token(NewLine) |\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
 
 type hello = {
 //@[000:0113) ├─TypeDeclarationSyntax

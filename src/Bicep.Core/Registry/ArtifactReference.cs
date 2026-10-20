@@ -14,7 +14,7 @@ namespace Bicep.Core.Registry
     /// </summary>
     public abstract class ArtifactReference
     {
-        protected ArtifactReference(IFeatureProvider featureProvider, RootConfiguration configuration, string scheme)
+        protected ArtifactReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, string scheme)
         {
             Scheme = scheme;
             FeatureProvider = featureProvider;
@@ -25,7 +25,7 @@ namespace Bicep.Core.Registry
 
         public IFeatureProvider FeatureProvider { get; }
 
-        public RootConfiguration Configuration { get; }
+        public IBicepConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the fully qualified artifact reference, which includes the scheme.

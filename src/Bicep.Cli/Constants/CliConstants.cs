@@ -3,7 +3,7 @@
 
 namespace Bicep.Cli.Constants
 {
-    public static class Command
+    public static class CommandNames
     {
         public const string Build = "build";
         public const string Test = "test";
@@ -23,17 +23,19 @@ namespace Bicep.Cli.Constants
         public const string WhatIf = "what-if";
         public const string Teardown = "teardown";
         public const string Console = "console";
+        public const string Docs = "docs";
+        public const string DocsGenerate = "generate";
         public const string Root = "";
     }
 
-    public static class Argument
+    public static class ArgumentNames
     {
         public const string InputFile = "Input file";
         public const string IndexFile = "Index file";
         public const string ParametersFile = "Parameters file";
     }
 
-    public static class Option
+    public static class OptionNames
     {
         // Root options
         public const string Version = "--version";
@@ -49,7 +51,8 @@ namespace Bicep.Cli.Constants
         public const string NoRestore = "--no-restore";
         public const string Force = "--force";
         public const string DiagnosticsFormat = "--diagnostics-format";
-
+        public const string CustomTemplateValue = "--custom-template-value";
+        public const string CustomTemplateValueFilePath = "--custom-template-value-file-path";
         // Build / BuildParams
         public const string BicepFile = "--bicep-file";
 
@@ -83,6 +86,9 @@ namespace Bicep.Cli.Constants
 
         // Deploy / local-deploy / what-if / teardown
         public const string Format = "--format";
+
+        // Commands that load Bicep configuration
+        public const string Config = "--config";
 
         // Snapshot
         public const string Mode = "--mode";

@@ -66,8 +66,8 @@ namespace Bicep.Core.UnitTests.Modules
             ExampleRegistryOfMaxLength.Should().HaveLength(255);
         }
 
-        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        [DataTestMethod]
+        [DynamicData(nameof(GetValidCases), DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
         public void ValidReferenceShouldBeEqualToItself(ValidCase @case)
         {
             OciArtifactAddressComponents first = Parse(@case.Value);
@@ -75,8 +75,8 @@ namespace Bicep.Core.UnitTests.Modules
             VerifyEqual(first, second);
         }
 
-        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        [DataTestMethod]
+        [DynamicData(nameof(GetValidCases), DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
         public void ValidReferenceShouldBeEqualWithCaseChanged(ValidCase @case)
         {
             OciArtifactAddressComponents first = Parse(@case.Value);
@@ -88,8 +88,8 @@ namespace Bicep.Core.UnitTests.Modules
             VerifyEqual(firstLower, firstUpper);
         }
 
-        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        [DataTestMethod]
+        [DynamicData(nameof(GetValidCases), DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
         public void CharacterChanged_ShouldNotBeEqual(ValidCase @case)
         {
             string ModifyCharAt(string a, int index)
@@ -113,13 +113,13 @@ namespace Bicep.Core.UnitTests.Modules
         private static bool IsValid(string package)
         {
             // NOTE: ArtifactAddressComponents doesn't currently have a parser separate from OciArtifactReference.
-            return OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile.Features, BicepTestConstants.DummyBicepFile.Configuration, ArtifactType.Module, null, package).IsSuccess(out var _, out var _);
+            return OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile.LoadFeatures(), BicepTestConstants.DummyBicepFile.LoadConfiguration(), ArtifactType.Module, null, package).IsSuccess(out var _, out var _);
         }
 
         private static OciArtifactAddressComponents Parse(string package)
         {
             // NOTE: ArtifactAddressComponents doesn't currently have a parser separate from OciArtifactReference.
-            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile.Features, BicepTestConstants.DummyBicepFile.Configuration, ArtifactType.Module, null, package).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
+            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile.LoadFeatures(), BicepTestConstants.DummyBicepFile.LoadConfiguration(), ArtifactType.Module, null, package).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
             failureBuilder!.Should().BeNull();
             parsed.Should().NotBeNull();
             return (OciArtifactAddressComponents)parsed!.AddressComponents;

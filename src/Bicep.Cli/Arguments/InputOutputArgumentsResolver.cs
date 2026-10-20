@@ -3,6 +3,7 @@
 
 using System.IO.Abstractions;
 using Azure.Deployments.Core.Extensions;
+using Bicep.Cli.Helpers;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.FileSystemGlobbing;
 
@@ -19,12 +20,31 @@ namespace Bicep.Cli.Arguments
 
         public IOUri PathToUri(string path)
         {
+            try
+            {
+                return IOUri.FromFilePath(GetFullPath(path));
+            }
+            catch (Exception exception) when (exception.IsPathException())
+            {
+                throw new CommandLineException(exception.Message, exception);
+            }
+        }
+
+        public string GetFullPath(string path)
+        {
             if (!OperatingSystem.IsWindows() && path.Contains('\\'))
             {
                 throw new CommandLineException(string.Format(CliResources.FilePathContainsBackslash, path));
             }
 
-            return IOUri.FromFilePath(GetFullPath(path));
+            try
+            {
+                return this.fileSystem.Path.GetFullPath(path);
+            }
+            catch (Exception exception) when (exception.IsPathException())
+            {
+                throw new CommandLineException(exception.Message, exception);
+            }
         }
 
         public IOUri ResolveInputArguments(IInputArguments arguments)
@@ -68,58 +88,122 @@ namespace Bicep.Cli.Arguments
             throw new CommandLineException("Either the input file path or the --pattern parameter must be specified");
         }
 
-        public IReadOnlyList<(IOUri InputUri, IOUri OutputUri)> ResolveFilePatternInputOutputArguments<T>(T arguments)
+        public IReadOnlyList<(IOUri InputUri, IOUri OutputUri)> ResolveFilePatternInputOutputArguments<T>(
+            T arguments,
+            Func<T, IOUri, string>? outputFileNameResolver = null)
             where T : IFilePatternInputOutputArguments<T>
         {
             if (arguments.InputFile is not null)
             {
-                return [this.ResolveInputOutputArguments(arguments)];
+                var inputUri = this.ResolveInputArguments(arguments);
+                var outputUri = this.ResolveOutputUri(
+                    inputUri,
+                    arguments.OutputDir,
+                    arguments.OutputFile,
+                    T.OutputFileExtensionResolver.Invoke(arguments, inputUri),
+                    outputFileNameResolver?.Invoke(arguments, inputUri));
+                return [(inputUri, outputUri)];
             }
 
             if (arguments.FilePattern is not null)
             {
-                var result = new List<(IOUri InputUri, IOUri OutputUri)>();
                 var (rootUri, inputRelativePaths) = this.ResolveFilePattern(arguments.FilePattern);
-
-                foreach (var inputRelativePath in inputRelativePaths)
-                {
-                    var inputUri = rootUri.Resolve(inputRelativePath);
-                    var outputRootPath = arguments.OutputDir ?? rootUri.GetFilePath();
-                    var outputRelativePath = this.fileSystem.Path.ChangeExtension(inputRelativePath, T.OutputFileExtensionResolver.Invoke(arguments, inputUri));
-                    var outputPath = this.fileSystem.Path.Combine(outputRootPath, outputRelativePath);
-                    var outputUri = this.PathToUri(outputPath);
-
-                    result.Add((inputUri, outputUri));
-                }
-
-                return result;
+                return ResolveFileSetInputOutputArguments(
+                    arguments,
+                    rootUri,
+                    inputRelativePaths.Select(rootUri.Resolve).ToArray(),
+                    outputFileNameResolver);
             }
 
             throw new CommandLineException("Either the input file path or the --pattern parameter must be specified");
         }
 
-        private IOUri ResolveOutputUri(IOUri inputUri, string? outputDir, string? outputFile, string outputFileExtension)
+        internal IReadOnlyList<(IOUri InputUri, IOUri OutputUri)> ResolveFileSetInputOutputArguments<T>(
+            T arguments,
+            IOUri rootUri,
+            IReadOnlyList<IOUri> inputUris,
+            Func<T, IOUri, string>? outputFileNameResolver = null)
+            where T : IFilePatternInputOutputArguments<T>
+        {
+            if (arguments.OutputFile is not null)
+            {
+                if (inputUris.Count != 1)
+                {
+                    throw new CommandLineException("The --outfile parameter can only be used when exactly one input file is selected.");
+                }
+
+                var inputUri = inputUris[0];
+                return
+                [
+                    (
+                        inputUri,
+                        ResolveOutputUri(
+                            inputUri,
+                            arguments.OutputDir,
+                            arguments.OutputFile,
+                            T.OutputFileExtensionResolver.Invoke(arguments, inputUri),
+                            outputFileNameResolver?.Invoke(arguments, inputUri)))
+                ];
+            }
+
+            var result = new List<(IOUri InputUri, IOUri OutputUri)>();
+            foreach (var inputUri in inputUris)
+            {
+                if (arguments.OutputDir is null)
+                {
+                    result.Add((
+                        inputUri,
+                        ResolveOutputUri(
+                            inputUri,
+                            null,
+                            null,
+                            T.OutputFileExtensionResolver.Invoke(arguments, inputUri),
+                            outputFileNameResolver?.Invoke(arguments, inputUri))));
+                    continue;
+                }
+
+                var inputRelativePath = inputUri.GetPathRelativeTo(rootUri);
+                var outputRelativePath = outputFileNameResolver is null
+                    ? this.fileSystem.Path.ChangeExtension(inputRelativePath, T.OutputFileExtensionResolver.Invoke(arguments, inputUri))
+                    : this.fileSystem.Path.Combine(
+                        inputRelativePath[..^this.fileSystem.Path.GetFileName(inputRelativePath).Length],
+                        outputFileNameResolver(arguments, inputUri));
+                var outputPath = this.fileSystem.Path.Combine(
+                    GetFullPath(arguments.OutputDir),
+                    outputRelativePath);
+                result.Add((inputUri, PathToUri(outputPath)));
+            }
+
+            return result;
+        }
+
+        private IOUri ResolveOutputUri(
+            IOUri inputUri,
+            string? outputDir,
+            string? outputFile,
+            string outputFileExtension,
+            string? outputFileName = null)
         {
             if (outputDir is not null)
             {
-                outputDir = this.fileSystem.Path.GetFullPath(outputDir);
-                var outputFileName = inputUri.GetFileNameWithoutExtension().ToString() + outputFileExtension;
-                var outputPath = this.fileSystem.Path.Combine(outputDir, outputFileName);
+                outputDir = this.GetFullPath(outputDir);
+                var resolvedOutputFileName = outputFileName ?? inputUri.GetFileNameWithoutExtension().ToString() + outputFileExtension;
+                var outputPath = this.fileSystem.Path.Combine(outputDir, resolvedOutputFileName);
 
                 return this.PathToUri(outputPath);
             }
 
             if (outputFile is not null)
             {
-                return this.PathToUri(this.fileSystem.Path.GetFullPath(outputFile));
+                return this.PathToUri(outputFile);
             }
 
-            return inputUri.WithExtension(outputFileExtension);
+            return outputFileName is null
+                ? inputUri.WithExtension(outputFileExtension)
+                : inputUri.Resolve(outputFileName);
         }
 
-        private string GetFullPath(string path) => this.fileSystem.Path.GetFullPath(path);
-
-        private (IOUri rootUri, IReadOnlyList<string> relativePaths) ResolveFilePattern(string filePattern)
+        internal (IOUri rootUri, IReadOnlyList<string> relativePaths) ResolveFilePattern(string filePattern)
         {
             var (rootPath, relativePattern) = SplitFilePatternOnWildcard(filePattern);
             var rootUri = IOUri.FromFilePath(rootPath);
@@ -127,13 +211,11 @@ namespace Bicep.Cli.Arguments
             Matcher matcher = new();
             matcher.AddInclude(relativePattern);
 
-            var relativePaths = new List<string>();
-            foreach (var filePath in matcher.GetResultsInFullPath(rootPath))
-            {
-                var fileUri = IOUri.FromFilePath(filePath);
-                var relativePath = fileUri.GetPathRelativeTo(rootUri);
-                relativePaths.Add(relativePath);
-            }
+            var root = new FileSystemGlobbingDirectory(this.fileSystem.DirectoryInfo.New(rootPath));
+            var relativePaths = matcher.Execute(root).Files
+                .Select(match => rootUri.Resolve(match.Path).GetPathRelativeTo(rootUri))
+                .Order(StringComparer.Ordinal)
+                .ToArray();
 
             return (rootUri, relativePaths);
         }

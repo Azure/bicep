@@ -38,6 +38,25 @@ public class PrintHelperTests
     }
 
     [TestMethod]
+    public void PrintInputLine_repositions_cursor_across_wrapped_rows()
+    {
+        var input = "012345678901234567890123456789";
+
+        var result = PrintHelper.PrintInputLine("> ", input, 10, terminalWidth: 20, previousCursorOffset: input.Length);
+
+        AnsiHelper.ReplaceCodes(result).Should().Be(string.Concat(
+            "[HideCursor]",
+            "[MoveCursorUp(1)]",
+            "[MoveCursorToLineStart]",
+            "[ClearToEndOfScreen]",
+            "[Gray]> [Reset]012345678901234567890123456789",
+            "[MoveCursorToLineStart]",
+            "[MoveCursorUp(1)]",
+            "[MoveCursorRight(12)]",
+            "[ShowCursor]"));
+    }
+
+    [TestMethod]
     public void PrintWithSyntaxHighlighting_returns_expected_output()
     {
         var compilation = CompilationHelper.Compile("""

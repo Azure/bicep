@@ -4,7 +4,13 @@
 import type { Page } from "@playwright/test";
 
 import { expect, test } from "@playwright/test";
-import { loadSampleGraph, nodeCount, openVisualDesigner } from "./fixtures";
+import {
+  getGraphTransform,
+  loadSampleGraph,
+  nodeCount,
+  openVisualDesigner,
+  waitForStableNodePosition,
+} from "./fixtures";
 
 const FLAT_LAYOUT_ORDER = ["nsg", "pip", "subnet", "vnet"] as const;
 const MODULE_LAYOUT_NODES = ["myModule", "myModule::storageAccount", "myModule::vmResource"] as const;
@@ -114,6 +120,72 @@ test.describe("Graph rendering", () => {
     // atomic nodes.
     const atomicNodes = page.locator('[data-testid="graph-node"][data-node-kind="atomic"]');
     await expect(atomicNodes).toHaveCount(4);
+  });
+
+  test("collapses and expands a module without moving the camera or unrelated nodes", async ({ page }) => {
+    await loadSampleGraph(page, "module");
+    await waitForStableNodePosition(page, "myModule::storageAccount");
+    const unrelatedBefore = await waitForStableNodePosition(page, "networkInterface");
+    const childrenBefore = await getNodeBoxes(page, ["myModule::storageAccount", "myModule::vmResource"]);
+    const transformBefore = await getGraphTransform(page);
+
+    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+
+    await expect(page.locator('[data-node-id="myModule"]')).toHaveAttribute("data-node-kind", "atomic");
+    await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
+    await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
+    await expect.poll(() => getGraphTransform(page)).toBe(transformBefore);
+    await expect
+      .poll(async () => (await waitForStableNodePosition(page, "networkInterface")).x)
+      .toBeCloseTo(unrelatedBefore.x, 0);
+
+    await page.getByRole("button", { name: "Expand module myModule" }).click();
+
+    await expect(page.locator('[data-node-id="myModule"]')).toHaveAttribute("data-node-kind", "compound");
+    await expect(page.locator('[data-node-id="myModule::storageAccount"]')).toBeVisible();
+    await expect(page.locator('[data-node-id="myModule::vmResource"]')).toBeVisible();
+    await expect.poll(() => getGraphTransform(page)).toBe(transformBefore);
+    await expect
+      .poll(async () => {
+        const childrenAfter = await getNodeBoxes(page, ["myModule::storageAccount", "myModule::vmResource"]);
+        if (!childrenBefore || !childrenAfter) {
+          return false;
+        }
+
+        return Object.keys(childrenBefore).every((nodeId) => {
+          const before = childrenBefore[nodeId];
+          const after = childrenAfter[nodeId];
+          return (
+            before !== undefined &&
+            after !== undefined &&
+            Math.abs(before.x - after.x) <= 1 &&
+            Math.abs(before.y - after.y) <= 1
+          );
+        });
+      })
+      .toBe(true);
+  });
+
+  test("resets layout while a module is collapsed", async ({ page }) => {
+    await loadSampleGraph(page, "module");
+    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
+
+    await page.getByRole("button", { name: "Reset Layout" }).click();
+
+    await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
+    await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
+  });
+
+  test("preserves collapsed state across graph refreshes", async ({ page }) => {
+    await loadSampleGraph(page, "module");
+    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+
+    await page.getByTestId("dev-graph-module-graph").click();
+    await page.waitForTimeout(350);
+
+    await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
+    await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
   });
 
   test("renders a richer topology for the complex graph", async ({ page }) => {

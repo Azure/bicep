@@ -1189,7 +1189,7 @@ param myParam string
     }
 
     // https://github.com/azure/bicep/issues/12920
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test.bar", "BCP053", """The type "{ foo: { bar: string } }" does not contain property "bar". Available properties include "foo".""")]
     [DataRow("{ foo: string }.foo", "BCP391", "Type member access is only supported on a reference to a named type.")]
     public void Invalid_type_property_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
@@ -1279,6 +1279,95 @@ param myParam string
     }
 
     [TestMethod]
+    public void Sealed_decorator_is_blocked_on_resource_derived_types_reached_through_imports()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
+            ("types.bicep", """
+                @export()
+                type saProperties = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+
+                @export()
+                type container = {
+                  nested: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+                }
+                """),
+            ("types.json", $$"""
+                {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "languageVersion": "2.0",
+                  "definitions": {
+                    "armSaProperties": {
+                      "type": "object",
+                      "metadata": {
+                        "{{LanguageConstants.MetadataExportedPropertyName}}": true,
+                        "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                          "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/properties"
+                        }
+                      }
+                    },
+                    "armContainer": {
+                      "type": "object",
+                      "metadata": {
+                        "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                      },
+                      "properties": {
+                        "nested": {
+                          "type": "object",
+                          "metadata": {
+                            "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                              "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/properties"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "resources": {}
+                }
+                """),
+            ("main.bicep", """
+                import { saProperties, container } from 'types.bicep'
+                import * as bicepTypes from 'types.bicep'
+                import { armSaProperties, armContainer } from 'types.json'
+                import * as armTypes from 'types.json'
+
+                @sealed()
+                type t1 = saProperties
+
+                @sealed()
+                type t2 = container.nested
+
+                @sealed()
+                type t3 = bicepTypes.saProperties
+
+                @sealed()
+                type t4 = bicepTypes.container.nested
+
+                @sealed()
+                type t5 = armSaProperties
+
+                @sealed()
+                type t6 = armContainer.nested
+
+                @sealed()
+                type t7 = armTypes.armSaProperties
+
+                @sealed()
+                type t8 = armTypes.armContainer.nested
+
+                @sealed()
+                type allowed = {
+                  prop: saProperties
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(Enumerable.Repeat(
+            ("BCP386", DiagnosticLevel.Error, """The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type."""),
+            8));
+    }
+
+    [TestMethod]
     public void Type_index_access_is_valid_type()
     {
         var result = CompilationHelper.Compile("""
@@ -1297,7 +1386,7 @@ param myParam string
             """));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test[1]", "BCP311", """The provided index value of "1" is not valid for type "[{ bar: string }]". Indexes for this type must be between 0 and 0.""")]
     [DataRow("test[-1]", "BCP387", "Indexing into a type requires an integer greater than or equal to 0.")]
     [DataRow("[string][0]", "BCP391", "Type member access is only supported on a reference to a named type.")]
@@ -1366,7 +1455,7 @@ param myParam string
             """));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test.*", "BCP389", """The type "{ foo: string }" does not declare an additional properties type.""")]
     [DataRow("object.*", "BCP389", """The type "object" does not declare an additional properties type.""")]
     [DataRow("{ *: string }.*", "BCP391", "Type member access is only supported on a reference to a named type.")]
@@ -1475,7 +1564,7 @@ param myParam string
             """));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test[*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
     [DataRow("array[*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
     [DataRow("test[0][*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
@@ -1766,7 +1855,7 @@ param myParam string
         );
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("type resourceInput = resourceInput<'Microsoft.Compute/virtualMachines'>")] // should be caught at syntax level
     [DataRow("type resourceInput = resourceInput<'Microsoft.Compute/virtualMachines'>.properties")] // should be caught by type manager
     public void Parameterized_type_recursion_raises_diagnostic(string template)
@@ -1782,7 +1871,7 @@ param myParam string
     }
 
     // https://www.github.com/Azure/bicep/issues/15277
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("type resourceDerived = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings", "$.definitions.resourceDerived")]
     [DataRow("param resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings", "$.parameters.resourceDerived")]
     [DataRow("output resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings = 'foo'", "$.outputs.resourceDerived")]

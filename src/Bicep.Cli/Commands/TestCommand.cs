@@ -67,13 +67,13 @@ namespace Bicep.Cli.Commands
             var declarations = semanticModel.Root.TestDeclarations;
             var testResults = TestRunner.Run(declarations);
 
-            LogResults(testResults);
+            LogResults(testResults, summary.HasErrors);
 
-            // return non-zero exit code on errors
-            return testResults.Success ? 0 : 1;
+            // Return a non-zero exit code for compilation and test evaluation errors.
+            return summary.HasErrors || !testResults.Success ? 1 : 0;
         }
 
-        private void LogResults(TestResults testResults)
+        private void LogResults(TestResults testResults, bool hasCompilationErrors)
         {
             foreach (var (testDeclaration, evaluation) in testResults.Results)
             {
@@ -95,11 +95,12 @@ namespace Bicep.Cli.Commands
                     }
                 }
             }
-            if (testResults.Success)
+            // Do not report overall success when compilation diagnostics contain errors.
+            if (testResults.Success && !hasCompilationErrors)
             {
                 io.Output.Writer.WriteLine($"All {testResults.TotalEvaluations} evaluations passed!");
             }
-            else
+            else if (!testResults.Success)
             {
                 io.Error.Writer.WriteLine($"Evaluation Summary: Failure!");
                 io.Error.Writer.WriteLine($"Total: {testResults.TotalEvaluations} - Success: {testResults.SuccessfulEvaluations} - Skipped: {testResults.SkippedEvaluations} - Failed: {testResults.FailedEvaluations}");
@@ -111,33 +112,23 @@ namespace Bicep.Cli.Commands
                 Format: args.DiagnosticsFormat ?? DiagnosticsFormat.Default,
                 SarifToStdout: false);
 
-        internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+        internal static Command CreateCommand(CommandLineBuilderContext context)
         {
-            var command = new System.CommandLine.Command(Constants.Command.Test, "Runs tests in a .bicep file.")
-            {
-                TreatUnmatchedTokensAsErrors = true,
-            };
+            var inputFileArgument = CommonArguments.OptionalInputFile("The path to the input .bicep file.");
+            var noRestoreOption = CommonOptions.NoRestore("Do not restore modules prior to running tests.");
+            var diagnosticsFormatOption = CommonOptions.DiagnosticsFormat();
+            var configOption = CommonOptions.Config();
 
-            var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
+            var command = new Command(CommandNames.Test, "Runs tests in a .bicep file.")
             {
-                Description = "The path to the input .bicep file.",
-                Arity = ArgumentArity.ZeroOrOne,
+                inputFileArgument,
+                noRestoreOption,
+                diagnosticsFormatOption,
+                configOption,
             };
-            var noRestoreOption = new System.CommandLine.Option<bool>(Constants.Option.NoRestore)
-            {
-                Description = "Do not restore modules prior to running tests.",
-            };
-            var diagnosticsFormatOption = new System.CommandLine.Option<DiagnosticsFormat?>(Constants.Option.DiagnosticsFormat)
-            {
-                Description = "Set the format of diagnostics (Default, SARIF).",
-            };
+            command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
 
-            command.Add(inputFileArgument);
-            command.Add(noRestoreOption);
-            command.Add(diagnosticsFormatOption);
-            command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
-
-            command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+            command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
             {
                 var inputFile = result.GetValue(inputFileArgument)
                     ?? throw new CommandLineException("The input file path was not specified");

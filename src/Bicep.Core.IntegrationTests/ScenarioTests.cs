@@ -14,6 +14,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
+using Bicep.Testing.Extensions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -2780,7 +2781,7 @@ var myValue = 2147483647
         result.Template.Should().HaveValueAtPath("$.variables.myValue", 2147483647);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("var myValue = -9223372036854775809")]
     [DataRow("var myValue = 9223372036854775808")]
     // https://github.com/Azure/bicep/issues/5371
@@ -3476,7 +3477,7 @@ var bar = {
     /// <summary>
     /// https://github.com/Azure/bicep/issues/7241
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("copy")]
     [DataRow("COPY")]
     [DataRow("Copy")]
@@ -5840,7 +5841,7 @@ param foo2 string[]
         var result = CompilationHelper.Compile(
             Services
                 .WithFeatureOverrides(new(TestContext))
-                .WithConfigurationPatch(x => x.WithAnalyzersConfiguration(x.Analyzers.SetValue("core.rules.use-recent-api-versions.level", "error"))),
+                .WithConfigurationPatch(x => x.WithAnalyzersConfiguration(((AnalyzersConfiguration)x.Analyzers).SetValue("core.rules.use-recent-api-versions.level", "error"))),
             ("main.bicep", """
                 extension kubernetes with {
                   kubeConfig: 'config'
@@ -7924,6 +7925,32 @@ output locations array = flatten(map(databases, database => database.properties.
             "displayName": "Example",
             "enabled": true
           }
+        }
+        """);
+    }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/20119
+    public void Test_Issue20119_yaml_scalar_anchors_and_aliases_work()
+    {
+        var result = CompilationHelper.Compile(
+            ("settings.yaml", """
+            source: &CIDR 10.0.0.0/17
+            alias: *CIDR
+            """),
+            ("main.bicep", """
+            var settings = loadYamlContent('settings.yaml')
+
+            output result object = settings
+            """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveJsonAtPath("$.outputs['result'].value", """
+        {
+          "source": "10.0.0.0/17",
+          "alias": "10.0.0.0/17"
         }
         """);
     }

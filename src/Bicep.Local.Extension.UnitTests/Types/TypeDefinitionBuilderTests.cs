@@ -9,10 +9,10 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Testing.Mocks;
 using Bicep.Local.Extension.Builder.Models;
 using Bicep.Local.Extension.Types;
 using Bicep.Local.Extension.Types.Attributes;
+using Bicep.Testing.Mocks;
 using FluentAssertions;
 
 namespace Bicep.Local.Extension.UnitTests.TypesTests;

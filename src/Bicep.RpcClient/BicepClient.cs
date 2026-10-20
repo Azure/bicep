@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipelines;
 using System.IO.Pipes;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.RpcClient;
@@ -16,6 +17,8 @@ namespace Bicep.RpcClient;
 
 internal class BicepClient : IBicepClient
 {
+    private const string ConfigPathMinimumVersion = "0.48.0";
+
     private readonly Process? cliProcess;
     private readonly IJsonRpcClient jsonRpcClient;
     private readonly Task backgroundTask;
@@ -125,36 +128,43 @@ internal class BicepClient : IBicepClient
 
     /// <inheritdoc/>
     public Task<CompileResponse> Compile(CompileRequest request, CancellationToken cancellationToken)
-        => jsonRpcClient.SendRequest<CompileRequest, CompileResponse>("bicep/compile", request, cancellationToken);
+        => SendRequest<CompileRequest, CompileResponse>("bicep/compile", request, request.ConfigPath, cancellationToken);
 
     /// <inheritdoc/>
     public Task<CompileParamsResponse> CompileParams(CompileParamsRequest request, CancellationToken cancellationToken)
-        => jsonRpcClient.SendRequest<CompileParamsRequest, CompileParamsResponse>("bicep/compileParams", request, cancellationToken);
+        => SendRequest<CompileParamsRequest, CompileParamsResponse>("bicep/compileParams", request, request.ConfigPath, cancellationToken);
 
     /// <inheritdoc/>
     public async Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken)
     {
         await EnsureMinimumVersion("0.37.1", nameof(Format), cancellationToken).ConfigureAwait(false);
-        return await jsonRpcClient.SendRequest<FormatRequest, FormatResponse>("bicep/format", request, cancellationToken).ConfigureAwait(false);
+        return await SendRequest<FormatRequest, FormatResponse>("bicep/format", request, request.ConfigPath, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc/>
+    public async Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken)
+    {
+        await EnsureMinimumVersion("0.47.0", nameof(GenerateDocs), cancellationToken).ConfigureAwait(false);
+        return await SendRequest<GenerateDocsRequest, GenerateDocsResponse>("bicep/generateDocs", request, request.ConfigPath, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
     public Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken)
-        => jsonRpcClient.SendRequest<GetDeploymentGraphRequest, GetDeploymentGraphResponse>("bicep/getDeploymentGraph", request, cancellationToken);
+        => SendRequest<GetDeploymentGraphRequest, GetDeploymentGraphResponse>("bicep/getDeploymentGraph", request, request.ConfigPath, cancellationToken);
 
     /// <inheritdoc/>
     public Task<GetFileReferencesResponse> GetFileReferences(GetFileReferencesRequest request, CancellationToken cancellationToken)
-        => jsonRpcClient.SendRequest<GetFileReferencesRequest, GetFileReferencesResponse>("bicep/getFileReferences", request, cancellationToken);
+        => SendRequest<GetFileReferencesRequest, GetFileReferencesResponse>("bicep/getFileReferences", request, request.ConfigPath, cancellationToken);
 
     /// <inheritdoc/>
     public Task<GetMetadataResponse> GetMetadata(GetMetadataRequest request, CancellationToken cancellationToken)
-        => jsonRpcClient.SendRequest<GetMetadataRequest, GetMetadataResponse>("bicep/getMetadata", request, cancellationToken);
+        => SendRequest<GetMetadataRequest, GetMetadataResponse>("bicep/getMetadata", request, request.ConfigPath, cancellationToken);
 
     /// <inheritdoc/>
     public async Task<GetSnapshotResponse> GetSnapshot(GetSnapshotRequest request, CancellationToken cancellationToken)
     {
         await EnsureMinimumVersion("0.36.1", nameof(GetSnapshot), cancellationToken).ConfigureAwait(false);
-        return await jsonRpcClient.SendRequest<GetSnapshotRequest, GetSnapshotResponse>("bicep/getSnapshot", request, cancellationToken).ConfigureAwait(false);
+        return await SendRequest<GetSnapshotRequest, GetSnapshotResponse>("bicep/getSnapshot", request, request.ConfigPath, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -169,6 +179,17 @@ internal class BicepClient : IBicepClient
         }
 
         return cachedVersion;
+    }
+
+    private async Task<TResponse> SendRequest<TRequest, TResponse>(string method, TRequest request, string? configPath, CancellationToken cancellationToken, [CallerMemberName] string operationName = "")
+    {
+        // Older CLI versions silently ignore unknown fields, which would compile with the wrong configuration.
+        if (configPath is not null)
+        {
+            await EnsureMinimumVersion(ConfigPathMinimumVersion, $"{operationName} with ConfigPath", cancellationToken).ConfigureAwait(false);
+        }
+
+        return await jsonRpcClient.SendRequest<TRequest, TResponse>(method, request, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task EnsureMinimumVersion(string requiredVersion, string operationName, CancellationToken cancellationToken)

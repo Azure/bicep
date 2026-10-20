@@ -86,7 +86,7 @@ public class ExtensionTypeLoaderProvider
         }
 
         var reference = new OciArtifactReference(
-            featureProvider, IConfigurationManager.GetBuiltInConfiguration(), ArtifactType.Extension,
+            featureProvider, BicepConfiguration.BuiltIn, ArtifactType.Extension,
             extension.Registry, extension.Repository, tag, digest: null);
 
         // RestoreArtifacts is a no-op if already cached on disk

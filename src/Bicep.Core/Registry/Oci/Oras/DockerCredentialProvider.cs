@@ -3,12 +3,12 @@
 
 using System;
 using System.Diagnostics;
-using System.IO.Abstractions;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 using OrasProject.Oras.Registry.Remote.Auth;
 
 namespace Bicep.Core.Registry.Oci.Oras;
@@ -130,13 +130,13 @@ internal sealed class ProcessDockerCredentialHelperInvoker : IDockerCredentialHe
 public class DockerCredentialProvider : ICredentialProvider
 {
     private readonly IEnvironment environment;
-    private readonly IFileSystem fileSystem;
+    private readonly IFileExplorer fileExplorer;
     private readonly IDockerCredentialHelperInvoker helperInvoker;
 
-    public DockerCredentialProvider(IEnvironment environment, IFileSystem fileSystem, IDockerCredentialHelperInvoker? helperInvoker = null)
+    public DockerCredentialProvider(IEnvironment environment, IFileExplorer fileExplorer, IDockerCredentialHelperInvoker? helperInvoker = null)
     {
         this.environment = environment;
-        this.fileSystem = fileSystem;
+        this.fileExplorer = fileExplorer;
         this.helperInvoker = helperInvoker ?? new ProcessDockerCredentialHelperInvoker();
     }
 
@@ -175,16 +175,21 @@ public class DockerCredentialProvider : ICredentialProvider
 
     private async Task<Credential?> ResolveFromDockerConfigAsync(string hostname, CancellationToken cancellationToken)
     {
-        var configPath = GetDockerConfigPath();
-        if (configPath is null || !fileSystem.File.Exists(configPath))
+        var configFile = GetDockerConfigFile();
+        if (configFile is null)
         {
             return null;
         }
 
         try
         {
-            using var stream = fileSystem.File.OpenRead(configPath);
-            using var document = JsonDocument.Parse(stream);
+            if (!configFile.Exists())
+            {
+                return null;
+            }
+
+            using var stream = configFile.OpenRead();
+            using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
 
             if (document.RootElement.TryGetProperty("auths", out var auths) && auths.ValueKind == JsonValueKind.Object)
             {
@@ -303,22 +308,35 @@ public class DockerCredentialProvider : ICredentialProvider
         return null;
     }
 
-    private string? GetDockerConfigPath()
+    private IFileHandle? GetDockerConfigFile()
     {
         var dockerConfigDir = environment.GetVariable("DOCKER_CONFIG");
+        var relativePath = "config.json";
         if (string.IsNullOrWhiteSpace(dockerConfigDir))
         {
-            var home = environment.GetVariable("HOME") ?? environment.GetVariable("USERPROFILE");
-            if (string.IsNullOrWhiteSpace(home))
+            dockerConfigDir = environment.GetVariable("HOME") ?? environment.GetVariable("USERPROFILE");
+            relativePath = ".docker/config.json";
+            if (string.IsNullOrWhiteSpace(dockerConfigDir))
             {
                 return null;
             }
-
-            dockerConfigDir = fileSystem.Path.Combine(home, ".docker");
         }
 
-        return fileSystem.Path.Combine(dockerConfigDir, "config.json");
+        try
+        {
+            return GetDirectory(dockerConfigDir).GetFile(relativePath);
+        }
+        catch (Exception ex) when (ex.IsPathException() || ex is UriFormatException)
+        {
+            Trace.WriteLine($"DockerCredentialProvider: Invalid Docker config path '{dockerConfigDir}': {ex.Message}");
+            return null;
+        }
     }
+
+    private IDirectoryHandle GetDirectory(string path) =>
+        IOUri.IsAbsoluteFilePath(path)
+            ? fileExplorer.GetDirectory(IOUri.FromFilePath(path))
+            : fileExplorer.GetDirectory(IOUri.FromFilePath(environment.CurrentDirectory)).GetDirectory(path);
 
     private static bool MatchesRegistry(string entry, string hostname)
     {

@@ -9,6 +9,7 @@ using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
+using Bicep.Core.Resources;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -61,6 +62,43 @@ namespace Bicep.Core.Semantics.Namespaces
             => new(
                 new ManagementGroupScopeType(functionCall.Arguments, []),
                 new ObjectExpression(functionCall, []));
+
+        private static bool IsResourceIdCallPure(SemanticModel model, FunctionCallSyntaxBase functionCall) =>
+            HasExplicitResourceIdScopeArguments(model, functionCall, requiredScopeArgumentCount: 2);
+
+        private static bool IsSubscriptionResourceIdCallPure(SemanticModel model, FunctionCallSyntaxBase functionCall) =>
+            HasExplicitResourceIdScopeArguments(model, functionCall, requiredScopeArgumentCount: 1);
+
+        private static bool IsManagementGroupResourceIdCallPure(SemanticModel model, FunctionCallSyntaxBase functionCall) =>
+            HasExplicitResourceIdScopeArguments(model, functionCall, requiredScopeArgumentCount: 1);
+
+        private static bool HasExplicitResourceIdScopeArguments(SemanticModel model, FunctionCallSyntaxBase functionCall, int requiredScopeArgumentCount)
+        {
+            if (functionCall.Arguments.Length < requiredScopeArgumentCount + 2)
+            {
+                return false;
+            }
+
+            for (var index = 0; index <= requiredScopeArgumentCount; index++)
+            {
+                if (model.GetTypeInfo(functionCall.Arguments[index].Expression) is not StringLiteralType stringLiteral)
+                {
+                    return false;
+                }
+
+                var resourceType = ResourceTypeReference.TryParse(stringLiteral.RawStringValue);
+                var isResourceType = resourceType is not null &&
+                    resourceType.TypeSegments.Length > 1 &&
+                    resourceType.TypeSegments[0].Contains('.');
+
+                if (isResourceType)
+                {
+                    return index == requiredScopeArgumentCount;
+                }
+            }
+
+            return false;
+        }
 
         private static FunctionResult GetTenantReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(new TenantScopeType(functionCall.Arguments, new[]
@@ -150,6 +188,13 @@ namespace Bicep.Core.Semantics.Namespaces
             // No need to validate the role name at compile time since Azure manages the role definitions
             return new(GetRoleDefinitionReturnType());
         }
+
+        private static ObjectType GetRoleAssignmentNameParameterType()
+            => new("inputs", TypeSymbolValidationFlags.Default, [
+                new NamedTypeProperty("scope", LanguageConstants.String, TypePropertyFlags.Required, Description: "The scope at which the role assignment is created."),
+                new NamedTypeProperty("principalId", LanguageConstants.String, TypePropertyFlags.Required, Description: "The principal ID to assign the role to."),
+                new NamedTypeProperty("roleDefinitionId", LanguageConstants.String, TypePropertyFlags.Required, Description: "The ID of the role definition to assign."),
+            ]);
 
         private static ObjectType GetProvidersSingleResourceReturnType()
         {
@@ -436,6 +481,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription(resourceIdDescription)
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                    .WithIsPurePredicate(IsResourceIdCallPure)
                     .Build();
 
                 yield return new FunctionOverloadBuilder(ResourceIdFunctionName)
@@ -444,6 +490,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                    .WithIsPurePredicate(IsResourceIdCallPure)
                     .Build();
 
                 yield return new FunctionOverloadBuilder(ResourceIdFunctionName)
@@ -452,6 +499,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                    .WithIsPurePredicate(IsResourceIdCallPure)
                     .Build();
 
                 yield return new FunctionOverloadBuilder(ResourceIdFunctionName)
@@ -461,6 +509,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                    .WithIsPurePredicate(IsResourceIdCallPure)
                     .Build();
 
                 // the subscriptionResourceId function relies on leading optional parameters that are disambiguated at runtime
@@ -471,6 +520,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription(subscriptionResourceIdDescription)
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                    .WithIsPurePredicate(IsSubscriptionResourceIdCallPure)
                     .Build();
 
                 yield return new FunctionOverloadBuilder("subscriptionResourceId")
@@ -479,6 +529,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                    .WithIsPurePredicate(IsSubscriptionResourceIdCallPure)
                     .Build();
 
                 yield return new FunctionOverloadBuilder("tenantResourceId")
@@ -486,6 +537,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Returns the unique identifier for a resource deployed at the tenant level.")
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                    .WithFlags(FunctionFlags.Pure)
                     .Build();
 
                 yield return new FunctionOverloadBuilder("extensionResourceId")
@@ -495,6 +547,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("resourceId", LanguageConstants.String, "The resource ID for the resource that the extension resource is applied to")
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of the extension resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The extension resource name segment")
+                    .WithFlags(FunctionFlags.Pure)
                     .Build();
 
                 const string managementGroupResourceIdDescription = "Returns the unique identifier for a resource deployed at the management group level.";
@@ -503,6 +556,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription(managementGroupResourceIdDescription)
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                    .WithIsPurePredicate(IsManagementGroupResourceIdCallPure)
                     .Build();
 
                 yield return new FunctionOverloadBuilder("managementGroupResourceId")
@@ -511,6 +565,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("managementGroupId", LanguageConstants.String, "The management group ID")
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                    .WithIsPurePredicate(IsManagementGroupResourceIdCallPure)
                     .Build();
 
                 // Add roleDefinition function
@@ -519,6 +574,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Gets a role definition that can be used in role assignments.")
                     .WithDescription("Returns information about the specified role definition including id and roleDefinitionId.")
                     .WithRequiredParameter("roleName", LanguageConstants.String, "The display name of the role definition")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("getRoleAssignmentName")
+                    .WithReturnResultBuilder(SystemNamespaceType.TryDeriveLiteralReturnType("getRoleAssignmentName", LanguageConstants.String), LanguageConstants.String)
+                    .WithReturnType(LanguageConstants.String)
+                    .WithGenericDescription("Returns a deterministic name for a role assignment.")
+                    .WithRequiredParameter("inputs", GetRoleAssignmentNameParameterType(), "The role assignment inputs")
+                    .WithFlags(FunctionFlags.Pure)
                     .Build();
 
                 const string providersDescription = "Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.";

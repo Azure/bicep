@@ -102,7 +102,7 @@ namespace Bicep.Cli.IntegrationTests
         [DataRow("WrongDir/Fake.bicep", new[] { "--stdout" }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataRow("WrongDir/Fake.bicep", new[] { "--outdir", "." }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataRow("WrongDir/Fake.bicep", new[] { "--outfile", "file1" }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Format_InvalidInputPath_Fails(string badPath, string[] args, string expectedErrorPattern)
         {
             var result = await Bicep(["format", .. args, badPath]);
@@ -121,7 +121,7 @@ namespace Bicep.Cli.IntegrationTests
             result.ExitCode.Should().Be(0);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData()]
         public async Task Format_SampleBicepParam_MatchesFormattedSample(BaselineData_Bicepparam baselineData)
         {
@@ -135,8 +135,8 @@ namespace Bicep.Cli.IntegrationTests
             data.Formatted.Read().Should().MatchTextBaseline(data.Formatted);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Format_SampleBicepFile_MatchesFormattedSample(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -153,7 +153,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
-        public async Task Format_should_format_files_matching_pattern(bool useRootPath)
+        public async Task Format_FilesMatchPattern_FormatsOnlyMatchingFiles(bool useRootPath)
         {
             var unformatted = """
 output     myOutput     string    =    'hello!'
@@ -163,7 +163,7 @@ output myOutput string = 'hello!'
 
 """;
 
-            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var outputPath = Path.GetFullPath("/pattern-format");
             var fileSystem = new MockFileSystem();
             var fileResults = new[]
             {
@@ -175,7 +175,6 @@ output myOutput string = 'hello!'
             foreach (var (input, _) in fileResults)
             {
                 fileSystem.AddFile($"{outputPath}/{input}", unformatted);
-                FileHelper.SaveResultFile(TestContext, input, unformatted, outputPath);
             }
 
             if (!useRootPath)
@@ -248,7 +247,7 @@ output myOutput string = 'hello!'
             fileSystem.FileExists("some-directory/main.bicep").Should().BeTrue();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
         public async Task Format_WithInsertFinalNewlineOverride_SetsFinalNewlineAccordingly(bool insertFinalNewline)
@@ -277,7 +276,7 @@ output myOutput string = 'hello!'
                 : fileContentWithoutFinalNewline);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(IndentKind.Space)]
         [DataRow(IndentKind.Tab)]
         public async Task Format_WithIndentKindOverride_SetsIndentKindAccordingly(IndentKind indentKind)
@@ -304,7 +303,7 @@ output myOutput string = 'hello!'
             formatted.Should().BeEquivalentToIgnoringNewlines(expected);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(1)]
         [DataRow(4)]
         [DataRow(8)]

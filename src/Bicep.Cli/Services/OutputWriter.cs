@@ -170,5 +170,6 @@ namespace Bicep.Cli.Services
                 throw new BicepException(exception.Message, exception);
             }
         }
+
     }
 }

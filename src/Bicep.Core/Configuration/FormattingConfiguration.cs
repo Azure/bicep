@@ -7,7 +7,7 @@ using Bicep.Core.PrettyPrintV2;
 
 namespace Bicep.Core.Configuration
 {
-    public class FormattingConfiguration : ConfigurationSection<PrettyPrinterV2Options>
+    public class FormattingConfiguration : ConfigurationSection<PrettyPrinterV2Options>, IBicepFormattingConfiguration
     {
         public FormattingConfiguration(PrettyPrinterV2Options data)
             : base(data)

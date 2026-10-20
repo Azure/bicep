@@ -52,4 +52,5 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool RuntimeValuesInTagsAndSkuEnabled => overrides.RuntimeValuesInTagsAndSkuEnabled ?? features.RuntimeValuesInTagsAndSkuEnabled;
 
     public bool AzExtensionConfigEnabled => overrides.AzExtensionConfigEnabled ?? features.AzExtensionConfigEnabled;
+
 }

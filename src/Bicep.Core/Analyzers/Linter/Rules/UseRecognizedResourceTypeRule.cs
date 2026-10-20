@@ -67,12 +67,12 @@ public sealed class UseRecognizedResourceTypeRule : LinterRuleBase
         }
 
         var firstArg = functionCall.Arguments[0].Expression;
-        if (TryExtractResourceType(model, firstArg) is {} resourceType &&
+        if (TryExtractResourceType(model, firstArg) is { } resourceType &&
             !azResourceTypeProvider.TypeReferencesByType.ContainsKey(resourceType))
         {
             return resourceType;
         }
-        
+
         return null;
     }
 
@@ -105,7 +105,7 @@ public sealed class UseRecognizedResourceTypeRule : LinterRuleBase
         // so look for the first argument that looks like a resource type
         foreach (var arg in functionCall.Arguments)
         {
-            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, arg.Expression) is {} argLiteral &&
+            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, arg.Expression) is { } argLiteral &&
                 LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(argLiteral))
             {
                 return argLiteral;

@@ -1,91 +1,58 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { CompoundNodeState } from "@/lib/graph/atoms/nodes";
-import type { Range } from "@/lib/messaging/messages";
+import type { CompoundNodeState } from "../atoms/nodes";
 
-import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
-import { useAtomValue, useStore } from "jotai";
-import { frame } from "motion/react";
-import { useEffect, useRef } from "react";
-import { nodesByIdAtom } from "@/lib/graph/atoms";
-import { focusedNodeIdAtom, getNodeZIndex } from "@/lib/graph/atoms/nodes";
-import { useBoxUpdate, useDragListener } from "@/lib/graph/hooks";
-import { REVEAL_FILE_RANGE_NOTIFICATION, REVEAL_NODE_SOURCE_NOTIFICATION } from "@/lib/messaging/messages";
-import { translateBox } from "@/lib/utils/math";
+import { useStore } from "jotai";
+import { useContext, useRef } from "react";
+import { translateBox } from "@/lib/math";
+import { nodesByIdAtom } from "../atoms";
+import { NodeDragCallbacksContext } from "../context/NodeDragCallbacksContext";
+import { useBoxUpdate, useDragListener, useNodeZIndex } from "../hooks";
 import { BaseNode } from "./BaseNode";
 import { NodeContent } from "./NodeContent";
 
 export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNodeState) {
   const ref = useRef<HTMLDivElement>(null);
   const store = useStore();
-  const messageChannel = useWebviewMessageChannel();
-  const focusedNodeId = useAtomValue(focusedNodeIdAtom);
-  const zIndex = getNodeZIndex(id, "compound", focusedNodeId);
+  const { onNodeDragStart, onNodeDragEnd } = useContext(NodeDragCallbacksContext);
 
-  // Use a native dblclick listener so we can call stopPropagation()
-  // before d3-zoom's handler (on the PanZoom ancestor) fires.
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) {
-      return;
-    }
+  useNodeZIndex(store, ref, id, "compound");
 
-    const handler = (e: MouseEvent) => {
-      e.stopPropagation();
+  useDragListener(ref, {
+    onDragStart: () => onNodeDragStart(id),
+    onDrag: (dx, dy) => {
+      const translateChildren = (childIds: string[]) => {
+        for (const childId of childIds) {
+          const child = store.get(nodesByIdAtom)[childId];
 
-      const data = store.get(dataAtom) as { range?: Range; filePath?: string };
-      if (data?.range && data?.filePath) {
-        // Legacy push path: the node still carries an inline source location.
-        messageChannel.sendNotification({
-          method: REVEAL_FILE_RANGE_NOTIFICATION,
-          params: { filePath: data.filePath, range: data.range },
-        });
-      } else {
-        // Server-driven path: source location is resolved on demand by node id.
-        messageChannel.sendNotification({
-          method: REVEAL_NODE_SOURCE_NOTIFICATION,
-          params: { nodeId: id },
-        });
-      }
-    };
+          if (!child) {
+            return;
+          }
 
-    el.addEventListener("dblclick", handler);
-    return () => el.removeEventListener("dblclick", handler);
-  }, [store, dataAtom, messageChannel, id]);
-
-  useDragListener(ref, (dx: number, dy: number) => {
-    const translateChildren = (childIds: string[]) => {
-      for (const childId of childIds) {
-        const child = store.get(nodesByIdAtom)[childId];
-
-        if (!child) {
-          return;
+          if (child.kind === "atomic") {
+            store.set(child.boxAtom, (box) => translateBox(box, dx, dy));
+          } else {
+            translateChildren(store.get(child.childIdsAtom));
+          }
         }
+      };
 
-        if (child.kind === "atomic") {
-          store.set(child.boxAtom, (box) => translateBox(box, dx, dy));
-        } else {
-          translateChildren(store.get(child.childIdsAtom));
-        }
-      }
-    };
-
-    translateChildren(store.get(childIdsAtom));
+      translateChildren(store.get(childIdsAtom));
+    },
+    onDragEnd: () => onNodeDragEnd(id),
   });
 
   useBoxUpdate(store, boxAtom, ({ min, max }) => {
-    frame.render(() => {
-      if (ref.current) {
-        ref.current.style.translate = `${min.x}px ${min.y}px`;
-        ref.current.style.width = `${max.x - min.x}px`;
-        ref.current.style.height = `${max.y - min.y}px`;
-      }
-    });
+    if (ref.current) {
+      ref.current.style.translate = `${min.x}px ${min.y}px`;
+      ref.current.style.width = `${max.x - min.x}px`;
+      ref.current.style.height = `${max.y - min.y}px`;
+    }
   });
 
   return (
-    <BaseNode ref={ref} id={id} kind="compound" zIndex={zIndex}>
+    <BaseNode ref={ref} id={id} kind="compound">
       <NodeContent id={id} kind="compound" dataAtom={dataAtom} />
     </BaseNode>
   );

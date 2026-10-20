@@ -1,42 +1,42 @@
 {
   "version": "0.0.0-placeholder",
   "scripts": {
-    "build-wasm": "dotnet publish -c Release ../Bicep.Wasm/Bicep.Wasm.csproj",
+    "build-wasm": "node scripts/clean-wasm-publish.mjs && dotnet publish -c Release -p:InvariantGlobalization=true -p:InvariantTimezone=true -p:WasmBuildNative=true ../Bicep.Wasm/Bicep.Wasm.csproj && node scripts/stage-wasm-assets.mjs",
     "package": "nbgv-setversion && npm run build && nbgv-setversion --reset",
     "dev": "npm run build-wasm && vite",
-    "build": "npm run build-wasm && vite build",
+    "build": "npm run build-wasm && vite build && node scripts/check-build.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "aiKey": "c195e410-2651-4cea-a18e-8e576714eada",
   "private": true,
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@types/node": "26.1.1",
-    "@types/pako": "2.0.4",
-    "@types/react": "19.2.17",
-    "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "6.0.4",
-    "eslint": "10.8.0",
+    "@playwright/test": "1.64.0",
+    "@types/node": "26.6.4",
+    "@types/pako": "3.0.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "eslint": "10.12.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.6",
-    "nerdbank-gitversioning": "3.10.91",
+    "nerdbank-gitversioning": "3.10.94",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.65.0",
-    "vite": "8.1.5",
-    "vite-plugin-static-copy": "4.1.1"
+    "typescript-eslint": "8.71.1",
+    "vite": "8.3.4"
   },
   "dependencies": {
-    "@microsoft/applicationinsights-web": "3.4.3",
-    "bootstrap": "5.3.8",
-    "monaco-editor": "0.56.0",
-    "pako": "3.0.1",
-    "react": "19.2.8",
-    "react-bootstrap": "2.10.10",
-    "react-dom": "19.2.8"
+    "@microsoft/applicationinsights-web": "3.4.5",
+    "monaco-editor": "0.57.0",
+    "pako": "3.0.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   },
   "overrides": {
-    "dompurify": "3.4.12"
+    "dompurify": "3.4.13"
   }
 }

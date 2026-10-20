@@ -47,6 +47,8 @@ public class FunctionOverloadBuilder
 
     protected FunctionOverload.ArmExpressionEvaluatorDelegate? ArmExpressionEvaluator { get; private set; }
 
+    protected FunctionOverload.IsPurePredicate? IsPure { get; private set; }
+
     protected FunctionFlags Flags { get; private set; }
 
     public FunctionOverload Build()
@@ -66,7 +68,8 @@ public class FunctionOverloadBuilder
             VariableParameter,
             Evaluator,
             ArmExpressionEvaluator,
-            Flags);
+            Flags,
+            this.IsPure);
 
     public FunctionOverloadBuilder WithGenericDescription(string genericDescription)
     {
@@ -132,6 +135,12 @@ public class FunctionOverloadBuilder
     public FunctionOverloadBuilder WithArmExpressionEvaluator(FunctionOverload.ArmExpressionEvaluatorDelegate armExpressionEvaluator)
     {
         ArmExpressionEvaluator = armExpressionEvaluator;
+        return this;
+    }
+
+    public FunctionOverloadBuilder WithIsPurePredicate(FunctionOverload.IsPurePredicate isPure)
+    {
+        this.IsPure = isPure;
         return this;
     }
 

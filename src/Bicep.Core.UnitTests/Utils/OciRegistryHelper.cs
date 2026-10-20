@@ -1,22 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Azure;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Oci.Oras;
 using Bicep.Core.Registry.Sessions;
 using Bicep.Core.SourceGraph;
-using Bicep.Core.Utils;
-using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -29,7 +30,7 @@ namespace Bicep.Core.UnitTests.Utils
     public static class OciRegistryHelper
     {
         public static OciArtifactReference CreateModuleReferenceMock(BicepSourceFile referencingFile, string registry, string repository, string? digest, string? tag)
-            => new(referencingFile.Features, referencingFile.Configuration, ArtifactType.Module, registry, repository, tag, digest);
+            => new(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactType.Module, registry, repository, tag, digest);
 
         public static OciArtifactReference ParseModuleReference(string moduleId /* with or without br: */, Uri? parentModuleUri = null)
         {
@@ -37,7 +38,7 @@ namespace Bicep.Core.UnitTests.Utils
             {
                 moduleId = moduleId[OciArtifactReferenceFacts.SchemeWithColon.Length..];
             }
-            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile.Features, BicepTestConstants.DummyBicepFile.Configuration, ArtifactType.Module, null, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile.LoadFeatures(), BicepTestConstants.DummyBicepFile.LoadConfiguration(), ArtifactType.Module, null, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 
@@ -84,7 +85,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Returns(blobClient);
 
             var azureTransport = new AzureContainerRegistryManager(clientFactory.Object);
-            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new MockFileSystem());
+            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new InMemoryFileExplorer());
             var transportFactory = new OciRegistryTransportFactory(azureTransport, dockerCredentials);
             var registry = new OciArtifactRegistry(
                 BicepTestConstants.TestRegistryConfiguration,
@@ -104,7 +105,7 @@ namespace Bicep.Core.UnitTests.Utils
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);
 
             var containerRegistryManager = new AzureContainerRegistryManager(clientFactory.Object);
-            var configuration = IConfigurationManager.GetBuiltInConfiguration();
+            var configuration = BicepConfiguration.BuiltIn;
 
             using var compiledStream = new BufferedMemoryStream();
 
@@ -120,7 +121,7 @@ namespace Bicep.Core.UnitTests.Utils
             );
 
             return (client, clientFactory);
-    }
+        }
 
-}
+    }
 }

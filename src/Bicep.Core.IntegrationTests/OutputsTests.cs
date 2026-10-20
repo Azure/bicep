@@ -9,6 +9,7 @@ using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -119,7 +120,7 @@ output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
         }
 
         // Object-typed outputs should work the same way regardless of whether resource-typed outputs are enabled.
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
         public void Output_can_have_object_type(bool enableResourceTypeParameters)

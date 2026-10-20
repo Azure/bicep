@@ -46,7 +46,7 @@ public class OciRegistryTransportFactory : IOciRegistryTransportFactory
         return azureManager;
     }
 
-    public IRegistrySession CreateSession(OciArtifactReference reference, CloudConfiguration cloud)
+    public IRegistrySession CreateSession(OciArtifactReference reference, IBicepCloudConfiguration cloud)
     {
         ArgumentNullException.ThrowIfNull(reference);
         ArgumentNullException.ThrowIfNull(cloud);

@@ -1826,11 +1826,11 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic InvalidExtension_ImplicitExtensionMissingConfig(IOUri? configFileUri, string name) => CoreError(
                 "BCP397",
-                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is referenced in the "{RootConfiguration.ImplicitExtensionsKey}" section, but is missing corresponding configuration in the "{RootConfiguration.ExtensionsKey}" section.""");
+                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is referenced in the "{BicepConfiguration.ImplicitExtensionsKey}" section, but is missing corresponding configuration in the "{BicepConfiguration.ExtensionsKey}" section.""");
 
             public Diagnostic InvalidExtension_NotABuiltInExtension(IOUri? configFileUri, string name) => CoreError(
                 "BCP398",
-                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ExtensionsKey}" section, but no built-in extension exists.""");
+                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{BicepConfiguration.ExtensionsKey}" section, but no built-in extension exists.""");
 
             public Diagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => CoreError(
                 "BCP401",
@@ -2072,6 +2072,35 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ImportedSymbolDependsOnDeploymentContextFunctions(string symbolName, IEnumerable<string> functionNames) => CoreError(
                 "BCP452",
                 @$"The imported symbol ""{symbolName}"" cannot be used in a {LanguageConstants.ParamsFileExtension} file because it depends on deployment-context functions: {ToQuotedString(functionNames)}. Imported declarations may only use functions that can be evaluated while building the parameters file.");
+
+            public Diagnostic BicepConfigExtendsAbsolutePath(IOUri configFileUri) => CoreError(
+                "BCP453",
+                $"The \"extends\" value in the Bicep configuration file \"{configFileUri}\" must be a relative path. Absolute paths are not allowed.");
+
+            public Diagnostic BicepConfigExtendsCycle(IOUri configFileUri, string cycle) => CoreError(
+                "BCP454",
+                $"A cycle was detected in the Bicep configuration \"extends\" chain starting from \"{configFileUri}\": {cycle}.");
+
+            public Diagnostic BicepConfigExtendsChainTooDeep(IOUri configFileUri) => CoreError(
+                "BCP455",
+                $"The Bicep configuration \"extends\" chain starting from \"{configFileUri}\" exceeds the maximum allowed depth of 64.");
+
+            public Diagnostic BicepVersionConstraintNotSatisfied(DiagnosticLevel level, string constraint, string runningVersion, IOUri? configFileUri) => CoreDiagnostic(
+                level,
+                "BCP456",
+                $"The installed Bicep CLI version \"{runningVersion}\" does not satisfy the version constraint \"{constraint}\" specified by the \"bicep.version\" property in the {BuildBicepConfigurationClause(configFileUri)}.");
+
+            public Diagnostic BicepVersionConstraintCouldNotBeChecked(string constraint, string runningVersion, IOUri? configFileUri) => CoreWarning(
+                "BCP457",
+                $"The installed Bicep CLI version \"{runningVersion}\" could not be parsed, so the \"bicep.version\" constraint \"{constraint}\" specified by the {BuildBicepConfigurationClause(configFileUri)} could not be checked.");
+
+            public Diagnostic UntrustedCloudProfile(IOUri configFileUri, string profileName) => CoreError(
+                "BCP458",
+                $"The cloud profile \"{profileName}\" selected by the Bicep configuration file \"{configFileUri}\" is not trusted. Use a built-in cloud profile or approve the exact custom profile through the {BicepEnvironmentVariables.TrustedClouds} environment variable.");
+
+            public Diagnostic InvalidTrustedCloudsEnvironmentVariable(string parsingError) => CoreWarning(
+                "BCP459",
+                $"The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid and custom cloud trust entries were ignored: {parsingError}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

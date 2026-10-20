@@ -35,7 +35,7 @@ public class OrasOciRegistryTransport : IOciRegistryTransport
         this.credentialProvider = credentialProvider;
     }
 
-    public async Task<string[]> GetRepositoryNamesAsync(CloudConfiguration cloud, string registry, int maxResults, CancellationToken cancellationToken = default)
+    public async Task<string[]> GetRepositoryNamesAsync(IBicepCloudConfiguration cloud, string registry, int maxResults, CancellationToken cancellationToken = default)
     {
         var client = CreateClient();
         var registryClient = new OrasRegistryClient(new RepositoryOptions
@@ -71,7 +71,7 @@ public class OrasOciRegistryTransport : IOciRegistryTransport
         return [.. results];
     }
 
-    public async Task<IReadOnlyList<string>> GetRepositoryTagsAsync(CloudConfiguration cloud, string registry, string repository, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<string>> GetRepositoryTagsAsync(IBicepCloudConfiguration cloud, string registry, string repository, CancellationToken cancellationToken = default)
     {
         var repositoryClient = CreateRepository(registry, repository);
         var tags = new List<string>();
@@ -96,7 +96,7 @@ public class OrasOciRegistryTransport : IOciRegistryTransport
         return tags;
     }
 
-    public async Task<OciArtifactResult> PullArtifactAsync(CloudConfiguration cloud, IOciArtifactAddressComponents artifactReference, CancellationToken cancellationToken = default)
+    public async Task<OciArtifactResult> PullArtifactAsync(IBicepCloudConfiguration cloud, IOciArtifactAddressComponents artifactReference, CancellationToken cancellationToken = default)
     {
         var repository = CreateRepository(artifactReference.Registry, artifactReference.Repository);
         var reference = artifactReference.Tag ?? artifactReference.Digest ?? throw new InvalidOperationException("Artifact reference must contain a tag or digest.");
@@ -147,7 +147,7 @@ public class OrasOciRegistryTransport : IOciRegistryTransport
     }
 
     public async Task PushArtifactAsync(
-        CloudConfiguration cloud,
+        IBicepCloudConfiguration cloud,
         IOciArtifactReference artifactReference,
         string? mediaType,
         string? artifactType,

@@ -80,7 +80,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
         public async Task InvokeAsync_BicepBuildError_ReturnsOne()
         {
             var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Valid);
-            fileSystem.File.WriteAllText(MainBicepFile.FileName, "something");
+            await fileSystem.File.WriteAllTextAsync(MainBicepFile.FileName, "something");
             var sut = CreateValidateCommand(fileSystem);
 
             var exitCode = await sut.Parse("").InvokeAsync();
@@ -96,7 +96,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
             var console = new MockConsole().ExpectErrorLines(
                 @$"{mainBicepFilePath}(1,1) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. [https://aka.ms/bicep/core-diagnostics#BCP007]",
                 @$"Failed to build ""{mainBicepFilePath}"".");
-            fileSystem.File.WriteAllText(MainBicepFile.FileName, "something");
+            await fileSystem.File.WriteAllTextAsync(MainBicepFile.FileName, "something");
             var sut = CreateValidateCommand(fileSystem, console);
 
             await sut.Parse("").InvokeAsync();
@@ -109,7 +109,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
         {
             var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Valid);
             var bicepTestFile = MainBicepTestFile.Open(fileSystem);
-            fileSystem.File.WriteAllText(bicepTestFile.Path, "something");
+            await fileSystem.File.WriteAllTextAsync(bicepTestFile.Path, "something");
             var sut = CreateValidateCommand(fileSystem);
 
             var exitCode = await sut.Parse("").InvokeAsync();
@@ -122,7 +122,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
         {
             var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Valid);
             var bicepTestFile = MainBicepTestFile.Open(fileSystem);
-            fileSystem.File.WriteAllText(bicepTestFile.Path, "something");
+            await fileSystem.File.WriteAllTextAsync(bicepTestFile.Path, "something");
             var console = new MockConsole().ExpectErrorLines(
                 @$"{bicepTestFile.Path}(1,1) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. [https://aka.ms/bicep/core-diagnostics#BCP007]",
                 @$"Failed to build ""{bicepTestFile.Path}"".");

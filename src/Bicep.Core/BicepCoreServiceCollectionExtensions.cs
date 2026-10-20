@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions;
 using System.Net;
 using Azure.Bicep.Types.Az;
 using Bicep.Core;
@@ -10,6 +9,7 @@ using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
+using Bicep.Core.Documentation;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
@@ -23,12 +23,9 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.Utils;
-using Bicep.IO.Abstraction;
-using Bicep.IO.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Environment = Bicep.Core.Utils.Environment;
-using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -51,20 +48,28 @@ public static class BicepCoreServiceCollectionExtensions
         services.TryAddSingleton<RegistryConfiguration>(serviceProvider =>
         {
             var environment = serviceProvider.GetRequiredService<IEnvironment>();
-            var additionalTrustedRegistries = RegistryConfiguration.ParseTrustedRegistries(environment.GetVariable("BICEP_TRUSTED_REGISTRIES"));
+            var additionalTrustedRegistries = RegistryConfiguration.ParseTrustedRegistries(environment.GetVariable(BicepEnvironmentVariables.TrustedRegistries));
             return new RegistryConfiguration(PermitUntrustedRegistries: false, additionalTrustedRegistries);
+        });
+        services.TryAddSingleton<CloudConfigurationTrustPolicy>(serviceProvider =>
+        {
+            var environment = serviceProvider.GetRequiredService<IEnvironment>();
+            return CloudConfigurationTrustPolicy.FromEnvironmentValue(environment.GetVariable(BicepEnvironmentVariables.TrustedClouds));
         });
         services.TryAddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>();
         services.TryAddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
         services.TryAddSingleton<IEnvironment, Environment>();
-        services.TryAddSingleton<IFileSystem, LocalFileSystem>();
-        services.TryAddSingleton<IFileExplorer, FileSystemFileExplorer>();
+        services.AddBicepFileSystem();
         services.TryAddSingleton<IAuxiliaryFileCache, AuxiliaryFileCache>();
-        services.TryAddSingleton<IConfigurationManager, ConfigurationManager>();
+        services.TryAddSingleton<ExplicitConfigurationContext>();
+        services.TryAddSingleton<BicepConfigurationManager>();
+        services.TryAddSingleton<IBicepConfigurationManager>(sp => sp.GetRequiredService<BicepConfigurationManager>());
         services.TryAddSingleton<IBicepAnalyzer, LinterAnalyzer>();
         services.TryAddSingleton<IFeatureProviderFactory, FeatureProviderFactory>();
+        services.TryAddSingleton(CompilerVersionCheckOptions.Default);
         services.TryAddSingleton<ILinterRulesProvider, LinterRulesProvider>();
         services.TryAddSingleton<ISourceFileFactory, SourceFileFactory>();
+        services.TryAddSingleton<IBicepDocumentationGenerator, BicepDocumentationGenerator>();
         services.AddBicepRegistryCatalogServices();
         services.TryAddSingleton<BicepCompiler>();
 

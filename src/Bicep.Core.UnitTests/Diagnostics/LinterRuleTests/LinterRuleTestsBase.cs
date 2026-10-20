@@ -43,7 +43,7 @@ public class LinterRuleTestsBase
     public record Options(
         OnCompileErrors OnCompileErrors = OnCompileErrors.Default,
         IncludePosition IncludePosition = IncludePosition.Default,
-        Func<RootConfiguration, RootConfiguration>? ConfigurationPatch = null,
+        Func<IBicepConfiguration, IBicepConfiguration>? ConfigurationPatch = null,
         IResourceTypeLoader? AzResourceTypeLoader = null,
         (string path, string contents)[]? AdditionalFiles = null,
         FeatureProviderOverrides? FeatureOverrides = null

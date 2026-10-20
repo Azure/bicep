@@ -36,11 +36,16 @@ public class ConsoleCommand(
     private Rune ReadRune(char firstChar)
         => ReadRune(firstChar, () => Console.ReadKey(intercept: true).KeyChar);
 
-    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    internal static Command CreateCommand(CommandLineBuilderContext context)
     {
-        var command = new System.CommandLine.Command(Constants.Command.Console, "Opens an interactive Bicep console.");
+        var configOption = CommonOptions.Config();
+        var command = new Command(CommandNames.Console, "Opens an interactive Bicep console.")
+        {
+            configOption,
+        };
 
         command.SetAction((result, ct) => context.RunCommandAsync(
+            result.GetValue(configOption),
             () => context.GetCommand<ConsoleCommand>().RunAsync(new ConsoleArguments())));
 
         return command;
@@ -219,7 +224,7 @@ public class ConsoleCommand(
 
     private readonly record struct InputLine(string Text, bool StartedWithBufferedInput, bool HasBufferedInputAfterEnter);
 
-    private async Task<bool> PrintHistory(StringBuilder buffer, LineEditor editor, bool backwards)
+    private async Task<bool> PrintHistory(StringBuilder buffer, LineEditor editor, bool backwards, int previousCursorOffset)
     {
         if (replEnvironment.TryGetHistory(backwards) is not { } history)
         {
@@ -235,7 +240,7 @@ public class ConsoleCommand(
         buffer.Append(history[..lineStart]);
         editor.Reset(GetRunes(history[lineStart..]));
 
-        var output = replEnvironment.HighlightInputLine(FirstLinePrefix, buffer.ToString(), editor.Buffer, editor.Cursor, printPrevLines: true);
+        var output = replEnvironment.HighlightInputLine(FirstLinePrefix, buffer.ToString(), editor.Buffer, editor.Cursor, printPrevLines: true, Console.WindowWidth, previousCursorOffset);
         await io.Output.Writer.WriteAsync(PrintHelper.MoveCursorUp(prevBufferLineCount));
         await io.Output.Writer.WriteAsync(output);
         return true;
@@ -254,12 +259,13 @@ public class ConsoleCommand(
         while (true)
         {
             var keyInfo = Console.ReadKey(intercept: true);
+            var previousCursorOffset = editor.Buffer.Take(editor.Cursor).Sum(rune => rune.Utf16SequenceLength);
 
             switch ((keyInfo.Modifiers, keyInfo.Key))
             {
                 case (_, UpArrow) or (_, DownArrow):
                     // History navigation re-renders the whole line itself, so skip the redraw below when it handled the key.
-                    if (await PrintHistory(buffer, editor, backwards: keyInfo.Key == UpArrow))
+                    if (await PrintHistory(buffer, editor, backwards: keyInfo.Key == UpArrow, previousCursorOffset))
                     {
                         continue;
                     }
@@ -279,10 +285,10 @@ public class ConsoleCommand(
                 // referenced from how NodeJS REPL handles jumping between words for MacOS:
                 // https://github.com/nodejs/node/blob/0e2126d8b1c0eb93b105ac53c0939908392cbb42/lib/internal/readline/interface.js#L1435-L1445
                 // Option key in MacOS maps to Alt
-                case (ConsoleModifiers.Control, RightArrow) or (ConsoleModifiers.Alt, F): 
+                case (ConsoleModifiers.Control, RightArrow) or (ConsoleModifiers.Alt, F):
                     editor.MoveToWordBoundary(+1);
                     break;
-                    
+
                 case (_, RightArrow):
                     editor.MoveRight();
                     break;
@@ -333,7 +339,7 @@ public class ConsoleCommand(
             editor.Track();
 
             await io.Output.Writer.WriteAsync(
-                replEnvironment.HighlightInputLine(GetPrefix(buffer), buffer.ToString(), editor.Buffer, editor.Cursor, printPrevLines: false));
+                replEnvironment.HighlightInputLine(GetPrefix(buffer), buffer.ToString(), editor.Buffer, editor.Cursor, printPrevLines: false, Console.WindowWidth, previousCursorOffset));
         }
     }
 }

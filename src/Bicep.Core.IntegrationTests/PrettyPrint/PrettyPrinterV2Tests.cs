@@ -17,7 +17,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
     {
         public TestContext TestContext { get; set; } = null!;
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(40)]
         [DataRow(80)]
         [TestCategory(TestCategories.Baseline)]
@@ -41,8 +41,8 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             AssertConsistentOutput(output, options);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(TestCategories.Baseline)]
         public void Print_DataSet_ProducesExpectedOutput(DataSet dataSet)
         {
@@ -59,8 +59,8 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             AssertConsistentOutput(output, PrettyPrinterV2Options.Default);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(TestCategories.Baseline)]
         public void Print_DataSet_ProducesConsistentNewlines(DataSet dataSet)
         {
@@ -73,7 +73,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
                 .HaveCount(1);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData()]
         [TestCategory(TestCategories.Baseline)]
         public void Print_ParamDataSet_ProducesExpectedOutput(BaselineData_Bicepparam baselineData)
@@ -86,7 +86,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             AssertConsistentParamsOutput(output, PrettyPrinterV2Options.Default);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData()]
         [TestCategory(TestCategories.Baseline)]
         public void Print_ParamDataSet_ProducesConsistentNewlines(BaselineData_Bicepparam baselineData)

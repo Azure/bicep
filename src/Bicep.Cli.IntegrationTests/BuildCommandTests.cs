@@ -55,8 +55,8 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Build_Valid_SingleFile_WithTemplateSpecReference_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -101,8 +101,8 @@ namespace Bicep.Cli.IntegrationTests
                 actualLocation: compiledFilePath);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Build_Valid_SingleFile_WithTemplateSpecReference_ToStdOut_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -144,8 +144,8 @@ namespace Bicep.Cli.IntegrationTests
                 actualLocation: compiledFilePath);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Build_Valid_SingleFile_After_Restore_Should_Succeed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -244,8 +244,8 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Build_Invalid_SingleFile_ShouldFail_WithExpectedErrorMessage(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -262,8 +262,8 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Build_Invalid_SingleFile_ToStdOut_ShouldFail_WithExpectedErrorMessage(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -405,7 +405,7 @@ output myOutput string = 'hello!'
         [DataRow([])]
         [DataRow(["--diagnostics-format", "defAULt"])]
         [DataRow(["--diagnostics-format", "sArif"])]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Build_WithOutDir_ShouldSucceed(string[] args)
         {
             var bicepPath = FileHelper.SaveResultFile(
@@ -465,7 +465,7 @@ output myOutput string = 'hello!'
         [DataRow("WrongDir\\Fake.bicep", new[] { "--stdout" }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataRow("WrongDir\\Fake.bicep", new[] { "--outdir", "." }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataRow("WrongDir\\Fake.bicep", new[] { "--outfile", "file1" }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Build_InvalidInputPaths_ShouldProduceExpectedError(string badPath, string[] args, string expectedErrorRegex)
         {
             var (output, error, result) = await Bicep(["build", .. args, badPath]);
@@ -535,9 +535,78 @@ output myOutput string = 'hello!'
             error.Should().StartWith($"{inputFile}(1,1) : Error BCP271: Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 0.");
         }
 
+        [TestMethod]
+        public async Task Build_WithUntrustedCloudConfiguration_ShouldProduceConfigurationError()
+        {
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
+            var configurationPath = FileHelper.SaveResultFile(
+                this.TestContext,
+                "bicepconfig.json",
+                """
+                {
+                  "cloud": {
+                    "currentProfile": "Custom",
+                    "profiles": {
+                      "Custom": {
+                        "resourceManagerEndpoint": "https://management.example.invalid",
+                        "activeDirectoryAuthority": "https://login.example.invalid"
+                      }
+                    }
+                  }
+                }
+                """,
+                testOutputPath);
+
+            var (output, error, result) = await Bicep("build", inputFile);
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().StartWith($"{inputFile}(1,1) : Error BCP458: The cloud profile \"Custom\" selected by the Bicep configuration file \"{configurationPath}\" is not trusted.");
+            File.Exists(PathHelper.GetJsonOutputPath(inputFile)).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public async Task Build_WithInvalidTrustedCloudsEnvironmentVariable_ShouldProduceActionableWarning()
+        {
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
+            FileHelper.SaveResultFile(
+                this.TestContext,
+                "bicepconfig.json",
+                """
+                {
+                  "cloud": {
+                    "currentProfile": "Custom",
+                    "profiles": {
+                      "Custom": {
+                        "resourceManagerEndpoint": "https://management.example.invalid",
+                        "activeDirectoryAuthority": "https://login.example.invalid"
+                      }
+                    }
+                  }
+                }
+                """,
+                testOutputPath);
+            var settings = InvocationSettings.Default with
+            {
+                Environment = TestEnvironment.Default.WithVariables(
+                    (BicepEnvironmentVariables.TrustedClouds, "{ not json")),
+            };
+
+            var (output, error, result) = await Bicep(settings, "build", inputFile);
+
+            result.Should().Be(0);
+            output.Should().BeEmpty();
+            error.Should().StartWith($"{inputFile}(1,1) : Warning BCP459: The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid and custom cloud trust entries were ignored:");
+            error.Should().NotContain("System.Text.Json.JsonException");
+            error.Should().NotContain(" at ");
+            File.Exists(PathHelper.GetJsonOutputPath(inputFile)).Should().BeTrue();
+        }
+
         [DataRow([])]
         [DataRow(["--diagnostics-format", "defAULt"])]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError(string[] args)
         {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);

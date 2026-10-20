@@ -143,7 +143,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
             """)]
-        [DataTestMethod]
+        [TestMethod]
         public void TestRule(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, expectedMessages);

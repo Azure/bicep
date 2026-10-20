@@ -293,12 +293,12 @@ public class LocalDeployCommandTests : TestBase
 
         var deploymentProviderMock = StrictMock.Of<IArmDeploymentProvider>();
 
-        deploymentProviderMock.Setup(x => x.StartDeployment(It.IsAny<RootConfiguration>(), It.IsAny<DeploymentLocator>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns<RootConfiguration, DeploymentLocator, string, string, CancellationToken>((config, locator, templateString, parametersString, _) => Task.CompletedTask);
+        deploymentProviderMock.Setup(x => x.StartDeployment(It.IsAny<IBicepConfiguration>(), It.IsAny<DeploymentLocator>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns<IBicepConfiguration, DeploymentLocator, string, string, CancellationToken>((config, locator, templateString, parametersString, _) => Task.CompletedTask);
 
         var attempts = 0;
-        deploymentProviderMock.Setup(x => x.CheckDeployment(It.IsAny<RootConfiguration>(), It.IsAny<DeploymentLocator>(), It.IsAny<CancellationToken>()))
-            .Returns<RootConfiguration, DeploymentLocator, CancellationToken>(async (config, locator, _) =>
+        deploymentProviderMock.Setup(x => x.CheckDeployment(It.IsAny<IBicepConfiguration>(), It.IsAny<DeploymentLocator>(), It.IsAny<CancellationToken>()))
+            .Returns<IBicepConfiguration, DeploymentLocator, CancellationToken>(async (config, locator, _) =>
             {
                 await Task.CompletedTask;
                 var isInitialAttempt = Interlocked.Increment(ref attempts) == 1;
@@ -389,7 +389,13 @@ public class LocalDeployCommandTests : TestBase
 
         result.Should().NotHaveStderr().And.Fail();
 
-        result.WithoutAnsi().WithoutDurations().Stdout.Should().BeEquivalentToIgnoringNewlines("""
+        const string correlationIdPattern = @"[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}";
+        var stdout = result.WithoutAnsi().WithoutDurations().Stdout;
+        stdout.Should().Contain("Correlation ID:");
+        Regex.Matches(stdout, correlationIdPattern).Count.Should().Be(1);
+        stdout = Regex.Replace(stdout, correlationIdPattern, "00000000-0000-0000-0000-000000000000");
+
+        stdout.Should().BeEquivalentToIgnoringNewlines("""
         ╭───────────────────────┬──────────┬───────────────────────────────────────────╮
         │ Resource              │ Duration │ Status                                    │
         ├───────────────────────┼──────────┼───────────────────────────────────────────┤
@@ -398,7 +404,8 @@ public class LocalDeployCommandTests : TestBase
         │                       │          │ deployment operations for details. Please │
         │                       │          │ see                                       │
         │                       │          │ https://aka.ms/arm-deployment-operations  │
-        │                       │          │ for usage details.                        │
+        │                       │          │ for usage details. Correlation ID:        │
+        │                       │          │ 00000000-0000-0000-0000-000000000000      │
         │                       │          │   - NestedCode1: Nested message 1         │
         │ main -> gridpointsReq │          │ MyErrorCode: Dummy error message          │
         │                       │          │   - NestedCode1: Nested message 1         │

@@ -50,15 +50,27 @@ class StderrAssertionBuilder {
   withNonEmptyStderr(): void {
     expect(this.stderr.length).toBeGreaterThan(0);
   }
+
+  withStderrContaining(contents: string): StderrAssertionBuilder {
+    expect(this.stderr).toContain(contents);
+
+    return this;
+  }
 }
 
 class BicepCommandTestRunner {
   private environmentOverrides: EnvironmentOverrides = {};
+  private cwd?: string;
 
   constructor(private readonly args: string[]) {}
 
   withEnvironmentOverrides(environmentOverrides: EnvironmentOverrides): BicepCommandTestRunner {
     this.environmentOverrides = environmentOverrides;
+    return this;
+  }
+
+  withCwd(cwd: string): BicepCommandTestRunner {
+    this.cwd = cwd;
     return this;
   }
 
@@ -83,6 +95,7 @@ class BicepCommandTestRunner {
     const result = spawn.sync(bicepCli, this.args, {
       stdio: "pipe",
       encoding: "utf-8",
+      cwd: this.cwd,
       // overrides take precedence over inherited env vars
       env: { ...process.env, ...this.environmentOverrides },
     });

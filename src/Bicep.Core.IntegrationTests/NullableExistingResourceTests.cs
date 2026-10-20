@@ -405,9 +405,8 @@ output accountLocation string? = storageAccount.?location
         }
 
         [TestMethod]
-        public void NullableExisting_NestedChildResource_ShouldEmitExperimentalLanguageVersion()
+        public void NullableExisting_NestedChildResource_ShouldEmitLanguageVersion20()
         {
-            // @nullIfNotFound on a nested existing child resource should still trigger the experimental language version
             var (template, diagnostics, _) = CompilationHelper.Compile(@"
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
@@ -429,8 +428,7 @@ output blobServiceId string? = storageAccount::blobService.?id
             {
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
                 template.Should().NotBeNull();
-                // Verify the experimental language version is used (required for @nullIfNotFound)
-                template.Should().HaveValueAtPath("$.languageVersion", "2.1-experimental");
+                template.Should().HaveValueAtPath("$.languageVersion", "2.0");
                 // Verify the nested existing resource has the correct options
                 template.Should().HaveValueAtPath("$.resources['storageAccount::blobService'].existing", true);
                 template.Should().HaveValueAtPath("$.resources['storageAccount::blobService']['@options'].nullIfNotFound", new JArray());

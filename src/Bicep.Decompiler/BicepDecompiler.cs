@@ -295,7 +295,7 @@ Following metadata was not decompiled:
                 continue;
             }
 
-            var options = bicepFile.Configuration.Formatting.Data;
+            var options = bicepFile.LoadConfiguration().Formatting.Data;
             var context = PrettyPrinterV2Context.Create(options, bicepFile.LexingErrorLookup, bicepFile.ParsingErrorLookup);
             filesToSave[sourceFile.FileHandle.Uri] = PrettyPrinterV2.Print(bicepFile.ProgramSyntax, context);
         }

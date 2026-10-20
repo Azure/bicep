@@ -29,4 +29,15 @@ describe("AzureIcon", () => {
       { timeout: 15000 },
     );
   });
+
+  it("renders a previously loaded icon synchronously after remount", async () => {
+    const resourceType = "Microsoft.Storage/storageAccounts";
+    const firstRender = render(<AzureIcon resourceType={resourceType} size={18} />);
+    await screen.findByTestId(`${resourceType}-svg`);
+    firstRender.unmount();
+
+    render(<AzureIcon resourceType={resourceType} size={18} />);
+
+    expect(screen.getByTestId(`${resourceType}-svg`)).toBeInTheDocument();
+  });
 });

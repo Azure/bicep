@@ -5,7 +5,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Rewriters;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Features.Language.Completion;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -36,7 +36,7 @@ public class SyntaxModifierTests
         return rewrittenProgram.ToString();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(@"
 var adsf = [
   'abc'
@@ -119,7 +119,7 @@ var adsf = [
         rewritten.Should().BeEquivalentToIgnoringNewlines(expected);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(@"
 var adsf = {
   abc: 'abc'
@@ -202,7 +202,7 @@ var adsf = {
         rewritten.Should().BeEquivalentToIgnoringNewlines(expected);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(@"
 var adsf = {
   ab|c: 'abc'

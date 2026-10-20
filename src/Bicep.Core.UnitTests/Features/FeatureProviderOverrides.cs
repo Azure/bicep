@@ -72,4 +72,3 @@ public record FeatureProviderOverrides(
             AzExtensionConfigEnabled)
     { }
 }
-

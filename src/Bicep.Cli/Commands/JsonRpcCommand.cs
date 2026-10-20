@@ -9,19 +9,23 @@ using System.Net.Sockets;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Constants;
 using Bicep.Cli.Rpc;
+using Bicep.Cli.Services;
 using Bicep.Core;
+using Bicep.Core.Documentation;
 using Bicep.Core.Features;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using StreamJsonRpc;
-using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;
 
 public class JsonRpcCommand(
     BicepCompiler compiler,
     InputOutputArgumentsResolver inputOutputArgumentsResolver,
-    IEnvironment environment) : ICommand
+    IEnvironment environment,
+    IBicepDocumentationGenerator documentationGenerator,
+    DocsGenerationOptionsResolver docsOptionsResolver,
+    ExplicitConfigurationScopeFactory explicitConfigurationScopeFactory) : ICommand
 {
     public async Task<int> RunAsync(JsonRpcArguments args, CancellationToken cancellationToken)
     {
@@ -62,7 +66,13 @@ public class JsonRpcCommand(
             jsonRpc.TraceSource.Listeners.AddRange(Trace.Listeners);
         }
 
-        var server = new CliJsonRpcServer(compiler, inputOutputArgumentsResolver, environment);
+        var server = new CliJsonRpcServer(
+            compiler,
+            inputOutputArgumentsResolver,
+            environment,
+            documentationGenerator,
+            docsOptionsResolver,
+            explicitConfigurationScopeFactory);
         jsonRpc.AddLocalRpcTarget<ICliJsonRpcProtocol>(server, null);
 
         jsonRpc.StartListening();
@@ -82,28 +92,28 @@ public class JsonRpcCommand(
         }
     }
 
-    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    internal static Command CreateCommand(CommandLineBuilderContext context)
     {
-        var command = new System.CommandLine.Command(Constants.Command.JsonRpc, "Starts the Bicep CLI listening for JSONRPC messages, for programatically interacting with Bicep.");
-
-        var pipeOption = new System.CommandLine.Option<string?>(Option.Pipe)
+        var pipeOption = new Option<string?>(OptionNames.Pipe)
         {
             Description = "Bicep CLI will connect to the supplied named pipe as a client, and start listening for JSONRPC requests.",
         };
-        var socketOption = new System.CommandLine.Option<int?>(Option.Socket)
+        var socketOption = new Option<int?>(OptionNames.Socket)
         {
             Description = "Bicep CLI will connect to the supplied TCP port on the loopback interface as a client, and start listening for JSONRPC requests.",
         };
-        var stdioOption = new System.CommandLine.Option<bool>(Option.Stdio)
+        var stdioOption = new Option<bool>(OptionNames.Stdio)
         {
             Description = "Bicep CLI will use stdin/stdout for JSONRPC requests.",
         };
 
-        command.Add(pipeOption);
-        command.Add(socketOption);
-        command.Add(stdioOption);
-
-        command.Validators.Add((System.CommandLine.Parsing.CommandResult result) =>
+        var command = new Command(CommandNames.JsonRpc, "Starts the Bicep CLI listening for JSONRPC messages, for programatically interacting with Bicep.")
+        {
+            pipeOption,
+            socketOption,
+            stdioOption,
+        };
+        command.Validators.Add(result =>
         {
             var hasPipe = result.GetResult(pipeOption) is { Implicit: false };
             var hasSocket = result.GetResult(socketOption) is { Implicit: false };

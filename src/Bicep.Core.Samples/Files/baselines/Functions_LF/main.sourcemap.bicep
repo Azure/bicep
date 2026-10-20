@@ -305,5 +305,14 @@ output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
 //@    "distinctTest3": {
 //@      "type": "array",
 //@      "value": "[distinct(createArray(createObject('a', 1), createObject('a', 1), createObject('b', 2)))]"
+//@    },
+output roleAssignmentName string = getRoleAssignmentName({
+//@    "roleAssignmentName": {
+//@      "type": "string",
+//@      "value": "[getRoleAssignmentName(createObject('scope', resourceGroup().id, 'principalId', '00000000-0000-0000-0000-000000000000', 'roleDefinitionId', '00000000-0000-0000-0000-000000000001'))]"
 //@    }
+  scope: resourceGroup().id
+  principalId: '00000000-0000-0000-0000-000000000000'
+  roleDefinitionId: '00000000-0000-0000-0000-000000000001'
+})
 

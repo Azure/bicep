@@ -54,5 +54,6 @@ public static class TestFeatureProviderFactory
         public bool RuntimeValuesInTagsAndSkuEnabled => features.RuntimeValuesInTagsAndSkuEnabled;
 
         public bool AzExtensionConfigEnabled => features.AzExtensionConfigEnabled;
+
     }
 }

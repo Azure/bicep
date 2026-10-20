@@ -1,6 +1,6 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import eslint from "@eslint/js";
 import { fixupConfigRules, fixupPluginRules } from "@eslint/compat";
+import eslint from "@eslint/js";
 import notice from "eslint-plugin-notice";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";

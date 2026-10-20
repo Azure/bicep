@@ -9,6 +9,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.Extensions;
 using Bicep.Testing.IO;
 using Bicep.Testing.Mocks;
 using FluentAssertions;
@@ -576,7 +577,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             result.Template.Should().HaveValueAtPath("$.resources.myApp.extension", "foo");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             "InlineValues", "{ kubeConfig: 'fromModule', namespace: 'other' }", null)]
         [DataRow(
@@ -640,7 +641,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             "MissingExtensionConfigs",
             "extension kubernetes",
@@ -742,7 +743,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             compilation.Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             "ParamsFile",
             "BCP337",
@@ -820,7 +821,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             "FullInheritance",
             "extensionConfigs: { kubernetes: k8s.config }",
@@ -894,7 +895,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                 .DeepEqual(JToken.Parse(expectedExtConfigJson));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             "NoneRequired",
             "",
@@ -954,7 +955,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             "IncompleteSyntax_ToAlias",
             "extensionConfig k8s",

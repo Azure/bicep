@@ -12,9 +12,9 @@ namespace Bicep.Core.Registry.Azure;
 internal sealed class AcrRegistrySession : IRegistrySession
 {
     private readonly AzureContainerRegistryManager manager;
-    private readonly CloudConfiguration cloud;
+    private readonly IBicepCloudConfiguration cloud;
 
-    public AcrRegistrySession(AzureContainerRegistryManager manager, CloudConfiguration cloud)
+    public AcrRegistrySession(AzureContainerRegistryManager manager, IBicepCloudConfiguration cloud)
     {
         this.manager = manager;
         this.cloud = cloud;

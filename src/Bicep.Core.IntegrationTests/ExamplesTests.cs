@@ -69,20 +69,20 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetAllExampleData))]
         [TestCategory(TestCategories.Baseline)]
         public Task ExampleIsValid(EmbeddedFile embeddedBicep)
             => RunExampleTest(TestContext, embeddedBicep, new(TestContext), ".json");
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetAllExampleData))]
         [TestCategory(TestCategories.Baseline)]
         public Task ExampleIsValid_using_experimental_symbolic_names(EmbeddedFile embeddedBicep)
             => RunExampleTest(TestContext, embeddedBicep, new(TestContext, SymbolicNameCodegenEnabled: true), ".symbolicnames.json");
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetAllExampleData))]
         [TestCategory(TestCategories.Baseline)]
         public void Example_uses_consistent_formatting(EmbeddedFile embeddedBicep)
         {

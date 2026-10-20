@@ -12,5 +12,5 @@ public interface IOciRegistryTransportFactory
 
     IOciRegistryTransport GetTransport(string registry);
 
-    IRegistrySession CreateSession(OciArtifactReference reference, CloudConfiguration cloud);
+    IRegistrySession CreateSession(OciArtifactReference reference, IBicepCloudConfiguration cloud);
 }

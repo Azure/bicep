@@ -39,7 +39,7 @@ namespace Bicep.Core.Registry
         }
 
         public async Task<string[]> GetRepositoryNamesAsync(
-            CloudConfiguration cloud,
+            IBicepCloudConfiguration cloud,
             string registry,
             int maxResults,
             CancellationToken cancellationToken = default)
@@ -97,7 +97,7 @@ namespace Bicep.Core.Registry
         }
 
         public async Task<IReadOnlyList<string>> GetRepositoryTagsAsync(
-            CloudConfiguration cloud,
+            IBicepCloudConfiguration cloud,
             string registry,
             string repository,
             CancellationToken cancellationToken = default)
@@ -141,7 +141,7 @@ namespace Bicep.Core.Registry
         }
 
         public async Task<OciArtifactResult> PullArtifactAsync(
-            CloudConfiguration cloud,
+            IBicepCloudConfiguration cloud,
             IOciArtifactAddressComponents artifactReference,
             CancellationToken cancellationToken = default)
         {
@@ -176,7 +176,7 @@ namespace Bicep.Core.Registry
         }
 
         public async Task PushArtifactAsync(
-            CloudConfiguration cloud,
+            IBicepCloudConfiguration cloud,
             IOciArtifactReference artifactReference,
             string? mediaType,
             string? artifactType,
@@ -232,14 +232,14 @@ namespace Bicep.Core.Registry
         private static Uri GetRegistryUri(string loginServer) => new($"https://{loginServer}");
 
         private ContainerRegistryContentClient CreateBlobClient(
-            CloudConfiguration cloud,
+            IBicepCloudConfiguration cloud,
             IOciArtifactAddressComponents artifactReference,
             bool anonymousAccess) => anonymousAccess
             ? this.clientFactory.CreateAnonymousBlobClient(cloud, GetRegistryUri(artifactReference), artifactReference.Repository)
             : this.clientFactory.CreateAuthenticatedBlobClient(cloud, GetRegistryUri(artifactReference), artifactReference.Repository);
 
         private ContainerRegistryClient CreateContainerClient(
-            CloudConfiguration cloud,
+            IBicepCloudConfiguration cloud,
             Uri registryUri,
             bool anonymousAccess) => anonymousAccess
             ? this.clientFactory.CreateAnonymousContainerClient(cloud, registryUri)

@@ -388,6 +388,41 @@
   <data name="UseParentPropertyRule_CodeFix" xml:space="preserve">
     <value>Use parent property</value>
   </data>
+  <data name="UseDescriptionParametersRule_Description" xml:space="preserve">
+    <value>Parameters should have non-empty descriptions.</value>
+  </data>
+  <data name="UseDescriptionParametersRule_MessageFormat" xml:space="preserve">
+    <value>Parameter "{0}" must have a non-empty description.</value>
+    <comment>{0} is the parameter name</comment>
+  </data>
+  <data name="UseDescriptionVarsRule_Description" xml:space="preserve">
+    <value>Variables should have non-empty descriptions.</value>
+  </data>
+  <data name="UseDescriptionVarsRule_MessageFormat" xml:space="preserve">
+    <value>Variable "{0}" must have a non-empty description.</value>
+    <comment>{0} is the variable name</comment>
+  </data>
+  <data name="UseDescriptionOutputRule_Description" xml:space="preserve">
+    <value>Outputs should have non-empty descriptions.</value>
+  </data>
+  <data name="UseDescriptionOutputRule_MessageFormat" xml:space="preserve">
+    <value>Output "{0}" must have a non-empty description.</value>
+    <comment>{0} is the output name</comment>
+  </data>
+  <data name="UseDescriptionTypeRule_Description" xml:space="preserve">
+    <value>User-defined types should have non-empty descriptions.</value>
+  </data>
+  <data name="UseDescriptionTypeRule_MessageFormat" xml:space="preserve">
+    <value>Type "{0}" must have a non-empty description.</value>
+    <comment>{0} is the type name</comment>
+  </data>
+  <data name="UseDescriptionTypePropertyRule_Description" xml:space="preserve">
+    <value>Properties of user-defined types should have non-empty descriptions.</value>
+  </data>
+  <data name="UseDescriptionTypePropertyRule_MessageFormat" xml:space="preserve">
+    <value>Type property "{0}" must have a non-empty description.</value>
+    <comment>{0} is the type property name</comment>
+  </data>
   <data name="UseSecureValueForSecureInputsRule_MessageFormat" xml:space="preserve">
     <value>Property '{0}' expects a secure value, but the value provided may not be secure.</value>
     <comment>{0} property name</comment>
@@ -505,6 +540,18 @@
   <data name="NoDeploymentsResourcesRuleMessageFormat" xml:space="preserve">
     <value>Resource '{0}' of type '{1}' should instead be declared as a Bicep module.</value>
   </data>
+  <data name="NoConflictingVersionConstraintsRule_Description" xml:space="preserve">
+    <value>The 'bicep.version' constraints declared across all Bicep files reachable from the entrypoint via local module references should combine into a single valid version range.</value>
+  </data>
+  <data name="NoConflictingVersionConstraintsRule_MessageFormat" xml:space="preserve">
+    <value>The "bicep.version" constraint "{0}" required by "{1}" cannot be satisfied together with the constraint "{2}" required by "{3}". No single Bicep version can satisfy both.</value>
+  </data>
+  <data name="NoIncompatibleEntrypointVersionRule_Description" xml:space="preserve">
+    <value>The entrypoint's 'bicep.version' constraint must only allow versions that satisfy every referenced Bicep file's constraint.</value>
+  </data>
+  <data name="NoIncompatibleEntrypointVersionRule_MessageFormat" xml:space="preserve">
+    <value>The entrypoint's 'bicep.version' constraint ({0}) allows versions that do not satisfy the constraint '{1}' required by referenced file '{2}'. Tools that select a Bicep version using only the entrypoint's constraint may select an incompatible version.</value>
+  </data>
   <data name="ExperimentalFeatureNames_Asserts" xml:space="preserve">
     <value>Asserts</value>
   </data>
@@ -564,10 +611,10 @@
     <value>Import "{0}" is declared but never used.</value>
   </data>
   <data name="UseRecentAzPowerShellVersionRuleDescription" xml:space="preserve">
-    <value>Use AzPowerShell version 11.0 or higher in deployment scripts to avoid EOL Ubuntu 20.04 LTS</value>
+    <value>Use AzPowerShell version 15.0 or higher in deployment scripts to avoid EOL Ubuntu 20.04 LTS</value>
   </data>
   <data name="UseRecentAzPowerShellVersionRuleMessageFormat" xml:space="preserve">
-    <value>Deployment script is using AzPowerShell version '{0}' which is below the recommended minimum version '{1}'. Consider upgrading to version 11.0 or higher to avoid EOL Ubuntu 20.04 LTS.</value>
+    <value>Deployment script is using AzPowerShell version '{0}' which is below the recommended minimum version '{1}'. Consider upgrading to version {1} or higher to avoid Ubuntu or PowerShell EOL.</value>
   </data>
   <data name="StacksExtensibilityCompatibilityRuleDescription" xml:space="preserve">
     <value>Extensibility for deployments has additional constraints for Deployment stack deployments.</value>

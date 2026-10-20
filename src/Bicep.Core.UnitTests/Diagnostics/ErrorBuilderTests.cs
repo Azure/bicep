@@ -232,6 +232,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return new IOUri("file", "", "/foo");
             }
 
+            if (parameter.ParameterType == typeof(DiagnosticLevel))
+            {
+                return DiagnosticLevel.Error;
+            }
+
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");
         }
 
@@ -338,7 +343,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                        name:
                  }"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void MissingTypePropertiesHasFix(string text, string expectedFix)
         {
             ExpectDiagnosticWithFixedText(text, expectedFix);

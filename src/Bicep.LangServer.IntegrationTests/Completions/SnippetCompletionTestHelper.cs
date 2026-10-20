@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text.RegularExpressions;
-using Bicep.LanguageServer.Snippets;
+using Bicep.LanguageServer.Features.Language.Completion.Snippets;
 using FluentAssertions;
 
 namespace Bicep.LangServer.IntegrationTests.Completions

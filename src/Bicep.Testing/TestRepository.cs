@@ -15,11 +15,12 @@ public static class TestRepository
 
         while (currentDirectory.Parent is { } parentDirectory)
         {
-            if (Directory.Exists(Path.Join(currentDirectory.FullName, ".git")))
+            // Identify the Bicep repository itself using the solution file rather than relying on .git,
+            // which can identify either the Bicep submodule or its containing BicepMirror repository in ADO.
+            if (File.Exists(Path.Join(currentDirectory.FullName, "Bicep.sln")) ||
+                File.Exists(Path.Join(currentDirectory.FullName, "Bicep.slnx")))
             {
-                return Environment.GetEnvironmentVariable("TF_BUILD") is not null
-                    ? Path.Join(currentDirectory.FullName, "bicep")
-                    : currentDirectory.FullName;
+                return currentDirectory.FullName;
             }
 
             currentDirectory = parentDirectory;

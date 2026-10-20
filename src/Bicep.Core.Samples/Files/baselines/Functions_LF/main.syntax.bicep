@@ -1,5 +1,5 @@
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:2050) ProgramSyntax
+//@[000:2253) ProgramSyntax
 //@[000:0141) ├─FunctionDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |func|
 //@[005:0013) | ├─IdentifierSyntax
@@ -957,5 +957,57 @@ output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
 //@[058:0059) |   |   └─Token(RightSquare) |]|
 //@[059:0060) |   └─Token(RightParen) |)|
 //@[060:0061) ├─Token(NewLine) |\n|
+output roleAssignmentName string = getRoleAssignmentName({
+//@[000:0202) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0025) | ├─IdentifierSyntax
+//@[007:0025) | | └─Token(Identifier) |roleAssignmentName|
+//@[026:0032) | ├─TypeVariableAccessSyntax
+//@[026:0032) | | └─IdentifierSyntax
+//@[026:0032) | |   └─Token(Identifier) |string|
+//@[033:0034) | ├─Token(Assignment) |=|
+//@[035:0202) | └─FunctionCallSyntax
+//@[035:0056) |   ├─IdentifierSyntax
+//@[035:0056) |   | └─Token(Identifier) |getRoleAssignmentName|
+//@[056:0057) |   ├─Token(LeftParen) |(|
+//@[057:0201) |   ├─FunctionArgumentSyntax
+//@[057:0201) |   | └─ObjectSyntax
+//@[057:0058) |   |   ├─Token(LeftBrace) |{|
+//@[058:0059) |   |   ├─Token(NewLine) |\n|
+  scope: resourceGroup().id
+//@[002:0027) |   |   ├─ObjectPropertySyntax
+//@[002:0007) |   |   | ├─IdentifierSyntax
+//@[002:0007) |   |   | | └─Token(Identifier) |scope|
+//@[007:0008) |   |   | ├─Token(Colon) |:|
+//@[009:0027) |   |   | └─PropertyAccessSyntax
+//@[009:0024) |   |   |   ├─FunctionCallSyntax
+//@[009:0022) |   |   |   | ├─IdentifierSyntax
+//@[009:0022) |   |   |   | | └─Token(Identifier) |resourceGroup|
+//@[022:0023) |   |   |   | ├─Token(LeftParen) |(|
+//@[023:0024) |   |   |   | └─Token(RightParen) |)|
+//@[024:0025) |   |   |   ├─Token(Dot) |.|
+//@[025:0027) |   |   |   └─IdentifierSyntax
+//@[025:0027) |   |   |     └─Token(Identifier) |id|
+//@[027:0028) |   |   ├─Token(NewLine) |\n|
+  principalId: '00000000-0000-0000-0000-000000000000'
+//@[002:0053) |   |   ├─ObjectPropertySyntax
+//@[002:0013) |   |   | ├─IdentifierSyntax
+//@[002:0013) |   |   | | └─Token(Identifier) |principalId|
+//@[013:0014) |   |   | ├─Token(Colon) |:|
+//@[015:0053) |   |   | └─StringSyntax
+//@[015:0053) |   |   |   └─Token(StringComplete) |'00000000-0000-0000-0000-000000000000'|
+//@[053:0054) |   |   ├─Token(NewLine) |\n|
+  roleDefinitionId: '00000000-0000-0000-0000-000000000001'
+//@[002:0058) |   |   ├─ObjectPropertySyntax
+//@[002:0018) |   |   | ├─IdentifierSyntax
+//@[002:0018) |   |   | | └─Token(Identifier) |roleDefinitionId|
+//@[018:0019) |   |   | ├─Token(Colon) |:|
+//@[020:0058) |   |   | └─StringSyntax
+//@[020:0058) |   |   |   └─Token(StringComplete) |'00000000-0000-0000-0000-000000000001'|
+//@[058:0059) |   |   ├─Token(NewLine) |\n|
+})
+//@[000:0001) |   |   └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightParen) |)|
+//@[002:0003) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

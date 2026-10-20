@@ -1,11 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { WebviewNotificationCallback, WebviewRequestMessage, WebviewResponseMessage } from "../webviewMessageChannel";
+import type { Mock } from "vitest";
+import type {
+  WebviewNotificationCallback,
+  WebviewRequestMessage,
+  WebviewResponseMessage,
+} from "../webviewMessageChannel";
 
 import { waitFor } from "@testing-library/dom";
-import type { Mock } from "vitest";
-
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { WebviewMessageChannel } from "../webviewMessageChannel";
 import { dispatchMessage } from "./utils";

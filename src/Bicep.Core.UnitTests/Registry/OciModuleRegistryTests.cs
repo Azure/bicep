@@ -2,25 +2,28 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
+using Bicep.Testing;
 using Bicep.Testing.Assertions;
 using Bicep.Testing.Dummies;
-using Bicep.Testing;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
@@ -60,7 +63,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow("")]
         [DataRow("    ")]
         [DataRow(null)]
-        [DataTestMethod]
+        [TestMethod]
         public void GetDocumentationUri_WithInvalidManifestContents_ShouldReturnNull(string manifestFileContents)
         {
             (OciArtifactRegistry OciArtifactRegistry, OciArtifactReference OciArtifactReference) = CreateModuleRegistryWithCachedModuleReference(
@@ -125,7 +128,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         [DataRow("")]
         [DataRow("   ")]
-        [DataTestMethod]
+        [TestMethod]
         public void GetDocumentationUri_WithAnnotationsInManifestFileAndInvalidDocumentationUri_ShouldReturnNull(string documentationUri)
         {
             var manifestFileContents = @"{
@@ -328,7 +331,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow("")]
         [DataRow("    ")]
         [DataRow(null)]
-        [DataTestMethod]
+        [TestMethod]
         public void GetDescription_WithInvalidManifestContents_ShouldReturnNull(string manifestFileContents)
         {
             (OciArtifactRegistry OciArtifactRegistry, OciArtifactReference OciArtifactReference) = CreateModuleRegistryWithCachedModuleReference(
@@ -466,7 +469,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         [DataRow("")]
         [DataRow("   ")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task GetDescription_WithAnnotationsInManifestFileAndInvalidDescription_ShouldReturnNull(string description)
         {
             var manifestFileContents = @"{
@@ -588,7 +591,7 @@ namespace Bicep.Core.UnitTests.Registry
   }
 }";
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public async Task PublishModuleWithSource_ShouldHaveSource(bool publishSource)
@@ -615,7 +618,7 @@ namespace Bicep.Core.UnitTests.Registry
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // No sources at all
         [DataRow(jsonContentsV1, null, jsonContentsV2, null)]
         // Sources for only one version
@@ -666,7 +669,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         #region Pull modules
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public async Task RestoreModuleWithSource_ShouldRestoreSourceToDisk(bool publishSource)
@@ -681,7 +684,7 @@ namespace Bicep.Core.UnitTests.Registry
             var template = BinaryData.FromString(jsonContentsV1);
 
             var featureProviderFactoryMock = StrictMock.Of<IFeatureProviderFactory>();
-            featureProviderFactoryMock.Setup(x => x.GetFeatureProvider(bicepFile.FileHandle.Uri)).Returns(bicepFile.Features);
+            featureProviderFactoryMock.Setup(x => x.GetFeatureProvider(bicepFile.FileHandle.Uri)).Returns(bicepFile.LoadFeatures());
 
             SourceArchive? sourceArchive = null;
             if (publishSource)
@@ -703,7 +706,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             await RestoreModule(ociRegistry, moduleReference);
 
-            var modules = CachedModules.GetCachedModules(BicepTestConstants.FileSystem, bicepFile.Features.CacheRootDirectory);
+            var modules = CachedModules.GetCachedModules(BicepTestConstants.FileSystem, bicepFile.LoadFeatures().CacheRootDirectory);
             modules.Should().HaveCountGreaterThan(0);
 
             if (publishSource)
@@ -743,7 +746,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         private OciArtifactReference CreateModuleReference(BicepSourceFile referencingFile, string registry, string repository, string? tag, string? digest)
         {
-            OciArtifactReference.TryParse(referencingFile.Features, referencingFile.Configuration, ArtifactType.Module, null, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactType.Module, null, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 

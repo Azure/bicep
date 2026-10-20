@@ -5,7 +5,11 @@ import { createContext } from "react";
 
 export interface AccordionItemContextType {
   active: boolean;
+  headerId: string;
+  panelId: string;
   toggleActive(): void;
+  registerHeader(element: HTMLButtonElement | null): void;
+  focusHeader(direction: "first" | "last" | "next" | "previous"): void;
 }
 
 export const AccordionItemContext = createContext<AccordionItemContextType | undefined>(undefined);

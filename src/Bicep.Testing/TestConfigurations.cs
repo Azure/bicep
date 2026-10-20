@@ -3,24 +3,30 @@
 
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
+using Bicep.Testing.Extensions;
 
 namespace Bicep.Testing;
 
 public static class TestConfigurations
 {
-    public static RootConfiguration BuiltIn => TestConfigurationBuilder.Create().Build();
+    public static IBicepConfiguration BuiltIn => TestConfigurationBuilder.Create().Build();
 
-    public static RootConfiguration BuiltInWithAllAnalyzersDisabled => TestConfigurationBuilder
+    public static IBicepConfiguration BuiltInWithAllAnalyzersDisabled => TestConfigurationBuilder
         .Create()
         .WithAllAnalyzersDisabled()
         .Build();
 
-    public static RootConfiguration BuiltInWithStableAnalyzers => TestConfigurationBuilder
+    public static IBicepConfiguration BuiltInWithStableAnalyzers => TestConfigurationBuilder
         .Create()
         .WithAllAnalyzers()
         .WithAnalyzersDisabled(
             UseRecentApiVersionRule.Code,
             UseRecentModuleVersionsRule.Code,
-            NoHardcodedOutputsRule.Code)
+            NoHardcodedOutputsRule.Code,
+            UseDescriptionParametersRule.Code,
+            UseDescriptionVarsRule.Code,
+            UseDescriptionOutputRule.Code,
+            UseDescriptionTypeRule.Code,
+            UseDescriptionTypePropertyRule.Code)
         .Build();
 }

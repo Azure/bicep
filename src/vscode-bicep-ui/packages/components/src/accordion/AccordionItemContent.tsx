@@ -3,29 +3,26 @@
 
 import type { PropsWithChildren } from "react";
 
-import { AnimatePresence, motion } from "motion/react";
+import styled from "styled-components";
 import { useAccordionItem } from "./useAccordionItem";
 
+const $AccordionItemContent = styled.section`
+  overflow: hidden;
+`;
+
 export function AccordionItemContent({ children }: PropsWithChildren) {
-  const { active } = useAccordionItem();
+  const { active, headerId, panelId } = useAccordionItem();
 
   return (
-    <AnimatePresence initial={false}>
-      {active && (
-        <motion.section
-          key="content"
-          initial="collapsed"
-          animate="open"
-          exit="collapsed"
-          variants={{
-            open: { height: "auto" },
-            collapsed: { height: 0 },
-          }}
-          transition={{ type: "spring", duration: 0.4, bounce: 0 }}
-        >
-          {children}
-        </motion.section>
-      )}
-    </AnimatePresence>
+    <$AccordionItemContent
+      id={panelId}
+      role="region"
+      aria-labelledby={headerId}
+      aria-hidden={!active}
+      inert={!active || undefined}
+      hidden={!active}
+    >
+      {children}
+    </$AccordionItemContent>
   );
 }

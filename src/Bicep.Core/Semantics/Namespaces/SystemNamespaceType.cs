@@ -1359,10 +1359,10 @@ namespace Bicep.Core.Semantics.Namespaces
              }, null);
         }
 
-        private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLiteralReturnType) =>
+        public static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLiteralReturnType) =>
             TryDeriveLiteralReturnType(armFunctionName, (_, _, _, _) => new(nonLiteralReturnType));
 
-        private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, FunctionOverload.ResultBuilderDelegate nonLiteralReturnResultBuilder) =>
+        public static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, FunctionOverload.ResultBuilderDelegate nonLiteralReturnResultBuilder) =>
             (model, diagnostics, functionCall, argumentTypes) =>
             {
                 FunctionResult returnType = ArmFunctionReturnTypeEvaluator.TryEvaluate(armFunctionName, out var diagnosticBuilders, argumentTypes) is { } literalReturnType
@@ -2097,20 +2097,15 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithAttachableType(LanguageConstants.Object)
                     .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
                     {
-                        switch (UnwrapNullableSyntax(GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder)))
+                        var declaredTypeSyntax = GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder);
+
+                        if (ResourceDerivedTypeDetector.IsResourceDerivedType(declaredTypeSyntax, binder, typeManager))
                         {
-                            case VariableAccessSyntax variableAccess when binder.GetSymbolInfo(variableAccess) is not AmbientTypeSymbol:
-                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
-                                break;
-                            case AccessExpressionSyntax accessExpression when binder.GetSymbolInfo(accessExpression.BaseExpression) is not BuiltInNamespaceSymbol:
-                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
-                                break;
-                            case ParameterizedTypeInstantiationSyntaxBase parameterized when LanguageConstants.ResourceDerivedTypeNames.Contains(parameterized.Name.IdentifierName):
-                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetResourceDerivedType(decoratorName));
-                                break;
-                            case ObjectTypeSyntax @object when @object.AdditionalProperties is not null:
-                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).SealedIncompatibleWithAdditionalPropertiesDeclaration());
-                                break;
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetResourceDerivedType(decoratorName));
+                        }
+                        else if (UnwrapNullableSyntax(declaredTypeSyntax) is ObjectTypeSyntax @object && @object.AdditionalProperties is not null)
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).SealedIncompatibleWithAdditionalPropertiesDeclaration());
                         }
                     })
                     .WithEvaluator((functionCall, decorated) =>

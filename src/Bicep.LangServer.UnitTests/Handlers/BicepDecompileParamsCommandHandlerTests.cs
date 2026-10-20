@@ -7,7 +7,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Custom.Decompile;
 using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;

@@ -116,7 +116,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Decompile_BicepGeneratedTemplate_ShouldShowBicepGeneratedWarning()
         {
-            var (jsonPath, _) = Setup(TestContext); 
+            var (jsonPath, _) = Setup(TestContext);
 
             var (output, error, result) = await Bicep("decompile", "--force", jsonPath);
 
@@ -272,7 +272,7 @@ namespace Bicep.Cli.IntegrationTests
 
         [DataRow("DoesNotExist.json")]
         [DataRow("WrongDir/Fake.json")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Decompile_InvalidInputPath_ShouldFail_WithExpectedErrorMessage(string badPath)
         {
             badPath = Path.GetFullPath(badPath);
@@ -296,7 +296,7 @@ namespace Bicep.Cli.IntegrationTests
 
         [DataRow("DoesNotExist.json")]
         [DataRow("WrongDir/Fake.json")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Decompile_InvalidInputPath_ToStdout_ShouldFail_WithExpectedErrorMessage(string badPath)
         {
             badPath = Path.GetFullPath(badPath);

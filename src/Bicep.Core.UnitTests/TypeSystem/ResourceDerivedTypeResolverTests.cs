@@ -24,8 +24,8 @@ namespace Bicep.Core.UnitTests.TypeSystem;
 [TestClass]
 public class ResourceDerivedTypeResolverTests
 {
-    [DataTestMethod]
-    [DynamicData(nameof(GetTypesNotInNeedOfBinding), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DynamicData(nameof(GetTypesNotInNeedOfBinding))]
     public void Returns_input_if_no_unbound_types_are_enclosed(TypeSymbol type)
     {
         ResourceDerivedTypeResolver sut = new(StrictMock.Of<IBinder>().Object);

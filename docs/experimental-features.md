@@ -2,6 +2,8 @@
 
 > [!WARNING]
 > Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.
+>
+> Microsoft customer support cannot provide assistance for issues that are caused by the use of an experimental feature, so use at your own risk.
 
 Bicep exposes experimental features as a means of previewing new functionality that hasn't yet been stabilized for general availability. This provides a valuable way for us to release functionality and collect feedback, without affecting existing users, or introducing features that may require breaking changes.
 
@@ -125,3 +127,7 @@ Command that allows the publishing of extensions to container registries. For mo
 ### Bicep MCP Server
 
 See [Using Bicep MCP Server in VS Code (Preview!)](./experimental/mcp-tools.md).
+
+### `docs` CLI Command
+
+Generates module documentation. For command and template model details, see [Generate module documentation](./experimental/docs-commands.md).

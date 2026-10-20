@@ -31,7 +31,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             return compilation.GetEntrypointSemanticModel();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData()]
         [TestCategory(TestCategories.Baseline)]
         public async Task ProgramsShouldProduceExpectedDiagnostic(BaselineData_Bicepparam baselineData)
@@ -53,7 +53,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             sourceTextWithDiags.Should().MatchTextBaseline(data.Diagnostics);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData()]
         [TestCategory(TestCategories.Baseline)]
         public async Task ProgramsShouldProduceExpectedUserDeclaredSymbols(BaselineData_Bicepparam baselineData)

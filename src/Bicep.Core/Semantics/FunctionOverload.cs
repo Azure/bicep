@@ -25,7 +25,11 @@ namespace Bicep.Core.Semantics
         public delegate LanguageExpression ArmExpressionEvaluatorDelegate(
             FunctionExpression expression);
 
-        public FunctionOverload(string name, string genericDescription, string description, ResultBuilderDelegate resultBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, ArmExpressionEvaluatorDelegate? armExpressionEvaluator, FunctionFlags flags = FunctionFlags.Default)
+        public delegate bool IsPurePredicate(
+            SemanticModel model,
+            FunctionCallSyntaxBase functionCall);
+
+        public FunctionOverload(string name, string genericDescription, string description, ResultBuilderDelegate resultBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, ArmExpressionEvaluatorDelegate? armExpressionEvaluator, FunctionFlags flags = FunctionFlags.Default, IsPurePredicate? isPure = null)
         {
             Name = name;
             GenericDescription = genericDescription;
@@ -36,6 +40,7 @@ namespace Bicep.Core.Semantics
             FixedParameters = [.. fixedParameters];
             VariableParameter = variableParameter;
             Flags = flags;
+            this.IsPure = isPure;
 
             MinimumArgumentCount = FixedParameters.Count(fp => fp.Required) + (VariableParameter?.MinimumCount ?? 0);
             MaximumArgumentCount = VariableParameter == null ? FixedParameters.Length : (int?)null;
@@ -68,6 +73,8 @@ namespace Bicep.Core.Semantics
 
         public FunctionFlags Flags { get; }
 
+        public IsPurePredicate? IsPure { get; }
+
         public string TypeSignature { get; }
 
         public IEnumerable<string> ParameterTypeSignatures => this.FixedParameters
@@ -85,7 +92,8 @@ namespace Bicep.Core.Semantics
                 VariableParameter,
                 Evaluator,
                 ArmExpressionEvaluator,
-                Flags | flags);
+                Flags | flags,
+                this.IsPure);
 
         public bool HasParameters => this.MinimumArgumentCount > 0 || this.MaximumArgumentCount > 0;
 

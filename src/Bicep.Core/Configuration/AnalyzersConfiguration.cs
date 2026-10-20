@@ -7,7 +7,7 @@ using Bicep.Core.Json;
 
 namespace Bicep.Core.Configuration
 {
-    public class AnalyzersConfiguration : ConfigurationSection<JsonElement>
+    public class AnalyzersConfiguration : ConfigurationSection<JsonElement>, IBicepAnalyzersConfiguration
     {
         public AnalyzersConfiguration(JsonElement data) : base(data) { }
 

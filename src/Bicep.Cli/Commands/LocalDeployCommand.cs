@@ -13,7 +13,6 @@ using Bicep.Core.TypeSystem;
 using Bicep.Local.Deploy.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;
 
@@ -79,29 +78,23 @@ public class LocalDeployCommand(
         }
     }
 
-    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    internal static Command CreateCommand(CommandLineBuilderContext context)
     {
-        var command = new System.CommandLine.Command(Constants.Command.LocalDeploy, "[Experimental] Performs a local deployment.");
+        var inputFileArgument = CommonArguments.ParametersFile();
+        var noRestoreOption = CommonOptions.NoRestore("Do not restore modules prior to deploying.");
+        var formatOption = CommonOptions.DeploymentOutputFormat();
+        var configOption = CommonOptions.Config();
 
-        var inputFileArgument = new System.CommandLine.Argument<string>(Constants.Argument.ParametersFile)
+        var command = new Command(CommandNames.LocalDeploy, "[Experimental] Performs a local deployment.")
         {
-            Description = "The path to the .bicepparam file.",
+            inputFileArgument,
+            noRestoreOption,
+            formatOption,
+            configOption,
         };
-        var noRestoreOption = new System.CommandLine.Option<bool>(Option.NoRestore)
-        {
-            Description = "Do not restore modules prior to deploying.",
-        };
-        var formatOption = new System.CommandLine.Option<DeploymentOutputFormat?>(Option.Format)
-        {
-            Description = "Output format for deployment results (Default, Json).",
-        };
+        command.Validators.Add(result => CommandLineBuilderContext.ValidateRequiredPositionalArgument(result, inputFileArgument));
 
-        command.Add(inputFileArgument);
-        command.Add(noRestoreOption);
-        command.Add(formatOption);
-        command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidateRequiredPositionalArgument(result, inputFileArgument));
-
-        command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+        command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
         {
             var args = new LocalDeployArguments(
                 result.GetRequiredValue(inputFileArgument),

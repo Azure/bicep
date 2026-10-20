@@ -13,7 +13,7 @@ public static class ExperimentalFeatureWarningProvider
     {
         var experimentalFeaturesEnabled = sourceFiles
             .OfType<BicepSourceFile>()
-            .Select(file => file.Features)
+            .Select(file => file.LoadFeatures())
             .SelectMany(static features => features.EnabledFeatureMetadata.Where(f => f.impactsCompilation).Select(f => f.name))
             .Distinct()
             .ToImmutableArray();

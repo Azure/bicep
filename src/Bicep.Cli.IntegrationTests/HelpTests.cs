@@ -25,6 +25,7 @@ namespace Bicep.Cli.IntegrationTests
                     "build-params",
                     "decompile",
                     "decompile-params",
+                    "docs",
                     "format",
                     "generate-params",
                     "lint",
@@ -34,6 +35,38 @@ namespace Bicep.Cli.IntegrationTests
                     "--version",
                     "--license",
                     "--third-party-notices");
+            }
+        }
+
+        [TestMethod]
+        public async Task Docs_Help_ShouldSucceed_WithExpectedOutput()
+        {
+            var (groupOutput, groupError, groupResult) = await Bicep("docs", "--help");
+            var (generateOutput, generateError, generateResult) = await Bicep("docs", "generate", "--help");
+
+            using (new AssertionScope())
+            {
+                groupResult.Should().Be(0);
+                groupError.Should().BeEmpty();
+                groupOutput.Should().ContainAll(
+                    "docs",
+                    "generate",
+                    "[Experimental]");
+                groupOutput.Should().NotContain("output");
+
+                generateResult.Should().Be(0);
+                generateError.Should().BeEmpty();
+                generateOutput.Should().ContainAll(
+                    "[Experimental]",
+                    "--outdir",
+                    "--outfile",
+                    "--stdout",
+                    "--pattern",
+                    "--custom-template-value",
+                    "--custom-template-value-file-path",
+                    "--no-restore",
+                    "--diagnostics-format");
+                generateOutput.Should().NotContain("--template-file").And.NotContain("--template-root");
             }
         }
 

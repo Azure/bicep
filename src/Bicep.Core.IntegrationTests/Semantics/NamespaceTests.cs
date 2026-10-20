@@ -24,8 +24,8 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetNamespaces), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetNamespaces), DynamicDataDisplayName = nameof(GetDisplayName))]
         [TestCategory(TestCategories.Baseline)]
         public void FunctionsShouldHaveExpectedSignatures(INamespaceSymbol @namespace)
         {

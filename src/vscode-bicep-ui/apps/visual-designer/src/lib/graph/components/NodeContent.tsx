@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 import type { Atom } from "jotai";
-import type { NodeKind } from "@/lib/graph/atoms";
+import type { NodeKind } from "../atoms";
 
 import { useAtomValue } from "jotai";
-import { nodeConfigAtom } from "@/lib/graph/atoms";
+import { nodeConfigAtom } from "../atoms";
 
 export interface NodeContentProps {
   id: string;
@@ -16,7 +16,6 @@ export interface NodeContentProps {
 export function NodeContent({ id, kind, dataAtom }: NodeContentProps) {
   const nodeConfig = useAtomValue(nodeConfigAtom);
   const data = useAtomValue(dataAtom);
-  const NodeContentComponent = nodeConfig.getContentComponent(kind);
 
-  return <NodeContentComponent id={id} data={data} />;
+  return nodeConfig.renderContent(kind, { id, data });
 }

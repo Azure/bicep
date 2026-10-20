@@ -18,8 +18,9 @@ namespace Bicep.Core.Semantics
             VariableFunctionParameter? variableArgumentType,
             EvaluatorDelegate? evaluator,
             ArmExpressionEvaluatorDelegate? armExpressionEvaluator,
-            FunctionFlags flags = FunctionFlags.Default)
-            : base(name, genericDescription, description, resultBuilder, returnType, fixedArgumentTypes, variableArgumentType, evaluator, armExpressionEvaluator, flags)
+            FunctionFlags flags = FunctionFlags.Default,
+            IsPurePredicate? isPure = null)
+            : base(name, genericDescription, description, resultBuilder, returnType, fixedArgumentTypes, variableArgumentType, evaluator, armExpressionEvaluator, flags, isPure)
         {
             WildcardRegex = wildcardRegex;
         }
@@ -38,6 +39,7 @@ namespace Bicep.Core.Semantics
                 VariableParameter,
                 Evaluator,
                 ArmExpressionEvaluator,
-                Flags | flags);
+                Flags | flags,
+                this.IsPure);
     }
 }

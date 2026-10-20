@@ -45,7 +45,14 @@ public record VersionResponse(
 /// </summary>
 /// <param name="Path">The file path to the Bicep file to compile (e.g., <c>"./main.bicep"</c>).</param>
 public record CompileRequest(
-    string Path);
+    string Path)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
 
 /// <summary>
 /// Response from compiling a Bicep file.
@@ -65,7 +72,14 @@ public record CompileResponse(
 /// <param name="ParameterOverrides">A dictionary of parameter names to JSON values that override the defaults specified in the parameters file.</param>
 public record CompileParamsRequest(
     string Path,
-    Dictionary<string, JsonNode> ParameterOverrides);
+    Dictionary<string, JsonNode> ParameterOverrides)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
 
 /// <summary>
 /// Response from compiling a Bicep parameters file.
@@ -102,7 +116,14 @@ public record DiagnosticDefinition(
 /// </summary>
 /// <param name="Path">The file path to the Bicep file to analyze.</param>
 public record GetFileReferencesRequest(
-    string Path);
+    string Path)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
 
 /// <summary>
 /// Response containing all file references used by a Bicep file.
@@ -116,7 +137,14 @@ public record GetFileReferencesResponse(
 /// </summary>
 /// <param name="Path">The file path to the Bicep file to analyze.</param>
 public record GetMetadataRequest(
-    string Path);
+    string Path)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
 
 /// <summary>
 /// Request to generate a snapshot of a Bicep parameters file with deployment metadata.
@@ -132,16 +160,24 @@ public record GetSnapshotRequest(
     ImmutableArray<GetSnapshotRequest.ExternalInputValue>? ExternalInputs)
 {
     /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+
+    /// <summary>
     /// Azure deployment metadata providing context for snapshot generation.
     /// All fields are optional and may be <see langword="null"/> if not applicable.
     /// </summary>
     /// <param name="TenantId">The Azure Active Directory tenant ID (e.g., <c>"00000000-0000-0000-0000-000000000001"</c>).</param>
+    /// <param name="ManagementGroupId">The target management group ID (e.g., <c>"my-management-group"</c>).</param>
     /// <param name="SubscriptionId">The Azure subscription ID (e.g., <c>"00000000-0000-0000-0000-000000000002"</c>).</param>
     /// <param name="ResourceGroup">The target resource group name (e.g., <c>"my-rg"</c>).</param>
     /// <param name="Location">The Azure region for the deployment (e.g., <c>"eastus"</c>).</param>
     /// <param name="DeploymentName">The name of the deployment (e.g., <c>"my-deployment"</c>).</param>
     public record MetadataDefinition(
         string? TenantId,
+        string? ManagementGroupId,
         string? SubscriptionId,
         string? ResourceGroup,
         string? Location,
@@ -229,7 +265,14 @@ public record GetMetadataResponse(
 /// </summary>
 /// <param name="Path">The file path to the Bicep file to analyze.</param>
 public record GetDeploymentGraphRequest(
-    string Path);
+    string Path)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
 
 /// <summary>
 /// Response containing the deployment graph for a Bicep file.
@@ -271,7 +314,14 @@ public record GetDeploymentGraphResponse(
 /// </summary>
 /// <param name="Path">The file path to the Bicep file to format.</param>
 public record FormatRequest(
-    string Path);
+    string Path)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
 
 /// <summary>
 /// Response containing the formatted Bicep file content.
@@ -279,3 +329,29 @@ public record FormatRequest(
 /// <param name="Contents">The formatted Bicep source code as a string.</param>
 public record FormatResponse(
     string Contents);
+
+/// <summary>
+/// Requests rendered documentation for one or more Bicep modules. Rendered content is returned to the
+/// caller and is never written to disk.
+/// </summary>
+/// <param name="Path">Bicep file path to process.</param>
+/// <param name="CustomTemplateValues">Optional string values exposed to the configured template.</param>
+public record GenerateDocsRequest(
+    string Path,
+    Dictionary<string, string>? CustomTemplateValues = null)
+{
+    /// <summary>
+    /// Optional path to a Bicep configuration file to use instead of discovering <c>bicepconfig.json</c> files.
+    /// Requires Bicep CLI version 0.48.0 or later.
+    /// </summary>
+    public string? ConfigPath { get; init; }
+}
+
+/// <summary>
+/// Contains rendered documentation and diagnostics for one module.
+/// </summary>
+/// <param name="Diagnostics">Compiler diagnostics for the module.</param>
+/// <param name="Contents">Rendered documentation, or <see langword="null"/> on failure.</param>
+public record GenerateDocsResponse(
+    ImmutableArray<DiagnosticDefinition> Diagnostics,
+    string? Contents);

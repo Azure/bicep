@@ -98,11 +98,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     AzResourceTypeLoader: FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object));
         }
 
-        private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null, int? gracePeriodInDays = null)
+        private static IBicepConfiguration CreateConfigurationWithFakeToday(IBicepConfiguration original, string today, int? maxAgeInDays = null, int? gracePeriodInDays = null)
         {
             VerifyAllTypesAndDatesAreFake(today);
 
-            return new RootConfiguration(
+            return new BicepConfiguration(
                 original.Cloud,
                 original.ModuleAliases,
                 original.ModuleAliasesMock,
@@ -128,13 +128,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             .Replace("<TESTING_TODAY_DATE>", today)
                             .Replace("<MAX_AGE_PROP>", maxAgeInDays.HasValue ? $", \"maxAgeInDays\": {maxAgeInDays}" : "")
                             .Replace("<GRACE_PERIOD_PROP>", gracePeriodInDays.HasValue ? $", \"gracePeriodInDays\": {gracePeriodInDays}" : ""))),
-                original.CacheRootDirectory,
-                original.ExperimentalFeaturesWarning,
+                original.Formatting,
+                original.Documentation,
+                original.Compiler,
                 original.ExperimentalFeaturesEnabled with
                 {
                     SymbolicNameCodegen = true,
                 },
-                original.Formatting,
+                original.CacheRootDirectory,
+                original.ExperimentalFeaturesWarning,
                 null,
                 null);
         }
@@ -988,8 +990,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 return dt.CompareTo(other) >= 0;
             }
 
-            [DataTestMethod]
-            [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(TestData), DynamicDataDisplayName = nameof(TestData.GetDisplayName))]
+            [TestMethod]
+            [DynamicData(nameof(GetTestData), DynamicDataDisplayNameDeclaringType = typeof(TestData), DynamicDataDisplayName = nameof(TestData.GetDisplayName))]
             public void InvariantsTest(TestData data)
             {
                 var (allVersions, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAgeInDays, UseRecentApiVersionRule.DefaultGracePeriodInDays, data.ResourceScope, data.FullyQualifiedResourceType);

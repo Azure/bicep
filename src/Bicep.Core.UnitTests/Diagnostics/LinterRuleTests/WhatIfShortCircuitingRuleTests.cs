@@ -5,6 +5,7 @@ using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Testing;
+using Bicep.Testing.Extensions;
 using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -76,6 +77,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 [
                     ("createSA.bicep", SAModuleContent),
                     ("main.bicep", """
+                        @description('Parameter description.')
                         param input string
                         module creatingSA 'createSA.bicep' = {
                           params: {

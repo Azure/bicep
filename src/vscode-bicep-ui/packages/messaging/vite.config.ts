@@ -1,14 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import dts from "vite-plugin-dts";
 import { coverageConfigDefaults, defineConfig } from "vitest/config";
+import packageJson from "./package.json" with { type: "json" };
+
+const peerDependencies = Object.keys(packageJson.peerDependencies);
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    peerDepsExternal(),
     dts({
       exclude: ["**/__tests__/**"],
     }),
@@ -18,8 +19,8 @@ export default defineConfig({
       formats: ["es"],
       entry: "src/index.ts",
     },
-    rollupOptions: {
-      external: ["react", "react-dom"],
+    rolldownOptions: {
+      external: (id) => peerDependencies.some((dependency) => id === dependency || id.startsWith(`${dependency}/`)),
       output: {
         entryFileNames: "[name].js",
         chunkFileNames: "chunks/[name].[hash].js",

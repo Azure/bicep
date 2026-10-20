@@ -140,7 +140,7 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
         func getString() string => 'exported'
         ",
         "test")]
-    [DataTestMethod]
+    [TestMethod]
     public void TestRule(string text, string importFileName, string importFileText, params string[] unusedImports)
     {
         var additionalFiles = new[] { (importFileName, importFileText) };
@@ -190,7 +190,7 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
             var unusedparam = 'param'
             ",
         "unusedparam")]
-    [DataTestMethod]
+    [TestMethod]
     public void Modules(string text, string importFileName, string importFileText, params string[] unusedImports)
     {
         var additionalFiles = new[] { (importFileName, importFileText) };
@@ -226,7 +226,7 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
             var size = 5
             ",
         "size")]
-    [DataTestMethod]
+    [TestMethod]
     public void Conditions(string text, string importFileName, string importFileText, params string[] unusedImports)
     {
         var additionalFiles = new[] { (importFileName, importFileText) };
@@ -321,7 +321,7 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
         ",
         "import {  } from './mod.bicep'",
         "t")]
-    [DataTestMethod]
+    [TestMethod]
     public void Codefix_recommends_remove_unused_imports(string text, string importFileText, string expectedResultText, string importToRemove)
     {
         (string FilePath, TestFileData FileData)[] additionalFiles =
@@ -338,7 +338,7 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
 
     [DataRow(@"import", "mod.bicep", "")] // Don't show as unused - no imported symbol or file name
     [DataRow(@"import {p2} from './mod.bicep'", "mod.bicep", "")] // Don't show as unused - imported symbol not existing
-    [DataTestMethod]
+    [TestMethod]
     public void Errors(string text, string importFileName, string importFileText, params string[] unusedImports)
     {
         var additionalFiles = new[] { (importFileName, importFileText) };

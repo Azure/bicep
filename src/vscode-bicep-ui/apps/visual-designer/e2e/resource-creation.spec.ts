@@ -1,0 +1,347 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import type { Page } from "@playwright/test";
+
+import { expect, test } from "@playwright/test";
+import {
+  clickHistoryButton,
+  expectHistoryButtonEnabled,
+  getGraphTransform,
+  loadSampleGraph,
+  nodeCount,
+  openVisualDesigner,
+  waitForStableNodePosition,
+} from "./fixtures";
+
+async function dragStorageAccountToCanvas(page: Page) {
+  await page.getByRole("button", { name: "Add Resources" }).click();
+  await page.getByText("Microsoft.Storage", { exact: true }).click();
+
+  const handle = page.locator(
+    '[data-testid="resource-type-drag-handle"][data-resource-type="Microsoft.Storage/storageAccounts"]',
+  );
+  const handleBox = await handle.boundingBox();
+  const canvasBox = await page.getByTestId("graph-canvas").boundingBox();
+  if (!handleBox || !canvasBox) {
+    throw new Error("Resource drag handle or canvas was not available.");
+  }
+
+  await page.mouse.move(handleBox.x + 20, handleBox.y + handleBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(canvasBox.x + canvasBox.width * 0.8, canvasBox.y + canvasBox.height * 0.5, { steps: 8 });
+  await page.mouse.up();
+}
+
+async function captureFlatGraphPositions(page: Page) {
+  return Promise.all(
+    ["vnet", "subnet", "nsg", "pip"].map(async (id) => ({
+      id,
+      position: await waitForStableNodePosition(page, id),
+    })),
+  );
+}
+
+async function expectNodePositions(page: Page, positions: Awaited<ReturnType<typeof captureFlatGraphPositions>>) {
+  for (const { id, position } of positions) {
+    const box = await page.locator(`[data-node-id="${id}"]`).boundingBox();
+    expect(box?.x).toBeCloseTo(position.x, 0);
+    expect(box?.y).toBeCloseTo(position.y, 0);
+  }
+}
+
+test.describe("resource creation", () => {
+  test("hides the Resource Palette when the experimental setting is disabled", async ({ page }) => {
+    await page.goto("/?resourceEditing=false");
+    await expect(page.getByTestId("app-root")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Add Resources" })).toHaveCount(0);
+  });
+
+  test("opens the Resource Palette and keeps zoomed preview and pending nodes aligned", async ({ page }) => {
+    await openVisualDesigner(page);
+    await loadSampleGraph(page, "flat");
+    await page.waitForTimeout(1_000);
+    await page.getByTestId("control-zoom-in").click();
+
+    await page.getByRole("button", { name: "Add Resources" }).click();
+    await expect(page.getByRole("complementary")).toBeVisible();
+    await page.getByText("Microsoft.Storage", { exact: true }).click();
+
+    const resourceType = page.getByText("storageAccounts", { exact: true });
+    const resourceBox = await resourceType.boundingBox();
+    const canvasBox = await page.getByTestId("graph-canvas").boundingBox();
+    expect(resourceBox).not.toBeNull();
+    expect(canvasBox).not.toBeNull();
+
+    const initialCount = await nodeCount(page);
+    const dropPoint = {
+      x: canvasBox!.x + canvasBox!.width * 0.75,
+      y: canvasBox!.y + canvasBox!.height * 0.7,
+    };
+
+    await page.mouse.move(resourceBox!.x + resourceBox!.width / 2, resourceBox!.y + resourceBox!.height / 2);
+    await page.mouse.down();
+    await expect(page.getByText("storageAccounts", { exact: true }).last()).toBeVisible();
+    await page.mouse.move(dropPoint.x, dropPoint.y, { steps: 10 });
+    const previewBox = await page.getByTestId("palette-drag-preview-card").boundingBox();
+    expect(previewBox).not.toBeNull();
+    expect(previewBox!.width).toBeGreaterThan(140);
+    await expect(page.getByTestId("palette-drag-preview-card")).toHaveCSS("opacity", "1");
+    await expect(page.getByTestId("palette-drag-preview-card").getByText("2025-01-01")).toHaveCount(0);
+    expect(previewBox!.x + previewBox!.width / 2).toBeCloseTo(dropPoint.x, 0);
+    expect(previewBox!.y + previewBox!.height / 2).toBeCloseTo(dropPoint.y, 0);
+    await page.mouse.up();
+
+    const pendingNode = page.getByTestId("pending-resource-node");
+    await expect(pendingNode).toBeVisible();
+    const pendingBox = await page.getByTestId("pending-resource-card").boundingBox();
+    expect(pendingBox).not.toBeNull();
+    await expect(page.getByTestId("pending-resource-card")).toHaveCSS("opacity", "1");
+    await expect(page.getByTestId("pending-resource-card").getByText("2025-01-01")).toHaveCount(0);
+    expect(pendingBox!.x + pendingBox!.width / 2).toBeCloseTo(dropPoint.x, 0);
+    expect(pendingBox!.y + pendingBox!.height / 2).toBeCloseTo(dropPoint.y, 0);
+    expect(pendingBox!.width).toBeCloseTo(previewBox!.width, 0);
+    expect(pendingBox!.height).toBeCloseTo(previewBox!.height, 0);
+
+    await expect(page.getByTestId("graph-node")).toHaveCount(initialCount + 1);
+    await expect(pendingNode).toHaveCount(0);
+
+    const createdNode = page.locator('[data-node-id="storageAccount"]');
+    await expect(createdNode).toBeVisible();
+    await expectHistoryButtonEnabled(page, "Undo", true);
+    const survivingPositions = await captureFlatGraphPositions(page);
+    const camera = await getGraphTransform(page);
+
+    await clickHistoryButton(page, "Undo");
+    await expect(createdNode).toHaveCount(0);
+    await expectHistoryButtonEnabled(page, "Redo", true);
+    await waitForStableNodePosition(page, "subnet");
+    expect(await getGraphTransform(page)).toBe(camera);
+    await expectNodePositions(page, survivingPositions);
+
+    await clickHistoryButton(page, "Redo");
+    await expect(createdNode).toBeVisible();
+    await expect(page.getByTestId("graph-node")).toHaveCount(initialCount + 1);
+    await waitForStableNodePosition(page, "subnet");
+    expect(await getGraphTransform(page)).toBe(camera);
+    await expectNodePositions(page, survivingPositions);
+
+    await waitForStableNodePosition(page, "storageAccount");
+    const originalPosition = await createdNode.evaluate((element) => (element as HTMLElement).style.translate);
+    const nodeBox = await createdNode.boundingBox();
+    if (!nodeBox) {
+      throw new Error("The recreated node has no bounds.");
+    }
+    const from = { x: nodeBox.x + nodeBox.width / 2, y: nodeBox.y + nodeBox.height / 2 };
+    await page.mouse.move(from.x, from.y);
+    await page.mouse.down();
+    await page.mouse.move(from.x + 110, from.y + 70, { steps: 10 });
+    await page.mouse.up();
+    await expectHistoryButtonEnabled(page, "Undo", true);
+    const movedPosition = await createdNode.evaluate((element) => (element as HTMLElement).style.translate);
+    expect(movedPosition).not.toBe(originalPosition);
+
+    await clickHistoryButton(page, "Undo");
+    await expect
+      .poll(() => createdNode.evaluate((element) => (element as HTMLElement).style.translate))
+      .toBe(originalPosition);
+    await expectHistoryButtonEnabled(page, "Undo", true);
+    await clickHistoryButton(page, "Undo");
+    await expect(createdNode).toHaveCount(0);
+
+    await clickHistoryButton(page, "Redo");
+    await expect(createdNode).toBeVisible();
+    await expectHistoryButtonEnabled(page, "Redo", true);
+    await clickHistoryButton(page, "Redo");
+    await expect
+      .poll(() => createdNode.evaluate((element) => (element as HTMLElement).style.translate))
+      .toBe(movedPosition);
+    await expectHistoryButtonEnabled(page, "Redo", false);
+  });
+
+  test("undo clears an unresolved creation preview and redo restores it", async ({ page }) => {
+    await openVisualDesigner(page, { withholdGraphUpdatesAfterCreation: "true" });
+    await loadSampleGraph(page, "flat");
+    await dragStorageAccountToCanvas(page);
+
+    const pending = page.getByTestId("pending-resource-node");
+    await expect(pending).toBeVisible();
+    await expectHistoryButtonEnabled(page, "Undo", true);
+
+    await clickHistoryButton(page, "Undo");
+    await expect(pending).toHaveCount(0);
+    await expectHistoryButtonEnabled(page, "Redo", true);
+
+    await clickHistoryButton(page, "Redo");
+    await expect(pending).toBeVisible();
+  });
+
+  test("undo preserves layout when the graph removal arrives after a delayed update", async ({ page }) => {
+    await openVisualDesigner(page, { skipGraphUpdateAfterUndo: "true" });
+    await loadSampleGraph(page, "flat");
+    await dragStorageAccountToCanvas(page);
+    const createdNode = page.locator('[data-node-id="storageAccount"]');
+    await expect(createdNode).toBeVisible();
+    const survivingPositions = await captureFlatGraphPositions(page);
+    const camera = await getGraphTransform(page);
+
+    await clickHistoryButton(page, "Undo");
+    await expectHistoryButtonEnabled(page, "Redo", true);
+    await expect(createdNode).toBeVisible();
+
+    await page.getByRole("button", { name: "Change catalog" }).click();
+    await expect(createdNode).toHaveCount(0);
+    await waitForStableNodePosition(page, "subnet");
+    expect(await getGraphTransform(page)).toBe(camera);
+    await expectNodePositions(page, survivingPositions);
+  });
+
+  test("redo cancels a pending undo exemption so unrelated removal still lays out", async ({ page }) => {
+    await openVisualDesigner(page, { skipGraphUpdateAfterUndo: "true" });
+    await loadSampleGraph(page, "flat");
+    await dragStorageAccountToCanvas(page);
+    const createdNode = page.locator('[data-node-id="storageAccount"]');
+    await expect(createdNode).toBeVisible();
+
+    await clickHistoryButton(page, "Undo");
+    await expectHistoryButtonEnabled(page, "Redo", true);
+    await expect(createdNode).toBeVisible();
+    await clickHistoryButton(page, "Redo");
+    await expectHistoryButtonEnabled(page, "Undo", true);
+
+    const beforeZoom = await getGraphTransform(page);
+    await page.getByTestId("control-zoom-in").click();
+    await expect.poll(() => getGraphTransform(page)).not.toBe(beforeZoom);
+    const zoomedCamera = await getGraphTransform(page);
+
+    await page.getByRole("button", { name: /Remove last node/ }).click();
+    await expect(createdNode).toHaveCount(0);
+    await expect.poll(() => getGraphTransform(page)).not.toBe(zoomedCamera);
+  });
+
+  test("keeps undo for a creation after an unrelated change to the Bicep file", async ({ page }) => {
+    await openVisualDesigner(page);
+    await loadSampleGraph(page, "flat");
+    await dragStorageAccountToCanvas(page);
+    const createdNode = page.locator('[data-node-id="storageAccount"]');
+    await expect(createdNode).toBeVisible();
+
+    // Announces a document change that leaves the created resource alone.
+    await page.getByRole("button", { name: "Change catalog" }).click();
+
+    await expectHistoryButtonEnabled(page, "Undo", true);
+    await clickHistoryButton(page, "Undo");
+    await expect(createdNode).toHaveCount(0);
+    await expectHistoryButtonEnabled(page, "Redo", true);
+  });
+
+  test("never offers undo for a creation the host cannot replay exactly", async ({ page }) => {
+    await openVisualDesigner(page, { sourceReplay: "unavailable" });
+    await loadSampleGraph(page, "flat");
+    await dragStorageAccountToCanvas(page);
+    await expect(page.locator('[data-node-id="storageAccount"]')).toBeVisible();
+
+    await expectHistoryButtonEnabled(page, "Undo", false);
+    await expectHistoryButtonEnabled(page, "Redo", false);
+  });
+
+  test("collapses the Resource Palette without changing canvas size", async ({ page }) => {
+    await openVisualDesigner(page);
+    const canvasBefore = await page.getByTestId("graph-canvas").boundingBox();
+
+    await page.getByRole("button", { name: "Add Resources" }).click();
+    await page.getByRole("button", { name: "Add Resources" }).click();
+
+    const canvasAfter = await page.getByTestId("graph-canvas").boundingBox();
+    expect(canvasAfter).toEqual(canvasBefore);
+  });
+
+  test("animates the palette progress bar while the resource catalog loads", async ({ page }) => {
+    // Hold the catalog response open so the loading state can be asserted deterministically rather
+    // than racing the dev channel's default delay.
+    await openVisualDesigner(page, { catalogDelay: "5000" });
+    await page.getByRole("button", { name: "Add Resources" }).click();
+    await page.getByRole("textbox", { name: "Filter resource types" }).fill("storageAccounts");
+
+    const progress = page.getByTestId("resource-palette-progress");
+    await expect(progress).toBeVisible();
+
+    // Read through the shadow root in one round trip, reporting a sentinel rather than throwing if
+    // the indicator is missing: a detached element yields an empty computed style, which would
+    // otherwise pass an "is not none" check by accident.
+    const readAnimationName = () =>
+      progress.evaluate((element) => {
+        const indicator = element.shadowRoot?.querySelector(".indicator");
+
+        return indicator ? getComputedStyle(indicator).animationName : "indicator-missing";
+      });
+
+    // Computed styles resolve a tick after the indicator attaches, so poll for a settled value
+    // rather than sampling once and racing that.
+    await expect.poll(readAnimationName).not.toBe("");
+
+    const progressAnimation = await readAnimationName();
+
+    expect(progressAnimation).not.toBe("indicator-missing");
+    expect(progressAnimation).not.toBe("none");
+  });
+
+  test("searches all resource namespaces without expanding them first", async ({ page }) => {
+    await openVisualDesigner(page);
+    await page.getByRole("button", { name: "Add Resources" }).click();
+
+    const filter = page.getByRole("textbox", { name: "Filter resource types" });
+    await filter.fill("storageAccounts");
+    await expect(page.getByTestId("resource-type-drag-handle").filter({ hasText: "storageAccounts" })).toBeVisible();
+    await expect(page.locator("mark").filter({ hasText: "storageAccounts" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Microsoft\.Storage/ })).toHaveAttribute("aria-expanded", "true");
+
+    await filter.fill("virtualNetworks");
+    await expect(page.getByTestId("resource-type-drag-handle").filter({ hasText: "virtualNetworks" })).toBeVisible();
+    await expect(page.getByTestId("resource-palette-progress")).toHaveCount(0);
+  });
+
+  test("does not create a resource when dropped over the Resource Palette", async ({ page }) => {
+    await openVisualDesigner(page);
+    await loadSampleGraph(page, "flat");
+    const initialCount = await nodeCount(page);
+
+    await page.getByRole("button", { name: "Add Resources" }).click();
+    await page.getByText("Microsoft.Storage", { exact: true }).click();
+
+    const resourceBox = await page.getByText("storageAccounts", { exact: true }).boundingBox();
+    const paletteBox = await page.getByRole("complementary").boundingBox();
+    expect(resourceBox).not.toBeNull();
+    expect(paletteBox).not.toBeNull();
+
+    await page.mouse.move(resourceBox!.x + resourceBox!.width / 2, resourceBox!.y + resourceBox!.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(paletteBox!.x + paletteBox!.width / 2, paletteBox!.y + 20);
+    await page.mouse.up();
+    await page.waitForTimeout(400);
+
+    await expect(page.getByTestId("graph-node")).toHaveCount(initialCount);
+    await expect(page.getByTestId("pending-resource-node")).toHaveCount(0);
+  });
+
+  test("resources are drag-only: not focusable and not keyboard-insertable", async ({ page }) => {
+    await openVisualDesigner(page);
+    const initialCount = await nodeCount(page);
+
+    await page.getByRole("button", { name: "Add Resources" }).click();
+    await page.getByText("Microsoft.Storage", { exact: true }).click();
+    const handle = page.getByTestId("resource-type-drag-handle").filter({ hasText: "storageAccounts" });
+    await expect(handle).toBeVisible();
+    expect(await handle.evaluate((element) => element.tabIndex)).toBe(-1);
+    await expect(page.getByRole("button", { name: /storageAccounts/ })).toHaveCount(0);
+
+    // Tabbing past the group header lands on the version pill, never on the resource itself.
+    await page.getByRole("button", { name: "Microsoft.Storage" }).focus();
+    await page.keyboard.press("Tab");
+    await expect(
+      page.getByRole("combobox", { name: /API version for Microsoft\.Storage\/storageAccounts/ }),
+    ).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("graph-node")).toHaveCount(initialCount);
+  });
+});

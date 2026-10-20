@@ -3,7 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Custom.Configuration;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -153,8 +153,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
 #endif
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetWorkspaceFoldersTestData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetWorkspaceFoldersTestData))]
         public void WorkspaceFolders(string[] workspaceFolders, string bicepFilePath, string expected)
         {
             var actual = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(workspaceFolders, bicepFilePath);

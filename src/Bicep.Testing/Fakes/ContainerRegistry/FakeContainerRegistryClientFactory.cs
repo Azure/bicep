@@ -12,7 +12,7 @@ namespace Bicep.Testing.Fakes.ContainerRegistry
     {
         private readonly ConcurrentDictionary<Uri, FakeContainerRegistry> registriesByUri = new();
 
-        public ContainerRegistryContentClient CreateAnonymousBlobClient(CloudConfiguration cloud, Uri registryUri, string repositoryName)
+        public ContainerRegistryContentClient CreateAnonymousBlobClient(IBicepCloudConfiguration cloud, Uri registryUri, string repositoryName)
         {
             var registry = this.registriesByUri.GetOrAdd(registryUri, uri => new FakeContainerRegistry(uri.Host));
             var repository = registry.GetRepository(repositoryName);
@@ -20,7 +20,7 @@ namespace Bicep.Testing.Fakes.ContainerRegistry
             return new FakeContainerRegistryContentClient(repository);
         }
 
-        public ContainerRegistryClient CreateAnonymousContainerClient(CloudConfiguration cloud, Uri registryUri)
+        public ContainerRegistryClient CreateAnonymousContainerClient(IBicepCloudConfiguration cloud, Uri registryUri)
         {
             var registry = this.registriesByUri.GetOrAdd(registryUri, uri => new FakeContainerRegistry(uri.Host));
 
@@ -32,8 +32,8 @@ namespace Bicep.Testing.Fakes.ContainerRegistry
          * The anonymous clients should be sufficient for testing purposes.
          */
 
-        public ContainerRegistryContentClient CreateAuthenticatedBlobClient(CloudConfiguration cloud, Uri registryUri, string repository) => CreateAnonymousBlobClient(cloud, registryUri, repository);
+        public ContainerRegistryContentClient CreateAuthenticatedBlobClient(IBicepCloudConfiguration cloud, Uri registryUri, string repository) => CreateAnonymousBlobClient(cloud, registryUri, repository);
 
-        public ContainerRegistryClient CreateAuthenticatedContainerClient(CloudConfiguration cloud, Uri registryUri) => CreateAnonymousContainerClient(cloud, registryUri);
+        public ContainerRegistryClient CreateAuthenticatedContainerClient(IBicepCloudConfiguration cloud, Uri registryUri) => CreateAnonymousContainerClient(cloud, registryUri);
     }
 }

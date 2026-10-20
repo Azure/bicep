@@ -105,7 +105,7 @@ namespace Bicep.Core.SourceLink
             var metadataBySourceFile = CreateMetadataBySourceFile(sourceFileGrouping);
             var sourceDocumentLink = CreateSourceFileLinks(sourceFileGrouping, metadataBySourceFile);
             var entryPointPath = metadataBySourceFile[sourceFileGrouping.EntryPoint].Path;
-            var bicepVersion = sourceFileGrouping.EntryPoint.Features.AssemblyVersion;
+            var bicepVersion = sourceFileGrouping.EntryPoint.LoadFeatures().AssemblyVersion;
             var metadata = new SourceArchiveMetadata(CurrentMetadataVersion, bicepVersion, entryPointPath, [.. metadataBySourceFile.Values], sourceDocumentLink);
             var fileEntries = metadataBySourceFile.ToFrozenDictionary(x => x.Value.ArchivePath, x => x.Key.Text);
 
@@ -219,7 +219,7 @@ namespace Bicep.Core.SourceLink
                 });
 
             var entryPointDirectoryUri = sourceFileGrouping.EntryPoint.FileHandle.Uri.Resolve(".");
-            var cacheRootDirectoryUri = sourceFileGrouping.EntryPoint.Features.CacheRootDirectory.Uri;
+            var cacheRootDirectoryUri = sourceFileGrouping.EntryPoint.LoadFeatures().CacheRootDirectory.Uri;
             var otherDirectoryFiles = new List<ISourceFile>();
 
             foreach (var file in sourceFileGrouping.SourceFiles.Where(x => x != sourceFileGrouping.EntryPoint && ShouldArchiveSourceFile(x)))

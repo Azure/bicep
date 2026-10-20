@@ -1,10 +1,5 @@
 <Project>
   <Import Project="../Directory.Build.props" />
-  <PropertyGroup>
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <RestoreLockedMode Condition="'$(CI)' == 'true'">true</RestoreLockedMode>
-  </PropertyGroup>
-
   <PropertyGroup Label="Testing">
     <!-- Version 8 or above are no longer fully open-source -->
     <FluentAssertionsVersion>7.2.0</FluentAssertionsVersion>

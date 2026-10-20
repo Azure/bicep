@@ -10,7 +10,7 @@ namespace Bicep.Core.Registry
 {
     public class TemplateSpecRepositoryFactory(IArmClientProvider armClientProvider) : ITemplateSpecRepositoryFactory
     {
-        public ITemplateSpecRepository CreateRepository(RootConfiguration configuration, string subscriptionId)
+        public ITemplateSpecRepository CreateRepository(IBicepConfiguration configuration, string subscriptionId)
         {
             var armClient = armClientProvider.CreateArmClient(configuration, subscriptionId);
 
