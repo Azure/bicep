@@ -14,5 +14,30 @@ namespace Bicep.Core.Emit
             TemplateSpecSemanticModel templateSpecModel => new TemplateSpecWriter(templateSpecModel),
             _ => throw new ArgumentException($"Unknown semantic model type: \"{semanticModel.GetType()}\"."),
         };
+
+        internal static ITemplateWriter CreateTemplateWriter(ISemanticModel semanticModel, EmitterSettings settings) => semanticModel switch
+        {
+            SemanticModel bicepModel => new TemplateWriter(bicepModel, settings),
+            _ => throw new NotSupportedException($"Emitter settings overrides are only supported for {nameof(SemanticModel)}."),
+        };
+
+        internal static ITemplateWriter CreateTemplateWriter(
+            ISemanticModel semanticModel,
+            bool forceEnableSymbolicNames,
+            bool emitExistingResources)
+        {
+            if (!forceEnableSymbolicNames && emitExistingResources)
+            {
+                return CreateTemplateWriter(semanticModel);
+            }
+
+            return semanticModel switch
+            {
+                SemanticModel bicepModel => new TemplateWriter(
+                    bicepModel,
+                    new EmitterSettings(bicepModel, forceEnableSymbolicNames, emitExistingResources)),
+                _ => CreateTemplateWriter(semanticModel),
+            };
+        }
     }
 }

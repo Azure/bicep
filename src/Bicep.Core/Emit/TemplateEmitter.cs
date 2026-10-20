@@ -5,6 +5,11 @@ using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit.Options;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
@@ -137,5 +142,174 @@ public class TemplateEmitter
         var sourceMap = write();
 
         return new EmitResult(EmitStatus.Succeeded, diagnostics, model.Features, sourceMap);
+    }
+
+    /// <summary>
+    /// Checks emit-blocking diagnostics without invoking aggregate diagnostics or linters.
+    /// </summary>
+    private bool HasEmitBlockingErrors()
+    {
+        // Analyzers call this while aggregate diagnostics are being assembled, so avoid GetAllDiagnostics() re-entry.
+        var sourceFile = model.SourceFile;
+        if (sourceFile.LexingErrorLookup.Any(diagnostic => diagnostic.IsError()) ||
+            sourceFile.ParsingErrorLookup.Any(diagnostic => diagnostic.IsError()))
+        {
+            return true;
+        }
+
+        var diagnosticWriter = ToListDiagnosticWriter.Create();
+        bool HasErrors() => diagnosticWriter.GetDiagnostics().Any(diagnostic => diagnostic.IsError());
+
+        var visitor = new SemanticDiagnosticVisitor(diagnosticWriter);
+        visitor.Visit(model.Root);
+        if (HasErrors())
+        {
+            return true;
+        }
+
+        foreach (var missingDeclarationSyntax in sourceFile.ProgramSyntax.Children.OfType<MissingDeclarationSyntax>())
+        {
+            model.TypeManager.GetTypeInfo(missingDeclarationSyntax);
+        }
+
+        diagnosticWriter.WriteMultiple(model.TypeManager.GetAllDiagnostics());
+        if (HasErrors())
+        {
+            return true;
+        }
+
+        diagnosticWriter.WriteMultiple(model.EmitLimitationInfo.Diagnostics);
+        if (HasErrors())
+        {
+            return true;
+        }
+
+        diagnosticWriter.WriteMultiple(model.GetSupplementalEmitBlockingDiagnostics());
+        if (HasErrors())
+        {
+            return true;
+        }
+
+        ScopeHelper.GetResourceScopeInfo(model, diagnosticWriter);
+        if (HasErrors())
+        {
+            return true;
+        }
+
+        ScopeHelper.GetModuleScopeInfo(model, diagnosticWriter);
+        return HasErrors();
+    }
+
+    private static bool HasUnsupportedForcedEmissionConstructs(
+        SemanticModel semanticModel,
+        HashSet<SemanticModel> visitedModels)
+    {
+        if (!visitedModels.Add(semanticModel))
+        {
+            return false;
+        }
+
+        if (semanticModel.DeclaredResources.Any(resource =>
+            resource.IsExistingResource &&
+            semanticModel.FindReferences(resource.Symbol).Skip(1).Any()))
+        {
+            return true;
+        }
+
+        if (SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(semanticModel.Root.Syntax)
+            .Any(functionCall => IsUnsafeNameBasedResourceFunction(semanticModel, functionCall)))
+        {
+            return true;
+        }
+
+        if (semanticModel.DeclaredResources.Any(resource =>
+            resource.IsAzResource &&
+            LanguageConstants.ResourceTypeComparer.Equals(
+                resource.TypeReference.FormatType(),
+                TemplateWriter.NestedDeploymentResourceType)))
+        {
+            return true;
+        }
+
+        return semanticModel.Root.ModuleDeclarations.Any(module =>
+            module.TryGetSemanticModel().TryUnwrap() is SemanticModel moduleModel &&
+            HasUnsupportedForcedEmissionConstructs(moduleModel, visitedModels));
+    }
+
+    private static bool IsUnsafeNameBasedResourceFunction(
+        SemanticModel semanticModel,
+        FunctionCallSyntaxBase functionCall)
+    {
+        if (semanticModel.GetSymbolInfo(functionCall) is not FunctionSymbol function ||
+            function.DeclaringObject is not NamespaceType namespaceType ||
+            !LanguageConstants.IdentifierComparer.Equals(namespaceType.ExtensionName, AzNamespaceType.BuiltInName) ||
+            (!function.Name.Equals("reference", StringComparison.OrdinalIgnoreCase) &&
+             !function.Name.StartsWith("list", StringComparison.OrdinalIgnoreCase)))
+        {
+            return false;
+        }
+
+        return functionCall.Arguments.FirstOrDefault()?.Expression is not { } target ||
+            !IsProvablyResourceId(semanticModel, target);
+    }
+
+    private static bool IsProvablyResourceId(SemanticModel semanticModel, SyntaxBase syntax) => syntax switch
+    {
+        ParenthesizedExpressionSyntax parenthesized => IsProvablyResourceId(semanticModel, parenthesized.Expression),
+        FunctionCallSyntax functionCall when
+            SemanticModelHelper.TryGetNamedFunction(
+                semanticModel,
+                SystemNamespaceType.BuiltInName,
+                "any",
+                functionCall) is not null &&
+            functionCall.Arguments is [var argument] =>
+                IsProvablyResourceId(semanticModel, argument.Expression),
+        StringSyntax literal => literal.TryGetLiteralValue()?.StartsWith('/') is true,
+        PropertyAccessSyntax propertyAccess when
+            propertyAccess.PropertyName.IdentifierName.Equals("id", StringComparison.OrdinalIgnoreCase) &&
+            semanticModel.GetSymbolInfo(propertyAccess.BaseExpression) is ResourceSymbol => true,
+        FunctionCallSyntaxBase functionCall when
+            semanticModel.GetSymbolInfo(functionCall) is FunctionSymbol function &&
+            function.DeclaringObject is NamespaceType namespaceType &&
+            LanguageConstants.IdentifierComparer.Equals(namespaceType.ExtensionName, AzNamespaceType.BuiltInName) &&
+            (function.Name.EndsWith("ResourceId", StringComparison.OrdinalIgnoreCase) ||
+             function.Name.Equals("resourceId", StringComparison.OrdinalIgnoreCase)) &&
+            semanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { } overload &&
+            (overload.Flags.HasFlag(FunctionFlags.Pure) ||
+             overload.IsPure?.Invoke(semanticModel, functionCall) is true) => true,
+        _ => false,
+    };
+
+    /// <summary>
+    /// Emits a symbolic-name-keyed ARM template without mutating the semantic model's normal emitter settings.
+    /// </summary>
+    internal string? EmitWithForcedSymbolicNames()
+    {
+        if (HasEmitBlockingErrors() || HasUnsupportedForcedEmissionConstructs(model, []))
+        {
+            return null;
+        }
+
+        try
+        {
+            var settings = new EmitterSettings(model, forceEnableSymbolicNames: true, emitExistingResources: false);
+            using var stringWriter = new StringWriter { NewLine = "\n" };
+            using (var writer = new SourceAwareJsonTextWriter(stringWriter, sourceFileToTrack: null)
+            {
+                CloseOutput = false,
+                Formatting = Formatting.Indented,
+            })
+            {
+                var templateWriter = TemplateWriterFactory.CreateTemplateWriter(model, settings);
+                templateWriter.Write(writer);
+                writer.Flush();
+            }
+
+            return stringWriter.ToString();
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

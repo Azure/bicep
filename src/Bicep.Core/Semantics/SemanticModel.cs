@@ -359,6 +359,11 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public ImmutableArray<IDiagnostic> GetAllDiagnostics() => allDiagnostics.Value;
 
+        internal IEnumerable<IDiagnostic> GetSupplementalEmitBlockingDiagnostics() =>
+            this.Configuration.GetDiagnostics()
+                .Concat(GetCompilerVersionDiagnostics())
+                .Concat(this.externalInputReferencesLazy.Value.diagnostics);
+
         private ImmutableArray<IDiagnostic> AssembleDiagnostics()
         {
             var diagnostics = this.Configuration.GetDiagnostics()
