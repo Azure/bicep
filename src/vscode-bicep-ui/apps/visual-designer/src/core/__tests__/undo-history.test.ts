@@ -123,6 +123,11 @@ describe("undo history", () => {
     expect(forgetRemovedNodes(history, new Set(["survivor"])).undoStack).toEqual([
       { kind: "moduleCollapse", moduleId: "survivor", collapsed: true },
     ]);
+  });
+
+  it("does not treat collapsing or expanding a module as a source step", () => {
+    const history = recordStep(EMPTY_UNDO_HISTORY, { kind: "moduleCollapse", moduleId: "module", collapsed: true });
+
     expect(getSourceStepReferences(history)).toEqual([]);
   });
 

@@ -66,23 +66,28 @@ function nodeGraphX(page: Page, nodeId: string) {
     .evaluate((element) => Number.parseFloat((element as HTMLElement).style.translate));
 }
 
-async function trackNodeAnimation(page: Page, nodeId: string) {
-  await page.evaluate((id) => {
-    const node = document.querySelector<HTMLElement>(`[data-node-id="${id}"]`);
-    if (!node) {
-      throw new Error(`Could not find node ${id}.`);
-    }
-    const samples: number[] = [];
-    (window as Window & { layoutAnimationSamples?: number[] }).layoutAnimationSamples = samples;
-    const started = performance.now();
-    const record = () => {
-      samples.push(Number.parseFloat(node.style.translate));
-      if (performance.now() - started < 800) {
-        requestAnimationFrame(record);
+/** Sample a node's x every frame until it arrives at `targetX`, so a slow click cannot outlast the sampling. */
+async function trackNodeAnimation(page: Page, nodeId: string, targetX: number) {
+  await page.evaluate(
+    ({ id, targetX }) => {
+      const node = document.querySelector<HTMLElement>(`[data-node-id="${id}"]`);
+      if (!node) {
+        throw new Error(`Could not find node ${id}.`);
       }
-    };
-    requestAnimationFrame(record);
-  }, nodeId);
+      const samples: number[] = [];
+      (window as Window & { layoutAnimationSamples?: number[] }).layoutAnimationSamples = samples;
+      const started = performance.now();
+      const record = () => {
+        const x = Number.parseFloat(node.style.translate);
+        samples.push(x);
+        if (Math.abs(x - targetX) > 0.5 && performance.now() - started < 10_000) {
+          requestAnimationFrame(record);
+        }
+      };
+      requestAnimationFrame(record);
+    },
+    { id: nodeId, targetX },
+  );
 }
 
 async function expectIntermediatePosition(page: Page, from: number, to: number) {
@@ -313,13 +318,13 @@ test.describe("Control bar", () => {
     const camera = await getGraphTransform(page);
     expect(Math.abs(draggedX - laidOutX)).toBeGreaterThan(20);
 
-    await trackNodeAnimation(page, "subnet");
+    await trackNodeAnimation(page, "subnet", laidOutX);
     await clickHistoryButton(page, "Undo");
     await expectIntermediatePosition(page, draggedX, laidOutX);
     await expectNodePosition(page, "subnet", laidOut);
     await waitForStableNodePosition(page, "subnet");
 
-    await trackNodeAnimation(page, "subnet");
+    await trackNodeAnimation(page, "subnet", draggedX);
     await clickHistoryButton(page, "Redo");
     await expectIntermediatePosition(page, laidOutX, draggedX);
     await expectNodePosition(page, "subnet", dragged);

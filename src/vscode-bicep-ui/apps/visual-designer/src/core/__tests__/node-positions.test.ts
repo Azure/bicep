@@ -97,7 +97,7 @@ describe("forgetRemovedNodePositions", () => {
     expect([...kept.keys()]).toEqual(["outer", "inner", "child", "sibling", "other"]);
   });
 
-  it("returns the same map when nothing was removed", () => {
+  it("returns the same map when nothing was removed, so callers can skip resetting positions", () => {
     expect(forgetRemovedNodePositions(positions, graph)).toBe(positions);
   });
 });

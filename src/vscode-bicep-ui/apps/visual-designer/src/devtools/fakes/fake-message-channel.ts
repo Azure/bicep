@@ -170,6 +170,8 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
         suffix++;
       }
 
+      const createDelay = Number(new URLSearchParams(window.location.search).get("createDelay") ?? 300);
+
       return new Promise<T>((resolve) => {
         setTimeout(() => {
           const node: SampleGraphNode = {
@@ -191,7 +193,7 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
             expectedNodeId: symbolicName,
             unresolvedRequiredProperties: ["name"],
           } satisfies CreateResourceResult as T);
-        }, 300);
+        }, createDelay);
       });
     }
 

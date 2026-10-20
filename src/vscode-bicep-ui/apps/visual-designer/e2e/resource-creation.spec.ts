@@ -58,9 +58,10 @@ test.describe("resource creation", () => {
   });
 
   test("opens the Resource Palette and keeps zoomed preview and pending nodes aligned", async ({ page }) => {
-    await openVisualDesigner(page);
+    // Keep the pending card up long enough to measure it under load.
+    await openVisualDesigner(page, { createDelay: "1500" });
     await loadSampleGraph(page, "flat");
-    await page.waitForTimeout(1_000);
+    await captureFlatGraphPositions(page);
     await page.getByTestId("control-zoom-in").click();
 
     await page.getByRole("button", { name: "Add Resources" }).click();

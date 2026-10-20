@@ -22,7 +22,7 @@ describe("canUndoAtom and canRedoAtom", () => {
     expect(store.get(canUndoAtom)).toBe(true);
   });
 
-  it("replay a module collapse without the host's confirmation", () => {
+  it("allow a module collapse to be undone without host confirmation, unlike a source edit", () => {
     const store = createStore();
     store.set(undoHistoryAtom, (history) =>
       recordStep(history, { kind: "moduleCollapse", moduleId: "module", collapsed: true }),

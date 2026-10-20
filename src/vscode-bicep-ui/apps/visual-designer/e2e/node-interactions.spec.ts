@@ -5,7 +5,6 @@ import type { Page } from "@playwright/test";
 
 import { expect, test } from "@playwright/test";
 import {
-  clickHistoryButton,
   getGraphTransform,
   loadSampleGraph,
   nodeCount,
@@ -187,6 +186,10 @@ test.describe("Node interactions", () => {
   });
 
   test("a node grabbed while it animates stays under the pointer", async ({ page }) => {
+    // Drive animation time by hand, so the node is partway home when grabbed however loaded the machine is.
+    await page.clock.install();
+    await openVisualDesigner(page);
+    await loadSampleGraph(page, "flat");
     await waitForStableNodePosition(page, "vnet");
     const target = page.locator('[data-node-id="vnet"]');
     const settled = (await target.boundingBox())!;
@@ -194,21 +197,33 @@ test.describe("Node interactions", () => {
     await page.mouse.down();
     await page.mouse.move(settled.x + settled.width / 2 + 300, settled.y + settled.height / 2, { steps: 10 });
     await page.mouse.up();
-    await waitForStableNodePosition(page, "vnet");
+    const dragged = await waitForStableNodePosition(page, "vnet");
 
-    // Undo springs the node back; grab it partway.
-    await clickHistoryButton(page, "Undo");
-    await page.waitForTimeout(150);
+    // Undo springs the node back; stop the clock partway.
+    await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100));
+    await page.keyboard.press("ControlOrMeta+z");
+    await page.clock.runFor(150);
     const moving = (await target.boundingBox())!;
+    expect(moving.x).toBeLessThan(dragged.x - 30);
+    expect(moving.x).toBeGreaterThan(settled.x + 30);
+
     const grab = { x: moving.x + moving.width / 2, y: moving.y + moving.height / 2 };
     await page.mouse.move(grab.x, grab.y);
     await page.mouse.down();
+    await page.mouse.move(grab.x, grab.y + 20);
+    await page.clock.runFor(50);
+    await page.clock.resume();
+
+    // Once the drag starts, the node stops springing home and follows the pointer.
+    const grabbed = await waitForStableNodePosition(page, "vnet");
     await page.mouse.move(grab.x, grab.y + 120, { steps: 10 });
     await page.mouse.up();
-
     const dropped = await waitForStableNodePosition(page, "vnet");
-    expect(Math.abs(dropped.x + moving.width / 2 - grab.x)).toBeLessThan(40);
-    expect(Math.abs(dropped.y + moving.height / 2 - (grab.y + 120))).toBeLessThan(5);
+
+    expect(Math.abs(grabbed.x - moving.x)).toBeLessThan(2);
+    expect(Math.abs(grabbed.y - moving.y - 20)).toBeLessThan(2);
+    expect(Math.abs(dropped.x - moving.x)).toBeLessThan(2);
+    expect(Math.abs(dropped.y - moving.y - 120)).toBeLessThan(2);
   });
 
   test("pointercancel discards pending focus and allows the next click", async ({ page }) => {

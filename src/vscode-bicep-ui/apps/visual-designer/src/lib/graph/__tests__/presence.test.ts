@@ -37,7 +37,7 @@ describe("derivePresence", () => {
     expect(presence.exitingNodes).toEqual([]);
   });
 
-  it("shows and hides other nodes at once", () => {
+  it("does not fade a node removed from the top level or added to a container that is already open", () => {
     const added = createNodeState("m::new", "m", [], null);
 
     expect(derivePresence(nodes(container, child, root), [], nodes(container, child), [])).toEqual({
