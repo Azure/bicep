@@ -10,7 +10,7 @@ namespace Bicep.LangServer.UnitTests.Features.Visualization;
 [TestClass]
 public class ResourceApiVersionPolicyTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("2021-01-01-preview", true)]
     [DataRow("2021-01-01", false)]
     [DataRow("not-a-version", false)]

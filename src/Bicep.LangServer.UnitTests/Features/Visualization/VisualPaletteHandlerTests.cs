@@ -23,7 +23,7 @@ public class VisualPaletteHandlerTests
 {
     private static readonly DocumentUri DocumentUri = DocumentUri.From("file:///main.bicep");
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("", "resourceGroup")]
     [DataRow("targetScope = 'resourceGroup'", "resourceGroup")]
     [DataRow("targetScope = 'subscription'", "subscription")]
@@ -97,7 +97,7 @@ public class VisualPaletteHandlerTests
             manager.Object.GetCompilation(DocumentUri)!.Compilation.GetEntrypointSemanticModel(), knownCatalogId: null).CatalogId);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
     public async Task VersionsHandler_MissingDocumentOrType_ReportsRpcFailure(bool compiled)

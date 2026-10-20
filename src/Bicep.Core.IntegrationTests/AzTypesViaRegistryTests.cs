@@ -100,7 +100,7 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(ArtifactRegistryCorruptedPackageNegativeTestScenarios), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(ArtifactRegistryCorruptedPackageNegativeTestScenarios))]
         public async Task Bicep_compiler_handles_corrupted_extension_package_gracefully(
             BinaryData payload,
             string innerErrorMessage)
@@ -132,7 +132,7 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(ArtifactRegistryAddressNegativeTestScenarios), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(ArtifactRegistryAddressNegativeTestScenarios))]
         public async Task Repository_not_found_in_registry(
             ArtifactRegistryAddress artifactRegistryAddress,
             Exception exceptionToThrow,

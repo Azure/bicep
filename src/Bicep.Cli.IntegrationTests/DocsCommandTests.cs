@@ -252,7 +252,7 @@ public class DocsCommandTests : TestBase
         ordinaryResult.Stdout.Should().Be("ordinary|tests/e2e/default/main.test.bicep\n");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("""{ "output": { "file": "nested/README.md" } }""", "cannot traverse")]
     [DataRow("""{ "output": { "file": "CON.md" } }""", "portable file name")]
     [DataRow("""{ "output": { "file": "README.md." } }""", "portable file name")]
@@ -506,7 +506,7 @@ public class DocsCommandTests : TestBase
         File.Exists(Path.Combine(root, "README.md")).Should().BeTrue();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("{ invalid", "invalid")]
     [DataRow("""{ "documentation": { "output": { "file": "../README.md" } } }""", "cannot traverse")]
     public async Task Config_InvalidBicepConfigReturnsNamedError(string contents, string expectedError)
@@ -654,7 +654,7 @@ public class DocsCommandTests : TestBase
         inlineLast.Stdout.Should().Be("last inline||two|\n");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("[]", "must contain a JSON object")]
     [DataRow("""{ "count": 1 }""", "value for \"count\" must be a string")]
     [DataRow("""{ "value": null }""", "value for \"value\" must be a string")]
@@ -1254,7 +1254,7 @@ public class DocsCommandTests : TestBase
         outputSarifResult.Stderr.Should().Contain("compilation setup failed");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("missing.bicep")]
     [DataRow("module.txt")]
     public async Task Output_InvalidInput_ReturnsNonZero(string fileName)
@@ -1275,7 +1275,7 @@ public class DocsCommandTests : TestBase
         result.Stderr.Should().NotBeEmpty();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(typeof(IOException))]
     [DataRow(typeof(UnauthorizedAccessException))]
     [DataRow(typeof(ArgumentException))]
@@ -1321,7 +1321,7 @@ public class DocsCommandTests : TestBase
         result.Stderr.Should().Contain("does not exist");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(["docs", "generate", "main.bicep", "--custom-template-value"])]
     [DataRow(["docs", "generate", "main.bicep", "--custom-template-value", "invalid"])]
     [DataRow(["docs", "generate", "main.bicep", "--custom-template-value-file-path"])]

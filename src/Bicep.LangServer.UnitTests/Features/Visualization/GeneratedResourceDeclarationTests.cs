@@ -17,7 +17,7 @@ namespace Bicep.LangServer.UnitTests.Features.Visualization;
 [TestClass]
 public class GeneratedResourceDeclarationTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Microsoft.Storage/storageAccounts", "storageAccount")]
     [DataRow("Microsoft.Compute/virtualMachines", "virtualMachine")]
     [DataRow("Microsoft.Network/loadBalancers", "loadBalancer")]
@@ -31,7 +31,7 @@ public class GeneratedResourceDeclarationTests
         Create(fullyQualifiedType).SymbolicName.Should().Be(expected);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(new[] { "other" }, "storageAccount")]
     [DataRow(new[] { "storageAccount", "storageAccount1" }, "storageAccount2")]
     [DataRow(new[] { "StorageAccount" }, "storageAccount1")]

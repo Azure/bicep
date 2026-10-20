@@ -14,8 +14,8 @@ namespace Bicep.RegistryModuleTool.UnitTests.Extensions
     [TestClass]
     public class ITypeReferenceExtensionsTests
     {
-        [DataTestMethod]
-        [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetTestData))]
         public void GetPrimitiveTypeName_PossibleParameterOrOutputTypes_ReturnsPrimitiveTypeName(ITypeReference typeReference, string expectedPrimitiveTypeName)
         {
             var actual = typeReference.GetPrimitiveTypeName();

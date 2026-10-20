@@ -53,7 +53,7 @@ public class BicepConfigurationTests
             "\"version\": \"1.2.3\"");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2.3")]
     [DataRow(">=1.0.0")]
     [DataRow(">=1.0.0, <2.0.0")]
@@ -74,7 +74,7 @@ public class BicepConfigurationTests
         configuration.Version.Should().BeNull();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("not-a-version")]
     [DataRow("*")]
     [DataRow("1.*")]
@@ -119,7 +119,7 @@ public class BicepConfigurationTests
             "\"file\": \"DOCS.md\"");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("""{ "output": null }""", "output, template, and examples")]
     [DataRow("""{ "template": null }""", "output, template, and examples")]
     [DataRow("""{ "examples": null }""", "output, template, and examples")]
@@ -163,8 +163,8 @@ public class BicepConfigurationTests
         configuration.Data.Examples.Reassignments.Single().From.Exclude.Should().BeEmpty();
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DynamicData(nameof(GetTestData))]
     public void RootConfiguration_LeadingTildeInCacheRootDirectory_ExpandPath(string cacheRootDirectory, string expectedExpandedDirectory)
     {
         var configuration = BicepTestConstants.BuiltInConfiguration.With(cacheRootDirectory: cacheRootDirectory);

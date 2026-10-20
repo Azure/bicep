@@ -132,7 +132,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [DataRow(LanguageConstants.TargetScopeTypeSubscription, LanguageConstants.TargetScopeTypeSubscription)]
         [DataRow(LanguageConstants.TargetScopeTypeTenant, LanguageConstants.TargetScopeTypeTenant)]
         [DataRow("Invalid_Scope", "None")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Handle_WithValidInputFile_VerifyDeploymentScope(string scope, string result)
         {
             string bicepFileContents = @"targetScope = '" + scope + "\'" + "\n" +

@@ -191,7 +191,7 @@ public class ConfigOptionTests : TestBase
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("build", "{bicep}")]
     [DataRow("build-params", "{params}")]
     [DataRow("lint", "{bicep}")]

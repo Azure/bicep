@@ -748,7 +748,7 @@ output res1childid string = res1::child.id
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("resourceGroup('other')")]
         [DataRow("subscription()")]
         [DataRow("managementGroup('abcdef')")]

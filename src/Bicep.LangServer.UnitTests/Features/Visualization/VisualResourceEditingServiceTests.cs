@@ -37,7 +37,7 @@ public class VisualResourceEditingServiceTests
 
     #region PrepareResource
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("2020-01-01")]
     [DataRow("2021-01-01-preview")]
     public void PrepareResourceCreation_UsesTheExplicitlySelectedVersion(string apiVersion)

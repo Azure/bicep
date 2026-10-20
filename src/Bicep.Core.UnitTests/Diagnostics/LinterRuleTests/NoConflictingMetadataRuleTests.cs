@@ -21,7 +21,7 @@ public class NoConflictingMetadataRuleTests : LinterRuleTestsBase
         @description('Description set via decorator')
         param p string
         """)]
-    [DataTestMethod]
+    [TestMethod]
     public void If_UsesBothMetadataPropertyAndConflictingDecorator_ShouldRaise(string text)
     {
         CompileAndTest(text, 1);
@@ -33,7 +33,7 @@ public class NoConflictingMetadataRuleTests : LinterRuleTestsBase
         })
         param p string
         """)]
-    [DataTestMethod]
+    [TestMethod]
     public void If_UsesBothMetadataPropertyWithoutConflictingDecorator_ShouldNotRaise(string text)
     {
         CompileAndTest(text, 0);
