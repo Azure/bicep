@@ -11,7 +11,7 @@ namespace Bicep.Core.UnitTests.Parsing
     [TestClass]
     public class ParserTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("true", "true", typeof(BooleanLiteralSyntax))]
         [DataRow("false", "false", typeof(BooleanLiteralSyntax))]
         [DataRow("432", "432", typeof(IntegerLiteralSyntax))]
@@ -23,7 +23,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, expectedRootType);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("param myParam string", typeof(ParameterDeclarationSyntax))]
         [DataRow("var mvVar = 'hello'", typeof(VariableDeclarationSyntax))]
         [DataRow("resource myRes 'My.Provider/someResource@2020-08-01' = { \n }", typeof(ResourceDeclarationSyntax))]
@@ -64,7 +64,7 @@ namespace Bicep.Core.UnitTests.Parsing
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("'${abc}def'", "'${abc}def'")]
         [DataRow("'abc${def}'", "'abc${def}'")]
         [DataRow("'${abc}def${ghi}'", "'${abc}def${ghi}'")]
@@ -78,7 +78,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(StringSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("$'''${abc}def'''", "$'''${abc}def'''")]
         [DataRow("$'''abc${def}'''", "$'''abc${def}'''")]
         [DataRow("$'''${abc}def${ghi}'''", "$'''${abc}def${ghi}'''")]
@@ -90,7 +90,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(StringSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // empty
         [DataRow("''''''", "")]
         [DataRow("'''\r\n'''", "")]
@@ -115,7 +115,7 @@ namespace Bicep.Core.UnitTests.Parsing
             stringSyntax.TryGetLiteralValue().Should().Be(expectedValue);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("'${>}def'")]
         [DataRow("'${concat)}def'")]
         [DataRow("'${'nest\\ed'}def'")]
@@ -131,7 +131,7 @@ namespace Bicep.Core.UnitTests.Parsing
             expression.Expressions.Should().Contain(x => x is SkippedTriviaSyntax || x is BinaryOperationSyntax);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("$'''${>}def'''")]
         [DataRow("$'''${concat)}def'''")]
         [DataRow("$'''${'nest\\ed'}def'''")]
@@ -147,7 +147,7 @@ namespace Bicep.Core.UnitTests.Parsing
             expression.Expressions.Should().Contain(x => x is SkippedTriviaSyntax || x is BinaryOperationSyntax);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("'${!}def'")]
         [DataRow("'${ -}def'")]
         [DataRow("'${b+}def'")]
@@ -162,7 +162,7 @@ namespace Bicep.Core.UnitTests.Parsing
             expression.Expressions.Should().Contain(x => x is UnaryOperationSyntax || x is BinaryOperationSyntax || x is TernaryOperationSyntax);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("$'''${!}def'''")]
         [DataRow("$'''${ -}def'''")]
         [DataRow("$'''${b+}def'''")]
@@ -177,7 +177,7 @@ namespace Bicep.Core.UnitTests.Parsing
             expression.Expressions.Should().Contain(x => x is UnaryOperationSyntax || x is BinaryOperationSyntax || x is TernaryOperationSyntax);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("foo()", "foo()", 0)]
         [DataRow("bar(true)", "bar(true)", 1)]
         [DataRow("bar(true,1,'a',true,null)", "bar(true,1,'a',true,null)", 5)]
@@ -188,7 +188,7 @@ namespace Bicep.Core.UnitTests.Parsing
             expression.Arguments.Count().Should().Be(expectedArgumentCount);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("foo", "foo")]
         [DataRow("bar", "bar")]
         public void VariablesShouldParseCorrectly(string text, string expected)
@@ -196,7 +196,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(VariableAccessSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("-10", "(-10)")]
         [DataRow("!x", "(!x)")]
         public void UnaryOperationsShouldParseCorrectly(string text, string expected)
@@ -204,7 +204,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(UnaryOperationSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("!!true")]
         [DataRow("--10")]
         [DataRow("-!null")]
@@ -214,7 +214,7 @@ namespace Bicep.Core.UnitTests.Parsing
             expression.Expression.Should().BeOfType<SkippedTriviaSyntax>();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("2 + 3 * 4", "(2+(3*4))")]
         [DataRow("3 * 4 + 7", "((3*4)+7)")]
         [DataRow("2 + 3 * 4 - 10 % 2 - 1", "(((2+(3*4))-(10%2))-1)")]
@@ -225,7 +225,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("2 + 3 + 4 -10", "(((2+3)+4)-10)")]
         [DataRow("2 * 3 / 5 % 100", "(((2*3)/5)%100)")]
         [DataRow("2 && 3 && 4 && 5", "(((2&&3)&&4)&&5)")]
@@ -238,7 +238,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("2 + !null * 4", "(2+((!null)*4))")]
         [DataRow("-2 +-3 + -4 -10", "((((-2)+(-3))+(-4))-10)")]
         [DataRow("2 + 3 * !4 - 10 % 2 - -1", "(((2+(3*(!4)))-(10%2))-(-1))")]
@@ -248,14 +248,14 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("null ? 4: false", "(null?4:false)")]
         public void TernaryOperatorShouldParseSuccessfully(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(TernaryOperationSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("null && !false ? 2+3*-8 : !13 < 10", "((null&&(!false))?(2+(3*(-8))):((!13)<10))")]
         [DataRow("true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || false && null", "(((((true==false)!=null)==4)!='a')?((((-2)&&3)&&(!4))&&5):(true||(false&&null)))")]
         [DataRow("null ? 1 : 2 + 3", "(null?1:(2+3))")]
@@ -264,7 +264,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(TernaryOperationSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("(true)", "(true)")]
         [DataRow("(false)", "(false)")]
         [DataRow("(null)", "(null)")]
@@ -275,7 +275,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(ParenthesizedExpressionSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("(2+3)*4", "(((2+3))*4)")]
         [DataRow("true && (false || null)", "(true&&((false||null)))")]
         [DataRow("(null ? 1 : 2) + 3", "(((null?1:2))+3)")]
@@ -285,14 +285,14 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("null ? 1 : 2 ? true ? 'a': 'b' : false ? 'd' : 15", "(null?1:(2?(true?'a':'b'):(false?'d':15)))")]
         public void TernaryOperatorShouldBeRightToLeftAssociative(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(TernaryOperationSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("a.b", "(a.b)")]
         [DataRow("null.fail", "(null.fail)")]
         [DataRow("foo().bar", "(foo().bar)")]
@@ -302,7 +302,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(PropertyAccessSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("a::b", "(a::b)")]
         [DataRow("null::fail", "(null::fail)")]
         [DataRow("foo()::bar", "(foo()::bar)")]
@@ -311,7 +311,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(ResourceAccessSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("foo?bar:baz::biz", "(foo?bar:(baz::biz))")]
         [DataRow("foo?bar::biz.prop1:baz::boo", "(foo?((bar::biz).prop1):(baz::boo))")]
         [DataRow("foo::boo?bar:baz", "((foo::boo)?bar:baz)")]
@@ -320,7 +320,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(TernaryOperationSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("a.b.c.foo()", "((a.b).c).foo()")]
         [DataRow("a.b.c.d.e.f.g.foo()", "((((((a.b).c).d).e).f).g).foo()")]
         [DataRow("a::b::c.d::e::f::g.foo()", "((((((a::b)::c).d)::e)::f)::g).foo()")]
@@ -329,7 +329,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(InstanceFunctionCallSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("a.b.c + 0", "(((a.b).c)+0)")]
         [DataRow("(a.b[c]).c[d]+q()", "((((((a.b)[c])).c)[d])+q())")]
         public void MemberAccessShouldBeLeftToRightAssociative(string text, string expected)
@@ -338,7 +338,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("a::b::c + 0", "(((a::b)::c)+0)")]
         [DataRow("(a::b[c])::c[d]+q()", "((((((a::b)[c]))::c)[d])+q())")]
         public void ResourceAccessShouldBeLeftToRightAssociative(string text, string expected)
@@ -347,21 +347,21 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("a + b.c * z[12].a && q[foo()] == c.a", "((a+((b.c)*((z[12]).a)))&&((q[foo()])==(c.a)))")]
         public void MemberAccessShouldHaveHighestPrecedence(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("a + b::c * z[12]::a && q[foo()] == c::a", "((a+((b::c)*((z[12])::a)))&&((q[foo()])==(c::a)))")]
         public void ResourceAccessShouldHaveHighestPrecedence(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("a[b]", "(a[b])")]
         [DataRow("1[b]", "(1[b])")]
         [DataRow("a[12]", "(a[12])")]
@@ -373,7 +373,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(ArrayAccessSyntax));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // 3 alternative ways to produce the same character
         [DataRow(@"'𐐷'", @"'𐐷'", @"𐐷")]
         [DataRow(@"'\u{10437}'", @"'\u{10437}'", @"𐐷")]
@@ -389,7 +389,7 @@ namespace Bicep.Core.UnitTests.Parsing
             value.Should().Be(expectedLiteralValue);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("a ?? b", "(a??b)")]
         [DataRow("a ?? b ?? c", "((a??b)??c)")]
         [DataRow("a ?? b || d ?? c", "((a??(b||d))??c)")]
@@ -499,7 +499,7 @@ type multilineUnion = 'a'
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("input!", "(input!)", typeof(NonNullAssertionSyntax))]
         [DataRow("input.property!", "((input.property)!)", typeof(NonNullAssertionSyntax))]
         [DataRow("input.nested!.property", "(((input.nested)!).property)", typeof(PropertyAccessSyntax))]

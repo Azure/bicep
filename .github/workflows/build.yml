@@ -353,7 +353,7 @@ jobs:
 
       - name: Run bicep in visual studio unit tests
         run: |
-          dotnet test src\vs-bicep\Bicep.VSLanguageServerClient.UnitTests\bin\release\net472\Bicep.VSLanguageServerClient.UnitTests.exe
+          ./src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/release/net472/Bicep.VSLanguageServerClient.UnitTests.exe
 
       # Temporarily disable VS Bicep integration tests, they're flaky
       # Proper fix tracked under https://github.com/Azure/bicep/issues/8078

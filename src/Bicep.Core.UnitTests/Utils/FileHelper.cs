@@ -14,8 +14,13 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class FileHelper
     {
+        // MSTest only creates isolated run directories when deployment items are used. Otherwise, ResultsDirectory is the
+        // build output directory, so test outputs are kept in a dedicated subdirectory to avoid mixing them with binaries.
+        public static string GetTestOutputRootPath(TestContext testContext)
+            => Path.Combine(testContext.ResultsDirectory!, "TestOutput");
+
         public static string GetUniqueTestOutputPath(TestContext testContext)
-            => Path.Combine(testContext.ResultsDirectory!, Guid.NewGuid().ToString());
+            => Path.Combine(GetTestOutputRootPath(testContext), Guid.NewGuid().ToString());
 
         public static string GetResultFilePath(TestContext testContext, string fileName, string? testOutputPath = null)
         {

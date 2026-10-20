@@ -23,8 +23,8 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
             exitCode.Should().Be(100);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetExceptionData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetExceptionData))]
         public async Task InvokeAsync_CaughtException_ReturnsOne(Exception exceptionToThrow)
         {
             var exitCode = await InvokeAsync(new ThrowExceptionCommandHandler(exceptionToThrow));
@@ -32,8 +32,8 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
             exitCode.Should().Be(1);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetExpectedExceptionData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetExpectedExceptionData))]
         public async Task InvokeAsync_CaughtExpectedException_LogsDebug(Exception exceptionToThrow)
         {
             var logger = MockLoggerFactory.CreateLogger();
@@ -48,8 +48,8 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()));
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetUnexpectedExceptionData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetUnexpectedExceptionData))]
         public async Task InvokeAsync_CaughtUnexpectedException_LogsCritical(Exception exceptionToThrow)
         {
             var logger = MockLoggerFactory.CreateLogger();
