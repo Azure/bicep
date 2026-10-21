@@ -4,10 +4,8 @@
 import type { PropsWithChildren } from "react";
 
 import { PanZoom } from "@vscode-bicep-ui/components";
-import { useStore } from "jotai";
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 import styled, { useTheme } from "styled-components";
-import { focusedNodeIdAtom } from "../atoms/nodes";
 import { ViewportBackground } from "./ViewportBackground";
 
 const CURSOR_SIZE = 32;
@@ -51,11 +49,18 @@ const $GrabCursor = styled.div<{ $background: string; $blur: number }>`
 export interface ViewportProps extends PropsWithChildren {
   /** When false the dot-pattern background is hidden. Defaults to true. */
   showBackground?: boolean;
+  /**
+   * A press was released without travelling far enough to drag: on a node, with its ID, or on the
+   * background, with null.
+   */
+  onNodeClick?: (nodeId: string | null) => void;
 }
 
-export function Viewport({ children, showBackground = true }: ViewportProps) {
+function ignoreClick() {}
+
+export function Viewport({ children, showBackground = true, onNodeClick = ignoreClick }: ViewportProps) {
   const theme = useTheme();
-  const store = useStore();
+  const handleClick = useEffectEvent(onNodeClick);
   const containerRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
 
@@ -69,7 +74,7 @@ export function Viewport({ children, showBackground = true }: ViewportProps) {
     let pointerDownY = 0;
     let cachedRect: DOMRect | null = null;
     let didDrag = false;
-    let pendingFocusId: string | null | undefined;
+    let pendingClickId: string | null | undefined;
 
     const hasTravelledDragDistance = (e: PointerEvent) =>
       Math.hypot(e.clientX - pointerDownX, e.clientY - pointerDownY) >= DRAG_DISTANCE_THRESHOLD;
@@ -80,7 +85,7 @@ export function Viewport({ children, showBackground = true }: ViewportProps) {
       pointerDownY = 0;
       cachedRect = null;
       didDrag = false;
-      pendingFocusId = undefined;
+      pendingClickId = undefined;
       cursor.style.display = "none";
       container.classList.remove("grabbing");
     };
@@ -91,10 +96,9 @@ export function Viewport({ children, showBackground = true }: ViewportProps) {
       activePointerId = e.pointerId;
       pointerDownX = e.clientX;
       pointerDownY = e.clientY;
-      // Remember the intended focus target but defer applying it
-      // until pointerup so that a pan-drag doesn't clear focus.
+      // Remember what was pressed, but report it only on release, since the press may become a pan or drag.
       const nodeEl = (e.target as HTMLElement).closest<HTMLElement>("[data-node-id]");
-      pendingFocusId = nodeEl?.dataset.nodeId ?? null;
+      pendingClickId = nodeEl?.dataset.nodeId ?? null;
       didDrag = false;
 
       cachedRect = container.getBoundingClientRect();
@@ -116,11 +120,9 @@ export function Viewport({ children, showBackground = true }: ViewportProps) {
     const onPointerUp = (e: PointerEvent) => {
       if (e.pointerId !== activePointerId) return;
 
-      // Apply focus only on click (no drag). Clicking a node focuses
-      // it; clicking empty canvas clears focus. Drags leave focus
-      // unchanged.
-      if (!didDrag && !hasTravelledDragDistance(e) && pendingFocusId !== undefined) {
-        store.set(focusedNodeIdAtom, pendingFocusId);
+      // Report only clicks: a pan or a node drag is not one.
+      if (!didDrag && !hasTravelledDragDistance(e) && pendingClickId !== undefined) {
+        handleClick(pendingClickId);
       }
 
       endPointerGesture();
@@ -142,7 +144,7 @@ export function Viewport({ children, showBackground = true }: ViewportProps) {
       window.removeEventListener("pointerup", onPointerUp);
       window.removeEventListener("pointercancel", onPointerCancel);
     };
-  }, [store]);
+  }, []);
 
   return (
     <$Container ref={containerRef} data-testid="graph-canvas" data-export-viewport="">

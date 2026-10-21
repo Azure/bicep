@@ -24,18 +24,24 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     /// which case the client keeps what it shows until the next document change.
     /// </summary>
     /// <param name="ErrorCount">The errors reported for the document, including those that belong to no node.</param>
-    public record VisualGraphResult(CanonicalGraph? Graph, string? TargetScope, int ErrorCount);
+    /// <param name="Revision">
+    /// Identifies the graph's topology (see <see cref="CanonicalGraph.GetRevision"/>). The client sends it back
+    /// with a layout request, so the server can tell whether the graph it laid out is still current.
+    /// </param>
+    public record VisualGraphResult(CanonicalGraph? Graph, string? TargetScope, int ErrorCount, string? Revision = null);
 
     /// <summary>
-    /// Request sent after the webview has rendered the graph and measured its nodes. The server checks that the
-    /// measured topology still matches the live compilation before running MSAGL.
+    /// Request sent after the webview has rendered the graph and measured its nodes. <see cref="Graph"/> is what the
+    /// webview renders, which may omit nodes it hides (such as the contents of a collapsed module), and is laid out
+    /// as sent. <see cref="Revision"/> is the revision of the graph it was rendered from; when the live compilation
+    /// has a different topology the server answers <see cref="VisualGraphLayoutStatus.GraphChanged"/>.
     /// </summary>
     [Method("textDocument/visualGraphLayout", Direction.ClientToServer)]
     public record VisualGraphLayoutParams(
         TextDocumentIdentifier TextDocument,
         MeasuredGraph Graph,
         VisualGraphLayoutOptions? Options,
-        IReadOnlyList<string>? CollapsedNodeIds = null) : ITextDocumentIdentifierParams, IRequest<VisualGraphLayoutResult>;
+        string? Revision) : ITextDocumentIdentifierParams, IRequest<VisualGraphLayoutResult>;
 
     public static class VisualGraphLayoutStatus
     {

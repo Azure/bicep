@@ -5,6 +5,7 @@ import type { Page } from "@playwright/test";
 
 import { expect, test } from "@playwright/test";
 import {
+  clickHistoryButton,
   getGraphTransform,
   loadSampleGraph,
   nodeCount,
@@ -33,6 +34,33 @@ async function getNodeBoxes(page: Page, nodeIds: readonly string[]): Promise<Rec
 
     return boxes;
   }, nodeIds);
+}
+
+/** Drag a node by a screen-space offset, in small steps so the drag is not mistaken for a click. */
+async function dragNode(page: Page, nodeId: string, dx: number, dy: number): Promise<void> {
+  const box = await page.locator(`[data-node-id="${nodeId}"]`).boundingBox();
+  if (!box) {
+    throw new Error(`Node ${nodeId} is not visible.`);
+  }
+
+  const start = { x: box.x + box.width / 2, y: box.y + 12 };
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await page.mouse.move(start.x + dx, start.y + dy, { steps: 10 });
+  await page.mouse.up();
+}
+
+/** Whether every node is within a pixel of `expected`, offset by `dx`, `dy`. */
+async function nodesAreAt(page: Page, expected: Record<string, NodeBox> | null, dx = 0, dy = 0): Promise<boolean> {
+  if (!expected) {
+    return false;
+  }
+
+  const actual = await getNodeBoxes(page, Object.keys(expected));
+  return Object.entries(expected).every(([nodeId, box]) => {
+    const current = actual?.[nodeId];
+    return current !== undefined && Math.abs(current.x - box.x - dx) <= 1 && Math.abs(current.y - box.y - dy) <= 1;
+  });
 }
 
 function followsFlatServerLayout(boxes: Record<string, NodeBox> | null): boolean {
@@ -166,15 +194,92 @@ test.describe("Graph rendering", () => {
       .toBe(true);
   });
 
-  test("resets layout while a module is collapsed", async ({ page }) => {
+  test("resets layout while a module is collapsed and keeps its contents inside it", async ({ page }) => {
     await loadSampleGraph(page, "module");
+    await waitForStableNodePosition(page, "myModule::storageAccount");
     await page.getByRole("button", { name: "Collapse module myModule" }).click();
     await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
+    await dragNode(page, "myModule", 200, 0);
 
     await page.getByRole("button", { name: "Reset Layout" }).click();
 
     await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
     await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
+    await waitForStableNodePosition(page, "myModule");
+
+    await page.getByRole("button", { name: "Expand module myModule" }).click();
+
+    await expect
+      .poll(async () => followsModuleServerLayout(await getNodeBoxes(page, MODULE_LAYOUT_NODES)), { timeout: 5_000 })
+      .toBe(true);
+  });
+
+  test("moves a collapsed module's hidden contents with its card", async ({ page }) => {
+    await loadSampleGraph(page, "module");
+    await waitForStableNodePosition(page, "myModule::storageAccount");
+    const childrenBefore = await getNodeBoxes(page, ["myModule::storageAccount", "myModule::vmResource"]);
+    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
+    const cardBefore = await waitForStableNodePosition(page, "myModule");
+
+    await dragNode(page, "myModule", 150, 40);
+    const cardAfter = await waitForStableNodePosition(page, "myModule");
+    await page.getByRole("button", { name: "Expand module myModule" }).click();
+
+    await expect
+      .poll(() => nodesAreAt(page, childrenBefore, cardAfter.x - cardBefore.x, cardAfter.y - cardBefore.y))
+      .toBe(true);
+  });
+
+  test("undoes collapsing a module before what was done inside it, and redoes both", async ({ page }) => {
+    const moduleNode = page.locator('[data-node-id="myModule"]');
+    await loadSampleGraph(page, "module");
+    await waitForStableNodePosition(page, "myModule::storageAccount");
+    const storageBefore = await getNodeBoxes(page, ["myModule::storageAccount"]);
+    await dragNode(page, "myModule::storageAccount", -160, 0);
+    await waitForStableNodePosition(page, "myModule::storageAccount");
+    const storageDragged = await getNodeBoxes(page, ["myModule::storageAccount"]);
+    await expect.poll(() => nodesAreAt(page, storageBefore)).toBe(false);
+    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
+    await waitForStableNodePosition(page, "myModule");
+
+    await clickHistoryButton(page, "Undo");
+    await expect(moduleNode).toHaveAttribute("data-node-kind", "compound");
+    await expect.poll(() => nodesAreAt(page, storageDragged)).toBe(true);
+
+    await clickHistoryButton(page, "Undo");
+    await expect.poll(() => nodesAreAt(page, storageBefore)).toBe(true);
+
+    await clickHistoryButton(page, "Redo");
+    await expect.poll(() => nodesAreAt(page, storageDragged)).toBe(true);
+
+    await clickHistoryButton(page, "Redo");
+    await expect(moduleNode).toHaveAttribute("data-node-kind", "atomic");
+    await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
+  });
+
+  test("ignores a module toggle or node drag during Reset Layout", async ({ page }) => {
+    await openVisualDesigner(page, { layoutDelay: "4000" });
+    await loadSampleGraph(page, "module");
+    await waitForStableNodePosition(page, "myModule::storageAccount");
+    const reset = page.getByTestId("control-reset-layout");
+
+    await reset.click();
+    await expect(reset).toBeDisabled();
+
+    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    const unrelatedBefore = await waitForStableNodePosition(page, "networkInterface");
+    await dragNode(page, "networkInterface", 200, 0);
+    const unrelatedAfter = await page.locator('[data-node-id="networkInterface"]').boundingBox();
+    // Both happened while the reset was still in flight.
+    await expect(reset).toBeDisabled();
+    await expect(page.locator('[data-node-id="myModule"]')).toHaveAttribute("data-node-kind", "compound");
+    expect(unrelatedAfter?.x).toBeCloseTo(unrelatedBefore.x, 0);
+
+    await expect(reset).toBeEnabled({ timeout: 15_000 });
+    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
   });
 
   test("preserves collapsed state across graph refreshes", async ({ page }) => {
@@ -186,6 +291,48 @@ test.describe("Graph rendering", () => {
 
     await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
     await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
+  });
+
+  test("paints an edge with its higher endpoint, above a module it crosses", async ({ page }) => {
+    await loadSampleGraph(page, "module");
+    const zIndex = (selector: string) =>
+      page.locator(selector).evaluate((element) => Number(getComputedStyle(element).zIndex) || 0);
+    const edge = '[data-edge-id="networkInterface->publicIp"]';
+    const moduleNode = '[data-node-id="myModule"]';
+
+    await page.locator('[data-node-id="myModule::vmResource"]').click();
+    await expect.poll(async () => (await zIndex(edge)) < (await zIndex(moduleNode))).toBe(true);
+
+    // Dragging an endpoint over the module raises it, and its edge comes up with it.
+    await waitForStableNodePosition(page, "publicIp");
+    const moduleBox = (await page.locator(moduleNode).boundingBox())!;
+    const publicIpBox = (await page.locator('[data-node-id="publicIp"]').boundingBox())!;
+    await dragNode(
+      page,
+      "publicIp",
+      moduleBox.x + moduleBox.width / 2 - (publicIpBox.x + publicIpBox.width / 2),
+      moduleBox.y + moduleBox.height / 2 - (publicIpBox.y + 12),
+    );
+
+    await expect.poll(async () => (await zIndex(edge)) > (await zIndex(moduleNode))).toBe(true);
+    await expect.poll(async () => (await zIndex(edge)) < (await zIndex('[data-node-id="publicIp"]'))).toBe(true);
+  });
+
+  test("lays out a node whose size changed at its new size", async ({ page }) => {
+    await loadSampleGraph(page, "flat");
+    await waitForStableNodePosition(page, "vnet");
+
+    // Becoming a collection changes a node's size without changing which nodes are shown.
+    await page.getByRole("button", { name: "Toggle collection" }).click();
+    for (const nodeId of FLAT_LAYOUT_ORDER) {
+      await waitForStableNodePosition(page, nodeId);
+    }
+    const afterChange = await getNodeBoxes(page, FLAT_LAYOUT_ORDER);
+
+    // Reset Layout lays out the same graph again, with every node certainly measured.
+    await page.getByTestId("control-reset-layout").click();
+
+    await expect.poll(() => nodesAreAt(page, afterChange)).toBe(true);
   });
 
   test("renders a richer topology for the complex graph", async ({ page }) => {

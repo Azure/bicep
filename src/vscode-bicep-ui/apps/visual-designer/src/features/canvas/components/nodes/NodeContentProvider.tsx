@@ -2,15 +2,11 @@
 // Licensed under the MIT License.
 
 import type { ReactNode } from "react";
+import type { CanvasNodeData } from "@/core";
 import type { NodeContentRenderProps, NodeKind } from "@/lib/graph";
-import type { ModuleNodeProps } from "./ModuleNode";
-import type { ResourceNodeProps } from "./ResourceNode";
 
 import { useStore } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
-import { useEffect, useRef } from "react";
-import { styled } from "styled-components";
-import { useGraphApi } from "@/core";
 import { nodeConfigAtom } from "@/lib/graph";
 import { ModuleNode } from "./ModuleNode";
 import { ResourceNode } from "./ResourceNode";
@@ -18,47 +14,15 @@ import { ResourceNode } from "./ResourceNode";
 /** Extra headroom above a compound node's children, so the module label has room to sit. */
 const COMPOUND_NODE_LABEL_INSET = 50;
 
-const $NodeContent = styled.div`
-  display: contents;
-`;
-
-function CanvasNodeContent({ kind, id, data }: NodeContentRenderProps & { kind: NodeKind }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const api = useGraphApi();
-
-  useEffect(() => {
-    const element = ref.current;
-
-    if (!element) {
-      return;
-    }
-
-    const revealSource = (event: MouseEvent) => {
-      event.stopPropagation();
-      api.revealNode(id);
-    };
-
-    element.addEventListener("dblclick", revealSource);
-    return () => element.removeEventListener("dblclick", revealSource);
-  }, [api, id]);
-
-  return (
-    <$NodeContent ref={ref}>
-      {(data as { nodeKind?: string }).nodeKind === "module" || kind === "compound" ? (
-        <ModuleNode
-          id={id}
-          variant={kind === "compound" ? "container" : "card"}
-          data={data as ModuleNodeProps["data"]}
-        />
-      ) : (
-        <ResourceNode id={id} data={data as ResourceNodeProps["data"]} />
-      )}
-    </$NodeContent>
-  );
-}
-
 function renderNodeContent(kind: NodeKind, { id, data }: NodeContentRenderProps) {
-  return <CanvasNodeContent kind={kind} id={id} data={data} />;
+  // Core shows every node with `CanvasNodeData`.
+  const nodeData = data as CanvasNodeData;
+
+  return nodeData.nodeKind === "module" ? (
+    <ModuleNode id={id} variant={kind === "compound" ? "container" : "card"} data={nodeData} />
+  ) : (
+    <ResourceNode id={id} data={nodeData} />
+  );
 }
 
 /**

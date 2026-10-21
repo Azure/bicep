@@ -38,7 +38,7 @@ import {
 } from "@/core";
 import { getResourceTypeVersions, listResourceTypes } from "@/features/palette";
 import { showProblems } from "@/features/status";
-import { layoutGraph, toGraph } from "./fake-graph";
+import { getGraphRevision, layoutGraph, toGraph } from "./fake-graph";
 import { MODULE_GRAPH } from "./sample-graphs";
 import { getCatalogDelayMs, getSampleApiVersions, getSampleResourceTypes } from "./sample-resource-types";
 
@@ -130,8 +130,11 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
         this.servedGraph = this.currentGraph;
       }
 
+      const graph = toGraph(this.servedGraph);
+
       return Promise.resolve({
-        graph: toGraph(this.servedGraph),
+        graph,
+        revision: getGraphRevision(graph),
         targetScope: this.servedGraph ? this.targetScope : null,
         errorCount: this.servedGraph?.errorCount ?? 0,
         replayableSourceSteps: sourceSteps.filter((step) => this.canReplay(step)),
@@ -139,8 +142,14 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
     }
 
     if (requestMessage.method === layoutGraphRequest.method) {
-      const { graph, collapsedNodeIds } = requestMessage.params as LayoutGraphParams;
-      return Promise.resolve(layoutGraph(graph, this.servedGraph, new Set(collapsedNodeIds)) as T);
+      const { graph, revision } = requestMessage.params as LayoutGraphParams;
+      // Read when the host answers, so a layout held open by `layoutDelay` sees later graph changes.
+      const answer = () => layoutGraph(graph, revision, this.servedGraph) as T;
+      const delay = Number(new URLSearchParams(window.location.search).get("layoutDelay") ?? 0);
+
+      return Number.isFinite(delay) && delay > 0
+        ? new Promise<T>((resolve) => setTimeout(() => resolve(answer()), delay))
+        : Promise.resolve(answer());
     }
     if (requestMessage.method === createResource.method) {
       if (new URLSearchParams(window.location.search).get("resourceEditing") === "false") {
@@ -160,6 +169,8 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
         symbolicName = `${baseName}${suffix}`;
         suffix++;
       }
+
+      const createDelay = Number(new URLSearchParams(window.location.search).get("createDelay") ?? 300);
 
       return new Promise<T>((resolve) => {
         setTimeout(() => {
@@ -182,7 +193,7 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
             expectedNodeId: symbolicName,
             unresolvedRequiredProperties: ["name"],
           } satisfies CreateResourceResult as T);
-        }, 300);
+        }, createDelay);
       });
     }
 

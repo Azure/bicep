@@ -8,16 +8,18 @@ import { useGetPanZoomTransform } from "@vscode-bicep-ui/components";
 import { drag } from "d3-drag";
 import { select } from "d3-selection";
 import { useEffect, useEffectEvent } from "react";
+import { isGraphInteractiveTarget } from "../interactive";
 
 export interface DragListeners {
   /** Called once, on the first movement. A press that is released without moving is a click. */
   onDragStart: () => void;
   /** Called on every movement with the distance moved in graph coordinates. */
   onDrag: (dx: number, dy: number) => void;
-  /** Called when a drag that started moving is released. */
+  /** Called when a drag that started moving is released, or its element goes away mid-drag. */
   onDragEnd: () => void;
 }
 
+/** Reports drags of an element, except those that start on interactive content inside it. */
 export function useDragListener(ref: RefObject<HTMLDivElement | null>, listeners: DragListeners) {
   const getPanZoomTransform = useGetPanZoomTransform();
   const onDragStart = useEffectEvent(listeners.onDragStart);
@@ -32,6 +34,7 @@ export function useDragListener(ref: RefObject<HTMLDivElement | null>, listeners
     const selection = select(ref.current);
     let hasMoved = false;
     const dragBehavior = drag<HTMLDivElement, unknown>()
+      .filter((event: MouseEvent) => !event.ctrlKey && !event.button && !isGraphInteractiveTarget(event.target))
       .on("start", () => {
         hasMoved = false;
       })
@@ -60,6 +63,12 @@ export function useDragListener(ref: RefObject<HTMLDivElement | null>, listeners
 
     return () => {
       selection.on(".drag", null);
+
+      // A node removed mid-drag never sees the release, so end the drag here for whoever tracks it.
+      if (hasMoved) {
+        hasMoved = false;
+        onDragEnd();
+      }
     };
   }, [ref, getPanZoomTransform]);
 }

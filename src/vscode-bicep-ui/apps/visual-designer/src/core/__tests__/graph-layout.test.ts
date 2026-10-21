@@ -4,7 +4,7 @@
 import type { GraphEdge, GraphNode } from "../api";
 
 import { describe, expect, it } from "vitest";
-import { centerGraphLayout, graphChangeMayAffectLayout } from "../graph-layout";
+import { centerGraphLayout, getLayoutCenters, graphChangeMayAffectLayout } from "../graph-layout";
 import { indexGraph } from "../graph-model";
 
 function node(overrides: Partial<GraphNode> = {}): GraphNode {
@@ -126,5 +126,32 @@ describe("centerGraphLayout", () => {
 
     expect((bounds!.min.x + bounds!.max.x) / 2).toBe(640);
     expect((bounds!.min.y + bounds!.max.y) / 2).toBe(400);
+  });
+});
+
+describe("getLayoutCenters", () => {
+  it("converts the corners of nodes that are not containers to centers", () => {
+    const centers = getLayoutCenters(
+      new Map([
+        ["module", { x: 0, y: 0 }],
+        ["module::a", { x: 40, y: 50 }],
+        ["card", { x: 300, y: 0 }],
+      ]),
+      {
+        nodes: [
+          { id: "module", kind: "module", parentId: null, width: 300, height: 200 },
+          { id: "module::a", kind: "resource", parentId: "module", width: 220, height: 80 },
+          { id: "card", kind: "module", parentId: null, width: 220, height: 84 },
+        ],
+        edges: [],
+      },
+    );
+
+    expect(centers).toEqual(
+      new Map([
+        ["module::a", { x: 150, y: 90 }],
+        ["card", { x: 410, y: 42 }],
+      ]),
+    );
   });
 });

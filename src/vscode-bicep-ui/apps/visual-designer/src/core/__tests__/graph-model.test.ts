@@ -54,6 +54,17 @@ describe("projectGraph", () => {
   const childB = node({ id: "module::b", parentId: "module" });
   const outside = node({ id: "outside" });
 
+  it("keeps a collapse choice for a module that is empty for now, and applies it once it has contents", () => {
+    const emptyModule = { ...moduleNode, hasChildren: false };
+
+    expect(projectGraph(makeClientGraph([emptyModule, outside]), new Set(["module"])).nodes.get("module")).toEqual(
+      emptyModule,
+    );
+    expect(
+      projectGraph(makeClientGraph([moduleNode, childA, outside]), new Set(["module"])).nodes.get("module"),
+    ).toMatchObject({ isCollapsed: true });
+  });
+
   it("returns the source graph when no module is collapsed", () => {
     const graph = makeClientGraph([moduleNode, childA]);
 
@@ -65,7 +76,7 @@ describe("projectGraph", () => {
     const projected = projectGraph(makeClientGraph([moduleNode, childA, childB, outside]), new Set(["module"]));
 
     expect([...projected.nodes.keys()]).toEqual(["module", "outside"]);
-    expect(projected.nodes.get("module")).toMatchObject({ hasChildren: false, isCollapsed: true });
+    expect(projected.nodes.get("module")).toMatchObject({ hasChildren: true, isCollapsed: true });
   });
 
   it("reroutes boundary edges, removes internal edges, and deduplicates visible relationships", () => {
@@ -202,13 +213,6 @@ describe("clientGraphsRenderEqually", () => {
     expect(clientGraphsRenderEqually(makeClientGraph([a, b]), makeClientGraph([b, a]))).toBe(true);
   });
 
-  it("ignores fields the canvas never reads", () => {
-    const before = makeClientGraph([node({ symbolName: "before" })]);
-    const after = makeClientGraph([node({ symbolName: "after" })]);
-
-    expect(clientGraphsRenderEqually(before, after)).toBe(true);
-  });
-
   it("reports a change from or to an empty graph", () => {
     expect(clientGraphsRenderEqually(EMPTY_CLIENT_GRAPH, EMPTY_CLIENT_GRAPH)).toBe(true);
     expect(clientGraphsRenderEqually(EMPTY_CLIENT_GRAPH, makeClientGraph([node()]))).toBe(false);
@@ -218,9 +222,11 @@ describe("clientGraphsRenderEqually", () => {
   it.each([
     ["id", { id: "other" }],
     ["type", { type: "Microsoft.Web/sites" }],
+    ["symbolName", { symbolName: "other" }],
     ["isCollection", { isCollection: true }],
     ["hasChildren", { hasChildren: true }],
     ["hasError", { hasError: true }],
+    ["isCollapsed", { isCollapsed: true }],
   ])("reports a change when %s differs", (_field, overrides) => {
     const before = makeClientGraph([node()]);
     const after = makeClientGraph([node(overrides as Partial<GraphNode>)]);

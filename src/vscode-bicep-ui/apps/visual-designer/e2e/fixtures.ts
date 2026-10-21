@@ -26,7 +26,8 @@ export type SampleGraphKey = keyof typeof SAMPLE_GRAPHS;
  * "Module graph" 50 ms after the READY notification) to render.
  *
  * `query` is appended to the URL to drive the dev fake channel, for example
- * `{ catalogDelay: "3000" }` to hold resource-catalog loading states open.
+ * `{ catalogDelay: "3000" }` to hold resource-catalog loading states open, `layoutDelay` to hold a layout
+ * request, or `createDelay` to hold a resource creation.
  */
 export async function openVisualDesigner(page: Page, query: Record<string, string> = {}): Promise<void> {
   const search = new URLSearchParams(query).toString();

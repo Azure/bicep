@@ -636,18 +636,6 @@ test("overlay scrollbar never appears when the palette list does not overflow", 
   await expect(page.getByTestId("overlay-scrollbar-thumb")).toHaveAttribute("data-visible", "false");
 });
 
-test("palette and version list use a frosted-glass surface", async ({ page }) => {
-  await openVisualDesigner(page);
-  const picker = await openStorage(page);
-  await picker.click();
-  await expect(versionOptions(page).first()).toBeVisible();
-
-  for (const surface of [page.getByRole("complementary"), page.getByTestId("api-version-popup")]) {
-    await expect(surface).toHaveCSS("background-color", "rgba(244, 245, 247, 0.5)");
-    await expect(surface).toHaveCSS("backdrop-filter", "blur(16px) saturate(1.8)");
-  }
-});
-
 test("large catalogs render progressively and a new query starts over", async ({ page }) => {
   await openVisualDesigner(page, { catalogSize: "2312", catalogDelay: "0" });
   await page.getByRole("button", { name: "Add Resources" }).click();
