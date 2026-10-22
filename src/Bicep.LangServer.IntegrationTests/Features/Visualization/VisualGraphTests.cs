@@ -58,6 +58,19 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
+        public async Task VisualGraphRestoreModule_ForNodeThatDoesNotRequireRestore_RestoresNothing()
+        {
+            using var helper = await StartServerAndOpenAsync();
+            var client = helper.Helper.Client;
+
+            var result = await client.SendRequest(
+                new VisualGraphRestoreModuleParams(new TextDocumentIdentifier(helper.MainUri), "mod1"),
+                default);
+
+            result.Should().Be(new VisualGraphRestoreModuleResult(Restored: false));
+        }
+
+        [TestMethod]
         public async Task VisualGraphLayout_ForMeasuredMatchingGraph_ReturnsPositionsAndBounds()
         {
             using var helper = await StartServerAndOpenAsync();
@@ -78,13 +91,13 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
-        public async Task VisualGraphLayout_ForGraphRenderedWithHiddenModuleContents_LaysOutTheRenderedGraph()
+        public async Task VisualGraphLayout_ForGraphRenderedWithHiddenModuleChildren_LaysOutTheRenderedGraph()
         {
             using var helper = await StartServerAndOpenAsync();
             var client = helper.Helper.Client;
             var (measured, revision) = await MeasureGraph(helper);
 
-            // The client collapsed mod1: it renders the module as a card and omits its contents.
+            // The client collapsed mod1: it renders the module without its children.
             var rendered = measured with
             {
                 Nodes = [.. measured.Nodes.Where(node => node.ParentId != "mod1")],

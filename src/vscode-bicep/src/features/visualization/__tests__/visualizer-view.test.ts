@@ -9,7 +9,9 @@ import {
   prepareVisualResourceCreationRequestType,
   prepareVisualResourceReplayRequestType,
   visualGraphLayoutRequestType,
+  visualGraphNodeSourceRequestType,
   visualGraphRequestType,
+  visualGraphRestoreModuleRequestType,
   visualResourceTypesRequestType,
   visualResourceTypeVersionsRequestType,
 } from "../protocol";
@@ -20,6 +22,7 @@ const host = vi.hoisted(() => ({
   sendRequest: vi.fn(),
   postMessage: vi.fn().mockResolvedValue(true),
   openTextDocument: vi.fn(),
+  showTextDocument: vi.fn(),
   applyEdit: vi.fn(),
   document: {
     version: 1,
@@ -39,10 +42,18 @@ vi.mock("vscode", () => {
   const disposable = () => ({ dispose: vi.fn() });
   return {
     Uri: {
-      file: (fsPath: string) => ({ fsPath, toString: () => "file:///main.bicep" }),
+      file: (fsPath: string) => ({ scheme: "file", fsPath, toString: () => "file:///main.bicep" }),
+      parse: (value: string) => ({ scheme: value.slice(0, value.indexOf(":")), fsPath: "", toString: () => value }),
       joinPath: () => "mock-resource-uri",
     },
-    ViewColumn: { One: 1 },
+    ViewColumn: { One: 1, Beside: -2 },
+    Selection: class {
+      constructor(
+        public anchor: unknown,
+        public active: unknown,
+      ) {}
+    },
+    TextEditorRevealType: { InCenter: 2 },
     Range: class {
       constructor(
         public start: { line: number; character: number },
@@ -80,6 +91,8 @@ vi.mock("vscode", () => {
         onDidChangeViewState: disposable,
         dispose: vi.fn(),
       }),
+      visibleTextEditors: [],
+      showTextDocument: host.showTextDocument,
     },
     workspace: {
       openTextDocument: host.openTextDocument,
@@ -179,6 +192,53 @@ describe("visualizer palette host requests", () => {
       graph,
       revision: "revision-1",
     });
+  });
+
+  it("reveals a node declared in a registry module's published source", async () => {
+    const uri = "bicep-extsrc:main.bicep?br%3Amockregistry.io%2Ftest%2Fstorage%3Av1#main.bicep";
+    const range = { start: { line: 3, character: 2 }, end: { line: 5, character: 1 } };
+    const editor = {
+      selection: { active: { with: (line: number, character: number) => ({ line, character }) } },
+      revealRange: vi.fn(),
+    };
+    host.sendRequest.mockResolvedValue({ uri, range });
+    host.showTextDocument.mockResolvedValue(editor);
+
+    host.receiveMessage?.({ method: "document/revealNode", params: { nodeId: "storage::nsg" } });
+
+    await vi.waitFor(() => expect(editor.revealRange).toHaveBeenCalledWith(range, 2));
+    expect(host.sendRequest).toHaveBeenCalledWith(visualGraphNodeSourceRequestType, {
+      textDocument: { uri: "file:///main.bicep" },
+      nodeId: "storage::nsg",
+    });
+    expect(String(host.openTextDocument.mock.lastCall?.[0])).toBe(uri);
+    expect(editor.selection).toMatchObject({ active: { line: 3, character: 2 } });
+  });
+
+  it("forwards a module restore and reports whether the module was restored", async () => {
+    host.sendRequest.mockResolvedValue({ restored: true });
+
+    request("module/restore", { nodeId: "storage::leaf" });
+
+    await vi.waitFor(() =>
+      expect(host.postMessage).toHaveBeenCalledWith({ id: "request-1", result: { restored: true } }),
+    );
+    expect(host.sendRequest).toHaveBeenCalledWith(visualGraphRestoreModuleRequestType, {
+      textDocument: { uri: "file:///main.bicep" },
+      nodeId: "storage::leaf",
+    });
+  });
+
+  it("rejects a module restore without a node", async () => {
+    request("module/restore", {});
+
+    await vi.waitFor(() =>
+      expect(host.postMessage).toHaveBeenCalledWith({
+        id: "request-1",
+        error: { message: "A module node is required." },
+      }),
+    );
+    expect(host.sendRequest).not.toHaveBeenCalled();
   });
 
   it("forwards target scope even when graph topology is unchanged", async () => {
