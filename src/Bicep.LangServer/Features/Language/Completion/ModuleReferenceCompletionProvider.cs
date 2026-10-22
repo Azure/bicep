@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
@@ -343,13 +344,17 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             if (await registryModuleCatalog.GetProviderForRegistry((CloudConfiguration)rootConfiguration.Cloud, parts.ResolvedRegistry)
                 .TryGetModuleAsync($"{parts.ResolvedModulePath}") is { } module)
             {
-                var versions = (await module.TryGetVersionsAsync())
-                    .Where(v => v.IsBicepModule != false)
+                var availableVersions = (await module.TryGetVersionsAsync())
+                    .Where(v => v.IsBicepModule != false);
+                var versions = (parts.IsPublicRegistry
+                    ? availableVersions
+                    : availableVersions.OrderBySemanticVersion(v => v.Version))
+                    .Reverse()
                     .ToArray();
 
                 for (int i = 0; i < versions.Length; ++i)
                 {
-                    var version = versions[versions.Length - 1 - i].Version; // Show versions from most recent to oldest
+                    var version = versions[i].Version;
                     var insertText = $"'{trimmedText}{version}'$0";
 
                     // Module version is last completion, no follow-up completions triggered
