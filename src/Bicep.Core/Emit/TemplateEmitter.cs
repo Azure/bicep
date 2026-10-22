@@ -5,11 +5,6 @@ using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit.Options;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Syntax;
-using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Types;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
@@ -151,18 +146,13 @@ public class TemplateEmitter
         // Analyzers call this while aggregate diagnostics are being assembled, so GetAllDiagnostics() would re-enter.
         model.GetNonLinterDiagnostics().Any(diagnostic => diagnostic.IsError());
 
-    private static bool HasUnsupportedForcedEmissionConstructs(
+    private static bool HasExplicitDeploymentResources(
         SemanticModel semanticModel,
         HashSet<SemanticModel> visitedModels)
     {
         if (!visitedModels.Add(semanticModel))
         {
             return false;
-        }
-
-        if (HasSymbolicNameCollision(semanticModel))
-        {
-            return true;
         }
 
         if (semanticModel.DeclaredResources.Any(resource =>
@@ -176,57 +166,15 @@ public class TemplateEmitter
 
         return semanticModel.Root.ModuleDeclarations.Any(module =>
             module.TryGetSemanticModel().TryUnwrap() is SemanticModel moduleModel &&
-            HasUnsupportedForcedEmissionConstructs(moduleModel, visitedModels));
+            HasExplicitDeploymentResources(moduleModel, visitedModels));
     }
-
-    /// <summary>
-    /// Symbolic templates resolve a <c>reference</c>/<c>list*</c> string target as a symbolic name before a resource name,
-    /// so a literal target that matches a declared symbolic name would resolve to a different resource than in normal emission.
-    /// Non-literal targets are not checked; they are almost always resource IDs.
-    /// </summary>
-    private static bool HasSymbolicNameCollision(SemanticModel semanticModel)
-    {
-        var symbolicNames = semanticModel.DeclaredResources
-            .Select(resource => ExpressionConverter.GetSymbolicName(semanticModel.ResourceAncestors, resource))
-            .Concat(semanticModel.Root.ModuleDeclarations.Select(module => module.Name))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        return SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(semanticModel.Root.Syntax)
-            .Any(functionCall =>
-                IsAzResourceFunction(semanticModel, functionCall) &&
-                functionCall.Arguments.FirstOrDefault()?.Expression is { } target &&
-                TryGetLiteralTarget(semanticModel, target) is { } literal &&
-                symbolicNames.Contains(literal));
-    }
-
-    private static bool IsAzResourceFunction(SemanticModel semanticModel, FunctionCallSyntaxBase functionCall) =>
-        semanticModel.GetSymbolInfo(functionCall) is FunctionSymbol function &&
-        function.DeclaringObject is NamespaceType namespaceType &&
-        LanguageConstants.IdentifierComparer.Equals(namespaceType.ExtensionName, AzNamespaceType.BuiltInName) &&
-        (function.Name.Equals("reference", StringComparison.OrdinalIgnoreCase) ||
-         function.Name.StartsWith("list", StringComparison.OrdinalIgnoreCase));
-
-    private static string? TryGetLiteralTarget(SemanticModel semanticModel, SyntaxBase syntax) => syntax switch
-    {
-        ParenthesizedExpressionSyntax parenthesized => TryGetLiteralTarget(semanticModel, parenthesized.Expression),
-        FunctionCallSyntax functionCall when
-            SemanticModelHelper.TryGetNamedFunction(
-                semanticModel,
-                SystemNamespaceType.BuiltInName,
-                "any",
-                functionCall) is not null &&
-            functionCall.Arguments is [var argument] =>
-                TryGetLiteralTarget(semanticModel, argument.Expression),
-        StringSyntax literal => literal.TryGetLiteralValue(),
-        _ => null,
-    };
 
     /// <summary>
     /// Emits a symbolic-name-keyed ARM template without mutating the semantic model's normal emitter settings.
     /// </summary>
     internal string? EmitWithForcedSymbolicNames()
     {
-        if (HasEmitBlockingErrors() || HasUnsupportedForcedEmissionConstructs(model, []))
+        if (HasEmitBlockingErrors() || HasExplicitDeploymentResources(model, []))
         {
             return null;
         }

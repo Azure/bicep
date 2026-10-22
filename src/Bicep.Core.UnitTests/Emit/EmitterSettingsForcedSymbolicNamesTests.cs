@@ -725,7 +725,7 @@ namespace Bicep.Core.UnitTests.Emit
         }
 
         [TestMethod]
-        public void TemplateEmitter_ForcedPathRejectsLiteralNameBasedReference()
+        public void TemplateEmitter_ForcedPathRejectsExplicitDeploymentWithNameBasedReference()
         {
             var model = Services.BuildCompilation(LegacyNameBasedReferenceBicep).GetEntrypointSemanticModel();
 
@@ -783,55 +783,12 @@ namespace Bicep.Core.UnitTests.Emit
         }
 
         [DataTestMethod]
-        [DataRow("reference('first', '2023-01-01')")]
-        [DataRow("reference(('FIRST'), '2023-01-01')")]
-        [DataRow("reference(any('first'), '2023-01-01')")]
-        [DataRow("listKeys('first', '2023-01-01')")]
-        public void TemplateEmitter_ForcedPathRejectsLiteralTargetMatchingSymbolicName(string call)
-        {
-            var model = Services.BuildCompilation($$"""
-                resource first 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-                  name: 'alpha'
-                  location: 'eastus'
-                  sku: { name: 'Standard_LRS' }
-                  kind: 'StorageV2'
-                }
-
-                output referenced object = {{call}}
-                """).GetEntrypointSemanticModel();
-
-            model.GetAllDiagnostics().Should().NotContain(diagnostic => diagnostic.IsError());
-            new TemplateEmitter(model).EmitWithForcedSymbolicNames().Should().BeNull();
-        }
-
-        [TestMethod]
-        public async Task TemplateEmitter_ForcedPathRejectsLiteralTargetMatchingModuleSymbolicName()
-        {
-            var fileSet = MockFileSystemTestFileSet.Create(
-                ("main.bicep", """
-                    module child './child.bicep' = {
-                      name: 'child-deployment'
-                    }
-
-                    output referenced object = reference('child', '2022-09-01')
-                    """),
-                ("child.bicep", VanillaResourceBicep));
-            var compiler = Services
-                .WithFileExplorer(fileSet.FileExplorer)
-                .WithFileSystem(fileSet.FileSystem)
-                .Build()
-                .GetCompiler();
-            var model = (await compiler.CreateCompilation(fileSet.GetUri("main.bicep"))).GetEntrypointSemanticModel();
-
-            model.GetAllDiagnostics().Should().NotContain(diagnostic => diagnostic.IsError());
-            new TemplateEmitter(model).EmitWithForcedSymbolicNames().Should().BeNull();
-        }
-
-        [DataTestMethod]
         [DataRow("reference(storageId, '2023-01-01')")]
         [DataRow("listKeys(storageId, '2023-01-01')")]
         [DataRow("reference('alpha', '2023-01-01')")]
-        public void TemplateEmitter_ForcedPathAllowsTargetsThatCannotMatchSymbolicNames(string call)
+        [DataRow("reference('first', '2023-01-01')")]
+        [DataRow("listKeys('first', '2023-01-01')")]
+        public void TemplateEmitter_ForcedPathAllowsNameBasedResourceFunctions(string call)
         {
             var model = Services.BuildCompilation($$"""
                 param storageId string
@@ -848,30 +805,6 @@ namespace Bicep.Core.UnitTests.Emit
 
             model.GetAllDiagnostics().Should().NotContain(diagnostic => diagnostic.IsError());
             new TemplateEmitter(model).EmitWithForcedSymbolicNames().Should().NotBeNullOrEmpty();
-        }
-
-        [TestMethod]
-        public void TemplateEmitter_ForcedPathRejectsRootNameBasedReference()
-        {
-            var model = Services.BuildCompilation("""
-                resource first 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-                  name: 'alpha'
-                  location: 'eastus'
-                  sku: { name: 'Standard_LRS' }
-                  kind: 'StorageV2'
-                }
-
-                resource second 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-                  name: 'first'
-                  location: 'eastus'
-                  sku: { name: 'Standard_LRS' }
-                  kind: 'StorageV2'
-                }
-
-                output referenced object = reference('first', '2023-01-01')
-                """).GetEntrypointSemanticModel();
-
-            new TemplateEmitter(model).EmitWithForcedSymbolicNames().Should().BeNull();
         }
 
         [TestMethod]
@@ -1018,7 +951,7 @@ namespace Bicep.Core.UnitTests.Emit
         }
 
         [TestMethod]
-        public async Task TemplateEmitter_ForcedPathRejectsLiteralNameBasedReferenceInModules()
+        public async Task TemplateEmitter_ForcedPathRejectsExplicitDeploymentWithNameBasedReferenceInModules()
         {
             var model = await BuildModuleCompilation(LegacyNameBasedReferenceBicep);
 
