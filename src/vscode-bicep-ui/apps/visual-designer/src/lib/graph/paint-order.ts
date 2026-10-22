@@ -47,13 +47,18 @@ const BOTTOM_Z_INDEX = 0;
  * be: a parent is painted first, then the edges between its children, then each child with its descendants.
  * Edges are therefore below every node in their parent, and above the parent itself.
  *
- * Among siblings, `raisedNodeId` is painted last, and each of its ancestors last among theirs. A node sits on a
- * sibling compound node when their target boxes overlap and it is drawn above that node: it is atomic, or it comes
- * later in sibling order. Compound nodes that something sits on are painted before their other siblings, and the
- * edges of the nodes sitting on them just above them, so those edges cross the compound node but stay below every
- * other node. A node whose parent is not in `nodes` is a root.
+ * `raisedNodeIds` are the nodes the user raised, from least to most recently raised, as windows are stacked. A
+ * raised node is painted above its siblings, each of its ancestors above theirs, and a node raised later above one
+ * raised earlier. The other siblings keep their order, below every raised one.
+ *
+ * A node sits on a sibling compound node when their target boxes overlap and it is drawn above that node: it was
+ * raised more recently, or neither was raised and it is atomic or later in sibling order. So a raised compound node,
+ * such as a module the user just opened, is drawn above everything it overlaps, while an atomic node that nobody
+ * raised is drawn above a compound node that nobody raised. Compound nodes that something sits on are painted before
+ * their other siblings, and the edges of the nodes sitting on them just above them, so those edges cross the compound
+ * node but stay below every other node. A node whose parent is not in `nodes` is a root.
  */
-export function computePaintOrder(nodes: Iterable<PaintOrderNode>, raisedNodeId: string | null): PaintOrder {
+export function computePaintOrder(nodes: Iterable<PaintOrderNode>, raisedNodeIds: readonly string[]): PaintOrder {
   const nodesById = new Map<string, PaintOrderNode>();
   for (const node of nodes) {
     nodesById.set(node.id, node);
@@ -70,10 +75,14 @@ export function computePaintOrder(nodes: Iterable<PaintOrderNode>, raisedNodeId:
     }
   }
 
-  const raisedPath = new Set<string>();
-  for (let id = raisedNodeId; id !== null && nodesById.has(id); id = nodesById.get(id)?.parentId ?? null) {
-    raisedPath.add(id);
-  }
+  // How recently each node, or a node inside it, was raised: 0 when never, and higher when more recently.
+  const ranks = new Map<string, number>();
+  raisedNodeIds.forEach((raisedId, index) => {
+    for (let id: string | null = raisedId; id !== null && nodesById.has(id); id = nodesById.get(id)?.parentId ?? null) {
+      ranks.set(id, index + 1);
+    }
+  });
+  const rank = (id: string) => ranks.get(id) ?? 0;
 
   const nodeZIndices = new Map<string, number>();
   const edgeLayers = new Map<string | null, EdgeLayers>();
@@ -87,9 +96,8 @@ export function computePaintOrder(nodes: Iterable<PaintOrderNode>, raisedNodeId:
   };
 
   const paintChildren = (parentId: string | null) => {
-    const childIds = childIdsByParent.get(parentId) ?? [];
-    const raised = childIds.find((id) => raisedPath.has(id));
-    const siblings = raised === undefined ? childIds : [...childIds.filter((id) => id !== raised), raised];
+    // Sorting is stable, so siblings nobody raised keep their order.
+    const siblings = [...(childIdsByParent.get(parentId) ?? [])].sort((left, right) => rank(left) - rank(right));
     const occupied = new Set<string>();
 
     siblings.forEach((compoundId, compoundIndex) => {
@@ -101,12 +109,11 @@ export function computePaintOrder(nodes: Iterable<PaintOrderNode>, raisedNodeId:
 
       siblings.forEach((id, index) => {
         const sibling = nodesById.get(id);
-        if (
-          id !== compoundId &&
-          sibling?.targetBox &&
-          (!sibling.isCompound || index > compoundIndex) &&
-          boxesOverlap(sibling.targetBox, compoundBox)
-        ) {
+        const isAbove =
+          rank(id) > rank(compoundId) ||
+          (rank(id) === rank(compoundId) && (sibling?.isCompound !== true || index > compoundIndex));
+
+        if (id !== compoundId && sibling?.targetBox && isAbove && boxesOverlap(sibling.targetBox, compoundBox)) {
           occupied.add(compoundId);
           nodesOnCompounds.add(id);
         }

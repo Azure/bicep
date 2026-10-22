@@ -33,8 +33,11 @@ const $SharedDefs = styled.svg`
 
 export type GraphProps = PropsWithChildren<
   Partial<GraphNodeEvents> & {
-    /** The node painted above the others, with its subtree. Its ancestors are raised above their siblings. */
-    raisedNodeIdAtom?: Atom<string | null>;
+    /**
+     * The nodes raised above their siblings, from least to most recently raised, each with its subtree. Their
+     * ancestors are raised above their siblings too.
+     */
+    raisedNodeIdsAtom?: Atom<readonly string[]>;
     /** Snap nodes to new positions and shapes, and show and hide them without fading. */
     reduceMotion?: boolean;
   }
@@ -42,7 +45,7 @@ export type GraphProps = PropsWithChildren<
 
 export function Graph({
   children,
-  raisedNodeIdAtom,
+  raisedNodeIdsAtom,
   reduceMotion = false,
   onNodeDragStart = ignoreNodeEvent,
   onNodeDrag = ignoreNodeEvent,
@@ -50,7 +53,7 @@ export function Graph({
   onNodeDoubleClick = ignoreNodeEvent,
 }: GraphProps) {
   const layoutReady = useAtomValue(layoutReadyAtom);
-  const paintOrderAtom = useMemo(() => createPaintOrderAtom(raisedNodeIdAtom), [raisedNodeIdAtom]);
+  const paintOrderAtom = useMemo(() => createPaintOrderAtom(raisedNodeIdsAtom), [raisedNodeIdsAtom]);
   const { exitingNodes, exitingEdges, enteringNodeIds } = usePresence(reduceMotion);
   const context = useMemo<GraphContextValue>(
     () => ({

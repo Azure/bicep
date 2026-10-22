@@ -106,6 +106,9 @@ export default defineConfig({
     ],
   },
   build: {
+    // The webview loads from the extension folder rather than over the network, and needs nearly all of the bundle
+    // at startup, so splitting it further would not make it start faster.
+    chunkSizeWarningLimit: 1024,
     rolldownOptions: {
       output: {
         entryFileNames: `[name].js`,

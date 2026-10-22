@@ -38,7 +38,7 @@ export const IGNORE_NODE_EVENTS: GraphNodeEvents = {
 };
 
 /** The paint order of the shown nodes. It reads where nodes are going, so it follows a node as it is dragged. */
-export function createPaintOrderAtom(raisedNodeIdAtom: Atom<string | null> | undefined) {
+export function createPaintOrderAtom(raisedNodeIdsAtom: Atom<readonly string[]> | undefined) {
   return atom((get) =>
     computePaintOrder(
       Object.values(get(nodesByIdAtom)).map((node) => ({
@@ -47,7 +47,7 @@ export function createPaintOrderAtom(raisedNodeIdAtom: Atom<string | null> | und
         isCompound: get(node.childIdsAtom).length > 0,
         targetBox: get(node.targetBoxAtom),
       })),
-      raisedNodeIdAtom ? get(raisedNodeIdAtom) : null,
+      raisedNodeIdsAtom ? get(raisedNodeIdsAtom) : [],
     ),
   );
 }

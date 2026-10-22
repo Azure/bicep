@@ -4,7 +4,7 @@
 import type { createStore } from "jotai";
 import type { Box, Point } from "@/lib/math";
 import type { EdgeAtomValue } from "./edges";
-import type { NodeState } from "./nodes";
+import type { NodeState, Size } from "./nodes";
 
 import { atom } from "jotai";
 import { getBoxCenter } from "@/lib/math";
@@ -149,6 +149,23 @@ export function getNodeTargetBoxes(store: ReturnType<typeof createStore>): Map<s
   }
 
   return boxes;
+}
+
+/**
+ * Each shown node's measured content size. A node renders, and so measures itself, before it is placed; a
+ * container's is the size it last had as a leaf, since containers are sized by their children.
+ */
+export function getNodeSizes(store: ReturnType<typeof createStore>): Map<string, Size> {
+  const sizes = new Map<string, Size>();
+
+  for (const [id, node] of Object.entries(store.get(nodesByIdAtom))) {
+    const size = store.get(node.sizeAtom);
+    if (size) {
+      sizes.set(id, size);
+    }
+  }
+
+  return sizes;
 }
 
 /**

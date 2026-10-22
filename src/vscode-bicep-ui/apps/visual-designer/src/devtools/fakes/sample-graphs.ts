@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { GraphNodeSourceStatus } from "@/core";
+
 /**
  * The dev playground's stand-in for the document a language server would compile. The toolbar
  * switches between and mutates these, and `toGraph` turns one into the graph the protocol carries.
@@ -19,6 +21,11 @@ export interface SampleGraphNode {
   isCollection: boolean;
   hasChildren: boolean;
   hasError: boolean;
+  /** Why a remote module shows no children, and what went wrong when that is an error. */
+  sourceStatus?: GraphNodeSourceStatus;
+  sourceError?: string;
+  /** The child nodes, and the edges between them, that restoring a registry module supplies. */
+  restoredSubgraph?: { nodes: SampleGraphNode[]; edges: SampleGraphEdge[] };
 }
 
 export interface SampleGraphEdge {
@@ -482,6 +489,83 @@ const COMPLEX_GRAPH: SampleGraph = {
 };
 
 /**
+ * Registry modules as the language server shows them: one expanded from its published source, with a nested
+ * local module; one that is not restored yet, which expanding restores; and one whose source cannot be shown.
+ */
+const REMOTE_MODULE_GRAPH: SampleGraph = {
+  nodes: [
+    { id: "storage", type: "<module>", isCollection: false, hasChildren: true, hasError: false },
+    {
+      id: "storage::account",
+      type: "Microsoft.Storage/storageAccounts",
+      isCollection: false,
+      hasChildren: false,
+      hasError: false,
+    },
+    { id: "storage::blobs", type: "<module>", isCollection: false, hasChildren: true, hasError: false },
+    {
+      id: "storage::blobs::container",
+      type: "Microsoft.Storage/storageAccounts/blobServices/containers",
+      isCollection: true,
+      hasChildren: false,
+      hasError: false,
+    },
+    {
+      id: "network",
+      type: "<module>",
+      isCollection: false,
+      hasChildren: false,
+      hasError: false,
+      sourceStatus: "unavailable",
+    },
+    {
+      id: "monitoring",
+      type: "<module>",
+      isCollection: false,
+      hasChildren: false,
+      hasError: false,
+      sourceStatus: "unrestored",
+      restoredSubgraph: {
+        nodes: [
+          {
+            id: "monitoring::workspace",
+            type: "Microsoft.OperationalInsights/workspaces",
+            isCollection: false,
+            hasChildren: false,
+            hasError: false,
+          },
+          {
+            id: "monitoring::alerts",
+            type: "Microsoft.Insights/metricAlerts",
+            isCollection: true,
+            hasChildren: false,
+            hasError: false,
+          },
+          // A local module in the published source, so a container arrives with the restore too.
+          { id: "monitoring::diagnostics", type: "<module>", isCollection: false, hasChildren: true, hasError: false },
+          {
+            id: "monitoring::diagnostics::settings",
+            type: "Microsoft.Insights/diagnosticSettings",
+            isCollection: false,
+            hasChildren: false,
+            hasError: false,
+          },
+        ],
+        edges: [
+          { sourceId: "monitoring::alerts", targetId: "monitoring::workspace" },
+          { sourceId: "monitoring::diagnostics", targetId: "monitoring::workspace" },
+        ],
+      },
+    },
+  ],
+  edges: [
+    { sourceId: "storage::blobs", targetId: "storage::account" },
+    { sourceId: "monitoring", targetId: "storage" },
+  ],
+  errorCount: 0,
+};
+
+/**
  * Named sample graphs available in the dev toolbar.
  */
 export const SAMPLE_GRAPHS: Record<string, SampleGraph | null> = {
@@ -489,6 +573,7 @@ export const SAMPLE_GRAPHS: Record<string, SampleGraph | null> = {
   "Flat graph": FLAT_GRAPH,
   "Error graph": ERROR_GRAPH,
   "Complex graph": COMPLEX_GRAPH,
+  "Remote module graph": REMOTE_MODULE_GRAPH,
   "Empty (null)": null,
 };
 

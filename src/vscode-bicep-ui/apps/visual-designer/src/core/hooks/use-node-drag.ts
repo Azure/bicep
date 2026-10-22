@@ -10,7 +10,7 @@ import {
   activeNodeDragCountAtom,
   collapsedModuleIdsAtom,
   isGraphChangeInProgressAtom,
-  raisedNodeIdAtom,
+  raiseNodeAtom,
   shownGraphAtom,
   sourceGraphAtom,
   undoHistoryAtom,
@@ -35,7 +35,7 @@ export interface NodeDragHandlers {
 /**
  * Moves dragged nodes, and records each drag as one undo step. A dragged node is raised above the
  * others. Dragging a container moves what is inside it, and dragging a collapsed module moves its hidden
- * contents with it. A drag that starts while a source edit or Reset Layout is in flight is ignored, and
+ * descendants with it. A drag that starts while a source edit or Reset Layout is in flight is ignored, and
  * Undo and Redo wait for drags to end.
  */
 export function useNodeDrag(): NodeDragHandlers {
@@ -66,7 +66,7 @@ export function useNodeDrag(): NodeDragHandlers {
 
       dragsRef.current.set(nodeId, { positionsBefore, movedNodeIds });
       store.set(activeNodeDragCountAtom, dragsRef.current.size);
-      store.set(raisedNodeIdAtom, nodeId);
+      store.set(raiseNodeAtom, nodeId);
     },
     [store],
   );

@@ -4,11 +4,12 @@
 import type { createStore } from "jotai";
 import type { Box, Point } from "@/lib/math";
 import type { GetGraphResult, MeasuredGraph } from "../api";
+import type { ClientGraph } from "../graph-model";
 import type { GraphLayoutMode, GraphLayoutResult, GraphUpdateCoordinator } from "../graph-update-coordinator";
 
 import { useStore } from "jotai";
 import { useCallback, useEffect, useRef } from "react";
-import { getNodeTargetBoxes, graphCommittedAtom, layoutReadyAtom } from "@/lib/graph";
+import { getNodeSizes, getNodeTargetBoxes, graphCommittedAtom, layoutReadyAtom } from "@/lib/graph";
 import { getErrorMessage } from "@/utils";
 import { useGraphApi } from "../api";
 import {
@@ -17,6 +18,7 @@ import {
   documentErrorCountAtom,
   pendingPlacementsAtom,
   pendingRemovalNodeIdsAtom,
+  pendingSubgraphLayoutsAtom,
   replayableSourceStepKeysAtom,
   shownGraphAtom,
   sourceGraphAtom,
@@ -24,9 +26,24 @@ import {
   targetScopeAtom,
   undoHistoryAtom,
 } from "../atoms";
-import { centerGraphLayout, getLayoutCenters, graphChangeMayAffectLayout } from "../graph-layout";
-import { clientGraphsRenderEqually, indexGraph, measuredGraphsEqual, measureGraph, projectGraph } from "../graph-model";
-import { forgetRemovedNodePositions, getNodePositions, moveNodes, setNodePositions } from "../node-positions";
+import { centerGraphLayout, getLayoutCenters, getSubgraph, graphChangeMayAffectLayout } from "../graph-layout";
+import {
+  clientGraphsRenderEqually,
+  getModulesWithNewChildren,
+  indexGraph,
+  isCollapsible,
+  isDescendant,
+  measuredGraphsEqual,
+  measureGraph,
+  projectGraph,
+} from "../graph-model";
+import {
+  forgetRemovedNodePositions,
+  getNodePositions,
+  getPositionedNodeIds,
+  moveNodes,
+  setNodePositions,
+} from "../node-positions";
 import { isMostlyNewGraph, showGraph } from "../show-graph";
 import { forgetRemovedNodes, getSourceStepKey, getSourceStepReferences, recordLayoutChange } from "../undo-history";
 import { useTrackGraphChange } from "./use-track-graph-change";
@@ -54,6 +71,44 @@ function whenGraphCommitted(store: Store): Promise<void> {
 
 function waitForAnimationFrame(): Promise<void> {
   return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+/**
+ * Each shown node's box, for measuring the graph. A node waiting to be placed, such as a child of a module that just
+ * opened, has no target box yet, so its measured size stands in.
+ */
+function getMeasuredBoxes(store: Store): Map<string, Box> {
+  const boxes = getNodeTargetBoxes(store);
+
+  for (const [nodeId, { width, height }] of getNodeSizes(store)) {
+    if (!boxes.has(nodeId)) {
+      boxes.set(nodeId, { min: { x: 0, y: 0 }, max: { x: width, y: height } });
+    }
+  }
+
+  return boxes;
+}
+
+/**
+ * Place each subgraph's nodes that are still waiting for a layout at its anchor, so none stays hidden when no layout
+ * comes. A later layout moves them from there.
+ */
+function placeAtAnchors(store: Store, shown: ClientGraph, subgraphs: Iterable<readonly [string, Point]>) {
+  const positions = getNodePositions(store);
+  const waitingNodeIds = getPositionedNodeIds(shown).filter((nodeId) => !positions.has(nodeId));
+  const next = new Map(positions);
+
+  for (const [rootId, anchor] of subgraphs) {
+    for (const nodeId of waitingNodeIds) {
+      if (!next.has(nodeId) && isDescendant(shown, nodeId, rootId)) {
+        next.set(nodeId, anchor);
+      }
+    }
+  }
+
+  if (next.size !== positions.size) {
+    setNodePositions(store, next, "instant");
+  }
 }
 
 export interface GraphSync {
@@ -114,6 +169,13 @@ export function useGraphSync(
       const previousSource = store.get(sourceGraphAtom);
       const previousShown = store.get(shownGraphAtom);
       const source = indexGraph(response.graph);
+
+      // Children that arrive for a remote module stay hidden until the user opens it, so nothing moves.
+      const arrivedModuleIds = getModulesWithNewChildren(previousSource, source);
+      if (arrivedModuleIds.length > 0) {
+        store.set(collapsedModuleIdsAtom, (ids) => new Set([...ids, ...arrivedModuleIds]));
+      }
+
       const shown = projectGraph(source, store.get(collapsedModuleIdsAtom));
       store.set(sourceGraphAtom, source);
       store.set(sourceGraphRevisionAtom, response.revision ?? null);
@@ -181,6 +243,77 @@ export function useGraphSync(
     [getViewportCenter, revealGraph, store],
   );
 
+  /**
+   * Lay out each subgraph in `pendingSubgraphLayoutsAtom` whose root is shown open, on its own, centered on its
+   * anchor. Other nodes and the camera stay where they are, so the subgraph may overlap its neighbors.
+   */
+  const layOutSubgraphs = useCallback(
+    async (shown: ClientGraph, measuredGraph: MeasuredGraph, revision: string | null): Promise<GraphLayoutResult> => {
+      const pending = store.get(pendingSubgraphLayoutsAtom);
+      const isOpen = (rootId: string) => {
+        const node = shown.nodes.get(rootId);
+        return isCollapsible(node) && node?.isCollapsed !== true;
+      };
+      // A subgraph inside another that is laid out is placed with it.
+      const outermost = [...pending].filter(
+        ([rootId]) =>
+          isOpen(rootId) &&
+          ![...pending.keys()].some((otherId) => otherId !== rootId && isDescendant(shown, rootId, otherId)),
+      );
+      const centers = new Map<string, Point>();
+      const unplacedSubgraphs: [string, Point][] = [];
+
+      for (const [rootId, anchor] of outermost) {
+        const graph = getSubgraph(measuredGraph, rootId);
+        let response: Awaited<ReturnType<typeof api.layoutGraph>> | null = null;
+
+        try {
+          response = await api.layoutGraph({ graph, revision });
+        } catch (error) {
+          console.error("Visual designer layout failed:", getErrorMessage(error, "Failed to lay out the graph."));
+        }
+
+        if (response?.status === "graphChanged" || store.get(shownGraphAtom) !== shown) {
+          return "graphChanged";
+        }
+
+        if (response?.status === "ok") {
+          const { positions } = centerGraphLayout(response.positions, response.bounds, anchor);
+          for (const [nodeId, center] of getLayoutCenters(positions, graph)) {
+            centers.set(nodeId, center);
+          }
+        } else {
+          unplacedSubgraphs.push([rootId, anchor]);
+        }
+      }
+
+      const source = store.get(sourceGraphAtom);
+      if (centers.size > 0) {
+        // Nodes waiting for this layout are hidden, so they appear where it puts them as their module opens around
+        // them; nodes already shown move there.
+        setNodePositions(
+          store,
+          moveNodes(getNodePositions(store), centers, source, store.get(collapsedModuleIdsAtom)),
+          "animate",
+        );
+      }
+      placeAtAnchors(store, shown, unplacedSubgraphs);
+      // Subgraphs whose root closed again stay pending, so they are laid out when it opens.
+      store.set(
+        pendingSubgraphLayoutsAtom,
+        new Map(
+          [...pending].filter(
+            ([rootId]) => source.nodes.has(rootId) && !outermost.some(([laidOutId]) => laidOutId === rootId),
+          ),
+        ),
+      );
+      await revealGraph();
+
+      return "completed";
+    },
+    [api, revealGraph, store],
+  );
+
   const runGraphLayout = useCallback(
     async (mode: GraphLayoutMode): Promise<GraphLayoutResult> => {
       const isReset = mode === "reset";
@@ -200,7 +333,11 @@ export function useGraphSync(
         return "graphChanged";
       }
 
-      const measuredGraph = measureGraph(shown, getNodeTargetBoxes(store));
+      const measuredGraph = measureGraph(shown, getMeasuredBoxes(store));
+
+      if (mode === "subgraph") {
+        return layOutSubgraphs(shown, measuredGraph, revision);
+      }
 
       if (!isReset && measuredGraphsEqual(lastLaidOutGraphRef.current, measuredGraph)) {
         // Nothing was resized since the last layout, so the positions still hold. A reset skips this: the
@@ -216,7 +353,8 @@ export function useGraphSync(
       }
 
       if (layoutResponse.status === "layoutFailed") {
-        // No usable layout — reveal the graph as-is so it isn't stuck hidden.
+        // No usable layout — reveal the graph as-is so it isn't stuck hidden, nor are nodes waiting for a layout.
+        placeAtAnchors(store, shown, store.get(pendingSubgraphLayoutsAtom));
         await revealGraph();
         return "completed";
       }
@@ -228,7 +366,7 @@ export function useGraphSync(
       );
       lastLaidOutGraphRef.current = measuredGraph;
 
-      // The contents of collapsed modules move with their cards, so they are in place when one opens.
+      // The descendants of collapsed modules move with them, so they are in place when one opens.
       const positionsBefore = getNodePositions(store);
       const positionsAfter = moveNodes(
         positionsBefore,
@@ -245,6 +383,8 @@ export function useGraphSync(
 
       await revealGraph();
       setNodePositions(store, positionsAfter, "animate");
+      // The whole graph was placed, including any pending subgraph.
+      store.set(pendingSubgraphLayoutsAtom, new Map());
 
       if (isReset) {
         store.set(undoHistoryAtom, (history) => recordLayoutChange(history, positionsBefore, positionsAfter));
@@ -252,7 +392,7 @@ export function useGraphSync(
 
       return "completed";
     },
-    [api, fitViewToBounds, getViewportCenter, revealGraph, store],
+    [api, fitViewToBounds, getViewportCenter, layOutSubgraphs, revealGraph, store],
   );
 
   useEffect(() => {
