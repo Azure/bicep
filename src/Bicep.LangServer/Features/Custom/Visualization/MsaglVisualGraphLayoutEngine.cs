@@ -105,7 +105,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             var sizeByChild = new Dictionary<string, NodeSize>(children.Count, StringComparer.Ordinal);
             var subtreeByModule = new Dictionary<string, IReadOnlyDictionary<string, NodeLayout>>(StringComparer.Ordinal);
 
-            // Lay out module contents first so each module can be sized as a single box in this scope's layout.
+            // Lay out module children first so each module can be sized as a single box in this scope's layout.
             foreach (var child in children)
             {
                 if (child.HasChildren)

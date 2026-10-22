@@ -74,12 +74,12 @@ const MIN_CONTRAST = {
  * Builds a theme from the active VS Code color theme's actual colors.
  *
  * The canvas takes the editor background, so the designer matches the editor beside it. Text,
- * accents, and controls take the closest workbench colors. Cards and floating chrome are a lighter
+ * accents, and controls take the closest workbench colors. Nodes and floating chrome are a lighter
  * shade of the editor background with the same hue and tint, in dark themes as in light ones,
- * aiming for the card-to-canvas contrast of the curated `base` palette for the same theme kind; edges
+ * aiming for the node-to-canvas contrast of the curated `base` palette for the same theme kind; edges
  * and the dot grid keep `base`'s separation from the canvas. Editor colors are not tuned for a
  * node/edge canvas, so each text and accent color is checked for contrast against what it is painted
- * on; when a theme color is missing, unparseable, or too faint, `base` supplies it instead. Card depth
+ * on; when a theme color is missing, unparseable, or too faint, `base` supplies it instead. Node depth
  * (shadows, border widths, collection offsets) always comes from `base`.
  */
 export function createColorTheme(base: DefaultTheme, tokens: ColorThemeTokens): DefaultTheme {
@@ -94,18 +94,18 @@ export function createColorTheme(base: DefaultTheme, tokens: ColorThemeTokens): 
   const min = isHighContrast ? MIN_CONTRAST.highContrast : MIN_CONTRAST.normal;
   const curated = (value: string) => parseColor(value) ?? WHITE;
   const curatedViewport = curated(base.viewport.background);
-  // How far the curated palette sets cards, edges, and the dot grid apart from its canvas. The derived
-  // surfaces aim for the same, so cards stand out equally on every theme of the kind.
+  // How far the curated palette sets nodes, edges, and the dot grid apart from its canvas. The derived
+  // surfaces aim for the same, so nodes stand out equally on every theme of the kind.
   const curatedSeparation = (value: string) => contrastRatio(curated(value), curatedViewport);
-  const cardSeparation = curatedSeparation(base.node.background);
+  const nodeSeparation = curatedSeparation(base.node.background);
 
   const viewport = opaque(token("editor-background"), curatedViewport);
-  const nodeBackground = isHighContrast ? viewport : lightenKeepingTint(viewport, cardSeparation);
+  const nodeBackground = isHighContrast ? viewport : lightenKeepingTint(viewport, nodeSeparation);
   const compoundBackground = isHighContrast ? viewport : mix(viewport, nodeBackground, 0.5);
-  // A light background near white leaves cards little room to get lighter without losing their tint
+  // A light background near white leaves nodes little room to get lighter without losing their tint
   // (pure white leaves none), so a firmer border makes up the separation they lack.
   const missingSeparation = clampUnit(
-    1 - (contrastRatio(nodeBackground, viewport) - 1) / Math.max(cardSeparation - 1, Number.EPSILON),
+    1 - (contrastRatio(nodeBackground, viewport) - 1) / Math.max(nodeSeparation - 1, Number.EPSILON),
   );
 
   const backgrounds = [nodeBackground, viewport];
@@ -199,7 +199,7 @@ export function createColorTheme(base: DefaultTheme, tokens: ColorThemeTokens): 
     },
     panel: {
       ...base.panel,
-      // Floating chrome shares the card surface, as in the curated palettes.
+      // Floating chrome shares the node surface, as in the curated palettes.
       background: formatColor(isHighContrast ? viewport : withAlpha(nodeBackground, 0.92)),
       border: formatColor(isHighContrast ? contrastBorder : withAlpha(textPrimary, 0.1)),
       popoverBackground: formatColor(isHighContrast ? viewport : withAlpha(viewport, isDark ? 0.6 : 0.5)),
@@ -258,11 +258,11 @@ function reachContrast(from: Color, toward: Color, against: Color, target: numbe
 }
 
 /**
- * A lighter shade of `background` for cards: the same OKLCH hue, lightened until it reaches `target`
+ * A lighter shade of `background` for nodes: the same OKLCH hue, lightened until it reaches `target`
  * contrast against `background`. Unlike mixing toward white or the text color, this keeps a navy
- * background's cards navy rather than gray. Near white the sRGB gamut narrows, so the lightness stops where the
+ * background's nodes navy rather than gray. Near white the sRGB gamut narrows, so the lightness stops where the
  * shade can no longer keep `TINT_RETENTION` of the background's chroma; a cream background yields
- * lighter cream cards rather than white ones. Neutral backgrounds can lighten all the way to white.
+ * lighter cream nodes rather than white ones. Neutral backgrounds can lighten all the way to white.
  */
 function lightenKeepingTint(background: Color, target: number): Color {
   const { l: startLightness, c: chroma, h } = toOklch(background);
@@ -319,7 +319,7 @@ function lightenKeepingTint(background: Color, target: number): Color {
   return shadeAt(high) ?? background;
 }
 
-/** How much of the background's chroma a lighter card shade must keep to still read as the same tint. */
+/** How much of the background's chroma a lighter node shade must keep to still read as the same tint. */
 const TINT_RETENTION = 0.75;
 
 function clampUnit(value: number): number {
@@ -368,12 +368,12 @@ function strengthen(color: Color, backgrounds: readonly Color[], minimum: number
 const PRIMARY_TEXT_CONTRAST = 7;
 
 /**
- * Secondary text: `primary` faded toward the card, so it keeps the theme's text hue, as far as
+ * Secondary text: `primary` faded toward the node surface, so it keeps the theme's text hue, as far as
  * `SECONDARY_FADE` allows while still reaching `minimum` contrast against every background.
  */
-function fadeKeepingContrast(primary: Color, card: Color, backgrounds: readonly Color[], minimum: number): Color {
+function fadeKeepingContrast(primary: Color, surface: Color, backgrounds: readonly Color[], minimum: number): Color {
   const passes = (color: Color) => backgrounds.every((background) => contrastRatio(color, background) >= minimum);
-  const fadeBy = (amount: number) => quantize(mix(primary, card, amount));
+  const fadeBy = (amount: number) => quantize(mix(primary, surface, amount));
   if (passes(fadeBy(SECONDARY_FADE))) {
     return fadeBy(SECONDARY_FADE);
   }
@@ -392,7 +392,7 @@ function fadeKeepingContrast(primary: Color, card: Color, backgrounds: readonly 
   return fadeBy(low);
 }
 
-/** How far secondary text fades from primary toward the card, about as far as the curated palettes. */
+/** How far secondary text fades from primary toward the node surface, about as far as the curated palettes. */
 const SECONDARY_FADE = 0.4;
 
 function formatOr(color: Color | undefined, fallback: string): string {

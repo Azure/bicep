@@ -82,7 +82,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         /// <param name="graph">The canonical graph to lay out.</param>
         /// <param name="nodeSizes">
         /// Client-measured sizes keyed by node id. Missing or non-positive sizes fall back to a deterministic
-        /// default; container nodes (modules with children) are sized by the engine from their contents.
+        /// default; container nodes (modules with children) are sized by the engine from their children.
         /// </param>
         /// <param name="options">Shared defaults and renderer-provided layout overrides.</param>
         /// <param name="cancellationToken">Cancels the layout computation.</param>

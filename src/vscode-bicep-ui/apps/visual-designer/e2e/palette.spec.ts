@@ -228,7 +228,7 @@ test("versions load lazily, persist across browse/search/reopen and insert the s
   await expect(versionOptions(page).first()).toHaveAccessibleName("2026-02-01-preview");
   await expect(page.getByRole("listbox").getByRole("option", { selected: true })).toHaveAccessibleName("2025-01-01");
   await chooseVersion(page, picker, "2024-01-01");
-  await expect(page.getByTestId("palette-drag-preview-card")).toHaveCount(0);
+  await expect(page.getByTestId("palette-drag-preview-resource")).toHaveCount(0);
 
   const filter = page.getByRole("textbox", { name: "Filter resource types" });
   await filter.fill("");
@@ -273,7 +273,7 @@ test("version picker is outside the drag target, keyboard operable, and preview 
   expect(await picker.evaluate((element) => element.closest("button"))).toBeNull();
   await picker.click();
   await expect(versionOptions(page)).toHaveCount(3);
-  await expect(page.getByTestId("palette-drag-preview-card")).toHaveCount(0);
+  await expect(page.getByTestId("palette-drag-preview-resource")).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(page.getByRole("listbox")).toHaveCount(0);
   await expect(page.getByRole("complementary")).toBeVisible();
@@ -289,7 +289,7 @@ test("version picker is outside the drag target, keyboard operable, and preview 
   await page.keyboard.press("Enter");
   await expect(picker).toHaveText("2026-02-01-preview");
   await expect(page.getByRole("listbox")).toHaveCount(0);
-  await expect(page.getByTestId("palette-drag-preview-card")).toHaveCount(0);
+  await expect(page.getByTestId("palette-drag-preview-resource")).toHaveCount(0);
 
   await picker.press("ArrowDown");
   await page.keyboard.press("Tab");
@@ -301,7 +301,7 @@ test("version picker is outside the drag target, keyboard operable, and preview 
   await page.mouse.move(resourceBox!.x + 40, resourceBox!.y + resourceBox!.height / 2);
   await page.mouse.down();
   await page.mouse.move(canvasBox!.x + canvasBox!.width * 0.85, canvasBox!.y + canvasBox!.height * 0.5, { steps: 8 });
-  await expect(page.getByTestId("palette-drag-preview-card")).toBeVisible();
+  await expect(page.getByTestId("palette-drag-preview-resource")).toBeVisible();
   await page.mouse.up();
   await expect
     .poll(() => creations(page))
@@ -359,7 +359,7 @@ test("the version list opens immediately and shows progress until versions arriv
   await page.keyboard.press("Home");
   await page.keyboard.press("Enter");
   await expect(picker).toHaveText("2026-02-01-preview");
-  await expect(page.getByTestId("palette-drag-preview-card")).toHaveCount(0);
+  await expect(page.getByTestId("palette-drag-preview-resource")).toHaveCount(0);
 });
 
 test("catalog changes discard saved choices and outstanding version responses", async ({ page }) => {
@@ -469,12 +469,12 @@ test("clicking a resource neither inserts it nor flashes a drag preview", async 
   await page.mouse.down();
   // Sub-threshold jitter is still a click, not a drag.
   await page.mouse.move(pressAt.x + 2, pressAt.y + 1);
-  await expect(page.getByTestId("palette-drag-preview-card")).toHaveCount(0);
+  await expect(page.getByTestId("palette-drag-preview-resource")).toHaveCount(0);
   await page.mouse.up();
 
   await page.waitForTimeout(300);
   expect(await creations(page)).toEqual([]);
-  await expect(page.getByTestId("palette-drag-preview-card")).toHaveCount(0);
+  await expect(page.getByTestId("palette-drag-preview-resource")).toHaveCount(0);
   await expect(page.getByRole("complementary")).toBeVisible();
 });
 
@@ -517,10 +517,10 @@ test("Escape cancels an in-progress drag without closing the palette", async ({ 
   await page.mouse.move(resourceBox.x + 40, resourceBox.y + resourceBox.height / 2);
   await page.mouse.down();
   await page.mouse.move(canvasBox.x + canvasBox.width * 0.85, canvasBox.y + canvasBox.height * 0.5, { steps: 8 });
-  await expect(page.getByTestId("palette-drag-preview-card")).toBeVisible();
+  await expect(page.getByTestId("palette-drag-preview-resource")).toBeVisible();
 
   await page.keyboard.press("Escape");
-  await expect(page.getByTestId("palette-drag-preview-card")).toHaveCount(0);
+  await expect(page.getByTestId("palette-drag-preview-resource")).toHaveCount(0);
   await expect(page.getByRole("complementary")).toBeVisible();
 
   await page.mouse.up();
@@ -539,7 +539,7 @@ test("disabling creation during a drag removes the dock and cancels the pending 
   await page.mouse.move(resourceBox!.x + 20, resourceBox!.y + resourceBox!.height / 2);
   await page.mouse.down();
   await page.mouse.move(resourceBox!.x + 40, resourceBox!.y - 20, { steps: 4 });
-  await expect(page.getByTestId("palette-drag-preview-card")).toBeVisible();
+  await expect(page.getByTestId("palette-drag-preview-resource")).toBeVisible();
   await page.evaluate(() =>
     window.postMessage(
       { method: "settings/didChange", params: { motionPolicy: "animate", isResourceEditingEnabled: false } },
@@ -548,7 +548,7 @@ test("disabling creation during a drag removes the dock and cancels the pending 
   );
   await expect(page.getByTestId("creation-dock")).toHaveCount(0);
   await expect(page.getByRole("complementary")).toHaveCount(0);
-  await expect(page.getByTestId("palette-drag-preview-card")).toHaveCount(0);
+  await expect(page.getByTestId("palette-drag-preview-resource")).toHaveCount(0);
   await page.mouse.move(100, 300);
   await page.mouse.up();
   expect(await creations(page)).toEqual([]);
@@ -559,7 +559,7 @@ test("disabling creation during a drag removes the dock and cancels the pending 
     ),
   );
   await expect(page.getByTestId("creation-dock")).toBeVisible();
-  await expect(page.getByTestId("palette-drag-preview-card")).toHaveCount(0);
+  await expect(page.getByTestId("palette-drag-preview-resource")).toHaveCount(0);
   await expect(page.getByTestId("target-scope")).toBeVisible();
 });
 

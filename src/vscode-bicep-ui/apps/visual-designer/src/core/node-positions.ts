@@ -14,7 +14,7 @@ type Store = ReturnType<typeof createStore>;
 /**
  * Node centers keyed by node ID: the one record of where nodes are, including nodes hidden inside a
  * collapsed module, so they come back where they were. Containers have no position of their own; they
- * are placed by their contents. Snapshots are immutable, so keeping one is free.
+ * are placed by their children. Snapshots are immutable, so keeping one is free.
  */
 export type NodePositions = ReadonlyMap<string, Point>;
 
@@ -30,8 +30,8 @@ export function setNodePositions(store: Store, positions: NodePositions, transit
 /**
  * Apply `changes` to `positions`.
  *
- * The hidden contents of a collapsed module move with its card, so they are still inside it when it
- * opens, unless `changes` moves them itself. This holds however the card moves: a drag, a layout, or
+ * The hidden descendants of a collapsed module move with it, so they are still inside it when it
+ * opens, unless `changes` moves them itself. This holds however the module moves: a drag, a layout, or
  * undo. Nested collapsed modules move with the outermost one that moves.
  */
 export function moveNodes(
@@ -89,7 +89,7 @@ export function forgetRemovedNodePositions(positions: NodePositions, graph: Clie
   return kept.length === positions.size ? positions : new Map(kept);
 }
 
-/** The shown nodes that are positioned by their own center rather than by their contents. */
+/** The shown nodes that are positioned by their own center rather than by their children. */
 export function getPositionedNodeIds(shown: ClientGraph): string[] {
   const containerIds = new Set(
     [...shown.nodes.values()].flatMap((node) => (node.parentId === null ? [] : [node.parentId])),

@@ -14,7 +14,7 @@ export type PositionTransition = "animate" | "instant";
 export interface NodePositions {
   /**
    * The center of each node that is not a container, keyed by node ID. A container is placed by its
-   * contents. Entries for nodes not in the graph are kept and ignored, so a node that is hidden and
+   * children. Entries for nodes not in the graph are kept and ignored, so a node that is hidden and
    * shown again comes back where it was.
    */
   readonly centers: ReadonlyMap<string, Point>;

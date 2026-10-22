@@ -12,7 +12,7 @@ export interface ResourceNodePreviewProps {
 export const RESOURCE_NODE_PREVIEW_WIDTH = 140;
 export const RESOURCE_NODE_PREVIEW_HEIGHT = 42;
 
-const $Card = styled.div`
+const $Preview = styled.div`
   display: grid;
   width: ${RESOURCE_NODE_PREVIEW_WIDTH}px;
   height: ${RESOURCE_NODE_PREVIEW_HEIGHT}px;
@@ -40,9 +40,9 @@ const $TypeName = styled.span`
 
 export function ResourceNodePreview({ fullyQualifiedType, testId }: ResourceNodePreviewProps) {
   return (
-    <$Card data-testid={testId}>
+    <$Preview data-testid={testId}>
       <AzureIcon resourceType={fullyQualifiedType} size={18} />
       <$TypeName>{fullyQualifiedType.split("/").slice(-1)[0]}</$TypeName>
-    </$Card>
+    </$Preview>
   );
 }
