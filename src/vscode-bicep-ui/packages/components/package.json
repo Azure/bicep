@@ -51,7 +51,7 @@
     "@vscode/codicons": "^0.0.45",
     "eslint-plugin-storybook": "^10.6.0",
     "happy-dom": "^20.14.3",
-    "storybook": "^10.5.8",
+    "storybook": "^10.6.2",
     "styled-components": "^6.5.3",
     "vite": "^8.3.0",
     "vite-plugin-dts": "^5.1.0",
