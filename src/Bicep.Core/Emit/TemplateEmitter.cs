@@ -145,60 +145,11 @@ public class TemplateEmitter
     }
 
     /// <summary>
-    /// Checks emit-blocking diagnostics without invoking aggregate diagnostics or linters.
+    /// Checks emit-blocking diagnostics, ignoring linter diagnostics so non-policy rules configured as errors do not block analysis.
     /// </summary>
-    private bool HasEmitBlockingErrors()
-    {
-        // Analyzers call this while aggregate diagnostics are being assembled, so avoid GetAllDiagnostics() re-entry.
-        var sourceFile = model.SourceFile;
-        if (sourceFile.LexingErrorLookup.Any(diagnostic => diagnostic.IsError()) ||
-            sourceFile.ParsingErrorLookup.Any(diagnostic => diagnostic.IsError()))
-        {
-            return true;
-        }
-
-        var diagnosticWriter = ToListDiagnosticWriter.Create();
-        bool HasErrors() => diagnosticWriter.GetDiagnostics().Any(diagnostic => diagnostic.IsError());
-
-        var visitor = new SemanticDiagnosticVisitor(diagnosticWriter);
-        visitor.Visit(model.Root);
-        if (HasErrors())
-        {
-            return true;
-        }
-
-        foreach (var missingDeclarationSyntax in sourceFile.ProgramSyntax.Children.OfType<MissingDeclarationSyntax>())
-        {
-            model.TypeManager.GetTypeInfo(missingDeclarationSyntax);
-        }
-
-        diagnosticWriter.WriteMultiple(model.TypeManager.GetAllDiagnostics());
-        if (HasErrors())
-        {
-            return true;
-        }
-
-        diagnosticWriter.WriteMultiple(model.EmitLimitationInfo.Diagnostics);
-        if (HasErrors())
-        {
-            return true;
-        }
-
-        diagnosticWriter.WriteMultiple(model.GetSupplementalEmitBlockingDiagnostics());
-        if (HasErrors())
-        {
-            return true;
-        }
-
-        ScopeHelper.GetResourceScopeInfo(model, diagnosticWriter);
-        if (HasErrors())
-        {
-            return true;
-        }
-
-        ScopeHelper.GetModuleScopeInfo(model, diagnosticWriter);
-        return HasErrors();
-    }
+    private bool HasEmitBlockingErrors() =>
+        // Analyzers call this while aggregate diagnostics are being assembled, so GetAllDiagnostics() would re-enter.
+        model.GetNonLinterDiagnostics().Any(diagnostic => diagnostic.IsError());
 
     private static bool HasUnsupportedForcedEmissionConstructs(
         SemanticModel semanticModel,
@@ -209,15 +160,7 @@ public class TemplateEmitter
             return false;
         }
 
-        if (semanticModel.DeclaredResources.Any(resource =>
-            resource.IsExistingResource &&
-            semanticModel.FindReferences(resource.Symbol).Skip(1).Any()))
-        {
-            return true;
-        }
-
-        if (SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(semanticModel.Root.Syntax)
-            .Any(functionCall => IsRuntimeFunctionWithStaticallyUnknownResourceId(semanticModel, functionCall)))
+        if (HasSymbolicNameCollision(semanticModel))
         {
             return true;
         }
@@ -236,26 +179,36 @@ public class TemplateEmitter
             HasUnsupportedForcedEmissionConstructs(moduleModel, visitedModels));
     }
 
-    private static bool IsRuntimeFunctionWithStaticallyUnknownResourceId(
-        SemanticModel semanticModel,
-        FunctionCallSyntaxBase functionCall)
+    /// <summary>
+    /// Symbolic templates resolve a <c>reference</c>/<c>list*</c> string target as a symbolic name before a resource name,
+    /// so a literal target that matches a declared symbolic name would resolve to a different resource than in normal emission.
+    /// Non-literal targets are not checked; they are almost always resource IDs.
+    /// </summary>
+    private static bool HasSymbolicNameCollision(SemanticModel semanticModel)
     {
-        if (semanticModel.GetSymbolInfo(functionCall) is not FunctionSymbol function ||
-            function.DeclaringObject is not NamespaceType namespaceType ||
-            !LanguageConstants.IdentifierComparer.Equals(namespaceType.ExtensionName, AzNamespaceType.BuiltInName) ||
-            (!function.Name.Equals("reference", StringComparison.OrdinalIgnoreCase) &&
-             !function.Name.StartsWith("list", StringComparison.OrdinalIgnoreCase)))
-        {
-            return false;
-        }
+        var symbolicNames = semanticModel.DeclaredResources
+            .Select(resource => ExpressionConverter.GetSymbolicName(semanticModel.ResourceAncestors, resource))
+            .Concat(semanticModel.Root.ModuleDeclarations.Select(module => module.Name))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        return functionCall.Arguments.FirstOrDefault()?.Expression is not { } target ||
-            !IsProvablyResourceId(semanticModel, target);
+        return SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(semanticModel.Root.Syntax)
+            .Any(functionCall =>
+                IsAzResourceFunction(semanticModel, functionCall) &&
+                functionCall.Arguments.FirstOrDefault()?.Expression is { } target &&
+                TryGetLiteralTarget(semanticModel, target) is { } literal &&
+                symbolicNames.Contains(literal));
     }
 
-    private static bool IsProvablyResourceId(SemanticModel semanticModel, SyntaxBase syntax) => syntax switch
+    private static bool IsAzResourceFunction(SemanticModel semanticModel, FunctionCallSyntaxBase functionCall) =>
+        semanticModel.GetSymbolInfo(functionCall) is FunctionSymbol function &&
+        function.DeclaringObject is NamespaceType namespaceType &&
+        LanguageConstants.IdentifierComparer.Equals(namespaceType.ExtensionName, AzNamespaceType.BuiltInName) &&
+        (function.Name.Equals("reference", StringComparison.OrdinalIgnoreCase) ||
+         function.Name.StartsWith("list", StringComparison.OrdinalIgnoreCase));
+
+    private static string? TryGetLiteralTarget(SemanticModel semanticModel, SyntaxBase syntax) => syntax switch
     {
-        ParenthesizedExpressionSyntax parenthesized => IsProvablyResourceId(semanticModel, parenthesized.Expression),
+        ParenthesizedExpressionSyntax parenthesized => TryGetLiteralTarget(semanticModel, parenthesized.Expression),
         FunctionCallSyntax functionCall when
             SemanticModelHelper.TryGetNamedFunction(
                 semanticModel,
@@ -263,21 +216,9 @@ public class TemplateEmitter
                 "any",
                 functionCall) is not null &&
             functionCall.Arguments is [var argument] =>
-                IsProvablyResourceId(semanticModel, argument.Expression),
-        StringSyntax literal => literal.TryGetLiteralValue()?.StartsWith('/') is true,
-        PropertyAccessSyntax propertyAccess when
-            propertyAccess.PropertyName.IdentifierName.Equals("id", StringComparison.OrdinalIgnoreCase) &&
-            semanticModel.GetSymbolInfo(propertyAccess.BaseExpression) is ResourceSymbol => true,
-        FunctionCallSyntaxBase functionCall when
-            semanticModel.GetSymbolInfo(functionCall) is FunctionSymbol function &&
-            function.DeclaringObject is NamespaceType namespaceType &&
-            LanguageConstants.IdentifierComparer.Equals(namespaceType.ExtensionName, AzNamespaceType.BuiltInName) &&
-            (function.Name.EndsWith("ResourceId", StringComparison.OrdinalIgnoreCase) ||
-             function.Name.Equals("resourceId", StringComparison.OrdinalIgnoreCase)) &&
-            semanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { } overload &&
-            (overload.Flags.HasFlag(FunctionFlags.Pure) ||
-             overload.IsPure?.Invoke(semanticModel, functionCall) is true) => true,
-        _ => false,
+                TryGetLiteralTarget(semanticModel, argument.Expression),
+        StringSyntax literal => literal.TryGetLiteralValue(),
+        _ => null,
     };
 
     /// <summary>
@@ -292,7 +233,7 @@ public class TemplateEmitter
 
         try
         {
-            var settings = new EmitterSettings(model, forceEnableSymbolicNames: true, emitExistingResources: false);
+            var settings = new EmitterSettings(model, forceEnableSymbolicNames: true);
             using var stringWriter = new StringWriter { NewLine = "\n" };
             using (var writer = new SourceAwareJsonTextWriter(stringWriter, sourceFileToTrack: null)
             {

@@ -21,12 +21,9 @@ namespace Bicep.Core.Emit
             _ => throw new NotSupportedException($"Emitter settings overrides are only supported for {nameof(SemanticModel)}."),
         };
 
-        internal static ITemplateWriter CreateTemplateWriter(
-            ISemanticModel semanticModel,
-            bool forceEnableSymbolicNames,
-            bool emitExistingResources)
+        internal static ITemplateWriter CreateTemplateWriter(ISemanticModel semanticModel, bool forceEnableSymbolicNames)
         {
-            if (!forceEnableSymbolicNames && emitExistingResources)
+            if (!forceEnableSymbolicNames)
             {
                 return CreateTemplateWriter(semanticModel);
             }
@@ -35,7 +32,7 @@ namespace Bicep.Core.Emit
             {
                 SemanticModel bicepModel => new TemplateWriter(
                     bicepModel,
-                    new EmitterSettings(bicepModel, forceEnableSymbolicNames, emitExistingResources)),
+                    new EmitterSettings(bicepModel, forceEnableSymbolicNames)),
                 _ => CreateTemplateWriter(semanticModel),
             };
         }

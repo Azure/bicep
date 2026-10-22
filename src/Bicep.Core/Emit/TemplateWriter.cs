@@ -1173,11 +1173,6 @@ namespace Bicep.Core.Emit
                 {
                     foreach (var resource in resources)
                     {
-                        if (resource.ResourceMetadata.IsExistingResource && !Context.Settings.EmitExistingResources)
-                        {
-                            continue;
-                        }
-
                         emitter.EmitProperty(
                             emitter.GetSymbolicName(resource.ResourceMetadata),
                             () => EmitResource(emitter, extensions, resource),
@@ -1481,8 +1476,7 @@ namespace Bicep.Core.Emit
 
                     var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(
                         moduleSemanticModel,
-                        Context.Settings.ForceEnableSymbolicNames,
-                        Context.Settings.EmitExistingResources);
+                        Context.Settings.ForceEnableSymbolicNames);
                     var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
                     var moduleTextWriter = new StringWriter();
                     var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
@@ -1587,8 +1581,7 @@ namespace Bicep.Core.Emit
                     {
                         var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(
                             moduleSemanticModel,
-                            Context.Settings.ForceEnableSymbolicNames,
-                            Context.Settings.EmitExistingResources);
+                            Context.Settings.ForceEnableSymbolicNames);
                         var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
                         var moduleTextWriter = new StringWriter();
                         var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);

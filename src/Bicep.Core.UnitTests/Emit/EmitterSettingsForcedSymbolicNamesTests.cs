@@ -222,6 +222,38 @@ namespace Bicep.Core.UnitTests.Emit
         }
 
         [TestMethod]
+        public async Task TemplateEmitter_ForcedPathIgnoresLinterErrors()
+        {
+            var fileSet = MockFileSystemTestFileSet.Create(
+                ("bicepconfig.json", """
+                    {
+                      "analyzers": {
+                        "core": {
+                          "rules": {
+                            "no-unused-params": { "level": "error" }
+                          }
+                        }
+                      }
+                    }
+                    """),
+                ("main.bicep", $"""
+                    param unused string
+
+                    {VanillaResourceBicep}
+                    """));
+            var compiler = Services
+                .WithFileExplorer(fileSet.FileExplorer)
+                .WithFileSystem(fileSet.FileSystem)
+                .Build()
+                .GetCompiler();
+            var compilation = await compiler.CreateCompilation(fileSet.GetUri("main.bicep"));
+            var model = compilation.GetEntrypointSemanticModel();
+
+            model.GetAllDiagnostics().Should().Contain(diagnostic => diagnostic.Code == "no-unused-params" && diagnostic.IsError());
+            new TemplateEmitter(model).EmitWithForcedSymbolicNames().Should().NotBeNullOrEmpty();
+        }
+
+        [TestMethod]
         public void TemplateEmitter_ForcedPathRejectsLegacyOuterScopedNestedDeploymentReferences()
         {
             var model = Services.BuildCompilation(LegacyOuterScopedDeploymentBicep).GetEntrypointSemanticModel();
@@ -701,7 +733,7 @@ namespace Bicep.Core.UnitTests.Emit
         }
 
         [TestMethod]
-        public void TemplateEmitter_ForcedPathOmitsExistingResources()
+        public void TemplateEmitter_ForcedPathEmitsExistingResourcesAsExisting()
         {
             var model = Services.BuildCompilation("""
                 resource existingStorage 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
@@ -720,11 +752,11 @@ namespace Bicep.Core.UnitTests.Emit
 
             var resources = JObject.Parse(forcedJson!)["resources"]!.Should().BeOfType<JObject>().Subject;
             resources.ContainsKey("storage").Should().BeTrue();
-            resources.ContainsKey("existingStorage").Should().BeFalse();
+            resources["existingStorage"]!["existing"]!.Value<bool>().Should().BeTrue();
         }
 
         [TestMethod]
-        public void TemplateEmitter_ForcedPathRejectsReferencedExistingResources()
+        public void TemplateEmitter_ForcedPathAllowsReferencedExistingResources()
         {
             var model = Services.BuildCompilation("""
                 resource existingStorage 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
@@ -733,13 +765,89 @@ namespace Bicep.Core.UnitTests.Emit
 
                 resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
                   name: 'deployed'
-                  location: existingStorage.location
+                  location: 'eastus'
                   sku: { name: 'Standard_LRS' }
                   kind: 'StorageV2'
+                  properties: {
+                    accessTier: existingStorage.properties.accessTier
+                  }
                 }
                 """).GetEntrypointSemanticModel();
 
+            var forcedJson = new TemplateEmitter(model).EmitWithForcedSymbolicNames();
+
+            var resources = JObject.Parse(forcedJson!)["resources"]!.Should().BeOfType<JObject>().Subject;
+            resources.ContainsKey("existingStorage").Should().BeTrue();
+            resources["storage"]!["properties"]!["accessTier"]!.Value<string>()
+                .Should().Contain("reference('existingStorage')");
+        }
+
+        [DataTestMethod]
+        [DataRow("reference('first', '2023-01-01')")]
+        [DataRow("reference(('FIRST'), '2023-01-01')")]
+        [DataRow("reference(any('first'), '2023-01-01')")]
+        [DataRow("listKeys('first', '2023-01-01')")]
+        public void TemplateEmitter_ForcedPathRejectsLiteralTargetMatchingSymbolicName(string call)
+        {
+            var model = Services.BuildCompilation($$"""
+                resource first 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                  name: 'alpha'
+                  location: 'eastus'
+                  sku: { name: 'Standard_LRS' }
+                  kind: 'StorageV2'
+                }
+
+                output referenced object = {{call}}
+                """).GetEntrypointSemanticModel();
+
+            model.GetAllDiagnostics().Should().NotContain(diagnostic => diagnostic.IsError());
             new TemplateEmitter(model).EmitWithForcedSymbolicNames().Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task TemplateEmitter_ForcedPathRejectsLiteralTargetMatchingModuleSymbolicName()
+        {
+            var fileSet = MockFileSystemTestFileSet.Create(
+                ("main.bicep", """
+                    module child './child.bicep' = {
+                      name: 'child-deployment'
+                    }
+
+                    output referenced object = reference('child', '2022-09-01')
+                    """),
+                ("child.bicep", VanillaResourceBicep));
+            var compiler = Services
+                .WithFileExplorer(fileSet.FileExplorer)
+                .WithFileSystem(fileSet.FileSystem)
+                .Build()
+                .GetCompiler();
+            var model = (await compiler.CreateCompilation(fileSet.GetUri("main.bicep"))).GetEntrypointSemanticModel();
+
+            model.GetAllDiagnostics().Should().NotContain(diagnostic => diagnostic.IsError());
+            new TemplateEmitter(model).EmitWithForcedSymbolicNames().Should().BeNull();
+        }
+
+        [DataTestMethod]
+        [DataRow("reference(storageId, '2023-01-01')")]
+        [DataRow("listKeys(storageId, '2023-01-01')")]
+        [DataRow("reference('alpha', '2023-01-01')")]
+        public void TemplateEmitter_ForcedPathAllowsTargetsThatCannotMatchSymbolicNames(string call)
+        {
+            var model = Services.BuildCompilation($$"""
+                param storageId string
+
+                resource first 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                  name: 'alpha'
+                  location: 'eastus'
+                  sku: { name: 'Standard_LRS' }
+                  kind: 'StorageV2'
+                }
+
+                output referenced object = {{call}}
+                """).GetEntrypointSemanticModel();
+
+            model.GetAllDiagnostics().Should().NotContain(diagnostic => diagnostic.IsError());
+            new TemplateEmitter(model).EmitWithForcedSymbolicNames().Should().NotBeNullOrEmpty();
         }
 
         [TestMethod]
