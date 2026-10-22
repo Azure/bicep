@@ -5,11 +5,11 @@ using System.Collections.Immutable;
 using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
@@ -138,8 +138,6 @@ namespace Bicep.LanguageServer.Features.Language.Completion
 
         private const string ModuleVersionResolutionKey = "ociVersion";
         private const string ModuleResolutionKey = "oci";
-
-        private static readonly StringComparer PrivateTagComparer = StringComparer.Create(CultureInfo.InvariantCulture, CompareOptions.NumericOrdering);
 
         public ModuleReferenceCompletionProvider(
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
@@ -349,8 +347,9 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                 var availableVersions = (await module.TryGetVersionsAsync())
                     .Where(v => v.IsBicepModule != false);
                 var versions = (parts.IsPublicRegistry
-                    ? availableVersions.Reverse()
-                    : availableVersions.OrderByDescending(v => v.Version, PrivateTagComparer))
+                    ? availableVersions
+                    : availableVersions.OrderBySemanticVersion(v => v.Version))
+                    .Reverse()
                     .ToArray();
 
                 for (int i = 0; i < versions.Length; ++i)
