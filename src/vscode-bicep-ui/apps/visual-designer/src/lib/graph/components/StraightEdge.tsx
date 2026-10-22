@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { NodeState } from "../atoms";
-import type { EdgeStackAnchor } from "../paint-order";
+import type { EdgeStacking } from "../paint-order";
 
 import { atom, useStore } from "jotai";
 import { motion } from "motion/react";
@@ -31,8 +31,8 @@ export interface StraightEdgeProps {
   id: string;
   from: NodeState;
   to: NodeState;
-  /** What the edge is stacked against as nodes are restacked. */
-  stackAnchors: readonly EdgeStackAnchor[];
+  /** Where the edge is stacked as nodes are restacked. */
+  stacking: EdgeStacking;
   /** The edge appeared with a node that fades in, so it fades in with that node. */
   isEntering: boolean;
   /** The edge has left the graph and fades out. */
@@ -40,15 +40,15 @@ export interface StraightEdgeProps {
 }
 
 /** A straight edge between the boxes its nodes are drawn at, following them as they move. */
-export function StraightEdge({ id, from, to, stackAnchors, isEntering, isExiting }: StraightEdgeProps) {
+export function StraightEdge({ id, from, to, stacking, isEntering, isExiting }: StraightEdgeProps) {
   const theme = useTheme();
   const svgRef = useRef<SVGSVGElement>(null);
   const ref = useRef<SVGPathElement>(null);
   const store = useStore();
   const { paintOrderAtom, reduceMotion } = useContext(GraphContext);
   const zIndexAtom = useMemo(
-    () => atom((get) => getEdgeZIndex(get(paintOrderAtom), stackAnchors)),
-    [paintOrderAtom, stackAnchors],
+    () => atom((get) => getEdgeZIndex(get(paintOrderAtom), stacking)),
+    [paintOrderAtom, stacking],
   );
 
   // Restacking writes the z-index directly, so it re-renders no edges.

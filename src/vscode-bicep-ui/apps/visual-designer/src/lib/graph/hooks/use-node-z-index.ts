@@ -19,14 +19,7 @@ export function useNodeZIndex(ref: RefObject<HTMLElement | null>, id: string) {
   const store = useStore();
   const { paintOrderAtom } = useContext(GraphContext);
   // A node that has left the graph, while it fades out, keeps the place it was painted at.
-  const zIndexAtom = useMemo(
-    () =>
-      atom((get) => {
-        const paintOrder = get(paintOrderAtom);
-        return paintOrder.has(id) ? getNodeZIndex(paintOrder, id) : null;
-      }),
-    [paintOrderAtom, id],
-  );
+  const zIndexAtom = useMemo(() => atom((get) => getNodeZIndex(get(paintOrderAtom), id)), [paintOrderAtom, id]);
 
   useLayoutEffect(() => {
     const key = {};

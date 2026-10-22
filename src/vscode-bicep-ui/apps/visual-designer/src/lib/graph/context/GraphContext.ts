@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import type { Atom } from "jotai";
+import type { PaintOrder } from "../paint-order";
 
 import { atom } from "jotai";
 import { createContext } from "react";
@@ -23,8 +24,8 @@ export interface GraphContextValue {
   events: GraphNodeEvents;
   /** Whether nodes snap to new positions and shapes rather than animating. */
   reduceMotion: boolean;
-  /** Each node's index in back-to-front paint order. */
-  paintOrderAtom: Atom<ReadonlyMap<string, number>>;
+  /** Back-to-front order of nodes and edges. */
+  paintOrderAtom: Atom<PaintOrder>;
 }
 
 export function ignoreNodeEvent() {}
@@ -36,9 +37,18 @@ export const IGNORE_NODE_EVENTS: GraphNodeEvents = {
   onNodeDoubleClick: ignoreNodeEvent,
 };
 
+/** The paint order of the shown nodes. It reads where nodes are going, so it follows a node as it is dragged. */
 export function createPaintOrderAtom(raisedNodeIdAtom: Atom<string | null> | undefined) {
   return atom((get) =>
-    computePaintOrder(Object.values(get(nodesByIdAtom)), raisedNodeIdAtom ? get(raisedNodeIdAtom) : null),
+    computePaintOrder(
+      Object.values(get(nodesByIdAtom)).map((node) => ({
+        id: node.id,
+        parentId: node.parentId,
+        isCompound: get(node.childIdsAtom).length > 0,
+        targetBox: get(node.targetBoxAtom),
+      })),
+      raisedNodeIdAtom ? get(raisedNodeIdAtom) : null,
+    ),
   );
 }
 

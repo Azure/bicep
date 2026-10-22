@@ -146,11 +146,20 @@ from the box it was drawn at. Only the drawn boxes move during an animation, so 
 saves, sends, and records are always where nodes are going. Layout waits until every shown node
 has measured itself, so the centers it computes use real sizes.
 
-Nodes are stacked in tree order, containers before their contents, with the node most recently
-focused or dragged raised above its siblings along with each of its ancestors. Dragging raises a node
-without focusing it. Each edge is painted just below its higher endpoint, so it rises with a raised
-node instead of passing under a container that node is above. Bicep edges always join siblings, so
-an edge is never painted over another container's contents.
+Nodes and edges are stacked as nested elements would be: a parent, then the edges between its
+children, then each child with its descendants. Edges are therefore below every node in their parent
+and above the parent's frame; top-level edges are below every node. Bicep edges always join siblings.
+Among siblings, the node most recently focused or dragged is raised above the others, along with each
+of its ancestors; dragging raises a node without focusing it.
+
+The one exception is a node that sits on a sibling module: their target boxes overlap, and the node
+is drawn above the module, because it is atomic or later in sibling order. Its edges should cross the
+module rather than vanish under it, yet stay below every other node. All nodes share one stacking
+context, so that is only possible with the module below the other siblings: a module that something
+sits on is painted first among its siblings, and the edges of the nodes sitting on it just above it.
+The paint order reads target boxes, so it follows a node as it is dragged on and off a module. An edge
+of a node sitting on one module is drawn above every module that something sits on in that parent,
+the one compromise of a single stacking context.
 
 Later stages extend these boundaries rather than move them:
 
