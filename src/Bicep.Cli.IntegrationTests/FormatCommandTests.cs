@@ -127,7 +127,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var data = baselineData.GetData(TestContext);
 
-            data.Formatted.Write(data.Parameters.EmbeddedFile.GetContents());
+            data.Formatted.Write(data.Parameters.TestFile.GetContents());
             var result = await Bicep("format", data.Formatted.OutputFilePath);
 
             AssertSuccess(result);

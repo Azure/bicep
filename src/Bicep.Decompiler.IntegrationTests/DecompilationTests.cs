@@ -7,7 +7,6 @@ using Bicep.Core;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Testing.IO;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Decompiler;
@@ -17,7 +16,6 @@ using Bicep.Testing;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using EmbeddedFile = Azure.Deployments.Testing.Utilities.EmbeddedFile;
 using TestEmbeddedFilesAttribute = Azure.Deployments.Testing.Utilities.EmbeddedFilesTestDataAttribute;
 
 namespace Bicep.Decompiler.IntegrationTests
@@ -35,11 +33,11 @@ namespace Bicep.Decompiler.IntegrationTests
         [TestCategory(TestCategories.Baseline)]
         public async Task Decompiler_generates_expected_bicep_files_with_diagnostics(EmbeddedFile embeddedJson)
         {
-            var baselineFiles = TestContext.MaterializeBaseline(embeddedJson);
+            var baselineFiles = TestContext.MaterializeBaselineFolder(embeddedJson);
             var jsonFile = baselineFiles.EntryFile;
 
             var jsonUri = IOUri.FromFilePath(jsonFile.OutputFilePath);
-            var (bicepUri, filesToSave) = await new TestDecompiler().Decompile(jsonUri.WithExtension(LanguageConstants.LanguageFileExtension), jsonFile.EmbeddedFile.GetContents());
+            var (bicepUri, filesToSave) = await new TestDecompiler().Decompile(jsonUri.WithExtension(LanguageConstants.LanguageFileExtension), jsonFile.TestFile.GetContents());
 
             var compilation = new ServiceBuilder().BuildCompilation(filesToSave, bicepUri);
             var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile();
@@ -51,7 +49,7 @@ namespace Bicep.Decompiler.IntegrationTests
                     var baselineFile = baselineFiles.GetFileForPath(bicepFile.FileHandle.Uri.GetFilePath());
                     var bicepOutput = filesToSave[bicepFile.FileHandle.Uri];
 
-                    var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, baselineFiles.OutputDirectoryPath, diag));
+                    var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, baselineFiles.OutputFolderPath, diag));
 
                     var decompiler = new TestDecompiler();
                     sourceTextWithDiags.Should().MatchTextBaseline(baselineFile);
@@ -64,12 +62,12 @@ namespace Bicep.Decompiler.IntegrationTests
         [TestCategory(TestCategories.Baseline)]
         public void Decompiler_generates_expected_bicepparam_files_with_diagnostics(EmbeddedFile embeddedJson)
         {
-            var baselineFiles = TestContext.MaterializeBaseline(embeddedJson);
+            var baselineFiles = TestContext.MaterializeBaselineFolder(embeddedJson);
             var jsonFile = baselineFiles.EntryFile;
 
             var jsonUri = IOUri.FromFilePath(jsonFile.OutputFilePath);
 
-            var (entryPointUri, filesToSave) = new TestDecompiler().DecompileParameters(jsonFile.EmbeddedFile.GetContents(), jsonUri.WithExtension(LanguageConstants.ParamsFileExtension), null);
+            var (entryPointUri, filesToSave) = new TestDecompiler().DecompileParameters(jsonFile.TestFile.GetContents(), jsonUri.WithExtension(LanguageConstants.ParamsFileExtension), null);
 
             var baselineFile = baselineFiles.GetFileForPath(entryPointUri.GetFilePath());
             filesToSave[entryPointUri].Should().MatchTextBaseline(baselineFile);

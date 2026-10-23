@@ -3,12 +3,12 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Azure.Deployments.Testing.Utilities;
 using Bicep.Core.Diagnostics;
 using Bicep.Testing.IO;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
-using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;
@@ -17,7 +17,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
-using EmbeddedFile = Azure.Deployments.Testing.Utilities.EmbeddedFile;
 
 namespace Bicep.Core.Samples;
 

@@ -15,7 +15,6 @@ using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.FileSystem;
@@ -133,7 +132,7 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
         var subscriptionId = new Guid().ToString();
         var resourceGroupName = "myRg";
 
-        var baselineFiles = TestContext.MaterializeBaseline(paramFile);
+        var baselineFiles = TestContext.MaterializeBaselineFolder(paramFile);
         var snapshotFile = baselineFiles.GetFile("main.snapshot.json");
 
         var result = await Bicep(

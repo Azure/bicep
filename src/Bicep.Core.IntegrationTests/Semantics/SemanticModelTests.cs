@@ -11,7 +11,6 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -53,11 +52,12 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainDiagnostics);
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
-            sourceTextWithDiags.Should().MatchTextBaseline(
+            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.Diagnostics,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
-                actualPath: resultsFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
+                actualLocation: resultsFile);
         }
 
         [TestMethod]
@@ -92,11 +92,12 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainDiagnostics);
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
-            sourceTextWithDiags.Should().MatchTextBaseline(
+            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.Symbols,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
-                actualPath: resultsFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
+                actualLocation: resultsFile);
         }
 
         [TestMethod]
@@ -334,11 +335,12 @@ param storageAccount string = 'testStorageAccount'";
             var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, expressionList, getSpan, expression => ExpressionCollectorVisitor.GetExpressionLoggingString(expressionByParent, expression));
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainIr), sourceTextWithDiags);
 
-            sourceTextWithDiags.Should().MatchTextBaseline(
+            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.Ir ?? "",
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainIr),
-                actualPath: resultsFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainIr),
+                actualLocation: resultsFile);
         }
 
         private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program)

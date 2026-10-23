@@ -7,7 +7,6 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.McpServer.Core;
 using Bicep.McpServer.UnitTests.Helpers;
 using FluentAssertions;
@@ -29,7 +28,7 @@ public class ServerTests
     [TestCategory(TestCategories.Baseline)]
     public async Task List_tools_returns_full_list_of_tools(EmbeddedFile toolsJson)
     {
-        var baselineFiles = TestContext.MaterializeBaseline(toolsJson);
+        var baselineFiles = TestContext.MaterializeBaselineFolder(toolsJson);
         var toolsJsonFile = baselineFiles.EntryFile;
         await using var helper = await McpServerHelper.StartServer(TestContext);
 

@@ -8,7 +8,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using FluentAssertions;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
@@ -35,7 +34,7 @@ public class ExtensionRegistryTests : TestBase
     [TestEmbeddedFiles(@"Files/ExtensionRegistryTests/http/types/index.json")]
     public void Http_extension_can_be_generated(EmbeddedFile indexJson)
     {
-        var baselineFiles = TestContext.MaterializeBaseline(indexJson);
+        var baselineFiles = TestContext.MaterializeBaselineFolder(indexJson);
         var httpTypes = ExtensionResourceTypeHelper.GetHttpExtensionTypes();
 
         using (new AssertionScope())

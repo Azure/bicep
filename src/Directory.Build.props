@@ -25,6 +25,10 @@
     <!-- It seems that most filter usages is using FullyQualifiedName with the intent to run a specific assembly -->
     <!-- The CI should be refactored to run dotnet test for the specific assembly directly rather than using a filter -->
     <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --ignore-exit-code 8</TestingPlatformCommandLineArguments>
+
+    <!-- Baseline update instructions shown by Azure.Deployments.Testing.Utilities assertion failures -->
+    <TestBaselineUpdateCommand>dotnet test -- --filter "TestCategory=Baseline" --test-parameter SetBaseLine=true</TestBaselineUpdateCommand>
+    <TestBaselineDocumentationUrl>https://github.com/Azure/bicep/blob/main/CONTRIBUTING.md#updating-test-baselines</TestBaselineDocumentationUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(MSBuildProjectName.Contains('Test'))">

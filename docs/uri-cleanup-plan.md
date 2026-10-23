@@ -135,7 +135,7 @@ Leave these categories alone unless a PR explicitly targets their owning behavio
 - `[x]` `Bicep.Decompiler.UnitTests` references `Bicep.Testing` instead of `Bicep.Core.UnitTests`.
 - `[x]` `Bicep.Local.Extension.UnitTests` and `Bicep.RegistryModuleTool.TestFixtures` no longer reference `Bicep.Core.UnitTests`.
 - `[x]` `Bicep.RpcClient.Tests` references `Bicep.Testing` instead of `Bicep.Core.UnitTests`.
-- `[x]` Embedded baseline data, materialization, updates, and fluent text/JSON assertions have one canonical implementation in `Bicep.Testing.Baselines`.
+- `[x]` Embedded baseline data, materialization, updates, test output files, and fluent text/JSON assertions come from the `Azure.Deployments.Testing.Utilities` package instead of Bicep-specific copies.
 - `[ ]` Replace all `CompilationHelper` call sites with `TestCompiler` and delete `CompilationHelper` and its result types.
 - `[ ]` Replace `ServiceBuilder`, `ServiceBuilderExtensions`, and related Core-unit-test DI extensions with `TestCompiler`, `TestServices`, or focused fixtures, then delete them.
 - `[ ]` Consolidate reusable assertions, feature fixtures, mocks, and data builders in `Bicep.Testing`; rewrite or remove obsolete helpers instead of moving them wholesale.
@@ -240,7 +240,7 @@ Deletion targets include:
 Do not move the whole assertions directory unchanged. Classify each assertion by its subject and consumers:
 
 - Merge duplicate implementations already present in `Bicep.Testing`, such as diagnostic assertion infrastructure.
-- Keep focused reusable assertions in `Bicep.Testing.Assertions`; keep embedded baseline management and baseline-specific assertions together in `Bicep.Testing.Baselines`.
+- Keep focused reusable assertions in `Bicep.Testing.Assertions`; use `Azure.Deployments.Testing.Utilities` for embedded baseline management, baseline assertions, and assertions it already provides instead of duplicating them.
 - Use `TestPrinter.Print(...)` only for printing and `BeValidBicepText()` for string syntax validation; keep source annotation rendering separate.
 - Expand `TestCompilationResultAssertions` to replace legacy compilation-result assertions, including template/parameters emission and diagnostic filtering where still useful.
 - Move broadly reusable assertions such as diagnostics, syntax, JSON tokens, strings, code fixes, and configuration assertions when non-Core projects consume them.

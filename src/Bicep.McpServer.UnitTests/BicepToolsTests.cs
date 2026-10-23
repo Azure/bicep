@@ -8,7 +8,6 @@ using Bicep.Core;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Resources;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.McpServer.Core;
 using Bicep.McpServer.UnitTests.Helpers;
 using FluentAssertions;
@@ -61,7 +60,7 @@ public class BicepToolsTests
     [TestCategory(TestCategories.Baseline)]
     public void GetAzureResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
     {
-        var baselineFile = TestContext.MaterializeBaseline(jsonFile).EntryFile;
+        var baselineFile = TestContext.MaterializeBaselineFolder(jsonFile).EntryFile;
         var split = Path.GetFileNameWithoutExtension(jsonFile.FileName).Split("@");
         var resourceType = split[0].Replace("-", "/");
         var apiVersion = split[1];
@@ -76,7 +75,7 @@ public class BicepToolsTests
     [TestCategory(TestCategories.Baseline)]
     public void GetAzureResourceTypeSchema_returns_trimmed_resource_schema(EmbeddedFile jsonFile)
     {
-        var baselineFile = TestContext.MaterializeBaseline(jsonFile).EntryFile;
+        var baselineFile = TestContext.MaterializeBaselineFolder(jsonFile).EntryFile;
         var split = Path.GetFileNameWithoutExtension(jsonFile.FileName).Split("@");
         var resourceType = split[0].Replace("-", "/");
         var apiVersion = split[1];
@@ -336,7 +335,7 @@ public class BicepToolsTests
     [TestCategory(TestCategories.Baseline)]
     public async Task GetExtensionResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
     {
-        var baselineFile = TestContext.MaterializeBaseline(jsonFile).EntryFile;
+        var baselineFile = TestContext.MaterializeBaselineFolder(jsonFile).EntryFile;
         var fileName = Path.GetFileNameWithoutExtension(jsonFile.FileName);
 
         // File name format: {repoPath}#{tag}#{resourceType}@{apiVersion}
@@ -362,7 +361,7 @@ public class BicepToolsTests
     [TestCategory(TestCategories.Baseline)]
     public async Task GetExtensionResourceTypeSchema_returns_trimmed_resource_schema(EmbeddedFile jsonFile)
     {
-        var baselineFile = TestContext.MaterializeBaseline(jsonFile).EntryFile;
+        var baselineFile = TestContext.MaterializeBaselineFolder(jsonFile).EntryFile;
         var fileName = Path.GetFileNameWithoutExtension(jsonFile.FileName);
 
         // File name format: {repoPath}#{tag}#{resourceType}@{apiVersion}

@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest;
@@ -26,7 +25,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestCategory(TestCategories.Baseline)]
         public async Task ImportKubernetesManifest_generates_valid_bicep_files_from_kubernetes_manifests(EmbeddedFile embeddedYml)
         {
-            var baselineFiles = TestContext.MaterializeBaseline(embeddedYml);
+            var baselineFiles = TestContext.MaterializeBaselineFolder(embeddedYml);
             var yamlFile = baselineFiles.EntryFile;
             var bicepFile = baselineFiles.GetFile(Path.ChangeExtension(embeddedYml.FileName, ".bicep"));
 

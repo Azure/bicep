@@ -8,7 +8,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
@@ -30,7 +29,7 @@ namespace Bicep.Core.IntegrationTests
         {
             features ??= new(testContext);
             FileHelper.GetCacheRootDirectory(testContext).EnsureExists();
-            var baselineFiles = testContext.MaterializeBaseline(embeddedBicep);
+            var baselineFiles = testContext.MaterializeBaselineFolder(embeddedBicep);
             var bicepFile = baselineFiles.EntryFile;
             var jsonFile = baselineFiles.GetFile(Path.ChangeExtension(embeddedBicep.FileName, jsonFileExtension));
 
@@ -86,7 +85,7 @@ namespace Bicep.Core.IntegrationTests
         [TestCategory(TestCategories.Baseline)]
         public void Example_uses_consistent_formatting(EmbeddedFile embeddedBicep)
         {
-            var baselineFiles = TestContext.MaterializeBaseline(embeddedBicep);
+            var baselineFiles = TestContext.MaterializeBaselineFolder(embeddedBicep);
             var bicepFile = baselineFiles.EntryFile;
 
             var program = ParserHelper.Parse(embeddedBicep.GetContents(), out var lexingErrorLookup, out var parsingErrorLookup);

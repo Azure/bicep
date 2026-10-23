@@ -7,12 +7,23 @@ Typical imports are:
 ```csharp
 using Bicep.Testing;
 using Bicep.Testing.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Testing.IO;
 using Bicep.Testing.Mocks;
 ```
 
-JSON token assertions use their own namespace to avoid conflicts with other FluentAssertions extensions:
+Baseline, test output, JSON token, and newline-insensitive string helpers come from the [Azure.Deployments.Testing.Utilities](https://www.nuget.org/packages/Azure.Deployments.Testing.Utilities) package, which `Bicep.Testing` references. Import its extension classes statically, together with type aliases, rather than importing the whole package namespace. The package namespace also defines types such as `FileHelper` and `StringAssertionsExtensions`, which clash with `Bicep.Core.UnitTests` types of the same name:
+
+```csharp
+global using BaselineFile = Azure.Deployments.Testing.Utilities.BaselineFile;
+global using EmbeddedFile = Azure.Deployments.Testing.Utilities.EmbeddedFile;
+global using TestEmbeddedFilesAttribute = Azure.Deployments.Testing.Utilities.EmbeddedFilesTestDataAttribute;
+global using static Azure.Deployments.Testing.Utilities.BaselineAssertionsExtensions;
+global using static Azure.Deployments.Testing.Utilities.JTokenAssertionsExtensions;
+global using static Azure.Deployments.Testing.Utilities.StringAssertionsExtensions;
+global using static Azure.Deployments.Testing.Utilities.TestContextExtensions;
+```
+
+Bicep-specific JSON token assertions, such as `HaveJsonAtPath(...)`, live in their own namespace:
 
 ```csharp
 using Bicep.Testing.Assertions.Json;
@@ -35,11 +46,11 @@ using Bicep.Testing.Assertions.Json;
 | Parse syntax without compiling | `TestParser` |
 | Print syntax | `TestPrinter.Print(...)` |
 | Validate and compare printed Bicep text | `BeValidBicepText(...)` |
-| Assert JSON tokens | `Bicep.Testing.Assertions.Json` |
+| Assert JSON tokens | `JTokenAssertionsExtensions` (package) and `Bicep.Testing.Assertions.Json` |
 | Create strict Moq mocks | `Bicep.Testing.Mocks.StrictMock` |
-| Create and attach real test output files | `TestContext.SaveResultFile(...)` |
+| Create and attach real test output files | `TestContext.SaveResultFile(...)` (package) |
 | Populate a virtual file set from embedded resources | `fileSet.AddEmbeddedFiles(...)` |
-| Materialize and assert embedded baselines | `TestContext.MaterializeBaseline(...)` |
+| Materialize and assert embedded baselines | `TestContext.MaterializeBaselineFolder(...)` (package) |
 | Override the reported compiler assembly version | `TestFeatureProviderFactory.WithAssemblyVersion(...)` |
 | Decompile templates or parameters | `TestDecompiler` |
 
@@ -53,7 +64,7 @@ Use `TestEmbeddedFiles` for embedded baseline test data and materialize its file
 [TestEmbeddedFiles(@"Files/Scenarios/.*/main\.bicep")]
 public void Produces_expected_output(EmbeddedFile inputFile)
 {
-    var files = TestContext.MaterializeBaseline(inputFile);
+    var files = TestContext.MaterializeBaselineFolder(inputFile);
     var outputFile = files.GetFile("main.json");
 
     GenerateOutput(files.EntryFile.OutputFilePath)
@@ -61,16 +72,13 @@ public void Produces_expected_output(EmbeddedFile inputFile)
 }
 ```
 
-Use `MatchTextBaseline(...)` for text and `MatchJsonBaseline(...)` for JSON. Both write the actual result to `OutputFilePath`, support baseline updates, and report a diff against the checked-in embedded file. `BaselineDirectory` exposes `EntryFile`, `OutputDirectoryPath`, `GetFile(...)`, and `GetFileForPath(...)` without introducing URI conversions.
+Use `MatchTextBaseline(...)` for text and `MatchJsonBaseline(...)` for JSON. Both write the actual result to `OutputFilePath`, support baseline updates (including creating missing baselines), and report a diff against the checked-in embedded file. `MaterializedBaselineFolder` exposes `EntryFile`, `OutputFolderPath`, `GetFile(...)`, and `GetFileForPath(...)`.
 
-`EmbeddedFile` and `EmbeddedFilesTestDataAttribute` come from the `Azure.Deployments.Testing.Utilities` package. Import them with type aliases rather than the package namespace, which also defines `JToken.Should()` and `TestContext` extensions that conflict with `Bicep.Testing`. Alias the attribute as `TestEmbeddedFiles`:
+The package resolves baseline source paths from the project directory of the assembly that embeds them, so baselines must be embedded in an assembly that references `Bicep.Testing`. To baseline a file embedded in a product assembly, also embed it in the test project and pass `RelativeSourceBasePath` to `EmbeddedFile` (see `SnippetCacheTests`). For baselines that are not embedded files, use `EqualWithLineByLineDiffOutput(...)` or `EqualWithJsonDiffOutput(...)` with absolute paths, for example from `TestRepository.GetAbsolutePath(...)`.
 
-```csharp
-global using EmbeddedFile = Azure.Deployments.Testing.Utilities.EmbeddedFile;
-global using TestEmbeddedFilesAttribute = Azure.Deployments.Testing.Utilities.EmbeddedFilesTestDataAttribute;
-```
+The baseline update instructions in assertion failures are configured through the `TestBaselineUpdateCommand` and `TestBaselineDocumentationUrl` properties in `src/Directory.Build.props`.
 
-Use `GetContents()` and `GetBinaryData()` from `Bicep.Testing.IO` to read embedded files; they fail if the resource is missing.
+Use `GetContents()` from `Bicep.Testing.IO` to read test files and `GetBinaryData()` to read embedded files; both fail if the file is missing.
 
 ## Compiler Recipes
 
@@ -187,14 +195,15 @@ Use `BeValidBicepTextIgnoringNewlines(...)` only when the test intentionally per
 
 ### JSON tokens
 
-Import `Bicep.Testing.Assertions.Json` for the canonical `JToken.Should()` assertions:
+`JToken.Should()` and its core assertions come from the package's `JTokenAssertionsExtensions`. `Bicep.Testing.Assertions.Json` adds Bicep-specific helpers:
 
 ```csharp
 template.Should().HaveValueAtPath("$.outputs.name.value", "test");
+template.Should().HaveJsonAtPath("$.outputs.name", """{ "type": "string", "value": "test" }""");
 actual.Should().DeepEqual(expected);
 ```
 
-Reusable JSON assertions belong in `Bicep.Testing`. Baseline file updates and other repository-specific behavior stay in the owning test project.
+Prefer contributing generally useful JSON or baseline assertions to `Azure.Deployments.Testing.Utilities` rather than duplicating them here. Bicep-specific reusable assertions belong in `Bicep.Testing`.
 
 ## Service Customization
 
@@ -224,7 +233,7 @@ services
 - Public compiler and service test toolkit types live in the `Bicep.Testing` root namespace.
 - `Fake*`, `Mock*`, and `Dummy*` implementations live under `Fakes`, `Mocks`, and `Dummies`.
 - Assertion infrastructure that is not itself a public `Test*` type lives under `Assertions`.
-- `EmbeddedFile` extensions, `TestFileData`, `TestFileSet`, `TestFileUri`, and virtual file-set implementations live under `IO`.
+- `EmbeddedFile` and `ITestFile` extensions, `TestFileData`, `TestFileSet`, `TestFileUri`, and virtual file-set implementations live under `IO`.
 - Do not create a catch-all `Bicep.Testing.Utils` namespace.
 
 ## Migration Rules

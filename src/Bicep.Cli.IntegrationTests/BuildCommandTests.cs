@@ -94,7 +94,8 @@ namespace Bicep.Cli.IntegrationTests
 
             var actual = JToken.Parse(compiledFileContent);
 
-            actual.Should().MatchJsonBaseline(
+            actual.Should().EqualWithJsonDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
@@ -137,7 +138,8 @@ namespace Bicep.Cli.IntegrationTests
 
             var actual = JToken.Parse(output);
 
-            actual.Should().MatchJsonBaseline(
+            actual.Should().EqualWithJsonDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
@@ -183,7 +185,8 @@ namespace Bicep.Cli.IntegrationTests
             File.Exists(compiledFilePath).Should().BeTrue();
 
             var actual = JToken.Parse(output);
-            actual.Should().MatchJsonBaseline(
+            actual.Should().EqualWithJsonDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
@@ -444,12 +447,7 @@ output myOutput string = 'hello!'
                       ]
                     }
                     """);
-                errorJToken.Should().MatchJsonBaseline(
-                    TestContext,
-                    expectedErrorJToken,
-                    "",
-                    "",
-                    validateLocation: false);
+                errorJToken.Should().DeepEqual(expectedErrorJToken);
             }
             else
             {
@@ -719,12 +717,7 @@ output myOutput string = 'hello!'
             selectedPath?.Value<string>().Should().Contain("file://");
             selectedPath?.Value<string>().Should().Contain("main.bicep");
             selectedPath?.Replace("main.bicep");
-            errorJToken.Should().MatchJsonBaseline(
-                    TestContext,
-                    expectedErrorJToken,
-                    "",
-                    "",
-                    validateLocation: false);
+            errorJToken.Should().DeepEqual(expectedErrorJToken);
         }
 
         private static IEnumerable<object[]> GetValidDataSets() => DataSets

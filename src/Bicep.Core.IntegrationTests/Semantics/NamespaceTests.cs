@@ -9,7 +9,6 @@ using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -47,7 +46,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
             var expected = JToken.Parse(expectedStr);
             var expectedPath = DataSet.GetBaselineUpdatePath(DataSet.TestFunctionsDirectory, fileName);
-            actual.Should().MatchJsonBaseline(TestContext, expected, expectedPath, actualLocation);
+            actual.Should().EqualWithJsonDiffOutput(GetType().Assembly, TestContext, expected, expectedPath, actualLocation);
         }
 
         private static IEnumerable<object[]> GetNamespaces()

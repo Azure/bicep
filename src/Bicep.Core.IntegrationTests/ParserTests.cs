@@ -8,7 +8,6 @@ using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -65,11 +64,12 @@ namespace Bicep.Core.IntegrationTests
             var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSyntax), sourceTextWithDiags);
 
-            sourceTextWithDiags.Should().MatchTextBaseline(
+            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.Syntax,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
-                actualPath: resultsFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
+                actualLocation: resultsFile);
         }
 
         [TestMethod]
@@ -78,13 +78,13 @@ namespace Bicep.Core.IntegrationTests
         public void Params_Parser_should_produce_expected_syntax(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-            var program = ParserHelper.ParamsParse(data.Parameters.EmbeddedFile.GetContents());
+            var program = ParserHelper.ParamsParse(data.Parameters.TestFile.GetContents());
             var syntaxList = SyntaxCollectorVisitor.Build(program);
             var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
 
             TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.GetContents(), "\n", syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.TestFile.GetContents(), "\n", syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
 
             sourceTextWithDiags.Should().MatchTextBaseline(data.Syntax);
         }

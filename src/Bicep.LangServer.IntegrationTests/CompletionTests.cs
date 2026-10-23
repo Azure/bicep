@@ -20,7 +20,6 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Mock.Registry;
@@ -135,7 +134,7 @@ namespace Bicep.LangServer.IntegrationTests.Completions
 
             var expected = JToken.Parse(expectedStr);
 
-            actual.Should().MatchJsonBaseline(this.TestContext, expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
+            actual.Should().EqualWithJsonDiffOutput(GetType().Assembly, this.TestContext, expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
         }
 
         [TestMethod]
@@ -190,11 +189,12 @@ namespace Bicep.LangServer.IntegrationTests.Completions
                         sourceTextWithDiags);
                 }
 
-                sourceTextWithDiags.Should().MatchTextBaseline(
+                sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                    GetType().Assembly,
                     TestContext,
                     File.Exists(combinedFileName) ? (await File.ReadAllTextAsync(combinedFileName)) : string.Empty,
-                    expectedPath: combinedSourceFileName,
-                    actualPath: combinedFileName + ".actual");
+                    expectedLocation: TestRepository.GetAbsolutePath(combinedSourceFileName),
+                    actualLocation: combinedFileName + ".actual");
             }
         }
 
@@ -4082,7 +4082,7 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
                 _ => GetGlobalCompletionSetPath(setName)
             };
 
-            actual.Should().MatchJsonBaseline(this.TestContext, expected, expectedLocation, actualLocation, "because ");
+            actual.Should().EqualWithJsonDiffOutput(GetType().Assembly, this.TestContext, expected, expectedLocation, actualLocation, "because ");
         }
 
         private static string GetGlobalCompletionSetPath(string setName) => DataSet.GetBaselineUpdatePath(DataSet.TestCompletionsDirectory, GetFullSetName(setName));

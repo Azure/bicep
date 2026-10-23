@@ -12,7 +12,6 @@ using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing.IO;
 using FluentAssertions;
@@ -1438,7 +1437,7 @@ param objParam object
         [TestCategory(TestCategories.Baseline)]
         public async Task Build_params_to_stdout_with_non_bicep_references_should_succeed(EmbeddedFile paramFile)
         {
-            var baselineFiles = TestContext.MaterializeBaseline(paramFile);
+            var baselineFiles = TestContext.MaterializeBaselineFolder(paramFile);
             var outputFile = baselineFiles.GetFile("output.json");
 
             var result = await Bicep(await CreateDefaultSettingsWithDefaultMockRegistry(), "build-params", baselineFiles.EntryFile.OutputFilePath, "--stdout");
@@ -1525,7 +1524,7 @@ param objParam object
         [TestCategory(TestCategories.Baseline)]
         public async Task Build_params_to_stdout_with_registry_should_succeed_after_restore(EmbeddedFile paramFile)
         {
-            var baselineFiles = TestContext.MaterializeBaseline(paramFile);
+            var baselineFiles = TestContext.MaterializeBaselineFolder(paramFile);
             var outputFile = baselineFiles.GetFile("output.json");
 
             var settings = await CreateDefaultSettingsWithDefaultMockRegistry();

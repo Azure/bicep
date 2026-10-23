@@ -9,7 +9,6 @@ using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;
-using Bicep.Testing.Baselines;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using FluentAssertions;
@@ -95,32 +94,12 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<StringAssertions>(instance);
         }
 
-        public static AndConstraint<StringAssertions> BeEquivalentToIgnoringNewlines(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
-        {
-            var normalizedActual = StringUtils.ReplaceNewlines(instance.Subject, "\n");
-            var normalizedExpected = StringUtils.ReplaceNewlines(expected, "\n");
-
-            normalizedActual.Should().BeEquivalentTo(normalizedExpected, because, becauseArgs);
-
-            return new AndConstraint<StringAssertions>(instance);
-        }
-
         public static AndConstraint<StringAssertions> BeEquivalentToIgnoringTrailingWhitespace(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
         {
             var normalizedActual = string.Join("\n", StringUtils.SplitOnNewLine(instance.Subject).Select(x => x.TrimEnd()));
             var normalizedExpected = string.Join("\n", StringUtils.SplitOnNewLine(expected).Select(x => x.TrimEnd()));
 
             normalizedActual.Should().BeEquivalentTo(normalizedExpected, because, becauseArgs);
-
-            return new AndConstraint<StringAssertions>(instance);
-        }
-
-        public static AndConstraint<StringAssertions> EqualIgnoringNewlines(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
-        {
-            var normalizedActual = StringUtils.ReplaceNewlines(instance.Subject, "\n");
-            var normalizedExpected = StringUtils.ReplaceNewlines(expected, "\n");
-
-            normalizedActual.Should().Be(normalizedExpected, because, becauseArgs);
 
             return new AndConstraint<StringAssertions>(instance);
         }
@@ -209,40 +188,7 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<StringAssertions>(instance);
         }
 
-        public static AndConstraint<StringAssertions> ContainIgnoringNewlines(this StringAssertions instance, string expected)
-        {
-            var normalizedActual = StringUtils.ReplaceNewlines(instance.Subject, "\n");
-            var normalizedExpected = StringUtils.ReplaceNewlines(expected, "\n");
 
-            normalizedActual.Should().Contain(normalizedExpected);
-
-            return new AndConstraint<StringAssertions>(instance);
-        }
-
-        public static AndConstraint<StringAssertions> BeEquivalentToPath(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
-        {
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
-                instance.Subject.Should().BeEquivalentTo(expected, because, becauseArgs);
-            }
-            else
-            {
-                instance.Subject.Should().Be(expected, because, becauseArgs);
-            }
-
-            return new AndConstraint<StringAssertions>(instance);
-        }
-
-        public static AndConstraint<StringAssertions> HaveLengthLessThanOrEqualTo(this StringAssertions instance, int maxLength, string because = "", params object[] becauseArgs)
-        {
-            int length = instance.Subject.Length;
-            Execute.Assertion
-                .BecauseOf(because, becauseArgs)
-                .ForCondition(length <= maxLength)
-                .FailWith("Expected {0} to have length less than or equal to {1}, but it has length {2}", instance.Subject, maxLength, length);
-
-            return new AndConstraint<StringAssertions>(instance);
-        }
 
         // Adds StringComparison to StringAssertions.NotContainAny
         public static AndConstraint<StringAssertions> NotContainAny(this StringAssertions instance, IEnumerable<string> values, StringComparison stringComparison, string because = "", params object[] becauseArgs)

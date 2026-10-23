@@ -5,6 +5,7 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
 using System.Text;
+using Azure.Deployments.Testing.Utilities;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using FluentAssertions;
@@ -14,53 +15,17 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class FileHelper
     {
-        // MSTest only creates isolated run directories when deployment items are used. Otherwise, ResultsDirectory is the
-        // build output directory, so test outputs are kept in a dedicated subdirectory to avoid mixing them with binaries.
-        public static string GetTestOutputRootPath(TestContext testContext)
-            => Path.Combine(testContext.ResultsDirectory!, "TestOutput");
-
         public static string GetUniqueTestOutputPath(TestContext testContext)
-            => Path.Combine(GetTestOutputRootPath(testContext), Guid.NewGuid().ToString());
+            => testContext.GetUniqueOutputPath();
 
         public static string GetResultFilePath(TestContext testContext, string fileName, string? testOutputPath = null)
-        {
-            string filePath = Path.Combine(testOutputPath ?? GetUniqueTestOutputPath(testContext), fileName);
-
-            Directory.CreateDirectory(Path.GetDirectoryName(filePath) ?? throw new AssertFailedException($"There is no directory path for file '{filePath}'."));
-            testContext.AddResultFile(filePath);
-
-            return filePath;
-        }
+            => testContext.GetResultFilePath(fileName, testOutputPath);
 
         public static string SaveResultFile(TestContext testContext, string fileName, string contents, string? testOutputPath = null, Encoding? encoding = null)
-        {
-            var outputPath = SaveResultFiles(testContext, [new ResultFile(fileName, contents, encoding)], testOutputPath);
+            => testContext.SaveResultFile(fileName, contents, testOutputPath, encoding);
 
-            return Path.Combine(outputPath, fileName);
-        }
-
-        public record ResultFile(string FileName, string Contents, Encoding? Encoding = null);
-
-        public static string SaveResultFiles(TestContext testContext, ResultFile[] files, string? testOutputPath = null)
-        {
-            var outputPath = testOutputPath ?? GetUniqueTestOutputPath(testContext);
-
-            foreach (var (fileName, contents, encoding) in files)
-            {
-                var filePath = GetResultFilePath(testContext, fileName, outputPath);
-
-                if (encoding is not null)
-                {
-                    File.WriteAllText(filePath, contents, encoding);
-                }
-                else
-                {
-                    File.WriteAllText(filePath, contents);
-                }
-            }
-
-            return outputPath;
-        }
+        public static string SaveResultFiles(TestContext testContext, TestResultFile[] files, string? testOutputPath = null)
+            => testContext.SaveResultFiles(files, testOutputPath);
 
         public static string SaveEmbeddedResourcesWithPathPrefix(TestContext testContext, Assembly containingAssembly, string manifestFilePrefix)
         {

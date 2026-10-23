@@ -2,13 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Reflection;
+using Azure.Deployments.Testing.Utilities;
 using Bicep.Testing;
-using Bicep.Testing.Baselines;
 using Bicep.Testing.IO;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using EmbeddedFile = Azure.Deployments.Testing.Utilities.EmbeddedFile;
 
 namespace Bicep.Core.Samples
 {
@@ -54,7 +53,7 @@ namespace Bicep.Core.Samples
         }
 
         public record BaselineData(
-            BaselineDirectory FileSet,
+            MaterializedBaselineFolder FileSet,
             BaselineFile Parameters,
             BaselineFile? Compiled,
             BaselineFile Bicep,
@@ -75,7 +74,7 @@ namespace Bicep.Core.Samples
 
         public BaselineData GetData(TestContext testContext)
         {
-            var outputFolder = testContext.MaterializeBaseline(paramsFile);
+            var outputFolder = testContext.MaterializeBaselineFolder(paramsFile);
 
             using (new AssertionScope())
             {

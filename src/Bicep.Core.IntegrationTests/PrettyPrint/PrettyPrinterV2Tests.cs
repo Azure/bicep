@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -32,11 +31,12 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             var outputFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, outputFileName), output);
             var expected = dataSet.ReadDataSetFile(outputFileName);
 
-            output.Should().MatchTextBaseline(
+            output.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 expected,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
-                actualPath: outputFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
+                actualLocation: outputFile);
 
             AssertConsistentOutput(output, options);
         }
@@ -50,11 +50,12 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             var outputFileName = DataSet.TestFileMainFormatted;
             var outputFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, outputFileName), output);
 
-            output.Should().MatchTextBaseline(
+            output.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.Formatted,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
-                actualPath: outputFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
+                actualLocation: outputFile);
 
             AssertConsistentOutput(output, PrettyPrinterV2Options.Default);
         }
@@ -79,7 +80,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         public void Print_ParamDataSet_ProducesExpectedOutput(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-            var output = Print(data.Parameters.EmbeddedFile.GetContents(), PrettyPrinterV2Options.Default, isParamFile: true);
+            var output = Print(data.Parameters.TestFile.GetContents(), PrettyPrinterV2Options.Default, isParamFile: true);
 
             output.Should().MatchTextBaseline(data.Formatted);
 
@@ -92,7 +93,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         public void Print_ParamDataSet_ProducesConsistentNewlines(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-            var output = Print(data.Parameters.EmbeddedFile.GetContents(), PrettyPrinterV2Options.Default, isParamFile: true);
+            var output = Print(data.Parameters.TestFile.GetContents(), PrettyPrinterV2Options.Default, isParamFile: true);
 
             NewlinePattern().Matches(output)
                 .Select(x => x.Value)

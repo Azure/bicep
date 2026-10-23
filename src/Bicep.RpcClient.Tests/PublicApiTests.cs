@@ -2,11 +2,9 @@
 // Licensed under the MIT License.
 
 using Bicep.Testing;
-using Bicep.Testing.Baselines;
 using Bicep.Testing.IO;
 using FluentAssertions;
 using PublicApiGenerator;
-using EmbeddedFile = Azure.Deployments.Testing.Utilities.EmbeddedFile;
 using TestEmbeddedFilesAttribute = Azure.Deployments.Testing.Utilities.EmbeddedFilesTestDataAttribute;
 
 namespace Bicep.RpcClient.Tests;
@@ -21,7 +19,7 @@ public class PublicApiTests
     [TestEmbeddedFiles(@"^Files\/PublicApis\/Azure.Bicep.RpcClient.txt$")]
     public void PublicApi_should_be_up_to_date(EmbeddedFile publicApiFile)
     {
-        var baselineFiles = TestContext.MaterializeBaseline(publicApiFile);
+        var baselineFiles = TestContext.MaterializeBaselineFolder(publicApiFile);
         var result = baselineFiles.GetFile(publicApiFile.FileName);
 
         var publicApi = typeof(BicepClientConfiguration).Assembly.GeneratePublicApi();

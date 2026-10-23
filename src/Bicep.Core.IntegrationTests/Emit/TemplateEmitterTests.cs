@@ -11,7 +11,6 @@ using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
@@ -92,7 +91,8 @@ namespace Bicep.Core.IntegrationTests.Emit
             var outputFile = File.ReadAllText(compiledFilePath);
             var actual = JToken.Parse(outputFile);
 
-            actual.Should().MatchJsonBaseline(
+            actual.Should().EqualWithJsonDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
@@ -118,7 +118,8 @@ namespace Bicep.Core.IntegrationTests.Emit
             var outputFile = File.ReadAllText(compiledFilePath);
             var actual = JToken.Parse(outputFile);
 
-            actual.Should().MatchJsonBaseline(
+            actual.Should().EqualWithJsonDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 JToken.Parse(dataSet.CompiledWithSymbolicNames!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiledWithSymbolicNames),
@@ -133,7 +134,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         [TestCategory(TestCategories.Baseline)]
         public async Task Source_map_generation_should_work(EmbeddedFile file)
         {
-            var baselineFiles = TestContext.MaterializeBaseline(file);
+            var baselineFiles = TestContext.MaterializeBaselineFolder(file);
             var bicepFile = baselineFiles.EntryFile;
             var sourceMapFile = baselineFiles.GetFile("sourcemap.json");
 
@@ -178,11 +179,12 @@ namespace Bicep.Core.IntegrationTests.Emit
             File.WriteAllText(sourceTextWithSourceMapFileName, sourceTextWithSourceMap.ToString());
 
             // Here we validate visually that the in-memory source map can be used to map JSON -> Bicep lines
-            sourceTextWithSourceMap.Should().MatchTextBaseline(
+            sourceTextWithSourceMap.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.SourceMap!,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
-                actualPath: sourceTextWithSourceMapFileName);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
+                actualLocation: sourceTextWithSourceMapFileName);
         }
 
         [TestMethod]
@@ -220,7 +222,8 @@ namespace Bicep.Core.IntegrationTests.Emit
             var actual = JToken.ReadFrom(new JsonTextReader(new StreamReader(new MemoryStream(memoryStream.ToArray()))));
             var compiledFilePath = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled), actual.ToString(Formatting.Indented));
 
-            actual.Should().MatchJsonBaseline(
+            actual.Should().EqualWithJsonDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),

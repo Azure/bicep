@@ -6,12 +6,10 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.LanguageServer.Features.Language.Completion.Snippets;
 using Bicep.Testing;
-using Bicep.Testing.Baselines;
 using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using EmbeddedFile = Azure.Deployments.Testing.Utilities.EmbeddedFile;
 
 namespace Bicep.LangServer.UnitTests.Snippets;
 
@@ -28,8 +26,10 @@ public class SnippetCacheTests
     [TestCategory(TestCategories.Baseline)]
     public async Task Verify_snippet_cache()
     {
-        var baselineFiles = TestContext.MaterializeBaseline(new EmbeddedFile(typeof(SnippetCache).Assembly, "Files/SnippetCache.json"));
-        var baselineFile = baselineFiles.EntryFile;
+        var baselineFile = new BaselineFile(
+            TestContext,
+            new EmbeddedFile(typeof(SnippetCacheTests).Assembly, "Files/SnippetCache.json", RelativeSourceBasePath: "../Bicep.LangServer"),
+            TestContext.GetResultFilePath("SnippetCache.json"));
 
         var snippetCache = await CreateSnippetCacheBuilder().Build();
 

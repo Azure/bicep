@@ -9,7 +9,6 @@ using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -107,11 +106,12 @@ namespace Bicep.Core.IntegrationTests
             var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, lexer.GetTokens(), getLoggingString);
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainTokens), sourceTextWithDiags);
 
-            sourceTextWithDiags.Should().MatchTextBaseline(
+            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.Tokens,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainTokens),
-                actualPath: resultsFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainTokens),
+                actualLocation: resultsFile);
 
             lexer.GetTokens().Count(token => token.Type == TokenType.EndOfFile).Should().Be(1, "because there should only be 1 EOF token");
             lexer.GetTokens().Last().Type.Should().Be(TokenType.EndOfFile, "because the last token should always be EOF.");
@@ -124,7 +124,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var data = baselineData.GetData(TestContext);
 
-            var lexer = new Lexer(new SlidingTextWindow(data.Parameters.EmbeddedFile.GetContents()), ToListDiagnosticWriter.Create());
+            var lexer = new Lexer(new SlidingTextWindow(data.Parameters.TestFile.GetContents()), ToListDiagnosticWriter.Create());
             lexer.Lex();
 
             string getLoggingString(Token token)
@@ -132,7 +132,7 @@ namespace Bicep.Core.IntegrationTests
                 return $"{token.Type} |{token.Text}|";
             }
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.GetContents(), "\n", lexer.GetTokens(), getLoggingString);
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.TestFile.GetContents(), "\n", lexer.GetTokens(), getLoggingString);
 
             sourceTextWithDiags.Should().MatchTextBaseline(data.Tokens);
 
