@@ -111,7 +111,7 @@ namespace Bicep.LangServer.UnitTests
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public void CreateOmnisharpDiagnosticWithoutRelatedInformation(bool useDefaultArray)
