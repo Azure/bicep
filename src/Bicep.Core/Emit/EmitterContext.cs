@@ -10,9 +10,9 @@ namespace Bicep.Core.Emit
 {
     public class EmitterContext
     {
-        public EmitterContext(SemanticModel semanticModel)
+        public EmitterContext(SemanticModel semanticModel, EmitterSettings? settings = null)
         {
-            Settings = semanticModel.EmitterSettings;
+            Settings = settings ?? semanticModel.EmitterSettings;
             SemanticModel = semanticModel;
             DataFlowAnalyzer = new(semanticModel);
             ResourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(semanticModel);

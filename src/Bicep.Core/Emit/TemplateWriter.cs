@@ -68,9 +68,9 @@ namespace Bicep.Core.Emit
         private ExpressionBuilder ExpressionBuilder { get; }
         private ImmutableDictionary<string, DeclaredTypeExpression> declaredTypesByName;
 
-        public TemplateWriter(SemanticModel semanticModel)
+        public TemplateWriter(SemanticModel semanticModel, EmitterSettings? settings = null)
         {
-            ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
+            ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel, settings));
             declaredTypesByName = [];
         }
 
@@ -1474,7 +1474,9 @@ namespace Bicep.Core.Emit
 
                     var moduleSemanticModel = GetModuleSemanticModel(module.Symbol);
 
-                    var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel);
+                    var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(
+                        moduleSemanticModel,
+                        Context.Settings.ForceEnableSymbolicNames);
                     var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
                     var moduleTextWriter = new StringWriter();
                     var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
@@ -1577,7 +1579,9 @@ namespace Bicep.Core.Emit
                     // If it is a template spec module, emit templateLink instead of template contents.
                     jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
                     {
-                        var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel);
+                        var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(
+                            moduleSemanticModel,
+                            Context.Settings.ForceEnableSymbolicNames);
                         var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
                         var moduleTextWriter = new StringWriter();
                         var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);

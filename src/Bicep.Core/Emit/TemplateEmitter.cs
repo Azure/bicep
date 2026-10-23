@@ -138,4 +138,67 @@ public class TemplateEmitter
 
         return new EmitResult(EmitStatus.Succeeded, diagnostics, model.Features, sourceMap);
     }
+
+    /// <summary>
+    /// Checks emit-blocking diagnostics, ignoring linter diagnostics so non-policy rules configured as errors do not block analysis.
+    /// </summary>
+    private bool HasEmitBlockingErrors() =>
+        // Analyzers call this while aggregate diagnostics are being assembled, so GetAllDiagnostics() would re-enter.
+        model.GetNonLinterDiagnostics().Any(diagnostic => diagnostic.IsError());
+
+    private static bool HasExplicitDeploymentResources(
+        SemanticModel semanticModel,
+        HashSet<SemanticModel> visitedModels)
+    {
+        if (!visitedModels.Add(semanticModel))
+        {
+            return false;
+        }
+
+        if (semanticModel.DeclaredResources.Any(resource =>
+            resource.IsAzResource &&
+            LanguageConstants.ResourceTypeComparer.Equals(
+                resource.TypeReference.FormatType(),
+                TemplateWriter.NestedDeploymentResourceType)))
+        {
+            return true;
+        }
+
+        return semanticModel.Root.ModuleDeclarations.Any(module =>
+            module.TryGetSemanticModel().TryUnwrap() is SemanticModel moduleModel &&
+            HasExplicitDeploymentResources(moduleModel, visitedModels));
+    }
+
+    /// <summary>
+    /// Emits a symbolic-name-keyed ARM template without mutating the semantic model's normal emitter settings.
+    /// </summary>
+    internal string? EmitWithForcedSymbolicNames()
+    {
+        if (HasEmitBlockingErrors() || HasExplicitDeploymentResources(model, []))
+        {
+            return null;
+        }
+
+        try
+        {
+            var settings = new EmitterSettings(model, forceEnableSymbolicNames: true);
+            using var stringWriter = new StringWriter { NewLine = "\n" };
+            using (var writer = new SourceAwareJsonTextWriter(stringWriter, sourceFileToTrack: null)
+            {
+                CloseOutput = false,
+                Formatting = Formatting.Indented,
+            })
+            {
+                var templateWriter = TemplateWriterFactory.CreateTemplateWriter(model, settings);
+                templateWriter.Write(writer);
+                writer.Flush();
+            }
+
+            return stringWriter.ToString();
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }

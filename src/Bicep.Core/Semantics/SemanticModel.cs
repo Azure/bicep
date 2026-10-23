@@ -57,6 +57,9 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
+        private readonly Lazy<ImmutableArray<IDiagnostic>> preLinterDiagnostics;
+        private readonly Lazy<ImmutableArray<IDiagnostic>> postLinterDiagnostics;
+        private readonly Lazy<ImmutableArray<IDiagnostic>> nonLinterDiagnostics;
 
         public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, BicepSourceFile sourceFile, CompilerVersionCheckOptions compilerVersionCheckOptions)
         {
@@ -121,9 +124,6 @@ namespace Bicep.Core.Semantics
             this.assignmentsByDeclaration = new(InitializeDeclarationToAssignmentDictionary);
             this.declarationsByAssignment = new(InitializeAssignmentToDeclarationDictionary);
 
-            // lazy load single use diagnostic set
-            this.allDiagnostics = new(AssembleDiagnostics);
-
             this.parametersLazy = new(() =>
             {
                 var parameters = ImmutableSortedDictionary.CreateBuilder<string, ParameterMetadata>();
@@ -160,6 +160,26 @@ namespace Bicep.Core.Semantics
                 var references = ExternalInputFunctionReferenceVisitor.CollectExternalInputReferences(this, diagnosticWriter);
                 return (references, diagnosticWriter.GetDiagnostics());
             });
+
+            // lazy load single use diagnostic set; linter diagnostics are kept separate so analyzers can read the rest without re-entry
+            this.preLinterDiagnostics = new(() => [
+                .. this.Configuration.GetDiagnostics(),
+                .. GetCompilerVersionDiagnostics(),
+                .. this.LexingErrorLookup,
+                .. this.ParsingErrorLookup,
+                .. GetSemanticDiagnostics(),
+            ]);
+            this.postLinterDiagnostics = new(() => [
+                .. this.resourceScopeDataLazy.Value.diagnostics,
+                .. this.moduleScopeDataLazy.Value.diagnostics,
+                .. this.externalInputReferencesLazy.Value.diagnostics,
+                // TODO: This could be eliminated if we change the params type checking code to operate more on symbols
+                .. GetAdditionalParamsSemanticDiagnostics(),
+            ]);
+            this.allDiagnostics = new(() => FinalizeDiagnostics(
+                this.preLinterDiagnostics.Value.Concat(GetLinterDiagnostics()).Concat(this.postLinterDiagnostics.Value)));
+            this.nonLinterDiagnostics = new(() => FinalizeDiagnostics(
+                this.preLinterDiagnostics.Value.Concat(this.postLinterDiagnostics.Value)));
 
             this.exportsLazy = new(() => FindExportedTypes().Concat(FindExportedVariables()).Concat(FindExportedFunctions())
                 .DistinctBy(export => export.Name, LanguageConstants.IdentifierComparer)
@@ -359,24 +379,17 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public ImmutableArray<IDiagnostic> GetAllDiagnostics() => allDiagnostics.Value;
 
-        private ImmutableArray<IDiagnostic> AssembleDiagnostics()
+        /// <summary>
+        /// Cached compilation diagnostics excluding linter diagnostics. Safe to call from analyzers while
+        /// <see cref="GetAllDiagnostics"/> is being assembled.
+        /// </summary>
+        internal ImmutableArray<IDiagnostic> GetNonLinterDiagnostics() => nonLinterDiagnostics.Value;
+
+        private ImmutableArray<IDiagnostic> FinalizeDiagnostics(IEnumerable<IDiagnostic> diagnostics)
         {
-            var diagnostics = this.Configuration.GetDiagnostics()
-                .Concat(GetCompilerVersionDiagnostics())
-                .Concat(this.LexingErrorLookup)
-                .Concat(this.ParsingErrorLookup)
-                .Concat(GetSemanticDiagnostics())
-                .Concat(GetLinterDiagnostics())
-                .Concat(this.resourceScopeDataLazy.Value.diagnostics)
-                .Concat(this.moduleScopeDataLazy.Value.diagnostics)
-                .Concat(this.externalInputReferencesLazy.Value.diagnostics)
-                // TODO: This could be eliminated if we change the params type checking code to operate more on symbols
-                .Concat(GetAdditionalParamsSemanticDiagnostics())
-                .Distinct()
-                .OrderBy(diag => diag.Span.Position);
             var filteredDiagnostics = ImmutableArray.CreateBuilder<IDiagnostic>();
 
-            foreach (IDiagnostic diagnostic in diagnostics)
+            foreach (IDiagnostic diagnostic in diagnostics.Distinct().OrderBy(diag => diag.Span.Position))
             {
                 if (diagnostic.CanBeSuppressed() &&
                     SourceFile.DisabledDiagnosticsCache.IsDisabledAtPosition(diagnostic.Code, diagnostic.Span.Position))
