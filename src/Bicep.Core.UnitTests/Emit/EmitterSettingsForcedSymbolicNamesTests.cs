@@ -705,7 +705,7 @@ namespace Bicep.Core.UnitTests.Emit
             new TemplateEmitter(model).EmitWithForcedSymbolicNames().Should().BeNull();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("(", ")")]
         [DataRow("any(", ")")]
         public void TemplateEmitter_ForcedPathRejectsWrappedOuterReferences(string wrapperStart, string wrapperEnd)
@@ -782,7 +782,7 @@ namespace Bicep.Core.UnitTests.Emit
                 .Should().Contain("reference('existingStorage')");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("reference(storageId, '2023-01-01')")]
         [DataRow("listKeys(storageId, '2023-01-01')")]
         [DataRow("reference('alpha', '2023-01-01')")]
