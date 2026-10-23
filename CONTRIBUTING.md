@@ -152,6 +152,8 @@ Wherever possible, Bicep uses versioned files for repository management and auto
 * [GitHub actions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions) maintained in `.github/workflows`, and
 * [Microsoft GitHub Policy Service policies](https://microsoft.github.io/GitOps/policies/resource-management.html) maintained in `.github/policies`.
 
+The scheduled `external-pr-review-assignment.yml` workflow requests the `azure-deployments-and-bicep-code-reviewers` team for open, non-draft fork pull requests. It skips existing team/member requests and submitted reviews from current team members. Configure the installed `azure-bicep` App using the repository variable `BICEP_APP_CLIENT_ID` and the repository secret `BICEP_APP_PRIVATE_KEY` (PEM), with pull requests write and organization members read permissions. Run the routing tests with `Invoke-Pester ./scripts/Assign-ForkPrReviewers.Tests.ps1`; preview routing without writes with `./scripts/Assign-ForkPrReviewers.ps1 -WhatIf` using a suitably authorized `GH_TOKEN`.
+
 ## Feature Suggestions
 
 * Please first search [Open Bicep Issues](https://github.com/Azure/bicep/issues) before opening an issue to check whether your feature has already been suggested. If it has, feel free to add your own comments to the existing issue.
