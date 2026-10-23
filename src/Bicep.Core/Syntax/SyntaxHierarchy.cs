@@ -36,6 +36,11 @@ namespace Bicep.Core.Syntax
 
         public bool IsDescendant(SyntaxBase node, SyntaxBase potentialAncestor)
         {
+            if (!this.parentMap.ContainsKey(node))
+            {
+                return false;
+            }
+
             var current = node;
             while (current != null)
             {
