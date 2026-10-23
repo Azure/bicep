@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { EdgeAtomValue, NodeState } from "../atoms";
-import type { EdgeStackAnchor } from "../paint-order";
+import type { EdgeStacking } from "../paint-order";
 
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
@@ -17,8 +17,8 @@ export interface EdgeLayerProps {
 }
 
 /**
- * Draws every edge, each stacked just below its higher endpoint (see `getEdgeZIndex`). An edge that is
- * fading out with its nodes is stacked above the container they are leaving.
+ * Draws every edge, stacked among the children of its endpoints' parent (see `getEdgeZIndex`). An edge that is
+ * fading out with its nodes is stacked by the nearest ancestor still shown, such as a container that closed.
  */
 export function EdgeLayer({ exitingNodes, exitingEdges, enteringNodeIds }: EdgeLayerProps) {
   const edges = useAtomValue(edgesAtom);
@@ -27,14 +27,10 @@ export function EdgeLayer({ exitingNodes, exitingEdges, enteringNodeIds }: EdgeL
   return useMemo(() => {
     const exitingById = new Map(exitingNodes.map((node) => [node.id, node]));
     const resolve = (id: string) => nodesById[id] ?? exitingById.get(id);
-    const getAnchor = (node: NodeState): EdgeStackAnchor | null => {
-      if (nodesById[node.id]) {
-        return { nodeId: node.id, placement: "below" };
-      }
-
+    const getShownParentId = (node: NodeState): string | null => {
       for (let id = node.parentId; id !== null; id = resolve(id)?.parentId ?? null) {
         if (nodesById[id]) {
-          return { nodeId: id, placement: "above" };
+          return id;
         }
       }
 
@@ -51,7 +47,8 @@ export function EdgeLayer({ exitingNodes, exitingEdges, enteringNodeIds }: EdgeL
         return [];
       }
 
-      const anchors = [getAnchor(from), getAnchor(to)].filter((anchor) => anchor !== null);
+      // Edges join siblings, so both endpoints share a parent.
+      const stacking: EdgeStacking = { parentId: getShownParentId(from), endpointIds: [from.id, to.id] };
       const isEntering = enteringNodeIds.has(edge.fromId) || enteringNodeIds.has(edge.toId);
 
       return [
@@ -60,7 +57,7 @@ export function EdgeLayer({ exitingNodes, exitingEdges, enteringNodeIds }: EdgeL
           id={edge.id}
           from={from}
           to={to}
-          stackAnchors={anchors}
+          stacking={stacking}
           isEntering={isEntering}
           isExiting={isExiting}
         />,

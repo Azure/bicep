@@ -293,29 +293,55 @@ test.describe("Graph rendering", () => {
     await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
   });
 
-  test("paints an edge with its higher endpoint, above a module it crosses", async ({ page }) => {
+  test("paints edges below nodes, and a node's edges above a module it sits on", async ({ page }) => {
     await loadSampleGraph(page, "module");
     const zIndex = (selector: string) =>
       page.locator(selector).evaluate((element) => Number(getComputedStyle(element).zIndex) || 0);
+    const minNodeZIndex = () =>
+      page.evaluate(() =>
+        Math.min(
+          ...Array.from(document.querySelectorAll<HTMLElement>("[data-node-id]")).map(
+            (element) => Number(getComputedStyle(element).zIndex) || 0,
+          ),
+        ),
+      );
     const edge = '[data-edge-id="networkInterface->publicIp"]';
     const moduleNode = '[data-node-id="myModule"]';
+    const moduleChildren = ['[data-node-id="myModule::vmResource"]', '[data-node-id="myModule::storageAccount"]'];
 
+    // However nodes are ordered or raised, an edge between nodes that sit on nothing is below every node.
     await page.locator('[data-node-id="myModule::vmResource"]').click();
-    await expect.poll(async () => (await zIndex(edge)) < (await zIndex(moduleNode))).toBe(true);
+    await expect.poll(async () => (await zIndex(edge)) < (await minNodeZIndex())).toBe(true);
+    await page.locator('[data-node-id="networkInterface"]').click();
+    await expect.poll(async () => (await zIndex(edge)) < (await minNodeZIndex())).toBe(true);
 
-    // Dragging an endpoint over the module raises it, and its edge comes up with it.
+    // An edge between a module's children is above the module and below its children.
+    const innerEdge = '[data-edge-id="myModule::vmResource->myModule::storageAccount"]';
+    await expect.poll(async () => (await zIndex(innerEdge)) > (await zIndex(moduleNode))).toBe(true);
+    for (const child of moduleChildren) {
+      await expect.poll(async () => (await zIndex(innerEdge)) < (await zIndex(child))).toBe(true);
+    }
+
+    // Dragged onto the module, publicIp sits on it: its edge is above the module and its children, and below
+    // every other node.
     await waitForStableNodePosition(page, "publicIp");
     const moduleBox = (await page.locator(moduleNode).boundingBox())!;
     const publicIpBox = (await page.locator('[data-node-id="publicIp"]').boundingBox())!;
-    await dragNode(
-      page,
-      "publicIp",
-      moduleBox.x + moduleBox.width / 2 - (publicIpBox.x + publicIpBox.width / 2),
-      moduleBox.y + moduleBox.height / 2 - (publicIpBox.y + 12),
-    );
+    const dx = moduleBox.x + moduleBox.width / 2 - (publicIpBox.x + publicIpBox.width / 2);
+    const dy = moduleBox.y + moduleBox.height / 2 - (publicIpBox.y + 12);
+    await dragNode(page, "publicIp", dx, dy);
 
-    await expect.poll(async () => (await zIndex(edge)) > (await zIndex(moduleNode))).toBe(true);
-    await expect.poll(async () => (await zIndex(edge)) < (await zIndex('[data-node-id="publicIp"]'))).toBe(true);
+    for (const below of [moduleNode, ...moduleChildren]) {
+      await expect.poll(async () => (await zIndex(edge)) > (await zIndex(below))).toBe(true);
+    }
+    for (const above of ['[data-node-id="publicIp"]', '[data-node-id="networkInterface"]']) {
+      await expect.poll(async () => (await zIndex(edge)) < (await zIndex(above))).toBe(true);
+    }
+
+    // Dragged off the module, it sits on nothing, and its edge goes back below every node.
+    await waitForStableNodePosition(page, "publicIp");
+    await dragNode(page, "publicIp", -dx, -dy);
+    await expect.poll(async () => (await zIndex(edge)) < (await minNodeZIndex())).toBe(true);
   });
 
   test("lays out a node whose size changed at its new size", async ({ page }) => {
