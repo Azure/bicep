@@ -891,6 +891,16 @@
                     }
                   ]
                 },
+                "secure-storage-account": {
+                  "allOf": [
+                    {
+                      "description": "Storage accounts should use secure settings. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#secure-storage-account"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
                 "use-stable-resource-identifiers": {
                   "allOf": [
                     {
