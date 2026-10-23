@@ -1,149 +1,88 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
+using System.Diagnostics;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Azure.Containers.ContainerRegistry;
+using System.Net.Http;
+using System.Security.Authentication;
+using Azure.Identity;
+using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry.Oci;
-using Bicep.Core.Utils;
-using OrasProject.Oras.Content;
-using OrasProject.Oras.Oci;
+using Microsoft.Extensions.Caching.Memory;
 using OrasProject.Oras.Registry.Remote;
 using OrasProject.Oras.Registry.Remote.Auth;
+using OrasProject.Oras.Exceptions;
 using OrasReference = OrasProject.Oras.Registry.Reference;
 using OrasRegistryClient = OrasProject.Oras.Registry.Remote.Registry;
 using OrasRepositoryClient = OrasProject.Oras.Registry.Remote.Repository;
 
 namespace Bicep.Core.Registry.Oci.Oras;
 
-public class OrasOciRegistryTransport : IOciRegistryTransport
+public class OrasOciRegistryTransport(
+    RegistryConfiguration registryConfiguration,
+    DockerCredentialProvider dockerCredentialProvider,
+    ITokenCredentialFactory tokenCredentialFactory,
+    IHttpClientFactory httpClientFactory) : IOciRegistryTransport
 {
-    private const string UserAgentPrefix = "bicep";
+    internal const string RegistryHttpClient = "OciRegistry";
+    internal const string AuthenticationHttpClient = "OciRegistryAuthentication";
 
-    private readonly ICredentialProvider credentialProvider;
+    internal OrasRegistrySession CreateSession(IBicepCloudConfiguration cloud, string registry, string repository, bool useDockerCredentials = true) =>
+        new(this, cloud, registry, repository, useDockerCredentials);
 
-    public OrasOciRegistryTransport(DockerCredentialProvider credentialProvider)
+    public Task<string[]> GetRepositoryNamesAsync(IBicepCloudConfiguration cloud, string registry, int maxResults, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(credentialProvider);
-        this.credentialProvider = credentialProvider;
-    }
-
-    public async Task<string[]> GetRepositoryNamesAsync(IBicepCloudConfiguration cloud, string registry, int maxResults, CancellationToken cancellationToken = default)
-    {
-        var client = CreateClient();
-        var registryClient = new OrasRegistryClient(new RepositoryOptions
+        ArgumentOutOfRangeException.ThrowIfNegative(maxResults);
+        return ExecuteAsync(cloud, registry, async client =>
         {
-            Client = client,
-            Reference = new OrasReference(registry),
-            PlainHttp = UsePlainHttp(registry)
-        });
-
-        var results = new List<string>();
-        try
-        {
-            await foreach (var name in registryClient.ListRepositoriesAsync(cancellationToken: cancellationToken).ConfigureAwait(false))
+            Trace.WriteLine($"Listing repositories for registry {registry} using ORAS SDK.");
+            var registryClient = new OrasRegistryClient(new RepositoryOptions
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                results.Add(name);
-                if (results.Count >= maxResults)
+                Client = client,
+                Reference = new OrasReference(registry),
+                PlainHttp = UsePlainHttp(registry),
+            });
+            var results = new List<string>();
+            if (maxResults > 0)
+            {
+                await foreach (var name in registryClient.ListRepositoriesAsync(cancellationToken: cancellationToken))
                 {
-                    break;
+                    results.Add(name);
+                    if (results.Count >= maxResults)
+                    {
+                        break;
+                    }
                 }
             }
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception exception)
-        {
-            throw new ExternalArtifactException(exception.Message, exception);
-        }
 
-        return [.. results];
+            Trace.WriteLine($"Successfully listed {results.Count} repositories for registry {registry} using ORAS SDK.");
+            return results.ToArray();
+        }, cancellationToken, anonymousFirst: false, allowAnonymousFallback: true);
     }
 
-    public async Task<IReadOnlyList<string>> GetRepositoryTagsAsync(IBicepCloudConfiguration cloud, string registry, string repository, CancellationToken cancellationToken = default)
-    {
-        var repositoryClient = CreateRepository(registry, repository);
-        var tags = new List<string>();
-
-        try
+    public Task<IReadOnlyList<string>> GetRepositoryTagsAsync(IBicepCloudConfiguration cloud, string registry, string repository, CancellationToken cancellationToken = default) =>
+        ExecuteAsync<IReadOnlyList<string>>(cloud, registry, async client =>
         {
-            await foreach (var tag in repositoryClient.ListTagsAsync(cancellationToken: cancellationToken).ConfigureAwait(false))
+            Trace.WriteLine($"Listing tags for repository {registry}/{repository} using ORAS SDK.");
+            var tags = new List<string>();
+            await foreach (var tag in CreateRepository(client, registry, repository).ListTagsAsync(cancellationToken: cancellationToken))
             {
-                cancellationToken.ThrowIfCancellationRequested();
                 tags.Add(tag);
             }
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception exception)
-        {
-            throw new ExternalArtifactException(exception.Message, exception);
-        }
 
-        return tags;
-    }
+            // A stable ordering is needed by catalog metadata selection.
+            tags.Sort(StringComparer.Ordinal);
+            Trace.WriteLine($"Successfully listed {tags.Count} tags for repository {registry}/{repository} using ORAS SDK.");
+            return tags;
+        }, cancellationToken, anonymousFirst: false, allowAnonymousFallback: true);
 
     public async Task<OciArtifactResult> PullArtifactAsync(IBicepCloudConfiguration cloud, IOciArtifactAddressComponents artifactReference, CancellationToken cancellationToken = default)
     {
-        var repository = CreateRepository(artifactReference.Registry, artifactReference.Repository);
-        var reference = artifactReference.Tag ?? artifactReference.Digest ?? throw new InvalidOperationException("Artifact reference must contain a tag or digest.");
-
-        try
-        {
-            var (descriptor, manifestStream) = await repository.FetchAsync(reference, cancellationToken).ConfigureAwait(false);
-            await using var manifestContent = manifestStream;
-            var manifestBytes = await manifestContent.ReadAllAsync(descriptor, cancellationToken).ConfigureAwait(false);
-            var manifestBinaryData = BinaryData.FromBytes(manifestBytes);
-
-            var manifest = OciManifest.FromBinaryData(manifestBinaryData)
-                ?? throw new InvalidArtifactException("Unable to deserialize OCI manifest");
-
-            var layerTasks = manifest.Layers.Select(layer => FetchLayerAsync(repository, layer, cancellationToken));
-            var layerResults = await Task.WhenAll(layerTasks).ConfigureAwait(false);
-
-            OciArtifactLayer? configLayer = null;
-            if (!manifest.Config.IsEmpty())
-            {
-                var config = await FetchLayerAsync(repository, manifest.Config, cancellationToken).ConfigureAwait(false);
-                configLayer = config;
-            }
-
-            return manifest.ArtifactType switch
-            {
-                BicepMediaTypes.BicepExtensionArtifactType => new OciExtensionArtifactResult(manifestBinaryData, descriptor.Digest, layerResults, configLayer),
-                BicepMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestBinaryData, descriptor.Digest, layerResults),
-                _ => throw new InvalidArtifactException($"artifacts of type: '{manifest.ArtifactType}' are not supported by this Bicep version. {OciModuleArtifactResult.NewerVersionMightBeRequired}")
-            };
-        }
-        catch (InvalidArtifactException)
-        {
-            throw;
-        }
-        catch (ExternalArtifactException)
-        {
-            throw;
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception exception)
-        {
-            throw new ExternalArtifactException(exception.Message, exception);
-        }
+        Trace.WriteLine($"Pulling artifact {artifactReference.ArtifactId} using ORAS SDK.");
+        var result = await CreateSession(cloud, artifactReference.Registry, artifactReference.Repository).PullArtifactAsync(artifactReference, cancellationToken);
+        Trace.WriteLine($"Pulled artifact {artifactReference.ArtifactId} using ORAS SDK.");
+ 
+        return result;
     }
 
     public async Task PushArtifactAsync(
@@ -156,112 +95,133 @@ public class OrasOciRegistryTransport : IOciRegistryTransport
         OciManifestAnnotationsBuilder annotations,
         CancellationToken cancellationToken = default)
     {
-        var repository = CreateRepository(artifactReference.Registry, artifactReference.Repository);
+        Trace.WriteLine($"Publishing artifact {artifactReference.ArtifactId} using ORAS SDK.");
+        await CreateSession(cloud, artifactReference.Registry, artifactReference.Repository)
+            .PushAsync(artifactReference, mediaType, artifactType, config, layers, annotations, cancellationToken);
+        Trace.WriteLine($"Published artifact {artifactReference.ArtifactId} using ORAS SDK.");
+    }
+
+    internal async Task<T> ExecuteAsync<T>(
+        IBicepCloudConfiguration cloud,
+        string registry,
+        Func<Client, Task<T>> operation,
+        CancellationToken cancellationToken,
+        bool anonymousFirst = true,
+        bool useDockerCredentials = true,
+        bool allowAnonymousFallback = false)
+    {
+        if (!registryConfiguration.IsRegistryTrusted(registry))
+        {
+            throw new ExternalArtifactException($"Cannot connect to registry \"{registry}\" because it is not in the list of trusted registries.");
+        }
+
+        var isAzure = OciRegistryTransportFactory.IsAzureRegistry(registry);
+        var isMicrosoftPublicRegistry = registry.Equals("mcr.microsoft.com", StringComparison.OrdinalIgnoreCase) ||
+            registry.Equals("mcr.azure.cn", StringComparison.OrdinalIgnoreCase);
+        using var httpClient = httpClientFactory.CreateClient(RegistryHttpClient);
+        using var authenticationClient = httpClientFactory.CreateClient(AuthenticationHttpClient);
+        // ORAS otherwise shares tokens process-wide, including between different cloud credential configurations.
+        using var anonymousCache = new MemoryCache(new MemoryCacheOptions { SizeLimit = 1024 });
+        using var authenticatedCache = new MemoryCache(new MemoryCacheOptions { SizeLimit = 1024 });
+        ICredentialProvider? credentials = null;
+
+        Client CreateClient(bool authenticated)
+        {
+            if (authenticated && credentials is null)
+            {
+                if (isAzure)
+                {
+                    var credential = tokenCredentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
+                    credentials = new AzureCredentialProvider(registry, credential, cloud.ResourceManagerAudience, authenticationClient);
+                }
+                else if (useDockerCredentials && !isMicrosoftPublicRegistry)
+                {
+                    credentials = dockerCredentialProvider;
+                }
+            }
+
+            var client = new Client(httpClient, authenticationClient, authenticated ? credentials : null,
+                new Cache(authenticated ? authenticatedCache : anonymousCache))
+            {
+                RealmValidator = new DefaultRealmValidator
+                {
+                    AllowInsecureHttp = UsePlainHttp(registry),
+                    TrustedRealmHosts = IsDockerHub(registry) ? new HashSet<string> { "auth.docker.io" } : new HashSet<string>(),
+                },
+            };
+            client.SetUserAgent($"bicep/{ThisAssembly.AssemblyFileVersion}");
+            return client;
+        }
 
         try
         {
-            await PushDescriptorAsync(repository, config, cancellationToken).ConfigureAwait(false);
-
-            var layerDescriptors = layers.ToImmutableArray();
-            foreach (var layer in layerDescriptors)
+            // Public Azure registries must remain usable without acquiring Azure credentials.
+            if (anonymousFirst && isAzure)
             {
-                await PushDescriptorAsync(repository, layer, cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    return await RetryAsync(() => operation(CreateClient(false)), cancellationToken);
+                }
+                catch (HttpRequestException exception) when (exception.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+                {
+                    Trace.WriteLine($"Anonymous access to registry {registry} failed. Retrying with Azure credentials.");
+                }
             }
 
-            var manifest = new OciManifest(
-                schemaVersion: 2,
-                mediaType: mediaType,
-                artifactType: artifactType,
-                config: config,
-                layers: layerDescriptors,
-                annotations: annotations.Build());
-
-#pragma warning disable IL2026
-            var manifestBinaryData = BinaryData.FromObjectAsJson(manifest, OciManifestSerializationContext.Default.Options);
-#pragma warning restore IL2026
-
-            var manifestBytes = manifestBinaryData.ToArray();
-            var manifestDigest = OciDescriptor.ComputeDigest(OciDescriptor.AlgorithmIdentifierSha256, manifestBinaryData);
-            var manifestDescriptor = new Descriptor
+            try
             {
-                Digest = manifestDigest,
-                MediaType = ManifestMediaType.OciImageManifest.ToString(),
-                Size = manifestBytes.Length,
-                Annotations = manifest.Annotations.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-            };
-
-            await using var manifestStreamContent = manifestBinaryData.ToStream();
-            var reference = artifactReference.Tag ?? artifactReference.Digest ?? throw new InvalidOperationException("Artifact reference must have a tag or digest.");
-            await repository.PushAsync(manifestDescriptor, manifestStreamContent, reference, cancellationToken).ConfigureAwait(false);
+                return await RetryAsync(() => operation(CreateClient(true)), cancellationToken);
+            }
+            catch (Exception exception) when (allowAnonymousFallback &&
+                (exception is CredentialUnavailableException ||
+                    exception is HttpRequestException { StatusCode: HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden }))
+            {
+                Trace.WriteLine($"Authenticated catalog access to registry {registry} failed. Retrying anonymously.");
+                return await RetryAsync(() => operation(CreateClient(false)), cancellationToken);
+            }
         }
-        catch (OperationCanceledException)
+        catch (NotFoundException exception)
         {
-            throw;
+            throw new ExternalArtifactException("The artifact does not exist in the registry.", exception);
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is HttpRequestException or IOException or AuthenticationFailedException or AuthenticationException)
         {
             throw new ExternalArtifactException(exception.Message, exception);
         }
     }
 
-    private OrasRepositoryClient CreateRepository(string registry, string repository)
-    {
-        var client = CreateClient();
-        var reference = OrasReference.Parse($"{registry}/{repository}");
-        var options = new RepositoryOptions
+    internal static OrasRepositoryClient CreateRepository(Client client, string registry, string repository) =>
+        new(new RepositoryOptions
         {
             Client = client,
-            Reference = reference,
-            PlainHttp = UsePlainHttp(registry)
-        };
+            Reference = OrasReference.Parse($"{registry}/{repository}"),
+            PlainHttp = UsePlainHttp(registry),
+        });
 
-        return new OrasRepositoryClient(options);
-    }
-
-    private Client CreateClient()
+    private static async Task<T> RetryAsync<T>(Func<Task<T>> operation, CancellationToken cancellationToken)
     {
-        var client = new Client(httpClient: null, credentialProvider: credentialProvider);
-        client.SetUserAgent($"{UserAgentPrefix}/{ThisAssembly.AssemblyFileVersion}");
-        return client;
-    }
-
-    private static bool UsePlainHttp(string registry)
-    {
-        if (Uri.TryCreate($"https://{registry}", UriKind.Absolute, out var uri) &&
-            IPAddress.TryParse(uri.Host, out var address))
+        for (var attempt = 0; ; attempt++)
         {
-            return IPAddress.IsLoopback(address);
+            cancellationToken.ThrowIfCancellationRequested();
+            try
+            {
+                return await operation();
+            }
+            catch (HttpRequestException exception) when (attempt < 3 &&
+                exception.StatusCode is null or HttpStatusCode.RequestTimeout or HttpStatusCode.TooManyRequests or
+                    HttpStatusCode.InternalServerError or HttpStatusCode.BadGateway or HttpStatusCode.ServiceUnavailable or HttpStatusCode.GatewayTimeout)
+            {
+                Trace.WriteLine($"Registry request failed. Retrying: {exception.Message}");
+                await Task.Delay(TimeSpan.FromMilliseconds(800 * (1 << attempt)), cancellationToken);
+            }
         }
-
-        return string.Equals(uri?.Host, "localhost", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static async Task<OciArtifactLayer> FetchLayerAsync(OrasRepositoryClient repository, OciDescriptor descriptor, CancellationToken cancellationToken)
-    {
-        var (fetchedDescriptor, stream) = await repository.Blobs.FetchAsync(descriptor.Digest, cancellationToken).ConfigureAwait(false);
-        await using var content = stream;
-        var bytes = await content.ReadAllAsync(fetchedDescriptor, cancellationToken).ConfigureAwait(false);
-        return new OciArtifactLayer(descriptor.Digest, descriptor.MediaType, BinaryData.FromBytes(bytes));
-    }
+    private static bool IsDockerHub(string registry) =>
+        registry.Equals("docker.io", StringComparison.OrdinalIgnoreCase) ||
+        registry.Equals("registry-1.docker.io", StringComparison.OrdinalIgnoreCase) ||
+        registry.Equals("index.docker.io", StringComparison.OrdinalIgnoreCase);
 
-    private static async Task PushDescriptorAsync(OrasRepositoryClient repository, OciDescriptor descriptor, CancellationToken cancellationToken)
-    {
-        if (descriptor.Data is null)
-        {
-            return;
-        }
-
-        var orasDescriptor = new Descriptor
-        {
-            Digest = descriptor.Digest,
-            MediaType = descriptor.MediaType,
-            Size = descriptor.Size,
-            Annotations = descriptor.Annotations.Any()
-                ? descriptor.Annotations.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-                : null
-        };
-
-        await using var stream = descriptor.Data.ToStream();
-        await repository.Blobs.PushAsync(orasDescriptor, stream, cancellationToken).ConfigureAwait(false);
-    }
+    private static bool UsePlainHttp(string registry) =>
+        Uri.TryCreate($"http://{registry}", UriKind.Absolute, out var uri) && uri.IsLoopback;
 }

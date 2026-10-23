@@ -5,9 +5,9 @@
 
 ## What is it?
 
-By default, Bicep publishes and restores modules and extensions using the Azure Container Registry (ACR) SDK. The `ociEnabled` experimental feature lets Bicep publish to and restore from **any** OCI-compliant registry, such as GitHub Container Registry (GHCR), Docker Hub, or a self-hosted registry (e.g. Harbor), using the [ORAS](https://oras.land/) transport and standard Docker credentials.
+By default, Bicep uses the Azure Container Registry (ACR) SDK for registry operations. Enabling the `ociEnabled` experimental feature switches **all** OCI registries, including ACR and Microsoft Container Registry (MCR), exclusively to the [ORAS](https://oras.land/) transport for publishing and restoring modules and extensions and enumerating repositories and tags. It also enables Docker-based authentication for non-Azure registries, such as GitHub Container Registry (GHCR), Docker Hub, or a self-hosted registry (e.g. Harbor).
 
-ACR registries continue to use the Azure SDK and Azure credentials as before; other registries use the ORAS transport.
+ACR uses your configured Azure credentials with either transport, including managed identities and sovereign-cloud settings; no Docker login is required. Public MCR modules remain available anonymously without an Azure login. With `ociEnabled` enabled, registry failures do not fall back to the ACR SDK.
 
 ## How to enable it?
 
@@ -78,6 +78,7 @@ $env:BICEP_TRUSTED_REGISTRIES = "harbor.contoso.com,*.contoso.io"
 ## Authentication
 
 - **ACR registries** (`*.azurecr.io`, etc.) use your Azure credentials, following the `cloud.credentialPrecedence` setting in `bicepconfig.json`. No extra configuration is required.
+  With `ociEnabled` enabled, Bicep uses the ACR SDK only to exchange an Azure access token for an ACR refresh token, following the [ORAS Azure authentication example](https://github.com/oras-project/oras-dotnet/blob/v0.8.0/examples/OrasProject.Oras.Examples.Azure/AzureCredentialProvider.cs). ORAS uses that refresh token to obtain repository-scoped access tokens and handles all artifact and catalog operations. Azure tokens are only exchanged with the target ACR registry.
 - **Other registries** use Docker credentials. The simplest option is to log in with the Docker CLI, which writes credentials that Bicep reads from your Docker `config.json`:
 
   ```sh

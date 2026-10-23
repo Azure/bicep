@@ -25,15 +25,18 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
 
     private readonly IBicepCloudConfiguration cloud;
     private readonly IOciRegistryTransportFactory transportFactory;
+    private readonly bool useOrasSdk;
 
     public PrivateAcrModuleMetadataProvider(
         IBicepCloudConfiguration cloud,
         string registry,
-        IOciRegistryTransportFactory transportFactory
+        IOciRegistryTransportFactory transportFactory,
+        bool useOrasSdk
     ) : base(registry)
     {
         this.cloud = cloud;
         this.transportFactory = transportFactory;
+        this.useOrasSdk = useOrasSdk;
     }
 
     protected override async Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath)
@@ -41,7 +44,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         var registry = Registry;
         var repository = modulePath;
 
-        var transport = transportFactory.GetTransport(registry);
+        var transport = transportFactory.GetTransport(registry, useOrasSdk);
 
         // For this part we want to throw on errors
         var tags = await transport.GetRepositoryTagsAsync(cloud, registry, repository);
@@ -56,7 +59,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
     {
         try
         {
-            var transport = transportFactory.GetTransport(Registry);
+            var transport = transportFactory.GetTransport(Registry, useOrasSdk);
             var artifactResult = await transport.PullArtifactAsync(cloud, new OciArtifactAddressComponents(Registry, modulePath, version, null));
             var manifest = artifactResult.Manifest;
 
@@ -94,7 +97,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
     {
         Trace.WriteLine($"Retrieving catalog for registry {Registry}...");
 
-        var transport = transportFactory.GetTransport(Registry);
+        var transport = transportFactory.GetTransport(Registry, useOrasSdk);
         var catalog = await transport.GetRepositoryNamesAsync(cloud, Registry, MaxReturnedModules);
 
         Trace.WriteLine($"Found {catalog.Length} repositories");
@@ -117,7 +120,8 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
 
     private RegistryMetadataDetails GetModuleDetails(ImmutableArray<RegistryModuleVersionMetadata> versions)
     {
-        // OCI modules don't have a description or documentation URI, we just use the most recent version with valid metadata
+        // Use the last version with valid metadata in the transport's ordering.
+        // ORAS returns tags in ordinal order, not publication or semantic-version order.
         var lastVersion = versions.LastOrDefault(x =>
             x.IsBicepModule == true
             && (!string.IsNullOrWhiteSpace(x.Details.Description) || !string.IsNullOrWhiteSpace(x.Details.DocumentationUri)));

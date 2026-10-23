@@ -121,14 +121,14 @@ public static class RegistryCatalogMocks
         var privateFactory = StrictMock.Of<IPrivateAcrModuleMetadataProviderFactory>();
 
         // Default - when an unrecognized registry is requested, return a provider that fails to load (similar to real behavior)
-        privateFactory.Setup(x => x.Create(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), It.IsAny<IOciRegistryTransportFactory>()))
-            .Returns((CloudConfiguration _, string registry, IOciRegistryTransportFactory _) =>
+        privateFactory.Setup(x => x.Create(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), It.IsAny<IOciRegistryTransportFactory>(), It.IsAny<bool>()))
+            .Returns((CloudConfiguration _, string registry, IOciRegistryTransportFactory _, bool _) =>
                 MockFailingPrivateMetadataProvider(registry, new Exception($"Registry {registry} not found in mock")).Object);
 
         foreach (var privateProvider in privateProviders)
         {
             privateProvider.Object.Registry.Should().NotBe(PublicRegistry);
-            privateFactory.Setup(x => x.Create(It.IsAny<CloudConfiguration>(), privateProvider.Object.Registry, It.IsAny<IOciRegistryTransportFactory>()))
+            privateFactory.Setup(x => x.Create(It.IsAny<CloudConfiguration>(), privateProvider.Object.Registry, It.IsAny<IOciRegistryTransportFactory>(), It.IsAny<bool>()))
                 .Returns(privateProvider.Object);
         }
 

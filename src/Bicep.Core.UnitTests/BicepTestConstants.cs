@@ -87,9 +87,9 @@ namespace Bicep.Core.UnitTests
 
         public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services)
         {
-            var transport = new AzureContainerRegistryManager(ClientFactory);
-            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new InMemoryFileExplorer());
-            var transportFactory = new OciRegistryTransportFactory(transport, dockerCredentials);
+            var transportFactory = new ServiceBuilder()
+                .WithContainerRegistryClientFactory(ClientFactory)
+                .Build().Construct<IOciRegistryTransportFactory>();
             var publicMetadataProvider = (services.GetService(typeof(IPublicModuleMetadataProvider)) as IPublicModuleMetadataProvider)
                 ?? StrictMock.Of<IPublicModuleMetadataProvider>().Object;
             return new DefaultArtifactRegistryProvider(TestRegistryConfiguration, transportFactory, publicMetadataProvider, TemplateSpecRepositoryFactory, FileExplorer);
