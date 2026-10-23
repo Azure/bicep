@@ -2,8 +2,17 @@
 // Licensed under the MIT License.
 
 import { useAtomValue, useSetAtom } from "jotai";
+import { useCallback } from "react";
 import { styled, ThemeProvider } from "styled-components";
-import { canvasElementAtom, isGraphChangeInProgressAtom, useGraphActions } from "@/core";
+import {
+  canvasElementAtom,
+  focusNodeAtom,
+  isGraphChangeInProgressAtom,
+  raisedNodeIdAtom,
+  useGraphActions,
+  useGraphApi,
+  useIsMotionReduced,
+} from "@/core";
 import { effectiveExportThemeAtom, ExportAreaCover, ExportPreviewLayer } from "@/features/export";
 import { Graph, Viewport } from "@/lib/graph";
 import { NodeContentProvider } from "./nodes/NodeContentProvider";
@@ -18,18 +27,22 @@ const $CanvasWrapper = styled.div`
     outline: 2px solid ${({ theme }) => theme.focusBorder};
     outline-offset: -2px;
   }
-`;
 
-const $InteractionShield = styled.div`
-  position: absolute;
-  inset: 0;
-  z-index: 80;
-  cursor: progress;
+  /* Node drags and module toggles are ignored while a source edit or Reset Layout is in flight; say so. */
+  &[aria-busy="true"],
+  &[aria-busy="true"] [data-node-id],
+  &[aria-busy="true"] [data-node-id] button {
+    cursor: progress;
+  }
 `;
 
 /** The surface that renders the graph. */
 export function Canvas() {
-  const { handleNodeDragStart, handleNodeDragEnd } = useGraphActions();
+  const { handleNodeDragStart, handleNodeDrag, handleNodeDragEnd } = useGraphActions();
+  const api = useGraphApi();
+  const focusNode = useSetAtom(focusNodeAtom);
+  const revealNode = useCallback((nodeId: string) => api.revealNode(nodeId), [api]);
+  const reduceMotion = useIsMotionReduced();
   const isGraphChangeInProgress = useAtomValue(isGraphChangeInProgressAtom);
   const exportTheme = useAtomValue(effectiveExportThemeAtom);
   const setCanvasElement = useSetAtom(canvasElementAtom);
@@ -45,14 +58,19 @@ export function Canvas() {
             aria-busy={isGraphChangeInProgress}
             tabIndex={0}
           >
-            <Viewport>
+            <Viewport onNodeClick={focusNode}>
               <PendingResourceLayer />
-              <Graph onNodeDragStart={handleNodeDragStart} onNodeDragEnd={handleNodeDragEnd}>
+              <Graph
+                raisedNodeIdAtom={raisedNodeIdAtom}
+                reduceMotion={reduceMotion}
+                onNodeDragStart={handleNodeDragStart}
+                onNodeDrag={handleNodeDrag}
+                onNodeDragEnd={handleNodeDragEnd}
+                onNodeDoubleClick={revealNode}
+              >
                 <ExportAreaCover />
               </Graph>
             </Viewport>
-            {/* Blocks node gestures while a source edit or layout reset is in flight. */}
-            {isGraphChangeInProgress && <$InteractionShield />}
           </$CanvasWrapper>
         </ThemeProvider>
       </NodeContentProvider>

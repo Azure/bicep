@@ -75,8 +75,9 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        [ClassCleanup(InheritanceBehavior.BeforeEachDerivedClass)]
-        public static async Task ClassCleanup()
+        // The servers are shared across all derived test classes, so they must only be disposed once all tests have run.
+        [AssemblyCleanup]
+        public static async Task AssemblyCleanup()
         {
             await DefaultServer.DisposeAsync();
             await ServerWithFileResolver.DisposeAsync();

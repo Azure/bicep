@@ -49,7 +49,7 @@ public class ExtensionRegistryTests : TestBase
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(false, "", false)]
     [DataRow(false, "as fooExt", false)]
     [DataRow(true, "", true)]
@@ -94,7 +94,7 @@ public class ExtensionRegistryTests : TestBase
         result.Template.Should().NotBeNull();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(false, "", false)]
     [DataRow(false, "as fooExt", false)]
     [DataRow(true, "", true)]

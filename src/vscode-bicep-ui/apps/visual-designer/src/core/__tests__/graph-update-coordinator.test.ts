@@ -134,7 +134,7 @@ describe("update and layout ordering", () => {
 
     const first = harness.coordinator.requestUpdate();
     // Reset Layout arrives while the update is in flight.
-    const reset = harness.coordinator.requestResetGraphLayout();
+    const reset = harness.coordinator.requestGraphLayout("reset");
     gate.resolve();
     await Promise.all([first, reset]);
 
@@ -215,7 +215,7 @@ describe("graphChanged handling", () => {
   it("keeps a reset layout a reset across the retry", async () => {
     const harness = createHarness({ layoutResults: ["graphChanged", "completed"] });
 
-    await harness.coordinator.requestResetGraphLayout();
+    await harness.coordinator.requestGraphLayout("reset");
 
     expect(harness.calls).toEqual(["layout:reset", "fetch", "apply", "layout:reset"]);
   });
@@ -228,7 +228,7 @@ describe("layout mode precedence", () => {
 
     // The update is in flight and will ask for an automatic layout; Reset Layout arrives meanwhile.
     const update = harness.coordinator.requestUpdate();
-    const reset = harness.coordinator.requestResetGraphLayout();
+    const reset = harness.coordinator.requestGraphLayout("reset");
     gate.resolve();
     await Promise.all([update, reset]);
 
@@ -245,7 +245,7 @@ describe("layout mode precedence", () => {
     const update = harness.coordinator.requestUpdate();
     await flush();
 
-    const reset = harness.coordinator.requestResetGraphLayout();
+    const reset = harness.coordinator.requestGraphLayout("reset");
     gate.resolve();
     harness.openFetchGate();
     await Promise.all([update, reset]);
@@ -328,7 +328,7 @@ describe("request completion", () => {
     const layoutGate = harness.gateLayout();
 
     const update = harness.coordinator.requestUpdate();
-    const reset = harness.coordinator.requestResetGraphLayout();
+    const reset = harness.coordinator.requestGraphLayout("reset");
     const resetState = trackSettled(reset);
 
     // The reset arrived while the update pass was already draining, so it only recorded work.
@@ -352,7 +352,7 @@ describe("request completion", () => {
 
     // A caller that waits on the returned promise — as `trackGraphChange` does — keeps Reset Layout disabled
     // for as long as the layout runs, so the second request never reaches the coordinator.
-    const first = harness.coordinator.requestResetGraphLayout();
+    const first = harness.coordinator.requestGraphLayout("reset");
     const firstState = trackSettled(first);
 
     await flush();
@@ -362,7 +362,7 @@ describe("request completion", () => {
     harness.openLayoutGate();
     await first;
 
-    await harness.coordinator.requestResetGraphLayout();
+    await harness.coordinator.requestGraphLayout("reset");
 
     expect(harness.calls).toEqual(["layout:reset", "layout:reset"]);
   });
@@ -405,7 +405,7 @@ describe("request completion", () => {
 
     // A pass is in flight and about to fail; Reset Layout arrives while it is still draining.
     const update = harness.coordinator.requestUpdate();
-    const reset = harness.coordinator.requestResetGraphLayout();
+    const reset = harness.coordinator.requestGraphLayout("reset");
     const resetState = trackSettled(reset);
 
     gate.resolve();

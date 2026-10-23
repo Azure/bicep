@@ -110,7 +110,7 @@ public class ProviderExtensionTests : TestBase
     }
 
     [TestMethod]
-    [DynamicData(nameof(GetDataSets), DynamicDataSourceType.Method)]
+    [DynamicData(nameof(GetDataSets))]
     public async Task Save_request_works_as_expected(ChannelMode mode)
     {
         string[] processArgs;

@@ -56,13 +56,18 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 _ => null,
             };
 
-            return Task.FromResult(new VisualGraphResult(graph, targetScope, model.GetAllDiagnostics().Count(diagnostic => diagnostic.IsError())));
+            return Task.FromResult(new VisualGraphResult(
+                graph,
+                targetScope,
+                model.GetAllDiagnostics().Count(diagnostic => diagnostic.IsError()),
+                graph.GetRevision()));
         }
     }
 
     /// <summary>
-    /// Handles <c>textDocument/visualGraphLayout</c>: validates the measured graph against the live compilation,
-    /// runs MSAGL with actual client-measured sizes, and returns node positions and the graph's bounds.
+    /// Handles <c>textDocument/visualGraphLayout</c>: checks that the client's graph revision is still current,
+    /// runs MSAGL on the graph the client renders with its measured sizes, and returns node positions and the
+    /// graph's bounds.
     /// </summary>
     public class VisualGraphLayoutHandler : IJsonRpcRequestHandler<VisualGraphLayoutParams, VisualGraphLayoutResult>
     {
@@ -93,14 +98,18 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 return new VisualGraphLayoutResult(VisualGraphLayoutStatus.GraphChanged, [], null);
             }
 
-            var sourceGraph = VisualGraphBuilder.Build(context, request.TextDocument.Uri.ToIOUri());
-            var target = VisualGraphTopology.Project(
-                sourceGraph,
-                request.CollapsedNodeIds?.ToHashSet(StringComparer.Ordinal) ?? new HashSet<string>(StringComparer.Ordinal));
+            var liveGraph = VisualGraphBuilder.Build(context, request.TextDocument.Uri.ToIOUri());
 
-            if (!VisualGraphTopology.Matches(request.Graph, target))
+            if (request.Revision != liveGraph.GetRevision())
             {
                 return new VisualGraphLayoutResult(VisualGraphLayoutStatus.GraphChanged, [], null);
+            }
+
+            if (request.Graph.ToLayoutGraph() is not { } target)
+            {
+                this.logger.LogWarning("Visual graph layout request for {Uri} contained a malformed graph.", request.TextDocument.Uri);
+
+                return new VisualGraphLayoutResult(VisualGraphLayoutStatus.LayoutFailed, [], null);
             }
 
             var nodeSizes = request.Graph.Nodes.ToDictionary(node => node.Id, node => new NodeSize(node.Width, node.Height), StringComparer.Ordinal);

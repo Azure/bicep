@@ -89,6 +89,7 @@ The playground's own theme picker switches between VS Code's built-in color them
 | `catalogDelay=5000`                      | Delay the resource type catalog response in milliseconds                              |
 | `versionsDelay=1000`                     | Delay per-type API-version responses in milliseconds                                  |
 | `versionFailures=1`                      | Fail the first N version requests to exercise retry                                   |
+| `layoutDelay=1500`                       | Delay layout responses in milliseconds, holding layouts and Reset Layout open         |
 | `motionPolicy=reduce`                    | Use reduced motion for graph layout and designer undo/redo in the fake host           |
 | `withholdGraphUpdatesAfterCreation=true` | Return empty graph updates while a designer-created resource is in source             |
 | `skipGraphUpdateAfterUndo=true`          | Withhold an undone creation's removal until the graph changes again                   |
@@ -202,37 +203,60 @@ change it through `useGraphActions`:
 interface GraphActions {
   resetGraphLayout(): Promise<void>;
   createResourceAt(resourceType, graphPoint): Promise<void>;
+  toggleModuleCollapsed(moduleId): void;
   handleNodeDragStart(nodeId): void;
+  handleNodeDrag(nodeId, dx, dy): void;
   handleNodeDragEnd(nodeId): void;
   undo(): Promise<void>;
   redo(): Promise<void>;
 }
 ```
 
-`ControlBar` uses them for Reset Layout, and `HistoryBar` for Undo and Redo. The canvas feature adds only what depends on
+`ControlBar` uses them for Reset Layout, `HistoryBar` for Undo and Redo, and `Canvas` for node drags
+and module collapse. The canvas feature adds only what depends on
 its own element and camera: `useCanvasDropTarget` converts a palette drop's client point to a graph
 point. It reads the canvas element from core's `canvasElementAtom`, so the palette can use it without
 `Canvas` being an ancestor; export reads the same atom to capture the canvas.
+
+`lib/graph` treats node IDs as opaque and knows nothing about Bicep, focus, or modules. Containment
+comes from each node's `parentId`. `Graph` stacks nodes and edges as nested elements would be: a
+parent, then the edges between its children, then each child, so edges are below the nodes they join
+and above their parent's frame. It raises the node in `raisedNodeIdAtom` above its siblings; the canvas
+passes core's, which holds the node most recently focused or dragged, so dragging raises a node
+without focusing it. A node that sits on a sibling container (their target boxes overlap) has its edges
+drawn just above that container and below every other node. It reports
+gestures for the app to act on: `onNodeDragStart`, `onNodeDrag`, `onNodeDragEnd`, and
+`onNodeDoubleClick` on `Graph`, and `onNodeClick` on `Viewport`. Node content marks its own controls
+with `graphInteractiveProps`, so pressing one neither drags or focuses the node nor pans the canvas.
+
+The app gives `lib/graph` a graph to show (`setGraphAtom`: nodes with a parent and data, and edges)
+and where its nodes go (`nodePositionsAtom`: node centers and whether to animate there). The library
+measures the nodes and owns how they are drawn on the way: springs to new positions, containers that
+follow their contents, morphs when a node becomes a container or stops being one, and fades for the
+contents of a container that opens or closes. A node keeps its state, and its element, while its ID
+and parent stay the same.
 
 ## Graph synchronization
 
 `src/core` keeps a client replica of the server graph and requests layout after React has measured
 node sizes.
 
-| Module                                | Responsibility                                                         |
-| ------------------------------------- | ---------------------------------------------------------------------- |
-| `graph-model.ts`                      | Indexed client graph, measured projection, render comparison           |
-| `graph-layout.ts`                     | Layout invalidation and viewport centering                             |
-| `graph-update-coordinator.ts`         | Update/layout ordering, coalescing, and mutation serialization         |
-| `undo-history.ts`                     | Pure undo/redo stacks of layout and source steps                       |
-| `node-positions.ts`                   | Capture and restore atomic node positions                              |
-| `GraphActionsProvider.tsx`            | Mounts graph sync and the Undo/Redo shortcuts; provides `GraphActions` |
-| `use-graph-sync.ts`                   | Graph updates, layout, and node-drag and Reset Layout history          |
-| `use-resource-creation.ts`            | Placeholder, extension insertion, and creation history step            |
-| `use-undo-redo.ts`                    | Undo/redo of layout and resource-creation steps                        |
-| `use-apply-graph.ts`                  | Reconcile graph nodes and edges                                        |
-| `use-apply-graph-layout.ts`           | Reveal and animate node positions                                      |
-| The coordinator enforces these rules: |
+| Module                        | Responsibility                                                        |
+| ----------------------------- | --------------------------------------------------------------------- |
+| `graph-model.ts`              | Indexed client graph, collapse projection, render comparison          |
+| `graph-layout.ts`             | Layout invalidation, viewport centering, and layout centers           |
+| `node-positions.ts`           | The node positions map, including hidden nodes, and its pure rules    |
+| `show-graph.ts`               | Hands the shown graph to `lib/graph`, placing new nodes provisionally |
+| `graph-update-coordinator.ts` | Update/layout ordering, coalescing, and mutation serialization        |
+| `undo-history.ts`             | Pure undo/redo stacks of layout and source steps                      |
+| `GraphActionsProvider.tsx`    | Owns the coordinator, composes the hooks, and provides `GraphActions` |
+| `use-graph-sync.ts`           | Graph updates, layout, and Reset Layout                               |
+| `use-node-drag.ts`            | Moving dragged nodes and recording each drag                          |
+| `use-module-collapse.ts`      | Collapse and expand                                                   |
+| `use-resource-creation.ts`    | Placeholder, extension insertion, and creation history step           |
+| `use-undo-redo.ts`            | Undo/redo of layout and resource-creation steps                       |
+
+The coordinator enforces these rules:
 
 - Reconcile before layout.
 - A reset layout takes precedence over automatic layout.

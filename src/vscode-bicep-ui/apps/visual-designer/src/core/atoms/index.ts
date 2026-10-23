@@ -7,3 +7,4 @@ export * from "./graph";
 export * from "./history";
 export * from "./pending-changes";
 export * from "./settings";
+export * from "./view";

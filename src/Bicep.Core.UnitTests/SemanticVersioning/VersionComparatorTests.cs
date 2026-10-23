@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.SemanticVersioning;
 [TestClass]
 public class VersionComparatorTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2.3", VersionComparatorOperator.Equal, "1.2.3")]
     [DataRow("=1.2.3", VersionComparatorOperator.Equal, "1.2.3")]
     [DataRow(">1.2.3", VersionComparatorOperator.GreaterThan, "1.2.3")]
@@ -30,7 +30,7 @@ public class VersionComparatorTests
         comparator.Version.ToString().Should().Be(expectedVersion);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow("   ")]
     [DataRow(">=")]
@@ -56,7 +56,7 @@ public class VersionComparatorTests
         comparator.Should().BeNull();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2.3", false, false, true)]
     [DataRow(">1.2.3", true, false, false)]
     [DataRow(">=1.2.3", true, false, true)]
@@ -71,7 +71,7 @@ public class VersionComparatorTests
         comparator.IsInclusive.Should().Be(isInclusive);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2.3", "1.2.3")]
     [DataRow("=1.2.3", "1.2.3")]
     [DataRow(">=1.2", ">=1.2.0")]

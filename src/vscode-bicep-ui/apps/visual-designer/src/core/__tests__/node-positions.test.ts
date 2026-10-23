@@ -1,54 +1,121 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { createStore } from "jotai";
-import { describe, expect, it } from "vitest";
-import { createAtomicNode, createCompoundNode, nodesByIdAtom } from "@/lib/graph";
-import { applyNodePositions, captureNodePositions } from "../node-positions";
+import type { GraphNode } from "../api";
 
-function addNode(store: ReturnType<typeof createStore>, nodeId: string, x: number, y: number) {
-  store.set(nodesByIdAtom, (nodes) => ({ ...nodes, [nodeId]: createAtomicNode(nodeId, { x, y }, null) }));
+import { describe, expect, it } from "vitest";
+import { indexGraph } from "../graph-model";
+import {
+  forgetRemovedNodePositions,
+  getCentroid,
+  getPositionedNodeIds,
+  moveNodes,
+  translateNodes,
+} from "../node-positions";
+
+function node(id: string, parentId: string | null, kind: GraphNode["kind"] = "resource"): GraphNode {
+  return {
+    id,
+    kind,
+    parentId,
+    type: kind === "module" ? "<module>" : "Test.Rp/tests",
+    symbolName: id,
+    isCollection: false,
+    hasChildren: false,
+    hasError: false,
+  };
 }
 
-describe("node positions", () => {
-  it("captures atomic nodes only, optionally limited to one subtree", () => {
-    const store = createStore();
-    addNode(store, "module::a", 10, 20);
-    addNode(store, "module::nested::b", 30, 40);
-    addNode(store, "other", 50, 60);
-    store.set(nodesByIdAtom, (nodes) => ({
-      ...nodes,
-      module: createCompoundNode("module", ["module::a", "module::nested::b"], null),
-    }));
+// `outer` contains `inner`, which contains `child`; `sibling` is directly inside `outer`.
+const graph = indexGraph({
+  nodes: [
+    { ...node("outer", null, "module"), hasChildren: true },
+    { ...node("inner", "outer", "module"), hasChildren: true },
+    node("child", "inner"),
+    node("sibling", "outer"),
+    node("other", null),
+  ],
+  edges: [],
+});
 
-    expect(captureNodePositions(store)).toEqual(
-      new Map([
-        ["module::a", { x: 10, y: 20 }],
-        ["module::nested::b", { x: 30, y: 40 }],
-        ["other", { x: 50, y: 60 }],
-      ]),
-    );
-    expect([...captureNodePositions(store, "module").keys()]).toEqual(["module::a", "module::nested::b"]);
-    expect([...captureNodePositions(store, "other").keys()]).toEqual(["other"]);
+const positions = new Map([
+  ["outer", { x: 0, y: 0 }],
+  ["inner", { x: 10, y: 10 }],
+  ["child", { x: 20, y: 20 }],
+  ["sibling", { x: 30, y: 30 }],
+  ["other", { x: 100, y: 100 }],
+]);
+
+describe("moveNodes", () => {
+  it("moves only the changed nodes when no module is collapsed", () => {
+    const moved = moveNodes(positions, new Map([["outer", { x: 5, y: 0 }]]), graph, new Set());
+
+    expect(moved.get("outer")).toEqual({ x: 5, y: 0 });
+    expect(moved.get("inner")).toEqual({ x: 10, y: 10 });
+    expect(moved.get("child")).toEqual({ x: 20, y: 20 });
   });
 
-  it("moves nodes without changing their size and ignores unknown IDs", () => {
-    const store = createStore();
-    addNode(store, "resource", 0, 0);
-    const node = store.get(nodesByIdAtom).resource;
-    if (node?.kind !== "atomic") {
-      throw new Error("Expected an atomic node.");
-    }
-    store.set(node.boxAtom, { min: { x: 10, y: 20 }, max: { x: 110, y: 60 } });
+  it("moves the hidden contents of nested collapsed modules once, with the outermost card", () => {
+    const moved = moveNodes(positions, new Map([["outer", { x: 5, y: 7 }]]), graph, new Set(["outer", "inner"]));
 
-    applyNodePositions(
-      store,
-      new Map([
-        ["resource", { x: 30, y: 40 }],
-        ["missing", { x: 0, y: 0 }],
+    expect(moved.get("inner")).toEqual({ x: 15, y: 17 });
+    expect(moved.get("child")).toEqual({ x: 25, y: 27 });
+    expect(moved.get("sibling")).toEqual({ x: 35, y: 37 });
+    expect(moved.get("other")).toEqual({ x: 100, y: 100 });
+  });
+
+  it("restores hidden contents recorded in a step instead of moving them with the card", () => {
+    // Undoing a drag replays every recorded position, including those of hidden nodes.
+    const step = new Map([
+      ["outer", { x: -1, y: -1 }],
+      ["child", { x: 2, y: 3 }],
+    ]);
+
+    const moved = moveNodes(positions, step, graph, new Set(["outer"]));
+
+    expect(moved.get("child")).toEqual({ x: 2, y: 3 });
+    expect(moved.get("sibling")).toEqual({ x: 29, y: 29 });
+  });
+
+  it("does not change the positions it is given", () => {
+    moveNodes(positions, new Map([["outer", { x: 5, y: 7 }]]), graph, new Set(["outer"]));
+
+    expect(positions.get("child")).toEqual({ x: 20, y: 20 });
+  });
+});
+
+describe("translateNodes", () => {
+  it("offsets the nodes that have positions and ignores the rest", () => {
+    expect(translateNodes(positions, ["child", "missing"], 1, 2)).toEqual(new Map([["child", { x: 21, y: 22 }]]));
+  });
+});
+
+describe("forgetRemovedNodePositions", () => {
+  it("keeps hidden nodes that are still in the graph and drops removed ones", () => {
+    const kept = forgetRemovedNodePositions(new Map([...positions, ["removed", { x: 0, y: 0 }]]), graph);
+
+    expect([...kept.keys()]).toEqual(["outer", "inner", "child", "sibling", "other"]);
+  });
+
+  it("returns the same map when nothing was removed, so callers can skip resetting positions", () => {
+    expect(forgetRemovedNodePositions(positions, graph)).toBe(positions);
+  });
+});
+
+describe("getPositionedNodeIds", () => {
+  it("returns the nodes that are not containers", () => {
+    expect(getPositionedNodeIds(graph)).toEqual(["child", "sibling", "other"]);
+  });
+});
+
+describe("getCentroid", () => {
+  it("averages positions, or returns null for none", () => {
+    expect(
+      getCentroid([
+        { x: 0, y: 0 },
+        { x: 10, y: 20 },
       ]),
-    );
-
-    expect(store.get(node.boxAtom)).toEqual({ min: { x: 30, y: 40 }, max: { x: 130, y: 80 } });
+    ).toEqual({ x: 5, y: 10 });
+    expect(getCentroid([])).toBeNull();
   });
 });

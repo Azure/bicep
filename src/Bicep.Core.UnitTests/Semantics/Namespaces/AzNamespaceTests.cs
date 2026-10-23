@@ -19,7 +19,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
     [TestClass]
     public class AzNamespaceTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("toLogicalZone")]
         [DataRow("toLogicalZones")]
         [DataRow("toPhysicalZone")]

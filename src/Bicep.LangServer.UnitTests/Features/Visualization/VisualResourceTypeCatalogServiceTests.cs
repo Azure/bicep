@@ -107,7 +107,7 @@ public class VisualResourceTypeCatalogServiceTests
         versions.CatalogId.Should().Be(service.GetResourceTypes(model, knownCatalogId: null).CatalogId);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow(" ")]
     [DataRow("Test.Rp/missing")]
@@ -133,7 +133,7 @@ public class VisualResourceTypeCatalogServiceTests
         CreateScopedType("Other.Rp/tenantOnly", ResourceScope.Tenant),
     ];
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("resourceGroup", new[] { "Scope.Rp/everywhere", "Scope.Rp/resourceGroupOnly" })]
     [DataRow("subscription", new[] { "Scope.Rp/everywhere", "Scope.Rp/readOnlyAtResourceGroup", "Scope.Rp/subscriptionOnly" })]
     [DataRow("managementGroup", new[] { "Scope.Rp/everywhere", "Scope.Rp/managementGroupOnly" })]

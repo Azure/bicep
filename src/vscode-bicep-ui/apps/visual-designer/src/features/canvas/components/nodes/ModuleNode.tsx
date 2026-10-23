@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { MouseEvent } from "react";
+import type { CanvasNodeData } from "@/core";
 
 import { AzureIcon, Codicon } from "@vscode-bicep-ui/components";
-import { useAtomValue, useStore } from "jotai";
 import { animate } from "motion";
-import { motion } from "motion/react";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { useCallback, useLayoutEffect, useRef } from "react";
 import { styled, useTheme } from "styled-components";
-import { isGraphChangeInProgressAtom, MODULE_MORPH_TRANSITION, useGraphActions } from "@/core";
-import { nodesByIdAtom, useIsNodeFocused } from "@/lib/graph";
+import { useGraphActions, useIsMotionReduced } from "@/core";
+import { graphInteractiveProps, NODE_MORPH_TRANSITION } from "@/lib/graph";
 import { ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
+import { useIsNodeFocused } from "../../hooks/use-is-node-focused";
 
 /** Matches `ResourceNode`, so a collapsed module reads as one more card on the graph. */
 const CARD_HEIGHT = 76;
@@ -22,24 +22,15 @@ const HEADER_ICON_SIZE = 24;
 /** A fixed line height lets the type label animate to an exact height. */
 const TYPE_LABEL_LINE_HEIGHT = 16;
 
-/** The size a module had before it changed shape, or `"card"` when it is expanding from its card. */
-type MorphFrom = { width: number; height: number } | "card";
-
 const LABEL_SHOWN = { height: TYPE_LABEL_LINE_HEIGHT, marginTop: 2, opacity: 1 } as const;
 const LABEL_HIDDEN = { height: 0, marginTop: 0, opacity: 0 } as const;
+const NO_TRANSITION = { duration: 0 } as const;
 
 export interface ModuleNodeProps {
   id: string;
   /** `container` frames the module's children; `card` stands in for them when they are hidden. */
   variant: "container" | "card";
-  data: {
-    symbolicName: string;
-    isCollection?: boolean;
-    hasError?: boolean;
-    isCollapsed?: boolean;
-    canCollapse?: boolean;
-    morphFrom?: MorphFrom;
-  };
+  data: CanvasNodeData;
 }
 
 type FrameProps = {
@@ -57,6 +48,8 @@ const $Frame = styled.div<FrameProps>`
   margin: 4px;
   box-sizing: border-box;
   min-width: ${({ $variant }) => ($variant === "card" ? "220px" : "0")};
+  /* A card's height is fixed by its design, so it measures the same while its header animates. */
+  min-height: ${({ $variant }) => ($variant === "card" ? `${CARD_HEIGHT}px` : "0")};
   border: ${({ $hasError, theme }) => ($hasError ? theme.node.errorBorderWidth : theme.node.borderWidth)} solid
     ${({ $hasError, $isFocused, theme }) =>
       $hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
@@ -114,7 +107,7 @@ const $Row = styled(motion.div)`
   padding: 0 12px 0 20px;
 `;
 
-const $Icon = styled(motion.div)`
+const $Icon = styled.div`
   display: flex;
   flex: 0 0 auto;
   transform-origin: left center;
@@ -153,7 +146,7 @@ const $TypeLabel = styled(motion.div)`
 
 /**
  * Hidden until the module is hovered or selected, so a graph full of modules stays uncluttered. Keyboard
- * focus also reveals it. A disabled toggle stays hidden unless something would otherwise reveal it.
+ * focus also reveals it.
  */
 const $ToggleButton = styled(IconButton)<{ $isRevealed: boolean }>`
   flex: 0 0 auto;
@@ -168,14 +161,6 @@ const $ToggleButton = styled(IconButton)<{ $isRevealed: boolean }>`
   &:focus-visible {
     opacity: 1;
   }
-
-  &:disabled {
-    opacity: ${({ $isRevealed }) => ($isRevealed ? 0.45 : 0)};
-  }
-
-  ${$Frame}:hover &:disabled {
-    opacity: 0.45;
-  }
 `;
 
 /** The row's height in each variant; the morph animates between them. */
@@ -184,132 +169,55 @@ function getRowHeight(variant: ModuleNodeProps["variant"], borderWidth: string) 
 }
 
 export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
-  const { symbolicName, isCollection, hasError, isCollapsed = false, canCollapse = false } = data;
+  const { symbolicName, isCollection, hasError, isCollapsed, canCollapse } = data;
   const theme = useTheme();
   const frameRef = useRef<HTMLDivElement>(null);
-  // Only the mount that replaced the module's other shape morphs; later data updates must not replay it.
-  const [morphFrom] = useState(data.morphFrom);
+  const iconRef = useRef<HTMLDivElement>(null);
   const isFocused = useIsNodeFocused(id);
-  const isGraphChangeInProgress = useAtomValue(isGraphChangeInProgressAtom);
+  const reduceMotion = useIsMotionReduced();
   const { toggleModuleCollapsed } = useGraphActions();
   const isCard = variant === "card";
   const borderWidth = hasError ? theme.node.errorBorderWidth : theme.node.borderWidth;
   const rowHeight = getRowHeight(variant, borderWidth);
-  const otherRowHeight = getRowHeight(isCard ? "container" : "card", borderWidth);
   const iconSize = isCard ? CARD_ICON_SIZE : HEADER_ICON_SIZE;
-  const otherIconSize = isCard ? HEADER_ICON_SIZE : CARD_ICON_SIZE;
   const action = isCollapsed ? "Expand" : "Collapse";
+  const transition = reduceMotion ? NO_TRANSITION : NODE_MORPH_TRANSITION;
 
-  // A collapsing module mounts at the size of the container it replaces, so its node box -- and the
-  // edges attached to it -- start there, then shrink to the card. This runs before the node measures
-  // itself, because child layout effects run before their parents'.
-  const store = useStore();
+  // The graph morphs the node's box when the module opens or closes; the icon and background change
+  // with it. The header and type label animate through their own props.
+  const previousVariantRef = useRef(variant);
   useLayoutEffect(() => {
+    const previousVariant = previousVariantRef.current;
+    previousVariantRef.current = variant;
     const frame = frameRef.current;
-    if (!frame || !morphFrom) {
+    const icon = iconRef.current;
+
+    if (previousVariant === variant || reduceMotion || !frame || !icon) {
       return;
     }
 
-    const fromBackground = isCard ? theme.node.compoundBackground : theme.node.background;
-    const toBackground = isCard ? theme.node.background : theme.node.compoundBackground;
+    const background = (shape: ModuleNodeProps["variant"]) =>
+      shape === "card" ? theme.node.background : theme.node.compoundBackground;
+    const otherIconSize = isCard ? HEADER_ICON_SIZE : CARD_ICON_SIZE;
+    const iconControls = animate(icon, { scale: [otherIconSize / iconSize, 1] }, NODE_MORPH_TRANSITION);
+    const backgroundControls = animate(
+      frame,
+      { backgroundColor: [background(previousVariant), background(variant)] },
+      NODE_MORPH_TRANSITION,
+    );
+    // Afterwards the theme sets the background again, so a theme change applies.
+    void backgroundControls.then(() => {
+      frame.style.backgroundColor = "";
+    });
 
-    if (morphFrom === "card") {
-      // The container's box grows from the card on its own; only its color is left to blend.
-      const controls = animate(frame, { backgroundColor: [fromBackground, toBackground] }, MODULE_MORPH_TRANSITION);
-      return () => {
-        controls.stop();
-        frame.style.backgroundColor = "";
-      };
-    }
-
-    const node = frame.closest<HTMLElement>("[data-node-id]");
-    // The row starts at the header's height, so the card's height comes from its design, not the DOM.
-    const naturalWidth = frame.offsetWidth;
-    const naturalHeight = CARD_HEIGHT;
-    const marginsWidth = (node?.offsetWidth ?? naturalWidth) - naturalWidth;
-    const marginsHeight = (node?.offsetHeight ?? frame.offsetHeight) - frame.offsetHeight;
-    const fromWidth = Math.max(naturalWidth, morphFrom.width - marginsWidth);
-    const fromHeight = Math.max(naturalHeight, morphFrom.height - marginsHeight);
-
-    // The node has not measured itself yet, so its box is still the point it was created at: the
-    // container's center. The card shrinks toward it. Writing the box in the same tick as the size
-    // keeps them in step; the node's own resize measurement arrives a frame late.
-    const graphNode = store.get(nodesByIdAtom)[id];
-    const boxAtom = graphNode?.kind === "atomic" ? graphNode.boxAtom : undefined;
-    const startBox = boxAtom ? store.get(boxAtom) : undefined;
-    const center = startBox && {
-      x: (startBox.min.x + startBox.max.x) / 2,
-      y: (startBox.min.y + startBox.max.y) / 2,
-    };
-    const setSize = (width: number, height: number) => {
-      frame.style.width = `${width}px`;
-      frame.style.height = `${height}px`;
-      if (boxAtom && center) {
-        const halfWidth = (width + marginsWidth) / 2;
-        const halfHeight = (height + marginsHeight) / 2;
-        store.set(boxAtom, {
-          min: { x: center.x - halfWidth, y: center.y - halfHeight },
-          max: { x: center.x + halfWidth, y: center.y + halfHeight },
-        });
-      }
-    };
-    const clearMorph = () => {
-      frame.style.width = "";
-      frame.style.height = "";
+    return () => {
+      iconControls.stop();
+      backgroundControls.stop();
       frame.style.backgroundColor = "";
     };
+  }, [iconSize, isCard, reduceMotion, theme, variant]);
 
-    setSize(fromWidth, fromHeight);
-    const sizeControls = animate(0, 1, {
-      ...MODULE_MORPH_TRANSITION,
-      onUpdate: (progress) =>
-        setSize(
-          fromWidth + (naturalWidth - fromWidth) * progress,
-          fromHeight + (naturalHeight - fromHeight) * progress,
-        ),
-    });
-    const colorControls = animate(frame, { backgroundColor: [fromBackground, toBackground] }, MODULE_MORPH_TRANSITION);
-    void sizeControls.then(clearMorph);
-
-    return () => {
-      sizeControls.stop();
-      colorControls.stop();
-      clearMorph();
-    };
-    // Theme colors are read once: the morph plays only on mount.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [morphFrom]);
-
-  const toggleButtonRef = useRef<HTMLButtonElement>(null);
-
-  // The canvas reads presses (focus, node drag, pan) and double-clicks (reveal source) with native
-  // listeners on the node's ancestors, which React's synthetic stopPropagation runs too late to stop.
-  useEffect(() => {
-    const button = toggleButtonRef.current;
-    if (!button) {
-      return;
-    }
-
-    const stop = (event: Event) => event.stopPropagation();
-    const events = ["pointerdown", "mousedown", "touchstart", "dblclick"] as const;
-    for (const type of events) {
-      button.addEventListener(type, stop);
-    }
-
-    return () => {
-      for (const type of events) {
-        button.removeEventListener(type, stop);
-      }
-    };
-  }, [canCollapse]);
-
-  const handleToggle = useCallback(
-    (event: MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
-      toggleModuleCollapsed(id);
-    },
-    [id, toggleModuleCollapsed],
-  );
+  const handleToggle = useCallback(() => toggleModuleCollapsed(id), [id, toggleModuleCollapsed]);
 
   return (
     <$Frame
@@ -318,43 +226,38 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
       $isCollection={isCollection}
       $isFocused={isFocused}
       $variant={variant}
+      data-focused={isFocused}
       data-module-collapsed={isCollapsed}
     >
-      <$Row
-        initial={morphFrom ? { height: otherRowHeight } : false}
-        animate={{ height: rowHeight }}
-        transition={MODULE_MORPH_TRANSITION}
-      >
-        <$Icon
-          initial={morphFrom ? { scale: otherIconSize / iconSize } : false}
-          animate={{ scale: 1 }}
-          transition={MODULE_MORPH_TRANSITION}
-        >
+      <$Row initial={false} animate={{ height: rowHeight }} transition={transition}>
+        <$Icon ref={iconRef}>
           <AzureIcon resourceType="folder" size={iconSize} />
         </$Icon>
         <$Text>
           <$SymbolicName>{symbolicName}</$SymbolicName>
-          {/* Only the card names its type: a container's frame already says it is a module. While a
-              module changes shape, the label grows into or out of the card so the name glides. */}
-          {(isCard || morphFrom === "card") && (
-            <$TypeLabel
-              initial={morphFrom ? (isCard ? LABEL_HIDDEN : LABEL_SHOWN) : false}
-              animate={isCard ? LABEL_SHOWN : LABEL_HIDDEN}
-              transition={MODULE_MORPH_TRANSITION}
-            >
-              Module
-            </$TypeLabel>
-          )}
+          {/* Only the card names its type: a container's frame already says it is a module. */}
+          <AnimatePresence initial={false}>
+            {isCard && (
+              <$TypeLabel
+                key="type"
+                initial={LABEL_HIDDEN}
+                animate={LABEL_SHOWN}
+                exit={LABEL_HIDDEN}
+                transition={transition}
+              >
+                Module
+              </$TypeLabel>
+            )}
+          </AnimatePresence>
         </$Text>
         {canCollapse && (
           <$ToggleButton
-            ref={toggleButtonRef}
+            {...graphInteractiveProps}
             type="button"
             aria-label={`${action} module ${symbolicName}`}
             aria-expanded={!isCollapsed}
             title={`${action} module`}
             data-export-exclude=""
-            disabled={isGraphChangeInProgress}
             $isRevealed={isFocused}
             onClick={handleToggle}
           >

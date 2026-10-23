@@ -72,7 +72,7 @@ public class UseDescriptionVarsRuleTests : LinterRuleTestsBase
         @sys.description('Variable description.')
         var input = 'value'
         """)]
-    [DataTestMethod]
+    [TestMethod]
     public void Non_empty_descriptions_are_accepted(string text)
     {
         AssertNoDiagnostics(text);
@@ -96,7 +96,7 @@ public class UseDescriptionVarsRuleTests : LinterRuleTestsBase
         ''')
         var input = 'value'
         """)]
-    [DataTestMethod]
+    [TestMethod]
     public void Empty_and_whitespace_descriptions_are_reported(string text)
     {
         AssertDiagnostics(text);
@@ -120,7 +120,7 @@ public class UseDescriptionVarsRuleTests : LinterRuleTestsBase
         @description('Output description.')
         output result string = 'value'
         """)]
-    [DataTestMethod]
+    [TestMethod]
     public void Descriptions_on_other_declarations_are_ignored(string text)
     {
         AssertNoDiagnostics(text);

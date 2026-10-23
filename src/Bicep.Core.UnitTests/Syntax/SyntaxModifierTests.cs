@@ -36,7 +36,7 @@ public class SyntaxModifierTests
         return rewrittenProgram.ToString();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(@"
 var adsf = [
   'abc'
@@ -119,7 +119,7 @@ var adsf = [
         rewritten.Should().BeEquivalentToIgnoringNewlines(expected);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(@"
 var adsf = {
   abc: 'abc'
@@ -202,7 +202,7 @@ var adsf = {
         rewritten.Should().BeEquivalentToIgnoringNewlines(expected);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(@"
 var adsf = {
   ab|c: 'abc'

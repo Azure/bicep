@@ -1,77 +1,67 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { EdgeAtomValue } from "../atoms/edges";
+import type { EdgeAtomValue, NodeState } from "../atoms";
+import type { EdgeStacking } from "../paint-order";
 
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
-import { styled } from "styled-components";
-import { edgesAtom } from "../atoms/edges";
-import { focusedNodeIdAtom, getNodeZIndex, getParentId } from "../atoms/nodes";
+import { edgesAtom, nodesByIdAtom } from "../atoms";
 import { StraightEdge } from "./StraightEdge";
 
-/** Edges between top-level nodes sit below every node. */
-const ROOT_SCOPE_Z_INDEX = -1;
-
-const $ScopeSvg = styled.svg.attrs<{ $zIndex: number }>(({ $zIndex }) => ({ style: { zIndex: $zIndex } }))`
-  overflow: visible;
-  position: absolute;
-  pointer-events: none;
-`;
-
-interface EdgeScope {
-  /** The compound node both endpoints sit in, or null for top-level edges. */
-  parentId: string | null;
-  edges: EdgeAtomValue[];
-}
-
-function groupByScope(edges: EdgeAtomValue[]): EdgeScope[] {
-  const edgesByScope = new Map<string | null, EdgeAtomValue[]>();
-
-  for (const edge of edges) {
-    const fromParentId = getParentId(edge.fromId);
-    const parentId = fromParentId === getParentId(edge.toId) ? fromParentId : null;
-    const scopeEdges = edgesByScope.get(parentId);
-
-    if (scopeEdges) {
-      scopeEdges.push(edge);
-    } else {
-      edgesByScope.set(parentId, [edge]);
-    }
-  }
-
-  return [...edgesByScope].map(([parentId, scopeEdges]) => ({ parentId, edges: scopeEdges }));
+export interface EdgeLayerProps {
+  exitingNodes: readonly NodeState[];
+  exitingEdges: readonly EdgeAtomValue[];
+  /** An edge to a node fading in fades in with it. */
+  enteringNodeIds: ReadonlySet<string>;
 }
 
 /**
- * Draws every edge.
- *
- * Nodes are absolutely positioned siblings stacked by z-index, and one SVG occupies one place in that
- * stack, so edges are drawn in one SVG per scope: those between top-level nodes below every node, and
- * those inside a compound just above it -- over its frame, under its children -- following it as focus
- * restacks the graph.
+ * Draws every edge, stacked among the children of its endpoints' parent (see `getEdgeZIndex`). An edge that is
+ * fading out with its nodes is stacked by the nearest ancestor still shown, such as a container that closed.
  */
-export function EdgeLayer() {
+export function EdgeLayer({ exitingNodes, exitingEdges, enteringNodeIds }: EdgeLayerProps) {
   const edges = useAtomValue(edgesAtom);
-  const focusedNodeId = useAtomValue(focusedNodeIdAtom);
+  const nodesById = useAtomValue(nodesByIdAtom);
 
-  // The edge elements are created once per edge change, so restacking on focus re-renders no edges.
-  const scopes = useMemo(
-    () =>
-      groupByScope(edges).map(({ parentId, edges: scopeEdges }) => ({
-        parentId,
-        children: scopeEdges.map((edge) => <StraightEdge key={edge.id} {...edge} />),
-      })),
-    [edges],
-  );
+  return useMemo(() => {
+    const exitingById = new Map(exitingNodes.map((node) => [node.id, node]));
+    const resolve = (id: string) => nodesById[id] ?? exitingById.get(id);
+    const getShownParentId = (node: NodeState): string | null => {
+      for (let id = node.parentId; id !== null; id = resolve(id)?.parentId ?? null) {
+        if (nodesById[id]) {
+          return id;
+        }
+      }
 
-  return scopes.map(({ parentId, children }) => (
-    <$ScopeSvg
-      // Node IDs are never empty, so the root scope's key cannot collide with a compound's.
-      key={parentId ?? ""}
-      $zIndex={parentId === null ? ROOT_SCOPE_Z_INDEX : getNodeZIndex(parentId, "compound", focusedNodeId) + 1}
-    >
-      {children}
-    </$ScopeSvg>
-  ));
+      return null;
+    };
+
+    return [
+      ...edges.map((edge) => ({ edge, isExiting: false })),
+      ...exitingEdges.map((edge) => ({ edge, isExiting: true })),
+    ].flatMap(({ edge, isExiting }) => {
+      const from = resolve(edge.fromId);
+      const to = resolve(edge.toId);
+      if (!from || !to) {
+        return [];
+      }
+
+      // Edges join siblings, so both endpoints share a parent.
+      const stacking: EdgeStacking = { parentId: getShownParentId(from), endpointIds: [from.id, to.id] };
+      const isEntering = enteringNodeIds.has(edge.fromId) || enteringNodeIds.has(edge.toId);
+
+      return [
+        <StraightEdge
+          key={edge.id}
+          id={edge.id}
+          from={from}
+          to={to}
+          stacking={stacking}
+          isEntering={isEntering}
+          isExiting={isExiting}
+        />,
+      ];
+    });
+  }, [edges, enteringNodeIds, exitingEdges, exitingNodes, nodesById]);
 }

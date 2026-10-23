@@ -82,7 +82,7 @@ public class UseDescriptionTypePropertyRuleTests : LinterRuleTestsBase
           name: string
         }
         """)]
-    [DataTestMethod]
+    [TestMethod]
     public void Non_empty_descriptions_are_accepted(string text)
     {
         AssertNoDiagnostics(text);
@@ -102,7 +102,7 @@ public class UseDescriptionTypePropertyRuleTests : LinterRuleTestsBase
           name: string
         }
         """)]
-    [DataTestMethod]
+    [TestMethod]
     public void Empty_and_whitespace_descriptions_are_reported(string text)
     {
         AssertDiagnostics(text);

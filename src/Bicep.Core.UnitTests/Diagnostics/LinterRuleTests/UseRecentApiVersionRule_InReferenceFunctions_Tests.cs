@@ -164,7 +164,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "Fake.Resources/deployments",
                 "2415-01-01"
             )]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_Reference_NoResourceId(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);
@@ -227,7 +227,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "Fake.Network/virtualNetworks/subnets",
                 "2415-06-15"
             )]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_Reference_ResourceId(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);
@@ -256,7 +256,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "Fake.Network/publicIPAddresses",
                 "2415-06-15"
             )]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_List_ResourceId(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);
@@ -338,7 +338,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "2417-12-01-preview",
                 DisplayName = "string expression"
             )]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_UsingNameOfResource(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);
@@ -391,7 +391,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             //    "2415-08-31-preview",
             //    DisplayName = "Symbolic reference id through variable"
             //)]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_UsingResourceSymbolicReferenceId(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);
@@ -431,7 +431,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "Fake.Compute/virtualMachineScaleSets/virtualMachines/runCommands",
                 "2420-06-01"
             )]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_PartsBeyondResourceType(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);
@@ -501,7 +501,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "Fake.Compute/virtualMachineScaleSets",
                 "2420-06-01"
             )]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_OptionalSubscriptionIdResourceIdArguments(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);

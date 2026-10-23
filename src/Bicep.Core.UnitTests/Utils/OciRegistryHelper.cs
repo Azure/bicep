@@ -17,6 +17,7 @@ using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -84,7 +85,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Returns(blobClient);
 
             var azureTransport = new AzureContainerRegistryManager(clientFactory.Object);
-            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new MockFileSystem());
+            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new InMemoryFileExplorer());
             var transportFactory = new OciRegistryTransportFactory(azureTransport, dockerCredentials);
             var registry = new OciArtifactRegistry(
                 BicepTestConstants.TestRegistryConfiguration,

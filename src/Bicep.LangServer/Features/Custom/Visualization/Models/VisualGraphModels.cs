@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Security.Cryptography;
+using System.Text;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
@@ -74,18 +76,119 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
     /// </summary>
     public record CanonicalGraph(
         IReadOnlyList<GraphNode> Nodes,
-        IReadOnlyList<GraphEdge> Edges);
+        IReadOnlyList<GraphEdge> Edges)
+    {
+        /// <summary>
+        /// Identifies the graph's topology: its nodes (by id, kind, and parent) and its edges (by id and endpoints).
+        /// Metadata such as error state is not topology, so a metadata-only edit keeps the revision, and node and
+        /// edge order are irrelevant.
+        /// </summary>
+        public string GetRevision()
+        {
+            var builder = new StringBuilder();
+
+            foreach (var node in this.Nodes.OrderBy(node => node.Id, StringComparer.Ordinal))
+            {
+                builder.Append("n\0").Append(node.Id).Append('\0').Append(node.Kind).Append('\0').Append(node.ParentId).Append('\n');
+            }
+
+            foreach (var edge in this.Edges.OrderBy(edge => edge.Id, StringComparer.Ordinal))
+            {
+                builder.Append("e\0").Append(edge.Id).Append('\0').Append(edge.SourceId).Append('\0').Append(edge.TargetId).Append('\n');
+            }
+
+            return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(builder.ToString())));
+        }
+    }
 
     /// <summary>
-    /// The graph the webview has rendered, with the size it measured for each node: the input to layout. The
-    /// server checks its topology against the live compilation before laying it out.
+    /// The graph the webview renders, with the size it measured for each node: the input to layout. It may omit
+    /// nodes the webview hides, such as the contents of a collapsed module.
     /// </summary>
     public record MeasuredGraph(
         IReadOnlyList<MeasuredGraphNode> Nodes,
-        IReadOnlyList<GraphEdge> Edges);
+        IReadOnlyList<GraphEdge> Edges)
+    {
+        /// <summary>
+        /// Returns the graph to lay out, or null when this graph is not well formed: duplicate ids, a parent or edge
+        /// endpoint that is not in the graph, or a containment cycle.
+        /// </summary>
+        /// <remarks>
+        /// Layout reads only containment and edges; other node metadata is not part of the measured graph and is
+        /// left empty.
+        /// </remarks>
+        public CanonicalGraph? ToLayoutGraph()
+        {
+            var nodesById = new Dictionary<string, MeasuredGraphNode>(StringComparer.Ordinal);
+
+            foreach (var node in this.Nodes)
+            {
+                if (!nodesById.TryAdd(node.Id, node))
+                {
+                    return null;
+                }
+            }
+
+            var parentIds = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var node in this.Nodes)
+            {
+                if (node.ParentId is null)
+                {
+                    continue;
+                }
+
+                if (!nodesById.ContainsKey(node.ParentId) || HasContainmentCycle(node, nodesById))
+                {
+                    return null;
+                }
+
+                parentIds.Add(node.ParentId);
+            }
+
+            var edgeIds = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var edge in this.Edges)
+            {
+                if (!edgeIds.Add(edge.Id) || !nodesById.ContainsKey(edge.SourceId) || !nodesById.ContainsKey(edge.TargetId))
+                {
+                    return null;
+                }
+            }
+
+            var nodes = this.Nodes
+                .Select(node => new GraphNode(
+                    Id: node.Id,
+                    Kind: node.Kind,
+                    ParentId: node.ParentId,
+                    Type: string.Empty,
+                    SymbolName: string.Empty,
+                    IsCollection: false,
+                    HasChildren: parentIds.Contains(node.Id),
+                    HasError: false))
+                .ToArray();
+
+            return new CanonicalGraph(nodes, this.Edges);
+        }
+
+        private static bool HasContainmentCycle(MeasuredGraphNode node, IReadOnlyDictionary<string, MeasuredGraphNode> nodesById)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal) { node.Id };
+
+            for (var parentId = node.ParentId; parentId is not null; parentId = nodesById.GetValueOrDefault(parentId)?.ParentId)
+            {
+                if (!visited.Add(parentId))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
 
     /// <summary>
-    /// A node's identity and containment, which must match the live compilation, and its client-measured size.
+    /// A node's identity and containment, and its client-measured size.
     /// </summary>
     public record MeasuredGraphNode(
         string Id,

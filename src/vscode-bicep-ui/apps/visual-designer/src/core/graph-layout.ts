@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 import type { Box, Point } from "@/lib/math";
-import type { GraphBounds, NodePosition } from "./api";
+import type { GraphBounds, MeasuredGraph, NodePosition } from "./api";
 import type { ClientGraph } from "./graph-model";
 
 /**
- * The node metadata fields that influence rendered size and therefore layout. Keep this consistent
- * with the measured graph comparison and the language server's layout validation.
+ * The node metadata fields that influence rendered size and therefore layout. Node content is
+ * measured, so keep this consistent with what the canvas renders.
  */
-const LAYOUT_AFFECTING_NODE_FIELDS = ["type", "isCollection", "hasChildren"] as const;
+const LAYOUT_AFFECTING_NODE_FIELDS = ["type", "symbolName", "isCollection", "hasChildren"] as const;
 
 export interface LayoutExemptions {
   /** Nodes placed where the user dropped them. Adding one does not require a layout. */
@@ -38,7 +38,7 @@ export function graphChangeMayAffectLayout(
       return true;
     }
 
-    // A node whose kind or container changed is replaced rather than updated.
+    // A node that moved to another container, changed kind, or may render at another size needs a layout.
     if (
       nextNode.kind !== node.kind ||
       nextNode.parentId !== node.parentId ||
@@ -81,4 +81,22 @@ export function centerGraphLayout(
       max: { x: offsetX + graphBounds.width, y: offsetY + graphBounds.height },
     },
   };
+}
+
+/**
+ * The centers of the laid-out nodes that are positioned by their own center, from the top-left corners
+ * the host returns. Containers are skipped: they are placed by their contents.
+ */
+export function getLayoutCenters(topLeftCorners: ReadonlyMap<string, Point>, graph: MeasuredGraph): Map<string, Point> {
+  const containerIds = new Set(graph.nodes.flatMap((node) => (node.parentId === null ? [] : [node.parentId])));
+  const centers = new Map<string, Point>();
+
+  for (const { id, width, height } of graph.nodes) {
+    const corner = topLeftCorners.get(id);
+    if (corner && !containerIds.has(id)) {
+      centers.set(id, { x: corner.x + width / 2, y: corner.y + height / 2 });
+    }
+  }
+
+  return centers;
 }

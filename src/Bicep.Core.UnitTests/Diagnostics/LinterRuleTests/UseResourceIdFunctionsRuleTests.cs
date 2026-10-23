@@ -1669,7 +1669,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             },
             DisplayName = "managementGroupResourceId"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void Test(string text, string[] expectedMessages)
         {
             CompileAndTest(text, expectedMessages);

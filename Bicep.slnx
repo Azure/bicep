@@ -52,6 +52,7 @@
     <Project Path="src/Bicep.McpServer/Bicep.McpServer.csproj" />
     <Project Path="src/Bicep.RpcClient.Tests/Bicep.RpcClient.Tests.csproj" />
     <Project Path="src/Bicep.RpcClient/Bicep.RpcClient.csproj" />
+    <Project Path="src/Bicep.Testing/Bicep.Testing.csproj" />
   </Folder>
   <Folder Name="/TestFixtures/" />
   <Folder Name="/Tools/">

@@ -59,11 +59,12 @@ Stages 0 through 2 are complete. Dependencies, not calendar dates, gate the rema
 and 4 are viewer-only: they make no source edits, do not depend on the editing setting, and
 benefit everyone who views a graph, so they come first.
 
-Module presentation (stage 2) precedes the editing stages. Its partial relayout, which updates
-affected nodes while preserving the camera and unaffected positions, is the same capability that
-structural drops in stage 7 need. A collapsed module also gives module drops (stages 7 and 8) a
-compact initial form that avoids a large reflow, and lets rename (stage 6) preserve collapsed state
-from the start. Stage 4 is gated on containment design rather than code; the editing stages do not
+Module presentation (stage 2) precedes the editing stages. It changes what is shown without moving
+the camera or unaffected nodes, and keeps the positions of hidden nodes, which structural drops in
+stage 7 also need; they still need layout that keeps placed nodes fixed, which stage 2 does not
+provide. A collapsed module also gives module drops (stages 7 and 8) a compact initial form that
+avoids a large reflow (a module can be marked collapsed before its node arrives), and lets rename
+(stage 6) preserve collapsed state from the start. Stage 4 is gated on containment design rather than code; the editing stages do not
 wait for it.
 
 Resource placeholders in stage 7 depend only on the stage 0 mutation and layout rules, so they can
@@ -141,12 +142,13 @@ treatment applies in either state, and exports omit the toggle.
 
 **Manual collapse/expand.** Collapse state is a session-local graph projection, independent of the
 resource-editing setting. Descendants and internal edges are hidden; dependencies crossing the
-boundary terminate at the module card. Collapsing fades the contents out, then morphs the container
-into the card at its center; expanding grows the frame back and fades the contents in.
-Descendant positions are cached and restored exactly on expand, translated when the card was moved,
-so the camera and unrelated nodes do not move.
-The language server validates and lays out the same projection for Reset Layout and later graph
-updates. State survives refreshes while the module ID remains stable and is not an undo step. Stage 3
+boundary terminate at the module card. The container morphs into the card at its center while the contents fade out; expanding grows the
+frame back and fades the contents in. Hidden contents keep their positions and move with the card,
+so they come back exactly where they were, and the camera and unrelated nodes do not move.
+The language server lays out the rendered graph for Reset Layout and later graph updates, checking
+only that the graph revision it came from is current. State survives refreshes, even while a module is missing or empty. Collapsing or expanding is an undo
+step, so undo never changes contents the user cannot see: undoing a drag inside a module that was collapsed
+afterwards expands it first. Stage 3
 supplies remote contents through the same controls; unavailable remote source still needs an explicit
 explanation rather than an empty-module presentation.
 

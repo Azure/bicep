@@ -225,7 +225,7 @@ export class BicepVisualizerView extends Disposable {
   }
 
   private async handleLayoutGraph(id: string, params: unknown): Promise<void> {
-    const { graph, collapsedNodeIds } = (params as { graph?: unknown; collapsedNodeIds?: unknown }) ?? {};
+    const { graph, revision } = (params as { graph?: unknown; revision?: unknown }) ?? {};
     let result: VisualGraphLayoutResult = { status: "layoutFailed", positions: [], bounds: null };
 
     if (!graph) {
@@ -243,9 +243,7 @@ export class BicepVisualizerView extends Disposable {
       result = await this.languageClient.sendRequest(visualGraphLayoutRequestType, {
         textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
         graph,
-        collapsedNodeIds: Array.isArray(collapsedNodeIds)
-          ? collapsedNodeIds.filter((nodeId): nodeId is string => typeof nodeId === "string")
-          : [],
+        revision: typeof revision === "string" ? revision : null,
       });
     } catch (error) {
       getLogger().error(`Visual graph layout request failed: ${parseError(error).message}`);

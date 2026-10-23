@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -12,6 +11,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.IO.Abstraction;
 using Bicep.Testing;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -567,20 +567,19 @@ public class BicepDocumentationGeneratorTests
     }
 
     [TestMethod]
-    public async Task BuildModel_ReparsePointExample_IsNotRead()
+    [DataRow("examples/leak/main.bicep", false)]
+    [DataRow("examples/leak", true)]
+    public async Task BuildModel_ExampleIsReparsePoint_SkipsExample(string linkPath, bool isDirectory)
     {
         var compiler = TestCompiler.ForMockFileSystemCompilation();
         var result = await compiler.Compile(
             ("main.bicep", "metadata name = 'Safe'"),
             ("examples/leak/main.bicep", "sensitive contents"));
-        var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
-        var file = new Mock<IFile>(MockBehavior.Strict);
-        fileSystem.SetupGet(system => system.File).Returns(file.Object);
-        file.Setup(systemFile => systemFile.GetAttributes(It.IsAny<string>()))
-            .Returns((string path) => path.EndsWith("main.bicep", StringComparison.OrdinalIgnoreCase)
-                ? FileAttributes.ReparsePoint
-                : FileAttributes.Normal);
-        var generator = new BicepDocumentationGenerator(compiler.FileSet.FileExplorer, fileSystem.Object);
+        var fileSystem = ((MockFileSystemTestFileSet)compiler.FileSet).FileSystem;
+        var path = compiler.FileSet.GetUri(linkPath).GetFilePath();
+        var attributes = isDirectory ? FileAttributes.Directory : FileAttributes.Normal;
+        fileSystem.File.SetAttributes(path, attributes | FileAttributes.ReparsePoint);
+        var generator = new BicepDocumentationGenerator(compiler.FileSet.FileExplorer);
 
         var model = generator.BuildModel(result.Compilation);
 
@@ -588,9 +587,11 @@ public class BicepDocumentationGeneratorTests
     }
 
     [TestMethod]
-    public async Task BuildModel_WithoutFileSystem_StillDiscoversExamples()
+    public async Task BuildModel_InMemoryFileExplorer_DiscoversExamples()
     {
-        var compiler = TestCompiler.ForMockFileSystemCompilation();
+        var compiler = TestCompiler.ForInMemoryCompilation();
+        // In-memory directories exist only once created explicitly.
+        compiler.FileSet.AddDirectory("examples").AddDirectory("examples/default");
         var result = await compiler.Compile(
             ("main.bicep", "metadata name = 'Example'"),
             ("examples/default/main.bicep", "metadata name = 'Default'"));

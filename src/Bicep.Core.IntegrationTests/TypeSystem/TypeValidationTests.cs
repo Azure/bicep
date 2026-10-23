@@ -29,7 +29,7 @@ namespace Bicep.Core.IntegrationTests
         private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceTypeComponents> definedTypes)
             => Compile(programText, definedTypes).Compilation.GetEntrypointSemanticModel();
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(TypeSymbolValidationFlags.Default, DiagnosticLevel.Error)]
         [DataRow(TypeSymbolValidationFlags.WarnOnTypeMismatch, DiagnosticLevel.Warning)]
         public void Type_validation_runs_on_compilation_successfully(TypeSymbolValidationFlags validationFlags, DiagnosticLevel expectedDiagnosticLevel)
@@ -48,7 +48,7 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
             model.GetAllDiagnostics().Should().BeEmpty();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(TypeSymbolValidationFlags.Default, DiagnosticLevel.Error)]
         [DataRow(TypeSymbolValidationFlags.WarnOnTypeMismatch | TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch, DiagnosticLevel.Warning)]
         public void Type_validation_runs_on_compilation_common_failures(TypeSymbolValidationFlags validationFlags, DiagnosticLevel expectedDiagnosticLevel)
@@ -130,7 +130,7 @@ output incorrectTypeOutput2 int = myRes.properties.nestedObj.readOnlyProp
             );
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(TypeSymbolValidationFlags.Default, DiagnosticLevel.Error)]
         [DataRow(TypeSymbolValidationFlags.WarnOnTypeMismatch, DiagnosticLevel.Warning)]
         public void Type_validation_narrowing_on_union_types(TypeSymbolValidationFlags validationFlags, DiagnosticLevel expectedDiagnosticLevel)
@@ -175,7 +175,7 @@ resource myDependentRes 'My.Rp/myDependentType@2020-01-01' = {
             );
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(TypeSymbolValidationFlags.Default, DiagnosticLevel.Error)]
         [DataRow(TypeSymbolValidationFlags.WarnOnTypeMismatch | TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch, DiagnosticLevel.Warning)]
         public void Type_validation_narrowing_on_discriminated_object_types(TypeSymbolValidationFlags validationFlags, DiagnosticLevel expectedDiagnosticLevel)

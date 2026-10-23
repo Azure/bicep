@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
-using System.IO.Abstractions;
 using System.Runtime.InteropServices;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
