@@ -160,6 +160,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Storage accounts should use secure settings.
+        /// </summary>
+        internal static string SecureStorageAccountRuleDescription {
+            get {
+                return ResourceManager.GetString("SecureStorageAccountRuleDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Storage account property '{0}' should be set to {1}.
+        /// </summary>
+        internal static string SecureStorageAccountRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("SecureStorageAccountRuleMessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds..
         /// </summary>
         internal static string EnvironmentUrlHardcodedRuleDescription {

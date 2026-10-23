@@ -22,6 +22,7 @@ public static class TestConfigurations
         .WithAnalyzersDisabled(
             UseRecentApiVersionRule.Code,
             UseRecentModuleVersionsRule.Code,
+            SecureStorageAccountRule.Code,
             NoHardcodedOutputsRule.Code,
             UseDescriptionParametersRule.Code,
             UseDescriptionVarsRule.Code,

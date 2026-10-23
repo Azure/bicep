@@ -162,6 +162,13 @@
     <value>function '{0}'</value>
     <comment>{0} is the function name. This string appears in the middle of a sentence, hence doesn't start with capital letter.  Something similar to: Found: function 'listKeys()'</comment>
   </data>
+  <data name="SecureStorageAccountRuleDescription" xml:space="preserve">
+    <value>Storage accounts should use secure settings.</value>
+  </data>
+  <data name="SecureStorageAccountRuleMessageFormat" xml:space="preserve">
+    <value>Storage account property '{0}' should be set to {1}.</value>
+    <comment>{0} is a storage account property name and {1} is its recommended Bicep value.</comment>
+  </data>
   <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
     <value>Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds.</value>
   </data>
