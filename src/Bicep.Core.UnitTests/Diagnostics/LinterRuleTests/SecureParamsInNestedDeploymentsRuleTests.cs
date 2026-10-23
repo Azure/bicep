@@ -405,37 +405,38 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             // https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-test-cases#use-inner-scope-for-nested-deployment-secure-parameters
             CompileAndTest(@"
-                @secure()
-                #disable-next-line secure-parameter-default
-                param stgAccountName string
+                      @secure()
+                      #disable-next-line secure-parameter-default
+                      param stgAccountName string
 
-                resource nested 'Microsoft.Resources/notDeployments@2021-04-01' = {
-                    name: 'nested'
-                    properties: {
-                        mode: 'Incremental'
-                        template: {
-                            '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
-                            contentVersion: '1.0.0.0'
-                            resources: [
-                                {
-                                    name: stgAccountName
-                                    type: 'Microsoft.Storage/storageAccounts'
-                                    apiVersion: '2021-04-01'
-                                    #disable-next-line no-loc-expr-outside-params
-                                    location: resourceGroup().location
-                                    kind: 'StorageV2'
-                                    sku: {
-                                        name: 'Premium_LRS'
-                                        tier: 'Premium'
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }",
-                [
-                    "[6] Resource type \"Microsoft.Resources/notDeployments@2021-04-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."
-                ]);
+                      resource nested 'Microsoft.Resources/notDeployments@2021-04-01' = {
+                          name: 'nested'
+                          properties: {
+                              mode: 'Incremental'
+                              template: {
+                                  '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+                                  contentVersion: '1.0.0.0'
+                                  resources: [
+                                      {
+                                          name: stgAccountName
+                                          type: 'Microsoft.Storage/storageAccounts'
+                                          apiVersion: '2021-04-01'
+                                          #disable-next-line no-loc-expr-outside-params
+                                          location: resourceGroup().location
+                                          kind: 'StorageV2'
+                                          sku: {
+                                              name: 'Premium_LRS'
+                                              tier: 'Premium'
+                                          }
+                                      }
+                                  ]
+                              }
+                          }
+                      }",
+                      [
+                          "[6] Resource type \"Microsoft.Resources/notDeployments@2021-04-01\" does not have type definitions available. Bicep cannot validate properties or provide IntelliSense for this resource; deployment will still be attempted by Azure Resource Manager. See https://learn.microsoft.com/azure/azure-resource-manager/bicep/diagnostics/bcp081 for details."
+                      ]);
+
         }
 
         [TestMethod]
