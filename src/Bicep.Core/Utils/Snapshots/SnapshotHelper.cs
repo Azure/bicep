@@ -33,6 +33,32 @@ namespace Bicep.Core.Utils.Snapshots;
 
 public static class SnapshotHelper
 {
+    /// <summary>
+    /// Reconstructs the canonical ARM path for an extensible resource nested through Bicep modules.
+    /// </summary>
+    private static string? BuildExtensibleResourcePath(ExtensibleResource resource)
+    {
+        if ((resource.Context.CopyLoopSymbolicName ?? resource.SymbolicName) is not { } symbolicName)
+        {
+            return null;
+        }
+
+        // The engine supplies module symbols; rebuild the ARM nested-template boundaries between them.
+        return resource.Context.DeploymentSymbolicNamePath is { } modulePath
+            ? $"resources.{string.Join(".properties.template.resources.", modulePath.Segments.Select(RemoveCopyIndex))}.properties.template.resources.{symbolicName}"
+            : $"resources.{symbolicName}";
+    }
+
+    internal static string RemoveCopyIndex(string symbolicName)
+    {
+        var openBracket = symbolicName.LastIndexOf('[');
+        return openBracket > 0 &&
+            symbolicName.EndsWith(']') &&
+            symbolicName.AsSpan(openBracket + 1, symbolicName.Length - openBracket - 2).IndexOfAnyExceptInRange('0', '9') < 0
+                ? symbolicName[..openBracket]
+                : symbolicName;
+    }
+
     public record ExternalInputValue(
         string Kind,
         JToken? Config,
@@ -49,7 +75,61 @@ public static class SnapshotHelper
         string? deploymentName,
         string? location,
         ImmutableArray<ExternalInputValue> externalInputs,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken) => (await GetSnapshotCore(
+            targetScope,
+            templateContent,
+            parametersContent,
+            tenantId,
+            managementGroupId,
+            subscriptionId,
+            resourceGroup,
+            deploymentName,
+            location,
+            externalInputs,
+            cancellationToken,
+            includeAnalysis: false)).Snapshot;
+
+    /// <summary>
+    /// Creates the customer snapshot together with analyzer-only resource enrichment and provenance.
+    /// </summary>
+    internal static Task<SnapshotAnalysisResult> GetSnapshotForAnalysis(
+        ResourceScope targetScope,
+        string templateContent,
+        string parametersContent,
+        string? tenantId,
+        string? managementGroupId,
+        string? subscriptionId,
+        string? resourceGroup,
+        string? deploymentName,
+        string? location,
+        ImmutableArray<ExternalInputValue> externalInputs,
+        CancellationToken cancellationToken) => GetSnapshotCore(
+            targetScope,
+            templateContent,
+            parametersContent,
+            tenantId,
+            managementGroupId,
+            subscriptionId,
+            resourceGroup,
+            deploymentName,
+            location,
+            externalInputs,
+            cancellationToken,
+            includeAnalysis: true);
+
+    private static async Task<SnapshotAnalysisResult> GetSnapshotCore(
+        ResourceScope targetScope,
+        string templateContent,
+        string parametersContent,
+        string? tenantId,
+        string? managementGroupId,
+        string? subscriptionId,
+        string? resourceGroup,
+        string? deploymentName,
+        string? location,
+        ImmutableArray<ExternalInputValue> externalInputs,
+        CancellationToken cancellationToken,
+        bool includeAnalysis)
     {
         var parameters = parametersContent.FromJson<DeploymentParametersDefinition>();
         var template = TemplateEngine.ParseTemplate(templateContent);
@@ -66,21 +146,90 @@ public static class SnapshotHelper
             referenceFunctionPreflightEnabled: true,
             cancellationToken: cancellationToken);
 
-        return new(
-            [
-                .. expansionResult.preflightResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(DeploymentPreflightResourceWithParsedExpressions.From(x)))),
-                .. expansionResult.extensibleResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(new DeploymentWhatIfExtensibleResource
-                    {
-                        Type = x.Type,
-                        ApiVersion = x.ApiVersion,
-                        Identifiers = x.Identifiers?.ToObject<JObject>(),
-                        Properties = x.Properties?.ToObject<JObject>(),
-                    }))),
-            ],
-            [
-                .. expansionResult.diagnostics.Select(d => $"{d.Target} {d.Level} {d.Code}: {d.Message}")
-            ],
+        var extensibleResources = expansionResult.extensibleResources
+            .Select(resource =>
+            {
+                var json = JsonExtensions.ToJson(new DeploymentWhatIfExtensibleResource
+                {
+                    Type = resource.Type,
+                    ApiVersion = resource.ApiVersion,
+                    Identifiers = resource.Identifiers?.ToObject<JObject>(),
+                    Properties = resource.Properties?.ToObject<JObject>(),
+                });
+                return (
+                    Resource: resource,
+                    Json: json,
+                    ForSnapshot: JsonElementFactory.CreateElement(json),
+                    SymbolicName: resource.Context.DeploymentSymbolicNamePath is null
+                        ? resource.SymbolicName
+                        : null);
+            })
+            .ToImmutableArray();
+
+        var snapshot = new Snapshot(
+            [.. expansionResult.preflightResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(DeploymentPreflightResourceWithParsedExpressions.From(x)))), .. extensibleResources.Select(resource => resource.ForSnapshot)],
+            [.. expansionResult.diagnostics.Select(d => $"{d.Target} {d.Level} {d.Code}: {d.Message}")],
             (expansionResult.outputs ?? []).ToImmutableDictionary(kvp => kvp.Key, kvp => JsonElementFactory.CreateElement(JsonExtensions.ToJson(ConvertToJToken(kvp.Value)))));
+
+        if (!includeAnalysis)
+        {
+            return new(snapshot, [], []);
+        }
+
+        return new(
+            snapshot,
+            [
+                .. extensibleResources.Select(resource => resource.SymbolicName is { } symbolicName
+                    ? AddStringProperty(
+                        resource.Json,
+                        Analyzers.ResourceSymbolicNameMapper.BicepSymbolicNameProperty,
+                        symbolicName)
+                    : resource.ForSnapshot),
+            ],
+            [
+                .. expansionResult.preflightResources.Select(resource => new SnapshotResourceProvenance(
+                    resource.ParentSymbolicNamePath is null
+                        ? resource.SymbolicName
+                        : null,
+                    resource.ParentSymbolicNamePath is null
+                        ? resource.CopyLoopSymbolicName
+                        : null,
+                    resource.CopyLoopName,
+                    (int?)resource.CopyIndex,
+                    resource.Path,
+                    resource.LineNumber,
+                    resource.LinePosition)),
+                .. extensibleResources.Select(item => new SnapshotResourceProvenance(
+                    item.SymbolicName,
+                    item.Resource.Context.DeploymentSymbolicNamePath is null
+                        ? item.Resource.Context.CopyLoopSymbolicName
+                        : null,
+                    item.Resource.Context.CopyContext?.Name,
+                    item.Resource.Context.CopyContext?.CopyIndex,
+                    BuildExtensibleResourcePath(item.Resource),
+                    item.Resource.Context.DeploymentResourceLineInfo?.LineNumber,
+                    item.Resource.Context.DeploymentResourceLineInfo?.LinePosition,
+                    IsExtensible: true)),
+            ]);
+    }
+
+    internal static JsonElement AddStringProperty(string json, string propertyName, string propertyValue)
+    {
+        using var document = JsonDocument.Parse(json);
+        using var stream = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(stream))
+        {
+            writer.WriteStartObject();
+            foreach (var property in document.RootElement.EnumerateObject())
+            {
+                property.WriteTo(writer);
+            }
+            writer.WriteString(propertyName, propertyValue);
+            writer.WriteEndObject();
+        }
+
+        using var enriched = JsonDocument.Parse(stream.ToArray());
+        return enriched.RootElement.Clone();
     }
 
     private static JToken? TryGetExternalInputValue(DeploymentExternalInputDefinition externalInputDefinition, ImmutableArray<ExternalInputValue> externalInputs)
