@@ -213,6 +213,38 @@ namespace Bicep.Core.UnitTests.Registry
             };
         }
 
+        [TestMethod]
+        public async Task RestoreArtifacts_Forced_RetriesAModuleThatFailedRecently()
+        {
+            var file = BicepTestConstants.CreateDummyBicepFile(BicepTestConstants.CreateMockConfiguration());
+            var reference = new MockModuleReference(file, "flaky");
+            var isRestored = false;
+
+            var registryMock = StrictMock.Of<IArtifactRegistry>();
+            registryMock.SetupGet(x => x.Scheme).Returns("mock");
+            registryMock.SetupSequence(x => x.RestoreArtifacts(It.IsAny<IEnumerable<ArtifactReference>>()))
+                .ReturnsAsync(new Dictionary<ArtifactReference, DiagnosticBuilderDelegate>
+                {
+                    [reference] = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Compiler, "RestoreFailure", "Failed to restore module.")
+                })
+                .ReturnsAsync(() =>
+                {
+                    isRestored = true;
+                    return new Dictionary<ArtifactReference, DiagnosticBuilderDelegate>();
+                });
+            registryMock.Setup(x => x.InvalidateArtifactsCache(It.IsAny<IEnumerable<ArtifactReference>>()))
+                .ReturnsAsync(new Dictionary<ArtifactReference, DiagnosticBuilderDelegate>());
+            registryMock.Setup(x => x.IsArtifactRestoreRequired(reference)).Returns(() => !isRestored);
+            registryMock.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>())).Returns(Task.CompletedTask);
+            var dispatcher = CreateDispatcher(registryMock.Object);
+
+            await dispatcher.RestoreArtifacts([reference], forceRestore: false);
+            dispatcher.GetArtifactRestoreStatus(reference, out _).Should().Be(ArtifactRestoreStatus.Failed);
+
+            await dispatcher.RestoreArtifacts([reference], forceRestore: true);
+            dispatcher.GetArtifactRestoreStatus(reference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+        }
+
         private static IModuleDispatcher CreateDispatcher(params IArtifactRegistry[] registries) => new ModuleDispatcher(new MockArtifactRegistryProvider(registries));
 
         private static ModuleDeclarationSyntax CreateModule(string reference)
