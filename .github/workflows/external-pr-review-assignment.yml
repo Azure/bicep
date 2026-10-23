@@ -1,0 +1,40 @@
+name: Assign reviewers for fork PRs
+
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: external-pr-review-assignment
+  cancel-in-progress: false
+
+jobs:
+  assign-reviewers:
+    if: github.repository == 'Azure/bicep'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout trusted routing script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Create scoped reviewer token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.BICEP_APP_CLIENT_ID }}
+          private-key: ${{ secrets.BICEP_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-pull-requests: write
+          permission-members: read
+
+      - name: Assign Bicep reviewers
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: ./scripts/Assign-ForkPrReviewers.ps1
