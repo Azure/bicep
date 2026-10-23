@@ -9,6 +9,7 @@ namespace Bicep.Core.Registry.Oci
         public static readonly IEqualityComparer<string> MediaTypeComparer = StringComparer.OrdinalIgnoreCase;
 
         // Media types format - see https://github.com/opencontainers/image-spec/blob/main/manifest.md
+        public const string OciImageManifest = "application/vnd.oci.image.manifest.v1+json";
 
         // Extension Media Types
         public const string BicepExtensionArtifactType = "application/vnd.ms.bicep.provider.artifact";

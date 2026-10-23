@@ -42,6 +42,10 @@ public static class BicepCoreServiceCollectionExtensions
         services.TryAddSingleton<DockerCredentialProvider>();
         services.TryAddSingleton<OrasOciRegistryTransport>();
         services.TryAddSingleton<IOciRegistryTransportFactory, OciRegistryTransportFactory>();
+        services.AddHttpClient(OrasOciRegistryTransport.RegistryHttpClient)
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { MaxAutomaticRedirections = 10 });
+        services.AddHttpClient(OrasOciRegistryTransport.AuthenticationHttpClient)
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
         services.TryAddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
         services.TryAddSingleton<IArmClientProvider, ArmClientProvider>();
         services.TryAddSingleton<IModuleDispatcher, ModuleDispatcher>();

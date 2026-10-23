@@ -400,8 +400,10 @@ namespace Bicep.Cli.IntegrationTests
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            // publish won't actually happen, so broken client factory is fine
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            // Restore external extensions before checking that invalid source cannot be published.
+            var artifactManager = await CreateDefaultExternalArtifactManager();
+            await dataSet.PublishAllDataSetArtifacts(artifactManager);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true)).WithArtifactManager(artifactManager, TestContext);
 
             var diagnostics = await GetAllDiagnostics(bicepFilePath, settings.ClientFactory, settings.TemplateSpecRepositoryFactory);
 

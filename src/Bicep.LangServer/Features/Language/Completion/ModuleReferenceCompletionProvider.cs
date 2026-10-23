@@ -340,7 +340,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
 
             List<CompletionItem> completions = new();
 
-            if (await registryModuleCatalog.GetProviderForRegistry((CloudConfiguration)rootConfiguration.Cloud, parts.ResolvedRegistry)
+            if (await registryModuleCatalog.GetProviderForRegistry((CloudConfiguration)rootConfiguration.Cloud, parts.ResolvedRegistry, rootConfiguration.ExperimentalFeaturesEnabled.OciEnabled)
                 .TryGetModuleAsync($"{parts.ResolvedModulePath}") is { } module)
             {
                 var versions = (await module.TryGetVersionsAsync())
@@ -358,7 +358,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                         .WithFilterText(insertText)
                         .WithSortText(GetSortText(i))
                         // Description and documentation will be resolved later as needed
-                        .WithResolveData(ModuleVersionResolutionKey, new { Registry = parts.ResolvedRegistry, Module = parts.ResolvedModulePath, Version = version })
+                        .WithResolveData(ModuleVersionResolutionKey, new { Registry = parts.ResolvedRegistry, Module = parts.ResolvedModulePath, Version = version, OciEnabled = rootConfiguration.ExperimentalFeaturesEnabled.OciEnabled })
                         .Build();
 
                     completions.Add(completionItem);
@@ -438,7 +438,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                        .WithSnippetEdit(context.ReplacementRange, insertText)
                        .WithFilterText(insertText)
                        .WithSortText(GetSortText(modulePath))
-                       .WithResolveData(ModuleResolutionKey, new { Registry = parts.ResolvedRegistry, Module = modulePath })
+                       .WithResolveData(ModuleResolutionKey, new { Registry = parts.ResolvedRegistry, Module = modulePath, OciEnabled = rootConfiguration.ExperimentalFeaturesEnabled.OciEnabled })
                        .WithFollowupCompletion("module path completion")
                        .Build();
                     completions.Add(completionItem);
@@ -471,7 +471,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             List<CompletionItem> completions = new();
 
             var modules = await registryModuleCatalog
-                .GetProviderForRegistry((CloudConfiguration)rootConfiguration.Cloud, parts.ResolvedRegistry)
+                .GetProviderForRegistry((CloudConfiguration)rootConfiguration.Cloud, parts.ResolvedRegistry, rootConfiguration.ExperimentalFeaturesEnabled.OciEnabled)
                 .TryGetModulesAsync();
             foreach (var module in modules)
             {
@@ -496,7 +496,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                         .WithSortText(GetSortText(moduleName))
                         .WithResolveData(
                             ModuleResolutionKey,
-                            new { Registry = module.Registry, Module = moduleName })
+                            new { Registry = module.Registry, Module = moduleName, OciEnabled = rootConfiguration.ExperimentalFeaturesEnabled.OciEnabled })
                         .WithFollowupCompletion("module version completion")
                         .Build();
 
@@ -607,7 +607,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
 
                 if (registry != null && modulePath != null && version != null)
                 {
-                    return await ResolveVersionCompletionItem(completionItem, registry, modulePath, version);
+                    return await ResolveVersionCompletionItem(completionItem, registry, modulePath, version, versionData["OciEnabled"]?.Value<bool>() ?? false);
                 }
             }
             else if (completionItem.Data != null && completionItem.Data[ModuleResolutionKey] is JObject moduleVersion)
@@ -617,16 +617,16 @@ namespace Bicep.LanguageServer.Features.Language.Completion
 
                 if (registry != null && modulePath != null)
                 {
-                    return await ResolveModuleCompletionItem(completionItem, registry, modulePath);
+                    return await ResolveModuleCompletionItem(completionItem, registry, modulePath, moduleVersion["OciEnabled"]?.Value<bool>() ?? false);
                 }
             }
 
             return completionItem;
         }
 
-        private async Task<CompletionItem> ResolveVersionCompletionItem(CompletionItem completionItem, string registry, string modulePath, string version)
+        private async Task<CompletionItem> ResolveVersionCompletionItem(CompletionItem completionItem, string registry, string modulePath, string version, bool useOrasSdk)
         {
-            if (registryModuleCatalog.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
+            if (registryModuleCatalog.TryGetCachedRegistry(registry, useOrasSdk) is IRegistryModuleMetadataProvider cachedRegistry
                 && await cachedRegistry.TryGetModuleAsync(modulePath) is { } module
                 && await module.TryGetVersionsAsync() is { } versions
                 && versions.FirstOrDefault(v => v.Version.Equals(version, StringComparison.Ordinal)) is RegistryModuleVersionMetadata metadata)
@@ -641,9 +641,9 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             return completionItem;
         }
 
-        private async Task<CompletionItem> ResolveModuleCompletionItem(CompletionItem completionItem, string registry, string modulePath)
+        private async Task<CompletionItem> ResolveModuleCompletionItem(CompletionItem completionItem, string registry, string modulePath, bool useOrasSdk)
         {
-            if (registryModuleCatalog.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
+            if (registryModuleCatalog.TryGetCachedRegistry(registry, useOrasSdk) is IRegistryModuleMetadataProvider cachedRegistry
                 && await cachedRegistry.TryGetModuleAsync(modulePath) is { } module
                 && await module.TryGetDetailsAsync() is { } details
                 )

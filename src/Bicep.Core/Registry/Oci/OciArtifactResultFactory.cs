@@ -17,7 +17,7 @@ internal static class OciArtifactResultFactory
         {
             BicepMediaTypes.BicepExtensionArtifactType => new OciExtensionArtifactResult(manifestData, manifestDigest, layers, configLayer),
             BicepMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestData, manifestDigest, layers),
-            _ => throw new InvalidArtifactException($"artifacts of type: '{manifest.ArtifactType}' are not supported by this Bicep version."),
+            _ => throw new InvalidArtifactException($"artifacts of type: '{manifest.ArtifactType}' are not supported by this Bicep version. {OciModuleArtifactResult.NewerVersionMightBeRequired}"),
         };
     }
 }
