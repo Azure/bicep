@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Reflection;
-using Bicep.Core.UnitTests.Baselines;
+using Azure.Deployments.Testing.Utilities;
+using Bicep.Testing;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -51,7 +53,7 @@ namespace Bicep.Core.Samples
         }
 
         public record BaselineData(
-            BaselineFolder OutputFolder,
+            MaterializedBaselineFolder FileSet,
             BaselineFile Parameters,
             BaselineFile? Compiled,
             BaselineFile Bicep,
@@ -72,20 +74,20 @@ namespace Bicep.Core.Samples
 
         public BaselineData GetData(TestContext testContext)
         {
-            var outputFolder = BaselineFolder.BuildOutputFolder(testContext, paramsFile);
+            var outputFolder = testContext.MaterializeBaselineFolder(paramsFile);
 
             using (new AssertionScope())
             {
                 return new(
-                    OutputFolder: outputFolder,
-                    Parameters: outputFolder.GetFileOrEnsureCheckedIn("parameters.bicepparam"),
+                    FileSet: outputFolder,
+                    Parameters: outputFolder.GetFile("parameters.bicepparam"),
                     Compiled: outputFolder.TryGetFile("parameters.json"),
-                    Bicep: outputFolder.GetFileOrEnsureCheckedIn("main.bicep"),
-                    Tokens: outputFolder.GetFileOrEnsureCheckedIn("parameters.tokens.bicepparam"),
-                    Diagnostics: outputFolder.GetFileOrEnsureCheckedIn("parameters.diagnostics.bicepparam"),
-                    Symbols: outputFolder.GetFileOrEnsureCheckedIn("parameters.symbols.bicepparam"),
-                    Syntax: outputFolder.GetFileOrEnsureCheckedIn("parameters.syntax.bicepparam"),
-                    Formatted: outputFolder.GetFileOrEnsureCheckedIn("parameters.formatted.bicepparam"));
+                    Bicep: outputFolder.GetFile("main.bicep"),
+                    Tokens: outputFolder.GetFile("parameters.tokens.bicepparam"),
+                    Diagnostics: outputFolder.GetFile("parameters.diagnostics.bicepparam"),
+                    Symbols: outputFolder.GetFile("parameters.symbols.bicepparam"),
+                    Syntax: outputFolder.GetFile("parameters.syntax.bicepparam"),
+                    Formatted: outputFolder.GetFile("parameters.formatted.bicepparam"));
             }
         }
 
@@ -93,8 +95,7 @@ namespace Bicep.Core.Samples
         {
             var embeddedFiles = EmbeddedFile.LoadAll(
                 typeof(AssemblyInitializer).Assembly,
-                "baselines_bicepparam",
-                streamName => Path.GetFileName(streamName) == "parameters.bicepparam");
+                streamName => streamName.StartsWith("Files/baselines_bicepparam/", StringComparison.Ordinal) && Path.GetFileName(streamName) == "parameters.bicepparam");
 
             // ensure this list is kept up-to-date to validate that we're picking all of the baseline tests
             embeddedFiles.Select(x => x.StreamPath).Should().BeEquivalentTo(

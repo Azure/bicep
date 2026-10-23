@@ -12,6 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- The snippet cache baseline lives in Bicep.LangServer; embed it here so baseline helpers can resolve its source path. -->
+    <EmbeddedResource Include="..\Bicep.LangServer\Files\SnippetCache.json" LogicalName="Files/SnippetCache.json" WithCulture="false" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Moq" />
     <PackageReference Include="MSTest" />
@@ -23,6 +28,7 @@
     <ProjectReference Include="..\Bicep.Core.Samples\Bicep.Core.Samples.csproj" />
     <ProjectReference Include="..\Bicep.LangServer\Bicep.LangServer.csproj" />
 	<ProjectReference Include="..\Bicep.LangServer.IntegrationTests\Bicep.LangServer.IntegrationTests.csproj" />
+  <ProjectReference Include="..\Bicep.Testing\Bicep.Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>

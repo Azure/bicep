@@ -3,11 +3,12 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Azure.Deployments.Testing.Utilities;
 using Bicep.Core.Diagnostics;
+using Bicep.Testing.IO;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;
@@ -30,27 +31,27 @@ public static class MockRegistry
 
     public static IEnumerable<TestExternalArtifactManager.RegistryModulePublishArguments> CreateDefaultMockModules()
     {
-        var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true).ToArray();
-        var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryCatalog>();
+        var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, streamName => streamName.StartsWith("Files/mockregistry/", StringComparison.Ordinal)).ToArray();
+        var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").GetContents().FromJson<MockRegistryCatalog>();
 
         foreach (var (registryPath, filePath) in index.modules.Where(x => x.Key.StartsWith(OciArtifactReferenceFacts.SchemeWithColon)))
         {
             var sourceFile = registryFiles.First(x => x.StreamPath == $"Files/mockregistry/{filePath}");
 
-            yield return new TestExternalArtifactManager.RegistryModulePublishArguments(registryPath, sourceFile.Contents);
+            yield return new TestExternalArtifactManager.RegistryModulePublishArguments(registryPath, sourceFile.GetContents());
         }
     }
 
     public static IEnumerable<MockTemplateSpecData> CreateDefaultMockTemplateSpecs()
     {
-        var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true).ToArray();
-        var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryCatalog>();
+        var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, streamName => streamName.StartsWith("Files/mockregistry/", StringComparison.Ordinal)).ToArray();
+        var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").GetContents().FromJson<MockRegistryCatalog>();
 
         foreach (var (registryPath, filePath) in index.modules.Where(x => x.Key.StartsWith("ts:")))
         {
             var sourceFile = registryFiles.First(x => x.StreamPath == $"Files/mockregistry/{filePath}");
 
-            var compilationResult = CompilationHelper.Compile(sourceFile.Contents);
+            var compilationResult = CompilationHelper.Compile(sourceFile.GetContents());
             compilationResult.Template.Should().NotBeNull();
 
             if (!TryParseTemplateSpecReference(registryPath, out var specReference, out var errorDiagnostic))
@@ -128,6 +129,6 @@ public static class MockRegistry
         return manager;
     }
 
-    private static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(FeatureProviderOverrides overrides)
+    public static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(FeatureProviderOverrides overrides)
         => await CreateDefaultExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(overrides));
 }

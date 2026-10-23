@@ -4,8 +4,9 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
 using Bicep.LanguageServer.Features.Language.Completion.Snippets;
+using Bicep.Testing;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,16 +23,17 @@ public class SnippetCacheTests
         => ServiceBuilder.Create(s => s.AddSingleton<SnippetCacheBuilder>()).Construct<SnippetCacheBuilder>();
 
     [TestMethod]
-    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    [TestCategory(TestCategories.Baseline)]
     public async Task Verify_snippet_cache()
     {
-        var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, new EmbeddedFile(typeof(SnippetCache).Assembly, "Files/SnippetCache.json"));
-        var baselineFile = baselineFolder.EntryFile;
+        var baselineFile = new BaselineFile(
+            TestContext,
+            new EmbeddedFile(typeof(SnippetCacheTests).Assembly, "Files/SnippetCache.json", RelativeSourceBasePath: "../Bicep.LangServer"),
+            TestContext.GetResultFilePath("SnippetCache.json"));
 
         var snippetCache = await CreateSnippetCacheBuilder().Build();
 
-        baselineFile.WriteToOutputFolder(SnippetCache.Serialize(snippetCache));
-        baselineFile.ShouldHaveExpectedJsonValue();
+        SnippetCache.Serialize(snippetCache).Should().MatchJsonBaseline(baselineFile);
 
         // If the baseline has been updated, then verify that the FromManifest method gives us the same result.
         var fromManifest = SnippetCache.FromManifest();

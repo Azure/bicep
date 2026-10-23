@@ -68,10 +68,10 @@ public record CachedModule(
     string Repository,
     string Tag)
 {
-    public string ManifestContents => File.ReadAllText(Path.Combine(ModuleCacheFolder, "manifest"));
+    public string ManifestContents => FileSystem.File.ReadAllText(FileSystem.Path.Combine(ModuleCacheFolder, "manifest"));
     public JsonObject ManifestJson => (JsonObject)JsonNode.Parse(ManifestContents)!;
 
-    public string MetadataContents => File.ReadAllText(Path.Combine(ModuleCacheFolder, "metadata"));
+    public string MetadataContents => FileSystem.File.ReadAllText(FileSystem.Path.Combine(ModuleCacheFolder, "metadata"));
     public JsonObject MetadataJson => (JsonObject)JsonNode.Parse(MetadataContents)!;
 
     public string[] LayerMediaTypes

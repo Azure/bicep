@@ -25,7 +25,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
         [TestMethod]
         [DynamicData(nameof(GetNamespaces), DynamicDataDisplayName = nameof(GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void FunctionsShouldHaveExpectedSignatures(INamespaceSymbol @namespace)
         {
             var knownOverloads = @namespace.TryGetNamespaceType()!.MethodResolver.GetKnownFunctions().Values
@@ -46,7 +46,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
             var expected = JToken.Parse(expectedStr);
             var expectedPath = DataSet.GetBaselineUpdatePath(DataSet.TestFunctionsDirectory, fileName);
-            actual.Should().EqualWithJsonDiffOutput(TestContext, expected, expectedPath, actualLocation);
+            actual.Should().EqualWithJsonDiffOutput(GetType().Assembly, TestContext, expected, expectedPath, actualLocation);
         }
 
         private static IEnumerable<object[]> GetNamespaces()

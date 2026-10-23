@@ -5,8 +5,8 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
-using Bicep.Core.UnitTests.Utils;
 using Bicep.RpcClient.Models;
+using Bicep.Testing;
 using FluentAssertions;
 
 namespace Bicep.RpcClient.Tests;
@@ -19,7 +19,7 @@ public class PooledBicepClientFactoryTests
     [TestCleanup]
     public void Cleanup()
     {
-        var testOutputRootPath = FileHelper.GetTestOutputRootPath(TestContext);
+        var testOutputRootPath = TestContext.GetOutputRootPath();
         if (Directory.Exists(testOutputRootPath))
         {
             Directory.Delete(testOutputRootPath, true);
@@ -66,7 +66,7 @@ public class PooledBicepClientFactoryTests
 
         try
         {
-            var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", "param location string");
+            var bicepFile = TestContext.SaveResultFile("main.bicep", "param location string");
 
             var results = await Task.WhenAll(wrappers.Select(wrapper =>
                 wrapper.Compile(new CompileRequest(bicepFile), TestContext.CancellationTokenSource.Token)));

@@ -92,7 +92,7 @@ namespace Bicep.Core.IntegrationTests
 
         [TestMethod]
         [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void LexerShouldProduceExpectedTokens(DataSet dataSet)
         {
             var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep), ToListDiagnosticWriter.Create());
@@ -107,10 +107,11 @@ namespace Bicep.Core.IntegrationTests
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainTokens), sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.Tokens,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainTokens),
-                actualPath: resultsFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainTokens),
+                actualLocation: resultsFile);
 
             lexer.GetTokens().Count(token => token.Type == TokenType.EndOfFile).Should().Be(1, "because there should only be 1 EOF token");
             lexer.GetTokens().Last().Type.Should().Be(TokenType.EndOfFile, "because the last token should always be EOF.");
@@ -118,12 +119,12 @@ namespace Bicep.Core.IntegrationTests
 
         [TestMethod]
         [BaselineData_Bicepparam.TestData()]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void ParamsFile_LexerShouldProduceExpectedTokens(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
 
-            var lexer = new Lexer(new SlidingTextWindow(data.Parameters.EmbeddedFile.Contents), ToListDiagnosticWriter.Create());
+            var lexer = new Lexer(new SlidingTextWindow(data.Parameters.TestFile.GetContents()), ToListDiagnosticWriter.Create());
             lexer.Lex();
 
             string getLoggingString(Token token)
@@ -131,10 +132,9 @@ namespace Bicep.Core.IntegrationTests
                 return $"{token.Type} |{token.Text}|";
             }
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", lexer.GetTokens(), getLoggingString);
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.TestFile.GetContents(), "\n", lexer.GetTokens(), getLoggingString);
 
-            data.Tokens.WriteToOutputFolder(sourceTextWithDiags);
-            data.Tokens.ShouldHaveExpectedValue();
+            sourceTextWithDiags.Should().MatchTextBaseline(data.Tokens);
 
             lexer.GetTokens().Count(token => token.Type == TokenType.EndOfFile).Should().Be(1, "because there should only be 1 EOF token");
             lexer.GetTokens().Last().Type.Should().Be(TokenType.EndOfFile, "because the last token should always be EOF.");

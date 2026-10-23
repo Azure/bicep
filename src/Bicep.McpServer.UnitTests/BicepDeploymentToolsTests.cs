@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.McpServer.Core;
@@ -17,22 +18,22 @@ public class BicepDeploymentToolsTests
     [NotNull]
     public TestContext? TestContext { get; set; }
 
-    private static IServiceProvider GetServiceProvider()
+    private static BicepDeploymentTools CreateTools(MockFileSystemTestFileSet files)
     {
         var services = new ServiceCollection();
+        services.AddBicepMcpServer();
         services
-            .AddBicepMcpServer();
+            .WithFileSystem(files.FileSystem)
+            .WithFileExplorer(files.FileExplorer);
 
-        return services.BuildServiceProvider();
+        return services.BuildServiceProvider().GetRequiredService<BicepDeploymentTools>();
     }
-
-    private readonly BicepDeploymentTools tools = GetServiceProvider().GetRequiredService<BicepDeploymentTools>();
 
     [TestMethod]
     public async Task GetDeploymentSnapshot_returns_a_valid_snapshot()
     {
-        var outputFolder = FileHelper.SaveResultFiles(TestContext, [
-            new("main.bicep", """
+        var files = MockFileSystemTestFileSet.Create(
+            ("main.bicep", """
                 @description('Storage Account type')
                 param storageAccountType string = 'Standard_LRS'
                 
@@ -52,15 +53,14 @@ public class BicepDeploymentToolsTests
                   properties: {}
                 }
                 """),
-            new("main.bicepparam", """
+            ("main.bicepparam", """
                 using './main.bicep'
 
                 param location = 'eastus'
-                """),
-        ]);
+                """));
 
-        var response = await tools.GetDeploymentSnapshot(
-            filePath: Path.Combine(outputFolder, "main.bicepparam"),
+        var response = await CreateTools(files).GetDeploymentSnapshot(
+            filePath: files.GetUri("main.bicepparam").GetFilePath(),
             tenantId: null,
             subscriptionId: "1ec1dd71-d88e-465d-95e2-4996c828833a",
             resourceGroup: "myRg",

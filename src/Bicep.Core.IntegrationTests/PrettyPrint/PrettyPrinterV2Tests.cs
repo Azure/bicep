@@ -19,7 +19,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         [TestMethod]
         [DataRow(40)]
         [DataRow(80)]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Print_VariousWidths_OptimizesLayoutAccordingly(int width)
         {
             var dataSet = DataSets.PrettyPrint_LF;
@@ -32,17 +32,18 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             var expected = dataSet.ReadDataSetFile(outputFileName);
 
             output.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 expected,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
-                actualPath: outputFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
+                actualLocation: outputFile);
 
             AssertConsistentOutput(output, options);
         }
 
         [TestMethod]
         [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Print_DataSet_ProducesExpectedOutput(DataSet dataSet)
         {
             var output = Print(dataSet.Bicep, PrettyPrinterV2Options.Default);
@@ -50,17 +51,18 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             var outputFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, outputFileName), output);
 
             output.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.Formatted,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
-                actualPath: outputFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
+                actualLocation: outputFile);
 
             AssertConsistentOutput(output, PrettyPrinterV2Options.Default);
         }
 
         [TestMethod]
         [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Print_DataSet_ProducesConsistentNewlines(DataSet dataSet)
         {
             var output = Print(dataSet.Bicep, PrettyPrinterV2Options.Default);
@@ -74,25 +76,24 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
 
         [TestMethod]
         [BaselineData_Bicepparam.TestData()]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Print_ParamDataSet_ProducesExpectedOutput(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-            var output = Print(data.Parameters.EmbeddedFile.Contents, PrettyPrinterV2Options.Default, isParamFile: true);
+            var output = Print(data.Parameters.TestFile.GetContents(), PrettyPrinterV2Options.Default, isParamFile: true);
 
-            data.Formatted.WriteToOutputFolder(output);
-            data.Formatted.ShouldHaveExpectedValue();
+            output.Should().MatchTextBaseline(data.Formatted);
 
             AssertConsistentParamsOutput(output, PrettyPrinterV2Options.Default);
         }
 
         [TestMethod]
         [BaselineData_Bicepparam.TestData()]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Print_ParamDataSet_ProducesConsistentNewlines(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-            var output = Print(data.Parameters.EmbeddedFile.Contents, PrettyPrinterV2Options.Default, isParamFile: true);
+            var output = Print(data.Parameters.TestFile.GetContents(), PrettyPrinterV2Options.Default, isParamFile: true);
 
             NewlinePattern().Matches(output)
                 .Select(x => x.Value)

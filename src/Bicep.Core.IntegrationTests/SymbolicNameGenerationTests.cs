@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,8 +18,8 @@ public class SymbolicNameTests
     public TestContext? TestContext { get; set; }
 
     [TestMethod]
-    [TestCategory(BaselineHelper.BaselineTestCategory)]
-    [EmbeddedFilesTestData(@"Files/SymbolicNameTests/ResourceInfo/.*/main\.bicep")]
+    [TestCategory(TestCategories.Baseline)]
+    [TestEmbeddedFiles(@"Files/SymbolicNameTests/ResourceInfo/.*/main\.bicep")]
     public async Task ResourceInfoCodegenEnabled_output_is_valid(EmbeddedFile bicepFile)
         => await ExamplesTests.RunExampleTest(TestContext, bicepFile, new(TestContext, ResourceInfoCodegenEnabled: true));
 

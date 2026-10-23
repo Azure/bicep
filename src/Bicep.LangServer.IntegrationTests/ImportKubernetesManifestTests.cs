@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest;
@@ -22,13 +21,13 @@ namespace Bicep.LangServer.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
-        [EmbeddedFilesTestData(@"Files/ImportKubernetesManifest/.*/.*\.yml")]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestEmbeddedFiles(@"Files/ImportKubernetesManifest/.*/.*\.yml")]
+        [TestCategory(TestCategories.Baseline)]
         public async Task ImportKubernetesManifest_generates_valid_bicep_files_from_kubernetes_manifests(EmbeddedFile embeddedYml)
         {
-            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedYml);
-            var yamlFile = baselineFolder.EntryFile;
-            var bicepFile = baselineFolder.GetFileOrEnsureCheckedIn(Path.ChangeExtension(embeddedYml.FileName, ".bicep"));
+            var baselineFiles = TestContext.MaterializeBaselineFolder(embeddedYml);
+            var yamlFile = baselineFiles.EntryFile;
+            var bicepFile = baselineFiles.GetFile(Path.ChangeExtension(embeddedYml.FileName, ".bicep"));
 
             using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
@@ -38,9 +37,9 @@ namespace Bicep.LangServer.IntegrationTests
 
             var response = await client.SendRequest(new ImportKubernetesManifestRequest(yamlFile.OutputFilePath), default);
 
-            bicepFile.ShouldHaveExpectedValue();
+            bicepFile.Read().Should().MatchTextBaseline(bicepFile);
 
-            CompilationHelper.Compile(bicepFile.ReadFromOutputFolder()).Should().GenerateATemplate();
+            CompilationHelper.Compile(bicepFile.Read()).Should().GenerateATemplate();
         }
 
         [TestMethod]

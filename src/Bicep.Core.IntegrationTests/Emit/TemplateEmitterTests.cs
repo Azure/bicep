@@ -11,9 +11,9 @@ using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -72,12 +72,12 @@ namespace Bicep.Core.IntegrationTests.Emit
                 .Build()
                 .GetCompiler();
 
-            return await compiler.CreateCompilation(baseline.GetData(TestContext).Parameters.OutputFileUri.ToIOUri());
+            return await compiler.CreateCompilation(IOUri.FromFilePath(baseline.GetData(TestContext).Parameters.OutputFilePath));
         }
 
         [TestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task ValidBicep_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
@@ -92,6 +92,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var actual = JToken.Parse(outputFile);
 
             actual.Should().EqualWithJsonDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
@@ -103,7 +104,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
         [TestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task ValidBicep_EmitTemplate_should_produce_expected_symbolicname_template(DataSet dataSet)
         {
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiledWithSymbolicNames));
@@ -118,6 +119,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var actual = JToken.Parse(outputFile);
 
             actual.Should().EqualWithJsonDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 JToken.Parse(dataSet.CompiledWithSymbolicNames!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiledWithSymbolicNames),
@@ -128,13 +130,13 @@ namespace Bicep.Core.IntegrationTests.Emit
         }
 
         [TestMethod]
-        [EmbeddedFilesTestData(@"Files/SourceMapping/.*/main.bicep")]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestEmbeddedFiles(@"Files/SourceMapping/.*/main.bicep")]
+        [TestCategory(TestCategories.Baseline)]
         public async Task Source_map_generation_should_work(EmbeddedFile file)
         {
-            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, file);
-            var bicepFile = baselineFolder.EntryFile;
-            var sourceMapFile = baselineFolder.GetFileOrEnsureCheckedIn("sourcemap.json");
+            var baselineFiles = TestContext.MaterializeBaselineFolder(file);
+            var bicepFile = baselineFiles.EntryFile;
+            var sourceMapFile = baselineFiles.GetFile("sourcemap.json");
 
             var features = new FeatureProviderOverrides(TestContext, SourceMappingEnabled: true);
             var compiler = ServiceBuilder.Create(s => s.WithFeatureOverrides(features)).GetCompiler();
@@ -150,13 +152,12 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // Here we simply verify that the format of the baseline file looks correct.
             var sourceMapJson = JToken.FromObject(emitResult.SourceMap!);
-            sourceMapFile.WriteToOutputFolder(sourceMapJson.ToString());
-            sourceMapFile.ShouldHaveExpectedJsonValue();
+            sourceMapJson.Should().MatchJsonBaseline(sourceMapFile);
         }
 
         [TestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task SourceMap_maps_json_to_bicep_lines(DataSet dataSet)
         {
             var features = new FeatureProviderOverrides(TestContext, SourceMappingEnabled: true);
@@ -179,10 +180,11 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // Here we validate visually that the in-memory source map can be used to map JSON -> Bicep lines
             sourceTextWithSourceMap.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.SourceMap!,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
-                actualPath: sourceTextWithSourceMapFileName);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
+                actualLocation: sourceTextWithSourceMapFileName);
         }
 
         [TestMethod]
@@ -205,7 +207,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
         [TestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task ValidBicepTextWriter_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
             var compilation = await GetCompilation(dataSet, new(TestContext));
@@ -221,6 +223,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var compiledFilePath = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled), actual.ToString(Formatting.Indented));
 
             actual.Should().EqualWithJsonDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
@@ -242,7 +245,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
         [TestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task Valid_bicepparam_TemplateEmiter_should_produce_expected_template(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
@@ -255,12 +258,12 @@ namespace Bicep.Core.IntegrationTests.Emit
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
-            data.Compiled.ShouldHaveExpectedJsonValue();
+            data.Compiled.Read().Should().MatchJsonBaseline(data.Compiled);
         }
 
         [TestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.InvalidOnly)]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task Invalid_bicepparam_TemplateEmiter_should_not_produce_a_template(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);

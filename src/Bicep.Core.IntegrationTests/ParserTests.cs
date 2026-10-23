@@ -52,7 +52,7 @@ namespace Bicep.Core.IntegrationTests
 
         [TestMethod]
         [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Parser_should_produce_expected_syntax(DataSet dataSet)
         {
             var program = ParserHelper.Parse(dataSet.Bicep);
@@ -65,28 +65,28 @@ namespace Bicep.Core.IntegrationTests
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSyntax), sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.Syntax,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
-                actualPath: resultsFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
+                actualLocation: resultsFile);
         }
 
         [TestMethod]
         [BaselineData_Bicepparam.TestData()]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Params_Parser_should_produce_expected_syntax(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-            var program = ParserHelper.ParamsParse(data.Parameters.EmbeddedFile.Contents);
+            var program = ParserHelper.ParamsParse(data.Parameters.TestFile.GetContents());
             var syntaxList = SyntaxCollectorVisitor.Build(program);
             var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
 
             TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.TestFile.GetContents(), "\n", syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
 
-            data.Syntax.WriteToOutputFolder(sourceTextWithDiags);
-            data.Syntax.ShouldHaveExpectedValue();
+            sourceTextWithDiags.Should().MatchTextBaseline(data.Syntax);
         }
 
         private static IEnumerable<object[]> GetData()

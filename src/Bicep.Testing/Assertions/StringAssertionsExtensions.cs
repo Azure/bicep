@@ -19,17 +19,7 @@ public static class StringAssertionsExtensions
     public static AndConstraint<StringAssertions> BeValidBicepTextIgnoringNewlines(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
     {
         ValidateBicepText(instance, because, becauseArgs);
-        instance.BeEquivalentToIgnoringNewlines(expected, because, becauseArgs);
-
-        return new(instance);
-    }
-
-    public static AndConstraint<StringAssertions> BeEquivalentToIgnoringNewlines(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
-    {
-        var normalizedActual = instance.Subject.ReplaceLineEndings("\n");
-        var normalizedExpected = expected.ReplaceLineEndings("\n");
-
-        normalizedActual.Should().Be(normalizedExpected, because, becauseArgs);
+        instance.EqualIgnoringNewlines(expected, because, becauseArgs);
 
         return new(instance);
     }

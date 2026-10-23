@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Entities;
+using Azure.Deployments.Engine.Definitions;
 using Azure.Deployments.Engine.Interfaces;
 
 namespace Bicep.Local.Deploy.Engine;
@@ -15,6 +16,6 @@ public class LocalKeyVaultDataProvider : IKeyVaultDataProvider
         throw new NotImplementedException();
     }
 
-    public Task<bool> IsIdentityEnabledForTemplateDeployment(string objectId, string[] identitySecurityGroups, string keyVaultResourceId)
-        => Task.FromResult(false);
+    public Task<KeyVaultDeploymentAccessDecision> GetTemplateDeploymentAccessDecision(string objectId, string[] identitySecurityGroups, string keyVaultResourceId)
+        => Task.FromResult(KeyVaultDeploymentAccessDecision.NotAllowed);
 }

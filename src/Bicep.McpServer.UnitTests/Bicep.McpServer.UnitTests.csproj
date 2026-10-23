@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj" />
+    <ProjectReference Include="..\Bicep.Testing\Bicep.Testing.csproj" />
     <ProjectReference Include="..\Bicep.McpServer\Bicep.McpServer.csproj" />
     <ProjectReference Include="..\Bicep.McpServer.Core\Bicep.McpServer.Core.csproj" />
   </ItemGroup>

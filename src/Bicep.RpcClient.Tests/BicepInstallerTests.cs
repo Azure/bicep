@@ -6,8 +6,8 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core.UnitTests.Utils;
 using Bicep.RpcClient.Helpers;
+using Bicep.Testing;
 using FluentAssertions;
 
 namespace Bicep.RpcClient.Tests;
@@ -19,7 +19,7 @@ public class BicepInstallerTests
 
     private string GetTempPath(string fileName)
     {
-        var directory = Directory.CreateDirectory(FileHelper.GetTestOutputRootPath(TestContext));
+        var directory = Directory.CreateDirectory(TestContext.GetOutputRootPath());
 
         return Path.Combine(directory.FullName, $"{TestContext.TestName}_{fileName}");
     }

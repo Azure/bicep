@@ -134,12 +134,12 @@ namespace Bicep.LangServer.IntegrationTests.Completions
 
             var expected = JToken.Parse(expectedStr);
 
-            actual.Should().EqualWithJsonDiffOutput(this.TestContext, expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
+            actual.Should().EqualWithJsonDiffOutput(GetType().Assembly, this.TestContext, expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
         }
 
         [TestMethod]
         [DynamicData(nameof(GetSnippetCompletionData), DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task ValidateSnippetCompletionAfterPlaceholderReplacements(CompletionData completionData)
         {
             string pathPrefix = $"Files/SnippetTemplates/{completionData.Prefix}";
@@ -190,10 +190,11 @@ namespace Bicep.LangServer.IntegrationTests.Completions
                 }
 
                 sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                    GetType().Assembly,
                     TestContext,
                     File.Exists(combinedFileName) ? (await File.ReadAllTextAsync(combinedFileName)) : string.Empty,
-                    expectedPath: combinedSourceFileName,
-                    actualPath: combinedFileName + ".actual");
+                    expectedLocation: TestRepository.GetAbsolutePath(combinedSourceFileName),
+                    actualLocation: combinedFileName + ".actual");
             }
         }
 
@@ -227,7 +228,7 @@ namespace Bicep.LangServer.IntegrationTests.Completions
 
         [TestMethod]
         [DynamicData(nameof(GetData), DynamicDataDisplayName = nameof(GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task CompletionRequestShouldProduceExpectedCompletions(DataSet dataSet, string setName, IList<Position> positions)
         {
             // ensure all files are present locally
@@ -4081,7 +4082,7 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
                 _ => GetGlobalCompletionSetPath(setName)
             };
 
-            actual.Should().EqualWithJsonDiffOutput(this.TestContext, expected, expectedLocation, actualLocation, "because ");
+            actual.Should().EqualWithJsonDiffOutput(GetType().Assembly, this.TestContext, expected, expectedLocation, actualLocation, "because ");
         }
 
         private static string GetGlobalCompletionSetPath(string setName) => DataSet.GetBaselineUpdatePath(DataSet.TestCompletionsDirectory, GetFullSetName(setName));

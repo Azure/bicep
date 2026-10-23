@@ -61,7 +61,7 @@ namespace Bicep.Core.UnitTests.Assertions
                 expectedFiles.Add("source.tgz");
             }
 
-            var files = new DirectoryInfo(Subject.ModuleCacheFolder).EnumerateFiles().Select(file => file.Name).ToImmutableArray();
+            var files = Subject.FileSystem.DirectoryInfo.New(Subject.ModuleCacheFolder).EnumerateFiles().Select(file => file.Name).ToImmutableArray();
             files.Should().BeEquivalentTo(expectedFiles);
 
             return new(this);

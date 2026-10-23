@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
@@ -154,7 +155,7 @@ namespace Bicep.Core.Samples
             => OutputHelper.AddDiagsToSourceText(dataSet.Bicep, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", items, item => item.Span, diagsFunc);
 
         public static string GetBaselineUpdatePath(params string[] fileNames)
-            => Path.Combine("src", "Bicep.Core.Samples", "Files", "baselines", Path.Combine(fileNames));
+            => TestRepository.GetAbsolutePath(Path.Combine("src", "Bicep.Core.Samples", "Files", "baselines", Path.Combine(fileNames)));
 
         public static string GetBaselineUpdatePath(DataSet dataSet, string fileName)
             => GetBaselineUpdatePath(dataSet.Name, fileName);

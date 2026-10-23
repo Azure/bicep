@@ -66,7 +66,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 : (string.Empty, 0);
 
             var editorContentsWithPastedJson = string.Concat(editorContents.AsSpan(0, cursorOffset), options.pastedJson, editorContents.AsSpan(cursorOffset));
-            _ = FileHelper.SaveResultFile(TestContext, "main.bicep", editorContentsWithPastedJson);
             LanguageServerMock server = new();
             var handler = CreateHandler(server);
 

@@ -42,9 +42,6 @@ public class ConfigOptionTests : TestBase
 
     private static string PathOf(TestFileSet fileSet, string path) => fileSet.GetUri(path).GetFilePath();
 
-    private static Task<CliResult> Bicep(MockFileSystemTestFileSet fileSet, params string[] args)
-        => Bicep(services => services.WithFileSystem(fileSet.FileSystem), args);
-
     [TestMethod]
     public async Task Build_WithoutConfig_DiscoversConfiguration()
     {

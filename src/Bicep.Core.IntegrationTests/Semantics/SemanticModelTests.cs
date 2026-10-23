@@ -36,7 +36,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         //   Problematic ones that should be disabled in this and most other tests by default can be added to BicepTestConstants.AnalyzerRulesToDisableInTests
         [TestMethod]
         [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task ProgramsShouldProduceExpectedDiagnostics(DataSet dataSet)
         {
             var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
@@ -53,10 +53,11 @@ namespace Bicep.Core.IntegrationTests.Semantics
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.Diagnostics,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
-                actualPath: resultsFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
+                actualLocation: resultsFile);
         }
 
         [TestMethod]
@@ -69,7 +70,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
         [TestMethod]
         [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task ProgramsShouldProduceExpectedUserDeclaredSymbols(DataSet dataSet)
         {
             var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
@@ -92,10 +93,11 @@ namespace Bicep.Core.IntegrationTests.Semantics
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.Symbols,
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
-                actualPath: resultsFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
+                actualLocation: resultsFile);
         }
 
         [TestMethod]
@@ -203,8 +205,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var bicepFileContents = @"#disable-next-line BCP029 BCP068
 resource test";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var documentUri = DocumentUri.FromFileSystemPath(TestFileUri.FromInMemoryPath("main.bicep").GetFilePath());
             var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>
@@ -244,8 +245,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 #disable-next-line BCP036 BCP037
   properties: vmProperties
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var documentUri = DocumentUri.FromFileSystemPath(TestFileUri.FromInMemoryPath("main.bicep").GetFilePath());
             var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>
@@ -263,8 +263,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
         {
             var bicepFileContents = @"#disable-next-line no-unused-params
 param storageAccount string = 'testStorageAccount'";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var documentUri = DocumentUri.FromFileSystemPath(TestFileUri.FromInMemoryPath("main.bicep").GetFilePath());
             var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>
@@ -283,8 +282,7 @@ param storageAccount string = 'testStorageAccount'";
             var bicepFileContents = @"#disable-next-line no-unused-params
 
 param storageAccount string = 'testStorageAccount'";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var documentUri = DocumentUri.FromFileSystemPath(TestFileUri.FromInMemoryPath("main.bicep").GetFilePath());
             var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>
@@ -320,7 +318,7 @@ param storageAccount string = 'testStorageAccount'";
 
         [TestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task ProgramsShouldProduceExpectedIrTree(DataSet dataSet)
         {
             var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
@@ -338,10 +336,11 @@ param storageAccount string = 'testStorageAccount'";
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainIr), sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                GetType().Assembly,
                 TestContext,
                 dataSet.Ir ?? "",
-                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainIr),
-                actualPath: resultsFile);
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainIr),
+                actualLocation: resultsFile);
         }
 
         private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program)
