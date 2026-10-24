@@ -102,10 +102,10 @@ copies, so unrelated edits and designer replays never need to be reconciled with
 
 Node movement starts a snapshot at the first actual drag movement and commits once at gesture end.
 A module drag records all atomic descendants as one step, and dragging a collapsed module records its
-hidden contents too. Reset Layout records the positions before and after as one step **only after a
+hidden descendants too. Reset Layout records the positions before and after as one step **only after a
 successful layout**. Positions are targets, so a reset or drag that interrupts an animation records
 where the nodes were heading, and undoing it never stops partway through one. Collapsing or expanding
-a module records one step, replayed as the toggle does, so undo never moves contents the user cannot
+a module records one step, replayed as the toggle does, so undo never moves nodes the user cannot
 see: a drag inside a module that was collapsed afterwards is undone only after the module is expanded
 again. History never records pan, zoom, focus, chooser opening, cancellation, automatic layout, or
 animation frames.

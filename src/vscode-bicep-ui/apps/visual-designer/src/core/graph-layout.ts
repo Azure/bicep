@@ -3,13 +3,22 @@
 
 import type { Box, Point } from "@/lib/math";
 import type { GraphBounds, MeasuredGraph, NodePosition } from "./api";
-import type { ClientGraph } from "./graph-model";
+import type { ClientGraph, ClientGraphNode } from "./graph-model";
 
 /**
  * The node metadata fields that influence rendered size and therefore layout. Node content is
- * measured, so keep this consistent with what the canvas renders.
+ * measured, so keep this consistent with what the canvas renders. Whether a module is drawn around its children
+ * is compared separately: see {@link isShownAsCompound}.
  */
-const LAYOUT_AFFECTING_NODE_FIELDS = ["type", "symbolName", "isCollection", "hasChildren"] as const;
+const LAYOUT_AFFECTING_NODE_FIELDS = ["type", "symbolName", "isCollection"] as const;
+
+/**
+ * Whether a shown node is drawn around its children: it has children and is not collapsed. An atomic module is the
+ * same size whether or not it has children to show, so gaining or losing them while collapsed changes nothing.
+ */
+function isShownAsCompound(node: ClientGraphNode): boolean {
+  return node.hasChildren && node.isCollapsed !== true;
+}
 
 export interface LayoutExemptions {
   /** Nodes placed where the user dropped them. Adding one does not require a layout. */
@@ -42,6 +51,7 @@ export function graphChangeMayAffectLayout(
     if (
       nextNode.kind !== node.kind ||
       nextNode.parentId !== node.parentId ||
+      isShownAsCompound(nextNode) !== isShownAsCompound(node) ||
       LAYOUT_AFFECTING_NODE_FIELDS.some((field) => nextNode[field] !== node[field])
     ) {
       return true;
@@ -85,7 +95,7 @@ export function centerGraphLayout(
 
 /**
  * The centers of the laid-out nodes that are positioned by their own center, from the top-left corners
- * the host returns. Containers are skipped: they are placed by their contents.
+ * the host returns. Containers are skipped: they are placed by their children.
  */
 export function getLayoutCenters(topLeftCorners: ReadonlyMap<string, Point>, graph: MeasuredGraph): Map<string, Point> {
   const containerIds = new Set(graph.nodes.flatMap((node) => (node.parentId === null ? [] : [node.parentId])));
@@ -99,4 +109,29 @@ export function getLayoutCenters(topLeftCorners: ReadonlyMap<string, Point>, gra
   }
 
   return centers;
+}
+
+/**
+ * The subgraph rooted at `rootId`, to lay out on its own: the root as the only top-level node, with everything inside
+ * it and the dependencies between them. The host lays it out as it does a whole graph, so the bounds it returns are
+ * the root's box.
+ */
+export function getSubgraph(graph: MeasuredGraph, rootId: string): MeasuredGraph {
+  const parentById = new Map(graph.nodes.map((node) => [node.id, node.parentId]));
+  const isInRoot = (nodeId: string) => {
+    for (let id = parentById.get(nodeId) ?? null; id !== null; id = parentById.get(id) ?? null) {
+      if (id === rootId) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  return {
+    nodes: graph.nodes.flatMap((node) =>
+      node.id === rootId ? [{ ...node, parentId: null }] : isInRoot(node.id) ? [node] : [],
+    ),
+    edges: graph.edges.filter((edge) => isInRoot(edge.sourceId) && isInRoot(edge.targetId)),
+  };
 }

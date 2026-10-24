@@ -27,7 +27,7 @@ public class VisualGraphModelsTests
             Nodes:
             [
                 Node("m::b", GraphNodeKind.Resource, parentId: "m", type: "Microsoft.Storage/storageAccounts", hasError: true),
-                Node("m", GraphNodeKind.Module, parentId: null, hasChildren: true),
+                Node("m", GraphNodeKind.Module, parentId: null, hasChildren: true, sourceStatus: GraphNodeSourceStatus.Unrestored),
                 Node("a", GraphNodeKind.Resource, parentId: null),
             ],
             Edges: [Edge("a->m", "a", "m")]);
@@ -71,9 +71,9 @@ public class VisualGraphModelsTests
     }
 
     [TestMethod]
-    public void MeasuredGraph_ToLayoutGraph_WithModuleWhoseContentsAreHidden_LaysItOutAsALeaf()
+    public void MeasuredGraph_ToLayoutGraph_WithModuleWhoseChildrenAreHidden_LaysItOutAsALeaf()
     {
-        // A collapsed module is rendered without its contents, so it is laid out like a resource card.
+        // A collapsed module is rendered without its children, so it is laid out like a resource.
         var measured = new MeasuredGraph(
             Nodes: [Measured("m", GraphNodeKind.Module, parentId: null), Measured("a", GraphNodeKind.Resource, parentId: null)],
             Edges: [Edge("a->m", "a", "m")]);
@@ -100,7 +100,8 @@ public class VisualGraphModelsTests
         string? parentId,
         string type = "Test.Rp/tests",
         bool hasError = false,
-        bool hasChildren = false) =>
+        bool hasChildren = false,
+        string? sourceStatus = null) =>
         new(
             Id: id,
             Kind: kind,
@@ -109,7 +110,8 @@ public class VisualGraphModelsTests
             SymbolName: id,
             IsCollection: false,
             HasChildren: hasChildren,
-            HasError: hasError);
+            HasError: hasError,
+            SourceStatus: sourceStatus);
 
     private static GraphEdge Edge(string id, string sourceId, string targetId) => new(id, sourceId, targetId);
 

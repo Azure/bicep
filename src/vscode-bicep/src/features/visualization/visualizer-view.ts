@@ -30,6 +30,7 @@ import {
   VisualGraphLayoutResult,
   visualGraphNodeSourceRequestType,
   visualGraphRequestType,
+  visualGraphRestoreModuleRequestType,
   VisualGraphResult,
   VisualizerSettings,
   visualResourceTypesRequestType,
@@ -260,6 +261,34 @@ export class BicepVisualizerView extends Disposable {
     }
   }
 
+  /** Restore the registry module behind a module node the user is expanding. The webview then fetches the graph. */
+  private async handleRestoreModule(id: string, params: unknown): Promise<void> {
+    const nodeId = (params as { nodeId?: unknown } | undefined)?.nodeId;
+
+    if (typeof nodeId !== "string") {
+      await this.postErrorResponse(id, { message: "A module node is required." });
+      return;
+    }
+
+    try {
+      const document = await workspace.openTextDocument(this.documentUri);
+
+      if (this.isDisposed) {
+        return;
+      }
+
+      const result = await this.languageClient.sendRequest(visualGraphRestoreModuleRequestType, {
+        textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+        nodeId,
+      });
+
+      await this.postResponse(id, { restored: result.restored });
+    } catch (error) {
+      getLogger().error(`Module restore request failed: ${parseError(error).message}`);
+      await this.postErrorResponse(id, { message: "Failed to restore the module." });
+    }
+  }
+
   private async handleListResourceTypes(id: string, params: unknown): Promise<void> {
     const knownCatalogId = (params as { knownCatalogId?: unknown } | undefined)?.knownCatalogId;
 
@@ -373,6 +402,10 @@ export class BicepVisualizerView extends Disposable {
           void this.handleLayoutGraph(request.id, request.params);
           return;
 
+        case "module/restore":
+          void this.handleRestoreModule(request.id, request.params);
+          return;
+
         case "resources/create":
           void this.resourceEditing.createResource(request.id, request.params);
           return;
@@ -407,22 +440,28 @@ export class BicepVisualizerView extends Disposable {
         nodeId,
       });
 
-      if (this.isDisposed || !result.filePath || !result.range) {
+      if (this.isDisposed || !result.uri || !result.range) {
         return;
       }
 
-      this.revealFileRange(result.filePath, this.languageClient.protocol2CodeConverter.asRange(result.range));
+      this.revealRange(Uri.parse(result.uri), this.languageClient.protocol2CodeConverter.asRange(result.range));
     } catch (error) {
       getLogger().error(`Visual graph node source request failed: ${parseError(error).message}`);
     }
   }
 
-  private revealFileRange(filePath: string, range: Range) {
+  /** Reveal `range` in a file or in a registry module's published source (a `bicep-extsrc:` document). */
+  private revealRange(uri: Uri, range: Range) {
+    const isTarget = (documentUri: Uri) =>
+      uri.scheme === "file"
+        ? documentUri.scheme === "file" && documentUri.fsPath === uri.fsPath
+        : documentUri.toString() === uri.toString();
+
     for (const visibleEditor of window.visibleTextEditors) {
-      if (visibleEditor.document.uri.fsPath === filePath) {
+      if (isTarget(visibleEditor.document.uri)) {
         window.showTextDocument(visibleEditor.document, visibleEditor.viewColumn).then(
           (editor) => this.revealEditorRange(editor, range),
-          (err) => getLogger().error(`Could not reveal file range in "${filePath}": ${parseError(err).message}`),
+          (err) => getLogger().error(`Could not reveal a range in "${uri.toString()}": ${parseError(err).message}`),
         );
         return;
       }
@@ -431,11 +470,11 @@ export class BicepVisualizerView extends Disposable {
     const targetColumn = this.getTextEditorViewColumn() ?? ViewColumn.Beside;
 
     workspace
-      .openTextDocument(filePath)
+      .openTextDocument(uri)
       .then((doc) => window.showTextDocument(doc, targetColumn))
       .then(
         (editor) => this.revealEditorRange(editor, range),
-        (err) => getLogger().error(`Could not open "${filePath}": ${parseError(err).message}`),
+        (err) => getLogger().error(`Could not open "${uri.toString()}": ${parseError(err).message}`),
       );
   }
 

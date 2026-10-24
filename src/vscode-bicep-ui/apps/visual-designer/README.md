@@ -58,7 +58,7 @@ while it is focused) opens a version list; versions load on first focus or open.
 only by dragging the icon/type area onto the canvas, which inserts the selected version where it is
 dropped; clicking or pressing keys on a resource does not insert. A press becomes a drag only after
 the pointer moves 4px, so clicks never flash a drag preview, and Escape during a drag cancels only the drag.
-The preview follows pointer movement without rerendering the resource card on every move. Choices
+The preview follows pointer movement without rerendering the resource node on every move. Choices
 survive browsing, searching, and closing the palette until the provider catalog changes. Escape or
 toggling Resources closes the popover and restores focus to the dock. The passive top-left target
 scope remains visible independently of creation enablement. The palette offers only resource types
@@ -221,10 +221,11 @@ point. It reads the canvas element from core's `canvasElementAtom`, so the palet
 `lib/graph` treats node IDs as opaque and knows nothing about Bicep, focus, or modules. Containment
 comes from each node's `parentId`. `Graph` stacks nodes and edges as nested elements would be: a
 parent, then the edges between its children, then each child, so edges are below the nodes they join
-and above their parent's frame. It raises the node in `raisedNodeIdAtom` above its siblings; the canvas
-passes core's, which holds the node most recently focused or dragged, so dragging raises a node
-without focusing it. A node that sits on a sibling container (their target boxes overlap) has its edges
-drawn just above that container and below every other node. It reports
+and above their parent's frame. It raises the nodes in `raisedNodeIdsAtom` above their siblings, the most
+recently raised on top; the canvas passes core's, which holds the nodes focused, dragged, or opened, so
+dragging raises a node without focusing it. A node that sits on a sibling container (their target boxes overlap) has its edges
+drawn just above that container and below the nodes they join; only that node and the siblings it shares an edge
+with are lifted above the container. It reports
 gestures for the app to act on: `onNodeDragStart`, `onNodeDrag`, `onNodeDragEnd`, and
 `onNodeDoubleClick` on `Graph`, and `onNodeClick` on `Viewport`. Node content marks its own controls
 with `graphInteractiveProps`, so pressing one neither drags or focuses the node nor pans the canvas.
@@ -232,8 +233,8 @@ with `graphInteractiveProps`, so pressing one neither drags or focuses the node 
 The app gives `lib/graph` a graph to show (`setGraphAtom`: nodes with a parent and data, and edges)
 and where its nodes go (`nodePositionsAtom`: node centers and whether to animate there). The library
 measures the nodes and owns how they are drawn on the way: springs to new positions, containers that
-follow their contents, morphs when a node becomes a container or stops being one, and fades for the
-contents of a container that opens or closes. A node keeps its state, and its element, while its ID
+follow their children, morphs when a node becomes a container or stops being one, and fades for the
+descendants of a container that opens or closes. A node keeps its state, and its element, while its ID
 and parent stay the same.
 
 ## Graph synchronization

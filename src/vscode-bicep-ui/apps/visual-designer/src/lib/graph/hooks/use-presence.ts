@@ -69,7 +69,7 @@ export function derivePresence(
 }
 
 /**
- * Which nodes and edges fade in or out as the graph changes, so a container's contents fade as it
+ * Which nodes and edges fade in or out as the graph changes, so a container's descendants fade as it
  * opens or closes rather than popping. Other nodes appear and disappear at once, as do all of them when
  * motion is reduced.
  */

@@ -20,7 +20,7 @@ export interface LayoutStep {
   after: NodePositions;
 }
 
-/** A module collapsed into a card or expanded again. Replaying it never edits Bicep source. */
+/** A module collapsed or expanded. Replaying it never edits Bicep source. */
 export interface ModuleCollapseStep {
   kind: "moduleCollapse";
   moduleId: string;

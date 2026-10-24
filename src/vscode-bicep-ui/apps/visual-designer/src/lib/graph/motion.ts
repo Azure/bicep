@@ -13,10 +13,10 @@ export const NODE_MORPH_TRANSITION = {
   ease: [0.2, 0.8, 0.2, 1] as const,
 };
 
-/** Contents leaving a container that closes fade out while it shrinks. */
+/** Descendants leaving a container that closes fade out while it shrinks. */
 export const NODE_EXIT_TRANSITION = { duration: 0.1, ease: "easeOut" } as const;
 
-/** Contents of a container that opens fade in once it has grown around them. */
+/** Descendants of a container that opens fade in once it has grown around them. */
 export const NODE_ENTER_TRANSITION = {
   duration: 0.1,
   delay: NODE_MORPH_TRANSITION.duration / 2,

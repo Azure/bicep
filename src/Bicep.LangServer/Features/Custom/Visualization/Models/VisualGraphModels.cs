@@ -19,14 +19,38 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
     }
 
     /// <summary>
+    /// Well-known values for <see cref="GraphNode.SourceStatus"/>: why a remote module shows no children. A module that
+    /// shows its children, or has none to show, has no status.
+    /// </summary>
+    public static class GraphNodeSourceStatus
+    {
+        /// <summary>A registry module not in the local module cache yet. Expanding it restores the module.</summary>
+        public const string Unrestored = "unrestored";
+
+        /// <summary>The module has no Bicep source to show: it was published without it, or it is a template spec.</summary>
+        public const string Unavailable = "unavailable";
+
+        /// <summary>
+        /// The module's source could not be loaded: its restore failed, or its source cannot be read. Expanding it
+        /// tries again. <see cref="GraphNode.SourceError"/> says what went wrong.
+        /// </summary>
+        public const string Error = "error";
+    }
+
+    /// <summary>
     /// A node in the server's canonical visual graph. Sizes are intentionally absent: the webview owns node
     /// measurement, so the layout engine receives sizes from the client (<see cref="MeasuredGraphNode"/>).
     /// <para>
-    /// The node carries no source location (<c>filePath</c>/<c>range</c>). Those change on nearly every edit,
+    /// The node carries no source location (<c>uri</c>/<c>range</c>). Those change on nearly every edit,
     /// so they are resolved on demand when the user reveals a node (see <c>textDocument/visualGraphNodeSource</c>),
     /// which keeps an unchanged graph identical from one edit to the next.
     /// </para>
     /// </summary>
+    /// <param name="SourceStatus">
+    /// One of <see cref="GraphNodeSourceStatus"/> for a remote module that shows no children; otherwise null.
+    /// Metadata, not topology.
+    /// </param>
+    /// <param name="SourceError">The error, when <paramref name="SourceStatus"/> is <see cref="GraphNodeSourceStatus.Error"/>.</param>
     public record GraphNode(
         string Id,
         string Kind,
@@ -35,13 +59,18 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
         string SymbolName,
         bool IsCollection,
         bool HasChildren,
-        bool HasError);
+        bool HasError,
+        string? SourceStatus = null,
+        string? SourceError = null);
 
     /// <summary>
     /// The source location of a node, resolved on demand from the live compilation so that volatile
-    /// <c>filePath</c>/<c>range</c> data never travels with the graph. See <see cref="GraphNode"/>.
+    /// location data never travels with the graph. See <see cref="GraphNode"/>.
     /// </summary>
-    public record NodeSource(string? FilePath, Range Range);
+    /// <param name="Uri">
+    /// The document declaring the node: a file, or a <c>bicep-extsrc:</c> view of a registry module's published source.
+    /// </param>
+    public record NodeSource(string Uri, Range Range);
 
     /// <summary>
     /// A directed dependency edge in the server's canonical visual graph. Containment (parent/child)
@@ -103,7 +132,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
 
     /// <summary>
     /// The graph the webview renders, with the size it measured for each node: the input to layout. It may omit
-    /// nodes the webview hides, such as the contents of a collapsed module.
+    /// nodes the webview hides, such as the children of a collapsed module.
     /// </summary>
     public record MeasuredGraph(
         IReadOnlyList<MeasuredGraphNode> Nodes,

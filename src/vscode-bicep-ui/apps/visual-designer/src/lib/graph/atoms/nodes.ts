@@ -27,8 +27,14 @@ export interface NodeState {
   /** The size of the node's content, measured once it renders. Containers are sized by their children. */
   readonly sizeAtom: PrimitiveAtom<Size | null>;
   /**
+   * Whether the node has a position: its own, or for a container, one of its children's. A node that is not placed
+   * renders hidden, so it is still measured, and a container is drawn as a leaf until one of its children is placed.
+   */
+  readonly isPlacedAtom: Atom<boolean>;
+  /**
    * Where the node belongs: around its position at its measured size, or around its children's target
-   * boxes plus padding. Null until the node has both a position and a size.
+   * boxes plus padding. A container none of whose children has a target box yet belongs where it would as a
+   * leaf. Null until the node has both a position and a size.
    */
   readonly targetBoxAtom: Atom<Box | null>;
   /** Where the node is drawn, which moves toward the target box. Only the node's motion writes it. */
@@ -69,6 +75,19 @@ export function createNodeState(
   const childIdsAtom = atom(childIds);
   const sizeAtom = atom<Size | null>(null);
   const centerAtom = atom((get) => get(nodePositionsAtom).centers.get(id));
+  const isPlacedAtom: Atom<boolean> = atom((get) => {
+    const ids = get(childIdsAtom);
+
+    if (ids.length === 0) {
+      return get(centerAtom) !== undefined;
+    }
+
+    const nodesById = get(nodesByIdAtom);
+    return ids.some((childId) => {
+      const child = nodesById[childId];
+      return child ? get(child.isPlacedAtom) : false;
+    });
+  });
   const targetBoxAtom: Atom<Box | null> = atom((get) => {
     const ids = get(childIdsAtom);
 
@@ -80,7 +99,10 @@ export function createNodeState(
         return box ? [box] : [];
       });
 
-      return encloseWithPadding(childBoxes, get(nodeConfigAtom).padding);
+      const enclosing = encloseWithPadding(childBoxes, get(nodeConfigAtom).padding);
+      if (enclosing) {
+        return enclosing;
+      }
     }
 
     const center = get(centerAtom);
@@ -102,6 +124,7 @@ export function createNodeState(
     childIdsAtom,
     dataAtom: atom(data),
     sizeAtom,
+    isPlacedAtom,
     targetBoxAtom,
     boxAtom: atom<Box | null>(null),
   };

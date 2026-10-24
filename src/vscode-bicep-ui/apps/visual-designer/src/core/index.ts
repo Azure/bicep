@@ -20,7 +20,8 @@ export {
   isResourceEditingEnabledAtom,
   motionPolicyAtom,
   pendingResourcesAtom,
-  raisedNodeIdAtom,
+  raisedNodeIdsAtom,
+  restoringModuleIdsAtom,
   targetScopeAtom,
 } from "./atoms";
 export * from "./api";

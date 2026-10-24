@@ -6,7 +6,7 @@ import type { PaintOrder } from "../paint-order";
 
 import { atom } from "jotai";
 import { createContext } from "react";
-import { nodesByIdAtom } from "../atoms";
+import { edgesAtom, nodesByIdAtom } from "../atoms";
 import { computePaintOrder } from "../paint-order";
 
 /** What users do to nodes. The graph reports gestures; what they change is up to the app. */
@@ -38,7 +38,7 @@ export const IGNORE_NODE_EVENTS: GraphNodeEvents = {
 };
 
 /** The paint order of the shown nodes. It reads where nodes are going, so it follows a node as it is dragged. */
-export function createPaintOrderAtom(raisedNodeIdAtom: Atom<string | null> | undefined) {
+export function createPaintOrderAtom(raisedNodeIdsAtom: Atom<readonly string[]> | undefined) {
   return atom((get) =>
     computePaintOrder(
       Object.values(get(nodesByIdAtom)).map((node) => ({
@@ -47,7 +47,8 @@ export function createPaintOrderAtom(raisedNodeIdAtom: Atom<string | null> | und
         isCompound: get(node.childIdsAtom).length > 0,
         targetBox: get(node.targetBoxAtom),
       })),
-      raisedNodeIdAtom ? get(raisedNodeIdAtom) : null,
+      get(edgesAtom),
+      raisedNodeIdsAtom ? get(raisedNodeIdsAtom) : [],
     ),
   );
 }

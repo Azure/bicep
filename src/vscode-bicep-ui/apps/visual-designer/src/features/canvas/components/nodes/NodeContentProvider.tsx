@@ -19,7 +19,7 @@ function renderNodeContent(kind: NodeKind, { id, data }: NodeContentRenderProps)
   const nodeData = data as CanvasNodeData;
 
   return nodeData.nodeKind === "module" ? (
-    <ModuleNode id={id} variant={kind === "compound" ? "container" : "card"} data={nodeData} />
+    <ModuleNode id={id} kind={kind} data={nodeData} />
   ) : (
     <ResourceNode id={id} data={nodeData} />
   );

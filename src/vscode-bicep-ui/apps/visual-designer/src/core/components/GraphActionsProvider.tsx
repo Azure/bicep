@@ -38,7 +38,10 @@ export function GraphActionsProvider({ children }: { children: ReactNode }) {
 
   const { handleDocumentChange, resetGraphLayout } = useGraphSync(coordinator, getViewportCenter, fitViewToBounds);
   const createResourceAt = useResourceCreation(coordinator);
-  const { toggleModuleCollapsed, setModuleCollapsed } = useModuleCollapse(coordinator, getViewportCenter);
+  const { toggleModuleCollapsed, setModuleCollapsed, restoreModule } = useModuleCollapse(
+    coordinator,
+    getViewportCenter,
+  );
   const { handleNodeDragStart, handleNodeDrag, handleNodeDragEnd } = useNodeDrag();
   const { undo, redo } = useUndoRedo(coordinator, setModuleCollapsed);
 
@@ -51,6 +54,7 @@ export function GraphActionsProvider({ children }: { children: ReactNode }) {
       resetGraphLayout,
       createResourceAt,
       toggleModuleCollapsed,
+      restoreModule,
       handleNodeDragStart,
       handleNodeDrag,
       handleNodeDragEnd,
@@ -64,6 +68,7 @@ export function GraphActionsProvider({ children }: { children: ReactNode }) {
       handleNodeDragStart,
       redo,
       resetGraphLayout,
+      restoreModule,
       toggleModuleCollapsed,
       undo,
     ],

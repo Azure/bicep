@@ -47,7 +47,8 @@ function sizesEqual(left: Size | null, right: Size): boolean {
  *
  * - A leaf is sized by its content and placed by its position. When its position changes it springs
  *   there if the positions were updated with the `animate` transition, and otherwise jumps.
- * - A container encloses the boxes its children are drawn at, so it follows them as they move.
+ * - A container encloses the boxes its children are drawn at, so it follows them as they move. Until one of
+ *   its children is placed it is drawn as a leaf, where it was.
  * - A node that becomes a container, or stops being one, morphs from the box it was drawn at. While a
  *   leaf morphs, its element is sized by the drawn box rather than its content.
  *
@@ -198,6 +199,12 @@ export function useNodeGeometry(
     let isMorphing = false;
 
     const follow = () => {
+      // A container drawn as a leaf while its children wait to be placed holds its box. Once they are placed it
+      // becomes a container, and morphs from here.
+      if (store.get(node.childIdsAtom).length > 0 && store.get(node.isPlacedAtom)) {
+        return;
+      }
+
       const target = store.get(node.targetBoxAtom);
       if (!target) {
         return;
