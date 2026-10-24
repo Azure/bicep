@@ -224,7 +224,8 @@ parent, then the edges between its children, then each child, so edges are below
 and above their parent's frame. It raises the nodes in `raisedNodeIdsAtom` above their siblings, the most
 recently raised on top; the canvas passes core's, which holds the nodes focused, dragged, or opened, so
 dragging raises a node without focusing it. A node that sits on a sibling container (their target boxes overlap) has its edges
-drawn just above that container and below every other node. It reports
+drawn just above that container and below the nodes they join; only that node and the siblings it shares an edge
+with are lifted above the container. It reports
 gestures for the app to act on: `onNodeDragStart`, `onNodeDrag`, `onNodeDragEnd`, and
 `onNodeDoubleClick` on `Graph`, and `onNodeClick` on `Viewport`. Node content marks its own controls
 with `graphInteractiveProps`, so pressing one neither drags or focuses the node nor pans the canvas.

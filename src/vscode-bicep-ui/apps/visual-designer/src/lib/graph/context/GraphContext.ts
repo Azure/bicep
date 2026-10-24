@@ -6,7 +6,7 @@ import type { PaintOrder } from "../paint-order";
 
 import { atom } from "jotai";
 import { createContext } from "react";
-import { nodesByIdAtom } from "../atoms";
+import { edgesAtom, nodesByIdAtom } from "../atoms";
 import { computePaintOrder } from "../paint-order";
 
 /** What users do to nodes. The graph reports gestures; what they change is up to the app. */
@@ -47,6 +47,7 @@ export function createPaintOrderAtom(raisedNodeIdsAtom: Atom<readonly string[]> 
         isCompound: get(node.childIdsAtom).length > 0,
         targetBox: get(node.targetBoxAtom),
       })),
+      get(edgesAtom),
       raisedNodeIdsAtom ? get(raisedNodeIdsAtom) : [],
     ),
   );

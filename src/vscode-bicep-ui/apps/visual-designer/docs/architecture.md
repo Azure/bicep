@@ -209,13 +209,14 @@ raises a node without focusing it, and opening a module brings it in front of th
 
 The one exception is a node that sits on a sibling module: their target boxes overlap, and the node
 is drawn above the module, because it was raised more recently, or neither was raised and it is atomic
-or later in sibling order. Its edges should cross the
-module rather than vanish under it, yet stay below every other node. All nodes share one stacking
-context, so that is only possible with the module below the other siblings: a module that something
-sits on is painted first among its siblings, and the edges of the nodes sitting on it just above it.
-The paint order reads target boxes, so it follows a node as it is dragged on and off a module. An edge
-of a node sitting on one module is drawn above every module that something sits on in that parent,
-the one compromise of a single stacking context.
+or later in sibling order. Its edges should cross the module rather than vanish under it, yet stay
+below the nodes they join. All nodes share one stacking context, so the edges of the nodes sitting on
+a module are painted just above it, with those nodes and the siblings joined to them by an edge lifted
+above it. Every other sibling stays where it was drawn: one that the module covers stays below it, as
+does anything drawn below that sibling where they overlap. The paint order reads target boxes and
+edges, so it follows a node as it is dragged on and off a module. An edge of a node sitting on one
+module is drawn above every module that something sits on in that parent, and above the siblings
+those modules cover, the compromises of a single stacking context.
 
 Later stages extend these boundaries rather than move them:
 
