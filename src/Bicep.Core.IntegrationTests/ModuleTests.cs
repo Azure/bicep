@@ -922,6 +922,38 @@ output out string = '${keyVaultUri}-${identityId}'
         }
 
         [TestMethod]
+        public void Module_identity_can_be_referenced()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithExtensionConfigs,
+("main.bicep", """
+module mod './module.bicep' = {
+    identity: {
+        type: 'UserAssigned'
+        userAssignedIdentities: {
+            identityId: {}
+        }
+    }
+    name: 'test'
+}
+
+output identity object = mod.identity
+output identityType string = mod.identity.type
+"""),
+("module.bicep", """
+output out string = 'out'
+"""));
+            result.Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath(
+                "$.outputs.identity.value",
+                "[reference('mod', 'full').identity]");
+            result.Template.Should().HaveValueAtPath(
+                "$.outputs.identityType.value",
+                "[reference('mod', 'full').identity.type]");
+        }
+
+        [TestMethod]
         public void Module_can_be_compiled_with_identity_successfully_with_object_param()
         {
             var result = CompilationHelper.Compile(

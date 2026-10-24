@@ -562,6 +562,14 @@ namespace Bicep.Core.Emit
                         ? new FunctionExpression("tryGet", [guardOnModuleCondition(baseExpression), new JTokenExpression("outputs")], [])
                         : AppendProperties(baseExpression, new JTokenExpression("outputs"));
 
+                case LanguageConstants.ModuleIdentityPropertyName:
+                    // Module identity is a top-level property of the nested deployment resource.
+                    // Access it through a full reference, as with resource top-level properties.
+                    var identityReference = GetModuleReferenceExpression(reference.Module, reference.IndexContext, false, full: true);
+                    return expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess)
+                        ? new FunctionExpression("tryGet", [guardOnModuleCondition(identityReference), new JTokenExpression(LanguageConstants.ModuleIdentityPropertyName)], [])
+                        : AppendProperties(identityReference, new JTokenExpression(LanguageConstants.ModuleIdentityPropertyName));
+
                 default:
                     throw new InvalidOperationException($"Unsupported module property: {expression.PropertyName}");
             }
@@ -703,29 +711,33 @@ namespace Bicep.Core.Emit
                 GetModuleNameExpression(moduleSymbol, indexExpression).AsEnumerable());
         }
 
-        public FunctionExpression GetModuleReferenceExpression(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext, bool isModuleOutputResource)
+        public FunctionExpression GetModuleReferenceExpression(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext, bool isModuleOutputResource, bool full = false)
         {
             var isDirectCollectionAccess = !isModuleOutputResource && indexContext == null && moduleSymbol is { IsCollection: true };
             var referenceFunctionName = isDirectCollectionAccess ? "references" : "reference";
+            var fullArgument = full ? new JTokenExpression("full").AsEnumerable() : [];
 
             if (context.Settings.EnableSymbolicNames)
             {
                 return CreateFunction(
                     referenceFunctionName,
-                    GenerateSymbolicReference(moduleSymbol, indexContext));
+                    [GenerateSymbolicReference(moduleSymbol, indexContext), .. fullArgument]);
             }
 
             if (isDirectCollectionAccess)
             {
                 return CreateFunction(
                     referenceFunctionName,
-                    new JTokenExpression(moduleSymbol.Name)); // this is the copy name
+                    [new JTokenExpression(moduleSymbol.Name), .. fullArgument]); // this is the copy name
             }
 
             return CreateFunction(
                 referenceFunctionName,
-                GetConverter(indexContext).GetFullyQualifiedResourceId(moduleSymbol, indexContext?.Index),
-                new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion));
+                [
+                    GetConverter(indexContext).GetFullyQualifiedResourceId(moduleSymbol, indexContext?.Index),
+                    new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion),
+                    .. fullArgument,
+                ]);
         }
 
         public FunctionExpression GetReferenceExpression(ResourceMetadata resource, IndexReplacementContext? indexContext, bool full)
