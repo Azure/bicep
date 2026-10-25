@@ -334,6 +334,8 @@ namespace Bicep.Cli.IntegrationTests
                 output.Should().ContainAll(
                     "snapshot",
                     "deployment snapshot",
+                    "--outdir",
+                    "--outfile",
                     "--mode",
                     "--tenant-id",
                     "--subscription-id",
