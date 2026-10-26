@@ -13,7 +13,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Extensions;
-using Bicep.TextFixtures.IO;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

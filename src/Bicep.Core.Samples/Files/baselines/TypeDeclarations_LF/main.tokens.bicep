@@ -563,6 +563,34 @@ type nonNullable = nullable!
 //@[027:028) Exclamation |!|
 //@[028:030) NewLine |\n\n|
 
+type withOptionalAnyProp = {
+//@[000:004) Identifier |type|
+//@[005:024) Identifier |withOptionalAnyProp|
+//@[025:026) Assignment |=|
+//@[027:028) LeftBrace |{|
+//@[028:029) NewLine |\n|
+  requiredProp: string
+//@[002:014) Identifier |requiredProp|
+//@[014:015) Colon |:|
+//@[016:022) Identifier |string|
+//@[022:023) NewLine |\n|
+  @description('An optional any-typed property')
+//@[002:003) At |@|
+//@[003:014) Identifier |description|
+//@[014:015) LeftParen |(|
+//@[015:047) StringComplete |'An optional any-typed property'|
+//@[047:048) RightParen |)|
+//@[048:049) NewLine |\n|
+  optionalAny: any?
+//@[002:013) Identifier |optionalAny|
+//@[013:014) Colon |:|
+//@[015:018) Identifier |any|
+//@[018:019) Question |?|
+//@[019:020) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
 type typeA = {
 //@[000:004) Identifier |type|
 //@[005:010) Identifier |typeA|

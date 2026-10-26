@@ -8,8 +8,8 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Compilation;
+using Bicep.LanguageServer.Features.Custom.Build;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -37,7 +37,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Handle_WithInvalidPath_ShouldThrowArgumentException(string path)
         {
             ICompilationManager bicepCompilationManager = StrictMock.Of<ICompilationManager>().Object;
@@ -184,7 +184,7 @@ param accountName string = 'testAccount'
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        [DataTestMethod]
+        [TestMethod]
         public void TemplateContainsBicepGeneratorMetadata_WithInvalidInput_ReturnsFalse(string template)
         {
             ICompilationManager bicepCompilationManager = StrictMock.Of<ICompilationManager>().Object;

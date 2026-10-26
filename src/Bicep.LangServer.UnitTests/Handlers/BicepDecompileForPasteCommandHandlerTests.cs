@@ -7,12 +7,12 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.UnitTests.Mocks;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Custom.Decompile;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.JsonRpc;
-using static Bicep.LanguageServer.Handlers.BicepDecompileForPasteCommandHandler;
+using static Bicep.LanguageServer.Features.Custom.Decompile.BicepDecompileForPasteCommandHandler;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -26,7 +26,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             var builder = ServiceBuilder.Create(services => services
                 .AddSingleton(StrictMock.Of<ISerializer>().Object)
-                .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
                 .AddSingleton(server.Mock.Object)
                 .AddSingleton<BicepDecompileForPasteCommandHandler>()
                 );
@@ -72,7 +71,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var handler = CreateHandler(server);
 
 
-            var result = await handler.Handle(new BicepDecompileForPasteCommandParams(editorContentsWithPastedJson, cursorOffset, options.pastedJson.Length, options.pastedJson, queryCanPaste: false, "bicep"), CancellationToken.None);
+            var result = await handler.Handle(new BicepDecompileForPasteCommandParams(editorContentsWithPastedJson, cursorOffset, options.pastedJson.Length, options.pastedJson, "bicep"), CancellationToken.None);
 
             result.ErrorMessage.Should().Be(options.expectedErrorMessage);
 
@@ -169,7 +168,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         #endregion
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             jsonFullTemplate,
             PasteType.FullTemplate,
@@ -377,7 +376,7 @@ name: 'Premium_LRS'
                     expectedBicep: null);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             @"
                 {
@@ -1258,7 +1257,7 @@ name: 'Premium_LRS'
 ");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             @"""just a string with double quotes""",
             @"'just a string with double quotes'",
@@ -1391,7 +1390,7 @@ name: 'Premium_LRS'
                     expectedBicep: expectedBicep);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             @"{
               ipConfigurations: [
@@ -1464,7 +1463,7 @@ name: 'Premium_LRS'
                     expectedBicep: null);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             @"{ abc: 1, def: 'def' }", // this is not technically valid JSON but the Newtonsoft parser accepts it anyway and it is already valid Bicep
             PasteType.BicepValue, // Valid json and valid Bicep expression
@@ -1604,7 +1603,7 @@ name: 'Premium_LRS'
                     expectedBicep: null);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             @"|@description('bicep string')
                 param s string",
@@ -1820,7 +1819,7 @@ name: 'Premium_LRS'
               }
             }",
             PasteContext.String,
-            DisplayName = "resources: inside resource property value"
+            DisplayName = "resources: inside resource location property value"
         )]
         public async Task DontPasteIntoStrings(string editorContentsWithCursor, PasteContext expectedPasteContext)
         {
@@ -1849,4 +1848,3 @@ name: 'Premium_LRS'
         }
     }
 }
-

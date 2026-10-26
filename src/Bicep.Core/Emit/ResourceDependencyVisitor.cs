@@ -70,7 +70,7 @@ namespace Bicep.Core.Emit
         {
             if (model.ResourceMetadata.TryLookup(syntax) is not DeclaredResourceMetadata resource)
             {
-                // When invoked by BicepDeploymentGraphHandler, it's possible that the declaration is unbound.
+                // Language server graph requests may operate on a partially bound compilation.
                 return;
             }
 

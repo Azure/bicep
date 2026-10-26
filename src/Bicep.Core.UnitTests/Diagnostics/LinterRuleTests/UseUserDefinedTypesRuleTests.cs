@@ -3,7 +3,7 @@
 
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
@@ -27,10 +27,10 @@ param foo {
     [TestMethod]
     public void Rule_defaults_to_off()
     {
-        var result = CompilationHelper.Compile("""
+        var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore("""
 param foo object
 """);
-        result.ExcludingDiagnostics("no-unused-params").Should().NotHaveAnyDiagnostics();
+        result.Diagnostics.Where(diagnostic => diagnostic.Code != "no-unused-params").Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]

@@ -4,7 +4,10 @@
   },
   "sdk": {
     "allowPrerelease": false,
-    "version": "10.0.103",
+    "version": "10.0.402",
     "rollForward": "latestPatch"
+  },
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
   }
 }

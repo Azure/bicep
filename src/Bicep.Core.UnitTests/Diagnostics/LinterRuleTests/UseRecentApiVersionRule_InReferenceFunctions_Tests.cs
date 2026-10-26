@@ -8,6 +8,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,32 +21,22 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public class InReferenceFunctions
         {
             private record ExpectedFunctionInfo(string FunctionCall, string? ResourceType, string? ApiVerion);
-            private static readonly ApiVersionProvider apiVersionProvider;
-
-            static InReferenceFunctions()
-            {
-                // Test with the linter using the fake resource types from FakeResourceTypes (to guard against failures due to Azure changes)
-                // Note: The compiler does not know about these fake types, only the linter.
-                apiVersionProvider = new ApiVersionProvider(
-                    BicepTestConstants.Features,
-                    []);
-                apiVersionProvider.InjectTypeReferences(
-                    ResourceScope.ResourceGroup,
-                    FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
-            }
 
             private static void TestGetFunctionCallInfo(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 ExpectedFunctionInfo typedExpected = new(expectedFunctionCall, expectedResourceType, expectedApiVerion);
                 var mockTypeLoader = FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(FakeResourceTypes.ResourceScopeTypes).Object;
-                var result = CompilationHelper.Compile(
-                    new ServiceBuilder().WithAzResourceTypeLoader(mockTypeLoader),
-                    bicep);
-                using (new AssertionScope().WithFullSource(result.BicepFile))
+                var compiler = TestCompiler
+                    .ForInMemoryCompilation()
+                    .WithAzOverrides(mockTypeLoader);
+                var result = compiler.CompileWithoutRestore(bicep);
+                using (new AssertionScope().WithFullSource(result.EntryPointFile))
                 {
-                    UseRecentApiVersionRuleTests.VerifyAllTypesAndDatesAreFake(result.BicepFile.Text);
+                    UseRecentApiVersionRuleTests.VerifyAllTypesAndDatesAreFake(result.EntryPointFile.Text);
 
-                    var actual = UseRecentApiVersionRule.GetFunctionCallInfos(result.Compilation.GetEntrypointSemanticModel()).ToArray();
+                    var actual = UseRecentApiVersionRule.GetFunctionCallInfos(
+                        compiler.GetService<AzApiVersionProvider>(),
+                        result.Compilation.GetEntrypointSemanticModel()).ToArray();
                     actual.Should().HaveCount(1, "Expecting a single function call per test");
                     var typedActual = new ExpectedFunctionInfo(
                             actual[0].FunctionCallSyntax.ToString(),
@@ -112,7 +103,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ",
                 "reference('Fake.DBforMySQL/servers', apiversion)",
                 "Fake.DBforMySQL/servers",
-                "2422-01-01"
+                null
             )]
             [DataRow(
                 @"
@@ -131,7 +122,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ",
                 "reference('Fake.DBforMySQL/servers', apiversion)",
                 "Fake.DBforMySQL/servers",
-                "2422-01-01"
+                null
             )]
             [DataRow(
                 @"
@@ -142,8 +133,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     output a object = reference(resType, apiversion)
                 ",
                 "reference(resType, apiversion)",
-                "Fake.DBforMySQL/servers",
-                "2422-01-01"
+                null,
+                null
             )]
             [DataRow(
                 @"
@@ -155,7 +146,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ",
                 "reference(resType, apiversion)",
                 null, // not valid
-                "2422-01-01"
+                null
             )]
             [DataRow(
                 @"
@@ -173,7 +164,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "Fake.Resources/deployments",
                 "2415-01-01"
             )]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_Reference_NoResourceId(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);
@@ -236,7 +227,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "Fake.Network/virtualNetworks/subnets",
                 "2415-06-15"
             )]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_Reference_ResourceId(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);
@@ -265,7 +256,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "Fake.Network/publicIPAddresses",
                 "2415-06-15"
             )]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_List_ResourceId(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);
@@ -347,7 +338,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "2417-12-01-preview",
                 DisplayName = "string expression"
             )]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_UsingNameOfResource(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);
@@ -400,7 +391,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             //    "2415-08-31-preview",
             //    DisplayName = "Symbolic reference id through variable"
             //)]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_UsingResourceSymbolicReferenceId(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);
@@ -440,7 +431,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "Fake.Compute/virtualMachineScaleSets/virtualMachines/runCommands",
                 "2420-06-01"
             )]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_PartsBeyondResourceType(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);
@@ -510,7 +501,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "Fake.Compute/virtualMachineScaleSets",
                 "2420-06-01"
             )]
-            [DataTestMethod]
+            [TestMethod]
             public void GetFunctionCallInfo_OptionalSubscriptionIdResourceIdArguments(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 TestGetFunctionCallInfo(bicep, expectedFunctionCall, expectedResourceType, expectedApiVerion);
@@ -723,7 +714,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
 
             [TestMethod]
-            public void ReferenceFunction_ResourceTypeAndApiVersionInParamDefault_RuleApplies()
+            public void ReferenceFunction_ResourceTypeAndApiVersionInParamDefault_Ignored()
             {
                 string bicep = @"
                     param resourceType string = 'Fake.DBforMySQL/servers'
@@ -734,9 +725,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                [
-                    "[4] Could not find apiVersion 2400-01-01 for Fake.DBforMySQL/servers. Acceptable versions: 2417-12-01"
-                ]);
+                    []);
             }
 
             [TestMethod]

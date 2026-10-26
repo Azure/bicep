@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Highlighting;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Language.SemanticTokens;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

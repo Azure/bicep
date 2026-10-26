@@ -17,8 +17,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Helpers;
-using Bicep.LanguageServer.Handlers;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Features.Custom.InsertResource;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -43,11 +42,10 @@ namespace Bicep.LangServer.IntegrationTests
         private record Listeners(
             MultipleMessageListener<PublishDiagnosticsParams> Diagnostics,
             MultipleMessageListener<ShowMessageParams> ShowMessage,
-            MultipleMessageListener<ApplyWorkspaceEditParams> ApplyWorkspaceEdit,
-            MultipleMessageListener<TelemetryEventParams> Telemetry);
+            MultipleMessageListener<ApplyWorkspaceEditParams> ApplyWorkspaceEdit);
 
         private Listeners CreateListeners()
-            => new(new(), new(), new(), new());
+            => new(new(), new(), new());
 
         private async Task<LanguageServerHelper> StartLanguageServer(
             Listeners listeners,
@@ -65,8 +63,7 @@ namespace Bicep.LangServer.IntegrationTests
 
                         await Task.Yield();
                         return new();
-                    })
-                    .OnTelemetryEvent(listeners.Telemetry.AddMessage),
+                    }),
                 services => services
                     .WithAzResourceTypeLoaderFactory(azResourceTypeLoader)
                     .WithAzResourceProvider(azResourceProvider)
@@ -140,7 +137,7 @@ namespace Bicep.LangServer.IntegrationTests
                 },
             };
 
-            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
+            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<IBicepConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
             var fileUri = "template.bicep";
@@ -180,12 +177,6 @@ namespace Bicep.LangServer.IntegrationTests
 
                 """);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "My.Rp/myTypes",
-                ["apiVersion"] = "2020-01-01",
-            });
         }
 
         [TestMethod]
@@ -209,7 +200,7 @@ namespace Bicep.LangServer.IntegrationTests
                 ["properties"] = new JObject { },
             };
 
-            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
+            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<IBicepConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
             var fileUri = "template.bicep";
@@ -260,7 +251,7 @@ namespace Bicep.LangServer.IntegrationTests
                 },
             };
 
-            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
+            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<IBicepConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
             var fileUri = "template.bicep";
@@ -295,12 +286,6 @@ namespace Bicep.LangServer.IntegrationTests
                 output myOutput string = 'myOutput'
                 """);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "Microsoft.Resources/resourceGroups",
-                ["apiVersion"] = "2020-01-01",
-            });
         }
 
         [TestMethod]
@@ -332,7 +317,7 @@ namespace Bicep.LangServer.IntegrationTests
                 },
             };
 
-            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
+            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<IBicepConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
             var fileUri = "template.bicep";
@@ -367,12 +352,6 @@ namespace Bicep.LangServer.IntegrationTests
                 output myOutput string = 'myOutput'
                 """);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "My.Rp/myTypes/childType",
-                ["apiVersion"] = "2020-01-01",
-            });
         }
 
         [TestMethod]
@@ -407,11 +386,6 @@ namespace Bicep.LangServer.IntegrationTests
                 "Failed to parse supplied resourceId \"this isn't a resource id!\".",
                 MessageType.Error);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/failure", new JObject
-            {
-                ["failureType"] = "ParseResourceIdFailed"
-            });
         }
 
         [TestMethod]
@@ -444,11 +418,6 @@ output myOutput string = 'myOutput'
                 "Failed to find a Bicep type definition for resource of type \"MadeUp.Rp/madeUpTypes\".",
                 MessageType.Error);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/failure", new JObject
-            {
-                ["failureType"] = "MissingType(MadeUp.Rp/madeUpTypes)",
-            });
         }
 
         [TestMethod]
@@ -468,7 +437,7 @@ output myOutput string = 'myOutput'
 
             var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", new[] { "myTypes" }, new[] { "myName" });
 
-            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
+            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<IBicepConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Throws(new InvalidOperationException("Something went wrong!"));
 
             var mockResource = new JObject
@@ -484,7 +453,7 @@ output myOutput string = 'myOutput'
                 },
             };
 
-            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), null, It.IsAny<CancellationToken>()))
+            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<IBicepConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), null, It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
             var fileUri = "template.bicep";
@@ -519,12 +488,6 @@ output myOutput string = 'myOutput'
                 output myOutput string = 'myOutput'
                 """);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "My.Rp/myTypes",
-                ["apiVersion"] = "2020-01-01",
-            });
         }
 
         [TestMethod]
@@ -544,10 +507,10 @@ output myOutput string = 'myOutput'
 
             var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", new[] { "myTypes" }, new[] { "myName" });
 
-            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
+            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<IBicepConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Throws(new InvalidOperationException("Something went wrong!"));
 
-            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), null, It.IsAny<CancellationToken>()))
+            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<IBicepConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), null, It.IsAny<CancellationToken>()))
                 .Throws(new InvalidOperationException("And something went wrong again!"));
 
             var fileUri = "template.bicep";
@@ -567,11 +530,6 @@ output myOutput string = 'myOutput'
                 "Caught exception fetching resource: And something went wrong again!.",
                 MessageType.Error);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/failure", new JObject
-            {
-                ["failureType"] = "FetchResourceFailure",
-            });
         }
     }
 }

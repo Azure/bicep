@@ -1,66 +1,125 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import notice from "eslint-plugin-notice";
-import typescriptEslint from "@typescript-eslint/eslint-plugin";
-import tsParser from "@typescript-eslint/parser";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
+import { fixupPluginRules } from "@eslint/compat";
+import vitest from "@vitest/eslint-plugin";
+import notice from "eslint-plugin-notice";
+import tseslint from "typescript-eslint";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
-});
+const featureNames = [
+    "build",
+    "configuration",
+    "decompile",
+    "deployments",
+    "external-source",
+    "import-kubernetes-manifest",
+    "insert-resource",
+    "mcp",
+    "module-restore",
+    "parameters",
+    "paste-as-bicep",
+    "refactoring",
+    "surveys",
+    "visualization",
+    "walkthrough",
+];
 
-export default [{
-    ignores: [
-        "out/**/*",
-        "**/.eslintrc.cjs",
-        "**/webpack.config.ts",
-        "**/jest.config.*.js",
-    ],
-}, ...compat.extends(
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended",
-    "plugin:react/jsx-runtime",
-    "plugin:jest/recommended",
-    "plugin:jest/style",
-), {
-    files: ["**/*.ts", "**/*.tsx"],
-    
-    plugins: {
-        notice,
-        "@typescript-eslint": typescriptEslint,
+export default tseslint.config(
+    {
+        ignores: [
+            "out/**/*",
+            ".vscode-test/**/*",
+            "coverage/**/*",
+            "**/.eslintrc.cjs",
+            "**/vite.config.mts",
+            "**/vitest.config.mts",
+        ],
     },
-
-    languageOptions: {
-        parser: tsParser,
-        ecmaVersion: 5,
-        sourceType: "script",
-
-        parserOptions: {
-            project: true,
+    js.configs.recommended,
+    ...tseslint.configs.recommended,
+    {
+        languageOptions: {
+            parserOptions: {
+                tsconfigRootDir: import.meta.dirname,
+            },
         },
     },
-
-    rules: {
-        "notice/notice": [
-            2,
-            {
-                "templateFile": "../copyright-template.js",
-            }
-        ]
-    },
-
-    settings: {
-        react: {
-            version: "detect",
+    {
+        files: ["scripts/**/*.mjs"],
+        languageOptions: {
+            globals: {
+                console: "readonly",
+                process: "readonly",
+            },
         },
     },
-}];
+    {
+        ...vitest.configs.recommended,
+        files: ["src/**/__tests__/**/*.test.ts", "tests/e2e/**/*.test.ts", "package.test.ts"],
+        languageOptions: vitest.configs.env.languageOptions,
+    },
+    {
+        files: ["tests/e2e/**/*.test.ts"],
+        rules: {
+            "vitest/expect-expect": [
+                "error",
+                { assertFunctionNames: ["expect", "assert", "expectHovers", "runTest"] },
+            ],
+        },
+    },
+    {
+        files: ["**/*.ts", "**/*.tsx"],
+
+        plugins: {
+            notice: fixupPluginRules(notice),
+        },
+
+        languageOptions: {
+            parserOptions: {
+                project: ["./tsconfig.json", "./tsconfig.e2e.json", "./tsconfig.unit.json"],
+            },
+        },
+
+        rules: {
+            "notice/notice": [
+                2,
+                {
+                    templateFile: "../copyright-template.js",
+                },
+            ],
+        },
+    },
+    {
+        files: ["src/infrastructure/**/*.ts"],
+        rules: {
+            "no-restricted-imports": [
+                "error",
+                {
+                    patterns: [
+                        {
+                            regex: "^(?:\\.\\./)+features(?:/|$)",
+                            message: "Infrastructure must not import feature implementations.",
+                        },
+                    ],
+                },
+            ],
+        },
+    },
+    ...featureNames.map((featureName) => ({
+        files: [`src/features/${featureName}/**/*.ts`],
+        rules: {
+            "no-restricted-imports": [
+                "error",
+                {
+                    patterns: [
+                        {
+                            regex: `^(?:\\.\\./)+(?:${featureNames.filter((name) => name !== featureName).join("|")})(?:/|$)`,
+                            message: "Features must not import sibling feature implementations.",
+                        },
+                    ],
+                },
+            ],
+        },
+    })),
+);

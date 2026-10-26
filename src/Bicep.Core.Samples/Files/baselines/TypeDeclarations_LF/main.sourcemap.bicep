@@ -372,6 +372,26 @@ type nonNullable = nullable!
 //@      "nullable": false
 //@    },
 
+type withOptionalAnyProp = {
+//@    "withOptionalAnyProp": {
+//@      "type": "object",
+//@      "properties": {
+//@      }
+//@    },
+  requiredProp: string
+//@        "requiredProp": {
+//@          "type": "string"
+//@        },
+  @description('An optional any-typed property')
+//@          "metadata": {
+//@            "description": "An optional any-typed property"
+//@          }
+  optionalAny: any?
+//@        "optionalAny": {
+//@          "nullable": true,
+//@        }
+}
+
 type typeA = {
 //@    "typeA": {
 //@      "type": "object",

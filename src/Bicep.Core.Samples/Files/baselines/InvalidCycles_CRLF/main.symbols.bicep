@@ -51,6 +51,7 @@ var twotwo = one.
 
 // resource completion cycles
 resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+//@[0:08) Local this. Type: error. Declaration start char: 63, length: 187
 //@[9:13) Resource res1. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 250
   // #completionTest(14) -> empty
   name: res2.n
@@ -63,6 +64,7 @@ resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   kind: 'StorageV2'
 }
 resource res2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+//@[0:08) Local this. Type: error. Declaration start char: 63, length: 183
 //@[9:13) Resource res2. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 246
   name: res1.name
   location: 'l'

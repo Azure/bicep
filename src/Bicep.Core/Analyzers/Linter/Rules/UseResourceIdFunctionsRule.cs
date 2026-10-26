@@ -29,6 +29,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 "managementGroupResourceId",
                 "reference",
                 "resourceId",
+                "roleDefinitions",
                 "subscription",
                 "subscriptionResourceId",
                 "tenantResourceId",
@@ -265,6 +266,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             return null;
                         }
                         break;
+                    case AccessExpressionSyntax accessExpression:
+                        if (IsParameterPropertyAccess(model, accessExpression))
+                        {
+                            // parameter properties are always okay
+                            return null;
+                        }
+
+                        return AnalyzeIdPropertyValue(model, propertySyntax, accessExpression.BaseExpression, currentPaths);
                     case VariableAccessSyntax: // Variable and parameter access
                         if (model.GetSymbolInfo(expression) is DeclaredSymbol symbol)
                         {
@@ -286,9 +295,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             }
                         }
                         break;
-                    case AccessExpressionSyntax accessExpression when IsParameterPropertyAccess(model, accessExpression):
-                        // parameter properties are always okay
-                        return null;
                     case TernaryOperationSyntax:
                         // "if"/ternary is acceptable
                         return null;

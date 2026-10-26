@@ -1,0 +1,69 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import type { PaletteDragState } from "../atoms";
+
+import { useSetAtom } from "jotai";
+import { useCallback } from "react";
+import { styled } from "styled-components";
+import { useCanvasDropTarget } from "@/features/canvas";
+import { recordRecentResourceTypeAtom } from "../atoms";
+import { usePaletteDrag } from "../hooks/use-palette-drag";
+import { useResourceTypeCatalog } from "../hooks/use-resource-type-catalog";
+import { PaletteContent } from "./PaletteContent";
+import { PaletteDragOverlay } from "./PaletteDragOverlay";
+
+const $PalettePopover = styled.aside`
+  position: absolute;
+  bottom: var(--creation-dock-popover-offset);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  width: var(--creation-dock-popover-width);
+  height: 360px;
+  max-height: var(--creation-dock-popover-max-height);
+  overflow: hidden;
+  border: 1px solid ${({ theme }) => theme.panel.border};
+  border-radius: 12px;
+  color: ${({ theme }) => theme.text.primary};
+  background: ${({ theme }) => theme.panel.popoverBackground};
+  box-shadow: ${({ theme }) => theme.panel.popoverShadow};
+  backdrop-filter: ${({ theme }) => theme.panel.popoverBackdropFilter};
+  font-size: 12px;
+  pointer-events: auto;
+`;
+
+export function Palette({ isOpen }: { isOpen: boolean }) {
+  const { dropResourceAt, canDropResourceAt } = useCanvasDropTarget();
+  const { catalogId, groups, error, loadVersions, refresh } = useResourceTypeCatalog();
+  const recordRecentResourceType = useSetAtom(recordRecentResourceTypeAtom);
+
+  const placeResource = useCallback(
+    (resourceType: PaletteDragState["item"], clientX: number, clientY: number) => {
+      recordRecentResourceType(resourceType.fullyQualifiedType);
+      void dropResourceAt(resourceType, { x: clientX, y: clientY });
+    },
+    [dropResourceAt, recordRecentResourceType],
+  );
+
+  const { startDrag, previewRef, positionRef } = usePaletteDrag(canDropResourceAt, placeResource);
+
+  return (
+    <>
+      {isOpen && (
+        <$PalettePopover aria-label="Resource Palette" id="resource-palette">
+          <PaletteContent
+            catalogId={catalogId}
+            groups={groups}
+            error={error}
+            loadVersions={loadVersions}
+            onRetry={refresh}
+            onResourceTypePointerDown={startDrag}
+          />
+        </$PalettePopover>
+      )}
+      <PaletteDragOverlay previewRef={previewRef} positionRef={positionRef} />
+    </>
+  );
+}

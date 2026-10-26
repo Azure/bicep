@@ -1,13 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CommandLine;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core;
+using Bicep.Core.Emit.Options;
 using Bicep.Core.Features;
 using Bicep.IO.Abstraction;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -62,6 +66,61 @@ namespace Bicep.Cli.Commands
 
             // return non-zero exit code on errors
             return summary.HasErrors ? 1 : 0;
+        }
+
+        internal static Command CreateCommand(CommandLineBuilderContext context)
+        {
+            var inputFileArgument = CommonArguments.OptionalInputFile("The path to the input .bicep file.");
+            var stdoutOption = CommonOptions.Stdout();
+            var noRestoreOption = CommonOptions.NoRestore("Generates the parameters file without restoring external modules.");
+            var outDirOption = CommonOptions.OutDir();
+            var outFileOption = CommonOptions.OutFile();
+            var outputFormatOption = new Option<OutputFormatOption>(OptionNames.OutputFormat)
+            {
+                Description = "Selects the output format (json, bicepparam).",
+            };
+            var includeParamsOption = new Option<IncludeParamsOption>(OptionNames.IncludeParams)
+            {
+                Description = "Selects which parameters to include into output (requiredonly, all).",
+            };
+            var configOption = CommonOptions.Config();
+
+            var command = new Command(CommandNames.GenerateParamsFile, "Builds parameters file from the given bicep file, updates if there is an existing parameters file.")
+            {
+                inputFileArgument,
+                stdoutOption,
+                noRestoreOption,
+                outDirOption,
+                outFileOption,
+                outputFormatOption,
+                includeParamsOption,
+                configOption,
+            };
+            command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
+
+            command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
+            {
+                var outputToStdOut = result.GetValue(stdoutOption);
+                var outputDir = result.GetValue(outDirOption);
+                var outputFile = result.GetValue(outFileOption);
+
+                ArgumentHelper.ValidateOutputOptions(outputToStdOut, outputDir, outputFile);
+
+                var inputFile = result.GetValue(inputFileArgument)
+                    ?? throw new CommandLineException("The input file path was not specified");
+                var args = new GenerateParametersFileArguments(
+                    inputFile,
+                    outputToStdOut,
+                    result.GetValue(noRestoreOption),
+                    outputDir,
+                    outputFile,
+                    result.GetValue(outputFormatOption),
+                    result.GetValue(includeParamsOption));
+
+                return await context.GetCommand<GenerateParametersFileCommand>().RunAsync(args);
+            }));
+
+            return command;
         }
     }
 }

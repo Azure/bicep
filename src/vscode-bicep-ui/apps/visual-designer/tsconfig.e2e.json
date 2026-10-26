@@ -1,0 +1,9 @@
+{
+  "extends": ["../../tsconfig.base.json"],
+  "include": ["playwright.config.ts", "e2e/**/*.ts"],
+  "compilerOptions": {
+    "composite": true,
+    "noUncheckedIndexedAccess": true,
+    "types": ["node"]
+  }
+}

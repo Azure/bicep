@@ -10,6 +10,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
@@ -19,16 +20,16 @@ using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.FileSystem;
 using Bicep.LanguageServer;
-using Bicep.LanguageServer.Completions;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Features.Language.Completion;
 using Bicep.LanguageServer.Settings;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.Testing;
+using Bicep.Testing.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using ConfigurationManager = Bicep.Core.Configuration.ConfigurationManager;
+using ConfigurationManager = Bicep.Core.Configuration.BicepConfigurationManager;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests.Completions
@@ -55,7 +56,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             return resolved;
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test |''", 14)]
         [DataRow("module test ''|", 14)]
         [DataRow("module test '|'", 14)]
@@ -69,7 +70,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Count().Should().Be(4);
@@ -150,7 +151,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Count().Should().Be(5);
@@ -217,13 +218,13 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().BeEmpty();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // CONSIDER: This doesn't actually test anything useful because the current code takes the entire string
         //   into account, and ignores where the cursor is.
         [DataRow("module test 'br/public:app/dapr-containerapp:1.0.1|")]
@@ -250,13 +251,13 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().BeEmpty();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br/|'", 17)]
         [DataRow("module test 'br/|", 16)]
         public async Task GetFilteredCompletions_WithAliasCompletionContext_ReturnsCompletionItems(string inputWithCursors, int expectedEnd)
@@ -281,7 +282,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -326,7 +327,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:|'")]
         [DataRow("module test 'br:|")]
         public async Task GetFilteredCompletions_WithACRCompletionSettingSetToFalse_ReturnsACRCompletionItemsUsingBicepConfig(string inputWithCursors)
@@ -358,7 +359,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProviderMock.Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -391,7 +392,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:|'")]
         [DataRow("module test 'br:|")]
         public async Task GetFilteredCompletions_WithACRCompletionsSettingSetToTrue_ReturnsACRCompletionItemsUsingResourceGraphClient(string inputWithCursors)
@@ -417,14 +418,14 @@ namespace Bicep.LangServer.UnitTests.Completions
             settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(true);
 
             var azureContainerRegistriesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>();
-            var cloud = sourceFile.Configuration.Cloud;
+            var cloud = sourceFile.LoadConfiguration().Cloud;
             azureContainerRegistriesProvider.Setup(x => x.GetContainerRegistriesAccessibleFromAzure(cloud, CancellationToken.None)).Returns(new List<string> { "testacr3.azurecr.io", "testacr4.azurecr.io" }.ToAsyncEnumerable());
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProviderMock.Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -457,7 +458,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:|'")]
         [DataRow("module test 'br:|")]
         public async Task GetFilteredCompletions_WithACRCompletionsSettingSetToTrue_AndNoAccessibleRegistries_ReturnsNoACRCompletions(
@@ -469,14 +470,14 @@ namespace Bicep.LangServer.UnitTests.Completions
             settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(true);
 
             var azureContainerRegistriesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>();
-            var cloud = sourceFile.Configuration.Cloud;
+            var cloud = sourceFile.LoadConfiguration().Cloud;
             azureContainerRegistriesProvider.Setup(x => x.GetContainerRegistriesAccessibleFromAzure(cloud, CancellationToken.None)).Returns(new List<string>().ToAsyncEnumerable());
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProviderMock.Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -491,7 +492,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", "bicep/app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "bicep/app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 41)]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/|", "bicep/app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "bicep/app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 40)]
         [DataRow("module test 'br/public:|'", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 24)]
@@ -516,7 +517,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -550,7 +551,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:registry.contoso.io/bicep/|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
         [DataRow("module test 'br:registry.contoso.io/bicep/|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
         [DataRow("module test 'br/myRegistry:|'", "abc/foo/bar", "'br/myRegistry:abc/foo/bar:$0'")]
@@ -591,7 +592,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -605,7 +606,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
         [DataRow("module test 'br:testacr1.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
         public async Task GetFilteredCompletions_IfAliasesInBicepConfig_AndRegistriesNotAvailable_GetPartialCompletionsBasedOnConfigOnly(
@@ -638,7 +639,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -655,7 +656,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br/public:app/dapr-containerapp:|'", "1.0.2", "'br/public:app/dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", "0001", 46)]
         [DataRow("module test 'br/public:app/dapr-containerapp:|", "1.0.2", "'br/public:app/dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", "0001", 45)]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", "1.0.2", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'$0", "0001", 63)]
@@ -699,7 +700,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().Contain(c => c.Label == expectedLabel1)
@@ -738,7 +739,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     new("bicep/app/app/dapr-cntrapp2", "description2", "contoso.com/help2", []),
                 ]).Object,
                 StrictMock.Of<IPrivateAcrModuleMetadataProviderFactory>().Object,
-                StrictMock.Of<IContainerRegistryClientFactory>().Object,
+                StrictMock.Of<IOciRegistryTransportFactory>().Object,
                 BicepTestConstants.BuiltInOnlyConfigurationManager
             );
 
@@ -747,13 +748,13 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().BeEmpty();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
         [DataRow("module test 'br:testacr1.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
         public async Task GetFilteredCompletions_WithPublicAliasOverriddenInBicepConfigAndPathCompletionContext_ReturnsCompletionItems(
@@ -785,7 +786,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().Contain(
@@ -799,7 +800,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.TextEdit!.TextEdit!.Range.End.Character == endCharacter);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br/test1:|'", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 23)]
         [DataRow("module test 'br/test1:|", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 22)]
         [DataRow("module test 'br/test2:|'", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 23)]
@@ -838,7 +839,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
             IEnumerable<CompletionItem> completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -858,148 +859,6 @@ namespace Bicep.LangServer.UnitTests.Completions
                     actualTextEdit!.Range.End.Line.Should().Be(endLine);
                     actualTextEdit!.Range.End.Character.Should().Be(endCharacter);
                 });
-        }
-
-        [DataTestMethod]
-        [DataRow("module foo 'br:mcr.microsoft.com/bicep/|", ModuleRegistryType.MCR)]
-        [DataRow("module foo 'br:mytest.contoso.io/|", ModuleRegistryType.ACR, ModuleRegistryType.AcrBasePathFromAlias)]
-        [DataRow("module foo 'br/public:|", ModuleRegistryType.MCR)]
-        [DataRow("module foo 'br/test1acr:|", ModuleRegistryType.ACR)]
-        [DataRow("module foo 'br/test2acr:|", ModuleRegistryType.ACR)]
-        [DataRow("module foo 'br/test3mcr:|", ModuleRegistryType.MCR)]
-        [DataRow("module foo 'br/test4mcr:|", ModuleRegistryType.MCR)]
-        [DataRow("module foo 'br:yourtest.contoso.com/|", ModuleRegistryType.AcrBasePathFromAlias)]
-        public async Task VerifyTelemetryEventIsPostedOnModuleRegistryPathCompletion(string inputWithCursors, params string[] moduleRegistryTypes)
-        {
-            var bicepConfigFileContents = @"{
-              ""moduleAliases"": {
-                ""br"": {
-                  ""test1acr"": {
-                    ""registry"": ""mytest.contoso.io"",
-                    ""modulePath"": ""bicep/modules""
-                  },
-                  ""test2acr"": {
-                    ""registry"": ""mytest.contoso.io""
-                  },
-                  ""test3mcr"": {
-                    ""registry"": ""mcr.microsoft.com"",
-                    ""modulePath"": ""bicep/app""
-                  },
-                  ""test4mcr"": {
-                    ""registry"": ""mcr.microsoft.com""
-                  },
-                  ""test5unknownAcr"": {
-                    ""registry"": ""yourtest.contoso.com"",
-                    ""modulePath"": ""bicep/your/apps""
-                  }
-                }
-              }
-            }";
-            var (completionContext, sourceFile) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
-
-            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
-                RegistryCatalogMocks.MockPublicMetadataProvider([
-                    new("bicep/app/dapr-cntrapp1", "description1", null, []),
-                    new("bicep/app/dapr-cntrapp2", null, "contoso.com/help2", [])
-                ]),
-                RegistryCatalogMocks.MockPrivateMetadataProvider(
-                    "mytest.contoso.io",
-                    [
-                        new("bicep/modules/app1", null, null, [])
-                    ]
-                )
-            );
-
-            var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
-            telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
-
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
-                azureContainerRegistriesProvider,
-                catalog,
-                settingsProvider,
-                telemetryProvider.Object);
-            var items = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
-            items.Should().HaveCountGreaterThanOrEqualTo(1);
-
-            foreach (var moduleRegistryType in moduleRegistryTypes)
-            {
-                telemetryProvider.Verify(m => m.PostEvent(It.Is<BicepTelemetryEvent>(
-                    p => p.EventName == TelemetryConstants.EventNames.ModuleRegistryPathCompletion &&
-                    p.Properties != null &&
-                    p.Properties["moduleRegistryType"] == moduleRegistryType)), Times.Once(),
-                    $"Should have fired telemetry event for module registry type {moduleRegistryType}");
-            }
-            telemetryProvider.Verify(m => m.PostEvent(It.Is<BicepTelemetryEvent>(
-                p => p.EventName == TelemetryConstants.EventNames.ModuleRegistryPathCompletion &&
-                p.Properties != null &&
-                !moduleRegistryTypes.Contains(p.Properties["moduleRegistryType"]))), Times.Never,
-                $"Telemetry event fired for unexpected module registry type");
-        }
-
-        [DataTestMethod]
-        [DataRow("module foo 'br:mcr.microsoft.com/bicep/|", null)]
-        [DataRow("module foo 'br:mytest.contoso.io/|", ModuleRegistryResolutionType.AcrModulePath)]
-        [DataRow("module foo 'br/public:|", null)]
-        [DataRow("module foo 'br/public:app/dapr-cntrapp1|", null)]
-        [DataRow("module foo 'br/public:app/dapr-cntrapp1:|", null)]
-        [DataRow("module foo 'br/test1acr:|", ModuleRegistryResolutionType.AcrModulePath)]
-        [DataRow("module foo 'br:mytest.contoso.io/bicep/modules/app1:|", ModuleRegistryResolutionType.AcrVersion)]
-        [DataRow("module foo 'br/test1acr:app1:|", ModuleRegistryResolutionType.AcrVersion)]
-        public async Task VerifyTelemetryEventIsPostedOnModuleRegistryCompletionItemResolution(string inputWithCursors, string? moduleResolutionType)
-        {
-            var bicepConfigFileContents = @"{
-              ""moduleAliases"": {
-                ""br"": {
-                  ""test1acr"": {
-                    ""registry"": ""mytest.contoso.io"",
-                    ""modulePath"": ""bicep/modules""
-                  }
-                }
-              }
-            }";
-            var (completionContext, sourceFile) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
-
-            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
-                RegistryCatalogMocks.MockPublicMetadataProvider([
-                    new("bicep/app/dapr-cntrapp1", "description1", null, [new("v1.1", null, null)]),
-                ]),
-                RegistryCatalogMocks.MockPrivateMetadataProvider(
-                    "mytest.contoso.io",
-                    [
-                        new("bicep/modules/app1", null, null, [new("v1.1", null, null)])
-                    ]
-                )
-            );
-
-            var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
-            telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
-
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
-                azureContainerRegistriesProvider,
-                catalog,
-                settingsProvider,
-                telemetryProvider.Object);
-            var items = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
-            items.Should().HaveCountGreaterThanOrEqualTo(1);
-
-            if (moduleResolutionType is not null)
-            {
-                telemetryProvider.Verify(
-                m => m.PostEvent(It.Is<BicepTelemetryEvent>(
-                    p => p.EventName == TelemetryConstants.EventNames.ModuleRegistryResolution &&
-                    p.Properties != null &&
-                    p.Properties["type"] == moduleResolutionType)),
-                Times.Once,
-                $"Telemetry event should have fired for resolution type {moduleResolutionType}");
-            }
-            else
-            {
-                telemetryProvider.Verify(
-                m => m.PostEvent(It.Is<BicepTelemetryEvent>(
-                    p => p.EventName == TelemetryConstants.EventNames.ModuleRegistryResolution)),
-                Times.Never,
-                $"Telemetry event should not have fired");
-            }
         }
 
         [TestMethod]
@@ -1036,7 +895,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider.Object,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProviderMock.Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.TestRegistryConfiguration);
 
             var func = () => moduleReferenceCompletionProvider.GetFilteredCompletions(sourceFile, completionContext, cts.Token);
             await func.Should().ThrowAsync<OperationCanceledException>();
@@ -1047,7 +906,8 @@ namespace Bicep.LangServer.UnitTests.Completions
 
         private (BicepCompletionContext, BicepSourceFile) GetBicepCompletionContext(
             string inputWithCursors,
-            string? bicepConfigFileContents = null)
+            string? bicepConfigFileContents = null,
+            RegistryConfiguration? registryConfiguration = null)
         {
             var documentUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
@@ -1064,12 +924,122 @@ namespace Bicep.LangServer.UnitTests.Completions
 
             var configurationManager = bicepConfigFileContents is null
                 ? BicepTestConstants.BuiltInOnlyConfigurationManager
-                : IConfigurationManager.WithStaticConfiguration(BicepTestConstants.GetConfiguration(bicepConfigFileContents));
+                : BicepTestConstants.GetConfiguration(bicepConfigFileContents).WithStaticConfiguration();
 
-            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, upsertCompilation: true, configurationManager: configurationManager);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, upsertCompilation: true, configurationManager: configurationManager, registryConfiguration: registryConfiguration);
             var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
 
             return (BicepCompletionContext.Create(compilation, cursors[0]), compilation.SourceFileGrouping.EntryPoint);
         }
+
+        [TestMethod]
+        public async Task GetModuleCompletions_UntrustedRegistry_ReturnsEmptyAndNoCatalogCall()
+        {
+            // Arrange: mock catalog — GetProviderForRegistry should never be called
+            var catalogMock = StrictMock.Of<IRegistryModuleCatalog>();
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext("module test 'br:evil.attacker.com/|'", registryConfiguration: new(PermitUntrustedRegistries: false));
+            var provider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalogMock.Object,
+                settingsProvider,
+                new RegistryConfiguration(PermitUntrustedRegistries: false));
+
+            // Act
+            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
+
+            // Assert: no module-path completions returned, catalog never contacted
+            completions.Should().BeEmpty();
+            catalogMock.Verify(
+                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
+                Times.Never);
+        }
+
+        [TestMethod]
+        public async Task GetModuleCompletions_BuiltInTrustedAcrRegistry_ReturnsCompletionsNormally()
+        {
+            // Arrange: no user-specified trusted registries, *.azurecr.io is built-in trusted
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
+                null,
+                RegistryCatalogMocks.MockPrivateMetadataProvider(
+                    "contoso.azurecr.io",
+                    [("bicep/mymodule", "desc", null, [])]));
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext(
+                "module test 'br:contoso.azurecr.io/|'", registryConfiguration: new(PermitUntrustedRegistries: false));
+            var provider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalog,
+                settingsProvider,
+                new RegistryConfiguration(PermitUntrustedRegistries: false));
+
+            // Act
+            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
+
+            // Assert: completions returned (built-in trust for *.azurecr.io)
+            completions.Should().Contain(c => c.Label == "bicep/mymodule");
+        }
+
+        [TestMethod]
+        public async Task GetVersionCompletions_UntrustedRegistry_ReturnsEmptyAndNoCatalogCall()
+        {
+            // Arrange: mock catalog — GetProviderForRegistry should never be called
+            var catalogMock = StrictMock.Of<IRegistryModuleCatalog>();
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext(
+                "module test 'br:evil.attacker.com/some/module:|'", registryConfiguration: new(PermitUntrustedRegistries: false));
+            var provider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalogMock.Object,
+                settingsProvider,
+                new RegistryConfiguration(PermitUntrustedRegistries: false));
+
+            // Act
+            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
+
+            // Assert
+            completions.Should().BeEmpty();
+            catalogMock.Verify(
+                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
+                Times.Never);
+        }
+
+        [TestMethod]
+        public async Task GetModuleCompletions_UntrustedRegistryViaAlias_ReturnsEmptyAndNoCatalogCall()
+        {
+            // Arrange: alias "evil" resolves to untrusted "evil.attacker.com"
+            var bicepConfig = """
+                {
+                  "moduleAliases": {
+                    "br": {
+                      "evil": {
+                        "registry": "evil.attacker.com",
+                        "modulePath": "modules"
+                      }
+                    }
+                  }
+                }
+                """;
+
+            var catalogMock = StrictMock.Of<IRegistryModuleCatalog>();
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext(
+                "module test 'br/evil:|'", bicepConfig, registryConfiguration: new(PermitUntrustedRegistries: false));
+            var provider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalogMock.Object,
+                settingsProvider,
+                new RegistryConfiguration(PermitUntrustedRegistries: false));
+
+            // Act
+            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
+
+            // Assert: trust check applies after alias resolution
+            completions.Should().BeEmpty();
+            catalogMock.Verify(
+                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
+                Times.Never);
+        }
+
     }
 }

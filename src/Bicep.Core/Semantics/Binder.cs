@@ -18,6 +18,7 @@ namespace Bicep.Core.Semantics
     {
         private readonly BicepSourceFile bicepFile;
         private readonly ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol;
+        private readonly ImmutableDictionary<InstanceFunctionCallSyntax, FunctionFlags> instanceFunctionCallFlags;
         private readonly ConcurrentDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> symbolsDirectlyReferencedInDeclarations = new();
         private readonly ConcurrentDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> referencedSymbolClosures = new();
         private readonly Stack<DeclaredSymbol> closureCalculationStack = new();
@@ -75,7 +76,8 @@ namespace Bicep.Core.Semantics
                 }
             }
 
-            var baseBindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope).ToBuilder();
+            var baseBindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope, out var instanceFunctionCallFlags).ToBuilder();
+            this.instanceFunctionCallFlags = instanceFunctionCallFlags;
 
             if (hasExtends && parentParameterAssignments.Any())
             {
@@ -118,6 +120,9 @@ namespace Bicep.Core.Semantics
         /// </summary>
         /// <param name="syntax">the syntax node</param>
         public Symbol? GetSymbolInfo(SyntaxBase syntax) => this.Bindings.TryGetValue(syntax);
+
+        public FunctionFlags GetInstanceFunctionFlags(InstanceFunctionCallSyntax syntax)
+            => this.instanceFunctionCallFlags.TryGetValue(syntax, out var flags) ? flags : FunctionFlags.Default;
 
         public ImmutableArray<DeclaredSymbol>? TryGetCycle(DeclaredSymbol declaredSymbol)
             => this.cyclesBySymbol.TryGetValue(declaredSymbol, out var cycle) ? cycle : null;

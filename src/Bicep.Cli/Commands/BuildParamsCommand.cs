@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CommandLine;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
@@ -11,6 +13,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -97,7 +100,7 @@ public class BuildParamsCommand(
 
     private async Task<ActiveSourceFileSet?> CreateWorkspaceWithParameterOverridesIfPresent(IOUri paramsFileUri)
     {
-        var parameterOverridesJson = environment.GetVariable("BICEP_PARAMETERS_OVERRIDES");
+        var parameterOverridesJson = environment.GetVariable(BicepEnvironmentVariables.ParametersOverrides);
 
         if (string.IsNullOrEmpty(parameterOverridesJson))
         {
@@ -156,5 +159,65 @@ public class BuildParamsCommand(
                 throw new CommandLineException($"Bicep file {bicepFileUri} provided with --bicep-file option doesn't match the Bicep file {bicepSemanticModel.Root.Name} referenced by the \"using\" declaration in the parameters file.");
             }
         }
+    }
+
+    internal static Command CreateCommand(CommandLineBuilderContext context)
+    {
+        var inputFileArgument = CommonArguments.OptionalInputFile("The path to the input .bicepparam file.");
+        var stdoutOption = CommonOptions.Stdout("Prints the output of building both the parameter file (.bicepparam) and the template it points to (.bicep) as json to stdout.");
+        var noRestoreOption = CommonOptions.NoRestore("Builds the bicep file (referenced in using declaration) without restoring external modules.");
+        var outDirOption = CommonOptions.OutDir("Saves the output of building the parameter file only (.bicepparam) as json to the specified directory.");
+        var outFileOption = CommonOptions.OutFile("Saves the output of building the parameter file only (.bicepparam) as json to the specified file path.");
+        var filePatternOption = CommonOptions.Pattern("Builds all files matching the specified glob pattern.");
+        var bicepFileOption = new Option<string?>(OptionNames.BicepFile)
+        {
+            Description = "Verifies if the specified bicep file path matches the one provided in the params file using declaration.",
+        };
+        var diagnosticsFormatOption = CommonOptions.DiagnosticsFormat();
+        var configOption = CommonOptions.Config();
+
+        var command = new Command(CommandNames.BuildParams, "Builds a .json file from a .bicepparam file.")
+        {
+            inputFileArgument,
+            stdoutOption,
+            noRestoreOption,
+            outDirOption,
+            outFileOption,
+            filePatternOption,
+            bicepFileOption,
+            diagnosticsFormatOption,
+            configOption,
+        };
+        command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
+
+        command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
+        {
+            var outputToStdOut = result.GetValue(stdoutOption);
+            var outputDir = result.GetValue(outDirOption);
+            var outputFile = result.GetValue(outFileOption);
+            var filePattern = result.GetValue(filePatternOption);
+            var bicepFile = result.GetValue(bicepFileOption);
+
+            if (filePattern is not null && bicepFile is not null)
+            {
+                throw new CommandLineException("The --bicep-file parameter cannot be used with the --pattern parameter");
+            }
+
+            ArgumentHelper.ValidateOutputOptions(outputToStdOut, outputDir, outputFile, filePattern);
+
+            var args = new BuildParamsArguments(
+                result.GetValue(inputFileArgument),
+                outputToStdOut,
+                result.GetValue(noRestoreOption),
+                outputDir,
+                outputFile,
+                filePattern,
+                bicepFile,
+                result.GetValue(diagnosticsFormatOption));
+
+            return await context.GetCommand<BuildParamsCommand>().RunAsync(args);
+        }));
+
+        return command;
     }
 }

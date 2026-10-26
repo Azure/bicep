@@ -93,6 +93,11 @@ namespace Bicep.Core.TypeSystem
         RequiresExternalInput = 1 << 16,
 
         /// <summary>
+        /// The function can be evaluated from only its arguments without deployment context. The result of the function is guaranteed to be the same for the same arguments, regardless of deployment context. This is a stronger guarantee than <see cref="IsArgumentValueIndependent"/> because it also guarantees that the function does not depend on any external state (e.g. current time, deployment scope, etc.).
+        /// </summary>
+        Pure = 1 << 17,
+
+        /// <summary>
         /// The function can be used as a resource or module decorator.
         /// </summary>
         ResourceOrModuleDecorator = ResourceDecorator | ModuleDecorator,

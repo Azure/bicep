@@ -4,6 +4,7 @@
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -138,7 +139,7 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
         func getString() string => 'exported'
         ",
         "test")]
-    [DataTestMethod]
+    [TestMethod]
     public void TestRule(string text, string importFileName, string importFileText, params string[] unusedImports)
     {
         var additionalFiles = new[] { (importFileName, importFileText) };
@@ -188,7 +189,7 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
             var unusedparam = 'param'
             ",
         "unusedparam")]
-    [DataTestMethod]
+    [TestMethod]
     public void Modules(string text, string importFileName, string importFileText, params string[] unusedImports)
     {
         var additionalFiles = new[] { (importFileName, importFileText) };
@@ -224,7 +225,7 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
             var size = 5
             ",
         "size")]
-    [DataTestMethod]
+    [TestMethod]
     public void Conditions(string text, string importFileName, string importFileText, params string[] unusedImports)
     {
         var additionalFiles = new[] { (importFileName, importFileText) };
@@ -319,10 +320,10 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
         ",
         "import {  } from './mod.bicep'",
         "t")]
-    [DataTestMethod]
+    [TestMethod]
     public void Codefix_recommends_remove_unused_imports(string text, string importFileText, string expectedResultText, string importToRemove)
     {
-        CompilationHelper.InputFile[] additionalFiles =
+        (string FilePath, TestFileData FileData)[] additionalFiles =
         [
             new("mod.bicep", importFileText)
         ];
@@ -331,12 +332,12 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
     }
 
 
-    private static void AssertCodeFix(string inputFile, string resultFile, string importNameToFix, CompilationHelper.InputFile[]? supportingFiles = null)
+    private static void AssertCodeFix(string inputFile, string resultFile, string importNameToFix, (string FilePath, TestFileData FileData)[]? supportingFiles = null)
         => AssertCodeFix(NoUnusedImportsRule.Code, $"Remove unused import {importNameToFix}", inputFile, resultFile, supportingFiles);
 
     [DataRow(@"import", "mod.bicep", "")] // Don't show as unused - no imported symbol or file name
     [DataRow(@"import {p2} from './mod.bicep'", "mod.bicep", "")] // Don't show as unused - imported symbol not existing
-    [DataTestMethod]
+    [TestMethod]
     public void Errors(string text, string importFileName, string importFileText, params string[] unusedImports)
     {
         var additionalFiles = new[] { (importFileName, importFileText) };

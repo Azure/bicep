@@ -119,5 +119,7 @@ namespace Bicep.Core.Parsing
             var positionAfterNewLine = indexOfPreviousNewLine + 1;
             return text[positionAfterNewLine..position];
         }
+
+        internal ReadOnlySpan<char> GetTextFromPosition(int absolutePosition) => text.AsSpan(absolutePosition);
     }
 }

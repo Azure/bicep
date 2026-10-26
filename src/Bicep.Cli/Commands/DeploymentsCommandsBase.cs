@@ -29,12 +29,12 @@ public abstract class DeploymentsCommandsBase<TArgs>(
 
         if (!model.Features.DeployCommandsEnabled)
         {
-            throw new CommandLineException($"The '{nameof(ExperimentalFeaturesEnabled.DeployCommands)}' experimental feature must be enabled to use the '{args.CommandName}' command.");
+            throw new CommandLineException($"The '{nameof(ExperimentalFeaturesEnabled.DeployCommands)}' experimental feature must be enabled.");
         }
 
         if (!model.HasAzureTargetScope())
         {
-            throw new CommandLineException($"The '{args.CommandName}' command only supports Bicep files with an Azure target scope.");
+            throw new CommandLineException($"Only Bicep files with an Azure target scope are supported.");
         }
 
         CommandHelper.LogExperimentalWarning(logger, compilation);

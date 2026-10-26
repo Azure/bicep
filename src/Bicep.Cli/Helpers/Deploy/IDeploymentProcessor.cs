@@ -10,9 +10,9 @@ namespace Bicep.Cli.Helpers.Deploy;
 
 public interface IDeploymentProcessor
 {
-    Task Deploy(RootConfiguration bicepConfig, DeployCommandsConfig config, Action<DeploymentWrapperView> onRefresh, CancellationToken cancellationToken);
+    Task Deploy(IBicepConfiguration bicepConfig, DeployCommandsConfig config, Action<DeploymentWrapperView> onRefresh, CancellationToken cancellationToken);
 
-    Task Teardown(RootConfiguration bicepConfig, DeployCommandsConfig config, Action<GeneralOperationView> onRefresh, CancellationToken cancellationToken);
+    Task Teardown(IBicepConfiguration bicepConfig, DeployCommandsConfig config, Action<GeneralOperationView> onRefresh, CancellationToken cancellationToken);
 
-    Task<DeploymentWhatIfResponseDefinition> WhatIf(RootConfiguration bicepConfig, DeployCommandsConfig config, CancellationToken cancellationToken);
+    Task<DeploymentWhatIfResponseDefinition> WhatIf(IBicepConfiguration bicepConfig, DeployCommandsConfig config, CancellationToken cancellationToken);
 }

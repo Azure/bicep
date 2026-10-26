@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Bicep.Types.Az;
+using Bicep.Core.Configuration;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock.Registry;
 using Bicep.Core.UnitTests.Utils;
@@ -38,6 +41,7 @@ public class ServiceBuilder
             .AddSingleton<IEnvironment>(TestEnvironment.Default)
             .AddBicepCore()
             .AddBicepDecompiler()
+            .AddSingleton(BicepTestConstants.TestRegistryConfiguration)
             .AddMockHttpClient(PublicModuleIndexHttpClientMocks.Create([]).Object)
             .WithWorkspace(new ActiveSourceFileSet());
     }

@@ -35,6 +35,7 @@ param agentVMSize string = 'Standard_DS2_v2'
 // osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
 
 resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
+//@[0:08) Local this. Type: object. Declaration start char: 71, length: 755
 //@[9:12) Resource aks. Type: Microsoft.ContainerService/managedClusters@2020-03-01. Declaration start char: 0, length: 826
     name: clusterName
     location: location

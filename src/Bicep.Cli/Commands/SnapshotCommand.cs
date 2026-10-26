@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.CommandLine;
 using System.Diagnostics;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -15,6 +16,7 @@ using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Exceptions;
 using Azure.Deployments.Templates.ParsedEntities;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Helpers.Snapshots;
 using Bicep.Cli.Helpers.WhatIf;
@@ -27,6 +29,7 @@ using Bicep.Core.Json;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils.Snapshots;
 using Bicep.IO.Abstraction;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -108,6 +111,7 @@ public class SnapshotCommand(
                 templateContent: templateContent,
                 parametersContent: parametersContent,
                 tenantId: arguments.TenantId,
+                managementGroupId: arguments.ManagementGroupId,
                 subscriptionId: arguments.SubscriptionId,
                 resourceGroup: arguments.ResourceGroup,
                 location: arguments.Location,
@@ -142,5 +146,70 @@ public class SnapshotCommand(
 
         var file = fileExplorer.GetFile(uri);
         file.Write(contents);
+    }
+
+    internal static Command CreateCommand(CommandLineBuilderContext context)
+    {
+        var inputFileArgument = CommonArguments.ParametersFile();
+        var modeOption = new Option<SnapshotArguments.SnapshotMode?>(OptionNames.Mode)
+        {
+            Description = "Sets the snapshot mode. Valid values are (overwrite, validate).",
+        };
+        var tenantIdOption = new Option<string?>(OptionNames.TenantId)
+        {
+            Description = "The tenant ID to use for the deployment.",
+        };
+        var subscriptionIdOption = new Option<string?>(OptionNames.SubscriptionId)
+        {
+            Description = "The subscription ID to use for the deployment.",
+        };
+        var locationOption = new Option<string?>(OptionNames.Location)
+        {
+            Description = "The location to use for the deployment.",
+        };
+        var resourceGroupOption = new Option<string?>(OptionNames.ResourceGroup)
+        {
+            Description = "The resource group name to use for the deployment.",
+        };
+        var managementGroupIdOption = new Option<string?>(OptionNames.ManagementGroupId)
+        {
+            Description = "The management group ID to use for the deployment.",
+        };
+        var deploymentNameOption = new Option<string?>(OptionNames.DeploymentName)
+        {
+            Description = "The deployment name to use.",
+        };
+        var configOption = CommonOptions.Config();
+
+        var command = new Command(CommandNames.Snapshot, "Generates or validates a deployment snapshot from a .bicepparam file.")
+        {
+            inputFileArgument,
+            modeOption,
+            tenantIdOption,
+            subscriptionIdOption,
+            managementGroupIdOption,
+            locationOption,
+            resourceGroupOption,
+            deploymentNameOption,
+            configOption,
+        };
+        command.Validators.Add(result => CommandLineBuilderContext.ValidateRequiredPositionalArgument(result, inputFileArgument));
+
+        command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
+        {
+            var args = new SnapshotArguments(
+                result.GetRequiredValue(inputFileArgument),
+                result.GetValue(modeOption),
+                result.GetValue(tenantIdOption),
+                result.GetValue(subscriptionIdOption),
+                result.GetValue(managementGroupIdOption),
+                result.GetValue(locationOption),
+                result.GetValue(resourceGroupOption),
+                result.GetValue(deploymentNameOption));
+
+            return await context.GetCommand<SnapshotCommand>().RunAsync(args, ct);
+        }));
+
+        return command;
     }
 }

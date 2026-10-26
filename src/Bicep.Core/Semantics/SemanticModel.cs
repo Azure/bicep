@@ -41,7 +41,6 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableSortedDictionary<string, ExtensionMetadata>> extensionsLazy;
         private readonly Lazy<ImmutableSortedDictionary<string, ExportMetadata>> exportsLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
-        private readonly Lazy<IApiVersionProvider> apiVersionProviderLazy;
         private readonly Lazy<EmitterSettings> emitterSettingsLazy;
         private readonly Lazy<ImportClosureInfo> importClosureInfoLazy;
         private readonly Lazy<InlineDependencyVisitor.SymbolsToInline> symbolsToInlineLazy;
@@ -59,13 +58,16 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, BicepSourceFile sourceFile)
+        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, BicepSourceFile sourceFile, CompilerVersionCheckOptions compilerVersionCheckOptions)
         {
             this.ArtifactReferenceFactory = artifactReferenceFactory;
             this.ModelLookup = modelLookup;
             this.SourceFileGrouping = sourceFileGrouping;
             this.SourceFile = sourceFile;
             this.Environment = environment;
+            this.CompilerVersionCheckOptions = compilerVersionCheckOptions;
+            this.Features = sourceFile.LoadFeatures();
+            this.Configuration = sourceFile.LoadConfiguration();
             TraceBuildOperation(sourceFile, Features, Configuration);
 
             // create this in locked mode by default
@@ -78,9 +80,6 @@ namespace Bicep.Core.Semantics
             var cycleBlockingModelLookup = ISemanticModelLookup.Excluding(modelLookup, sourceFile);
             this.SymbolContext = symbolContext;
             this.Binder = new Binder(namespaceProvider, sourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext);
-
-            // TODO(#13239): ApiVersionProvider is only used by UseRecentApiVersionRule. Coupling the linter with the semantic model is suboptimal. A better approach would be to integrate ApiVersionProvider into IResourceTypeProvider.
-            this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(Features, this.Binder.NamespaceResolver.GetAvailableAzureResourceTypes()));
 
             this.TypeManager = new TypeManager(this, this.Binder);
 
@@ -132,7 +131,9 @@ namespace Bicep.Core.Semantics
                 foreach (var param in this.Root.ParameterDeclarations.DistinctBy(p => p.Name))
                 {
                     var description = DescriptionHelper.TryGetFromDecorator(this, param.DeclaringParameter);
-                    var isRequired = SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null && !TypeHelper.IsNullable(param.Type);
+                    var isRequired = SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null
+                        && !TypeHelper.IsNullable(param.Type)
+                        && param.DeclaringParameter.Type is not NullableTypeSyntax;
                     if (param.Type is ResourceType resourceType)
                     {
                         // Resource type parameters are a special case, we need to convert to a dedicated
@@ -207,7 +208,7 @@ namespace Bicep.Core.Semantics
                 new(f.Overload.TypeSignatureSymbol, null),
                 DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction)));
 
-        private static void TraceBuildOperation(BicepSourceFile sourceFile, IFeatureProvider features, RootConfiguration configuration)
+        private static void TraceBuildOperation(BicepSourceFile sourceFile, IFeatureProvider features, IBicepConfiguration configuration)
         {
             var sb = new StringBuilder();
 
@@ -234,14 +235,13 @@ namespace Bicep.Core.Semantics
 
         public IEnvironment Environment { get; }
 
+        public CompilerVersionCheckOptions CompilerVersionCheckOptions { get; }
+
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
 
-        public RootConfiguration Configuration => this.SourceFile.Configuration;
+        public IBicepConfiguration Configuration { get; }
 
-        public IFeatureProvider Features => this.SourceFile.Features;
-
-        public IApiVersionProvider ApiVersionProvider =>
-            this.apiVersionProviderLazy.Value;
+        public IFeatureProvider Features { get; }
 
         public IBinder Binder { get; }
 
@@ -337,13 +337,32 @@ namespace Bicep.Core.Semantics
         }
 
         /// <summary>
+        /// Gets the diagnostic emitted when the running compiler version does not satisfy the "bicep.version"
+        /// constraint from the effective configuration, if any.
+        /// </summary>
+        private IReadOnlyList<IDiagnostic> GetCompilerVersionDiagnostics()
+        {
+            // Prefer the URI of the config file that actually declared "bicep.version" (walking the "extends"
+            // chain), falling back to the leaf config's URI defensively if that couldn't be determined.
+            var configFileUri = this.Configuration.Compiler.DeclaringConfigUri ?? this.Configuration.ConfigFileUri;
+
+            if (CompilerVersionValidator.Validate(this.Configuration.Compiler.Version, this.Environment.CurrentVersion.Version, configFileUri, this.CompilerVersionCheckOptions.ConstraintViolationLevel) is { } diagnostic)
+            {
+                return [diagnostic];
+            }
+
+            return [];
+        }
+
+        /// <summary>
         /// Cached diagnostics from compilation
         /// </summary>
         public ImmutableArray<IDiagnostic> GetAllDiagnostics() => allDiagnostics.Value;
 
         private ImmutableArray<IDiagnostic> AssembleDiagnostics()
         {
-            var diagnostics = this.Configuration.Diagnostics
+            var diagnostics = this.Configuration.GetDiagnostics()
+                .Concat(GetCompilerVersionDiagnostics())
                 .Concat(this.LexingErrorLookup)
                 .Concat(this.ParsingErrorLookup)
                 .Concat(GetSemanticDiagnostics())
@@ -630,7 +649,8 @@ namespace Bicep.Core.Semantics
             }
 
             // parameters that are assigned but not declared
-            var missingAssignedParams = Root.ParameterAssignments.Where(s => TryGetParameterMetadata(s) is null);
+            var missingAssignedParams = Root.ParameterAssignments
+                .Where(s => s.Context.SourceFile == Root.Context.SourceFile && TryGetParameterMetadata(s) is null);
 
             // parameters that are declared but not assigned
             var missingRequiredParams = usingModel.Parameters
@@ -691,7 +711,7 @@ namespace Bicep.Core.Semantics
             {
                 yield return DiagnosticBuilder.ForPosition(usingDeclarationSyntax.Path!)
                     .MissingExtensionConfigAssignments(missingRequiredAssignments.Select(kvp => kvp.Key))
-                    .WithAppendedFixes(CodeFixHelper.GetCodeFixForMissingBicepExtensionConfigAssignments(Root.Syntax, SourceFile, missingRequiredAssignments));
+                    .WithAppendedFixes(CodeFixHelper.GetCodeFixForMissingBicepExtensionConfigAssignments(Root.Syntax, this, missingRequiredAssignments));
             }
 
             foreach (var assignmentAlias in assignmentAliasesWithMissingExtension)
@@ -703,6 +723,8 @@ namespace Bicep.Core.Semantics
 
         private IEnumerable<IDiagnostic> GatherTypeMismatchDiagnostics()
         {
+            var extendsPath = SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>().FirstOrDefault()?.Path;
+
             foreach (var assignmentSymbol in Root.ParameterAssignments)
             {
                 var isFromSameFile = assignmentSymbol.Context.SourceFile == Root.Context.SourceFile;
@@ -730,7 +752,14 @@ namespace Bicep.Core.Semantics
 
                     foreach (var diagnostic in diagnostics.GetDiagnostics())
                     {
-                        yield return diagnostic;
+                        yield return !isFromSameFile && extendsPath is not null && diagnostic is Diagnostic concreteDiagnostic
+                            ? concreteDiagnostic with
+                            {
+                                Span = extendsPath.Span,
+                                Message = $"The value inherited for parameter \"{assignmentSymbol.Name}\" from \"{assignmentSymbol.Context.SourceFile.GetFileName()}\": {concreteDiagnostic.Message}",
+                                Fixes = [],
+                            }
+                            : diagnostic;
                     }
                 }
             }

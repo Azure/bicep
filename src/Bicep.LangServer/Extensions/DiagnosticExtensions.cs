@@ -15,7 +15,7 @@ namespace Bicep.LanguageServer.Extensions
         private static LspDiagnostic CreateDiagnostic(IDiagnostic diagnostic, ImmutableArray<int> lineStarts)
             => new()
             {
-                Severity = ToDiagnosticSeverity(diagnostic.Level),
+                Severity = ToDiagnosticSeverity(diagnostic),
                 Code = diagnostic.Code,
                 Message = diagnostic.Message,
                 Source = diagnostic.Source.ToSourceString(),
@@ -27,14 +27,16 @@ namespace Bicep.LanguageServer.Extensions
         private static CodeDescription? GetDiagnosticDocumentation(IDiagnostic diagnostic)
             => diagnostic.Uri is { } ? new() { Href = diagnostic.Uri } : null;
 
-        private static DiagnosticSeverity ToDiagnosticSeverity(DiagnosticLevel level)
-            => level switch
+        private static DiagnosticSeverity ToDiagnosticSeverity(IDiagnostic diagnostic)
+        {
+            return diagnostic.Level switch
             {
                 DiagnosticLevel.Info => DiagnosticSeverity.Information,
                 DiagnosticLevel.Warning => DiagnosticSeverity.Warning,
                 DiagnosticLevel.Error => DiagnosticSeverity.Error,
-                _ => throw new ArgumentException($"Unrecognized level {level}"),
+                _ => throw new ArgumentException($"Unrecognized level {diagnostic.Level}"),
             };
+        }
 
         private static Container<DiagnosticTag>? ToDiagnosticTags(DiagnosticStyling styling) => styling switch
         {

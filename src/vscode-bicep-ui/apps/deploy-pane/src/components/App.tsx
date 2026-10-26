@@ -43,22 +43,18 @@ export const App: FC = () => {
   const azureDisabled = !messages.scope || !messages.templateMetadata || isRunning;
 
   async function handleDeployClick() {
-    messages.publishTelemetry("deployPane/deploy", {});
     await azure.deploy();
   }
 
   async function handleValidateClick() {
-    messages.publishTelemetry("deployPane/validate", {});
     await azure.validate();
   }
 
   async function handleWhatIfClick() {
-    messages.publishTelemetry("deployPane/whatIf", {});
     await azure.whatIf();
   }
 
-  async function handleLocalDeployClick() {
-    messages.publishTelemetry("deployPane/localDeploy", {});
+  function handleLocalDeployClick() {
     messages.startLocalDeploy();
   }
 

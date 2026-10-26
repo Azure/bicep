@@ -15,6 +15,7 @@ var scripts = take(groups, 2)
 
 resource resourceGroups 'Microsoft.Resources/resourceGroups@2020-06-01' = [for name in groups: {
 //@[79:83) Local name. Type: 'bicep1' | 'bicep2' | 'bicep3' | 'bicep4'. Declaration start char: 79, length: 4
+//@[00:08) Local this. Type: object[]. Declaration start char: 74, length: 74
 //@[09:23) Resource resourceGroups. Type: Microsoft.Resources/resourceGroups@2020-06-01[]. Declaration start char: 0, length: 148
   name: '${prefix}-${name}'
   location: 'westus'

@@ -17,10 +17,10 @@ using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
-using Bicep.TextFixtures.Assertions;
-using Bicep.TextFixtures.IO;
-using Bicep.TextFixtures.Mocks;
-using Bicep.TextFixtures.Utils;
+using Bicep.Testing;
+using Bicep.Testing.Assertions;
+using Bicep.Testing.IO;
+using Bicep.Testing.Mocks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -216,7 +216,7 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
-            var result = await this.compiler.CompileInline(mainFileText);
+            var result = await this.compiler.Compile(mainFileText);
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("modulea.bicep")}'."),
@@ -484,7 +484,7 @@ output out string = p.properties.accessTier
         // Regression test for https://github.com/Azure/bicep/issues/6038
         //
         // Object-typed parameters should work the same way regardless of whether resource-typed parameters are enabled.
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
         public void Module_can_pass_resource_body_as_object_typed_parameter(bool enableResourceTypeParameters)
@@ -704,7 +704,7 @@ module mod './foo.bicepparam' = {
         [DataRow("this______has_________fifty_____________characters", "this______has_________fifty_____________characters")]
         [DataRow("this______has_________fifty_one__________characters", "this______has_________fifty_one__________character")]
         [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_that_h")]
-        [DataTestMethod]
+        [TestMethod]
         public void Module_name_is_generated_correctly_when_optional_module_names_enabled(string symbolicName, string symbolicNamePrefix)
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
@@ -725,7 +725,7 @@ module {symbolicName} 'mod.bicep' = {{}}
         [DataRow("this______has_______forty_six_______characters", "this______has_______forty_six_______characters")]
         [DataRow("this______has_______forty_seven______characters", "this______has_______forty_seven______character")]
         [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_th")]
-        [DataTestMethod]
+        [TestMethod]
         public void Module_collection_name_is_generated_correctly_when_optional_module_names_enabled(string symbolicName, string symbolicNamePrefix)
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
@@ -747,7 +747,7 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
         [DataRow("this______has_________fifty_____________characters", "this______has_________fifty_____________characters")]
         [DataRow("this______has_________fifty_one__________characters", "this______has_________fifty_one__________character")]
         [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_that_h")]
-        [DataTestMethod]
+        [TestMethod]
         public void Module_with_generated_name_can_be_referenced_correctly(string symbolicName, string symbolicNamePrefix)
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
@@ -769,7 +769,7 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
         [DataRow("this______has_______forty_six_______characters", "this______has_______forty_six_______characters")]
         [DataRow("this______has_______forty_seven______characters", "this______has_______forty_seven______character")]
         [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_th")]
-        [DataTestMethod]
+        [TestMethod]
         public void Module_collection_with_generated_name_can_be_referenced_correctly(string symbolicName, string symbolicNamePrefix)
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));

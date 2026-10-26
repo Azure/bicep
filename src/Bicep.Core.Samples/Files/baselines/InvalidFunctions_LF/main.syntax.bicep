@@ -1,5 +1,5 @@
 func useRuntimeFunction() string => reference('foo').bar
-//@[000:1360) ProgramSyntax
+//@[000:1559) ProgramSyntax
 //@[000:0056) ├─FunctionDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |func|
 //@[005:0023) | ├─IdentifierSyntax
@@ -642,6 +642,96 @@ func lineBeforeComma(
 //@[020:0022) |   ├─Token(Arrow) |=>|
 //@[023:0028) |   └─StringSyntax
 //@[023:0028) |     └─Token(StringComplete) |'foo'|
-//@[028:0029) ├─Token(NewLine) |\n|
+//@[028:0031) ├─Token(NewLine) |\n\n\n|
+
+
+output likeWrongArgcount bool =like('abc')
+//@[000:0042) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0024) | ├─IdentifierSyntax
+//@[007:0024) | | └─Token(Identifier) |likeWrongArgcount|
+//@[025:0029) | ├─TypeVariableAccessSyntax
+//@[025:0029) | | └─IdentifierSyntax
+//@[025:0029) | |   └─Token(Identifier) |bool|
+//@[030:0031) | ├─Token(Assignment) |=|
+//@[031:0042) | └─FunctionCallSyntax
+//@[031:0035) |   ├─IdentifierSyntax
+//@[031:0035) |   | └─Token(Identifier) |like|
+//@[035:0036) |   ├─Token(LeftParen) |(|
+//@[036:0041) |   ├─FunctionArgumentSyntax
+//@[036:0041) |   | └─StringSyntax
+//@[036:0041) |   |   └─Token(StringComplete) |'abc'|
+//@[041:0042) |   └─Token(RightParen) |)|
+//@[042:0043) ├─Token(NewLine) |\n|
+output likeWrongArgcount2 bool =like('abcdef','a*','abcd*')
+//@[000:0059) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0025) | ├─IdentifierSyntax
+//@[007:0025) | | └─Token(Identifier) |likeWrongArgcount2|
+//@[026:0030) | ├─TypeVariableAccessSyntax
+//@[026:0030) | | └─IdentifierSyntax
+//@[026:0030) | |   └─Token(Identifier) |bool|
+//@[031:0032) | ├─Token(Assignment) |=|
+//@[032:0059) | └─FunctionCallSyntax
+//@[032:0036) |   ├─IdentifierSyntax
+//@[032:0036) |   | └─Token(Identifier) |like|
+//@[036:0037) |   ├─Token(LeftParen) |(|
+//@[037:0045) |   ├─FunctionArgumentSyntax
+//@[037:0045) |   | └─StringSyntax
+//@[037:0045) |   |   └─Token(StringComplete) |'abcdef'|
+//@[045:0046) |   ├─Token(Comma) |,|
+//@[046:0050) |   ├─FunctionArgumentSyntax
+//@[046:0050) |   | └─StringSyntax
+//@[046:0050) |   |   └─Token(StringComplete) |'a*'|
+//@[050:0051) |   ├─Token(Comma) |,|
+//@[051:0058) |   ├─FunctionArgumentSyntax
+//@[051:0058) |   | └─StringSyntax
+//@[051:0058) |   |   └─Token(StringComplete) |'abcd*'|
+//@[058:0059) |   └─Token(RightParen) |)|
+//@[059:0060) ├─Token(NewLine) |\n|
+output likeWrongType bool =like(123,'a*')
+//@[000:0041) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0020) | ├─IdentifierSyntax
+//@[007:0020) | | └─Token(Identifier) |likeWrongType|
+//@[021:0025) | ├─TypeVariableAccessSyntax
+//@[021:0025) | | └─IdentifierSyntax
+//@[021:0025) | |   └─Token(Identifier) |bool|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[027:0041) | └─FunctionCallSyntax
+//@[027:0031) |   ├─IdentifierSyntax
+//@[027:0031) |   | └─Token(Identifier) |like|
+//@[031:0032) |   ├─Token(LeftParen) |(|
+//@[032:0035) |   ├─FunctionArgumentSyntax
+//@[032:0035) |   | └─IntegerLiteralSyntax
+//@[032:0035) |   |   └─Token(Integer) |123|
+//@[035:0036) |   ├─Token(Comma) |,|
+//@[036:0040) |   ├─FunctionArgumentSyntax
+//@[036:0040) |   | └─StringSyntax
+//@[036:0040) |   |   └─Token(StringComplete) |'a*'|
+//@[040:0041) |   └─Token(RightParen) |)|
+//@[041:0042) ├─Token(NewLine) |\n|
+output likeWrongReturnType string=like('abcd','a*')
+//@[000:0051) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0026) | ├─IdentifierSyntax
+//@[007:0026) | | └─Token(Identifier) |likeWrongReturnType|
+//@[027:0033) | ├─TypeVariableAccessSyntax
+//@[027:0033) | | └─IdentifierSyntax
+//@[027:0033) | |   └─Token(Identifier) |string|
+//@[033:0034) | ├─Token(Assignment) |=|
+//@[034:0051) | └─FunctionCallSyntax
+//@[034:0038) |   ├─IdentifierSyntax
+//@[034:0038) |   | └─Token(Identifier) |like|
+//@[038:0039) |   ├─Token(LeftParen) |(|
+//@[039:0045) |   ├─FunctionArgumentSyntax
+//@[039:0045) |   | └─StringSyntax
+//@[039:0045) |   |   └─Token(StringComplete) |'abcd'|
+//@[045:0046) |   ├─Token(Comma) |,|
+//@[046:0050) |   ├─FunctionArgumentSyntax
+//@[046:0050) |   | └─StringSyntax
+//@[046:0050) |   |   └─Token(StringComplete) |'a*'|
+//@[050:0051) |   └─Token(RightParen) |)|
+//@[051:0052) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

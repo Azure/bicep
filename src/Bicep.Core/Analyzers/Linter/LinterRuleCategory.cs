@@ -9,6 +9,9 @@ public enum LinterRuleCategory
     BestPractice,
     DeploymentError,
 
+    /// Rules concerning compatibility of bicep version constraints across Bicep files.
+    VersionConstraintCompatibility,
+
     /// Informs the user that something will not work if the template is deployed by a Deployment stack.
     DeploymentStackIncompatibility,
     Portability,

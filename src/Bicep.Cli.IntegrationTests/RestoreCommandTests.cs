@@ -20,7 +20,7 @@ using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
-using Bicep.TextFixtures.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -47,7 +47,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetAllDataSetsWithPublishSource))]
         public async Task Restore_ShouldSucceed(string testName, DataSet dataSet, bool publishSource)
         {
             TestContext.WriteLine(testName);
@@ -159,8 +159,8 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
                 .And.AllSatisfy(m => m.Should().NotHaveSource());
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetAllDataSetsWithPublishSource))]
         public async Task Restore_ShouldSucceedWithAnonymousClient(string testName, DataSet dataSet, bool publishSource)
         {
             TestContext.WriteLine(testName);
@@ -214,7 +214,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
         //
         //
         // No errors
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(null, null, null)]
         [DataRow(null, "application/vnd.ms.bicep.module.artifact", null)]
         [DataRow("application/vnd.oci.image.manifest.v1+json", null, null)]
@@ -281,7 +281,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // *** Valid Cases ***
         [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json }, null)]
         [DataRow(new string[] { "unknown1", "unknown2", BicepMediaTypes.BicepModuleLayerV1Json }, null)]
@@ -635,8 +635,8 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithExternalModulesAndPublishSource), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSetsWithExternalModulesAndPublishSource))]
         public async Task Restore_NonExistentModules_ShouldFail(string testName, DataSet dataSet, bool publishSource)
         {
             var clientFactory = dataSet.CreateMockRegistryClients();
@@ -749,6 +749,35 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             result.Should().Fail().And.NotHaveStdout();
             result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
+        }
+
+        [TestMethod]
+        public async Task Restore_InvalidPattern_UntrustedRegistry_EmitsBcp446_ExitCodeOne()
+        {
+            // module references an untrusted registry.
+            // Restore must still be blocked with BCP446.
+            var registry = "other-evil.example.com";
+            var repository = "mymodule";
+
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
+            File.WriteAllText(bicepFilePath, $"module mod 'br:{registry}/{repository}:v1' = {{ name: 'mod' }}");
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object, registryConfiguration: new(PermitUntrustedRegistries: false));
+            var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+                error.Should().Contain("BCP446");
+                error.Should().Contain(registry);
+            }
         }
 
         private static IEnumerable<object[]> GetAllDataSetsWithPublishSource()

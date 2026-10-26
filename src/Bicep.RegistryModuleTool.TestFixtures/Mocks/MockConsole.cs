@@ -1,26 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.CommandLine;
-using System.CommandLine.IO;
+using Bicep.RegistryModuleTool.Extensions;
 using FluentAssertions;
-using Moq;
 
 namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
 {
     public class MockConsole : IConsole
     {
-        private readonly Mock<IStandardStreamWriter> outMock = StrictMock.Of<IStandardStreamWriter>();
+        private readonly StringWriter outWriter = new();
 
-        private readonly Mock<IStandardStreamWriter> errorMock = StrictMock.Of<IStandardStreamWriter>();
+        private readonly StringWriter errorWriter = new();
 
         private readonly List<string> expectedOutLines = new();
 
         private readonly List<string> expectedErrorLines = new();
 
-        private readonly List<string> actualOutLines = new();
+        public TextWriter Out => this.outWriter;
 
-        private readonly List<string> actualErrorLines = new();
+        public TextWriter Error => this.errorWriter;
 
         public MockConsole ExpectOutLines(params string[] expectedOutLines) => this.ExpectOutLines((IEnumerable<string>)expectedOutLines);
 
@@ -36,12 +34,7 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
 
         public MockConsole ExpectOutLine(string expectedOutLine)
         {
-            this.expectedOutLines.Add(expectedOutLine + Environment.NewLine);
-
-            this.outMock.Setup(x => x.Write(It.IsAny<string>())).Callback<string>(actualOutLine =>
-            {
-                this.actualOutLines.Add(actualOutLine);
-            });
+            this.expectedOutLines.Add(expectedOutLine);
 
             return this;
         }
@@ -60,27 +53,31 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
 
         public MockConsole ExpectErrorLine(string expectedErrorLine)
         {
-            this.expectedErrorLines.Add($"{expectedErrorLine.ReplaceLineEndings()}{Environment.NewLine}");
-
-            this.errorMock.Setup(x => x.Write(It.IsAny<string>())).Callback<string>(this.actualErrorLines.Add);
+            this.expectedErrorLines.Add(expectedErrorLine.ReplaceLineEndings());
 
             return this;
         }
 
-        public IStandardStreamWriter Out => this.outMock.Object;
-
-        public IStandardStreamWriter Error => this.errorMock.Object;
-
-        public bool IsOutputRedirected => false;
-
-        public bool IsErrorRedirected => false;
-
-        public bool IsInputRedirected => false;
-
         public void Verify()
         {
-            VerifyStringList(this.actualOutLines, this.expectedOutLines);
-            VerifyStringList(this.actualErrorLines, this.expectedErrorLines);
+            var actualOutLines = GetLines(this.outWriter);
+            var actualErrorLines = GetLines(this.errorWriter);
+            VerifyStringList(actualOutLines, this.expectedOutLines);
+            VerifyStringList(actualErrorLines, this.expectedErrorLines);
+        }
+
+        private static List<string> GetLines(StringWriter writer)
+        {
+            var content = writer.ToString().ReplaceLineEndings(Environment.NewLine);
+            var lines = content.Split(Environment.NewLine).ToList();
+
+            // Remove trailing empty entry produced by a final newline
+            if (lines.Count > 0 && lines[^1] == string.Empty)
+            {
+                lines.RemoveAt(lines.Count - 1);
+            }
+
+            return lines;
         }
 
         private static void VerifyStringList(List<string> a, List<string> b)
@@ -99,3 +96,4 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
         }
     }
 }
+

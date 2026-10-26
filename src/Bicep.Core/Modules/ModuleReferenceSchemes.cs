@@ -11,6 +11,8 @@ namespace Bicep.Core.Modules
 
         public const string Oci = OciArtifactReferenceFacts.Scheme;
 
+        public const string OciMocked = OciArtifactReferenceFacts.MockedScheme;
+
         public const string TemplateSpecs = "ts";
     }
 }

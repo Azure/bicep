@@ -1,15 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.CommandLine;
-using System.CommandLine.IO;
-using System.CommandLine.Rendering;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
+    /// <summary>Local replacement for the removed System.CommandLine.IConsole interface.</summary>
+    public interface IConsole
+    {
+        TextWriter Out { get; }
+        TextWriter Error { get; }
+    }
+
     public static class ConsoleExtensions
     {
         public static void WriteDiagnostic(this IConsole console, BicepSourceFile file, IDiagnostic diagnostic)
@@ -23,7 +27,7 @@ namespace Bicep.RegistryModuleTool.Extensions
                 case DiagnosticLevel.Off:
                     break;
                 case DiagnosticLevel.Info:
-                    console.WriteLine(message);
+                    console.Out.WriteLine(message);
                     break;
                 case DiagnosticLevel.Warning:
                     console.WriteWarning(message);
@@ -36,25 +40,23 @@ namespace Bicep.RegistryModuleTool.Extensions
             }
         }
 
-        public static void WriteWarning(this IConsole console, string warning) => console.WriteMessage(console.Out, ConsoleColor.Yellow, warning);
+        public static void WriteWarning(this IConsole console, string warning) => WriteMessage(console.Error, ConsoleColor.Yellow, warning);
 
-        public static void WriteError(this IConsole console, string error) => console.WriteMessage(console.Error, ConsoleColor.Red, error);
+        public static void WriteError(this IConsole console, string error) => WriteMessage(console.Error, ConsoleColor.Red, error);
 
-        private static void WriteMessage(this IConsole console, IStandardStreamWriter writer, ConsoleColor color, string message)
+        private static void WriteMessage(TextWriter writer, ConsoleColor color, string message)
         {
-            var terminal = console.GetTerminal(preferVirtualTerminal: false);
-            var originalForegroundColor = terminal?.ForegroundColor ?? Console.ForegroundColor;
-
-            if (terminal is not null)
+            // Only apply color when writing to a real console stream.
+            if (writer == Console.Out || writer == Console.Error)
             {
-                terminal.ForegroundColor = color;
+                var previous = Console.ForegroundColor;
+                Console.ForegroundColor = color;
+                writer.WriteLine(message);
+                Console.ForegroundColor = previous;
             }
-
-            writer.WriteLine(message);
-
-            if (terminal is not null)
+            else
             {
-                terminal.ForegroundColor = originalForegroundColor;
+                writer.WriteLine(message);
             }
         }
     }

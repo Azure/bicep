@@ -56,7 +56,7 @@ namespace Bicep.Core.TypeSystem
                 var namedProperties = baseSymbol.ParentAssignments
                     .GroupBy(pa => pa.Name, LanguageConstants.IdentifierComparer)
                     .Select(group => group.First())
-                    .Select(pa => new NamedTypeProperty(pa.Name, GetTypeInfo(pa.DeclaringParameterAssignment.Value), TypePropertyFlags.ReadOnly));
+                    .Select(pa => new NamedTypeProperty(pa.Name, pa.Type, TypePropertyFlags.ReadOnly));
 
                 return new ObjectType(
                     name: "baseParameters",

@@ -18,23 +18,21 @@ namespace Bicep.Core.SourceGraph
 {
     public abstract class BicepSourceFile : ISourceFile
     {
-        private readonly IConfigurationManager configurationManager;
+        private readonly IBicepConfigurationManager configurationManager;
         private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IAuxiliaryFileCache auxiliaryFileCache;
         private readonly ConcurrentBag<IOUri> referencedAuxiliaryFileUris;
 
         protected BicepSourceFile(
-            Uri fileUri,
             IFileHandle fileHandle,
             ImmutableArray<int> lineStarts,
             ProgramSyntax programSyntax,
-            IConfigurationManager configurationManager,
+            IBicepConfigurationManager configurationManager,
             IFeatureProviderFactory featureProviderFactory,
             IAuxiliaryFileCache auxiliaryFileCache,
             IDiagnosticLookup lexingErrorLookup,
             IDiagnosticLookup parsingErrorLookup)
         {
-            this.Uri = fileUri;
             this.FileHandle = fileHandle;
             this.LineStarts = lineStarts;
             this.ProgramSyntax = programSyntax;
@@ -50,7 +48,6 @@ namespace Bicep.Core.SourceGraph
 
         protected BicepSourceFile(BicepSourceFile original)
         {
-            this.Uri = original.Uri;
             this.FileHandle = original.FileHandle;
             this.LineStarts = original.LineStarts;
             this.ProgramSyntax = original.ProgramSyntax;
@@ -64,8 +61,6 @@ namespace Bicep.Core.SourceGraph
             this.DisabledDiagnosticsCache = original.DisabledDiagnosticsCache;
         }
 
-        public Uri Uri { get; }
-
         public IFileHandle FileHandle { get; }
 
         public ImmutableArray<int> LineStarts { get; }
@@ -78,9 +73,9 @@ namespace Bicep.Core.SourceGraph
 
         public ISyntaxHierarchy Hierarchy { get; }
 
-        public RootConfiguration Configuration => this.configurationManager.GetConfiguration(this.FileHandle.Uri);
+        public IBicepConfiguration LoadConfiguration() => this.configurationManager.GetEffectiveConfiguration(this.FileHandle.Uri);
 
-        public IFeatureProvider Features => this.featureProviderFactory.GetFeatureProvider(this.FileHandle.Uri);
+        public IFeatureProvider LoadFeatures() => this.featureProviderFactory.GetFeatureProvider(this.FileHandle.Uri);
 
         public IDiagnosticLookup LexingErrorLookup { get; }
 

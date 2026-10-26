@@ -9,6 +9,7 @@ param readerPrincipals array
 //@[06:022) Parameter readerPrincipals. Type: array. Declaration start char: 0, length: 28
 
 resource owner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+//@[00:008) Local this. Type: object. Declaration start char: 78, length: 164
 //@[09:014) Resource owner. Type: Microsoft.Authorization/roleAssignments@2020-04-01-preview. Declaration start char: 0, length: 242
   name: guid('owner', ownerPrincipalId)
   properties: {
@@ -19,6 +20,7 @@ resource owner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
 
 resource contributors 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for contributor in contributorPrincipals: {
 //@[90:101) Local contributor. Type: any. Declaration start char: 90, length: 11
+//@[00:008) Local this. Type: object[]. Declaration start char: 85, length: 236
 //@[09:021) Resource contributors. Type: Microsoft.Authorization/roleAssignments@2020-04-01-preview[]. Declaration start char: 0, length: 321
   name: guid('contributor', contributor)
   properties: {
@@ -32,6 +34,7 @@ resource contributors 'Microsoft.Authorization/roleAssignments@2020-04-01-previe
 
 resource readers 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for reader in readerPrincipals: {
 //@[85:091) Local reader. Type: any. Declaration start char: 85, length: 6
+//@[00:008) Local this. Type: object[]. Declaration start char: 80, length: 232
 //@[09:016) Resource readers. Type: Microsoft.Authorization/roleAssignments@2020-04-01-preview[]. Declaration start char: 0, length: 312
   name: guid('reader', reader)
   properties: {

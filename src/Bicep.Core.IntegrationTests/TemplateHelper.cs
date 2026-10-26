@@ -20,7 +20,7 @@ namespace Bicep.Core.IntegrationTests
 {
     public class TemplateHelper
     {
-        public record ParameterProperties(JToken? Value, JToken? Expression);
+        public record ParameterProperties(JToken? Value, JToken? Expression, JToken? Reference);
         public static ImmutableDictionary<string, ParameterProperties> ConvertAndAssertParameters(JToken? parametersJToken)
         {
             if (parametersJToken is null)
@@ -33,7 +33,7 @@ namespace Bicep.Core.IntegrationTests
             var parametersObject = parametersJToken["parameters"] as JObject;
             parametersObject.Should().NotBeNull();
 
-            return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x => new ParameterProperties(x.Value["value"], x.Value["expression"]));
+            return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x => new ParameterProperties(x.Value["value"], x.Value["expression"], x.Value["reference"]));
         }
 
         public static JObject ConvertAndAssertExternalInputs(JToken? parametersJToken)

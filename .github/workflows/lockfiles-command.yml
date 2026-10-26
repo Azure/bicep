@@ -16,28 +16,28 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0 # full history
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
 
       - name: Restore dotnet dependencies
         run: |
-          echo "Restoring dependencies for Bicep.sln"
+          echo "Restoring dependencies for Bicep.slnx"
           dotnet restore --force-evaluate
           echo "Restoring dependencies for BicepInVisualStudio.sln"
           dotnet restore src/vs-bicep/BicepInVisualStudio.sln --force-evaluate
 
-      - name: Restore npm dependencies
+      - name: Set up VS Code dependencies
         run: |
-          echo "Restoring npm dependencies for vscode-bicep and related projects"
-          & .\npm-install.bat
+          echo "Setting up dependencies for vscode-bicep and related projects"
+          node .\scripts\setup-development.mjs
         working-directory: src/vscode-bicep
 
-      - uses: stefanzweifel/git-auto-commit-action@v7
+      - uses: stefanzweifel/git-auto-commit-action@d0b01107b5db882071f96de5dd4b54961ea93f4c # v7
         with:
           commit_message: Update lockfiles
           commit_user_name: ${{ github.actor }}

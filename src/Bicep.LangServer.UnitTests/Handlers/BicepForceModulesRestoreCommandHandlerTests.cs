@@ -7,8 +7,8 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Compilation;
+using Bicep.LanguageServer.Features.Custom.ModuleRestore;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -36,7 +36,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Handle_WithInvalidPath_ShouldThrowArgumentException(string path)
         {
             var compilationManager = StrictMock.Of<ICompilationManager>().Object;

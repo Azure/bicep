@@ -1,5 +1,17 @@
 using none
 
+import { exportedVariable, helperFunction } from 'main.bicep'
+//@[09:25) [BCP360 (Error)] The 'exportedVariable' symbol was not found in (or was not exported by) the imported template. (bicep https://aka.ms/bicep/core-diagnostics#BCP360) |exportedVariable|
+//@[27:41) [BCP360 (Error)] The 'helperFunction' symbol was not found in (or was not exported by) the imported template. (bicep https://aka.ms/bicep/core-diagnostics#BCP360) |helperFunction|
+
+param p12 = '${exportedVariable}-${externalInput('custom', helperFunction())}'
+//@[15:31) [BCP063 (Error)] The name "exportedVariable" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |exportedVariable|
+//@[59:73) [BCP059 (Error)] The name "helperFunction" is not a function. (bicep https://aka.ms/bicep/core-diagnostics#BCP059) |helperFunction|
+
+param p13 = '${exportedVariable}-${externalInput('custom', exportedVariable)}'
+//@[15:31) [BCP063 (Error)] The name "exportedVariable" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |exportedVariable|
+//@[59:75) [BCP063 (Error)] The name "exportedVariable" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |exportedVariable|
+
 var myVar = 1 + 2
 param p = externalInput('sys.envVar', myVar)
 //@[38:43) [BCP032 (Error)] The value must be a compile-time constant. (bicep https://aka.ms/bicep/core-diagnostics#BCP032) |myVar|
@@ -35,4 +47,15 @@ param p7 = externalInput(p6)
 
 param p8 = externalInput('custom', externalInput('custom', 'foo'))
 //@[35:65) [BCP032 (Error)] The value must be a compile-time constant. (bicep https://aka.ms/bicep/core-diagnostics#BCP032) |externalInput('custom', 'foo')|
+
+param p9 = externalInput('custom',)
+//@[34:35) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) |)|
+param p10 = externalInput(, 'test')
+//@[26:27) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) |,|
+param p11 = externalInput('custom',foo')
+//@[25:40) [BCP071 (Error)] Expected 1 to 2 arguments, but got 3. (bicep https://aka.ms/bicep/core-diagnostics#BCP071) |('custom',foo')|
+//@[35:38) [BCP057 (Error)] The name "foo" does not exist in the current context. (bicep https://aka.ms/bicep/core-diagnostics#BCP057) |foo|
+//@[38:38) [BCP236 (Error)] Expected a new line or comma character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP236) ||
+//@[38:40) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (bicep https://aka.ms/bicep/core-diagnostics#BCP004) |')|
+//@[40:40) [BCP018 (Error)] Expected the ")" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 

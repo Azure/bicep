@@ -10,6 +10,7 @@ var vmProperties = {
   evictionPolicy: 'Deallocate'
 }
 resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+//@[0:08) Local this. Type: object. Declaration start char: 61, length: 103
 //@[9:11) Resource vm. Type: Microsoft.Compute/virtualMachines@2020-12-01. Declaration start char: 0, length: 164
   name: 'vm'
   location: 'West US'

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.UnitTests.Assertions;
+using Bicep.Testing.Assertions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Google.Protobuf;

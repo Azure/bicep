@@ -48,7 +48,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void OnlyIfNotExistsAndRetryOnDecorator_ValidScenario()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @onlyIfNotExists()
             @retryOn(['ResourceNotFound', 'ServerError'], 1)
@@ -70,7 +70,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
             {
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
 
-                template.Should().NotBeNull().And.HaveValueAtPath("$.languageVersion", "2.1-experimental");
+                template.Should().NotBeNull().And.HaveValueAtPath("$.languageVersion", "2.0");
                 template.Should().NotBeNull()
                     .And.HaveValueAtPath("$.resources['sqlServer'].@options.onlyIfNotExists", onlyIfNotExistsJObject);
                 template.Should().NotBeNull()

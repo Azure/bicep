@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Emit;
-using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -14,9 +14,9 @@ namespace Bicep.Core.UnitTests.Emit
     [TestClass]
     public class PositionTrackingJsonTextWriterTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+        private static TestCompiler CreateCompiler() => TestCompiler.ForInMemoryCompilation()
+            .WithEmptyAzResources();
 
-        private Uri FileUri = new("file:///main.bicep");
         private const string LeadingNodes = "@minValue(0)\n@maxValue(1023)\n";
         private const string BicepStatement = "param osDiskSizeGB int = 0";
         private readonly string Text = $"{LeadingNodes}{BicepStatement}";
@@ -24,13 +24,14 @@ namespace Bicep.Core.UnitTests.Emit
         [TestMethod]
         public void SourceMapShouldAccountForDecoratorsInStatementSyntax()
         {
-            var compilation = Services.BuildCompilation(Text);
-            var parameterSymbol = compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.First();
+            var compilation = CreateCompiler().CompileWithoutRestore(Text).Compilation;
+            var semanticModel = compilation.GetEntrypointSemanticModel();
+            var parameterSymbol = semanticModel.Root.ParameterDeclarations.First();
 
             var rawSourceMap = new RawSourceMap([]);
             var jsonWriter = new PositionTrackingJsonTextWriter(
                 new StringWriter(),
-                compilation.SourceFileFactory.CreateBicepFile(FileUri.ToIOUri(), Text),
+                semanticModel.SourceFile,
                 rawSourceMap);
             jsonWriter.WritePropertyWithPosition(parameterSymbol.DeclaringParameter, parameterSymbol.Name, () => { });
 

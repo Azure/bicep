@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CommandLine;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Logging;
@@ -9,6 +11,7 @@ using Bicep.Core;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Local.Deploy.Extensibility;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands;
@@ -67,11 +70,40 @@ public class LocalDeployCommand(
             await using var dispatcher = dispatcherFactory.Create();
 
             await dispatcher.InitializeExtensions(compilation);
-            await dispatcher.Deploy(templateString, parametersString, result => onUpdate(new(DeploymentProcessor.GetDeploymentView(result.Deployment, result.Operations), null)), cancellationToken);
+            await dispatcher.Deploy(templateString, parametersString, result => onUpdate(new(DeploymentProcessor.GetDeploymentView(result), null)), cancellationToken);
         }
         catch (Exception exception)
         {
             onUpdate(new(null, exception.Message));
         }
+    }
+
+    internal static Command CreateCommand(CommandLineBuilderContext context)
+    {
+        var inputFileArgument = CommonArguments.ParametersFile();
+        var noRestoreOption = CommonOptions.NoRestore("Do not restore modules prior to deploying.");
+        var formatOption = CommonOptions.DeploymentOutputFormat();
+        var configOption = CommonOptions.Config();
+
+        var command = new Command(CommandNames.LocalDeploy, "[Experimental] Performs a local deployment.")
+        {
+            inputFileArgument,
+            noRestoreOption,
+            formatOption,
+            configOption,
+        };
+        command.Validators.Add(result => CommandLineBuilderContext.ValidateRequiredPositionalArgument(result, inputFileArgument));
+
+        command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
+        {
+            var args = new LocalDeployArguments(
+                result.GetRequiredValue(inputFileArgument),
+                result.GetValue(noRestoreOption),
+                result.GetValue(formatOption));
+
+            return await context.GetCommand<LocalDeployCommand>().RunAsync(args, ct);
+        }));
+
+        return command;
     }
 }

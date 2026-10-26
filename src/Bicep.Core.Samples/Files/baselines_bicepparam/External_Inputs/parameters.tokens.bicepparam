@@ -284,6 +284,188 @@ param objectBody = {
 //@[13:15) NewLine |\r\n|
 }
 //@[00:01) RightBrace |}|
+//@[01:05) NewLine |\r\n\r\n|
+
+var poodle = 'toy'
+//@[00:03) Identifier |var|
+//@[04:10) Identifier |poodle|
+//@[11:12) Assignment |=|
+//@[13:18) StringComplete |'toy'|
+//@[18:20) NewLine |\r\n|
+param retriever = 'golden'
+//@[00:05) Identifier |param|
+//@[06:15) Identifier |retriever|
+//@[16:17) Assignment |=|
+//@[18:26) StringComplete |'golden'|
+//@[26:28) NewLine |\r\n|
+param concat = '${poodle}-${retriever}-${externalInput('sys.cli', 'foo')}'
+//@[00:05) Identifier |param|
+//@[06:12) Identifier |concat|
+//@[13:14) Assignment |=|
+//@[15:18) StringLeftPiece |'${|
+//@[18:24) Identifier |poodle|
+//@[24:28) StringMiddlePiece |}-${|
+//@[28:37) Identifier |retriever|
+//@[37:41) StringMiddlePiece |}-${|
+//@[41:54) Identifier |externalInput|
+//@[54:55) LeftParen |(|
+//@[55:64) StringComplete |'sys.cli'|
+//@[64:65) Comma |,|
+//@[66:71) StringComplete |'foo'|
+//@[71:72) RightParen |)|
+//@[72:74) StringRightPiece |}'|
+//@[74:78) NewLine |\r\n\r\n|
+
+import * as main2 from 'main2.bicep'
+//@[00:06) Identifier |import|
+//@[07:08) Asterisk |*|
+//@[09:11) Identifier |as|
+//@[12:17) Identifier |main2|
+//@[18:22) Identifier |from|
+//@[23:36) StringComplete |'main2.bicep'|
+//@[36:38) NewLine |\r\n|
+import { person, getPerson, getDefaultPerson } from 'main.bicep'
+//@[00:06) Identifier |import|
+//@[07:08) LeftBrace |{|
+//@[09:15) Identifier |person|
+//@[15:16) Comma |,|
+//@[17:26) Identifier |getPerson|
+//@[26:27) Comma |,|
+//@[28:44) Identifier |getDefaultPerson|
+//@[45:46) RightBrace |}|
+//@[47:51) Identifier |from|
+//@[52:64) StringComplete |'main.bicep'|
+//@[64:68) NewLine |\r\n\r\n|
+
+param principalIds = externalInput('sys.cli', 'principalIds')
+//@[00:05) Identifier |param|
+//@[06:18) Identifier |principalIds|
+//@[19:20) Assignment |=|
+//@[21:34) Identifier |externalInput|
+//@[34:35) LeftParen |(|
+//@[35:44) StringComplete |'sys.cli'|
+//@[44:45) Comma |,|
+//@[46:60) StringComplete |'principalIds'|
+//@[60:61) RightParen |)|
+//@[61:65) NewLine |\r\n\r\n|
+
+var anotherPerson = {
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |anotherPerson|
+//@[18:19) Assignment |=|
+//@[20:21) LeftBrace |{|
+//@[21:23) NewLine |\r\n|
+  name: 'John'
+//@[02:06) Identifier |name|
+//@[06:07) Colon |:|
+//@[08:14) StringComplete |'John'|
+//@[14:16) NewLine |\r\n|
+  age: 21
+//@[02:05) Identifier |age|
+//@[05:06) Colon |:|
+//@[07:09) Integer |21|
+//@[09:11) NewLine |\r\n|
+}
+//@[00:01) RightBrace |}|
 //@[01:03) NewLine |\r\n|
+param varPeople = [
+//@[00:05) Identifier |param|
+//@[06:15) Identifier |varPeople|
+//@[16:17) Assignment |=|
+//@[18:19) LeftSquare |[|
+//@[19:21) NewLine |\r\n|
+  ...map(principalIds, id => {
+//@[02:05) Ellipsis |...|
+//@[05:08) Identifier |map|
+//@[08:09) LeftParen |(|
+//@[09:21) Identifier |principalIds|
+//@[21:22) Comma |,|
+//@[23:25) Identifier |id|
+//@[26:28) Arrow |=>|
+//@[29:30) LeftBrace |{|
+//@[30:32) NewLine |\r\n|
+    objectId: id
+//@[04:12) Identifier |objectId|
+//@[12:13) Colon |:|
+//@[14:16) Identifier |id|
+//@[16:18) NewLine |\r\n|
+  })
+//@[02:03) RightBrace |}|
+//@[03:04) RightParen |)|
+//@[04:06) NewLine |\r\n|
+  person
+//@[02:08) Identifier |person|
+//@[08:10) NewLine |\r\n|
+  anotherPerson
+//@[02:15) Identifier |anotherPerson|
+//@[15:17) NewLine |\r\n|
+  getPerson('Bob', 30)
+//@[02:11) Identifier |getPerson|
+//@[11:12) LeftParen |(|
+//@[12:17) StringComplete |'Bob'|
+//@[17:18) Comma |,|
+//@[19:21) Integer |30|
+//@[21:22) RightParen |)|
+//@[22:24) NewLine |\r\n|
+  getDefaultPerson()
+//@[02:18) Identifier |getDefaultPerson|
+//@[18:19) LeftParen |(|
+//@[19:20) RightParen |)|
+//@[20:22) NewLine |\r\n|
+  externalInput('custom.binding', 'foo')
+//@[02:15) Identifier |externalInput|
+//@[15:16) LeftParen |(|
+//@[16:32) StringComplete |'custom.binding'|
+//@[32:33) Comma |,|
+//@[34:39) StringComplete |'foo'|
+//@[39:40) RightParen |)|
+//@[40:42) NewLine |\r\n|
+]
+//@[00:01) RightSquare |]|
+//@[01:05) NewLine |\r\n\r\n|
+
+var infra main2.InfraConfig = {
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |infra|
+//@[10:15) Identifier |main2|
+//@[15:16) Dot |.|
+//@[16:27) Identifier |InfraConfig|
+//@[28:29) Assignment |=|
+//@[30:31) LeftBrace |{|
+//@[31:33) NewLine |\r\n|
+  storage: main2.storageConfig
+//@[02:09) Identifier |storage|
+//@[09:10) Colon |:|
+//@[11:16) Identifier |main2|
+//@[16:17) Dot |.|
+//@[17:30) Identifier |storageConfig|
+//@[30:32) NewLine |\r\n|
+  vm: main2.vmConfig
+//@[02:04) Identifier |vm|
+//@[04:05) Colon |:|
+//@[06:11) Identifier |main2|
+//@[11:12) Dot |.|
+//@[12:20) Identifier |vmConfig|
+//@[20:22) NewLine |\r\n|
+  tag: externalInput('custom.binding', 'bar')
+//@[02:05) Identifier |tag|
+//@[05:06) Colon |:|
+//@[07:20) Identifier |externalInput|
+//@[20:21) LeftParen |(|
+//@[21:37) StringComplete |'custom.binding'|
+//@[37:38) Comma |,|
+//@[39:44) StringComplete |'bar'|
+//@[44:45) RightParen |)|
+//@[45:47) NewLine |\r\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:05) NewLine |\r\n\r\n|
+
+param infraParam = infra
+//@[00:05) Identifier |param|
+//@[06:16) Identifier |infraParam|
+//@[17:18) Assignment |=|
+//@[19:24) Identifier |infra|
+//@[24:26) NewLine |\r\n|
 
 //@[00:00) EndOfFile ||

@@ -4,7 +4,7 @@
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,7 +13,8 @@ namespace Bicep.Core.UnitTests.Emit
     [TestClass]
     public class InlineDependencyVisitorTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+        private static TestCompiler CreateCompiler() => TestCompiler.ForInMemoryCompilation()
+            .WithEmptyAzResources();
 
         private const string Text = @"
 var things = ''
@@ -26,7 +27,7 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         [TestMethod]
         public void VisitorShouldCalculateInliningInBulk()
         {
-            var compilation = Services.BuildCompilation(Text);
+            var compilation = CreateCompiler().CompileWithoutRestore(Text).Compilation;
 
             var inlineVariables = InlineDependencyVisitor.GetSymbolsToInline(compilation.GetEntrypointSemanticModel()).VariablesToInline;
 
@@ -40,10 +41,10 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         }
 
         [DataRow("things")]
-        [DataTestMethod]
+        [TestMethod]
         public void VisitorShouldProduceNoChainForNonInlinedVariables(string variableName)
         {
-            var compilation = Services.BuildCompilation(Text);
+            var compilation = CreateCompiler().CompileWithoutRestore(Text).Compilation;
             VariableDeclarationSyntax variable = GetVariableByName(compilation, variableName);
 
             InlineDependencyVisitor.ShouldInlineVariable(compilation.GetEntrypointSemanticModel(), variable, out var chain).Should().BeFalse();
@@ -54,10 +55,10 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         [DataRow("indirection", "keys")]
         [DataRow("runtimeLoop", "indirection,keys")]
         [DataRow("runtimeLoop2", "indirection,keys")]
-        [DataTestMethod]
+        [TestMethod]
         public void VisitorShouldProduceCorrectChainForInlinedVariables(string variableName, string expectedChain)
         {
-            var compilation = Services.BuildCompilation(Text);
+            var compilation = CreateCompiler().CompileWithoutRestore(Text).Compilation;
             VariableDeclarationSyntax variable = GetVariableByName(compilation, variableName);
 
             InlineDependencyVisitor.ShouldInlineVariable(compilation.GetEntrypointSemanticModel(), variable, out var chain).Should().BeTrue();

@@ -1,9 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.CommandLine;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
+using Bicep.Cli.Helpers;
 using Bicep.Cli.Services;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -67,6 +71,54 @@ namespace Bicep.Cli.Commands
                 io.Error.Writer.WriteLine(string.Format(CliResources.DecompilationFailedFormat, inputUri, exception.Message));
                 return 1;
             }
+        }
+
+        internal static Command CreateCommand(CommandLineBuilderContext context)
+        {
+            var inputFileArgument = new Argument<string>(ArgumentNames.InputFile)
+            {
+                Description = "The path to the parameters .json file.",
+            };
+            var stdoutOption = CommonOptions.Stdout();
+            var forceOption = CommonOptions.Force("Allows overwriting the output file if it exists (applies only to 'bicep decompile' or 'bicep decompile-params').");
+            var outDirOption = CommonOptions.OutDir();
+            var outFileOption = CommonOptions.OutFile();
+            var bicepFileOption = new Option<string?>(OptionNames.BicepFile)
+            {
+                Description = "Path to the bicep template file that will be referenced in the using declaration.",
+            };
+
+            var command = new Command(CommandNames.DecompileParams, "Attempts to decompile a parameters .json file to .bicepparam.")
+            {
+                inputFileArgument,
+                stdoutOption,
+                forceOption,
+                outDirOption,
+                outFileOption,
+                bicepFileOption,
+            };
+            command.Validators.Add(result => CommandLineBuilderContext.ValidateRequiredPositionalArgument(result, inputFileArgument));
+
+            command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+            {
+                var outputToStdOut = result.GetValue(stdoutOption);
+                var outputDir = result.GetValue(outDirOption);
+                var outputFile = result.GetValue(outFileOption);
+
+                ArgumentHelper.ValidateOutputOptions(outputToStdOut, outputDir, outputFile);
+
+                var args = new DecompileParamsArguments(
+                    result.GetRequiredValue(inputFileArgument),
+                    outputToStdOut,
+                    result.GetValue(forceOption),
+                    outputDir,
+                    outputFile,
+                    result.GetValue(bicepFileOption));
+
+                return await Task.FromResult(context.GetCommand<DecompileParamsCommand>().Run(args));
+            }));
+
+            return command;
         }
     }
 }

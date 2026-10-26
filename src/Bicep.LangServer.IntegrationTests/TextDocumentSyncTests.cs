@@ -9,7 +9,7 @@ using Bicep.Core.UnitTests.FileSystem;
 using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Helpers;
-using Bicep.TextFixtures.IO;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -24,7 +24,7 @@ namespace Bicep.LangServer.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("/template.bicep")]
         [DataRow("untitled:Untitled-1")]
         public async Task DidOpenTextDocument_should_trigger_PublishDiagnostics(string uri)

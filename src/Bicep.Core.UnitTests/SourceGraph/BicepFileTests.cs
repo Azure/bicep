@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -10,14 +10,15 @@ namespace Bicep.Core.UnitTests.Workspaces
     [TestClass]
     public class BicepFileTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+        private static TestCompiler CreateCompiler() => TestCompiler.ForInMemoryCompilation()
+            .WithEmptyAzResources();
 
         [TestMethod]
         public void VerifyDisableNextLineDiagnosticDirectivesCache_WithDisableNextLineDiagnosticDirectivesInBicepFile()
         {
             string bicepFileContents = @"#disable-next-line no-unused-params
 param storageAccount string = 'testStorageAccount'";
-            var compilation = Services.BuildCompilation(bicepFileContents);
+            var compilation = CreateCompiler().CompileWithoutRestore(bicepFileContents).Compilation;
 
             var bicepFile = compilation.GetEntrypointSemanticModel().SourceFile;
 
@@ -33,7 +34,7 @@ param storageAccount string = 'testStorageAccount'";
         public void VerifyDisableNextLineDiagnosticDirectivesCache_WithNoDisableNextLineDiagnosticDirectivesInBicepFile()
         {
             string bicepFileContents = @"param storageAccount string = 'testStorageAccount'";
-            var compilation = Services.BuildCompilation(bicepFileContents);
+            var compilation = CreateCompiler().CompileWithoutRestore(bicepFileContents).Compilation;
             var bicepFile = compilation.GetEntrypointSemanticModel().SourceFile;
 
             var disabledDiagnosticsCache = bicepFile.DisabledDiagnosticsCache;
@@ -66,7 +67,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 
 
 ";
-            var compilation = Services.BuildCompilation(bicepFileContents);
+            var compilation = CreateCompiler().CompileWithoutRestore(bicepFileContents).Compilation;
             var bicepFile = compilation.GetEntrypointSemanticModel().SourceFile;
 
             var disabledDiagnosticsCache = bicepFile.DisabledDiagnosticsCache;

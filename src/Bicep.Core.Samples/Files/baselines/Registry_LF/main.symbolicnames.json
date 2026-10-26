@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3717084932040700305"
+      "templateHash": "17302964314594708830"
     }
   },
   "variables": {
@@ -104,6 +104,68 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "planDeploy2",
+      "resourceGroup": "adotfrank-rg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "namePrefix": {
+            "value": "hello"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "13508561622047952911"
+            }
+          },
+          "parameters": {
+            "namePrefix": {
+              "type": "string"
+            },
+            "sku": {
+              "type": "string",
+              "defaultValue": "B1"
+            }
+          },
+          "resources": {
+            "appPlan": {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}appPlan', parameters('namePrefix'))]",
+              "location": "[resourceGroup().location]",
+              "kind": "linux",
+              "sku": {
+                "name": "[parameters('sku')]"
+              },
+              "properties": {
+                "reserved": true
+              }
+            }
+          },
+          "outputs": {
+            "planId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Web/serverfarms', format('{0}appPlan', parameters('namePrefix')))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "rg"
+      ]
+    },
+    "appPlanDeploy3": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "planDeploy3",
       "resourceGroup": "adotfrank-rg",
       "properties": {
         "expressionEvaluationOptions": {

@@ -13,6 +13,8 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using FluentAssertions.Execution;
 
@@ -41,7 +43,7 @@ public class LinterRuleTestsBase
     public record Options(
         OnCompileErrors OnCompileErrors = OnCompileErrors.Default,
         IncludePosition IncludePosition = IncludePosition.Default,
-        Func<RootConfiguration, RootConfiguration>? ConfigurationPatch = null,
+        Func<IBicepConfiguration, IBicepConfiguration>? ConfigurationPatch = null,
         IResourceTypeLoader? AzResourceTypeLoader = null,
         (string path, string contents)[]? AdditionalFiles = null,
         FeatureProviderOverrides? FeatureOverrides = null
@@ -108,16 +110,19 @@ public class LinterRuleTestsBase
         Options? options)
     {
         options ??= new Options();
-        var services = new ServiceBuilder().WithConfiguration(BicepTestConstants.BuiltInConfigurationWithStableAnalyzers);
-        services = options.ConfigurationPatch is not null ? services.WithConfigurationPatch(options.ConfigurationPatch) : services;
-        services = options.AzResourceTypeLoader is { } ? services.WithAzResourceTypeLoader(options.AzResourceTypeLoader) : services;
-        services = options.FeatureOverrides is not null ? services.WithFeatureOverrides(options.FeatureOverrides) : services;
-        var result = CompilationHelper.Compile(services, files);
-        using (new AssertionScope().WithFullSource(result.BicepFile))
+        var configuration = options.ConfigurationPatch is not null
+            ? options.ConfigurationPatch(TestConfigurations.BuiltInWithStableAnalyzers)
+            : TestConfigurations.BuiltInWithStableAnalyzers;
+        var compiler = TestCompiler.ForInMemoryCompilation().WithConfiguration(configuration);
+        compiler = options.AzResourceTypeLoader is { } ? compiler.WithAzOverrides(options.AzResourceTypeLoader) : compiler;
+        compiler = options.FeatureOverrides is not null
+            ? compiler.WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(options.FeatureOverrides)
+            : compiler;
+        var result = compiler.CompileWithoutRestore(files.Select(file => (file.path, (TestFileData)file.contents)).ToArray());
+        using (new AssertionScope().WithFullSource(result.EntryPointFile))
         {
-            IDiagnostic[] diagnosticsMatchingCode = result.Diagnostics.Where(filterFunc).ToArray();
             DiagnosticAssertions.DoWithDiagnosticAnnotations(
-                result.Compilation.SourceFileGrouping.EntryPoint,
+                result.EntryPointFile,
                 result.Diagnostics.Where(filterFunc),
                 assertAction);
         }
@@ -128,13 +133,13 @@ public class LinterRuleTestsBase
         return diagnostic.Code.StartsWith("BCP");
     }
 
-    protected static void AssertCodeFix(string expectedCode, string expectedFixTitle, string inputFile, string resultFile, CompilationHelper.InputFile[]? supportingFiles = null)
+    protected static void AssertCodeFix(string expectedCode, string expectedFixTitle, string inputFile, string resultFile, (string FilePath, TestFileData FileData)[]? supportingFiles = null)
     {
         supportingFiles ??= [];
         var (file, cursor) = ParserHelper.GetFileWithSingleCursor(inputFile, '|');
-        var result = CompilationHelper.Compile([.. supportingFiles, new("main.bicep", file)]);
+        var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore([.. supportingFiles, ("main.bicep", file)]);
 
-        using (new AssertionScope().WithVisualCursor(result.Compilation.GetEntrypointSemanticModel().SourceFile, cursor))
+        using (new AssertionScope().WithVisualCursor(result.EntryPointFile, cursor))
         {
             var matchingDiagnostics = result.Diagnostics
                 .Where(x => x.Source == DiagnosticSource.CoreLinter)

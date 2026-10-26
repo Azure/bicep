@@ -16,7 +16,7 @@ namespace Bicep.Core.UnitTests.Assertions
         public const string BaselineTestCategory = "Baseline";
 
         public static bool ShouldSetBaseline(TestContext testContext) =>
-            testContext.Properties.Contains(SetBaseLineSettingName) && string.Equals(testContext.Properties[SetBaseLineSettingName] as string, bool.TrueString, StringComparison.OrdinalIgnoreCase);
+            testContext.Properties.ContainsKey(SetBaseLineSettingName) && string.Equals(testContext.Properties[SetBaseLineSettingName] as string, bool.TrueString, StringComparison.OrdinalIgnoreCase);
 
         public static void SetBaseline(string actualPath, string expectedPath)
         {
@@ -41,14 +41,12 @@ namespace Bicep.Core.UnitTests.Assertions
 
             while (currentDir.Parent is { } parentDir)
             {
-                // search upwards for the .git directory. This should only exist at the repository root.
-                if (Directory.Exists(Path.Join(currentDir.FullName, ".git")))
+                // Identify the Bicep repository itself using the solution file rather than relying on .git,
+                // which can identify either the Bicep submodule or its containing BicepMirror repository in ADO.
+                if (File.Exists(Path.Join(currentDir.FullName, "Bicep.sln")) ||
+                    File.Exists(Path.Join(currentDir.FullName, "Bicep.slnx")))
                 {
-                    // If TF_BUILD is not null, the code is running in the official build pipeline in ADO,
-                    // and bicep is a Git submodule in the BicepMirror repo.
-                    return Environment.GetEnvironmentVariable("TF_BUILD") is not null
-                        ? Path.Join(currentDir.FullName, "bicep")
-                        : currentDir.FullName;
+                    return currentDir.FullName;
                 }
 
                 currentDir = parentDir;

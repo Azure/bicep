@@ -27,9 +27,10 @@ using Bicep.Core.Utils;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Deploy;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Compilation;
+using Bicep.LanguageServer.Features.Custom.Deployments.Services;
+using Bicep.LanguageServer.Features.Custom.InsertResource;
+using Bicep.Testing.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
@@ -65,6 +66,12 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithEnvironmentVariables(this IServiceCollection services, params (string key, string? value)[] variables)
         => WithEnvironment(services, TestEnvironment.Default.WithVariables(variables));
 
+    public static IServiceCollection WithBicepVersion(this IServiceCollection services, string version, string? commitRef = null)
+        => WithEnvironment(services, TestEnvironment.Default.WithVersion(version, commitRef));
+
+    public static IServiceCollection WithCompilerVersionCheckOptions(this IServiceCollection services, CompilerVersionCheckOptions compilerVersionCheckOptions)
+        => Register(services, compilerVersionCheckOptions);
+
     public static IServiceCollection WithEnvironment(this IServiceCollection services, IEnvironment environment)
         => Register(services, environment);
 
@@ -80,13 +87,13 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithCompilationManager(this IServiceCollection services, ICompilationManager compilationManager)
         => Register(services, compilationManager);
 
-    public static IServiceCollection WithConfigurationManager(this IServiceCollection services, IConfigurationManager configurationManager)
+    public static IServiceCollection WithConfigurationManager(this IServiceCollection services, IBicepConfigurationManager configurationManager)
         => Register(services, configurationManager);
 
-    public static IServiceCollection WithConfigurationPatch(this IServiceCollection services, Func<RootConfiguration, RootConfiguration> patchFunc)
+    public static IServiceCollection WithConfigurationPatch(this IServiceCollection services, Func<IBicepConfiguration, IBicepConfiguration> patchFunc)
         => Register(services, patchFunc)
-            .AddSingleton<ConfigurationManager>()
-            .AddSingleton<IConfigurationManager, PatchingConfigurationManager>();
+            .AddSingleton<BicepConfigurationManager>()
+            .AddSingleton<IBicepConfigurationManager>(sp => new PatchingConfigurationManager(sp.GetRequiredService<BicepConfigurationManager>(), sp.GetRequiredService<Func<IBicepConfiguration, IBicepConfiguration>>()));
 
     public static IServiceCollection WithDisabledAnalyzersConfiguration(this IServiceCollection services)
         => services.WithConfigurationPatch(c => c.WithAllAnalyzersDisabled());
@@ -94,7 +101,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithAnalyzersCodesToDisableConfiguration(this IServiceCollection services, params string[] analyzerCodesToDisable)
         => services.WithConfigurationPatch(c => c.WithAllAnalyzers().WithAnalyzersDisabled(analyzerCodesToDisable));
 
-    public static IServiceCollection WithConfiguration(this IServiceCollection services, RootConfiguration configuration)
+    public static IServiceCollection WithConfiguration(this IServiceCollection services, IBicepConfiguration configuration)
         => services.WithConfigurationPatch(c => configuration);
 
     public static IServiceCollection WithBicepAnalyzer(this IServiceCollection services, IBicepAnalyzer bicepAnalyzer)
@@ -158,11 +165,11 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddMockArmClient(this IServiceCollection services, MockableResourcesArmClient armClient)
         => AddMockArmClient(services, _ => armClient);
 
-    public static IServiceCollection AddMockArmClient(this IServiceCollection services, Func<RootConfiguration, MockableResourcesArmClient> armClient)
+    public static IServiceCollection AddMockArmClient(this IServiceCollection services, Func<IBicepConfiguration, MockableResourcesArmClient> armClient)
     {
         var clientProvider = StrictMock.Of<IArmClientProvider>();
-        clientProvider.Setup(x => x.CreateArmClient(It.IsAny<RootConfiguration>(), It.IsAny<string?>()))
-            .Returns<RootConfiguration, string?>((config, _) =>
+        clientProvider.Setup(x => x.CreateArmClient(It.IsAny<IBicepConfiguration>(), It.IsAny<string?>()))
+            .Returns<IBicepConfiguration, string?>((config, _) =>
             {
                 var clientMock = StrictMock.Of<ArmClient>();
 

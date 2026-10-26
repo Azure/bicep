@@ -51,8 +51,10 @@ gh run download -R $repo $runId -n "bicep-release-$platform-$arch" --dir $tmpDir
 
 # Install
 if [[ $platform == "osx" ]]; then
-  # Ad-hoc sign the binary
-  codesign -s - "$tmpDir/bicep"
+  # Ad-hoc sign the binary if not already signed
+  if ! codesign -v "$tmpDir/bicep" 2>/dev/null; then
+    codesign -s - "$tmpDir/bicep"
+  fi
 fi
 
 mkdir -p $binaryPath

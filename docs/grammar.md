@@ -49,7 +49,7 @@ parameterDefaultValue -> "=" expression
 
 typeDecl -> decorator* "type" IDENTIFIER(name) "=" typeExpression NL
 
-varDecl -> decorator* "var" IDENTIFIER(name) "=" expression NL
+varDecl -> decorator* "var" IDENTIFIER(name) typeExpression? "=" expression NL
 
 resourceDecl -> decorator* "resource" IDENTIFIER(name) interpString(type) "existing"? "=" (ifCondition | object | forExpression) NL
 
@@ -57,7 +57,7 @@ moduleDecl -> decorator* "module" IDENTIFIER(name) interpString(type) "=" (ifCon
 
 testDecl -> "test" IDENTIFIER(name) interpString(type) "=" (object) NL
 
-assertDecl -> decorator* "assert" IDENTIFIER(name) "=" expression NL
+assertDecl -> "assert" IDENTIFIER(name) "=" expression NL
 
 outputDecl ->
   decorator* "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
@@ -127,7 +127,7 @@ primaryExpression ->
   functionCall |
   literalValue |
   interpString |
-  multilineString |
+  interpMultilineString |
   array |
   forExpression |
   object |
@@ -155,13 +155,18 @@ forExpression -> "[" "for" (IDENTIFIER(item) | forVariableBlock) "in" expression
 forVariableBlock -> "(" IDENTIFIER(item) "," IDENTIFIER(index) ")"
 forBody -> expression(body) | ifCondition
 
-interpString ->  stringLeftPiece ( expression stringMiddlePiece )* expression stringRightPiece | stringComplete
+interpString ->  ( stringLeftPiece ( expression stringMiddlePiece )* expression stringRightPiece ) | stringComplete
 stringLeftPiece -> "'" STRINGCHAR* "${"
 stringMiddlePiece -> "}" STRINGCHAR* "${"
 stringRightPiece -> "}" STRINGCHAR* "'"
 stringComplete -> "'" STRINGCHAR* "'"
 
-multilineString -> "'''" + MULTILINESTRINGCHAR+ + "'''"
+interpMultilineString -> ( interpMultilineStringLeftPiece ( expression interpMultilineStringMiddlePiece )* expression interpMultilineStringRightPiece ) | multilineString
+interpMultilineStringLeftPiece -> "$"+ "'''" MULTILINESTRINGCHAR* "$"+ "{"
+interpMultilineStringMiddlePiece -> "}" MULTILINESTRINGCHAR* "$"+ "{"
+interpMultilineStringRightPiece -> "}" MULTILINESTRINGCHAR* "'''"
+
+multilineString -> "'''" MULTILINESTRINGCHAR* "'''"
 
 literalValue -> NUMBER | "true" | "false" | "null"
 
@@ -198,6 +203,7 @@ primaryTypeExpression ->
 typeReference ->
   ambientTypeReference |
   fullyQualifiedAmbientTypeReference |
+  resourceDerivedType |
   IDENTIFIER(type) |
   IDENTIFIER(importedType) |
   IDENTIFIER(wildcardImport) "." IDENTIFIER(type) |
@@ -208,6 +214,8 @@ typeReference ->
 ambientTypeReference -> "string" | "int" | "bool" | "array" | "object"
 
 fullyQualifiedAmbientTypeReference -> IDENTIFIER(sysNamespace) "." ambientTypeReference
+
+resourceDerivedType -> ( "resourceInput" | "resourceOutput" ) "<" interpString(type) ">"
 
 objectType -> "{" (NL+ ((objectTypeProperty | objectTypeAdditionalPropertiesMatcher) NL+ )* )? "}"
 objectTypeProperty -> decorator* ( IDENTIFIER(name) | stringComplete | multilineString ) ":" typeExpression

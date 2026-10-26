@@ -65,9 +65,7 @@ function withComments(input: Mode[]): Mode[] {
 }
 
 const expression: Mode = {
-  variants: [
-    /* placeholder filled later due to cycle*/
-  ],
+  variants: [/* placeholder filled later due to cycle*/],
 };
 
 const escapeChar: Mode = {

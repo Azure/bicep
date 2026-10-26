@@ -19,7 +19,7 @@ namespace Bicep.Core {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class CoreResources {
@@ -178,6 +178,15 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OCI registry support.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_OciEnabled {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_OciEnabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Resource info code generation.
         /// </summary>
         internal static string ExperimentalFeatureNames_ResourceInfoCodegen {
@@ -223,11 +232,11 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Enable wait and retry feature.
+        ///   Looks up a localized string similar to Enable waitUntil feature on resource bicep types.
         /// </summary>
-        internal static string ExperimentalFeatureNames_WaitAndRetry {
+        internal static string ExperimentalFeatureNames_WaitUntil {
             get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_WaitAndRetry", resourceCulture);
+                return ResourceManager.GetString("ExperimentalFeatureNames_WaitUntil", resourceCulture);
             }
         }
         
@@ -403,6 +412,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The &apos;bicep.version&apos; constraints declared across all Bicep files reachable from the entrypoint via local module references should combine into a single valid version range..
+        /// </summary>
+        internal static string NoConflictingVersionConstraintsRule_Description {
+            get {
+                return ResourceManager.GetString("NoConflictingVersionConstraintsRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The &quot;bicep.version&quot; constraint &quot;{0}&quot; required by &quot;{1}&quot; cannot be satisfied together with the constraint &quot;{2}&quot; required by &quot;{3}&quot;. No single Bicep version can satisfy both..
+        /// </summary>
+        internal static string NoConflictingVersionConstraintsRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("NoConflictingVersionConstraintsRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Bicep modules are recommended instead of representing nested or linked deployments as a resource..
         /// </summary>
         internal static string NoDeploymentsResourcesRuleDescription {
@@ -511,6 +538,51 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Outputs should not be used for hard-coded constants. Use exported variables instead..
+        /// </summary>
+        internal static string NoHardcodedOutputsRuleDescription {
+            get {
+                return ResourceManager.GetString("NoHardcodedOutputsRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create exported variable &apos;{0}&apos; and remove output &apos;{1}&apos;.
+        /// </summary>
+        internal static string NoHardcodedOutputsRuleFixTitle {
+            get {
+                return ResourceManager.GetString("NoHardcodedOutputsRuleFixTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Output &apos;{0}&apos; uses a hard-coded value. Use an exported variable for constants that need to be imported by other files..
+        /// </summary>
+        internal static string NoHardcodedOutputsRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("NoHardcodedOutputsRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The entrypoint&apos;s &apos;bicep.version&apos; constraint must only allow versions that satisfy every referenced Bicep file&apos;s constraint..
+        /// </summary>
+        internal static string NoIncompatibleEntrypointVersionRule_Description {
+            get {
+                return ResourceManager.GetString("NoIncompatibleEntrypointVersionRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The entrypoint&apos;s &apos;bicep.version&apos; constraint ({0}) allows versions that do not satisfy the constraint &apos;{1}&apos; required by referenced file &apos;{2}&apos;. Tools that select a Bicep version using only the entrypoint&apos;s constraint may select an incompatible version..
+        /// </summary>
+        internal static string NoIncompatibleEntrypointVersionRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("NoIncompatibleEntrypointVersionRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter..
         /// </summary>
         internal static string NoLocExprOutsideParamsRuleDescription {
@@ -525,6 +597,24 @@ namespace Bicep.Core {
         internal static string NoLocExprOutsideParamsRuleError {
             get {
                 return ResourceManager.GetString("NoLocExprOutsideParamsRuleError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove module name.
+        /// </summary>
+        internal static string NoModuleNameRule_CodeFix {
+            get {
+                return ResourceManager.GetString("NoModuleNameRule_CodeFix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Avoid specifying an explicit module name. This simplifies code, and avoids the risk of accidental module name re-use within a deployment..
+        /// </summary>
+        internal static string NoModuleNameRule_Description {
+            get {
+                return ResourceManager.GetString("NoModuleNameRule_Description", resourceCulture);
             }
         }
         
@@ -772,6 +862,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Secure parameter values should not be assigned to insecure parameters in a parameters file..
+        /// </summary>
+        internal static string SecureParamsInParametersFileRule_Description {
+            get {
+                return ResourceManager.GetString("SecureParamsInParametersFileRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Insecure parameter &apos;{0}&apos; is assigned a value that references secure parameter(s) {1}, which could expose their values in deployment history..
+        /// </summary>
+        internal static string SecureParamsInParametersFileRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("SecureParamsInParametersFileRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Remove unnecessary string interpolation.
         /// </summary>
         internal static string SimplifyInterpolationFixTitle {
@@ -853,6 +961,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to All declared types must be used..
+        /// </summary>
+        internal static string UnusedTypeRuleDescription {
+            get {
+                return ResourceManager.GetString("UnusedTypeRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type &quot;{0}&quot; is declared but never used..
+        /// </summary>
+        internal static string UnusedTypeRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("UnusedTypeRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to All variables must be used..
         /// </summary>
         internal static string UnusedVariableRuleDescription {
@@ -867,6 +993,96 @@ namespace Bicep.Core {
         internal static string UnusedVariableRuleMessageFormat {
             get {
                 return ResourceManager.GetString("UnusedVariableRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Outputs should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionOutputRule_Description {
+            get {
+                return ResourceManager.GetString("UseDescriptionOutputRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Output &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionOutputRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionOutputRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parameters should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionParametersRule_Description {
+            get {
+                return ResourceManager.GetString("UseDescriptionParametersRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parameter &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionParametersRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionParametersRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Properties of user-defined types should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionTypePropertyRule_Description {
+            get {
+                return ResourceManager.GetString("UseDescriptionTypePropertyRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type property &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionTypePropertyRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionTypePropertyRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User-defined types should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionTypeRule_Description {
+            get {
+                return ResourceManager.GetString("UseDescriptionTypeRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionTypeRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionTypeRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Variables should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionVarsRule_Description {
+            get {
+                return ResourceManager.GetString("UseDescriptionVarsRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Variable &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionVarsRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionVarsRule_MessageFormat", resourceCulture);
             }
         }
         
@@ -988,7 +1204,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use AzPowerShell version 11.0 or higher in deployment scripts to avoid EOL Ubuntu 20.04 LTS.
+        ///   Looks up a localized string similar to Use AzPowerShell version 15.0 or higher in deployment scripts to avoid EOL Ubuntu 20.04 LTS.
         /// </summary>
         internal static string UseRecentAzPowerShellVersionRuleDescription {
             get {
@@ -997,7 +1213,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment script is using AzPowerShell version &apos;{0}&apos; which is below the recommended minimum version &apos;{1}&apos;. Consider upgrading to version 11.0 or higher to avoid EOL Ubuntu 20.04 LTS..
+        ///   Looks up a localized string similar to Deployment script is using AzPowerShell version &apos;{0}&apos; which is below the recommended minimum version &apos;{1}&apos;. Consider upgrading to version {1} or higher to avoid Ubuntu or PowerShell EOL..
         /// </summary>
         internal static string UseRecentAzPowerShellVersionRuleMessageFormat {
             get {
@@ -1056,6 +1272,33 @@ namespace Bicep.Core {
         internal static string UseRecentModuleVersionsRule_Description {
             get {
                 return ResourceManager.GetString("UseRecentModuleVersionsRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warn if a &apos;reference&apos; or &apos;list*&apos; function call uses an unrecognized resource type..
+        /// </summary>
+        internal static string UseRecognizedResourceTypeRule_Description {
+            get {
+                return ResourceManager.GetString("UseRecognizedResourceTypeRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resource type &quot;{0}&quot; is not recognized in function &quot;{1}&quot;. If this resource type does exist, the API version must be specified as a function argument..
+        /// </summary>
+        internal static string UseRecognizedResourceTypeRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseRecognizedResourceTypeRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resource type &quot;{0}&quot; is not recognized in function &quot;{1}&quot;. Did you mean &quot;{2}&quot;? If this resource type does exist, the API version must be specified as a function argument..
+        /// </summary>
+        internal static string UseRecognizedResourceTypeRule_MessageFormatWithSuggestion {
+            get {
+                return ResourceManager.GetString("UseRecognizedResourceTypeRule_MessageFormatWithSuggestion", resourceCulture);
             }
         }
         

@@ -42,7 +42,7 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("resourceGroup", "resourceGroup('abc')", "resourceGroup", ExpectedRgSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod')]")]
         [DataRow("resourceGroup", "resourceGroup('abc', 'def')", "resourceGroup", ExpectedRgSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod')]")]
         [DataRow("resourceGroup", "tenant()", "tenant", ExpectedRgSchema, "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[tenantResourceId('Microsoft.Resources/deployments', 'myMod')]")]
-        [DataTestMethod]
+        [TestMethod]
         public void Emitter_should_generate_correct_module_output_scope_strings(string targetScope, string moduleScope, string moduleTargetScope, string expectedSchema, string expectedOutput, string expectedResourceDependsOn)
         {
             var (template, diags, _) = CompilationHelper.Compile(
@@ -81,7 +81,7 @@ output hello string = 'hello!'
         [DataRow("managementGroup", "[extensionResourceId(managementGroup().id, 'My.Rp/myResource', 'resourceA')]", "[extensionResourceId(managementGroup().id, 'Microsoft.Resources/deployments', 'myMod')]")]
         [DataRow("subscription", "[subscriptionResourceId('My.Rp/myResource', 'resourceA')]", "[subscriptionResourceId('Microsoft.Resources/deployments', 'myMod')]")]
         [DataRow("resourceGroup", "[resourceId('My.Rp/myResource', 'resourceA')]", "[resourceId('Microsoft.Resources/deployments', 'myMod')]")]
-        [DataTestMethod]
+        [TestMethod]
         public void Emitter_should_generate_correct_dependsOn_resourceIds(string targetScope, string expectedModuleDependsOn, string expectedResourceDependsOn)
         {
             var (template, diags, _) = CompilationHelper.Compile(
@@ -195,7 +195,7 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
         [DataRow("managementGroup", "[extensionResourceId(managementGroup().id, 'My.Rp/myResource', 'resourceA')]", "[reference(extensionResourceId(managementGroup().id, 'My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
         [DataRow("subscription", "[subscriptionResourceId('My.Rp/myResource', 'resourceA')]", "[reference(subscriptionResourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
         [DataRow("resourceGroup", "[resourceId('My.Rp/myResource', 'resourceA')]", "[reference(resourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
-        [DataTestMethod]
+        [TestMethod]
         public void Emitter_should_generate_correct_references_for_existing_resources(string targetScope, string expectedScopeExpression, string expectedReferenceExpression)
         {
             var (template, diags, _) = CompilationHelper.Compile(@"
@@ -365,7 +365,7 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
         [DataRow("subscription", true)]
         [DataRow("managementGroup", true)]
         [DataRow("tenant", false)]
-        [DataTestMethod]
+        [TestMethod]
         public void Tenant_scope_resources_can_be_deployed_from_anywhere(string targetScope, bool tenantScopeExpected)
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");

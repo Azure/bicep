@@ -142,12 +142,15 @@ public class PrintHelper
         return outputSb.ToString();
     }
 
-    public static string PrintInputLine(string prefix, string content, int cursorOffset)
+    public static string PrintInputLine(string prefix, string content, int cursorOffset, int terminalWidth = int.MaxValue, int? previousCursorOffset = null)
     {
         var output = new StringBuilder();
 
         output.Append(HideCursor);
 
+        // Return to the first physical row occupied by the previous rendering before clearing and repainting.
+        var previousCursorPosition = prefix.Length + (previousCursorOffset ?? cursorOffset);
+        output.Append(MoveCursorUp(previousCursorPosition / terminalWidth));
         output.Append(MoveCursorToLineStart);
         output.Append(ClearToEndOfScreen);
 
@@ -157,9 +160,27 @@ public class PrintHelper
         output.Append(MoveCursorToLineStart);
         if (!content.Contains('\n'))
         {
-            output.Append(MoveCursorRight(prefix.Length));
+            // Repainting leaves the cursor on the final wrapped row, so move up before restoring an earlier cursor position.
+            var contentLength = AnsiHelper.RemoveCodes(content).Length;
+            var endRow = (prefix.Length + contentLength) / terminalWidth;
+            var cursorPosition = prefix.Length + cursorOffset;
+            var cursorRow = cursorPosition / terminalWidth;
+
+            if (endRow == 0)
+            {
+                output.Append(MoveCursorRight(prefix.Length));
+                output.Append(MoveCursorRight(cursorOffset));
+            }
+            else
+            {
+                output.Append(MoveCursorUp(endRow - cursorRow));
+                output.Append(MoveCursorRight(cursorPosition % terminalWidth));
+            }
         }
-        output.Append(MoveCursorRight(cursorOffset));
+        else
+        {
+            output.Append(MoveCursorRight(cursorOffset));
+        }
 
         output.Append(ShowCursor);
 

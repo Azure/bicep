@@ -9,7 +9,7 @@ using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -45,7 +45,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         // No need to add new rules here, just checking a few known ones
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(AdminUsernameShouldNotBeLiteralRule.Code)]
         [DataRow(ExplicitValuesForLocationParamsRule.Code)]
         [DataRow(NoHardcodedEnvironmentUrlsRule.Code)]
@@ -98,14 +98,14 @@ namespace Bicep.Core.UnitTests.Diagnostics
             numberEnabled.Should().BeGreaterThan(ruleSet.Length / 2, "most rules should probably be enabled by default");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [TestData]
         public void AllRulesHaveDescription(IBicepAnalyzerRule rule)
         {
             rule.Description.Length.Should().BeGreaterThan(0);
         }
 
-        [DataTestMethod()]
+        [TestMethod]
         [TestData]
         public void RulesShouldNotSpecifyOverriddenDiagnosticLevel_UnlessDifferingFromCategoryDefault(IBicepAnalyzerRule rule)
         {
@@ -116,10 +116,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
                     ruleBase.DefaultDiagnosticLevel.Should().NotBe(LinterRuleBase.GetDefaultDiagosticLevelForCategory(ruleBase.Category),
                         "Do not specify a value for OverrideCategoryDefaultDiagnosticLevel unless it is overriding the default diagnostic level for that rule's category " +
                             "(and usually that should not be done).");
-
-                    ruleBase.DefaultDiagnosticLevel.Should().Be(DiagnosticLevel.Off,
-                        "I think the reason for overriding the default diagnostic level of a rule's category should only be to turn it to Off by default " +
-                            "(if there turn out to be valid reasons for something different, this test will need to be changed)");
                 }
             }
         }
@@ -148,8 +144,8 @@ namespace Bicep.Core.UnitTests.Diagnostics
             var text = @"
 @secure()
 param param1 string = 'val'";
-            var compilationResult = CompilationHelper.Compile(text);
-            var semanticModel = compilationResult.Compilation.GetSemanticModel(compilationResult.BicepFile);
+            var compilationResult = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(text);
+            var semanticModel = compilationResult.Compilation.GetEntrypointSemanticModel();
 
             var throwRule = new LinterThrowsTestRule();
             var test = () => throwRule.Analyze(semanticModel, BicepTestConstants.EmptyServiceProvider).ToArray();

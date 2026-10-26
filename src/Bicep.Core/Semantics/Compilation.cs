@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -26,7 +27,8 @@ namespace Bicep.Core.Semantics
             IBicepAnalyzer linterAnalyzer,
             IArtifactReferenceFactory artifactReferenceFactory,
             ISourceFileFactory sourceFileFactory,
-            ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
+            ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup,
+            CompilerVersionCheckOptions compilerVersionCheckOptions)
         {
             this.Environment = environment;
             this.SourceFileGrouping = sourceFileGrouping;
@@ -34,6 +36,7 @@ namespace Bicep.Core.Semantics
             this.LinterAnalyzer = linterAnalyzer;
             this.ArtifactReferenceFactory = artifactReferenceFactory;
             this.SourceFileFactory = sourceFileFactory;
+            this.CompilerVersionCheckOptions = compilerVersionCheckOptions;
 
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile.FileHandle.Uri,
@@ -58,6 +61,8 @@ namespace Bicep.Core.Semantics
         public IArtifactReferenceFactory ArtifactReferenceFactory { get; }
 
         public IEnvironment Environment { get; }
+
+        public CompilerVersionCheckOptions CompilerVersionCheckOptions { get; }
 
         public IBicepAnalyzer LinterAnalyzer;
 
@@ -113,6 +118,7 @@ namespace Bicep.Core.Semantics
             this,
             this.SourceFileGrouping,
             this.Environment,
-            bicepFile);
+            bicepFile,
+            this.CompilerVersionCheckOptions);
     }
 }

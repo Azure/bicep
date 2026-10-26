@@ -132,18 +132,11 @@ namespace Bicep.Core.UnitTests.Registry
             goodAvailabilityBuilder3AfterRestore!.Should().HaveMessage("Failed to restore module");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetConfigurationData), DynamicDataSourceType.Method)]
-        public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(RootConfiguration changedConfiguration, ArtifactRestoreStatus expectedStatus)
+        [TestMethod]
+        [DynamicData(nameof(GetConfigurationData))]
+        public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(IBicepConfiguration changedConfiguration, ArtifactRestoreStatus expectedStatus)
         {
-            // Arrange.
-            var configManagerMock = StrictMock.Of<IConfigurationManager>();
-            configManagerMock.SetupSequence(m => m.GetConfiguration(It.IsAny<IOUri>()))
-                .Returns(BicepTestConstants.CreateMockConfiguration())
-                .Returns(BicepTestConstants.CreateMockConfiguration())
-                .Returns(changedConfiguration);
-
-            var badFile = BicepTestConstants.CreateDummyBicepFile(configManagerMock.Object);
+            var badFile = BicepTestConstants.CreateDummyBicepFile(BicepTestConstants.CreateMockConfiguration());
             var badReference = new MockModuleReference(badFile, "bad");
 
             var registryMock = StrictMock.Of<IArtifactRegistry>();
@@ -159,11 +152,13 @@ namespace Bicep.Core.UnitTests.Registry
                 .Returns(Task.CompletedTask);
 
             var dispatcher = CreateDispatcher(registryMock.Object);
-            var configuration = BicepTestConstants.CreateMockConfiguration();
 
             await dispatcher.RestoreArtifacts(new[] { badReference }, false);
 
             // Act.
+            badFile = BicepTestConstants.CreateDummyBicepFile(changedConfiguration);
+            badReference = new MockModuleReference(badFile, "bad");
+
             var status = dispatcher.GetArtifactRestoreStatus(badReference, out _);
 
             // Assert.
@@ -218,6 +213,38 @@ namespace Bicep.Core.UnitTests.Registry
             };
         }
 
+        [TestMethod]
+        public async Task RestoreArtifacts_Forced_RetriesAModuleThatFailedRecently()
+        {
+            var file = BicepTestConstants.CreateDummyBicepFile(BicepTestConstants.CreateMockConfiguration());
+            var reference = new MockModuleReference(file, "flaky");
+            var isRestored = false;
+
+            var registryMock = StrictMock.Of<IArtifactRegistry>();
+            registryMock.SetupGet(x => x.Scheme).Returns("mock");
+            registryMock.SetupSequence(x => x.RestoreArtifacts(It.IsAny<IEnumerable<ArtifactReference>>()))
+                .ReturnsAsync(new Dictionary<ArtifactReference, DiagnosticBuilderDelegate>
+                {
+                    [reference] = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Compiler, "RestoreFailure", "Failed to restore module.")
+                })
+                .ReturnsAsync(() =>
+                {
+                    isRestored = true;
+                    return new Dictionary<ArtifactReference, DiagnosticBuilderDelegate>();
+                });
+            registryMock.Setup(x => x.InvalidateArtifactsCache(It.IsAny<IEnumerable<ArtifactReference>>()))
+                .ReturnsAsync(new Dictionary<ArtifactReference, DiagnosticBuilderDelegate>());
+            registryMock.Setup(x => x.IsArtifactRestoreRequired(reference)).Returns(() => !isRestored);
+            registryMock.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>())).Returns(Task.CompletedTask);
+            var dispatcher = CreateDispatcher(registryMock.Object);
+
+            await dispatcher.RestoreArtifacts([reference], forceRestore: false);
+            dispatcher.GetArtifactRestoreStatus(reference, out _).Should().Be(ArtifactRestoreStatus.Failed);
+
+            await dispatcher.RestoreArtifacts([reference], forceRestore: true);
+            dispatcher.GetArtifactRestoreStatus(reference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+        }
+
         private static IModuleDispatcher CreateDispatcher(params IArtifactRegistry[] registries) => new ModuleDispatcher(new MockArtifactRegistryProvider(registries));
 
         private static ModuleDeclarationSyntax CreateModule(string reference)
@@ -229,7 +256,7 @@ namespace Bicep.Core.UnitTests.Registry
         private class MockModuleReference : ArtifactReference
         {
             public MockModuleReference(BicepSourceFile referencingFile, string reference)
-                : base(referencingFile, "mock")
+                : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), "mock")
             {
                 this.Reference = reference;
             }

@@ -234,6 +234,49 @@ var result = await client.GetSnapshot(new GetSnapshotRequest(
 var snapshot = result.Snapshot;
 ```
 
+### Generate docs
+
+> [!WARNING]
+> `GenerateDocs` supports the experimental `bicep docs` command group. Requires Bicep CLI 0.47.0 or later.
+
+The `GenerateDocs` method renders Markdown documentation for a Bicep module. Unlike the
+`bicep docs generate` command, it never writes files: the rendered content is returned to you and
+your application decides where it goes. The following example renders one module and writes the
+result itself:
+
+```csharp
+var result = await client.GenerateDocs(
+    new GenerateDocsRequest(
+        "./modules/storage/main.bicep",
+        new() { ["owner"] = "Platform Team" }));
+
+if (result.Contents is not null)
+{
+    await File.WriteAllTextAsync("./modules/storage/README.md", result.Contents);
+}
+```
+
+Template and example settings are resolved from the Bicep file's `bicepconfig.json`. Optional custom template values are supplied with the request.
+
+### Use an explicit configuration file
+
+> [!NOTE]
+> Requires Bicep CLI 0.48.0 or later. Setting `ConfigPath` with an older Bicep CLI throws an `InvalidOperationException`.
+
+By default, each Bicep file uses the nearest `bicepconfig.json` found in its directory or an ancestor directory. Every request
+that compiles files (`Compile`, `CompileParams`, `Format`, `GetMetadata`, `GetFileReferences`, `GetDeploymentGraph`,
+`GetSnapshot`, and `GenerateDocs`) accepts an optional `ConfigPath` that replaces this discovery for every file loaded by the request,
+including referenced local modules. This is equivalent to the `--config` option of the Bicep CLI. The file can have any name and can
+use `extends`. Relative paths are resolved from the Bicep CLI working directory. The following example compiles a file using a
+production configuration:
+
+```csharp
+var result = await client.Compile(new CompileRequest("./main.bicep")
+{
+    ConfigPath = "./bicepconfig.prod.json",
+});
+```
+
 ### Get version
 
 The `GetVersion` method retrieves the version of the Bicep CLI that the client is using. The

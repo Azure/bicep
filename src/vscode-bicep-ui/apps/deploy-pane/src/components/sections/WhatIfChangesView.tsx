@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { WhatIfChange, WhatIfPropertyChange } from "@azure/arm-resources";
+import type { WhatIfChange, WhatIfPropertyChange } from "@azure/arm-resourcesdeployments";
 import type { FC } from "react";
 
 import {

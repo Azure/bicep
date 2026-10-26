@@ -9,14 +9,11 @@ namespace Bicep.Core.SourceGraph
     {
         public TemplateSpecFile(IFileHandle fileHandle, string text, string? templateSpecId, ArmTemplateFile mainTemplateFile)
         {
-            this.Uri = fileHandle.Uri.ToUri();
             this.FileHandle = fileHandle;
             this.Text = text;
             this.TemplateSpecId = templateSpecId;
             this.MainTemplateFile = mainTemplateFile;
         }
-
-        public Uri Uri { get; }
 
         public IFileHandle FileHandle { get; }
 

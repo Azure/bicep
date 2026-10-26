@@ -3,6 +3,8 @@
 
 using System.Text;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
+using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,7 +13,7 @@ namespace Bicep.Core.UnitTests.Semantics;
 [TestClass]
 public class DescriptionHelperTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         @"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
@@ -52,7 +54,7 @@ public class DescriptionHelperTests
         description.Should().Be(expectedDescription);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         @"{
           ""location"": ""westus2"",
@@ -184,5 +186,62 @@ public class DescriptionHelperTests
         var description = DescriptionHelper.TryGetFromTemplateSpec(stream);
 
         description.Should().Be(expectedDescription);
+    }
+
+    [TestMethod]
+    [DataRow(
+        @"{
+          ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+          ""contentVersion"": ""1.0.0.0"",
+          ""metadata"": {
+            ""description"": ""arm template description""
+          },
+          ""resources"": []
+        }",
+        "arm template description"
+    )]
+    [DataRow(
+        @"{
+          ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+          ""contentVersion"": ""1.0.0.0"",
+          ""resources"": []
+        }",
+        null
+    )]
+    public void TryGetFromSemanticModel_ArmTemplate(string json, string? expectedDescription)
+    {
+        var sourceFile = BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(DummyFileHandle.Default, json);
+        var model = new ArmTemplateSemanticModel(sourceFile);
+
+        DescriptionHelper.TryGetFromSemanticModel(model).Should().Be(expectedDescription);
+    }
+
+    [TestMethod]
+    [DataRow(
+        @"{
+          ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+          ""contentVersion"": ""1.0.0.0"",
+          ""metadata"": {
+            ""description"": ""templatespec description""
+          },
+          ""resources"": []
+        }",
+        "templatespec description"
+    )]
+    [DataRow(
+        @"{
+          ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+          ""contentVersion"": ""1.0.0.0"",
+          ""resources"": []
+        }",
+        null
+    )]
+    public void TryGetFromSemanticModel_TemplateSpec(string mainTemplateJson, string? expectedDescription)
+    {
+        var mainTemplateFile = BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(DummyFileHandle.Default, mainTemplateJson);
+        var sourceFile = new TemplateSpecFile(DummyFileHandle.Default, mainTemplateJson, "dummyTemplateSpecId", mainTemplateFile);
+        var model = new TemplateSpecSemanticModel(sourceFile);
+
+        DescriptionHelper.TryGetFromSemanticModel(model).Should().Be(expectedDescription);
     }
 }

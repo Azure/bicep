@@ -1,0 +1,311 @@
+{{~ func render_properties(items, indent) ~}}
+{{~ for item in items ~}}
+{{ indent }}- `{{ item.name }}` (`{{ item.type }}`){{ if item.required }}, required{{ end }}{{ if item.secure }}, secure{{ end }}{{ if item.description }}: {{ item.description }}{{ end }}
+{{~ if item.allowedValues.size > 0 ~}}
+{{ indent }}  - Allowed values: {{ for value in item.allowedValues }}`{{ value }}`{{ if !for.last }}, {{ end }}{{ end }}
+{{~ end ~}}
+{{~ if item.minValue != null ~}}
+{{ indent }}  - Min value: {{ item.minValue }}
+{{~ end ~}}
+{{~ if item.maxValue != null ~}}
+{{ indent }}  - Max value: {{ item.maxValue }}
+{{~ end ~}}
+{{~ if item.minLength != null ~}}
+{{ indent }}  - Min length: {{ item.minLength }}
+{{~ end ~}}
+{{~ if item.maxLength != null ~}}
+{{ indent }}  - Max length: {{ item.maxLength }}
+{{~ end ~}}
+{{~ if item.pattern != null ~}}
+{{ indent }}  - Pattern: `{{ item.pattern }}`
+{{~ end ~}}
+{{~ if item.truncated ~}}
+{{ indent }}  - Nested properties omitted because the type is recursive or exceeds the expansion limit.
+{{~ end ~}}
+{{~ if item.properties.size > 0 ~}}
+{{~ render_properties item.properties (indent + "  ") ~}}
+{{~ end ~}}
+{{~ if item.discriminator ~}}
+{{ indent }}  - Discriminator: `{{ item.discriminator.propertyName }}`
+{{~ for discriminatorCase in item.discriminator.cases ~}}
+{{ indent }}    - `{{ discriminatorCase.value }}`:
+{{~ render_properties discriminatorCase.properties (indent + "      ") ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ func has_type_details(item) ~}}
+{{~ ret (item.secure || item.allowedValues.size > 0 || item.minValue != null || item.maxValue != null || item.minLength != null || item.maxLength != null || item.pattern != null || item.truncated || item.properties.size > 0 || item.discriminator) ~}}
+{{~ end ~}}
+{{~ func render_type_details(item) ~}}
+{{~ if item.secure ~}}
+
+- Secure: Yes
+{{~ end ~}}
+{{~ if item.allowedValues.size > 0 ~}}
+
+- Allowed values: {{ for value in item.allowedValues }}`{{ value }}`{{ if !for.last }}, {{ end }}{{ end }}
+{{~ end ~}}
+{{~ if item.minValue != null ~}}
+
+- Min value: {{ item.minValue }}
+{{~ end ~}}
+{{~ if item.maxValue != null ~}}
+
+- Max value: {{ item.maxValue }}
+{{~ end ~}}
+{{~ if item.minLength != null ~}}
+
+- Min length: {{ item.minLength }}
+{{~ end ~}}
+{{~ if item.maxLength != null ~}}
+
+- Max length: {{ item.maxLength }}
+{{~ end ~}}
+{{~ if item.pattern != null ~}}
+
+- Pattern: `{{ item.pattern }}`
+{{~ end ~}}
+{{~ if item.truncated ~}}
+
+- Nested properties omitted because the type is recursive or exceeds the expansion limit.
+{{~ end ~}}
+{{~ if item.properties.size > 0 ~}}
+
+- Properties:
+{{~ render_properties item.properties "  " ~}}
+{{~ end ~}}
+{{~ if item.discriminator ~}}
+
+- Discriminator: `{{ item.discriminator.propertyName }}`
+{{~ for discriminatorCase in item.discriminator.cases ~}}
+  - `{{ discriminatorCase.value }}`:
+{{~ render_properties discriminatorCase.properties "    " ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ func md_cell(value) ~}}
+{{~ if value == null ~}}
+{{~ ret "" ~}}
+{{~ end ~}}
+{{~ ret (value | string.replace "\r\n" " " | string.replace "\n" " " | string.replace "|" "\\|") ~}}
+{{~ end ~}}
+{{~ func doc_type(item) ~}}
+{{~ if item.secure && item.type == "string" ~}}
+{{~ ret "securestring" ~}}
+{{~ end ~}}
+{{~ if item.secure && item.type == "object" ~}}
+{{~ ret "secureObject" ~}}
+{{~ end ~}}
+{{~ ret item.type ~}}
+{{~ end ~}}
+# {{ module.name }}
+{{~ if module.description ~}}
+
+{{ module.description }}
+{{~ end ~}}
+
+## Navigation
+
+- [Resource Types](#resource-types)
+{{~ if module.usageExamples.size > 0 ~}}
+- [Usage Examples](#usage-examples)
+{{~ end ~}}
+- [Parameters](#parameters)
+{{~ if module.exportedTypes.size > 0 ~}}
+- [Exported Types](#exported-types)
+{{~ end ~}}
+{{~ if module.exportedVariables.size > 0 ~}}
+- [Exported Variables](#exported-variables)
+{{~ end ~}}
+{{~ if module.exportedFunctions.size > 0 ~}}
+- [Exported Functions](#exported-functions)
+{{~ end ~}}
+- [Outputs](#outputs)
+{{~ if module.references.size > 0 ~}}
+- [Cross-referenced Modules](#cross-referenced-modules)
+{{~ end ~}}
+
+## Resource Types
+{{~ if module.resourceTypes.size > 0 ~}}
+
+| Resource Type | Existing |
+| :-- | :-- |
+{{~ for resourceType in module.resourceTypes ~}}
+| `{{ resourceType.type }}` | {{ if resourceType.existing }}Yes{{ else }}No{{ end }} |
+{{~ end ~}}
+{{~ else ~}}
+
+_No resources are declared in this module._
+{{~ end ~}}
+{{~ if module.usageExamples.size > 0 ~}}
+
+## Usage Examples
+{{~ for example in module.usageExamples ~}}
+
+### Example {{ for.index + 1 }}: _{{ example.name }}_
+{{~ if example.description ~}}
+
+{{ example.description }}
+{{~ end ~}}
+
+{{ example.fence }}bicep
+{{ example.contents }}
+{{ example.fence }}
+{{~ end ~}}
+{{~ end ~}}
+
+## Parameters
+{{~ if module.parameters.size > 0 ~}}
+
+| Name | Type | Required | Description |
+| :-- | :-- | :-- | :-- |
+{{~ for parameter in module.parameters ~}}
+| `{{ parameter.name }}` | `{{ md_cell (doc_type parameter) }}` | {{ if parameter.required }}Yes{{ else }}No{{ end }} | {{ md_cell parameter.description }} |
+{{~ end ~}}
+{{~ for parameter in module.parameters ~}}
+{{~ if parameter.secure || parameter.defaultValue || parameter.allowedValues.size > 0 || parameter.minValue != null || parameter.maxValue != null || parameter.minLength != null || parameter.maxLength != null || parameter.pattern != null || parameter.truncated || parameter.properties.size > 0 || parameter.discriminator ~}}
+
+### `{{ parameter.name }}`
+{{~ if parameter.secure ~}}
+
+- Secure: Yes
+{{~ end ~}}
+{{~ if parameter.defaultValue ~}}
+
+{{~ if parameter.defaultValue | string.contains "\n" ~}}
+- Default value:
+
+{{ parameter.defaultValueFence }}bicep
+{{ parameter.defaultValue }}
+{{ parameter.defaultValueFence }}
+{{~ else ~}}
+- Default value: `{{ parameter.defaultValue }}`
+{{~ end ~}}
+{{~ end ~}}
+{{~ if parameter.allowedValues.size > 0 ~}}
+
+- Allowed values: {{ for value in parameter.allowedValues }}`{{ value }}`{{ if !for.last }}, {{ end }}{{ end }}
+{{~ end ~}}
+{{~ if parameter.minValue != null ~}}
+
+- Min value: {{ parameter.minValue }}
+{{~ end ~}}
+{{~ if parameter.maxValue != null ~}}
+
+- Max value: {{ parameter.maxValue }}
+{{~ end ~}}
+{{~ if parameter.minLength != null ~}}
+
+- Min length: {{ parameter.minLength }}
+{{~ end ~}}
+{{~ if parameter.maxLength != null ~}}
+
+- Max length: {{ parameter.maxLength }}
+{{~ end ~}}
+{{~ if parameter.pattern != null ~}}
+
+- Pattern: `{{ parameter.pattern }}`
+{{~ end ~}}
+{{~ if parameter.truncated ~}}
+
+- Nested properties omitted because the type is recursive or exceeds the expansion limit.
+{{~ end ~}}
+{{~ if parameter.properties.size > 0 ~}}
+
+- Properties:
+{{~ render_properties parameter.properties "  " ~}}
+{{~ end ~}}
+{{~ if parameter.discriminator ~}}
+
+- Discriminator: `{{ parameter.discriminator.propertyName }}`
+{{~ for discriminatorCase in parameter.discriminator.cases ~}}
+  - `{{ discriminatorCase.value }}`:
+{{~ render_properties discriminatorCase.properties "    " ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ else ~}}
+
+_No parameters are declared in this module._
+{{~ end ~}}
+{{~ if module.exportedTypes.size > 0 ~}}
+
+## Exported Types
+
+| Name | Type | Description |
+| :-- | :-- | :-- |
+{{~ for exportedType in module.exportedTypes ~}}
+| `{{ exportedType.name }}` | `{{ md_cell (doc_type exportedType) }}` | {{ md_cell exportedType.description }} |
+{{~ end ~}}
+{{~ for exportedType in module.exportedTypes ~}}
+{{~ if has_type_details exportedType ~}}
+
+### `{{ exportedType.name }}`
+{{~ render_type_details exportedType ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ if module.exportedVariables.size > 0 ~}}
+
+## Exported Variables
+
+| Name | Type | Description |
+| :-- | :-- | :-- |
+{{~ for exportedVariable in module.exportedVariables ~}}
+| `{{ exportedVariable.name }}` | `{{ md_cell (doc_type exportedVariable) }}` | {{ md_cell exportedVariable.description }} |
+{{~ end ~}}
+{{~ for exportedVariable in module.exportedVariables ~}}
+{{~ if has_type_details exportedVariable ~}}
+
+### `{{ exportedVariable.name }}`
+{{~ render_type_details exportedVariable ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ if module.exportedFunctions.size > 0 ~}}
+
+## Exported Functions
+{{~ for exportedFunction in module.exportedFunctions ~}}
+
+### `{{ exportedFunction.name }}`
+{{~ if exportedFunction.description ~}}
+
+{{ exportedFunction.description }}
+{{~ end ~}}
+
+Returns: `{{ exportedFunction.returnType }}`
+{{~ if exportedFunction.parameters.size > 0 ~}}
+
+| Name | Type | Description |
+| :-- | :-- | :-- |
+{{~ for parameter in exportedFunction.parameters ~}}
+| `{{ parameter.name }}` | `{{ md_cell parameter.type }}` | {{ md_cell parameter.description }} |
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+
+## Outputs
+{{~ if module.outputs.size > 0 ~}}
+
+| Name | Type | Description |
+| :-- | :-- | :-- |
+{{~ for output in module.outputs ~}}
+| `{{ output.name }}` | `{{ md_cell (doc_type output) }}` | {{ md_cell output.description }} |
+{{~ end ~}}
+{{~ else ~}}
+
+_No outputs are declared in this module._
+{{~ end ~}}
+{{~ if module.references.size > 0 ~}}
+
+## Cross-referenced Modules
+
+| Symbolic Name | Path | Description |
+| :-- | :-- | :-- |
+{{~ for reference in module.references ~}}
+| `{{ reference.symbolicName }}` | {{ if reference.path }}`{{ md_cell reference.path }}`{{ end }} | {{ md_cell reference.description }} |
+{{~ end ~}}
+{{~ end ~}}

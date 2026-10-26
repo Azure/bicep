@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
-
-    <!-- Workaround for https://github.com/microsoft/testfx/issues/4945 -->
-    <TestingPlatformDotnetTestSupport>false</TestingPlatformDotnetTestSupport>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,8 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj" />
     <ProjectReference Include="..\Bicep.RegistryModuleTool\Bicep.RegistryModuleTool.csproj" />
+    <ProjectReference Include="..\Bicep.Testing\Bicep.Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>

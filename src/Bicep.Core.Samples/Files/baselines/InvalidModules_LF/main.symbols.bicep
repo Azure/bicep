@@ -265,6 +265,7 @@ module moduleWithBadScope './empty.bicep' = {
 }
 
 resource runtimeValidRes1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+//@[00:08) Local this. Type: object. Declaration start char: 75, length: 115
 //@[09:25) Resource runtimeValidRes1. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 190
   name: 'runtimeValidRes1Name'
   location: 'westeurope'

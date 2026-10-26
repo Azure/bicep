@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json.schemastore.org/vsix-publish",
+    "categories": [
+        "Tools",
+        "Programming Languages"
+    ],
+    "identity": {
+        "internalName": "visualstudiobicep",
+        "tags": [
+            "ARM Template",
+            "Azure",
+            "Azure Resource Manager",
+            "Bicep",
+            "json",
+            "jsonc",
+            "keybindings",
+            "snippet"
+        ]
+    },
+    "priceCategory": "free",
+    "private": false,
+    "qna": true,
+    "overview": "../README.md",
+    "publisher": "ms-azuretools",
+    "repo": "https://github.com/Azure/bicep"
+}

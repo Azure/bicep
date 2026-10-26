@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CommandLine;
 using System.Diagnostics;
 using System.IO.Abstractions;
+using Azure.Core;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Core;
@@ -15,6 +18,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.IO.Abstraction;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -135,6 +139,78 @@ namespace Bicep.Cli.Commands
             }
 
             return moduleReference;
+        }
+
+        internal static Command CreateCommand(CommandLineBuilderContext context)
+        {
+            var inputFileArgument = CommonArguments.OptionalInputFile("The path to the .bicep file to publish.");
+            var targetOption = new Option<string>(OptionNames.Target)
+            {
+                Description = "The target module reference.",
+            };
+            var documentationUriOption = new Option<string[]>(OptionNames.DocumentationUri)
+            {
+                Description = "Module documentation URI.",
+                Arity = ArgumentArity.ZeroOrMore,
+            };
+            var noRestoreOption = CommonOptions.NoRestore("Do not restore modules prior to publishing.");
+            var forceOption = CommonOptions.Force("Overwrite existing published module or file.");
+            var withSourceOption = new Option<bool>(OptionNames.WithSource)
+            {
+                Description = "[Experimental] Publish source code with the module.",
+            };
+            var configOption = CommonOptions.Config();
+
+            var command = new Command(CommandNames.Publish, "Publishes the .bicep file to the module registry.")
+            {
+                inputFileArgument,
+                targetOption,
+                documentationUriOption,
+                noRestoreOption,
+                forceOption,
+                withSourceOption,
+                configOption,
+            };
+            command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
+
+            command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
+            {
+                var inputFile = result.GetValue(inputFileArgument)
+                    ?? throw new CommandLineException("The input file path was not specified");
+                var target = result.GetValue(targetOption)
+                    ?? throw new CommandLineException("The target module was not specified.");
+
+                var docUriResult = result.GetResult(documentationUriOption);
+                if (docUriResult is not null)
+                {
+                    if (docUriResult.Tokens.Count == 0)
+                    {
+                        throw new CommandLineException("The --documentation-uri parameter expects an argument.");
+                    }
+                    if (docUriResult.Tokens.Count > 1)
+                    {
+                        throw new CommandLineException("The --documentation-uri parameter cannot be specified more than once.");
+                    }
+                }
+
+                var documentationUri = docUriResult?.Tokens.Count == 1 ? docUriResult.Tokens[0].Value : null;
+                if (documentationUri is not null && !Uri.IsWellFormedUriString(documentationUri, UriKind.Absolute))
+                {
+                    throw new CommandLineException("The --documentation-uri should be a well formed uri string.");
+                }
+
+                var args = new PublishArguments(
+                    inputFile,
+                    target,
+                    documentationUri,
+                    result.GetValue(noRestoreOption),
+                    result.GetValue(forceOption),
+                    result.GetValue(withSourceOption));
+
+                return await context.GetCommand<PublishCommand>().RunAsync(args);
+            }));
+
+            return command;
         }
     }
 }

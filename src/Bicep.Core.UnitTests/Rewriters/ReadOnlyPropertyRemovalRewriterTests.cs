@@ -5,6 +5,8 @@ using Bicep.Core.Rewriters;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
+using Bicep.Testing.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,7 +23,7 @@ resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
 }";
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(bicepFile).Compilation;
             var rewriter = new ReadOnlyPropertyRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
@@ -56,11 +58,15 @@ resource resA 'My.Rp/resA@2020-01-01' = {
                 new NamedTypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
-            var (_, _, compilation) = CompilationHelper.Compile(typeLoader, ("main.bicep", bicepFile));
+            var compilation = TestCompiler
+                .ForInMemoryCompilation()
+                .WithAzResourceTypeLoader(typeLoader)
+                .CompileWithoutRestore(bicepFile)
+                .Compilation;
             var rewriter = new ReadOnlyPropertyRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: 'resA'

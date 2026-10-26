@@ -122,7 +122,7 @@ namespace Bicep.Core.Registry
 
                     return new(pathValue);
                 case IdentifierSyntax configSpec:
-                    var config = referencingFile.Configuration;
+                    var config = referencingFile.LoadConfiguration();
                     var extensionPathResult = config.Extensions.TryGetExtensionSource(configSpec.IdentifierName).Transform(x => x.Value);
 
                     if (extensionPathResult.IsSuccess(out var extensionPath, out var error))
@@ -161,7 +161,7 @@ namespace Bicep.Core.Registry
             out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
         {
             var registry = this.GetRegistry(artifactReference);
-            var configuration = artifactReference.ReferencingFile.Configuration;
+            var configuration = artifactReference.Configuration;
 
             // have we already failed to restore this artifact?
             if (this.HasRestoreFailed(artifactReference, configuration, out var restoreFailureBuilder))
@@ -183,7 +183,7 @@ namespace Bicep.Core.Registry
 
         public ResultWithDiagnosticBuilder<IFileHandle> TryGetLocalArtifactEntryPointFileHandle(ArtifactReference artifactReference)
         {
-            var configuration = artifactReference.ReferencingFile.Configuration;
+            var configuration = artifactReference.Configuration;
             // has restore already failed for this artifact?
             if (this.HasRestoreFailed(artifactReference, configuration, out var restoreFailureBuilder))
             {
@@ -199,6 +199,15 @@ namespace Bicep.Core.Registry
 
             // many module declarations can point to the same module
             var uniqueReferences = references.Distinct().ToArray();
+
+            if (forceRestore)
+            {
+                // Forcing a restore retries modules that failed recently, rather than reporting the earlier failure.
+                foreach (var reference in uniqueReferences)
+                {
+                    this.restoreFailures.TryRemove(new((CloudConfiguration)reference.Configuration.Cloud, reference), out _);
+                }
+            }
 
             // Call OnRestoreArtifacts on each registry provider. Can (currently at least) be done in parallel to restore.
             var onRestoreArtifactsTasks = new List<Task>();
@@ -237,7 +246,7 @@ namespace Bicep.Core.Registry
                     // update cache invalidation status for each failed module
                     foreach (var (failedReference, failureBuilder) in invalidateFailures)
                     {
-                        this.SetRestoreFailure(failedReference, failedReference.ReferencingFile.Configuration, failureBuilder);
+                        this.SetRestoreFailure(failedReference, failedReference.Configuration, failureBuilder);
                     }
                 }
 
@@ -246,7 +255,7 @@ namespace Bicep.Core.Registry
                 // update restore status for each failed module restore
                 foreach (var (failedReference, failureBuilder) in restoreFailures)
                 {
-                    this.SetRestoreFailure(failedReference, failedReference.ReferencingFile.Configuration, failureBuilder);
+                    this.SetRestoreFailure(failedReference, failedReference.Configuration, failureBuilder);
                 }
 
                 try
@@ -306,9 +315,9 @@ namespace Bicep.Core.Registry
 
         private IArtifactRegistry GetRegistry(ArtifactReference reference) => this.registryProvider.GetRegistry(reference.Scheme);
 
-        private bool HasRestoreFailed(ArtifactReference reference, RootConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
+        private bool HasRestoreFailed(ArtifactReference reference, IBicepConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
         {
-            if (this.restoreFailures.TryGetValue(new(configuration.Cloud, reference), out var failureInfo) && !IsFailureInfoExpired(failureInfo, DateTime.UtcNow))
+            if (this.restoreFailures.TryGetValue(new((CloudConfiguration)configuration.Cloud, reference), out var failureInfo) && !IsFailureInfoExpired(failureInfo, DateTime.UtcNow))
             {
                 // the restore operation failed on the module previously
                 // and the record of the failure has not yet expired
@@ -322,7 +331,7 @@ namespace Bicep.Core.Registry
 
         private static bool IsFailureInfoExpired(RestoreFailureInfo failureInfo, DateTime dateTime) => dateTime >= failureInfo.Expiration;
 
-        private void SetRestoreFailure(ArtifactReference reference, RootConfiguration configuration, DiagnosticBuilder.DiagnosticBuilderDelegate failureBuilder)
+        private void SetRestoreFailure(ArtifactReference reference, IBicepConfiguration configuration, DiagnosticBuilder.DiagnosticBuilderDelegate failureBuilder)
         {
             // as the user is typing, the modules will keep getting recompiled
             // we can't keep retrying syntactically correct references to non-existent modules on every key press
@@ -330,7 +339,7 @@ namespace Bicep.Core.Registry
             // we're not doing sliding expiration because we want a retry to happen eventually
             // (we may consider adding an ability to immediately retry to the UX in the future as well)
             var expiration = DateTime.UtcNow.Add(FailureExpirationInterval);
-            this.restoreFailures.TryAdd(new(configuration.Cloud, reference), new RestoreFailureInfo(reference, failureBuilder, expiration));
+            this.restoreFailures.TryAdd(new((CloudConfiguration)configuration.Cloud, reference), new RestoreFailureInfo(reference, failureBuilder, expiration));
         }
 
         private class RestoreFailureKey

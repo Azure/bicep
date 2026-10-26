@@ -1,12 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CommandLine;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Features;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -64,13 +67,13 @@ namespace Bicep.Cli.Commands
             var declarations = semanticModel.Root.TestDeclarations;
             var testResults = TestRunner.Run(declarations);
 
-            LogResults(testResults);
+            LogResults(testResults, summary.HasErrors);
 
-            // return non-zero exit code on errors
-            return testResults.Success ? 0 : 1;
+            // Return a non-zero exit code for compilation and test evaluation errors.
+            return summary.HasErrors || !testResults.Success ? 1 : 0;
         }
 
-        private void LogResults(TestResults testResults)
+        private void LogResults(TestResults testResults, bool hasCompilationErrors)
         {
             foreach (var (testDeclaration, evaluation) in testResults.Results)
             {
@@ -92,11 +95,12 @@ namespace Bicep.Cli.Commands
                     }
                 }
             }
-            if (testResults.Success)
+            // Do not report overall success when compilation diagnostics contain errors.
+            if (testResults.Success && !hasCompilationErrors)
             {
                 io.Output.Writer.WriteLine($"All {testResults.TotalEvaluations} evaluations passed!");
             }
-            else
+            else if (!testResults.Success)
             {
                 io.Error.Writer.WriteLine($"Evaluation Summary: Failure!");
                 io.Error.Writer.WriteLine($"Total: {testResults.TotalEvaluations} - Success: {testResults.SuccessfulEvaluations} - Skipped: {testResults.SkippedEvaluations} - Failed: {testResults.FailedEvaluations}");
@@ -107,5 +111,36 @@ namespace Bicep.Cli.Commands
             => new(
                 Format: args.DiagnosticsFormat ?? DiagnosticsFormat.Default,
                 SarifToStdout: false);
+
+        internal static Command CreateCommand(CommandLineBuilderContext context)
+        {
+            var inputFileArgument = CommonArguments.OptionalInputFile("The path to the input .bicep file.");
+            var noRestoreOption = CommonOptions.NoRestore("Do not restore modules prior to running tests.");
+            var diagnosticsFormatOption = CommonOptions.DiagnosticsFormat();
+            var configOption = CommonOptions.Config();
+
+            var command = new Command(CommandNames.Test, "Runs tests in a .bicep file.")
+            {
+                inputFileArgument,
+                noRestoreOption,
+                diagnosticsFormatOption,
+                configOption,
+            };
+            command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
+
+            command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
+            {
+                var inputFile = result.GetValue(inputFileArgument)
+                    ?? throw new CommandLineException("The input file path was not specified");
+                var args = new TestArguments(
+                    inputFile,
+                    result.GetValue(noRestoreOption),
+                    result.GetValue(diagnosticsFormatOption));
+
+                return await context.GetCommand<TestCommand>().RunAsync(args);
+            }));
+
+            return command;
+        }
     }
 }

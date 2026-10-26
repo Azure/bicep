@@ -8,8 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Resources;
-using Bicep.LanguageServer.Completions;
-using Bicep.LanguageServer.Snippets;
+using Bicep.LanguageServer.Features.Language.Completion;
+using Bicep.LanguageServer.Features.Language.Completion.Snippets;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -32,7 +32,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataRow("toplevel2/secondlevel2", null)]
         [DataRow("toplevel2/secondlevel2/thirdlevel", null)]
         [DataRow("toplevel2/secondlevel1/thirdlevel", "'toplevel2/secondlevel1/thirdlevel second level keyword'")]
-        [DataTestMethod]
+        [TestMethod]
         public void TryGetResourceTypeFilterText(string resourceType, string? expectedFilter)
         {
             var sut = new ResourceTypeSearchKeywords(new Dictionary<string, string[]>
@@ -124,7 +124,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             }            
             """,
             "res-automation-job-schedule Automation Job Schedule Microsoft.Automation/automationAccounts Microsoft.Automation/automationAccounts/jobSchedules")]
-        [DataTestMethod]
+        [TestMethod]
         public void TryGetSnippetFilterText(string prefix, string detail, string text, string? expectedFilter)
         {
             var sut = new ResourceTypeSearchKeywords(new Dictionary<string, string[]>

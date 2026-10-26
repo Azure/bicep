@@ -11,6 +11,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -406,13 +407,7 @@ param stringParam =  /*TODO*/
         public void Valid_extends_should_not_fail()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "), ("parameters.bicepparam", @"
+              ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
               "),
@@ -426,16 +421,216 @@ param stringParam =  /*TODO*/
         }
 
         [TestMethod]
+        public void Invalid_inherited_user_defined_type_should_report_diagnostics_on_extends_path()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  test: 'testing'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                type personType = {
+                  name: string
+                  age: int
+                  address: string
+                }
+              """));
+
+            var extendsPath = result.Compilation.GetEntrypointSemanticModel().SourceFile.ProgramSyntax.Declarations
+                .OfType<ExtendsDeclarationSyntax>()
+                .Single()
+                .Path;
+            var diagnostics = result.ExcludingLinterDiagnostics().Diagnostics.ToArray();
+
+            diagnostics.Should().HaveDiagnostics([
+                ("BCP035", DiagnosticLevel.Error, "The value inherited for parameter \"person\" from \"shared.bicepparam\": The specified \"param\" declaration is missing the following required properties: \"address\", \"age\", \"name\"."),
+                ("BCP037", DiagnosticLevel.Warning, "The value inherited for parameter \"person\" from \"shared.bicepparam\": The property \"test\" is not allowed on objects of type \"{ name: string, age: int, address: string }\". Permissible properties include \"address\", \"age\", \"name\"."),
+            ]);
+            diagnostics.Should().AllSatisfy(diagnostic =>
+            {
+                diagnostic.Span.Should().Be(extendsPath.Span);
+                diagnostic.Should().BeOfType<Diagnostic>().Which.Fixes.Should().BeEmpty();
+            });
+        }
+
+        [TestMethod]
+        public void Valid_inherited_user_defined_type_should_compile()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  name: 'Ada'
+                  age: 36
+                  address: 'London'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                type personType = {
+                  name: string
+                  age: int
+                  address: string
+                }
+              """));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveJsonAtPath("parameters.person.value", """
+              {
+                "name": "Ada",
+                "age": 36,
+                "address": "London"
+              }
+              """);
+        }
+
+        [TestMethod]
+        public void Sealed_invalid_inherited_user_defined_type_should_preserve_error_severity()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  test: 'testing'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                @sealed()
+                type personType = {
+                  name: string
+                }
+              """));
+
+            var extendsPath = result.Compilation.GetEntrypointSemanticModel().SourceFile.ProgramSyntax.Declarations
+                .OfType<ExtendsDeclarationSyntax>()
+                .Single()
+                .Path;
+            var diagnostics = result.ExcludingLinterDiagnostics().Diagnostics.ToArray();
+
+            diagnostics.Should().HaveDiagnostics([
+                ("BCP035", DiagnosticLevel.Error, "The value inherited for parameter \"person\" from \"shared.bicepparam\": The specified \"param\" declaration is missing the following required properties: \"name\"."),
+                ("BCP037", DiagnosticLevel.Error, "The value inherited for parameter \"person\" from \"shared.bicepparam\": The property \"test\" is not allowed on objects of type \"{ name: string }\". Permissible properties include \"name\"."),
+            ]);
+            diagnostics.Should().AllSatisfy(diagnostic => diagnostic.Span.Should().Be(extendsPath.Span));
+        }
+
+        [TestMethod]
+        public void Nested_invalid_inherited_user_defined_type_should_report_diagnostic_on_direct_extends_path()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'middle.bicepparam'
+              """),
+              ("middle.bicepparam", """
+                using none
+                extends 'base.bicepparam'
+              """),
+              ("base.bicepparam", """
+                using none
+
+                param person = {
+                  name: 42
+                  test: 'testing'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                type personType = {
+                  name: string
+                  age: int
+                }
+              """));
+
+            var extendsPath = result.Compilation.GetEntrypointSemanticModel().SourceFile.ProgramSyntax.Declarations
+                .OfType<ExtendsDeclarationSyntax>()
+                .Single()
+                .Path;
+            var diagnostics = result.ExcludingLinterDiagnostics().Diagnostics.ToArray();
+
+            diagnostics.Should().HaveDiagnostics([
+                ("BCP035", DiagnosticLevel.Error, "The value inherited for parameter \"person\" from \"base.bicepparam\": The specified \"param\" declaration is missing the following required properties: \"age\"."),
+                ("BCP036", DiagnosticLevel.Error, "The value inherited for parameter \"person\" from \"base.bicepparam\": The property \"name\" expected a value of type \"string\" but the provided value is of type \"42\"."),
+                ("BCP037", DiagnosticLevel.Warning, "The value inherited for parameter \"person\" from \"base.bicepparam\": The property \"test\" is not allowed on objects of type \"{ name: string, age: int }\". Permissible properties include \"age\"."),
+            ]);
+            diagnostics.Should().AllSatisfy(diagnostic =>
+            {
+                diagnostic.Span.Should().Be(extendsPath.Span);
+                diagnostic.Should().BeOfType<Diagnostic>().Which.Fixes.Should().BeEmpty();
+            });
+        }
+
+        [TestMethod]
+        public void Invalid_nested_object_in_inherited_parameter_should_report_contextual_diagnostics()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  address: {
+                    unexpected: 'testing'
+                  }
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                type personType = {
+                  address: {
+                    street: string
+                  }
+                }
+              """));
+
+            var extendsPath = result.Compilation.GetEntrypointSemanticModel().SourceFile.ProgramSyntax.Declarations
+                .OfType<ExtendsDeclarationSyntax>()
+                .Single()
+                .Path;
+            var diagnostics = result.ExcludingLinterDiagnostics().Diagnostics.ToArray();
+
+            diagnostics.Should().HaveDiagnostics([
+                ("BCP035", DiagnosticLevel.Error, "The value inherited for parameter \"person\" from \"shared.bicepparam\": The specified \"object\" declaration is missing the following required properties: \"street\"."),
+                ("BCP037", DiagnosticLevel.Warning, "The value inherited for parameter \"person\" from \"shared.bicepparam\": The property \"unexpected\" is not allowed on objects of type \"{ street: string }\". Permissible properties include \"street\"."),
+            ]);
+            diagnostics.Should().AllSatisfy(diagnostic =>
+            {
+                diagnostic.Span.Should().Be(extendsPath.Span);
+                diagnostic.Should().BeOfType<Diagnostic>().Which.Fixes.Should().BeEmpty();
+            });
+        }
+
+        [TestMethod]
         public void Invalid_extends_reference_does_not_exist_should_fail()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'does-not-exists.bicepparam'
@@ -456,13 +651,6 @@ param stringParam =  /*TODO*/
         public void Invalid_extends_reference_file_type_should_fail()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.json", @"
                 { ""foo"": ""bar"" }
               "),
@@ -502,10 +690,8 @@ param stringParam =  /*TODO*/
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP405", DiagnosticLevel.Error, "More than one \"extends\" declaration are present"),
-                ("BCP406", DiagnosticLevel.Error, "Using \"extends\" keyword requires enabling EXPERIMENTAL feature \"ExtendableParamFiles\"."),
                 ("BCP404", DiagnosticLevel.Error, "The \"extends\" declaration is missing a bicepparam file path reference"),
                 ("BCP405", DiagnosticLevel.Error, "More than one \"extends\" declaration are present"),
-                ("BCP406", DiagnosticLevel.Error, "Using \"extends\" keyword requires enabling EXPERIMENTAL feature \"ExtendableParamFiles\"."),
             });
         }
 
@@ -513,13 +699,6 @@ param stringParam =  /*TODO*/
         public void Extending_parameters_allow_overriding_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
@@ -550,13 +729,6 @@ param stringParam =  /*TODO*/
         public void Using_variables_objects_arrays_in_base_parameters_file_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
@@ -619,13 +791,6 @@ param stringParam =  /*TODO*/
         public void Nested_extends_object_spread_with_base_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'middle.bicepparam'
@@ -673,13 +838,6 @@ param stringParam =  /*TODO*/
         public void Nested_extends_array_spread_with_base_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'middle.bicepparam'
@@ -724,16 +882,222 @@ param stringParam =  /*TODO*/
         }
 
         [TestMethod]
+        public void Base_object_spread_should_not_evaluate_unreferenced_external_input()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+                param B = {
+                  ...base.B
+                  something: 'something'
+                }
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param external = externalInput('foo', 'bar')
+                param B = {
+                  parent: 'parent'
+                }
+              "),
+              ("main.bicep", @"
+                param external object
+                param B object
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveJsonAtPath("parameters.B.value", @"{
+              ""parent"": ""parent"",
+              ""something"": ""something""
+            }");
+            result.Parameters.Should().HaveValueAtPath("parameters.external.expression", "[externalInputs('foo_0')]");
+            result.Parameters.Should().HaveJsonAtPath("externalInputDefinitions", @"{
+              ""foo_0"": {
+                ""kind"": ""foo"",
+                ""config"": ""bar""
+              }
+            }");
+        }
+
+        [TestMethod]
+        public void Base_object_spread_should_support_referenced_external_input()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+                param B = {
+                  ...base.external
+                  something: 'something'
+                }
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param external = externalInput('foo', 'bar')
+                param B = {
+                  parent: 'parent'
+                }
+              "),
+              ("main.bicep", @"
+                param external object
+                param B object
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveValueAtPath("parameters.B.expression", "[shallowMerge(createArray(externalInputs('foo_0'), createObject('something', 'something')))]");
+            result.Parameters.Should().HaveJsonAtPath("externalInputDefinitions", @"{
+              ""foo_0"": {
+                ""kind"": ""foo"",
+                ""config"": ""bar""
+              }
+            }");
+        }
+
+        [TestMethod]
+        public void Base_array_spread_should_not_evaluate_unreferenced_external_input()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+                param values = [
+                  ...base.values
+                  'child'
+                ]
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param enabled = bool(externalInput('feature', 'enabled'))
+                param values = [
+                  'parent'
+                ]
+              "),
+              ("main.bicep", @"
+                param enabled bool
+                param values array
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveJsonAtPath("parameters.values.value", @"[
+              ""parent"",
+              ""child""
+            ]");
+            result.Parameters.Should().HaveValueAtPath("parameters.enabled.expression", "[bool(externalInputs('feature_0'))]");
+            result.Parameters.Should().HaveJsonAtPath("externalInputDefinitions", @"{
+              ""feature_0"": {
+                ""kind"": ""feature"",
+                ""config"": ""enabled""
+              }
+            }");
+        }
+
+        [TestMethod]
+        public void Base_property_accesses_should_not_evaluate_unreferenced_external_input()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+                param dotAccess = base.selected.value
+                param bracketAccess = base['selected'].value
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param external = externalInput('foo')
+                param selected = {
+                  value: 'parent'
+                }
+              "),
+              ("main.bicep", @"
+                param external object
+                param selected object
+                param dotAccess string
+                param bracketAccess string
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveValueAtPath("parameters.dotAccess.value", "parent");
+            result.Parameters.Should().HaveValueAtPath("parameters.bracketAccess.value", "parent");
+            result.Parameters.Should().HaveValueAtPath("parameters.external.expression", "[externalInputs('foo_0')]");
+        }
+
+        [TestMethod]
+        public void Nested_base_spreads_should_not_evaluate_unreferenced_external_input()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'middle.bicepparam'
+                param tags = {
+                  ...base.tags
+                  child: 'child'
+                }
+              "),
+              ("middle.bicepparam", @"
+                using none
+                extends 'base.bicepparam'
+                param tags = {
+                  ...base.tags
+                  middle: 'middle'
+                }
+              "),
+              ("base.bicepparam", @"
+                using none
+                param external = externalInput('foo')
+                param tags = {
+                  parent: 'parent'
+                }
+              "),
+              ("main.bicep", @"
+                param external object
+                param tags object
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveJsonAtPath("parameters.tags.value", @"{
+              ""parent"": ""parent"",
+              ""middle"": ""middle"",
+              ""child"": ""child""
+            }");
+            result.Parameters.Should().HaveValueAtPath("parameters.external.expression", "[externalInputs('foo_0')]");
+        }
+
+        [TestMethod]
+        public void Base_spread_should_preserve_function_bindings_in_selected_parent_parameter()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+                param tags = {
+                  ...base.tags
+                  child: 'child'
+                }
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param external = externalInput('foo')
+                param tags = {
+                  parent: toLower('PARENT')
+                }
+              "),
+              ("main.bicep", @"
+                param external object
+                param tags object
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveJsonAtPath("parameters.tags.value", @"{
+              ""parent"": ""parent"",
+              ""child"": ""child""
+            }");
+            result.Parameters.Should().HaveValueAtPath("parameters.external.expression", "[externalInputs('foo_0')]");
+        }
+
+        [TestMethod]
         public void Decorators_on_using_param_and_extends_statements_should_raise_errors()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 @foo('bar')
                 using 'main.bicep'
@@ -777,13 +1141,6 @@ param stringParam =  /*TODO*/
         public void ExternalInput_nested_in_function_call_with_extends_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
@@ -805,13 +1162,6 @@ param stringParam =  /*TODO*/
         public void Deeply_nested_function_calls_with_extends_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
@@ -831,13 +1181,6 @@ param stringParam =  /*TODO*/
         public void Function_calls_in_objects_with_extends_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
@@ -860,13 +1203,6 @@ param stringParam =  /*TODO*/
         public void Function_calls_in_arrays_with_extends_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
@@ -889,13 +1225,6 @@ param stringParam =  /*TODO*/
         public void Ternary_with_nested_function_calls_with_extends_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'

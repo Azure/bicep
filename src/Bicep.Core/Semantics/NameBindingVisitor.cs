@@ -17,6 +17,8 @@ namespace Bicep.Core.Semantics
 
         private readonly IDictionary<SyntaxBase, Symbol> bindings;
 
+        private readonly IDictionary<InstanceFunctionCallSyntax, FunctionFlags> instanceFunctionCallFlags;
+
         private readonly NamespaceResolver namespaceResolver;
 
         private readonly ImmutableDictionary<SyntaxBase, LocalScope> allLocalScopes;
@@ -25,10 +27,12 @@ namespace Bicep.Core.Semantics
 
         private NameBindingVisitor(
             IDictionary<SyntaxBase, Symbol> bindings,
+            IDictionary<InstanceFunctionCallSyntax, FunctionFlags> instanceFunctionCallFlags,
             NamespaceResolver namespaceResolver,
             ImmutableDictionary<SyntaxBase, LocalScope> allLocalScopes)
         {
             this.bindings = bindings;
+            this.instanceFunctionCallFlags = instanceFunctionCallFlags;
             this.namespaceResolver = namespaceResolver;
             this.allLocalScopes = allLocalScopes;
             this.activeScopes = new Stack<LocalScope>();
@@ -37,14 +41,17 @@ namespace Bicep.Core.Semantics
         public static ImmutableDictionary<SyntaxBase, Symbol> GetBindings(
             ProgramSyntax programSyntax,
             NamespaceResolver namespaceResolver,
-            LocalScope fileScope)
+            LocalScope fileScope,
+            out ImmutableDictionary<InstanceFunctionCallSyntax, FunctionFlags> instanceFunctionCallFlags)
         {
             // bind identifiers to declarations
             var bindings = new Dictionary<SyntaxBase, Symbol>();
+            var instanceFunctionCallFlagsBuilder = new Dictionary<InstanceFunctionCallSyntax, FunctionFlags>();
             var allLocalScopes = ScopeCollectorVisitor.Build([fileScope]);
-            var binder = new NameBindingVisitor(bindings, namespaceResolver, allLocalScopes);
+            var binder = new NameBindingVisitor(bindings, instanceFunctionCallFlagsBuilder, namespaceResolver, allLocalScopes);
             binder.Visit(programSyntax);
 
+            instanceFunctionCallFlags = instanceFunctionCallFlagsBuilder.ToImmutableDictionary();
             return bindings.ToImmutableDictionary();
         }
 
@@ -283,6 +290,14 @@ namespace Bicep.Core.Semantics
             this.bindings.Add(syntax, symbol);
         }
 
+        public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        {
+            // Instance function calls (e.g. sys.newGuid()) are resolved by the type checker, which doesn't track the
+            // function flags allowed at this position. Record them here so it can validate placement like unqualified calls.
+            this.instanceFunctionCallFlags[syntax] = allowedFlags;
+            base.VisitInstanceFunctionCallSyntax(syntax);
+        }
+
         public override void VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax)
         {
             FunctionFlags currentFlags = allowedFlags;
@@ -372,7 +387,7 @@ namespace Bicep.Core.Semantics
                 if (scope.ScopeResolution == ScopeResolution.InheritFunctionsAndVariablesOnly)
                 {
                     // FIXME: How can we make sure only wildcard import instance functions are included in the local scope?
-                    symbolFilter = symbol => symbol is VariableSymbol or ImportedVariableSymbol or DeclaredFunctionSymbol or ImportedFunctionSymbol or WildcardImportSymbol;
+                    symbolFilter = symbol => symbol is VariableSymbol or ImportedVariableSymbol or DeclaredFunctionSymbol or ImportedFunctionSymbol or WildcardImportSymbol or ResourceSymbol;
                 }
             }
 

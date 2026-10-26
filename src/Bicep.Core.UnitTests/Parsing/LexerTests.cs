@@ -14,14 +14,16 @@ namespace Bicep.Core.UnitTests.Parsing
     [TestClass]
     public class LexerTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(@"''", "")]
         [DataRow(@"'test'", "test")]
         [DataRow(@"'hello there'", "hello there")]
         [DataRow(@"'\r\n\t\\\$\''", "\r\n\t\\$'")]
+        [DataRow(@"'\${foo}'", "${foo}")]
         [DataRow("'First line\\nSecond\\ttabbed\\tline'", "First line\nSecond\ttabbed\tline")]
         // escape ascii
-        [DataRow(@"'\u{0}'", "\0")]
+        // Use a printable display name so test discovery metadata does not contain a NUL character.
+        [DataRow(@"'\u{0}'", "\0", DisplayName = @"TryGetStringValue - '\u{0}' resolves to null char")]
         [DataRow(@"'\u{20}'", " ")]
         [DataRow(@"'hello\u{20}world\u{3f}'", "hello world?")]
         [DataRow(@"'new\u{0d}\u{A}line'", "new\r\nline")]
@@ -45,7 +47,7 @@ namespace Bicep.Core.UnitTests.Parsing
             Lexer.TryGetStringValue(token).Should().BeNull();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(@"")]
         [DataRow(@"hi")]
         [DataRow(@"'hello'there")]
@@ -411,7 +413,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("ab")]
         [DataRow("a0")]
         [DataRow("resourceGroup")]
-        [DataTestMethod]
+        [TestMethod]
         public void ValidIdentifier_IsValidIdentifier_ShouldReturnTrue(string value)
         {
             Lexer.IsValidIdentifier(value).Should().BeTrue();
@@ -422,7 +424,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("2a")]
         [DataRow("a-b")]
         [DataRow("abz-b")]
-        [DataTestMethod]
+        [TestMethod]
         public void InvalidIdentifier_IsValidIdentifier_ShouldReturnFalse(string value)
         {
             Lexer.IsValidIdentifier(value).Should().BeFalse();
@@ -442,7 +444,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow(@"'\u{FfFf}'")]
         [DataRow(@"'\u{10000}'")]
         [DataRow(@"'\u{10FFFF}'")]
-        [DataTestMethod]
+        [TestMethod]
         public void CompleteStringsWithUnicodeEscapes_ShouldLexCorrectly(string text)
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -460,7 +462,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow(@"'\u}'", @"\u")]
         [DataRow(@"'\u{110000}'", @"\u{110000}")]
         [DataRow(@"'\u{10Z'", @"\u{10")]
-        [DataTestMethod]
+        [TestMethod]
         public void InvalidUnicodeEscapes_ShouldProduceExpectedDiagnostic(string text, string expectedSpanText)
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -497,7 +499,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("''' \n \r \t \\ ' ${ } '''", " \n \r \t \\ ' ${ } ")]
         // leading and terminating ' characters
         [DataRow("''''a''''", "'a'")]
-        [DataTestMethod]
+        [TestMethod]
         public void Multiline_strings_should_lex_correctly(string text, string expectedValue)
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -513,7 +515,7 @@ namespace Bicep.Core.UnitTests.Parsing
 
         [DataRow("'''abc")]
         [DataRow("'''abc''")]
-        [DataTestMethod]
+        [TestMethod]
         public void Unterminated_multiline_strings_should_attach_a_diagnostic(string text)
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();

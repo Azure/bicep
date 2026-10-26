@@ -9,6 +9,13 @@ namespace Bicep.Core.AzureApi
 {
     public class TokenCredentialFactory : ITokenCredentialFactory
     {
+        private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
+
+        public TokenCredentialFactory(CloudConfigurationTrustPolicy cloudTrustPolicy)
+        {
+            this.cloudTrustPolicy = cloudTrustPolicy;
+        }
+
         public TokenCredential CreateChain(IEnumerable<CredentialType> credentialPrecedence, CredentialOptions? credentialOptions, Uri authorityUri)
         {
             var tokenCredentials = credentialPrecedence.Select(credentialType => CreateSingle(credentialType, credentialOptions, authorityUri)).ToArray();
@@ -20,6 +27,8 @@ namespace Bicep.Core.AzureApi
 
         public TokenCredential CreateSingle(CredentialType credentialType, CredentialOptions? credentialOptions, Uri authorityUri)
         {
+            cloudTrustPolicy.ThrowIfAuthorityIsUntrusted(authorityUri);
+
             if (credentialType is CredentialType.ManagedIdentity)
             {
                 var managedIdentityType = credentialOptions?.ManagedIdentity?.Type ?? ManagedIdentityType.SystemAssigned;
@@ -32,12 +41,18 @@ namespace Bicep.Core.AzureApi
                 // Handle user-assigned identity.
                 if (credentialOptions?.ManagedIdentity?.ClientId is { } clientId)
                 {
-                    return new ManagedIdentityCredential(clientId, new() { AuthorityHost = authorityUri });
+                    return new ManagedIdentityCredential(new ManagedIdentityCredentialOptions(ManagedIdentityId.FromUserAssignedClientId(clientId))
+                    {
+                        AuthorityHost = authorityUri,
+                    });
                 }
 
                 if (credentialOptions?.ManagedIdentity?.ResourceId is { } resourceId)
                 {
-                    return new ManagedIdentityCredential(new ResourceIdentifier(resourceId), new() { AuthorityHost = authorityUri });
+                    return new ManagedIdentityCredential(new ManagedIdentityCredentialOptions(ManagedIdentityId.FromUserAssignedResourceId(new ResourceIdentifier(resourceId)))
+                    {
+                        AuthorityHost = authorityUri,
+                    });
                 }
 
                 // This is a defensive check. ClientId and ResourceId should already be validated when binding the cloud configuration.

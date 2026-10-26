@@ -6,9 +6,11 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Core.Utils;
-using Bicep.TextFixtures.Mocks;
+using Bicep.IO.Abstraction;
+using Bicep.Testing.Mocks;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -17,6 +19,131 @@ namespace Bicep.Cli.UnitTests.Arguments;
 [TestClass]
 public class InputOutputArgumentsResolverTests
 {
+    [TestMethod]
+    [DataRow("**/*.bicep", "a.bicep,nested/b.bicep,z.bicep")]
+    [DataRow("*.bicep", "a.bicep,z.bicep")]
+    [DataRow("nested/*.bicep", "nested/b.bicep")]
+    [DataRow("*/b.bicep", "nested/b.bicep")]
+    [DataRow("**/b.bicep", "nested/b.bicep")]
+    [DataRow("a.bicep", "a.bicep")]
+    [DataRow("missing/**/*.bicep", "")]
+    public void ResolveFilePatternInputArguments_MatchingFilesInInjectedFileSystem_ReturnsSortedMatches(string pattern, string expected)
+    {
+        var fileSystem = new MockFileSystem();
+        var root = fileSystem.Path.GetFullPath("/virtual-pattern-root/");
+        fileSystem.Directory.CreateDirectory(root);
+        fileSystem.Directory.SetCurrentDirectory(root);
+        fileSystem.AddFile(fileSystem.Path.Combine(root, "z.bicep"), "");
+        fileSystem.AddFile(fileSystem.Path.Combine(root, "nested", "b.bicep"), "");
+        fileSystem.AddFile(fileSystem.Path.Combine(root, "a.bicep"), "");
+        fileSystem.AddFile(fileSystem.Path.Combine(root, "ignored.json"), "");
+        var resolver = new InputOutputArgumentsResolver(fileSystem);
+
+        var paths = resolver.ResolveFilePatternInputArguments(new RestoreArguments(null, pattern, false))
+            .Select(uri => uri.GetPathRelativeTo(IOUri.FromFilePath(root)));
+
+        paths.Should().Equal(expected.Split(',', StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    [TestMethod]
+    public void ResolveFilePatternInputArguments_DirectoryHasReparsePointAttribute_IncludesMatches()
+    {
+        var fileSystem = new MockFileSystem();
+        fileSystem.AddFile("/root/kept/main.bicep", "");
+        fileSystem.AddFile("/root/linked/main.bicep", "");
+        fileSystem.File.SetAttributes("/root/linked", FileAttributes.Directory | FileAttributes.ReparsePoint);
+        var resolver = new InputOutputArgumentsResolver(fileSystem);
+
+        var rootUri = IOUri.FromFilePath(fileSystem.Path.GetFullPath("/root/"));
+        var paths = resolver.ResolveFilePatternInputArguments(new RestoreArguments(null, "/root/**/*.bicep", false))
+            .Select(uri => uri.GetPathRelativeTo(rootUri));
+
+        paths.Should().Equal("kept/main.bicep", "linked/main.bicep");
+    }
+
+    [TestMethod]
+    public void ResolveFilePatternInputArguments_NonRecursivePattern_DoesNotEnumerateChildDirectories()
+    {
+        var paths = new MockFileSystem();
+        var rootPath = paths.Path.GetFullPath("/root/");
+        var fileSystem = StrictMock.Of<IFileSystem>();
+        var factory = StrictMock.Of<IDirectoryInfoFactory>();
+        var root = StrictMock.Of<IDirectoryInfo>();
+        var child = StrictMock.Of<IDirectoryInfo>();
+        var file = StrictMock.Of<IFileInfo>();
+        fileSystem.SetupGet(system => system.Path).Returns(paths.Path);
+        fileSystem.SetupGet(system => system.DirectoryInfo).Returns(factory.Object);
+        factory.Setup(info => info.New(rootPath)).Returns(root.Object);
+        root.SetupGet(info => info.Exists).Returns(true);
+        root.SetupGet(info => info.FullName).Returns(rootPath);
+        root.Setup(info => info.EnumerateFileSystemInfos()).Returns([child.Object, file.Object]);
+        child.SetupGet(info => info.Name).Returns("nested");
+        file.SetupGet(info => info.Name).Returns("main.bicep");
+        var resolver = new InputOutputArgumentsResolver(fileSystem.Object);
+
+        var matches = resolver.ResolveFilePatternInputArguments(new RestoreArguments(null, "/root/*.bicep", false));
+
+        matches.Should().Equal(IOUri.FromFilePath(paths.Path.Combine(rootPath, "main.bicep")));
+        child.Verify(info => info.EnumerateFileSystemInfos(), Times.Never);
+    }
+
+    [TestMethod]
+    public void ResolveFilePatternInputOutputArguments_OutputDirectorySpecified_PreservesRelativeOutputPaths()
+    {
+        var fileSystem = new MockFileSystem();
+        fileSystem.AddFile("/root/a.bicep", "");
+        fileSystem.AddFile("/root/nested/b.bicep", "");
+        var resolver = new InputOutputArgumentsResolver(fileSystem);
+        var arguments = new BuildArguments(null, false, false, "/output", null, "/root/**/*.bicep", null);
+
+        var matches = resolver.ResolveFilePatternInputOutputArguments(arguments);
+
+        matches.Select(match => match.OutputUri).Should().Equal(
+            IOUri.FromFilePath(fileSystem.Path.GetFullPath("/output/a.json")),
+            IOUri.FromFilePath(fileSystem.Path.GetFullPath("/output/nested/b.json")));
+    }
+
+    [TestMethod]
+    [DataRow("*.bicep", "")]
+    [DataRow("*/main.bicep", "link/main.bicep,target/main.bicep")]
+    [DataRow("**/*.bicep", "link/main.bicep,target/main.bicep")]
+    public void ResolveFilePatternInputArguments_DirectorySymbolicLink_MatchesExistingGlobbingBehavior(string pattern, string expectedPaths)
+    {
+        var root = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        var target = Path.Combine(root, "target");
+        Directory.CreateDirectory(target);
+        try
+        {
+            File.WriteAllText(Path.Combine(target, "main.bicep"), "");
+            try
+            {
+                Directory.CreateSymbolicLink(Path.Combine(root, "link"), target);
+            }
+            catch (UnauthorizedAccessException) when (OperatingSystem.IsWindows())
+            {
+                Assert.Inconclusive("Creating symbolic links requires Developer Mode or elevated privileges on Windows.");
+            }
+
+            var matcher = new Matcher();
+            matcher.AddInclude(pattern);
+            var expected = matcher.GetResultsInFullPath(root)
+                .Select(IOUri.FromFilePath)
+                .OrderBy(uri => uri.Path, StringComparer.Ordinal);
+            var resolver = new InputOutputArgumentsResolver(new FileSystem());
+
+            var matches = resolver.ResolveFilePatternInputArguments(new RestoreArguments(null, Path.Combine(root, pattern), false));
+
+            matches.Should().Equal(expected);
+            var rootUri = IOUri.FromFilePath(root + Path.DirectorySeparatorChar);
+            matches.Select(uri => uri.GetPathRelativeTo(rootUri))
+                .Should().Equal(expectedPaths.Split(',', StringSplitOptions.RemoveEmptyEntries));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
     [TestMethod]
     // Forward slash patterns - should work on all platforms
     [DataRow("file.txt", "", "file.txt")]

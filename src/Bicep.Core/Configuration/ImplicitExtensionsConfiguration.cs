@@ -7,7 +7,7 @@ using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Configuration;
 
-public partial class ImplicitExtensionsConfiguration : ConfigurationSection<ImmutableArray<string>>
+public partial class ImplicitExtensionsConfiguration : ConfigurationSection<ImmutableArray<string>>, IBicepImplicitExtensionsConfiguration
 {
     private ImplicitExtensionsConfiguration(ImmutableArray<string> data) : base(data) { }
 

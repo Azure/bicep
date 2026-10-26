@@ -24,8 +24,8 @@ public partial class DeploymentRenderer(IAnsiConsole console)
             }
 
             var orderedOperations = deployment.Operations
-                .OrderBy(x => x.EndTime is { } ? x.EndTime.Value : DateTime.MaxValue)
-                .ThenBy(x => x.StartTime)
+                .OrderBy(x => x.StartTime)
+                .ThenBy(x => x.EndTime is { } ? x.EndTime.Value : DateTime.MaxValue)
                 .ToList();
 
             table.Rows.Clear();

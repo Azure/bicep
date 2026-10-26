@@ -126,6 +126,7 @@ var inArray = [
 
 resource stg 'Microsoft.Storage/storageAccounts@2021-09-01' = [for i in range(0, 2): {
 //@[67:68) Local i. Type: int. Declaration start char: 67, length: 1
+//@[00:08) Local this. Type: object[]. Declaration start char: 62, length: 132
 //@[09:12) Resource stg. Type: Microsoft.Storage/storageAccounts@2021-09-01[]. Declaration start char: 0, length: 194
   name: 'antteststg${i}'
   location: 'West US'

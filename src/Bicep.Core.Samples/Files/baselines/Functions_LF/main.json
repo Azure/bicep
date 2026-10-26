@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2216132208843131284"
+      "templateHash": "14070404464161621587"
     }
   },
   "definitions": {
@@ -226,6 +226,54 @@
     "fooValue": {
       "type": "array",
       "value": "[__bicep.fooTest()]"
+    },
+    "likeExactMatch": {
+      "type": "bool",
+      "value": "[like('abc', 'abc')]"
+    },
+    "likeWildCardMatch": {
+      "type": "bool",
+      "value": "[like('abcdef', 'a*c*')]"
+    },
+    "likewildcard": {
+      "type": "bool",
+      "value": "[like('abcabc', '*abc')]"
+    },
+    "likewildcardtest2": {
+      "type": "bool",
+      "value": "[like('aXaYa', 'a*a')]"
+    },
+    "likewildcardtest3": {
+      "type": "bool",
+      "value": "[like('', '***')]"
+    },
+    "likewildcardtest4": {
+      "type": "bool",
+      "value": "[like('a', 'b')]"
+    },
+    "likewildcardtest5": {
+      "type": "bool",
+      "value": "[like('abc**def', '*def')]"
+    },
+    "likewildcardtest6": {
+      "type": "bool",
+      "value": "[like('aXbYa', 'a*b*a')]"
+    },
+    "distinctTest": {
+      "type": "array",
+      "value": "[distinct(createArray('a', 'b', 'a', 'c', 'b'))]"
+    },
+    "distinctTest2": {
+      "type": "array",
+      "value": "[distinct(createArray(1, 2, 3, 1, 2, 4))]"
+    },
+    "distinctTest3": {
+      "type": "array",
+      "value": "[distinct(createArray(createObject('a', 1), createObject('a', 1), createObject('b', 2)))]"
+    },
+    "roleAssignmentName": {
+      "type": "string",
+      "value": "[getRoleAssignmentName(createObject('scope', resourceGroup().id, 'principalId', '00000000-0000-0000-0000-000000000000', 'roleDefinitionId', '00000000-0000-0000-0000-000000000001'))]"
     }
   }
 }

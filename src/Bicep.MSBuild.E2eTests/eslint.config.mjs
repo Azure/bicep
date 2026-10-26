@@ -5,7 +5,34 @@
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import vitest from "@vitest/eslint-plugin";
-import notice from "eslint-plugin-notice";
+
+const copyrightHeader = "// Copyright (c) Microsoft Corporation.\n// Licensed under the MIT License.";
+
+/** @type {import("eslint").Rule.RuleModule} */
+const copyrightHeaderRule = {
+  meta: {
+    fixable: "code",
+    messages: {
+      missingHeader: "File must start with the Microsoft copyright header.",
+    },
+  },
+  create(context) {
+    return {
+      Program(node) {
+        const text = context.sourceCode.getText();
+        if (!text.startsWith(copyrightHeader)) {
+          context.report({
+            node,
+            messageId: "missingHeader",
+            fix(fixer) {
+              return fixer.insertTextBefore(node, copyrightHeader + "\n\n");
+            },
+          });
+        }
+      },
+    };
+  },
+};
 
 export default tseslint.config({
   files: ["src/**/*.ts"],
@@ -16,14 +43,12 @@ export default tseslint.config({
       ...vitest.environments.env.globals,
     },
   },
-  plugins: { notice, vitest },
+  plugins: {
+    "copyright": { rules: { header: copyrightHeaderRule } },
+    vitest,
+  },
   rules: {
-    "notice/notice": [
-      "error",
-      {
-        templateFile: "../copyright-template.js",
-      },
-    ],
+    "copyright/header": "error",
     ...vitest.configs.recommended.rules,
     "vitest/expect-expect": [
       "error",

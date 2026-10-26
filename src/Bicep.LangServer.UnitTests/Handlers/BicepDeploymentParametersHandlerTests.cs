@@ -9,8 +9,8 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
-using Bicep.LanguageServer.Deploy;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Custom.Deployments;
+using Bicep.LanguageServer.Features.Custom.Deployments.Services;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -756,7 +756,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             Assert.IsNull(DeploymentFileCompilationCache.FindAndRemoveCompilation(documentUri));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("param test string = 'test'", ParameterType.String)]
         [DataRow("param test int = 1", ParameterType.Int)]
         [DataRow("param test bool = true", ParameterType.Bool)]
@@ -789,7 +789,7 @@ param test foo", ParameterType.Array)]
             result.Should().Be(expected);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(null)]
         [DataRow("")]
         [DataRow("    ")]

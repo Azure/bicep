@@ -27,7 +27,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(
             1, 257, "param p% int = %",
             new string[] { "Too many parameters. Number of parameters is limited to 256." })]
-        [DataTestMethod]
+        [TestMethod]
         public void TestRule(int i, int j, string pattern, string[] expectedMessages)
         {
             CompileAndTest(GenerateText(i, j, pattern), MaxNumberParametersRule.Code, Core.Diagnostics.DiagnosticLevel.Error, expectedMessages);

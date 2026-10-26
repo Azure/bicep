@@ -8,7 +8,8 @@ namespace Bicep.Core.UnitTests.Utils;
 
 public record TestEnvironment(
     ImmutableDictionary<string, string?> Variables,
-    string CurrentDirectory
+    string CurrentDirectory,
+    IEnvironment.BicepVersionInfo? VersionOverride = null
 ) : IEnvironment
 {
     public static TestEnvironment Default = new([], System.Environment.CurrentDirectory);
@@ -17,6 +18,9 @@ public record TestEnvironment(
 
     public IEnvironment WithVariables(params (string key, string? value)[] variables)
         => this with { Variables = variables.ToImmutableDictionary(x => x.key, x => x.value) };
+
+    public IEnvironment WithVersion(string version, string? commitRef = null)
+        => this with { VersionOverride = new IEnvironment.BicepVersionInfo(version, commitRef) };
 
     public string? GetVariable(string variable)
         => Variables.TryGetValue(variable, out var value) ? value : null;
@@ -28,5 +32,5 @@ public record TestEnvironment(
 
     public Architecture CurrentArchitecture => realEnvironment.CurrentArchitecture;
 
-    public IEnvironment.BicepVersionInfo CurrentVersion => realEnvironment.CurrentVersion;
+    public IEnvironment.BicepVersionInfo CurrentVersion => VersionOverride ?? realEnvironment.CurrentVersion;
 }

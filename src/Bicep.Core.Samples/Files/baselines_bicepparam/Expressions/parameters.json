@@ -130,6 +130,41 @@
     },
     "myString": {
       "value": "THis\n  is\n    a\n      multiline\n        string!\n"
+    },
+    "kvSecret": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/subId/resourceGroups/rgName/providers/Microsoft.KeyVault/vaults/kvName"
+        },
+        "secretName": "secretName",
+        "secretVersion": "secretVersion"
+      }
+    },
+    "kvSecretExpression": {
+      "reference": {
+        "keyVault": {
+          "id": "[resourceId(externalInputs('subId_0'), externalInputs('rgName_1'), 'Microsoft.KeyVault', 'vaults', externalInputs('kvName_2'))]"
+        },
+        "secretName": "[externalInputs('secretName_3')]",
+        "secretVersion": "[externalInputs('secretVersion_4')]"
+      }
+    }
+  },
+  "externalInputDefinitions": {
+    "kvName_2": {
+      "kind": "kvName"
+    },
+    "rgName_1": {
+      "kind": "rgName"
+    },
+    "secretName_3": {
+      "kind": "secretName"
+    },
+    "secretVersion_4": {
+      "kind": "secretVersion"
+    },
+    "subId_0": {
+      "kind": "subId"
     }
   }
 }

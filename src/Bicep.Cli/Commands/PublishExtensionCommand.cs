@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.CommandLine;
 using System.Diagnostics;
 using System.Text.Json;
+using Azure.Core;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
@@ -13,11 +16,14 @@ using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Bicep.Local.Deploy.Extensibility;
 using Bicep.Local.Deploy.Helpers;
 using Bicep.Local.Deploy.Types;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -28,6 +34,7 @@ namespace Bicep.Cli.Commands
         IFileExplorer fileExplorer,
         InputOutputArgumentsResolver inputOutputArgumentsResolver,
         ILocalExtensionFactory localExtensionFactory,
+        IEnvironment environment,
         ILogger logger) : ICommand
     {
         public async Task<int> RunAsync(PublishExtensionArguments args, CancellationToken cancellationToken)
@@ -49,9 +56,15 @@ namespace Bicep.Cli.Commands
                 throw new CommandLineException($"The input file path was not specified.");
             }
 
-            logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
+            logger.LogWarning($"WARNING: The '{CommandNames.PublishExtension}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
+            if (args.TargetExtensionReference is null)
+            {
+                throw new CommandLineException("The target extension was not specified.");
+            }
             var reference = ValidateReference(args.TargetExtensionReference);
             var overwriteIfExists = args.Force;
+
+            Trace.WriteLine($"Preparing to publish extension \"{reference.FullyQualifiedReference}\" (force={overwriteIfExists}, indexFile={args.IndexFile ?? "<none>"}, binariesSpecified={args.Binaries.Count}).");
 
             var binaries = SupportedArchitectures.All.Select(TryGetBinary).WhereNotNull().ToImmutableArray();
             var tarPayload = await GetTypesTarPayload(args, binaries, cancellationToken);
@@ -72,6 +85,7 @@ namespace Bicep.Cli.Commands
                 var indexUri = inputOutputArgumentsResolver.PathToUri(args.IndexFile);
                 var indexFile = fileExplorer.GetFile(indexUri);
 
+                Trace.WriteLine($"Packaging extension types from index file \"{indexUri.Path}\".");
                 return await CreateTypesTar(indexFile);
             }
 
@@ -91,6 +105,7 @@ namespace Bicep.Cli.Commands
                 throw new BicepException($"Failed to load type information: Unable to find a binary for the current architecture ({architecture.Name}).");
             }
 
+            Trace.WriteLine($"Extracting extension types from binary \"{binaryUri.Path}\" for architecture \"{architecture.Name}\".");
             var indexHandle = await GetTypesFromExtension(binaryUri, cancellationToken);
             return await CreateTypesTar(indexHandle);
         }
@@ -104,7 +119,9 @@ namespace Bicep.Cli.Commands
                 {
                     throw new BicepException($"The extension \"{target.FullyQualifiedReference}\" already exists. Use --force to overwrite the existing extension.");
                 }
+                Trace.WriteLine($"Publishing extension package to \"{target.FullyQualifiedReference}\".");
                 await moduleDispatcher.PublishExtension(target, package);
+                Trace.WriteLine($"Successfully published extension package to \"{target.FullyQualifiedReference}\".");
             }
             catch (ExternalArtifactException exception)
             {
@@ -126,7 +143,7 @@ namespace Bicep.Cli.Commands
             }
             else
             {
-                dummyReferencingFileUri = new IOUri("file", "", "/dummy");
+                dummyReferencingFileUri = IOUri.FromFilePath(Path.Join(environment.CurrentDirectory, "dummy"));
             }
 
             var dummyReferencingFile = sourceFileFactory.CreateBicepFile(dummyReferencingFileUri, "");
@@ -152,19 +169,21 @@ namespace Bicep.Cli.Commands
             using var tempStream = extension.ToStream();
 
             var typeLoader = ArchivedTypeLoader.FromStream(tempStream);
-            var index = typeLoader.LoadTypeIndex();
-            foreach (var (_, typeLocation) in index.Resources)
+            var azTypeLoader = new AzResourceTypeLoader(typeLoader);
+            foreach (var typeReference in azTypeLoader.GetAvailableTypes())
             {
-                typeLoader.LoadResourceType(typeLocation);
+                azTypeLoader.LoadType(typeReference);
             }
         }
 
-        private static async Task<BinaryData> CreateTypesTar(IFileHandle indexHandle)
+        private async Task<BinaryData> CreateTypesTar(IFileHandle indexHandle)
         {
             try
             {
+                Trace.WriteLine($"Bundling extension types from index \"{indexHandle.Uri.Path}\".");
                 var tarPayload = await TypesV1Archive.PackIntoBinaryData(indexHandle);
                 ValidateExtension(tarPayload);
+                Trace.WriteLine($"Successfully bundled extension types from index \"{indexHandle.Uri.Path}\".");
 
                 return tarPayload;
             }
@@ -178,7 +197,9 @@ namespace Bicep.Cli.Commands
         {
             await using var extension = await localExtensionFactory.Start(binaryUri);
 
+            Trace.WriteLine($"Requesting extension type definitions from binary \"{binaryUri.Path}\" via gRPC.");
             var typeFiles = await extension.GetTypeFiles(cancellationToken);
+            Trace.WriteLine($"Received extension type index and {typeFiles.TypeFileContents.Count} additional type file(s) from binary \"{binaryUri.Path}\".");
 
             var fileExplorer = new InMemoryFileExplorer();
 
@@ -193,6 +214,63 @@ namespace Bicep.Cli.Commands
             }
 
             return indexHandle;
+        }
+
+        internal static Command CreateCommand(CommandLineBuilderContext context)
+        {
+            var indexFileArgument = new Argument<string?>(ArgumentNames.IndexFile)
+            {
+                Description = "The path to the index file.",
+                Arity = ArgumentArity.ZeroOrOne,
+            };
+            var targetOption = new Option<string?>(OptionNames.Target)
+            {
+                Description = "The target extension reference.",
+            };
+            var forceOption = CommonOptions.Force("Force publish even if the extension already exists.");
+            var binLinuxX64Option = new Option<string?>(OptionNames.BinLinuxX64) { Description = "Path to the linux-x64 binary." };
+            var binLinuxArm64Option = new Option<string?>(OptionNames.BinLinuxArm64) { Description = "Path to the linux-arm64 binary." };
+            var binOsxX64Option = new Option<string?>(OptionNames.BinOsxX64) { Description = "Path to the osx-x64 binary." };
+            var binOsxArm64Option = new Option<string?>(OptionNames.BinOsxArm64) { Description = "Path to the osx-arm64 binary." };
+            var binWinX64Option = new Option<string?>(OptionNames.BinWinX64) { Description = "Path to the win-x64 binary." };
+            var binWinArm64Option = new Option<string?>(OptionNames.BinWinArm64) { Description = "Path to the win-arm64 binary." };
+            var configOption = CommonOptions.Config();
+
+            var command = new Command(CommandNames.PublishExtension, "[Experimental] Publishes a Bicep extension to a registry.")
+            {
+                indexFileArgument,
+                targetOption,
+                forceOption,
+                binLinuxX64Option,
+                binLinuxArm64Option,
+                binOsxX64Option,
+                binOsxArm64Option,
+                binWinX64Option,
+                binWinArm64Option,
+                configOption,
+            };
+            command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, indexFileArgument));
+
+            command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
+            {
+                var binaries = new Dictionary<string, string>();
+                if (result.GetValue(binLinuxX64Option) is { } p1) { binaries["linux-x64"] = p1; }
+                if (result.GetValue(binLinuxArm64Option) is { } p2) { binaries["linux-arm64"] = p2; }
+                if (result.GetValue(binOsxX64Option) is { } p3) { binaries["osx-x64"] = p3; }
+                if (result.GetValue(binOsxArm64Option) is { } p4) { binaries["osx-arm64"] = p4; }
+                if (result.GetValue(binWinX64Option) is { } p5) { binaries["win-x64"] = p5; }
+                if (result.GetValue(binWinArm64Option) is { } p6) { binaries["win-arm64"] = p6; }
+
+                var args = new PublishExtensionArguments(
+                    result.GetValue(indexFileArgument),
+                    result.GetValue(targetOption),
+                    binaries,
+                    result.GetValue(forceOption));
+
+                return await context.GetCommand<PublishExtensionCommand>().RunAsync(args, ct);
+            }));
+
+            return command;
         }
     }
 }

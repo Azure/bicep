@@ -6,6 +6,7 @@ import type { ParamData, ParamDefinition, ParametersMetadata, TemplateMetadata }
 
 import { VscodeButton, VscodeTextfield } from "@vscode-elements/react-elements";
 import { ParamInputBox } from "../ParamInputBox";
+import { getEffectiveParamData } from "../utils";
 import { FormSection } from "./FormSection";
 
 interface ParametersInputViewProps {
@@ -59,7 +60,7 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({
 
 function getParamData(params: ParametersMetadata, definition: ParamDefinition): ParamData {
   return (
-    params.parameters[definition.name] ?? {
+    getEffectiveParamData(params.parameters, definition) ?? {
       value: definition.defaultValue,
     }
   );

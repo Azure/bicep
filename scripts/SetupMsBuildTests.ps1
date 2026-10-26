@@ -92,7 +92,7 @@ Write-Output "Preparing Bicep CLI package prerequisites...";
 CopyFilesToDirectory -sourceDir $bicepCliPublishDir -fileNameFilter 'bicep*' -destinationDir $bicepCliNugetProjectToolsDir;
 
 Write-Output "Creating Bicep CLI NuGet package...";
-dotnet build --configuration $Configuration /p:RuntimeSuffix=$RuntimeIdentifier $bicepCliNugetProjectFile
+dotnet pack --configuration $Configuration /p:RuntimeSuffix=$RuntimeIdentifier $bicepCliNugetProjectFile
 
 Write-Output "Setting up Bicep MSBuild E2E test prerequisites...";
 CopyFilesToDirectory -sourceDir $msbuildProjectOutputDir -fileNameFilter $msbuildNuGetFileGlob -destinationDir $e2eTestProjectPackageDir;

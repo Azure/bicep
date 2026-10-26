@@ -14,6 +14,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Registry.Oci;
 using FluentAssertions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
@@ -120,21 +121,21 @@ public static class RegistryCatalogMocks
         var privateFactory = StrictMock.Of<IPrivateAcrModuleMetadataProviderFactory>();
 
         // Default - when an unrecognized registry is requested, return a provider that fails to load (similar to real behavior)
-        privateFactory.Setup(x => x.Create(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), It.IsAny<IContainerRegistryClientFactory>()))
-            .Returns((CloudConfiguration _, string registry, IContainerRegistryClientFactory _) =>
+        privateFactory.Setup(x => x.Create(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), It.IsAny<IOciRegistryTransportFactory>()))
+            .Returns((CloudConfiguration _, string registry, IOciRegistryTransportFactory _) =>
                 MockFailingPrivateMetadataProvider(registry, new Exception($"Registry {registry} not found in mock")).Object);
 
         foreach (var privateProvider in privateProviders)
         {
             privateProvider.Object.Registry.Should().NotBe(PublicRegistry);
-            privateFactory.Setup(x => x.Create(It.IsAny<CloudConfiguration>(), privateProvider.Object.Registry, It.IsAny<IContainerRegistryClientFactory>()))
+            privateFactory.Setup(x => x.Create(It.IsAny<CloudConfiguration>(), privateProvider.Object.Registry, It.IsAny<IOciRegistryTransportFactory>()))
                 .Returns(privateProvider.Object);
         }
 
         var indexer = new RegistryModuleCatalog(
             publicProvider.Object,
             privateFactory.Object,
-            StrictMock.Of<IContainerRegistryClientFactory>().Object,
+            StrictMock.Of<IOciRegistryTransportFactory>().Object,
             BicepTestConstants.BuiltInOnlyConfigurationManager);
 
         return indexer;

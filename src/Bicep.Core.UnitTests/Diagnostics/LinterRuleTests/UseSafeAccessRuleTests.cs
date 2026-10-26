@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 [TestClass]
 public class UseSafeAccessRuleTests : LinterRuleTestsBase
 {
-    private void AssertCodeFix(string inputFile, string resultFile, CompilationHelper.InputFile[]? supportingFiles = null)
+    private void AssertCodeFix(string inputFile, string resultFile, (string FilePath, TestFileData FileData)[]? supportingFiles = null)
         => AssertCodeFix(UseSafeAccessRule.Code, "Use the safe access (.?) operator", inputFile, resultFile, supportingFiles);
 
     private void AssertNoDiagnostics(string inputFile)

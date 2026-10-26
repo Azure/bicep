@@ -4,10 +4,9 @@
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static Bicep.Core.UnitTests.Utils.CompilationHelper;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
@@ -27,10 +26,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         // This linter rule is "Off" by default
-        private static ServiceBuilder Services => new ServiceBuilder().WithConfiguration(BicepTestConstants.BuiltInConfigurationWithStableAnalyzers);
-
-        private static CompilationResult Compile(string fileContents)
-            => CompilationHelper.Compile(Services, ("main.bicep", fileContents));
+        private static TestCompilationResult Compile(string fileContents) => TestCompiler
+            .ForInMemoryCompilation()
+            .WithConfiguration(TestConfigurations.BuiltInWithStableAnalyzers)
+            .CompileWithoutRestore(fileContents);
 
         protected void ExpectPass(string bicepText, Options? options = null)
         {
@@ -71,7 +70,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(@"
             param Location string = az.resourceGroup().location
           ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_LocationExprUsedIn_DefaultForParameter_ShouldPass(string text)
         {
             ExpectPass(text);
@@ -99,7 +98,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(@"
             var notAParam = '${az.resourceGroup().properties.provisioningState}'
           ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_DeploymentOrResourceGroup_Object_WithoutLocationProperty_ShouldPass(string text)
         {
             ExpectPass(text);
@@ -132,7 +131,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             param notLocation string = ResourceGroup().location
           ",
             OnCompileErrors.Ignore)]
-        [DataTestMethod]
+        [TestMethod]
         public void If_Not_DeploymentOrResourceGroup_OrWithIncorrectNamespace_ShouldPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             ExpectPass(text, new Options(onCompileErrors));
@@ -174,7 +173,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ",
             "[4] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_DeploymentLocationOrResourceGroup_OutsideParam_ShouldFail(string text, string expectedMessage)
         {
             ExpectFail(text, expectedMessage);
@@ -198,7 +197,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ",
             "[4] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_DeploymentLocationOrResourceGroup_WithAzNamespace_ShouldFail(string text, string expectedMessage)
         {
             ExpectFail(text, expectedMessage);

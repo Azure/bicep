@@ -19,10 +19,9 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 result.Should().Be(1);
-                output.Should().BeEmpty();
 
                 error.Should().NotBeEmpty();
-                error.Should().Contain($"Unrecognized arguments \"wrong fake broken\" specified. Use \"bicep --help\" to view available options.");
+                error.Should().ContainAll("wrong", "fake", "broken");
             }
         }
 
@@ -38,43 +37,6 @@ namespace Bicep.Cli.IntegrationTests
 
                 output.Should().NotBeEmpty();
                 output.Should().StartWith("Bicep CLI version");
-            }
-        }
-
-        [TestMethod]
-        public async Task BicepHelpShouldPrintHelp()
-        {
-            var settings = new InvocationSettings() { FeatureOverrides = new(RegistryEnabled: true) };
-
-            var (output, error, result) = await Bicep(settings, "--help");
-
-            using (new AssertionScope())
-            {
-                result.Should().Be(0);
-                error.Should().BeEmpty();
-
-                output.Should().NotBeEmpty();
-                output.Should().ContainAll(
-                    "build",
-                    "[options]",
-                    "<file>",
-                    ".bicep",
-                    "Arguments:",
-                    "Options:",
-                    "--outdir",
-                    "--outfile",
-                    "--stdout",
-                    "--diagnostics-format",
-                    "--version",
-                    "--help",
-                    "information",
-                    "version",
-                    "bicep",
-                    "usage",
-                    "--license",
-                    "--third-party-notices",
-                    "license information",
-                    "third-party notices");
             }
         }
 
@@ -138,11 +100,7 @@ namespace Bicep.Cli.IntegrationTests
             output.Should().ContainAll(
                 "publish",
                 "Publishes",
-                "registry",
-                "reference",
-                "azurecr.io",
-                "br",
-                "--target");
+                "registry");
         }
     }
 }

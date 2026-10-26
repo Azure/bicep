@@ -28,7 +28,7 @@ public static class ExtensionV1Archive
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        return BinaryData.FromStream(stream);
+        return await BinaryData.FromStreamAsync(stream);
     }
 
     public static ExtensionPackage Read(BinaryData binaryData)
@@ -53,8 +53,13 @@ public static class ExtensionV1Archive
             }
         }
 
+        if (!dataDict.TryGetValue("types.tgz", out var types))
+        {
+            throw new InvalidOperationException("The extension package does not contain a 'types.tgz' entry.");
+        }
+
         return new(
-            Types: dataDict["types.tgz"],
+            Types: types,
             LocalDeployEnabled: binaries.Count != 0,
             Binaries: [.. binaries]);
     }
@@ -69,4 +74,3 @@ public static class ExtensionV1Archive
         await tarWriter.WriteEntryAsync(tarEntry);
     }
 }
-

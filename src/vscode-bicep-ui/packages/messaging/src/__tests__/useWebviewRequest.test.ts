@@ -6,12 +6,12 @@ import type { WebviewRequestMessage, WebviewResponseMessage } from "../webviewMe
 import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { useWebviewRequest } from "../useWebviewRequest";
-import { renderHookWithWebviewMessageChannel } from "./utils";
+import { dispatchMessage, renderHookWithWebviewMessageChannel } from "./utils";
 
 describe("useWebviewRequest", () => {
   it("should set result upon successful response", async () => {
     vi.mocked(acquireVsCodeApi().postMessage).mockImplementation((message) => {
-      window.postMessage({
+      dispatchMessage({
         id: (message as WebviewRequestMessage).id,
         result: "DummyResult",
       } satisfies WebviewResponseMessage);
@@ -28,7 +28,7 @@ describe("useWebviewRequest", () => {
 
   it("should set error upon error response", async () => {
     vi.mocked(acquireVsCodeApi().postMessage).mockImplementation((message) => {
-      window.postMessage({
+      dispatchMessage({
         id: (message as WebviewRequestMessage).id,
         error: "DummyError",
       } satisfies WebviewResponseMessage);
