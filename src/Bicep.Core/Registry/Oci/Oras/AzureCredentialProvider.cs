@@ -22,7 +22,7 @@ internal sealed class AzureCredentialProvider(
     private readonly ContainerRegistryClient exchangeClient = CreateExchangeClient(registry, httpClient);
     private readonly SemaphoreSlim refreshLock = new(1);
     private Credential cachedCredential;
-    private DateTimeOffset refreshAfter;
+    private DateTimeOffset tokenExpiry;
 
     public async Task<Credential> ResolveCredentialAsync(string hostname, CancellationToken cancellationToken)
     {
@@ -35,7 +35,7 @@ internal sealed class AzureCredentialProvider(
         await refreshLock.WaitAsync(cancellationToken);
         try
         {
-            if (DateTimeOffset.UtcNow < refreshAfter)
+            if (!cachedCredential.IsEmpty() && DateTimeOffset.UtcNow < tokenExpiry)
             {
                 return cachedCredential;
             }
@@ -65,8 +65,7 @@ internal sealed class AzureCredentialProvider(
             }
 
             cachedCredential = new Credential(RefreshToken: refreshToken);
-            // Re-exchange before the Entra token expires rather than depending on ACR's opaque token format.
-            refreshAfter = token.ExpiresOn - TimeSpan.FromMinutes(5);
+            tokenExpiry = token.ExpiresOn;
             return cachedCredential;
         }
         finally

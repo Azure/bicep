@@ -45,21 +45,23 @@ public class AzureCredentialProviderTests
     }
 
     [TestMethod]
-    public async Task RefreshesCredentialBeforeEntraTokenExpires()
+    [DataRow(-1, 2)]
+    [DataRow(1, 1)]
+    public async Task CachesCredentialUntilEntraTokenExpires(int expiresInMinutes, int expectedExchanges)
     {
         using var http = new MockHttpMessageHandler();
         var exchange = http.When(HttpMethod.Post, "https://example.azurecr.io/oauth2/exchange")
             .Respond("application/json", """{"refresh_token":"refresh"}""");
         var credential = StrictMock.Of<TokenCredential>();
         credential.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequestContext>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AccessToken("entra-token", DateTimeOffset.UtcNow.AddMinutes(1)));
+            .ReturnsAsync(new AccessToken("entra-token", DateTimeOffset.UtcNow.AddMinutes(expiresInMinutes)));
         using var client = http.ToHttpClient();
         var provider = new AzureCredentialProvider("example.azurecr.io", credential.Object, "https://management.azure.com", client);
 
         await provider.ResolveCredentialAsync("example.azurecr.io", default);
         await provider.ResolveCredentialAsync("example.azurecr.io", default);
 
-        http.GetMatchCount(exchange).Should().Be(2);
+        http.GetMatchCount(exchange).Should().Be(expectedExchanges);
     }
 
     [TestMethod]
