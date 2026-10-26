@@ -7,7 +7,7 @@
     <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.10.94" PrivateAssets="All" />
     <GlobalPackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" PrivateAssets="All" />
     <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.403" PrivateAssets="All" />
-    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="18.12.1" PrivateAssets="All" />
+    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.60" />
@@ -21,7 +21,7 @@
     <PackageVersion Include="Azure.Deployments.Templates" Version="1.812.0" />
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
     <PackageVersion Include="Azure.ResourceManager.ResourceGraph" Version="1.1.1" />
-    <PackageVersion Include="Azure.ResourceManager.Resources" Version="1.12.0" />
+    <PackageVersion Include="Azure.ResourceManager.Resources" Version="1.11.2" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
     <PackageVersion Include="DiffPlex" Version="1.9.0" />
@@ -71,7 +71,7 @@
     <PackageVersion Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="3.12.2149" />
     <PackageVersion Include="Microsoft.VisualStudio.Shell.Framework" Version="17.12.40391" />
     <PackageVersion Include="Microsoft.VisualStudio.Shell.Interop" Version="17.12.40391" />
-    <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="18.12.1" />
+    <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="18.7.23" />
     <PackageVersion Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
     <PackageVersion Include="Microsoft.VisualStudio.Workspace" Version="17.1.11-preview-0002" />
     <PackageVersion Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.1.11-preview-0002" />
@@ -81,10 +81,10 @@
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Msagl" Version="1.2.1" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageVersion Include="Newtonsoft.Json.Schema" Version="4.0.2" />
+    <PackageVersion Include="Newtonsoft.Json.Schema" Version="4.0.1" />
     <PackageVersion Include="NuGet.CommandLine" Version="6.6.2" />
-    <PackageVersion Include="OmniSharp.Extensions.LanguageClient" Version="0.19.11" />
-    <PackageVersion Include="OmniSharp.Extensions.LanguageServer" Version="0.19.11" />
+    <PackageVersion Include="OmniSharp.Extensions.LanguageClient" Version="0.19.9" />
+    <PackageVersion Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
     <PackageVersion Include="OrasProject.Oras" Version="0.8.0" />
     <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
     <PackageVersion Include="RichardSzalay.MockHttp" Version="7.1.0" />
@@ -97,11 +97,11 @@
     <PackageVersion Include="SharpYaml" Version="3.16.0" />
     <PackageVersion Include="Spectre.Console" Version="0.57.2" />
     <PackageVersion Include="Spectre.Console.Testing" Version="0.57.2" />
-    <PackageVersion Include="StreamJsonRpc" Version="2.26.150" />
+    <PackageVersion Include="StreamJsonRpc" Version="2.20.20" />
     <PackageVersion Include="System.CommandLine" Version="2.0.14" />
     <PackageVersion Include="System.Collections.Immutable" Version="10.0.14" />
     <PackageVersion Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.3.0" />
-    <PackageVersion Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.1.1" />
+    <PackageVersion Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.3.0" />
     <PackageVersion Include="System.Memory.Data" Version="10.0.14" />
     <!-- force an upgrade of this dependency as it seems to cause build flakiness for unknown reasons -->
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
