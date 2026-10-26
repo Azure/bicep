@@ -43,7 +43,7 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({
       {sourceFilePath && !sourceFilePath.endsWith(".bicepparam") && (
         <VscodeButton onClick={onEnableEditing}>Edit Parameters</VscodeButton>
       )}
-      {!sourceFilePath && <VscodeButton onClick={onPickParametersFile}>Pick JSON Parameters File</VscodeButton>}
+      {!sourceFilePath && <VscodeButton onClick={onPickParametersFile}>Pick Parameters File</VscodeButton>}
       {!sourceFilePath &&
         parameterDefinitions.map((definition) => (
           <ParamInputBox
