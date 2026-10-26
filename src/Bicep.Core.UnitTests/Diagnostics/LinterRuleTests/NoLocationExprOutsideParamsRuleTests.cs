@@ -56,6 +56,43 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             );
         }
 
+        [DataRow("subscription", "resourceGroup().location")]
+        [DataRow("managementGroup", "resourceGroup().location")]
+        [DataRow("tenant", "resourceGroup().location")]
+        [DataRow("subscription", "az.resourceGroup().location")]
+        [DataRow("managementGroup", "az.resourceGroup().location")]
+        [DataRow("tenant", "az.resourceGroup().location")]
+        [DataRow("resourceGroup", "deployment().location")]
+        [DataRow("resourceGroup", "az.deployment().location")]
+        [DataRow("subscription", "resourceGroup('otherGroup').location")]
+        [TestMethod]
+        public void InvalidLocationExpression_ShouldReportCompilerErrorWithoutLinterWarning(string scope, string expression)
+        {
+            var result = Compile($"""
+                targetScope = '{scope}'
+                output location string = {expression}
+                """);
+
+            // Invalid expressions still need their compiler error; suppress only this rule's advice.
+            result.Diagnostics.Should().Contain(diagnostic => diagnostic.Code.StartsWith("BCP") && diagnostic.Level == DiagnosticLevel.Error);
+            result.Diagnostics.Should().NotContain(diagnostic => diagnostic.Code == NoLocationExprOutsideParamsRule.Code);
+        }
+
+        [TestMethod]
+        public void InvalidLocationExpression_ShouldNotSuppressWarningForValidExpressionInSameFile()
+        {
+            var result = Compile("""
+                targetScope = 'subscription'
+                output invalidLocation string = resourceGroup().location
+                output validLocation string = deployment().location
+                """);
+
+            result.Diagnostics.Should().Contain(diagnostic => diagnostic.Code == "BCP071" && diagnostic.Level == DiagnosticLevel.Error);
+            var warning = result.Diagnostics.Where(diagnostic => diagnostic.Code == NoLocationExprOutsideParamsRule.Code)
+                .Should().ContainSingle().Which;
+            result.EntryPointFile.Text.Substring(warning.Span.Position, warning.Span.Length).Should().Be("deployment().location");
+        }
+
         [DataRow(@"
             targetScope = 'managementGroup'
             param Location string = deployment().location
