@@ -276,7 +276,12 @@ namespace Bicep.Core.SourceGraph
 
             if (forceRestore)
             {
-                //override the status to force restore
+                // keep local modules traversable so nested references can still be discovered during this pass
+                if (string.Equals(artifactReference.Scheme, ArtifactReferenceSchemes.Local, StringComparison.Ordinal))
+                {
+                    return (new(artifactFileHandle), requiresRestore: true);
+                }
+
                 return (new(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference)), requiresRestore: true);
             }
 
