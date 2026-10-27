@@ -4,6 +4,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -24,7 +25,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            RuleVisitor visitor = new(this, diagnosticLevel);
+            RuleVisitor visitor = new(this, model, diagnosticLevel);
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }
@@ -34,11 +35,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             public List<IDiagnostic> diagnostics = new();
 
             private readonly NoLocationExprOutsideParamsRule parent;
+            private readonly SemanticModel model;
             private readonly DiagnosticLevel diagnosticLevel;
 
-            public RuleVisitor(NoLocationExprOutsideParamsRule parent, DiagnosticLevel diagnosticLevel)
+            public RuleVisitor(NoLocationExprOutsideParamsRule parent, SemanticModel model, DiagnosticLevel diagnosticLevel)
             {
                 this.parent = parent;
+                this.model = model;
                 this.diagnosticLevel = diagnosticLevel;
             }
 
@@ -52,7 +55,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
             {
-                if (IsCallToRgOrDeploymentLocation(syntax, out string? actualExpression))
+                if (IsCallToRgOrDeploymentLocation(syntax, out string? actualExpression) && model.GetTypeInfo(syntax) is not ErrorType)
                 {
                     string msg = String.Format(
                         CoreResources.NoLocExprOutsideParamsRuleError,
