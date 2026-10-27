@@ -579,7 +579,7 @@ module messaging 'br:mockregistry.io/bicepmodules/remote-module-02:default' = {
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public async Task Restore_ByDigest_ShouldSucceed(bool publishSource)
