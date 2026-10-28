@@ -66,7 +66,7 @@ public static class SnapshotHelper
     /// Runs the engine's nested-deployment expansion once, so the customer snapshot and the policy analyzer can
     /// each build what they need from the engine objects.
     /// </summary>
-    internal static async Task<SnapshotExpansion> ExpandAsync(
+    public static async Task<SnapshotExpansion> ExpandAsync(
         ResourceScope targetScope,
         string templateContent,
         string parametersContent,
@@ -97,7 +97,7 @@ public static class SnapshotHelper
         return new(diagnostics, preflightResources, extensibleResources, outputs);
     }
 
-    internal static Snapshot CreateSnapshot(SnapshotExpansion expansion) => new(
+    public static Snapshot CreateSnapshot(SnapshotExpansion expansion) => new(
         [
             .. expansion.PreflightResources.Select(ToPredictedResource),
             .. expansion.ExtensibleResources.Select(ToPredictedResource),
@@ -110,7 +110,7 @@ public static class SnapshotHelper
     /// <summary>
     /// Pairs each predicted resource with its origin, in <see cref="Snapshot.PredictedResources"/> order.
     /// </summary>
-    internal static ImmutableArray<SnapshotAnalysisResource> CreateAnalysisResources(SnapshotExpansion expansion) =>
+    public static ImmutableArray<SnapshotAnalysisResource> CreateAnalysisResources(SnapshotExpansion expansion) =>
     [
         .. expansion.PreflightResources.Select(resource => new SnapshotAnalysisResource(
             ToPredictedResource(resource),
@@ -397,12 +397,3 @@ public static class SnapshotHelper
         return output.Value.SerializeToString();
     }
 }
-
-/// <summary>
-/// The engine objects from one nested-deployment expansion.
-/// </summary>
-internal sealed record SnapshotExpansion(
-    ImmutableArray<DeploymentDiagnosticDefinition> Diagnostics,
-    ImmutableArray<DeploymentResourceWithParsedExpressions> PreflightResources,
-    ImmutableArray<ExtensibleResource> ExtensibleResources,
-    ImmutableDictionary<string, TemplateOutputParameterWithParsedExpressions>? Outputs);
