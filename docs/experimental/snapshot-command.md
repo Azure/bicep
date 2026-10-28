@@ -16,6 +16,13 @@ The `--mode overwrite` flag can be used to generate a file named `main.snapshot.
 bicep snapshot main.bicepparam --mode overwrite
 ```
 
+Use `--outdir` to choose a directory while keeping the generated filename, or `--outfile` to specify the snapshot file path. Relative paths are resolved from the current working directory. These options cannot be used together.
+
+```sh
+bicep snapshot main.bicepparam --mode overwrite --outdir tests
+bicep snapshot main.bicepparam --mode overwrite --outfile tests/custom.snapshot.json
+```
+
 You can optionally pass specific values for subscriptionId, resourceGroup, location and tenantId if you want to use these instead of placeholders:
 
 ```sh
@@ -28,6 +35,13 @@ The `--mode validate` flag generates a visual diff similar to the diff we render
 
 ```sh
 bicep snapshot main.bicepparam --mode validate
+```
+
+Pass the same `--outdir` or `--outfile` value to validate a snapshot stored elsewhere:
+
+```sh
+bicep snapshot main.bicepparam --mode validate --outdir tests
+bicep snapshot main.bicepparam --mode validate --outfile tests/custom.snapshot.json
 ```
 
 Example output:
