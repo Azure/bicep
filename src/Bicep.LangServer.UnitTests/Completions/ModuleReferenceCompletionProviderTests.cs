@@ -730,7 +730,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.TextEdit!.TextEdit!.Range.End.Character == expectedEnd);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("br:contoso.azurecr.io/bicep/modules:", "1.9.0,10.0.0,1.10.0,2.0.0", "10.0.0,2.0.0,1.10.0,1.9.0")]
         [DataRow("br/test:bicep/modules:", "v9.0.0,v10.0.0,v2.0.0,v100.0.0", "v100.0.0,v10.0.0,v9.0.0,v2.0.0")]
         [DataRow("br:contoso.azurecr.io/bicep/modules:", "1.1.1-preview,1.1.0,1.1.1,1.1.1-preview.2,1.1.1-preview.10", "1.1.1,1.1.1-preview.10,1.1.1-preview.2,1.1.1-preview,1.1.0")]
