@@ -13,7 +13,7 @@ public interface IRegistryModuleCatalog
 {
     // Aways returns a provider instance, either from cache or newly created, from which loading will fail if the registry
     // is not accessible or doesn't exist
-    IRegistryModuleMetadataProvider GetProviderForRegistry(IBicepCloudConfiguration cloud, string registry);
+    IRegistryModuleMetadataProvider GetProviderForRegistry(IBicepCloudConfiguration cloud, string registry, bool useOrasSdk);
 
-    IRegistryModuleMetadataProvider? TryGetCachedRegistry(string registry);
+    IRegistryModuleMetadataProvider? TryGetCachedRegistry(string registry, bool useOrasSdk);
 }

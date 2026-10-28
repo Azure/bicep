@@ -8,7 +8,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Azure;
-using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -363,7 +362,7 @@ namespace Bicep.Core.Registry
             {
                 await session.PushAsync(
                     reference,
-                    ManifestMediaType.OciImageManifest.ToString(),
+                    BicepMediaTypes.OciImageManifest,
                     BicepMediaTypes.BicepModuleArtifactType,
                     config,
                     layers,
@@ -415,7 +414,7 @@ namespace Bicep.Core.Registry
             {
                 await session.PushAsync(
                     reference,
-                    ManifestMediaType.OciImageManifest.ToString(),
+                    BicepMediaTypes.OciImageManifest,
                     BicepMediaTypes.BicepExtensionArtifactType,
                     config,
                     layers,
@@ -597,7 +596,7 @@ namespace Bicep.Core.Registry
         {
             // Security: never open an authenticated session to a registry that is not trusted.
             // This is the single choke point for all session-based operations (restore, publish,
-            // existence checks, hover/annotations) and covers every transport (Azure SDK and ORAS),
+            // existence checks, hover/annotations) and covers every registry,
             // preventing credentials/tokens from being sent to an attacker-controlled registry host.
             if (!registryConfiguration.IsRegistryTrusted(reference.Registry))
             {

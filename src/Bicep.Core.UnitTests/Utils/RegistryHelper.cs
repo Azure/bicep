@@ -40,16 +40,7 @@ public static class RegistryHelper
 {
     private static ServiceBuilder ConfigureServiceBuilder(ServiceBuilder serviceBuilder)
         => serviceBuilder
-            .WithFeaturesOverridden(f => f with { RegistryEnabled = true })
-            .WithRegistration(services =>
-            {
-                services.AddSingleton<IOciRegistryTransportFactory>(sp =>
-                {
-                    var azureTransport = sp.GetRequiredService<AzureContainerRegistryManager>();
-                    var dockerCredentials = sp.GetRequiredService<DockerCredentialProvider>();
-                    return new OciRegistryTransportFactory(azureTransport, dockerCredentials);
-                });
-            });
+            .WithFeaturesOverridden(f => f with { RegistryEnabled = true });
 
     public static ServiceBuilder CreateServiceBuilderWithTransportOverride()
         => ConfigureServiceBuilder(new ServiceBuilder());

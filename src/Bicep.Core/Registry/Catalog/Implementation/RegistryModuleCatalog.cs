@@ -18,7 +18,7 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
     private readonly IBicepConfigurationManager configurationManager;
     private readonly object lockObject = new();
 
-    private readonly Dictionary<string, IRegistryModuleMetadataProvider> registryProviders = new();
+    private readonly Dictionary<(string Registry, bool UseOrasSdk), IRegistryModuleMetadataProvider> registryProviders = new();
 
     public RegistryModuleCatalog(
         IPublicModuleMetadataProvider publicModuleMetadataProvider,
@@ -31,32 +31,31 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
         this.transportFactory = transportFactory;
         this.configurationManager = configurationManager;
 
-        registryProviders["mcr.microsoft.com"] = publicModuleMetadataProvider;
+        registryProviders[("mcr.microsoft.com", false)] = publicModuleMetadataProvider;
+        registryProviders[("mcr.microsoft.com", true)] = publicModuleMetadataProvider;
     }
 
-    public IRegistryModuleMetadataProvider GetProviderForRegistry(IBicepCloudConfiguration cloud, string registry)
+    public IRegistryModuleMetadataProvider GetProviderForRegistry(IBicepCloudConfiguration cloud, string registry, bool useOrasSdk)
     {
         lock (lockObject)
         {
-            if (registryProviders.TryGetValue(registry, out var provider))
+            if (registryProviders.TryGetValue((registry, useOrasSdk), out var provider))
             {
                 return provider;
             }
 
-            provider = providerFactory.Create(cloud, registry, transportFactory);
-            registryProviders[registry] = provider;
+            provider = providerFactory.Create(cloud, registry, transportFactory, useOrasSdk);
+            registryProviders[(registry, useOrasSdk)] = provider;
 
             return provider;
         }
     }
 
-    public IRegistryModuleMetadataProvider? TryGetCachedRegistry(string registry)
+    public IRegistryModuleMetadataProvider? TryGetCachedRegistry(string registry, bool useOrasSdk)
     {
-        if (registryProviders.TryGetValue(registry, out var provider))
+        lock (lockObject)
         {
-            return provider;
+            return registryProviders.TryGetValue((registry, useOrasSdk), out var provider) ? provider : null;
         }
-
-        return null;
     }
 }
