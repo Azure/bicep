@@ -200,6 +200,15 @@ namespace Bicep.Core.Registry
             // many module declarations can point to the same module
             var uniqueReferences = references.Distinct().ToArray();
 
+            if (forceRestore)
+            {
+                // Forcing a restore retries modules that failed recently, rather than reporting the earlier failure.
+                foreach (var reference in uniqueReferences)
+                {
+                    this.restoreFailures.TryRemove(new((CloudConfiguration)reference.Configuration.Cloud, reference), out _);
+                }
+            }
+
             // Call OnRestoreArtifacts on each registry provider. Can (currently at least) be done in parallel to restore.
             var onRestoreArtifactsTasks = new List<Task>();
             foreach (var scheme in this.registryProvider.SupportedSchemes)
