@@ -26,7 +26,7 @@ namespace Bicep.Core.UnitTests.Semantics
             var model = compilation.GetEntrypointSemanticModel();
             var bindings = new Dictionary<SyntaxBase, Symbol>();
             var cyclesBySymbol = new Dictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>>();
-            var context = new SymbolContext(model, model.SourceFileGrouping, compilation, model.ArtifactReferenceFactory, model.SourceFile);
+            var context = new SymbolContext(model, model.SourceFileGrouping, compilation, model.SourceFile);
 
             FluentActions.Invoking(() => context.TypeManager)
                 .Should().Throw<InvalidOperationException>().WithMessage(expectedMessage);

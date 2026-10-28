@@ -8,6 +8,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
@@ -25,20 +26,17 @@ namespace Bicep.LanguageServer.Features.Language.Hover
 {
     public class BicepHoverHandler : HoverHandlerBase
     {
-        private readonly IModuleDispatcher moduleDispatcher;
         private readonly IArtifactRegistryProvider moduleRegistryProvider;
         private readonly ISymbolResolver symbolResolver;
         private readonly ICompilationManager compilationManager;
         private readonly DocumentSelectorFactory documentSelectorFactory;
 
         public BicepHoverHandler(
-            IModuleDispatcher moduleDispatcher,
             IArtifactRegistryProvider moduleRegistryProvider,
             ISymbolResolver symbolResolver,
             ICompilationManager compilationManager,
             DocumentSelectorFactory documentSelectorFactory)
         {
-            this.moduleDispatcher = moduleDispatcher;
             this.moduleRegistryProvider = moduleRegistryProvider;
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
@@ -55,7 +53,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                 return null;
             }
 
-            var markdown = await GetMarkdown(request, result, this.moduleDispatcher, this.moduleRegistryProvider);
+            var markdown = await GetMarkdown(request, result, this.moduleRegistryProvider);
             if (markdown == null)
             {
                 return null;
@@ -111,7 +109,6 @@ namespace Bicep.LanguageServer.Features.Language.Hover
         private static async Task<MarkedStringsOrMarkupContent?> GetMarkdown(
             HoverParams request,
             SymbolResolutionResult result,
-            IModuleDispatcher moduleDispatcher,
             IArtifactRegistryProvider moduleRegistryProvider)
         {
             // all of the generated markdown includes the language id to avoid VS code rendering
@@ -160,7 +157,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                         descriptionWithDocs));
 
                 case ModuleSymbol module:
-                    return await GetModuleMarkdown(request, result, moduleDispatcher, moduleRegistryProvider, module);
+                    return await GetModuleMarkdown(request, result, moduleRegistryProvider, module);
 
                 case TestSymbol test:
                     return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"test {test.Name}", TryGetDescription(result, test)));
@@ -218,7 +215,6 @@ namespace Bicep.LanguageServer.Features.Language.Hover
         private static async Task<MarkedStringsOrMarkupContent> GetModuleMarkdown(
             HoverParams request,
             SymbolResolutionResult result,
-            IModuleDispatcher moduleDispatcher,
             IArtifactRegistryProvider moduleRegistryProvider,
             ModuleSymbol module)
         {
@@ -228,8 +224,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                 TryGetDescription(result, module)
             };
 
-            if (moduleDispatcher.TryGetArtifactReference(module.Context.SourceFile, module.DeclaringModule).IsSuccess(out var moduleReference) &&
-                moduleReference is not null)
+            if (module.Context.SourceFileLookup.TryGetArtifactReference(module.DeclaringModule) is { } moduleReference)
             {
                 var registry = moduleRegistryProvider.TryGetRegistry(moduleReference.Scheme);
                 if (registry is not null)
