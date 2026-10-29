@@ -14,6 +14,12 @@ export interface PaintOrderNode {
   targetBox: Box | null;
 }
 
+/** An edge between two sibling nodes. */
+export interface PaintOrderEdge {
+  fromId: string;
+  toId: string;
+}
+
 /** The z-indices of the edges between the children of one parent (the root when null). */
 interface EdgeLayers {
   /** Edges between nodes that sit on no sibling: just above the parent, below all of its children. */
@@ -47,16 +53,41 @@ const BOTTOM_Z_INDEX = 0;
  * be: a parent is painted first, then the edges between its children, then each child with its descendants.
  * Edges are therefore below every node in their parent, and above the parent itself.
  *
- * Among siblings, `raisedNodeId` is painted last, and each of its ancestors last among theirs. A node sits on a
- * sibling compound node when their target boxes overlap and it is drawn above that node: it is atomic, or it comes
- * later in sibling order. Compound nodes that something sits on are painted before their other siblings, and the
- * edges of the nodes sitting on them just above them, so those edges cross the compound node but stay below every
- * other node. A node whose parent is not in `nodes` is a root.
+ * `raisedNodeIds` are the nodes the user raised, from least to most recently raised, as windows are stacked. A
+ * raised node is painted above its siblings, each of its ancestors above theirs, and a node raised later above one
+ * raised earlier. The other siblings keep their order, below every raised one.
+ *
+ * A node sits on a sibling compound node when their target boxes overlap and it is drawn above that node: it was
+ * raised more recently, or neither was raised and it is atomic or later in sibling order. So a raised compound node,
+ * such as a module the user just opened, is drawn above everything it overlaps, while an atomic node that nobody
+ * raised is drawn above a compound node that nobody raised. The edges of a node sitting on a compound node are painted
+ * just above it, so they cross the compound node, and below the nodes they join. All nodes share one stacking context,
+ * so that lifts the nodes sitting on a compound node, and the siblings joined to them by an edge, above it. Every
+ * other sibling stays where it was drawn: one drawn below a compound node it overlaps stays below it, along with
+ * whatever is drawn below that sibling and overlaps it. A node whose parent is not in `nodes` is a root.
  */
-export function computePaintOrder(nodes: Iterable<PaintOrderNode>, raisedNodeId: string | null): PaintOrder {
+export function computePaintOrder(
+  nodes: Iterable<PaintOrderNode>,
+  edges: Iterable<PaintOrderEdge>,
+  raisedNodeIds: readonly string[],
+): PaintOrder {
   const nodesById = new Map<string, PaintOrderNode>();
   for (const node of nodes) {
     nodesById.set(node.id, node);
+  }
+
+  const neighborIds = new Map<string, string[]>();
+  const link = (id: string, neighborId: string) => {
+    const ids = neighborIds.get(id);
+    if (ids) {
+      ids.push(neighborId);
+    } else {
+      neighborIds.set(id, [neighborId]);
+    }
+  };
+  for (const { fromId, toId } of edges) {
+    link(fromId, toId);
+    link(toId, fromId);
   }
 
   const childIdsByParent = new Map<string | null, string[]>();
@@ -70,10 +101,14 @@ export function computePaintOrder(nodes: Iterable<PaintOrderNode>, raisedNodeId:
     }
   }
 
-  const raisedPath = new Set<string>();
-  for (let id = raisedNodeId; id !== null && nodesById.has(id); id = nodesById.get(id)?.parentId ?? null) {
-    raisedPath.add(id);
-  }
+  // How recently each node, or a node inside it, was raised: 0 when never, and higher when more recently.
+  const ranks = new Map<string, number>();
+  raisedNodeIds.forEach((raisedId, index) => {
+    for (let id: string | null = raisedId; id !== null && nodesById.has(id); id = nodesById.get(id)?.parentId ?? null) {
+      ranks.set(id, index + 1);
+    }
+  });
+  const rank = (id: string) => ranks.get(id) ?? 0;
 
   const nodeZIndices = new Map<string, number>();
   const edgeLayers = new Map<string | null, EdgeLayers>();
@@ -87,38 +122,69 @@ export function computePaintOrder(nodes: Iterable<PaintOrderNode>, raisedNodeId:
   };
 
   const paintChildren = (parentId: string | null) => {
-    const childIds = childIdsByParent.get(parentId) ?? [];
-    const raised = childIds.find((id) => raisedPath.has(id));
-    const siblings = raised === undefined ? childIds : [...childIds.filter((id) => id !== raised), raised];
+    // Sorting is stable, so siblings nobody raised keep their order.
+    const siblings = [...(childIdsByParent.get(parentId) ?? [])].sort((left, right) => rank(left) - rank(right));
+    const indices = new Map(siblings.map((id, index) => [id, index]));
+    const index = (id: string) => indices.get(id) ?? -1;
+    const isCompound = (id: string) => nodesById.get(id)?.isCompound === true;
+    const overlap = (left: string, right: string) => {
+      const leftBox = nodesById.get(left)?.targetBox;
+      const rightBox = nodesById.get(right)?.targetBox;
+      return !!leftBox && !!rightBox && boxesOverlap(leftBox, rightBox);
+    };
+    // Whether `id` is drawn above `compoundId` where they overlap, before anything is lifted.
+    const isAboveCompound = (id: string, compoundId: string) =>
+      rank(id) > rank(compoundId) ||
+      (rank(id) === rank(compoundId) && (!isCompound(id) || index(id) > index(compoundId)));
+
     const occupied = new Set<string>();
-
-    siblings.forEach((compoundId, compoundIndex) => {
-      const compound = nodesById.get(compoundId);
-      const compoundBox = compound?.isCompound ? compound.targetBox : null;
-      if (!compoundBox) {
-        return;
-      }
-
-      siblings.forEach((id, index) => {
-        const sibling = nodesById.get(id);
-        if (
-          id !== compoundId &&
-          sibling?.targetBox &&
-          (!sibling.isCompound || index > compoundIndex) &&
-          boxesOverlap(sibling.targetBox, compoundBox)
-        ) {
+    for (const compoundId of siblings.filter(isCompound)) {
+      for (const id of siblings) {
+        if (id !== compoundId && isAboveCompound(id, compoundId) && overlap(id, compoundId)) {
           occupied.add(compoundId);
           nodesOnCompounds.add(id);
         }
-      });
-    });
+      }
+    }
+
+    // The nodes sitting on a compound node and their neighbors are lifted above it, so their edges can cross it.
+    const lifted = new Set<string>();
+    for (const id of siblings) {
+      if (nodesOnCompounds.has(id)) {
+        for (const liftedId of [id, ...(neighborIds.get(id) ?? [])]) {
+          if (indices.has(liftedId) && !occupied.has(liftedId)) {
+            lifted.add(liftedId);
+          }
+        }
+      }
+    }
+
+    // What stays below the occupied compound nodes: each sibling drawn below one of them that overlaps it.
+    const sunk = new Set(occupied);
+    for (let changed = true; changed; ) {
+      changed = false;
+      for (const id of siblings) {
+        if (sunk.has(id) || lifted.has(id)) {
+          continue;
+        }
+
+        const isBelowSunk = [...sunk].some(
+          (sunkId) =>
+            (occupied.has(sunkId) ? !isAboveCompound(id, sunkId) : index(id) < index(sunkId)) && overlap(id, sunkId),
+        );
+        if (isBelowSunk) {
+          sunk.add(id);
+          changed = true;
+        }
+      }
+    }
 
     const below = take();
-    const occupiedFirst = siblings.filter((id) => occupied.has(id));
-    occupiedFirst.forEach(paint);
-    const sittingOnCompound = occupiedFirst.length > 0 ? take() : null;
+    // Sunk siblings were drawn below every occupied compound node they overlap, so sibling order keeps them below.
+    siblings.filter((id) => sunk.has(id)).forEach(paint);
+    const sittingOnCompound = occupied.size > 0 ? take() : null;
     edgeLayers.set(parentId, { below, sittingOnCompound });
-    siblings.filter((id) => !occupied.has(id)).forEach(paint);
+    siblings.filter((id) => !sunk.has(id)).forEach(paint);
   };
 
   function paint(id: string) {

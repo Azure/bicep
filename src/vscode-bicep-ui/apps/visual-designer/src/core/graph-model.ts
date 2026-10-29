@@ -5,7 +5,7 @@ import type { Box } from "@/lib/math";
 import type { Graph, GraphEdge, GraphNode, MeasuredGraph } from "./api";
 
 export interface ClientGraphNode extends GraphNode {
-  /** Shown as a card with its contents hidden. A local view choice: the host graph never changes. */
+  /** Shown with its children hidden. A local view choice: the host graph never changes. */
   readonly isCollapsed?: boolean;
 }
 
@@ -43,9 +43,28 @@ export function isDescendant(graph: ClientGraph, nodeId: string, ancestorId: str
   return false;
 }
 
-/** Whether `node` is a module with contents to hide: the one rule for what can be collapsed. */
+/** Whether `node` is a module with children to hide: the one rule for what can be collapsed. */
 export function isCollapsible(node: GraphNode | undefined): boolean {
   return node?.kind === "module" && node.hasChildren;
+}
+
+/** Whether expanding `node` restores its registry module: it is not restored yet, or restoring it failed. */
+export function isRestorable(node: GraphNode | undefined): boolean {
+  return node?.sourceStatus === "unrestored" || node?.sourceStatus === "error";
+}
+
+/**
+ * The modules in `next` that gained children since `previous`: remote modules that showed none, because they were
+ * not restored or their source could not be loaded, and now have some. However their children arrive, the user has
+ * not seen them, so the designer shows such a module collapsed: its node stays as it was, and nothing moves.
+ */
+export function getModulesWithNewChildren(previous: ClientGraph, next: ClientGraph): string[] {
+  return [...next.nodes.values()].flatMap((node) => {
+    const before = previous.nodes.get(node.id);
+    const wasRemoteLeaf = before?.kind === "module" && !before.hasChildren && before.sourceStatus !== null;
+
+    return wasRemoteLeaf && isCollapsible(node) ? [node.id] : [];
+  });
 }
 
 /**
@@ -167,6 +186,8 @@ export function clientGraphsRenderEqually(left: ClientGraph, right: ClientGraph)
       leftNode.isCollection !== rightNode.isCollection ||
       leftNode.hasChildren !== rightNode.hasChildren ||
       leftNode.hasError !== rightNode.hasError ||
+      leftNode.sourceStatus !== rightNode.sourceStatus ||
+      leftNode.sourceError !== rightNode.sourceError ||
       leftNode.isCollapsed !== rightNode.isCollapsed
     ) {
       return false;

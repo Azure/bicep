@@ -2,21 +2,23 @@
 // Licensed under the MIT License.
 
 import type { CanvasNodeData } from "@/core";
+import type { NodeKind } from "@/lib/graph";
 
 import { AzureIcon, Codicon } from "@vscode-bicep-ui/components";
 import { animate } from "motion";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useLayoutEffect, useRef } from "react";
-import { styled, useTheme } from "styled-components";
+import { keyframes, styled, useTheme } from "styled-components";
 import { useGraphActions, useIsMotionReduced } from "@/core";
 import { graphInteractiveProps, NODE_MORPH_TRANSITION } from "@/lib/graph";
 import { ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
+import { useIsModuleRestoring } from "../../hooks/use-is-module-restoring";
 import { useIsNodeFocused } from "../../hooks/use-is-node-focused";
 
-/** Matches `ResourceNode`, so a collapsed module reads as one more card on the graph. */
-const CARD_HEIGHT = 76;
-const CARD_ICON_SIZE = 36;
-/** The header must fit above a container's children, inside its top padding. */
+/** Matches `ResourceNode`, so a collapsed module reads as one more node on the graph. */
+const ATOMIC_HEIGHT = 76;
+const ATOMIC_ICON_SIZE = 36;
+/** The header must fit above a compound node's children, inside its top padding. */
 const HEADER_HEIGHT = 48;
 const HEADER_ICON_SIZE = 24;
 /** A fixed line height lets the type label animate to an exact height. */
@@ -28,8 +30,8 @@ const NO_TRANSITION = { duration: 0 } as const;
 
 export interface ModuleNodeProps {
   id: string;
-  /** `container` frames the module's children; `card` stands in for them when they are hidden. */
-  variant: "container" | "card";
+  /** `compound` frames the module's children; `atomic` stands in for them when they are hidden. */
+  kind: NodeKind;
   data: CanvasNodeData;
 }
 
@@ -37,7 +39,7 @@ type FrameProps = {
   $hasError?: boolean;
   $isCollection?: boolean;
   $isFocused?: boolean;
-  $variant: ModuleNodeProps["variant"];
+  $kind: NodeKind;
 };
 
 const $Frame = styled.div<FrameProps>`
@@ -47,15 +49,14 @@ const $Frame = styled.div<FrameProps>`
   flex-direction: column;
   margin: 4px;
   box-sizing: border-box;
-  min-width: ${({ $variant }) => ($variant === "card" ? "220px" : "0")};
-  /* A card's height is fixed by its design, so it measures the same while its header animates. */
-  min-height: ${({ $variant }) => ($variant === "card" ? `${CARD_HEIGHT}px` : "0")};
+  min-width: ${({ $kind }) => ($kind === "atomic" ? "220px" : "0")};
+  /* An atomic node's height is fixed by its design, so it measures the same while its header animates. */
+  min-height: ${({ $kind }) => ($kind === "atomic" ? `${ATOMIC_HEIGHT}px` : "0")};
   border: ${({ $hasError, theme }) => ($hasError ? theme.node.errorBorderWidth : theme.node.borderWidth)} solid
     ${({ $hasError, $isFocused, theme }) =>
       $hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
   border-radius: 8px;
-  background-color: ${({ $variant, theme }) =>
-    $variant === "card" ? theme.node.background : theme.node.compoundBackground};
+  background-color: ${({ $kind, theme }) => ($kind === "atomic" ? theme.node.background : theme.node.compoundBackground)};
   box-shadow: ${({ $isFocused, $hasError, theme }) =>
     $isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
   transition:
@@ -71,7 +72,7 @@ const $Frame = styled.div<FrameProps>`
     }};
   }
 
-  ${({ $isCollection, $hasError, $isFocused, $variant, theme }) => {
+  ${({ $isCollection, $hasError, $isFocused, $kind, theme }) => {
     const offset = theme.node.collectionOffset;
     return $isCollection
       ? `
@@ -86,7 +87,7 @@ const $Frame = styled.div<FrameProps>`
       bottom: -${offset}px;
       border: ${$hasError ? theme.node.errorBorderWidth : theme.node.borderWidth} solid ${$hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
       border-radius: 10px;
-      background-color: ${$variant === "card" ? theme.node.background : theme.node.compoundBackground};
+      background-color: ${$kind === "atomic" ? theme.node.background : theme.node.compoundBackground};
       z-index: -1;
       box-shadow: ${$isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
       transition: border-color 180ms ease, box-shadow 180ms ease;
@@ -146,12 +147,13 @@ const $TypeLabel = styled(motion.div)`
 
 /**
  * Hidden until the module is hovered or selected, so a graph full of modules stays uncluttered. Keyboard
- * focus also reveals it.
+ * focus also reveals it. It is disabled with `aria-disabled` rather than `disabled`, so its tooltip still shows.
  */
-const $ToggleButton = styled(IconButton)<{ $isRevealed: boolean }>`
+const $ToggleButton = styled(IconButton)<{ $isRevealed: boolean; $isError: boolean }>`
   flex: 0 0 auto;
   margin-left: auto;
   opacity: ${({ $isRevealed }) => ($isRevealed ? 1 : 0)};
+  color: ${({ $isError, theme }) => ($isError ? theme.error : theme.iconButton.color)};
   transition:
     opacity 120ms ease,
     background-color 150ms ease,
@@ -161,48 +163,115 @@ const $ToggleButton = styled(IconButton)<{ $isRevealed: boolean }>`
   &:focus-visible {
     opacity: 1;
   }
+
+  &[aria-disabled="true"] {
+    cursor: default;
+    background-color: transparent;
+    transform: none;
+  }
+
+  &[aria-busy="true"] {
+    cursor: progress;
+  }
+
+  &[aria-disabled="true"]:not([aria-busy="true"]) > * {
+    opacity: 0.45;
+  }
 `;
 
-/** The row's height in each variant; the morph animates between them. */
-function getRowHeight(variant: ModuleNodeProps["variant"], borderWidth: string) {
-  return variant === "card" ? CARD_HEIGHT - 2 * parseFloat(borderWidth) : HEADER_HEIGHT;
+const spin = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+/** Replaces the toggle's icon while the module is restored, so the user sees that expanding it is under way. */
+const $ProgressRing = styled.div`
+  display: flex;
+  animation: ${spin} 1s linear infinite;
+`;
+
+type Toggle = {
+  action: "Expand" | "Collapse";
+  title: string;
+  isDisabled?: boolean;
+  isError?: boolean;
+};
+
+/**
+ * The module's one toggle, or null when there is nothing to toggle. It opens or closes the module, and a remote module
+ * whose children are not loaded is restored first, showing progress until it opens; when its source cannot be shown,
+ * the toggle is disabled and says so.
+ */
+function getToggle(data: CanvasNodeData, isRestoring: boolean): Toggle | null {
+  // A restore lasts until the module has opened, so it wins even once the module has children.
+  if (isRestoring) {
+    return { action: "Expand", title: "Restoring module...", isDisabled: true };
+  }
+
+  if (data.canCollapse) {
+    return data.isCollapsed
+      ? { action: "Expand", title: "Expand module" }
+      : { action: "Collapse", title: "Collapse module" };
+  }
+
+  switch (data.sourceStatus) {
+    case "unrestored":
+      return { action: "Expand", title: "Expand module" };
+    case "error":
+      return {
+        action: "Expand",
+        title: `${data.sourceError ?? "The module's source could not be loaded."} Expand the module to try again.`,
+        isError: true,
+      };
+    case "unavailable":
+      return { action: "Expand", title: "Bicep source is unavailable for this module.", isDisabled: true };
+    default:
+      return null;
+  }
 }
 
-export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
-  const { symbolicName, isCollection, hasError, isCollapsed, canCollapse } = data;
+/** The row's height for each kind of node; the morph animates between them. */
+function getRowHeight(kind: NodeKind, borderWidth: string) {
+  return kind === "atomic" ? ATOMIC_HEIGHT - 2 * parseFloat(borderWidth) : HEADER_HEIGHT;
+}
+
+export function ModuleNode({ id, kind, data }: ModuleNodeProps) {
+  const { symbolicName, isCollection, hasError, isCollapsed, canCollapse, sourceStatus } = data;
   const theme = useTheme();
   const frameRef = useRef<HTMLDivElement>(null);
   const iconRef = useRef<HTMLDivElement>(null);
   const isFocused = useIsNodeFocused(id);
   const reduceMotion = useIsMotionReduced();
-  const { toggleModuleCollapsed } = useGraphActions();
-  const isCard = variant === "card";
+  const { toggleModuleCollapsed, restoreModule } = useGraphActions();
+  const isRestoring = useIsModuleRestoring(id);
+  const isAtomic = kind === "atomic";
   const borderWidth = hasError ? theme.node.errorBorderWidth : theme.node.borderWidth;
-  const rowHeight = getRowHeight(variant, borderWidth);
-  const iconSize = isCard ? CARD_ICON_SIZE : HEADER_ICON_SIZE;
-  const action = isCollapsed ? "Expand" : "Collapse";
+  const rowHeight = getRowHeight(kind, borderWidth);
+  const iconSize = isAtomic ? ATOMIC_ICON_SIZE : HEADER_ICON_SIZE;
+  const toggle = getToggle(data, isRestoring);
   const transition = reduceMotion ? NO_TRANSITION : NODE_MORPH_TRANSITION;
 
   // The graph morphs the node's box when the module opens or closes; the icon and background change
   // with it. The header and type label animate through their own props.
-  const previousVariantRef = useRef(variant);
+  const previousKindRef = useRef(kind);
   useLayoutEffect(() => {
-    const previousVariant = previousVariantRef.current;
-    previousVariantRef.current = variant;
+    const previousKind = previousKindRef.current;
+    previousKindRef.current = kind;
     const frame = frameRef.current;
     const icon = iconRef.current;
 
-    if (previousVariant === variant || reduceMotion || !frame || !icon) {
+    if (previousKind === kind || reduceMotion || !frame || !icon) {
       return;
     }
 
-    const background = (shape: ModuleNodeProps["variant"]) =>
-      shape === "card" ? theme.node.background : theme.node.compoundBackground;
-    const otherIconSize = isCard ? HEADER_ICON_SIZE : CARD_ICON_SIZE;
+    const background = (nodeKind: NodeKind) =>
+      nodeKind === "atomic" ? theme.node.background : theme.node.compoundBackground;
+    const otherIconSize = isAtomic ? HEADER_ICON_SIZE : ATOMIC_ICON_SIZE;
     const iconControls = animate(icon, { scale: [otherIconSize / iconSize, 1] }, NODE_MORPH_TRANSITION);
     const backgroundControls = animate(
       frame,
-      { backgroundColor: [background(previousVariant), background(variant)] },
+      { backgroundColor: [background(previousKind), background(kind)] },
       NODE_MORPH_TRANSITION,
     );
     // Afterwards the theme sets the background again, so a theme change applies.
@@ -215,9 +284,21 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
       backgroundControls.stop();
       frame.style.backgroundColor = "";
     };
-  }, [iconSize, isCard, reduceMotion, theme, variant]);
+  }, [iconSize, isAtomic, kind, reduceMotion, theme]);
 
-  const handleToggle = useCallback(() => toggleModuleCollapsed(id), [id, toggleModuleCollapsed]);
+  const isToggleDisabled = toggle?.isDisabled === true;
+  const handleToggle = useCallback(() => {
+    if (isToggleDisabled) {
+      return;
+    }
+
+    if (canCollapse) {
+      toggleModuleCollapsed(id);
+      return;
+    }
+
+    void restoreModule(id);
+  }, [canCollapse, id, isToggleDisabled, restoreModule, toggleModuleCollapsed]);
 
   return (
     <$Frame
@@ -225,7 +306,7 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
       $hasError={hasError}
       $isCollection={isCollection}
       $isFocused={isFocused}
-      $variant={variant}
+      $kind={kind}
       data-focused={isFocused}
       data-module-collapsed={isCollapsed}
     >
@@ -235,9 +316,9 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
         </$Icon>
         <$Text>
           <$SymbolicName>{symbolicName}</$SymbolicName>
-          {/* Only the card names its type: a container's frame already says it is a module. */}
+          {/* Only the atomic node names its type: a compound node's frame already says it is a module. */}
           <AnimatePresence initial={false}>
-            {isCard && (
+            {isAtomic && (
               <$TypeLabel
                 key="type"
                 initial={LABEL_HIDDEN}
@@ -250,18 +331,28 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
             )}
           </AnimatePresence>
         </$Text>
-        {canCollapse && (
+        {toggle && (
           <$ToggleButton
             {...graphInteractiveProps}
             type="button"
-            aria-label={`${action} module ${symbolicName}`}
-            aria-expanded={!isCollapsed}
-            title={`${action} module`}
+            aria-label={`${toggle.action} module ${symbolicName}`}
+            aria-expanded={toggle.action === "Collapse"}
+            aria-busy={isRestoring}
+            aria-disabled={isToggleDisabled}
+            title={toggle.title}
             data-export-exclude=""
-            $isRevealed={isFocused}
+            data-source-status={canCollapse || isRestoring ? undefined : (sourceStatus ?? undefined)}
+            $isRevealed={isFocused || isRestoring || toggle.isError === true}
+            $isError={toggle.isError === true}
             onClick={handleToggle}
           >
-            <Codicon name={isCollapsed ? "unfold" : "fold"} size={ICON_BUTTON_ICON_SIZE} />
+            {isRestoring ? (
+              <$ProgressRing data-testid="module-restore-progress">
+                <Codicon name="loading" size={ICON_BUTTON_ICON_SIZE} />
+              </$ProgressRing>
+            ) : (
+              <Codicon name={toggle.action === "Expand" ? "unfold" : "fold"} size={ICON_BUTTON_ICON_SIZE} />
+            )}
           </$ToggleButton>
         )}
       </$Row>

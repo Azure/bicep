@@ -194,7 +194,7 @@ test.describe("Graph rendering", () => {
       .toBe(true);
   });
 
-  test("resets layout while a module is collapsed and keeps its contents inside it", async ({ page }) => {
+  test("resets layout while a module is collapsed and keeps its children inside it", async ({ page }) => {
     await loadSampleGraph(page, "module");
     await waitForStableNodePosition(page, "myModule::storageAccount");
     await page.getByRole("button", { name: "Collapse module myModule" }).click();
@@ -214,20 +214,20 @@ test.describe("Graph rendering", () => {
       .toBe(true);
   });
 
-  test("moves a collapsed module's hidden contents with its card", async ({ page }) => {
+  test("moves a collapsed module's hidden children with it", async ({ page }) => {
     await loadSampleGraph(page, "module");
     await waitForStableNodePosition(page, "myModule::storageAccount");
     const childrenBefore = await getNodeBoxes(page, ["myModule::storageAccount", "myModule::vmResource"]);
     await page.getByRole("button", { name: "Collapse module myModule" }).click();
     await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
-    const cardBefore = await waitForStableNodePosition(page, "myModule");
+    const moduleBefore = await waitForStableNodePosition(page, "myModule");
 
     await dragNode(page, "myModule", 150, 40);
-    const cardAfter = await waitForStableNodePosition(page, "myModule");
+    const moduleAfter = await waitForStableNodePosition(page, "myModule");
     await page.getByRole("button", { name: "Expand module myModule" }).click();
 
     await expect
-      .poll(() => nodesAreAt(page, childrenBefore, cardAfter.x - cardBefore.x, cardAfter.y - cardBefore.y))
+      .poll(() => nodesAreAt(page, childrenBefore, moduleAfter.x - moduleBefore.x, moduleAfter.y - moduleBefore.y))
       .toBe(true);
   });
 
@@ -342,6 +342,55 @@ test.describe("Graph rendering", () => {
     await waitForStableNodePosition(page, "publicIp");
     await dragNode(page, "publicIp", -dx, -dy);
     await expect.poll(async () => (await zIndex(edge)) < (await minNodeZIndex())).toBe(true);
+  });
+
+  test("paints a module the user opens above the neighbors it grew over", async ({ page }) => {
+    await loadSampleGraph(page, "module");
+    const zIndex = (nodeId: string) =>
+      page.locator(`[data-node-id="${nodeId}"]`).evaluate((element) => Number(getComputedStyle(element).zIndex) || 0);
+    const boxOf = async (nodeId: string) => (await page.locator(`[data-node-id="${nodeId}"]`).boundingBox())!;
+    const overlap = (a: NodeBox, b: NodeBox) =>
+      a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+    const moduleAndChildren = ["myModule", "myModule::vmResource", "myModule::storageAccount"];
+    const isModuleAbovePublicIp = async () => {
+      const below = await zIndex("publicIp");
+      for (const nodeId of moduleAndChildren) {
+        if ((await zIndex(nodeId)) <= below) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    await waitForStableNodePosition(page, "myModule::vmResource");
+    const frame = await boxOf("myModule");
+    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await expect(page.locator('[data-node-id="myModule"]')).toHaveAttribute("data-node-kind", "atomic");
+    await waitForStableNodePosition(page, "myModule");
+    const card = await boxOf("myModule");
+
+    // publicIp moves beside the collapsed module, across the top edge of where its frame was.
+    await waitForStableNodePosition(page, "publicIp");
+    const before = await boxOf("publicIp");
+    await dragNode(
+      page,
+      "publicIp",
+      frame.x + frame.width / 2 - (before.x + before.width / 2),
+      frame.y + 15 - (before.y + before.height / 2),
+    );
+    await waitForStableNodePosition(page, "publicIp");
+    const publicIp = await boxOf("publicIp");
+    expect(overlap(publicIp, frame)).toBe(true);
+    expect(overlap(publicIp, card)).toBe(false);
+
+    // Opened, the module grows over publicIp and comes to the front with its children.
+    await page.getByRole("button", { name: "Expand module myModule" }).click();
+    await expect(page.locator('[data-node-id="myModule"]')).toHaveAttribute("data-node-kind", "compound");
+    await expect.poll(isModuleAbovePublicIp).toBe(true);
+
+    // Focusing a node elsewhere leaves it in front.
+    await page.locator('[data-node-id="networkInterface"]').click();
+    await expect.poll(isModuleAbovePublicIp).toBe(true);
   });
 
   test("lays out a node whose size changed at its new size", async ({ page }) => {

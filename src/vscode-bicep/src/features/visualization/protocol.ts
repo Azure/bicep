@@ -65,7 +65,8 @@ export interface VisualGraphNodeSourceParams {
 }
 
 export interface VisualGraphNodeSourceResult {
-  filePath: string | null;
+  /** The document declaring the node: a file, or a `bicep-extsrc:` view of a registry module's published source. */
+  uri: string | null;
   range: Range | null;
 }
 
@@ -76,6 +77,25 @@ export const visualGraphNodeSourceRequestType = new ProtocolRequestType<
   void,
   void
 >("textDocument/visualGraphNodeSource");
+
+export interface VisualGraphRestoreModuleParams {
+  textDocument: TextDocumentIdentifier;
+  nodeId: string;
+}
+
+export interface VisualGraphRestoreModuleResult {
+  /** Whether the module is now in the local module cache. The next graph says what the module shows. */
+  restored: boolean;
+}
+
+/** Restore the registry module behind a node into the local module cache. Never edits or recompiles the document. */
+export const visualGraphRestoreModuleRequestType = new ProtocolRequestType<
+  VisualGraphRestoreModuleParams,
+  VisualGraphRestoreModuleResult,
+  never,
+  void,
+  void
+>("textDocument/visualGraphRestoreModule");
 
 export interface VisualResourceTypeReference {
   fullyQualifiedType: string;

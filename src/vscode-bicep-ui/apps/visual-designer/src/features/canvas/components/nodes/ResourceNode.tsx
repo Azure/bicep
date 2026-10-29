@@ -121,15 +121,15 @@ export function ResourceNode({ id, data }: ResourceNodeProps) {
   const { symbolicName, resourceType, isCollection, hasError, replacesPlaceholder } = data;
   const resourceTypeDisplayName = camelCaseToWords(resourceType.split("/").pop());
   const isFocused = useIsNodeFocused(id);
-  const initialCardScaleX = RESOURCE_NODE_PREVIEW_WIDTH / 220;
-  const initialCardScaleY = RESOURCE_NODE_PREVIEW_HEIGHT / 76;
-  const initialIconScaleX = 18 / (36 * initialCardScaleX);
-  const initialIconScaleY = 18 / (36 * initialCardScaleY);
+  const initialScaleX = RESOURCE_NODE_PREVIEW_WIDTH / 220;
+  const initialScaleY = RESOURCE_NODE_PREVIEW_HEIGHT / 76;
+  const initialIconScaleX = 18 / (36 * initialScaleX);
+  const initialIconScaleY = 18 / (36 * initialScaleY);
 
   return (
     <$ResourceNode
       // Motion reads `initial` only on mount, so later updates to the node never replay the growth.
-      initial={replacesPlaceholder ? { scaleX: initialCardScaleX, scaleY: initialCardScaleY } : false}
+      initial={replacesPlaceholder ? { scaleX: initialScaleX, scaleY: initialScaleY } : false}
       animate={{ scaleX: 1, scaleY: 1 }}
       transition={EXPAND_TRANSITION}
       $hasError={hasError}

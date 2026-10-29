@@ -4,7 +4,7 @@
 import type { GraphEdge, GraphNode } from "../api";
 
 import { describe, expect, it } from "vitest";
-import { centerGraphLayout, getLayoutCenters, graphChangeMayAffectLayout } from "../graph-layout";
+import { centerGraphLayout, getLayoutCenters, getSubgraph, graphChangeMayAffectLayout } from "../graph-layout";
 import { indexGraph } from "../graph-model";
 
 function node(overrides: Partial<GraphNode> = {}): GraphNode {
@@ -17,6 +17,8 @@ function node(overrides: Partial<GraphNode> = {}): GraphNode {
     isCollection: false,
     hasChildren: false,
     hasError: false,
+    sourceStatus: null,
+    sourceError: null,
     ...overrides,
   };
 }
@@ -96,6 +98,59 @@ describe("graphChangeMayAffectLayout", () => {
     expect(graphChangeMayAffectLayout(previous, graphOf([{ ...a, isCollection: true }]))).toBe(true);
     expect(graphChangeMayAffectLayout(previous, graphOf([{ ...a, hasChildren: true }]))).toBe(true);
   });
+
+  it("does not reflow a module that stays shown without children", () => {
+    const module = node({ id: "m", kind: "module", type: "<module>", sourceStatus: "unrestored" });
+    const previous = graphOf([module, a]);
+
+    // Its children arrived while it is collapsed, or it explains why it has none: it keeps its size.
+    expect(
+      graphChangeMayAffectLayout(
+        previous,
+        graphOf([{ ...module, sourceStatus: null, hasChildren: true, isCollapsed: true }, a]),
+      ),
+    ).toBe(false);
+    expect(
+      graphChangeMayAffectLayout(previous, graphOf([{ ...module, sourceStatus: "error", sourceError: "Failed." }, a])),
+    ).toBe(false);
+    // Shown open, it becomes a container.
+    expect(
+      graphChangeMayAffectLayout(previous, graphOf([{ ...module, sourceStatus: null, hasChildren: true }, a])),
+    ).toBe(true);
+  });
+});
+
+describe("getSubgraph", () => {
+  const measured = (id: string, parentId: string | null) => ({
+    id,
+    kind: "resource" as const,
+    parentId,
+    width: 1,
+    height: 1,
+  });
+
+  it("keeps the module as the only top-level node, with its descendants and the dependencies between them", () => {
+    const graph = {
+      nodes: [
+        measured("m", null),
+        measured("m::a", "m"),
+        measured("m::n", "m"),
+        measured("m::n::b", "m::n"),
+        measured("x", null),
+      ],
+      edges: [edge("m::a", "m::n"), edge("x", "m::a"), edge("x", "m")],
+    };
+
+    expect(getSubgraph(graph, "m")).toEqual({
+      nodes: [measured("m", null), measured("m::a", "m"), measured("m::n", "m"), measured("m::n::b", "m::n")],
+      edges: [edge("m::a", "m::n")],
+    });
+
+    expect(getSubgraph(graph, "m::n")).toEqual({
+      nodes: [measured("m::n", null), measured("m::n::b", "m::n")],
+      edges: [],
+    });
+  });
 });
 
 describe("centerGraphLayout", () => {
@@ -135,13 +190,13 @@ describe("getLayoutCenters", () => {
       new Map([
         ["module", { x: 0, y: 0 }],
         ["module::a", { x: 40, y: 50 }],
-        ["card", { x: 300, y: 0 }],
+        ["collapsed", { x: 300, y: 0 }],
       ]),
       {
         nodes: [
           { id: "module", kind: "module", parentId: null, width: 300, height: 200 },
           { id: "module::a", kind: "resource", parentId: "module", width: 220, height: 80 },
-          { id: "card", kind: "module", parentId: null, width: 220, height: 84 },
+          { id: "collapsed", kind: "module", parentId: null, width: 220, height: 84 },
         ],
         edges: [],
       },
@@ -150,7 +205,7 @@ describe("getLayoutCenters", () => {
     expect(centers).toEqual(
       new Map([
         ["module::a", { x: 150, y: 90 }],
-        ["card", { x: 410, y: 42 }],
+        ["collapsed", { x: 410, y: 42 }],
       ]),
     );
   });

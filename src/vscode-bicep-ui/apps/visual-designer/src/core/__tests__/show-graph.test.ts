@@ -6,7 +6,7 @@ import type { GraphNode } from "../api";
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
 import { layoutReadyAtom, nodesByIdAtom } from "@/lib/graph";
-import { shownGraphAtom } from "../atoms";
+import { pendingSubgraphLayoutsAtom, shownGraphAtom } from "../atoms";
 import { indexGraph, projectGraph } from "../graph-model";
 import { getNodePositions, setNodePositions } from "../node-positions";
 import { isMostlyNewGraph, showGraph } from "../show-graph";
@@ -21,6 +21,8 @@ function node(id: string, parentId: string | null, overrides: Partial<GraphNode>
     isCollection: false,
     hasChildren: false,
     hasError: false,
+    sourceStatus: null,
+    sourceError: null,
     ...overrides,
   };
 }
@@ -59,18 +61,37 @@ describe("showGraph", () => {
     expect(store.get(shownGraphAtom)).toBe(source);
   });
 
-  it("shows a collapsed module as a leaf with data the card can render", () => {
+  it("shows a collapsed module as a leaf with the data it renders", () => {
     const store = createStore();
     showGraph(store, projectGraph(source, new Set(["module"])), { getDefaultOrigin });
 
     const moduleNode = store.get(nodesByIdAtom).module!;
     expect(store.get(moduleNode.childIdsAtom)).toEqual([]);
     expect(store.get(moduleNode.dataAtom)).toMatchObject({ isCollapsed: true, canCollapse: true });
-    // The card is placed, and the hidden contents get no position until they are shown.
+    // The module is placed, and its hidden children get no position until they are shown.
     expect([...getNodePositions(store).keys()]).toEqual(["module", "other"]);
   });
 
-  it("reports contents that were never shown when a module expands", () => {
+  it("shows a remote module without children with its source status", () => {
+    const store = createStore();
+    const graph = indexGraph({
+      nodes: [
+        node("remote", null, { kind: "module", type: "<module>", sourceStatus: "error", sourceError: "Failed." }),
+      ],
+      edges: [],
+    });
+
+    // Collapse is ignored for it: there is nothing to hide.
+    showGraph(store, projectGraph(graph, new Set(["remote"])), { getDefaultOrigin });
+
+    expect(store.get(store.get(nodesByIdAtom).remote!.dataAtom)).toMatchObject({
+      isCollapsed: false,
+      canCollapse: false,
+      sourceStatus: "error",
+      sourceError: "Failed.",
+    });
+  });
+  it("reports children that were never shown when a module expands", () => {
     const store = createStore();
     setNodePositions(
       store,
@@ -89,6 +110,30 @@ describe("showGraph", () => {
 
     expect(unplaced).toEqual(["module::added"]);
     expect(getNodePositions(store).get("module::added")).toEqual({ x: 0, y: 0 });
+  });
+
+  it("leaves the children of a subgraph waiting to be laid out without a position, so they stay hidden", () => {
+    const store = createStore();
+    setNodePositions(
+      store,
+      new Map([
+        ["module", { x: 0, y: 0 }],
+        ["module::a", { x: 10, y: 10 }],
+      ]),
+      "instant",
+    );
+    store.set(pendingSubgraphLayoutsAtom, new Map([["module", { x: 0, y: 0 }]]));
+
+    const unplaced = showGraph(store, source, {
+      origins: new Map([["module::added", { x: 0, y: 0 }]]),
+      getDefaultOrigin,
+    });
+
+    // Both had no position; only the one outside the subgraph is given one.
+    expect(unplaced).toEqual(["module::added", "other"]);
+    expect(getNodePositions(store).has("module::added")).toBe(false);
+    expect(getNodePositions(store).get("other")).toEqual({ x: 10, y: 10 });
+    expect(Object.keys(store.get(nodesByIdAtom))).toContain("module::added");
   });
 
   it("hides the canvas for an empty graph, and leaves it visible otherwise", () => {

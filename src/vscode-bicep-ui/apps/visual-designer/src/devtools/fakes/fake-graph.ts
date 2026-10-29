@@ -30,6 +30,8 @@ function toGraphNode(node: SampleGraphNode): GraphNode {
     isCollection: node.isCollection,
     hasChildren: node.hasChildren,
     hasError: node.hasError,
+    sourceStatus: node.sourceStatus ?? null,
+    sourceError: node.sourceError ?? null,
   };
 }
 
@@ -55,7 +57,7 @@ export function getGraphRevision({ nodes, edges }: Graph): string {
 
 type LayoutNode = Pick<GraphNode, "id" | "parentId">;
 
-/** Stack each scope's children vertically, sizing containers from their contents. */
+/** Stack each scope's children vertically, sizing containers from their children. */
 function buildFakeLayout(nodes: LayoutNode[]): { positions: NodePosition[]; bounds: GraphBounds } {
   const nodesByParent = new Map<string | null, LayoutNode[]>();
   const positions: NodePosition[] = [];

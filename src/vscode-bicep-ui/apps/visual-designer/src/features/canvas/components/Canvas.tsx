@@ -8,7 +8,7 @@ import {
   canvasElementAtom,
   focusNodeAtom,
   isGraphChangeInProgressAtom,
-  raisedNodeIdAtom,
+  raisedNodeIdsAtom,
   useGraphActions,
   useGraphApi,
   useIsMotionReduced,
@@ -61,7 +61,7 @@ export function Canvas() {
             <Viewport onNodeClick={focusNode}>
               <PendingResourceLayer />
               <Graph
-                raisedNodeIdAtom={raisedNodeIdAtom}
+                raisedNodeIdsAtom={raisedNodeIdsAtom}
                 reduceMotion={reduceMotion}
                 onNodeDragStart={handleNodeDragStart}
                 onNodeDrag={handleNodeDrag}

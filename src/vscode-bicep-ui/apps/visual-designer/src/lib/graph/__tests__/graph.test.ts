@@ -5,6 +5,7 @@ import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
 import {
   committedGraphVersionAtom,
+  getNodeSizes,
   getNodeTargetBox,
   graphBoundsAtom,
   graphCommittedAtom,
@@ -48,12 +49,12 @@ describe("setGraphAtom", () => {
     store.set(setGraphAtom, graph);
     const before = store.get(nodesByIdAtom);
 
-    store.set(setGraphAtom, { nodes: [{ id: "container", parentId: null, data: "card" }], edges: [] });
+    store.set(setGraphAtom, { nodes: [{ id: "container", parentId: null, data: "atomic" }], edges: [] });
 
     const after = store.get(nodesByIdAtom);
     expect(after.container).toBe(before.container);
     expect(store.get(after.container!.childIdsAtom)).toEqual([]);
-    expect(store.get(after.container!.dataAtom)).toBe("card");
+    expect(store.get(after.container!.dataAtom)).toBe("atomic");
     expect(Object.keys(after)).toEqual(["container"]);
   });
 
@@ -90,6 +91,42 @@ describe("target boxes", () => {
     expect(getNodeTargetBox(store, "a")).toEqual({ min: { x: -10, y: -5 }, max: { x: 10, y: 5 } });
     expect(getNodeTargetBox(store, "container")).toEqual({ min: { x: -20, y: -15 }, max: { x: 120, y: 15 } });
     expect(store.get(graphBoundsAtom)).toEqual({ min: { x: -20, y: -15 }, max: { x: 120, y: 15 } });
+  });
+
+  it("keeps a container whose children are not placed where it would be as a leaf, until one is", () => {
+    const store = createGraphStore();
+    store.set(setGraphAtom, graph);
+    store.set(nodePositionsAtom, { centers: new Map([["container", { x: 0, y: 0 }]]), transition: "instant" });
+
+    const { container, a, b } = store.get(nodesByIdAtom);
+    store.set(container!.sizeAtom, { width: 40, height: 20 });
+    store.set(a!.sizeAtom, { width: 20, height: 10 });
+    store.set(b!.sizeAtom, { width: 20, height: 10 });
+
+    // The children render, and so measure themselves, before they are placed.
+    expect(getNodeSizes(store)).toEqual(
+      new Map([
+        ["container", { width: 40, height: 20 }],
+        ["a", { width: 20, height: 10 }],
+        ["b", { width: 20, height: 10 }],
+      ]),
+    );
+    expect(store.get(container!.isPlacedAtom)).toBe(false);
+    expect(store.get(a!.isPlacedAtom)).toBe(false);
+    expect(getNodeTargetBox(store, "container")).toEqual({ min: { x: -20, y: -10 }, max: { x: 20, y: 10 } });
+
+    store.set(nodePositionsAtom, {
+      centers: new Map([
+        ["container", { x: 0, y: 0 }],
+        ["a", { x: 100, y: 100 }],
+      ]),
+      transition: "instant",
+    });
+
+    expect(store.get(container!.isPlacedAtom)).toBe(true);
+    expect(store.get(a!.isPlacedAtom)).toBe(true);
+    expect(store.get(b!.isPlacedAtom)).toBe(false);
+    expect(getNodeTargetBox(store, "container")).toEqual({ min: { x: 80, y: 85 }, max: { x: 120, y: 115 } });
   });
 });
 

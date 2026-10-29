@@ -254,6 +254,28 @@ describe("layout mode precedence", () => {
     // which is exactly the case Reset Layout exists to override.
     expect(harness.calls).toEqual(["fetch", "apply", "layout:auto", "fetch", "apply", "layout:reset"]);
   });
+
+  it("lets an automatic layout replace a pending subgraph layout", async () => {
+    const harness = createHarness({ layoutRequired: true });
+    const gate = harness.gateFetch();
+
+    // A module opens while an update that will ask for an automatic layout is in flight.
+    const update = harness.coordinator.requestUpdate();
+    const subgraph = harness.coordinator.requestGraphLayout("subgraph");
+    gate.resolve();
+    await Promise.all([update, subgraph]);
+
+    // The whole-graph layout places the module's children too.
+    expect(harness.calls).toEqual(["fetch", "apply", "layout:auto"]);
+  });
+
+  it("runs a subgraph layout on its own when nothing wider is owed", async () => {
+    const harness = createHarness();
+
+    await harness.coordinator.requestGraphLayout("subgraph");
+
+    expect(harness.calls).toEqual(["layout:subgraph"]);
+  });
 });
 
 describe("mutation interlock", () => {

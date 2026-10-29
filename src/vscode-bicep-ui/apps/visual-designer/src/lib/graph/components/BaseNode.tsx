@@ -13,8 +13,10 @@ import { NODE_ENTER_TRANSITION, NODE_EXIT_TRANSITION } from "../motion";
 export type BaseNodeProps = PropsWithChildren<{
   id: string;
   kind: NodeKind;
-  /** Fades the node in when it mounts. */
+  /** Fades the node in when it mounts, or once it is placed if it mounts before it is. */
   isEntering: boolean;
+  /** Whether the node has a position. Until then it is hidden, so an entering node waits to fade in. */
+  isPlaced: boolean;
   /** Fades the node out. It no longer responds to the pointer. */
   isExiting: boolean;
 }>;
@@ -31,12 +33,12 @@ const $BaseNode = styled(motion.div)<{ $isExiting: boolean }>`
 `;
 
 export const BaseNode = forwardRef<HTMLDivElement, BaseNodeProps>(
-  ({ id, kind, isEntering, isExiting, children }, ref) => (
+  ({ id, kind, isEntering, isPlaced, isExiting, children }, ref) => (
     <$BaseNode
       ref={ref}
       $isExiting={isExiting}
       initial={isEntering ? { opacity: 0 } : false}
-      animate={{ opacity: isExiting ? 0 : 1 }}
+      animate={{ opacity: isExiting || (isEntering && !isPlaced) ? 0 : 1 }}
       transition={isExiting ? NODE_EXIT_TRANSITION : NODE_ENTER_TRANSITION}
       data-testid="graph-node"
       data-node-id={id}

@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import {
   clientGraphsRenderEqually,
   EMPTY_CLIENT_GRAPH,
+  getModulesWithNewChildren,
   indexGraph,
   measuredGraphsEqual,
   measureGraph,
@@ -25,6 +26,8 @@ function node(overrides: Partial<GraphNode> = {}): GraphNode {
     isCollection: false,
     hasChildren: false,
     hasError: false,
+    sourceStatus: null,
+    sourceError: null,
     ...overrides,
   };
 }
@@ -43,6 +46,44 @@ describe("indexGraph", () => {
   });
 });
 
+describe("getModulesWithNewChildren", () => {
+  const remote = node({ id: "remote", kind: "module", type: "<module>", sourceStatus: "unrestored" });
+  const explained = node({
+    id: "explained",
+    kind: "module",
+    type: "<module>",
+    sourceStatus: "error",
+    sourceError: "Failed.",
+  });
+  const local = node({ id: "local", kind: "module", type: "<module>" });
+  const withChildren = (module: GraphNode) => [
+    { ...module, sourceStatus: null, sourceError: null, hasChildren: true },
+    node({ id: `${module.id}::a`, parentId: module.id }),
+  ];
+
+  it("reports remote modules that showed no children and now have some", () => {
+    const previous = indexGraph({ nodes: [remote, explained, local], edges: [] });
+    const next = indexGraph({
+      nodes: [...withChildren(remote), ...withChildren(explained), ...withChildren(local)],
+      edges: [],
+    });
+
+    expect(getModulesWithNewChildren(previous, next)).toEqual(["remote", "explained"]);
+  });
+
+  it("ignores modules that are new, or still have nothing to show", () => {
+    const next = indexGraph({ nodes: withChildren(remote), edges: [] });
+
+    expect(getModulesWithNewChildren(EMPTY_CLIENT_GRAPH, next)).toEqual([]);
+    expect(
+      getModulesWithNewChildren(
+        indexGraph({ nodes: [remote], edges: [] }),
+        indexGraph({ nodes: [explained], edges: [] }),
+      ),
+    ).toEqual([]);
+  });
+});
+
 describe("projectGraph", () => {
   const moduleNode = node({
     id: "module",
@@ -54,7 +95,7 @@ describe("projectGraph", () => {
   const childB = node({ id: "module::b", parentId: "module" });
   const outside = node({ id: "outside" });
 
-  it("keeps a collapse choice for a module that is empty for now, and applies it once it has contents", () => {
+  it("keeps a collapse choice for a module that is empty for now, and applies it once it has children", () => {
     const emptyModule = { ...moduleNode, hasChildren: false };
 
     expect(projectGraph(makeClientGraph([emptyModule, outside]), new Set(["module"])).nodes.get("module")).toEqual(
@@ -226,6 +267,8 @@ describe("clientGraphsRenderEqually", () => {
     ["isCollection", { isCollection: true }],
     ["hasChildren", { hasChildren: true }],
     ["hasError", { hasError: true }],
+    ["sourceStatus", { sourceStatus: "unrestored" }],
+    ["sourceError", { sourceError: "Failed." }],
     ["isCollapsed", { isCollapsed: true }],
   ])("reports a change when %s differs", (_field, overrides) => {
     const before = makeClientGraph([node()]);

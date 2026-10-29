@@ -23,6 +23,8 @@ function node(id: string, parentId: string | null, kind: GraphNode["kind"] = "re
     isCollection: false,
     hasChildren: false,
     hasError: false,
+    sourceStatus: null,
+    sourceError: null,
   };
 }
 
@@ -55,7 +57,7 @@ describe("moveNodes", () => {
     expect(moved.get("child")).toEqual({ x: 20, y: 20 });
   });
 
-  it("moves the hidden contents of nested collapsed modules once, with the outermost card", () => {
+  it("moves the hidden descendants of nested collapsed modules once, with the outermost collapsed module", () => {
     const moved = moveNodes(positions, new Map([["outer", { x: 5, y: 7 }]]), graph, new Set(["outer", "inner"]));
 
     expect(moved.get("inner")).toEqual({ x: 15, y: 17 });
@@ -64,7 +66,7 @@ describe("moveNodes", () => {
     expect(moved.get("other")).toEqual({ x: 100, y: 100 });
   });
 
-  it("restores hidden contents recorded in a step instead of moving them with the card", () => {
+  it("restores hidden descendants recorded in a step instead of moving them with the module", () => {
     // Undoing a drag replays every recorded position, including those of hidden nodes.
     const step = new Map([
       ["outer", { x: -1, y: -1 }],
