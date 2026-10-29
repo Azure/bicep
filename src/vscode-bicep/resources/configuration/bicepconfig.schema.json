@@ -585,6 +585,16 @@
                     }
                   ]
                 },
+                "no-secrets-in-resource-properties": {
+                  "allOf": [
+                    {
+                      "description": "Secure values should not be assigned to resource properties that are not marked secure. Resource type definitions may omit secure flags on sensitive properties, so this rule is opt-in. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#no-secrets-in-resource-properties"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
                 "no-unnecessary-dependson": {
                   "allOf": [
                     {

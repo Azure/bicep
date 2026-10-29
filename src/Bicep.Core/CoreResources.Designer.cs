@@ -637,6 +637,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Secure values should not be assigned to resource properties that are not marked secure..
+        /// </summary>
+        internal static string NoSecretsInResourcePropertiesRule_Description {
+            get {
+                return ResourceManager.GetString("NoSecretsInResourcePropertiesRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Resource property &apos;{0}&apos; is not marked secure, but is assigned {1}. The value may be exposed by the resource provider. Resource type definitions do not always mark sensitive properties as secure..
+        /// </summary>
+        internal static string NoSecretsInResourcePropertiesRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("NoSecretsInResourcePropertiesRule_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Nested deployment resources cannot refer to top-level symbols from within the &apos;template&apos; property when inner-scoped evaluation is used..
         /// </summary>
         internal static string NoSymbolicReferencesInInnerScopedDeploymentResourcesDescription {

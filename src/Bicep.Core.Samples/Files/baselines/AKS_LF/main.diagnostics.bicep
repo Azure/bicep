@@ -52,7 +52,9 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
         }
         servicePrincipalProfile: {
             clientId: servicePrincipalClientId
+//@[22:46) [no-secrets-in-resource-properties (Warning)] Resource property 'aks.properties.servicePrincipalProfile.clientId' is not marked secure, but is assigned secure value 'servicePrincipalClientId'. The value may be exposed by the resource provider. Resource type definitions do not always mark sensitive properties as secure. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-secrets-in-resource-properties) |servicePrincipalClientId|
             secret: servicePrincipalClientSecret
+//@[20:48) [no-secrets-in-resource-properties (Warning)] Resource property 'aks.properties.servicePrincipalProfile.secret' is not marked secure, but is assigned secure value 'servicePrincipalClientSecret'. The value may be exposed by the resource provider. Resource type definitions do not always mark sensitive properties as secure. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-secrets-in-resource-properties) |servicePrincipalClientSecret|
         }
     }
 }
