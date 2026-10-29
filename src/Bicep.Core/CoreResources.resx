@@ -366,6 +366,13 @@
   <data name="SecureParamsInNestedDeployRule_Solution" xml:space="preserve">
     <value>Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.</value>
   </data>
+  <data name="NoSecureValuesInInsecureInputsRule_Description" xml:space="preserve">
+    <value>Secure values should not be passed to module parameters that are not secure.</value>
+  </data>
+  <data name="NoSecureValuesInInsecureInputsRule_MessageFormat" xml:space="preserve">
+    <value>Module parameter '{0}' is not secure, but is assigned {1}. The value will be visible in the module deployment's inputs.</value>
+    <comment>{0} = path to the module parameter, {1} = description of the secret found, e.g. "secure value 'adminPassword'" or "function 'listKeys'"</comment>
+  </data>
   <data name="SecureParamsInParametersFileRule_Description" xml:space="preserve">
     <value>Secure parameter values should not be assigned to insecure parameters in a parameters file.</value>
   </data>
