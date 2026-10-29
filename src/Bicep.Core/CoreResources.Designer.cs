@@ -619,6 +619,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Secure values should not be passed to module parameters that are not secure..
+        /// </summary>
+        internal static string NoSecureValuesInInsecureInputsRule_Description {
+            get {
+                return ResourceManager.GetString("NoSecureValuesInInsecureInputsRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Module parameter &apos;{0}&apos; is not secure, but is assigned {1}. The value will be visible in the module deployment&apos;s inputs..
+        /// </summary>
+        internal static string NoSecureValuesInInsecureInputsRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("NoSecureValuesInInsecureInputsRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Nested deployment resources cannot refer to top-level symbols from within the &apos;template&apos; property when inner-scoped evaluation is used..
         /// </summary>
         internal static string NoSymbolicReferencesInInnerScopedDeploymentResourcesDescription {
@@ -1393,7 +1411,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Resource properties expecting secure input should be assigned secure values..
+        ///   Looks up a localized string similar to Resource properties and module parameters expecting secure input should be assigned secure values..
         /// </summary>
         internal static string UseSecureValueForSecureInputsRule_Description {
             get {

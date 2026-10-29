@@ -733,14 +733,17 @@ module secureModule1 'moduleb.bicep' = {
   params: {       
     stringParamA: kv.getSecret('mySecret')
 //@[018:042) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
+//@[018:042) [no-secure-values-in-insecure-inputs (Warning)] Module parameter 'stringParamA' is not secure, but is assigned secure value 'kv.getSecret('mySecret')'. The value will be visible in the module deployment's inputs. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-secure-values-in-insecure-inputs) |kv.getSecret('mySecret')|
     stringParamB: '${kv.getSecret('mySecret')}'
 //@[018:047) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#simplify-interpolation) |'${kv.getSecret('mySecret')}'|
 //@[021:045) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
     objParam: kv.getSecret('mySecret')
 //@[014:038) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
+//@[014:038) [no-secure-values-in-insecure-inputs (Warning)] Module parameter 'objParam' is not secure, but is assigned secure value 'kv.getSecret('mySecret')'. The value will be visible in the module deployment's inputs. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-secure-values-in-insecure-inputs) |kv.getSecret('mySecret')|
 //@[014:038) [BCP036 (Error)] The property "objParam" expected a value of type "object" but the provided value is of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |kv.getSecret('mySecret')|
     arrayParam: kv.getSecret('mySecret')
 //@[016:040) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
+//@[016:040) [no-secure-values-in-insecure-inputs (Warning)] Module parameter 'arrayParam' is not secure, but is assigned secure value 'kv.getSecret('mySecret')'. The value will be visible in the module deployment's inputs. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-secure-values-in-insecure-inputs) |kv.getSecret('mySecret')|
 //@[016:040) [BCP036 (Error)] The property "arrayParam" expected a value of type "array" but the provided value is of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |kv.getSecret('mySecret')|
     secureStringParam: '${kv.getSecret('mySecret')}'
 //@[023:052) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#simplify-interpolation) |'${kv.getSecret('mySecret')}'|

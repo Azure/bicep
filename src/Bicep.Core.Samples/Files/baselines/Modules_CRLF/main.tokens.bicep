@@ -2046,7 +2046,7 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 //@[056:057) Colon |:|
 //@[058:067) StringComplete |'notTrue'|
 //@[067:069) NewLine |\r\n|
-    secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','secretVersion') : 'notTrue'
+    secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','version') : 'notTrue'
 //@[004:022) Identifier |secureStringParam2|
 //@[022:023) Colon |:|
 //@[024:028) TrueKeyword |true|
@@ -2061,11 +2061,11 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 //@[061:062) LeftParen |(|
 //@[062:072) StringComplete |'mySecret'|
 //@[072:073) Comma |,|
-//@[073:088) StringComplete |'secretVersion'|
-//@[088:089) RightParen |)|
-//@[090:091) Colon |:|
-//@[092:101) StringComplete |'notTrue'|
-//@[101:103) NewLine |\r\n|
+//@[073:082) StringComplete |'version'|
+//@[082:083) RightParen |)|
+//@[084:085) Colon |:|
+//@[086:095) StringComplete |'notTrue'|
+//@[095:097) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
 //@[003:005) NewLine |\r\n|

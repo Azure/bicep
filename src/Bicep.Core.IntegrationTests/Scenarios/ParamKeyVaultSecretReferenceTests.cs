@@ -417,6 +417,7 @@ module secret 'BAD_PATH_MODULE.bicep' = {
                     module secret 'secret.bicep' = {
                       name: 'secret'
                       params: {
+                        #disable-next-line use-secure-value-for-secure-inputs
                         mySecret: true == true ? false == false ? kv.getSecret('mySecret','secretversionguid') : 'false' : 'true'
                       }
                     }
@@ -483,6 +484,111 @@ output exposed string = mySecret
             result.Should()
                 .NotGenerateATemplate()
                 .And.OnlyContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
+        }
+
+        private const string VmAdminUsernameSource = "Microsoft.Compute/virtualMachines@2024-07-01#properties/properties/properties/osProfile/properties/adminUsername";
+
+        // A compiled module records a resource-derived parameter or exported type as its ARM type
+        // plus a `__bicep_resource_derived_type!` source. The parameter stays secure when the ARM
+        // type is, so `getSecret()` is accepted just as it is for the same module compiled from source.
+        private static string CompiledModuleWithResourceDerivedParameter(string armType) => $$"""
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "languageVersion": "2.0",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "mySecret": {
+                  "type": "{{armType}}",
+                  "metadata": { "__bicep_resource_derived_type!": { "source": "{{VmAdminUsernameSource}}" } }
+                }
+              },
+              "resources": {}
+            }
+            """;
+
+        private static string CompiledTypesWithResourceDerivedType(string armType) => $$"""
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "languageVersion": "2.0",
+              "contentVersion": "1.0.0.0",
+              "definitions": {
+                "secretType": {
+                  "type": "{{armType}}",
+                  "metadata": { "__bicep_export!": true, "__bicep_resource_derived_type!": { "source": "{{VmAdminUsernameSource}}" } }
+                }
+              },
+              "resources": {}
+            }
+            """;
+
+        private const string MainWithKeyVaultSecretToModule = """
+            resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+              name: 'testkeyvault'
+            }
+
+            module secret 'secret.json' = {
+              name: 'secret'
+              params: {
+                mySecret: kv.getSecret('mySecret')
+              }
+            }
+            """;
+
+        private static void AssertKeyVaultReference(CompilationHelper.CompilationResult result)
+        {
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            var parameterToken = result.Template!.SelectToken("$.resources[?(@.name == 'secret')].properties.parameters.mySecret")!;
+            using (new AssertionScope())
+            {
+                parameterToken.SelectToken("$.value")!.Should().BeNull();
+                parameterToken.SelectToken("$.reference.keyVault.id")!.Should().DeepEqual("[resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')]");
+                parameterToken.SelectToken("$.reference.secretName")!.Should().DeepEqual("mySecret");
+            }
+        }
+
+        private static void AssertGetSecretRejected(CompilationHelper.CompilationResult result) =>
+            result.ExcludingLinterDiagnostics().Should()
+                .NotGenerateATemplate()
+                .And.OnlyContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
+
+        [TestMethod]
+        public void ValidKeyVaultSecretReference_CompiledModuleWithSecureResourceDerivedParameter()
+        {
+            AssertKeyVaultReference(CompilationHelper.Compile(
+                ("main.bicep", MainWithKeyVaultSecretToModule),
+                ("secret.json", CompiledModuleWithResourceDerivedParameter("securestring"))));
+        }
+
+        [TestMethod]
+        public void InvalidKeyVaultSecretReference_CompiledModuleWithNonSecureResourceDerivedParameter()
+        {
+            AssertGetSecretRejected(CompilationHelper.Compile(
+                ("main.bicep", MainWithKeyVaultSecretToModule),
+                ("secret.json", CompiledModuleWithResourceDerivedParameter("string"))));
+        }
+
+        [TestMethod]
+        public void ValidKeyVaultSecretReference_ParameterUsesImportedSecureResourceDerivedType()
+        {
+            AssertKeyVaultReference(CompilationHelper.Compile(
+                ("main.bicep", MainWithKeyVaultSecretToModule.Replace("'secret.json'", "'secret.bicep'")),
+                ("secret.bicep", """
+                    import { secretType } from 'types.json'
+                    param mySecret secretType
+                    """),
+                ("types.json", CompiledTypesWithResourceDerivedType("securestring"))));
+        }
+
+        [TestMethod]
+        public void InvalidKeyVaultSecretReference_ParameterUsesImportedNonSecureResourceDerivedType()
+        {
+            AssertGetSecretRejected(CompilationHelper.Compile(
+                ("main.bicep", MainWithKeyVaultSecretToModule.Replace("'secret.json'", "'secret.bicep'")),
+                ("secret.bicep", """
+                    import { secretType } from 'types.json'
+                    param mySecret secretType
+                    """),
+                ("types.json", CompiledTypesWithResourceDerivedType("string"))));
         }
     }
 }
