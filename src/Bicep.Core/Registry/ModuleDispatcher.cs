@@ -9,13 +9,11 @@ using System.Linq.Expressions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
@@ -31,124 +29,19 @@ namespace Bicep.Core.Registry
 
         private readonly IArtifactRegistryProvider registryProvider;
 
+        private readonly ArtifactReferenceResolver referenceResolver;
+
         public ModuleDispatcher(IArtifactRegistryProvider registryProvider)
         {
             this.registryProvider = registryProvider;
+            this.referenceResolver = new(registryProvider);
         }
 
         public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string reference)
-        {
-            var parts = reference.Split(':', 2, StringSplitOptions.None);
-            switch (parts.Length)
-            {
-                case 1:
-                    // local path reference
-                    if (this.registryProvider.TryGetRegistry(ArtifactReferenceSchemes.Local) is { } localRegistry)
-                    {
-                        return localRegistry.TryParseArtifactReference(referencingFile, artifactType, null, parts[0]);
-                    }
-
-                    return new(x => x.UnknownModuleReferenceScheme(ArtifactReferenceSchemes.Local, this.registryProvider.SupportedSchemes));
-
-                case 2:
-                    string scheme = parts[0];
-                    string? aliasName = null;
-
-                    if (parts[0].Contains('/'))
-                    {
-                        // The scheme contains an alias.
-                        var schemeParts = parts[0].Split('/', 2, StringSplitOptions.None);
-                        scheme = schemeParts[0];
-                        aliasName = schemeParts[1];
-                    }
-
-                    if (!string.IsNullOrEmpty(scheme) && this.registryProvider.TryGetRegistry(scheme) is { } registry)
-                    {
-                        // the scheme is recognized
-                        var rawValue = parts[1];
-
-                        return registry.TryParseArtifactReference(referencingFile, artifactType, aliasName, rawValue);
-                    }
-
-                    // unknown scheme
-                    return new(x => x.UnknownModuleReferenceScheme(scheme, this.registryProvider.SupportedSchemes));
-
-                default:
-                    // empty string
-                    return new(x => x.ModulePathHasNotBeenSpecified());
-            }
-        }
+            => this.referenceResolver.TryGetArtifactReference(referencingFile, artifactType, reference);
 
         public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, IArtifactReferenceSyntax artifactReferenceSyntax)
-        {
-            if (artifactReferenceSyntax is ExtensionDeclarationSyntax extensionSyntax)
-            {
-                var artifactAddressResult = TryGetArtifactAddress(referencingFile, extensionSyntax);
-                if (!artifactAddressResult.IsSuccess(out var result, out var pathFailureBuilder))
-                {
-                    return new(pathFailureBuilder);
-                }
-
-                return this.TryGetArtifactReference(referencingFile, artifactReferenceSyntax.GetArtifactType(), result);
-            }
-
-            var artifactPathResult = SyntaxHelper.TryGetForeignTemplatePath(artifactReferenceSyntax, GetErrorBuilderDelegate(artifactReferenceSyntax));
-            if (!artifactPathResult.IsSuccess(out var artifactPath, out var failureBuilder))
-            {
-                return new(failureBuilder);
-            }
-            return this.TryGetArtifactReference(referencingFile, artifactReferenceSyntax.GetArtifactType(), artifactPath);
-        }
-
-        private static DiagnosticBuilder.DiagnosticBuilderDelegate GetErrorBuilderDelegate(IArtifactReferenceSyntax artifactReferenceSyntax) => artifactReferenceSyntax switch
-        {
-            UsingDeclarationSyntax => x => x.UsingPathHasNotBeenSpecified(),
-            ExtendsDeclarationSyntax => x => x.ExtendsPathHasNotBeenSpecified(),
-            CompileTimeImportDeclarationSyntax => x => x.PathHasNotBeenSpecified(),
-            ModuleDeclarationSyntax => x => x.ModulePathHasNotBeenSpecified(),
-            TestDeclarationSyntax => x => x.PathHasNotBeenSpecified(),
-            _ => throw new NotImplementedException($"Unexpected artifact reference syntax type '{artifactReferenceSyntax.GetType().Name}'.")
-        };
-
-        private ResultWithDiagnosticBuilder<string> TryGetArtifactAddress(BicepSourceFile referencingFile, ExtensionDeclarationSyntax extensionSyntax)
-        {
-            switch (extensionSyntax.SpecificationString)
-            {
-                case StringSyntax inlinedSpec:
-                    if (inlinedSpec.TryGetLiteralValue() is not string pathValue)
-                    {
-                        return new(x => x.ExtensionSpecificationInterpolationUnsupported());
-                    }
-
-                    return new(pathValue);
-                case IdentifierSyntax configSpec:
-                    var config = referencingFile.LoadConfiguration();
-                    var extensionPathResult = config.Extensions.TryGetExtensionSource(configSpec.IdentifierName).Transform(x => x.Value);
-
-                    if (extensionPathResult.IsSuccess(out var extensionPath, out var error))
-                    {
-                        if (extensionPath.Contains(':'))
-                        {
-                            // The extension path contains a scheme.
-                            return new(extensionPath);
-                        }
-                        if (config.ConfigFileUri is null)
-                        {
-                            throw new InvalidOperationException("The configuration file URI must be set when trying to resolve an extension reference.");
-                        }
-
-                        var extensionUri = config.ConfigFileUri.Resolve(extensionPath);
-
-                        return new(extensionUri.GetPathRelativeTo(referencingFile.FileHandle.Uri));
-                    }
-
-
-                    return new(error);
-
-                default:
-                    return new(x => x.ExpectedExtensionSpecification());
-            }
-        }
+            => this.referenceResolver.TryGetArtifactReference(referencingFile, artifactReferenceSyntax);
 
         public RegistryCapabilities GetRegistryCapabilities(ArtifactType artifactType, ArtifactReference artifactReference)
         {

@@ -153,6 +153,11 @@ public class ArtifactReferenceResolutionTests
     [DataRow("avm::res/storage/storage-account:0.32.1", "BCP189: The specified module reference scheme \"avm\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
     [DataRow("br::storage:1.0.0", "BCP193: The specified OCI artifact reference \"br::storage:1.0.0\" is not valid. Specify a reference in the format of \"br:<artifact-uri>:<tag>\", or \"br/<module-alias>:<module-name-or-path>:<tag>\".")]
     [DataRow("oci/contoso:storage:1.0.0", "BCP189: The specified module reference scheme \"oci\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    // splitting edge cases
+    [DataRow(":storage:1.0.0", "BCP189: The specified module reference scheme \"\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    [DataRow("br/contoso/nested:storage:1.0.0", "BCP211: The module alias name \"contoso/nested\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".")]
+    [DataRow("../mod:1.bicep", "BCP189: The specified module reference scheme \"..\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    [DataRow("unknown/alias:storage:1.0.0", "BCP189: The specified module reference scheme \"unknown\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
     public void Module_reference_text_resolves_to_expected_reference(string referenceText, string expected)
     {
         var (entryPoint, _, dispatcher) = Setup();
