@@ -44,7 +44,6 @@ namespace Bicep.LanguageServer.Features.Language.Definition
         ICompilationManager compilationManager,
         BicepCompiler bicepCompiler,
         ILanguageServerFacade languageServer,
-        IModuleDispatcher moduleDispatcher,
         DocumentSelectorFactory documentSelectorFactory,
         ISourceFileFactory sourceFileFactory
     ) : DefinitionHandlerBase()
@@ -105,7 +104,7 @@ namespace Bicep.LanguageServer.Features.Language.Definition
                  && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile)
-                 && moduleDispatcher.TryGetArtifactReference(context.Compilation.SourceFileGrouping.EntryPoint, moduleDeclarationSyntax).IsSuccess(out var moduleReference))
+                 && context.Compilation.SourceFileGrouping.TryGetArtifactReference(moduleDeclarationSyntax) is { } moduleReference)
                 {
                     return HandleModuleReference(context, stringToken, sourceFile, moduleReference);
                 }
@@ -116,7 +115,7 @@ namespace Bicep.LanguageServer.Features.Language.Definition
                     matchingNodes[^3] is UsingDeclarationSyntax usingDeclaration &&
                     matchingNodes[^2] is StringSyntax stringSyntax &&
                     context.Compilation.SourceFileGrouping.TryGetSourceFile(usingDeclaration).IsSuccess(out var sourceFile) &&
-                    moduleDispatcher.TryGetArtifactReference(context.Compilation.SourceFileGrouping.EntryPoint, usingDeclaration).IsSuccess(out var moduleReference))
+                    context.Compilation.SourceFileGrouping.TryGetArtifactReference(usingDeclaration) is { } moduleReference)
                 {
                     return HandleModuleReference(context, stringSyntax, sourceFile, moduleReference);
                 }
@@ -129,7 +128,7 @@ namespace Bicep.LanguageServer.Features.Language.Definition
                  && matchingNodes[^4] is CompileTimeImportDeclarationSyntax importDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(importDeclarationSyntax).IsSuccess(out var sourceFile)
-                 && moduleDispatcher.TryGetArtifactReference(context.Compilation.SourceFileGrouping.EntryPoint, importDeclarationSyntax).IsSuccess(out var moduleReference))
+                 && context.Compilation.SourceFileGrouping.TryGetArtifactReference(importDeclarationSyntax) is { } moduleReference)
                 {
                     // goto beginning of the module file.
                     return GetFileDefinitionLocation(
@@ -209,7 +208,7 @@ namespace Bicep.LanguageServer.Features.Language.Definition
         private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, WildcardImportSymbol wildcardImport)
         {
             if (context.Compilation.SourceFileGrouping.TryGetSourceFile(wildcardImport.EnclosingDeclaration).IsSuccess(out var sourceFile) &&
-                moduleDispatcher.TryGetArtifactReference(context.Compilation.SourceFileGrouping.EntryPoint, wildcardImport.EnclosingDeclaration).IsSuccess(out var moduleReference))
+                context.Compilation.SourceFileGrouping.TryGetArtifactReference(wildcardImport.EnclosingDeclaration) is { } moduleReference)
             {
                 return GetFileDefinitionLocation(
                     GetArtifactSourceLinkUri(sourceFile, moduleReference),
@@ -469,8 +468,7 @@ namespace Bicep.LanguageServer.Features.Language.Definition
 
             // CONSIDER using only the syntax tree, not the semantic model
             if (sourceModel is ArmTemplateSemanticModel &&
-                moduleDispatcher.TryGetArtifactReference(context.Compilation.SourceFileGrouping.EntryPoint, enclosingDeclaration).IsSuccess(out var artifactReference)
-                && artifactReference is OciArtifactReference ociArtifactReference
+                context.Compilation.SourceFileGrouping.TryGetArtifactReference(enclosingDeclaration) is OciArtifactReference ociArtifactReference
                 && ociArtifactReference.TryLoadSourceArchive().TryUnwrap() is SourceArchive sourceArchive)
             {
                 // An imported remote artifact was published with source, so we want to take the user to the definition in the source archive.

@@ -84,7 +84,6 @@ namespace Bicep.LanguageServer.Compilation
                 namespaceProvider,
                 syntaxTreeGrouping,
                 bicepAnalyzer,
-                moduleDispatcher,
                 sourceFileFactory,
                 modelLookup,
                 compilerVersionCheckOptions);

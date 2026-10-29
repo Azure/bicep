@@ -112,7 +112,6 @@ public class BicepCompiler
             namespaceProvider,
             sourceFileGrouping,
             bicepAnalyzer,
-            moduleDispatcher,
             this.SourceFileFactory,
             [],
             compilerVersionCheckOptions);

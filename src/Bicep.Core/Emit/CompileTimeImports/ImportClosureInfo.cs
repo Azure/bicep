@@ -251,24 +251,10 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
     }
 
     private static ArtifactReference GetImportReference(ImportedSymbol symbol)
-    {
-        if (symbol.TryGetArtifactReference().IsSuccess(out var moduleReference))
-        {
-            return moduleReference;
-        }
-
-        throw new InvalidOperationException("Unable to load module reference for import statement");
-    }
+        => symbol.TryGetArtifactReference() ?? throw new InvalidOperationException("Unable to load module reference for import statement");
 
     private static ArtifactReference GetImportReference(WildcardImportSymbol symbol)
-    {
-        if (symbol.TryGetArtifactReference().IsSuccess(out var moduleReference))
-        {
-            return moduleReference;
-        }
-
-        throw new InvalidOperationException("Unable to load module reference for import statement");
-    }
+        => symbol.TryGetArtifactReference() ?? throw new InvalidOperationException("Unable to load module reference for import statement");
 
     private static IEnumerable<SearchQueueItem> GetImportsFromExtendedFiles(SemanticModel model)
     {
