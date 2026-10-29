@@ -1393,7 +1393,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Resource properties expecting secure input should be assigned secure values..
+        ///   Looks up a localized string similar to Resource properties and module parameters expecting secure input should be assigned secure values..
         /// </summary>
         internal static string UseSecureValueForSecureInputsRule_Description {
             get {

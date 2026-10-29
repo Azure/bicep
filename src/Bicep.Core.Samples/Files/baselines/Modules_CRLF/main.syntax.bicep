@@ -1,5 +1,5 @@
 
-//@[000:10080) ProgramSyntax
+//@[000:10074) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 @sys.description('this is deployTimeSuffix param')
 //@[000:00093) ├─ParameterDeclarationSyntax
@@ -3217,14 +3217,14 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 module secureModuleCondition 'child/secureParams.bicep' = {
-//@[000:00285) ├─ModuleDeclarationSyntax
+//@[000:00279) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
 //@[007:00028) | ├─IdentifierSyntax
 //@[007:00028) | | └─Token(Identifier) |secureModuleCondition|
 //@[029:00055) | ├─StringSyntax
 //@[029:00055) | | └─Token(StringComplete) |'child/secureParams.bicep'|
 //@[056:00057) | ├─Token(Assignment) |=|
-//@[058:00285) | └─ObjectSyntax
+//@[058:00279) | └─ObjectSyntax
 //@[058:00059) |   ├─Token(LeftBrace) |{|
 //@[059:00061) |   ├─Token(NewLine) |\r\n|
   name: 'secureModuleCondition'
@@ -3236,11 +3236,11 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 //@[008:00031) |   |   └─Token(StringComplete) |'secureModuleCondition'|
 //@[031:00033) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[002:00188) |   ├─ObjectPropertySyntax
+//@[002:00182) |   ├─ObjectPropertySyntax
 //@[002:00008) |   | ├─IdentifierSyntax
 //@[002:00008) |   | | └─Token(Identifier) |params|
 //@[008:00009) |   | ├─Token(Colon) |:|
-//@[010:00188) |   | └─ObjectSyntax
+//@[010:00182) |   | └─ObjectSyntax
 //@[010:00011) |   |   ├─Token(LeftBrace) |{|
 //@[011:00013) |   |   ├─Token(NewLine) |\r\n|
     secureStringParam1: true ? kv.getSecret('mySecret') : 'notTrue'
@@ -3268,23 +3268,23 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 //@[058:00067) |   |   |   └─StringSyntax
 //@[058:00067) |   |   |     └─Token(StringComplete) |'notTrue'|
 //@[067:00069) |   |   ├─Token(NewLine) |\r\n|
-    secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','secretVersion') : 'notTrue'
-//@[004:00101) |   |   ├─ObjectPropertySyntax
+    secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','version') : 'notTrue'
+//@[004:00095) |   |   ├─ObjectPropertySyntax
 //@[004:00022) |   |   | ├─IdentifierSyntax
 //@[004:00022) |   |   | | └─Token(Identifier) |secureStringParam2|
 //@[022:00023) |   |   | ├─Token(Colon) |:|
-//@[024:00101) |   |   | └─TernaryOperationSyntax
+//@[024:00095) |   |   | └─TernaryOperationSyntax
 //@[024:00028) |   |   |   ├─BooleanLiteralSyntax
 //@[024:00028) |   |   |   | └─Token(TrueKeyword) |true|
 //@[029:00030) |   |   |   ├─Token(Question) |?|
-//@[031:00089) |   |   |   ├─TernaryOperationSyntax
+//@[031:00083) |   |   |   ├─TernaryOperationSyntax
 //@[031:00036) |   |   |   | ├─BooleanLiteralSyntax
 //@[031:00036) |   |   |   | | └─Token(FalseKeyword) |false|
 //@[037:00038) |   |   |   | ├─Token(Question) |?|
 //@[039:00046) |   |   |   | ├─StringSyntax
 //@[039:00046) |   |   |   | | └─Token(StringComplete) |'false'|
 //@[047:00048) |   |   |   | ├─Token(Colon) |:|
-//@[049:00089) |   |   |   | └─InstanceFunctionCallSyntax
+//@[049:00083) |   |   |   | └─InstanceFunctionCallSyntax
 //@[049:00051) |   |   |   |   ├─VariableAccessSyntax
 //@[049:00051) |   |   |   |   | └─IdentifierSyntax
 //@[049:00051) |   |   |   |   |   └─Token(Identifier) |kv|
@@ -3296,14 +3296,14 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 //@[062:00072) |   |   |   |   | └─StringSyntax
 //@[062:00072) |   |   |   |   |   └─Token(StringComplete) |'mySecret'|
 //@[072:00073) |   |   |   |   ├─Token(Comma) |,|
-//@[073:00088) |   |   |   |   ├─FunctionArgumentSyntax
-//@[073:00088) |   |   |   |   | └─StringSyntax
-//@[073:00088) |   |   |   |   |   └─Token(StringComplete) |'secretVersion'|
-//@[088:00089) |   |   |   |   └─Token(RightParen) |)|
-//@[090:00091) |   |   |   ├─Token(Colon) |:|
-//@[092:00101) |   |   |   └─StringSyntax
-//@[092:00101) |   |   |     └─Token(StringComplete) |'notTrue'|
-//@[101:00103) |   |   ├─Token(NewLine) |\r\n|
+//@[073:00082) |   |   |   |   ├─FunctionArgumentSyntax
+//@[073:00082) |   |   |   |   | └─StringSyntax
+//@[073:00082) |   |   |   |   |   └─Token(StringComplete) |'version'|
+//@[082:00083) |   |   |   |   └─Token(RightParen) |)|
+//@[084:00085) |   |   |   ├─Token(Colon) |:|
+//@[086:00095) |   |   |   └─StringSyntax
+//@[086:00095) |   |   |     └─Token(StringComplete) |'notTrue'|
+//@[095:00097) |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:00003) |   |   └─Token(RightBrace) |}|
 //@[003:00005) |   ├─Token(NewLine) |\r\n|

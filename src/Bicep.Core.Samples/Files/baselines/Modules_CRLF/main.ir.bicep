@@ -1,5 +1,5 @@
 
-//@[000:10080) ProgramExpression
+//@[000:10074) ProgramExpression
 //@[000:00000) | ├─ResourceDependencyExpression [UNPARENTED]
 //@[000:00000) | | └─ModuleReferenceExpression [UNPARENTED]
 //@[000:00000) | ├─ResourceDependencyExpression [UNPARENTED]
@@ -1208,14 +1208,14 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 }]
 
 module secureModuleCondition 'child/secureParams.bicep' = {
-//@[000:00285) ├─DeclaredModuleExpression
-//@[058:00285) | ├─ObjectExpression
+//@[000:00279) ├─DeclaredModuleExpression
+//@[058:00279) | ├─ObjectExpression
   name: 'secureModuleCondition'
 //@[002:00031) | | └─ObjectPropertyExpression
 //@[002:00006) | |   ├─StringLiteralExpression { Value = name }
 //@[008:00031) | |   └─StringLiteralExpression { Value = secureModuleCondition }
   params: {
-//@[010:00188) | └─ObjectExpression
+//@[010:00182) | └─ObjectExpression
     secureStringParam1: true ? kv.getSecret('mySecret') : 'notTrue'
 //@[004:00067) |   ├─ObjectPropertyExpression
 //@[004:00022) |   | ├─StringLiteralExpression { Value = secureStringParam1 }
@@ -1225,19 +1225,19 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 //@[031:00033) |   |   | ├─ResourceReferenceExpression
 //@[044:00054) |   |   | └─StringLiteralExpression { Value = mySecret }
 //@[058:00067) |   |   └─StringLiteralExpression { Value = notTrue }
-    secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','secretVersion') : 'notTrue'
-//@[004:00101) |   └─ObjectPropertyExpression
+    secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','version') : 'notTrue'
+//@[004:00095) |   └─ObjectPropertyExpression
 //@[004:00022) |     ├─StringLiteralExpression { Value = secureStringParam2 }
-//@[024:00101) |     └─TernaryExpression
+//@[024:00095) |     └─TernaryExpression
 //@[024:00028) |       ├─BooleanLiteralExpression { Value = True }
-//@[031:00089) |       ├─TernaryExpression
+//@[031:00083) |       ├─TernaryExpression
 //@[031:00036) |       | ├─BooleanLiteralExpression { Value = False }
 //@[039:00046) |       | ├─StringLiteralExpression { Value = false }
-//@[049:00089) |       | └─ResourceFunctionCallExpression { Name = getSecret }
+//@[049:00083) |       | └─ResourceFunctionCallExpression { Name = getSecret }
 //@[049:00051) |       |   ├─ResourceReferenceExpression
 //@[062:00072) |       |   ├─StringLiteralExpression { Value = mySecret }
-//@[073:00088) |       |   └─StringLiteralExpression { Value = secretVersion }
-//@[092:00101) |       └─StringLiteralExpression { Value = notTrue }
+//@[073:00082) |       |   └─StringLiteralExpression { Value = version }
+//@[086:00095) |       └─StringLiteralExpression { Value = notTrue }
   }
 }
 

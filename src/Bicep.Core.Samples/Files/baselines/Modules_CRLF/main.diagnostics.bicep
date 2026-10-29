@@ -370,7 +370,9 @@ module secureModuleCondition 'child/secureParams.bicep' = {
   name: 'secureModuleCondition'
   params: {
     secureStringParam1: true ? kv.getSecret('mySecret') : 'notTrue'
-    secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','secretVersion') : 'notTrue'
+//@[24:67) [use-secure-value-for-secure-inputs (Warning)] Property 'secureStringParam1' expects a secure value, but the value provided may not be secure. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-secure-value-for-secure-inputs) |true ? kv.getSecret('mySecret') : 'notTrue'|
+    secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','version') : 'notTrue'
+//@[24:95) [use-secure-value-for-secure-inputs (Warning)] Property 'secureStringParam2' expects a secure value, but the value provided may not be secure. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-secure-value-for-secure-inputs) |true ? false ? 'false' : kv.getSecret('mySecret','version') : 'notTrue'|
   }
 }
 
