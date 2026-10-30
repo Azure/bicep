@@ -789,104 +789,84 @@ namespace Bicep.Core.TypeSystem
             => FindPathsToSecureTypeComponents(
                 type,
                 hasTrailingAccessExpressions,
-                path: "",
-                currentlyProcessing: new(ReferenceEqualityComparer.Instance));
+                includeDiscriminatedObjects: false,
+                stopAtSecureType: false,
+                path: [],
+                currentlyProcessing: new(ReferenceEqualityComparer.Instance),
+                remainingDepth: int.MaxValue).Select(path => string.Concat(path.Select(segment => segment == "*" ? ".*" : segment)));
 
-        private static IEnumerable<string> FindPathsToSecureTypeComponents(
+        /// <summary>
+        /// Finds the outermost secure components, including discriminated variants. Property segments include
+        /// their leading dot, so literal names remain distinct from array indices and the <c>*</c> dictionary wildcard.
+        /// </summary>
+        public static IEnumerable<ImmutableArray<string>> FindPathsToOutermostSecureTypeComponents(TypeSymbol type)
+            => FindPathsToSecureTypeComponents(
+                type,
+                hasTrailingAccessExpressions: false,
+                includeDiscriminatedObjects: true,
+                stopAtSecureType: true,
+                path: [],
+                currentlyProcessing: new(ReferenceEqualityComparer.Instance),
+                remainingDepth: 64);
+
+        private static IEnumerable<ImmutableArray<string>> FindPathsToSecureTypeComponents(
             TypeSymbol type,
             bool hasTrailingAccessExpressions,
-            string path,
-            HashSet<TypeSymbol> currentlyProcessing)
+            bool includeDiscriminatedObjects,
+            bool stopAtSecureType,
+            ImmutableArray<string> path,
+            HashSet<TypeSymbol> currentlyProcessing,
+            int remainingDepth)
         {
             // types can be recursive. cut out early if we've already seen this type
-            if (!currentlyProcessing.Add(type))
+            if (remainingDepth < 0 || !currentlyProcessing.Add(type))
             {
                 yield break;
             }
 
-            if (type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+            try
             {
-                yield return path;
-            }
-
-            if (type is UnionType union)
-            {
-                foreach (var variantPath in union.Members.SelectMany(m => FindPathsToSecureTypeComponents(
-                    m.Type,
-                    hasTrailingAccessExpressions,
-                    path,
-                    currentlyProcessing)))
+                if (type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
                 {
-                    yield return variantPath;
+                    yield return path;
+                    if (stopAtSecureType)
+                    {
+                        yield break;
+                    }
+                }
+
+                // Trailing accesses select a specific member; secure siblings do not flow into that value.
+                // The string API retains its existing treatment of discriminated types and secure containers,
+                // since it also determines output metadata and compiler diagnostics.
+                IEnumerable<(TypeSymbol Type, ImmutableArray<string> Path)> children = type switch
+                {
+                    UnionType union => union.Members.Select(member => (member.Type, path)),
+                    _ when hasTrailingAccessExpressions => [],
+                    DiscriminatedObjectType discriminated when includeDiscriminatedObjects
+                        => discriminated.UnionMembersByKey.Values.Select(variant => ((TypeSymbol)variant, path)),
+                    ObjectType @object => (@object.AdditionalProperties is { } additional
+                            ? new[] { (additional.TypeReference.Type, path.Add("*")) }
+                            : [])
+                        .Concat(@object.Properties.Values.Select(property => (property.TypeReference.Type, path.Add($".{property.Name}")))),
+                    TupleType tuple => tuple.Items.Select((item, index) => (item.Type, path.Add($"[{index.ToString(CultureInfo.InvariantCulture)}]"))),
+                    ArrayType array => [(array.Item.Type, path.Add("[*]"))],
+                    _ => [],
+                };
+
+                foreach (var (childType, childPath) in children)
+                {
+                    foreach (var securePath in FindPathsToSecureTypeComponents(
+                        childType, hasTrailingAccessExpressions, includeDiscriminatedObjects, stopAtSecureType,
+                        childPath, currentlyProcessing, remainingDepth - 1))
+                    {
+                        yield return securePath;
+                    }
                 }
             }
-
-            // if the expression being visited is dereferencing a specific property or index of this type, we shouldn't warn if the type under inspection
-            // *contains* properties or indices that are flagged as secure. We will have already warned if those have been accessed in the expression, and
-            // if they haven't, then the value dereferenced isn't sensitive
-            //
-            //    param p {
-            //      prop: {
-            //        @secure()
-            //        nestedSecret: string
-            //        nestedInnocuousProperty: string
-            //      }
-            //    }
-            //
-            //    output objectContainingSecrets object = p                     // <-- should be flagged
-            //    output propertyContainingSecrets object = p.prop              // <-- should be flagged
-            //    output nestedSecret string = p.prop.nestedSecret              // <-- should be flagged
-            //    output siblingOfSecret string = p.prop.nestedInnocuousData    // <-- should NOT be flagged
-            if (!hasTrailingAccessExpressions)
+            finally
             {
-                switch (type)
-                {
-                    case ObjectType obj:
-                        if (obj.AdditionalProperties?.TypeReference.Type is TypeSymbol addlPropsType)
-                        {
-                            foreach (var dictMemberPath in FindPathsToSecureTypeComponents(
-                                addlPropsType,
-                                hasTrailingAccessExpressions,
-                                $"{path}.*",
-                                currentlyProcessing))
-                            {
-                                yield return dictMemberPath;
-                            }
-                        }
-
-                        foreach (var propertyPath in obj.Properties.SelectMany(p => FindPathsToSecureTypeComponents(
-                            p.Value.TypeReference.Type,
-                            hasTrailingAccessExpressions,
-                            $"{path}.{p.Key}",
-                            currentlyProcessing)))
-                        {
-                            yield return propertyPath;
-                        }
-                        break;
-                    case TupleType tuple:
-                        foreach (var pathFromIndex in tuple.Items.SelectMany((t, i) => FindPathsToSecureTypeComponents(
-                            t.Type,
-                            hasTrailingAccessExpressions,
-                            $"{path}[{i}]",
-                            currentlyProcessing)))
-                        {
-                            yield return pathFromIndex;
-                        }
-                        break;
-                    case ArrayType array:
-                        foreach (var pathFromElement in FindPathsToSecureTypeComponents(
-                            array.Item.Type,
-                            hasTrailingAccessExpressions,
-                            $"{path}[*]",
-                            currentlyProcessing))
-                        {
-                            yield return pathFromElement;
-                        }
-                        break;
-                }
+                currentlyProcessing.Remove(type);
             }
-
-            currentlyProcessing.Remove(type);
         }
 
         public static ObjectLikeType CreateExtensionConfigAssignmentType(ObjectLikeType configType, ObjectType? userAssignedDefaultConfigType)
