@@ -138,6 +138,38 @@ namespace Bicep.Core.UnitTests.Semantics
         }
 
         [TestMethod]
+        public void Multi_document_YAML_returns_dedicated_diagnostic()
+        {
+            var multiDocumentYml = """
+                first: document
+                ---
+                second: document
+                """;
+
+            var span = new TextSpan(0, multiDocumentYml.Length);
+            var result = new YamlObjectParser().TryExtractFromObject(multiDocumentYml, null, [span]);
+
+            Assert.IsFalse(result.IsSuccess(out _, out var errorDiagnostic));
+            Assert.AreEqual("BCP442", errorDiagnostic!.Code);
+            Assert.AreEqual("Multi-document YAML files are not supported. Please use a single YAML document.", errorDiagnostic.Message);
+        }
+
+        [TestMethod]
+        public void Single_document_YAML_with_explicit_start_marker_is_valid()
+        {
+            var yml = """
+                ---
+                content: value
+                """;
+
+            var span = new TextSpan(0, yml.Length);
+            var result = new YamlObjectParser().TryExtractFromObject(yml, null, [span]);
+
+            Assert.IsTrue(result.IsSuccess(out var jToken));
+            Assert.AreEqual("value", jToken!["content"]);
+        }
+
+        [TestMethod]
         public void Unparsable_JSON()
         {
             var invalidJson = @"
