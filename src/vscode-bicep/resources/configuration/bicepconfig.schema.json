@@ -575,6 +575,16 @@
                     }
                   ]
                 },
+                "no-secure-values-in-insecure-inputs": {
+                  "allOf": [
+                    {
+                      "description": "Secure values should not be passed to module parameters that are not secure. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-secure-values-in-insecure-inputs"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "no-unnecessary-dependson": {
                   "allOf": [
                     {
