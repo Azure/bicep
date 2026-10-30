@@ -115,6 +115,7 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
         {
           name: 'CosmosDb:Key'
           value: listKeys(cosmosDbResourceId, '2020-04-01').primaryMasterKey
+//@[17:59) [no-secrets-in-resource-properties (Warning)] Resource property 'site.properties.siteConfig.appSettings[1].value' is not marked secure, but is assigned function 'listKeys'. The value may be exposed by the resource provider. Resource type definitions do not always mark sensitive properties as secure. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-secrets-in-resource-properties) |listKeys(cosmosDbResourceId, '2020-04-01')|
         }
         {
           name: 'CosmosDb:DatabaseName'

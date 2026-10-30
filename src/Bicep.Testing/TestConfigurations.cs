@@ -23,6 +23,7 @@ public static class TestConfigurations
             UseRecentApiVersionRule.Code,
             UseRecentModuleVersionsRule.Code,
             NoHardcodedOutputsRule.Code,
+            NoSecretsInResourcePropertiesRule.Code,
             UseDescriptionParametersRule.Code,
             UseDescriptionVarsRule.Code,
             UseDescriptionOutputRule.Code,

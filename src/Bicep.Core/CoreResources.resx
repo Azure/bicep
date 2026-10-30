@@ -373,6 +373,13 @@
     <value>Module parameter '{0}' is not secure, but is assigned {1}. The value will be visible in the module deployment's inputs.</value>
     <comment>{0} = path to the module parameter, {1} = description of the secret found, e.g. "secure value 'adminPassword'" or "function 'listKeys'"</comment>
   </data>
+  <data name="NoSecretsInResourcePropertiesRule_Description" xml:space="preserve">
+    <value>Secure values should not be assigned to resource properties that are not marked secure.</value>
+  </data>
+  <data name="NoSecretsInResourcePropertiesRule_MessageFormat" xml:space="preserve">
+    <value>Resource property '{0}' is not marked secure, but is assigned {1}. The value may be exposed by the resource provider. Resource type definitions do not always mark sensitive properties as secure.</value>
+    <comment>{0} = path to the resource property, {1} = description of the secret found, not its value</comment>
+  </data>
   <data name="SecureParamsInParametersFileRule_Description" xml:space="preserve">
     <value>Secure parameter values should not be assigned to insecure parameters in a parameters file.</value>
   </data>
