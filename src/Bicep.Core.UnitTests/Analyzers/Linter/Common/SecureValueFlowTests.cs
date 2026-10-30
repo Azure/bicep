@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Common;
+using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using FluentAssertions;
@@ -115,5 +117,100 @@ public class SecureValueFlowTests
             [new("value", LanguageConstants.SecureString, TypePropertyFlags.WriteOnly)]);
 
         SecureValueFlow.GetMemberType(type, "value").Should().BeSameAs(LanguageConstants.SecureString);
+    }
+
+    [TestMethod]
+    public void Data_leaves_include_both_fallbacks_but_not_the_condition()
+    {
+        var model = CompilationHelper.Compile("""
+param condition bool
+param first string
+param second string?
+var value = condition ? first : (second ?? '')
+""").Compilation.GetEntrypointSemanticModel();
+        var value = model.Root.VariableDeclarations.Single().DeclaringVariable.Value;
+
+        SecureValueFlow.GetDataLeaves(value).Select(leaf => leaf.ToString().Trim()).Should().Equal("first", "second", "''");
+    }
+
+    [TestMethod]
+    public void Access_paths_preserve_literal_property_names_and_tuple_positions()
+    {
+        var model = CompilationHelper.Compile("""
+param config { items: { '*': string }[] }
+var value = (config).items[0]['*']
+""").Compilation.GetEntrypointSemanticModel();
+        var value = model.Root.VariableDeclarations.Single().DeclaringVariable.Value;
+        var (root, path) = SecureValueFlow.GetAccessPath(model, value);
+
+        root.Should().BeSameAs(model.Root.ParameterDeclarations.Single());
+        path.Should().Equal(".items", "[0]", ".*");
+    }
+
+    [TestMethod]
+    public void Optional_array_iteration_recovers_the_secure_item_type()
+    {
+        var model = CompilationHelper.Compile("""
+type item = {
+  @secure()
+  token: string
+}
+param items item[]?
+var values = [for item in (items ?? []): item.token]
+""").Compilation.GetEntrypointSemanticModel();
+        var loop = (ForSyntax)model.Root.VariableDeclarations.Single().DeclaringVariable.Value;
+
+        model.GetTypeInfo(loop.Body).TypeKind.Should().Be(TypeKind.Any);
+        SecureValueFlow.GetEffectiveType(model, loop.Body).ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+    }
+
+    [TestMethod]
+    public void Input_slots_pair_constructed_values_with_declared_destination_types()
+    {
+        var model = CompilationHelper.Compile(
+            ("main.bicep", """
+module child 'child.bicep' = {
+  params: {
+    settings: {
+      password: 'secret'
+      names: ['public']
+    }
+  }
+}
+"""),
+            ("child.bicep", """
+param settings {
+  @secure()
+  password: string
+  names: string[]
+}
+""")).Compilation.GetEntrypointSemanticModel();
+        var property = model.Root.ModuleDeclarations.Single().DeclaringModule.TryGetBody()!
+            .TryGetPropertyByName("params")!.Value.Should().BeOfType<ObjectSyntax>().Subject.Properties.Single();
+        var slots = SecureValueFlow.GetInputSlots(model, property.Value, "settings", model.GetDeclaredType(property)!).ToArray();
+
+        slots.Select(slot => slot.Input).Should().Equal("settings.password", "settings.names[0]");
+        SecureValueFlow.IsSecureType(slots[0].SinkType).Should().BeTrue();
+        SecureValueFlow.IsSecureType(slots[1].SinkType).Should().BeFalse();
+    }
+
+    [TestMethod]
+    [DataRow("{ value: 'public' }", true)]
+    [DataRow("{ value: null }", true)]
+    [DataRow("{ value: [] }", true)]
+    [DataRow("{ value: { public: 'public' } }", false)]
+    [DataRow("{}", false)]
+    [DataRow("optional", false)]
+    [DataRow("unknown", false)]
+    public void Object_union_replacement_requires_a_known_non_object_at_the_path(string replacement, bool expected)
+    {
+        var model = CompilationHelper.Compile($$"""
+param optional { value: string? }
+param unknown object
+var value = union({ value: 'initial' }, {{replacement}})
+""").Compilation.GetEntrypointSemanticModel();
+        var value = model.Root.VariableDeclarations.Single().DeclaringVariable.Value;
+
+        SecureValueFlow.IsOverwrittenByObjectUnion(model, value, 0, [".value"]).Should().Be(expected);
     }
 }
