@@ -6,6 +6,7 @@ using System.Reflection;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
@@ -257,8 +258,21 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static (OciArtifactReference, OciArtifactReference) ParsePair(string first, string second) => (Parse(first), Parse(second));
 
-        private static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseOciArtifactReference(string value, string? aliasName = null, IBicepConfiguration? configuration = null) =>
-            OciArtifactReference.TryParse(BicepTestConstants.CreateDummyBicepFile(configuration).LoadFeatures(), BicepTestConstants.CreateDummyBicepFile(configuration).LoadConfiguration(), ArtifactType.Module, aliasName, value);
+        private static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseOciArtifactReference(string value, string? aliasName = null, IBicepConfiguration? configuration = null)
+        {
+            var bicepFile = BicepTestConstants.CreateDummyBicepFile(configuration);
+            if (aliasName is not null)
+            {
+                if (!ArtifactReferenceResolver.TryExpandSchemeQualifiedAlias(bicepFile.LoadConfiguration(), ArtifactType.Module, ArtifactReferenceSchemes.Oci, aliasName, value).IsSuccess(out var expanded, out var errorBuilder))
+                {
+                    return new(errorBuilder);
+                }
+
+                value = expanded;
+            }
+
+            return OciArtifactReference.TryParse(bicepFile.LoadFeatures(), bicepFile.LoadConfiguration(), ArtifactType.Module, aliasName, value);
+        }
 
         private static IEnumerable<object[]> GetValidCases()
         {

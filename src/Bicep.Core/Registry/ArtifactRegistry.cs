@@ -34,8 +34,6 @@ namespace Bicep.Core.Registry
 
         public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<T> references);
 
-        public abstract ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference);
-
         public abstract string? TryGetDocumentationUri(T reference);
 
         public abstract Task<string?> TryGetModuleDescription(ModuleSymbol module, T reference);

@@ -37,21 +37,17 @@ namespace Bicep.Core.Registry
 
         private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
 
-        private readonly IFileExplorer fileExplorer;
-
         private readonly ILogger<OciArtifactRegistry> logger;
 
         public OciArtifactRegistry(
             RegistryConfiguration registryConfiguration,
             IOciRegistryTransportFactory transportFactory,
             IPublicModuleMetadataProvider publicModuleMetadataProvider,
-            IFileExplorer fileExplorer,
             ILogger<OciArtifactRegistry> logger)
         {
             this.registryConfiguration = registryConfiguration;
             this.transportFactory = transportFactory;
             this.publicModuleMetadataProvider = publicModuleMetadataProvider;
-            this.fileExplorer = fileExplorer;
             this.logger = logger;
         }
 
@@ -61,56 +57,6 @@ namespace Bicep.Core.Registry
         {
             // cannot publish without tag
             return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
-        }
-
-        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
-        {
-            // Check if the alias resolves to a mocked alias
-            if (aliasName is not null)
-            {
-                if (referencingFile.LoadConfiguration().ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out var _))
-                {
-                    // Mock aliases only support modules, not extensions.
-                    if (artifactType != ArtifactType.Module)
-                    {
-                        return new(x => x.OciArtifactModuleAliasMapToFilePathOnlySupportsModules(aliasName));
-                    }
-
-                    if (referencingFile.LoadConfiguration().ConfigFileUri is not { } configFileUri)
-                    {
-                        return new(x => x.ConfigurationFileNotFound("OciModuleAliasesMock"));
-                    }
-
-                    if (mockAlias.MapToFilePath is null)
-                    {
-                        return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, configFileUri));
-                    }
-
-                    // Use the declaring config's URI so that a relative mapToFilePath inherited from a base
-                    // config is resolved from that base config's directory, not the leaf's.
-                    var resolveBaseUri = mockAlias.DeclaringConfigUri ?? configFileUri;
-
-                    if (!OciArtifactMockedReference.TryParse(
-                        referencingFile,
-                        mockAlias.MapToFilePath,
-                        resolveBaseUri,
-                        reference,
-                        this.fileExplorer,
-                        aliasName).IsSuccess(out var mockedRef, out var mockedFailureBuilder))
-                    {
-                        return new(mockedFailureBuilder!);
-                    }
-
-                    return new(mockedRef!);
-                }
-            }
-
-            if (!OciArtifactReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), artifactType, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
-            {
-                return new(failureBuilder);
-            }
-
-            return new(@ref);
         }
 
         public override bool IsArtifactRestoreRequired(OciArtifactReference reference)

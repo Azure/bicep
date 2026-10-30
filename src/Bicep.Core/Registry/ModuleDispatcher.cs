@@ -31,14 +31,14 @@ namespace Bicep.Core.Registry
 
         private readonly ArtifactReferenceResolver referenceResolver;
 
-        public ModuleDispatcher(IArtifactRegistryProvider registryProvider)
+        public ModuleDispatcher(IArtifactRegistryProvider registryProvider, IFileExplorer fileExplorer)
         {
             this.registryProvider = registryProvider;
-            this.referenceResolver = new(registryProvider);
+            this.referenceResolver = new(registryProvider, fileExplorer);
         }
 
-        public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string reference)
-            => this.referenceResolver.TryGetArtifactReference(referencingFile, artifactType, reference);
+        public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string referenceText)
+            => this.referenceResolver.TryGetArtifactReference(referencingFile, artifactType, referenceText);
 
         public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, IArtifactReferenceSyntax artifactReferenceSyntax)
             => this.referenceResolver.TryGetArtifactReference(referencingFile, artifactReferenceSyntax);

@@ -70,18 +70,12 @@ namespace Bicep.Core.Modules
             return hash.ToHashCode();
         }
 
+        /// <summary>
+        /// Parses a fully qualified Template Spec reference body without the scheme, e.g. <c>&lt;subscription&gt;/&lt;resource group&gt;/&lt;name&gt;:&lt;version&gt;</c>.
+        /// </summary>
+        /// <param name="aliasName">The scheme-qualified alias the body was expanded from, if any. Only used in diagnostics.</param>
         public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(IFeatureProvider featureProvider, IBicepConfiguration configuration, string? aliasName, string referenceValue)
         {
-            if (aliasName is not null)
-            {
-                if (!configuration.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName).IsSuccess(out var alias, out var errorBuilder))
-                {
-                    return new(errorBuilder);
-                }
-
-                referenceValue = $"{alias}/{referenceValue}";
-            }
-
             if (TemplateSpecUriTemplate.GetTemplateMatch(referenceValue) is not { } match)
             {
                 return new(x => x.InvalidTemplateSpecReference(aliasName, FullyQualify(referenceValue)));

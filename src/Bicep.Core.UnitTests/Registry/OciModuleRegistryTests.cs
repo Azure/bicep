@@ -47,15 +47,15 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         [TestMethod]
-        public void TryParseArtifactReference_ShouldSucceedForNonAzureRegistry()
+        public void TryGetArtifactReference_ShouldSucceedForNonAzureRegistry()
         {
-            var (registry, _) = OciRegistryHelper.CreateModuleRegistry();
             var referencingFile = BicepTestConstants.CreateDummyBicepFile(featureOverrides: new FeatureProviderOverrides(OciEnabled: false));
+            var resolver = new ArtifactReferenceResolver(BicepTestConstants.CreateRegistryProvider(BicepTestConstants.EmptyServiceProvider), BicepTestConstants.FileExplorer);
 
-            var result = registry.TryParseArtifactReference(referencingFile, ArtifactType.Module, aliasName: null, reference: "ghcr.io/contoso/app:v1");
+            var result = resolver.TryGetArtifactReference(referencingFile, ArtifactType.Module, "br:ghcr.io/contoso/app:v1");
 
             result.IsSuccess(out var artifactReference, out _).Should().BeTrue();
-            artifactReference!.Should().NotBeNull();
+            artifactReference.Should().BeOfType<OciArtifactReference>();
         }
 
         #region GetDocumentationUri

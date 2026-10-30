@@ -17,9 +17,6 @@ namespace Bicep.Core.Registry
         public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, OciArtifactMockedReference reference)
             => RegistryCapabilities.Default;
 
-        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
-           => new(x => x.ModuleReferenceSchemeBrFsNotSupported());
-
         public override bool IsArtifactRestoreRequired(OciArtifactMockedReference reference) => false;
 
         public override Task<bool> CheckArtifactExists(ArtifactType artifactType, OciArtifactMockedReference reference)

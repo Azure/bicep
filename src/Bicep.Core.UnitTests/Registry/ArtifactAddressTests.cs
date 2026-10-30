@@ -16,9 +16,9 @@ public class ArtifactAddressTests
     [DataRow("./nested/mod.bicep")]
     [DataRow("/abs/mod.bicep")]
     [DataRow("nested\\mod.bicep")]
-    public void Text_without_a_colon_is_a_relative_address(string text)
+    public void Text_without_a_colon_is_a_path_address(string text)
     {
-        ArtifactAddress.Parse(text).Should().Be(new ArtifactAddress.Relative(text));
+        ArtifactAddress.Parse(text).Should().Be(new ArtifactAddress.Path(text));
     }
 
     [TestMethod]
@@ -29,9 +29,9 @@ public class ArtifactAddressTests
     [DataRow(":storage:1.0.0", "", "storage:1.0.0")]
     [DataRow("C:/abs/mod.bicep", "C", "/abs/mod.bicep")]
     [DataRow("avm::res/storage:1.0.0", "avm", ":res/storage:1.0.0")]
-    public void Text_with_a_scheme_is_a_qualified_address(string text, string scheme, string body)
+    public void Text_with_a_scheme_is_a_scheme_qualified_address(string text, string scheme, string body)
     {
-        ArtifactAddress.Parse(text).Should().Be(new ArtifactAddress.Qualified(text, scheme, body));
+        ArtifactAddress.Parse(text).Should().Be(new ArtifactAddress.SchemeQualified(text, scheme, body));
     }
 
     [TestMethod]
@@ -41,8 +41,8 @@ public class ArtifactAddressTests
     [DataRow("br/contoso/nested:storage:1.0.0", "br", "contoso/nested", "storage:1.0.0")]
     [DataRow("../mod:1.bicep", "..", "mod", "1.bicep")]
     [DataRow("oci/contoso:storage:1.0.0", "oci", "contoso", "storage:1.0.0")]
-    public void Text_with_a_slash_before_the_first_colon_is_a_scheme_qualified_alias_address(string text, string scheme, string alias, string body)
+    public void Text_with_a_slash_before_the_first_colon_is_a_scheme_and_alias_qualified_address(string text, string scheme, string alias, string body)
     {
-        ArtifactAddress.Parse(text).Should().Be(new ArtifactAddress.SchemeQualifiedAlias(text, scheme, alias, body));
+        ArtifactAddress.Parse(text).Should().Be(new ArtifactAddress.SchemeAndAliasQualified(text, scheme, alias, body));
     }
 }

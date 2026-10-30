@@ -65,31 +65,18 @@ namespace Bicep.Core.UnitTests.Registry
             mock.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>()))
                 .Returns(Task.CompletedTask);
 
-            DiagnosticBuilderDelegate? @null = null;
-
             var validFile = BicepTestConstants.CreateDummyBicepFile();
-            ArtifactReference? validRef = new MockModuleReference(validFile, "validRef");
-            mock.Setup(m => m.TryParseArtifactReference(validFile, ArtifactType.Module, null, "validRef")).Returns(ResultHelper.Create(validRef, @null));
+            ArtifactReference validRef = new MockModuleReference(validFile, "validRef");
 
             var validFile2 = BicepTestConstants.CreateDummyBicepFile();
-            ArtifactReference? validRef2 = new MockModuleReference(validFile2, "validRef2");
-            mock.Setup(m => m.TryParseArtifactReference(validFile2, ArtifactType.Module, null, "validRef2")).Returns(ResultHelper.Create(validRef2, @null));
+            ArtifactReference validRef2 = new MockModuleReference(validFile2, "validRef2");
 
             var validFile3 = BicepTestConstants.CreateDummyBicepFile();
-            ArtifactReference? validRef3 = new MockModuleReference(validFile3, "validRef3");
-            mock.Setup(m => m.TryParseArtifactReference(validFile3, ArtifactType.Module, null, "validRef3")).Returns(ResultHelper.Create(validRef3, @null));
-
-            var badFile = BicepTestConstants.CreateDummyBicepFile();
-            ArtifactReference? nullRef = null;
-            DiagnosticBuilderDelegate? badRefError = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Compiler, "BCPMock", "Bad ref error");
-            mock.Setup(m => m.TryParseArtifactReference(badFile, ArtifactType.Module, null, "badRef")).Returns(ResultHelper.Create(nullRef, badRefError));
+            ArtifactReference validRef3 = new MockModuleReference(validFile3, "validRef3");
 
             mock.Setup(m => m.IsArtifactRestoreRequired(validRef)).Returns(true);
             mock.Setup(m => m.IsArtifactRestoreRequired(validRef2)).Returns(false);
             mock.Setup(m => m.IsArtifactRestoreRequired(validRef3)).Returns(true);
-
-            Uri? validRefLocalUri = new("untitled://validRef");
-            Uri? validRef3LocalUri = new("untitled://validRef3");
 
             mock.Setup(m => m.RestoreArtifacts(It.IsAny<IEnumerable<ArtifactReference>>()))
                 .ReturnsAsync(new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>
@@ -98,21 +85,6 @@ namespace Bicep.Core.UnitTests.Registry
                 });
 
             var dispatcher = CreateDispatcher(fail.Object, mock.Object);
-
-            var goodModule = CreateModule("mock:validRef");
-            var goodModule2 = CreateModule("mock:validRef2");
-            var goodModule3 = CreateModule("mock:validRef3");
-            var badModule = CreateModule("mock:badRef");
-
-            dispatcher.TryGetArtifactReference(validFile, goodModule).IsSuccess(out var @ref, out var goodValidationBuilder).Should().BeTrue();
-            @ref.Should().Be(validRef);
-            goodValidationBuilder!.Should().BeNull();
-
-            dispatcher.TryGetArtifactReference(badFile, badModule).IsSuccess(out @ref, out var badValidationBuilder).Should().BeFalse();
-            @ref.Should().BeNull();
-            badValidationBuilder!.Should().NotBeNull();
-            badValidationBuilder!.Should().HaveCode("BCPMock");
-            badValidationBuilder!.Should().HaveMessage("Bad ref error");
 
             dispatcher.GetArtifactRestoreStatus(validRef, out var goodAvailabilityBuilder).Should().Be(ArtifactRestoreStatus.Unknown);
             goodAvailabilityBuilder!.Should().HaveCode("BCP190");
@@ -245,7 +217,7 @@ namespace Bicep.Core.UnitTests.Registry
             dispatcher.GetArtifactRestoreStatus(reference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
         }
 
-        private static IModuleDispatcher CreateDispatcher(params IArtifactRegistry[] registries) => new ModuleDispatcher(new MockArtifactRegistryProvider(registries));
+        private static IModuleDispatcher CreateDispatcher(params IArtifactRegistry[] registries) => new ModuleDispatcher(new MockArtifactRegistryProvider(registries), BicepTestConstants.FileExplorer);
 
         private static ModuleDeclarationSyntax CreateModule(string reference)
         {

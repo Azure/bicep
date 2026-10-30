@@ -26,14 +26,6 @@ namespace Bicep.Core.Registry
         RegistryCapabilities GetCapabilities(ArtifactType artifactType, ArtifactReference reference);
 
         /// <summary>
-        /// Attempts to parse the specified unqualified reference or returns a failure builder.
-        /// </summary>
-        /// <param name="aliasName">The alias name</param>
-        /// <param name="reference">The unqualified artifact reference</param>
-        /// <param name="artifactType">The artifact type.</param>
-        ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference);
-
-        /// <summary>
         /// Returns true if the specified artifact is already cached in the local cache.
         /// </summary>
         /// <param name="reference">The reference to the artifact.</param>

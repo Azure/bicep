@@ -82,7 +82,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             var mockRegistry = new MockRegistry();
             var provider = new MockArtifactRegistryProvider(mockRegistry.AsEnumerable());
 
-            var dispatcher = new ModuleDispatcher(provider);
+            var dispatcher = new ModuleDispatcher(provider, BicepTestConstants.FileExplorer);
 
             var firstUri = DocumentUri.From("foo://one");
             var firstSource = new TaskCompletionSource<bool>();
