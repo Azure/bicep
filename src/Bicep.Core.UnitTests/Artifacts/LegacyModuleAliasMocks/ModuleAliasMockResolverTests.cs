@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions.TestingHelpers;
+using Bicep.Core.Artifacts.LegacyModuleAliasMocks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
@@ -14,10 +15,10 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.UnitTests.Registry.Oci
+namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
 {
     [TestClass]
-    public class OciArtifactMockedReferenceTests
+    public class ModuleAliasMockResolverTests
     {
         [TestMethod]
         [DataRow("keyvault:1.0.0", "keyvault")]
@@ -31,7 +32,7 @@ namespace Bicep.Core.UnitTests.Registry.Oci
         [DataRow("@sha256:abc", "")]
         public void ExtractModulePath_ShouldExtractCorrectPath(string input, string expected)
         {
-            OciArtifactMockedReference.ExtractModulePath(input).Should().Be(expected);
+            ModuleAliasMockResolver.ExtractModulePath(input).Should().Be(expected);
         }
 
         [TestMethod]
@@ -41,7 +42,7 @@ namespace Bicep.Core.UnitTests.Registry.Oci
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result = OciArtifactMockedReference.TryParse(
+            var result = ModuleAliasMockResolver.TryCreateReference(
                 referencingFile,
                 "./modules",
                 configFileUri,
@@ -60,7 +61,7 @@ namespace Bicep.Core.UnitTests.Registry.Oci
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result = OciArtifactMockedReference.TryParse(
+            var result = ModuleAliasMockResolver.TryCreateReference(
                 referencingFile,
                 "../bicepModules",
                 configFileUri,
@@ -81,7 +82,7 @@ namespace Bicep.Core.UnitTests.Registry.Oci
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result = OciArtifactMockedReference.TryParse(
+            var result = ModuleAliasMockResolver.TryCreateReference(
                 referencingFile,
                 "./modules",
                 configFileUri,
@@ -100,7 +101,7 @@ namespace Bicep.Core.UnitTests.Registry.Oci
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result = OciArtifactMockedReference.TryParse(
+            var result = ModuleAliasMockResolver.TryCreateReference(
                 referencingFile,
                 "./modules",
                 configFileUri,
@@ -119,7 +120,7 @@ namespace Bicep.Core.UnitTests.Registry.Oci
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var parseResult = OciArtifactMockedReference.TryParse(
+            var parseResult = ModuleAliasMockResolver.TryCreateReference(
                 referencingFile,
                 "../bicepModules",
                 configFileUri,
@@ -142,9 +143,9 @@ namespace Bicep.Core.UnitTests.Registry.Oci
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result1 = OciArtifactMockedReference.TryParse(
+            var result1 = ModuleAliasMockResolver.TryCreateReference(
                 referencingFile, "../bicepModules", configFileUri, "keyvault:1.0.0", fileExplorer);
-            var result2 = OciArtifactMockedReference.TryParse(
+            var result2 = ModuleAliasMockResolver.TryCreateReference(
                 referencingFile, "../bicepModules", configFileUri, "keyvault:2.0.0", fileExplorer);
 
             result1.IsSuccess(out var ref1, out _).Should().BeTrue();
@@ -161,9 +162,9 @@ namespace Bicep.Core.UnitTests.Registry.Oci
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result1 = OciArtifactMockedReference.TryParse(
+            var result1 = ModuleAliasMockResolver.TryCreateReference(
                 referencingFile, "../bicepModules", configFileUri, "keyvault:1.0.0", fileExplorer);
-            var result2 = OciArtifactMockedReference.TryParse(
+            var result2 = ModuleAliasMockResolver.TryCreateReference(
                 referencingFile, "../bicepModules", configFileUri, "storage:1.0.0", fileExplorer);
 
             result1.IsSuccess(out var ref1, out _).Should().BeTrue();
@@ -232,7 +233,7 @@ namespace Bicep.Core.UnitTests.Registry.Oci
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result = OciArtifactMockedReference.TryParse(
+            var result = ModuleAliasMockResolver.TryCreateReference(
                 referencingFile,
                 "./modules",
                 configFileUri,

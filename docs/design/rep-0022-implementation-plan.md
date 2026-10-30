@@ -35,12 +35,12 @@ Introduce `Bicep.Core/Registry/Resolution/` and route **every** reference throug
 
 ```
 ArtifactReferenceText (string)
-  └─ ArtifactReferenceSyntaxParser.Parse            → ParsedArtifactReference
-       Relative(path) | Qualified(scheme, body) | SchemeQualifiedAlias(scheme, alias, body) | ArtifactAlias(alias, body)   (see 2.11)
+  └─ ArtifactAddress.Parse                          → ArtifactAddress
+       Path | SchemeQualified(scheme, body) | SchemeAndAliasQualified(scheme, alias, body) | AliasQualified(alias, body)   (see 2.11)
   ├─ (1) redirect: exact match on source spelling
   ├─ (2) redirect: capture match on source spelling (most literal chars; tie → error)
   ├─ (3) br/<alias> + moduleAliasesMock.br hit → ModuleAliasMockResolver → local file (STOP)   [2.11.3]
-  ├─ (4) Alias → expand via artifacts.aliases ∪ predefined {mar, avm}  (no I/O)
+  ├─ (4) AliasQualified → expand via artifacts.aliases ∪ predefined {mar, avm}  (no I/O)
   ├─     canonicalize through scheme handler (OCI/TS/File parsers)    → CanonicalIdentity
   ├─ (5) redirect: exact match on canonical identity
   ├─ (6) redirect: capture match on canonical identity
@@ -51,13 +51,13 @@ Outputs an `ArtifactResolution` record: `{ SourceText, Parsed, CanonicalIdentity
 
 After Phase 0 this pipeline lives in `IArtifactReferenceResolver` (which replaces the resolution half of `ModuleDispatcher`). Redirects **must not apply to publish targets or ext-src requests** (otherwise `publish-extension --target oci:…` with a matching redirect would write into the local file via the local registry's publish) – enforced by `TryResolvePublishTarget` and an ext-src resolution path that skip redirects.
 
-### 2.2 Parsing rules (`ArtifactReferenceSyntaxParser`)
+### 2.2 Parsing rules (`ArtifactAddress.Parse`)
 
 Ordered checks on the raw string:
-1. `^(?<alias>[A-Za-z0-9_-]+)::(?<body>.*)$` → `Alias`. (Checked first so `br::x` is alias `br`, not scheme `br`.)
-2. `^(?<scheme>br|ts)/(?<alias>[^:]+):(?<body>.*)$` → `SchemeQualifiedAlias` (permanent; resolved only via `moduleAliases`). Any other `<scheme>/<x>:` form (`oci/…`, `file/…`) → new diagnostic "scheme-qualified aliases are not supported for this scheme; use `<alias>::`".
-3. `^(?<scheme>[a-z-]+):(?<body>.*)$` → `FullyQualified` (`oci`, `br`, `ts`, `file`; `br-mock` stays rejected).
-4. Otherwise → `Relative` (existing `LocalModuleReference`).
+1. `^(?<alias>[A-Za-z0-9_-]+)::(?<body>.*)$` → `AliasQualified`. (Checked first so `br::x` is alias `br`, not scheme `br`.)
+2. `^(?<scheme>br|ts)/(?<alias>[^:]+):(?<body>.*)$` → `SchemeAndAliasQualified` (permanent; resolved only via `moduleAliases`). Any other `<scheme>/<x>:` form (`oci/…`, `file/…`) → new diagnostic "scheme-qualified aliases are not supported for this scheme; use `<alias>::`".
+3. `^(?<scheme>[a-z-]+):(?<body>.*)$` → `SchemeQualified` (`oci`, `br`, `ts`, `file`; `br-mock` stays rejected).
+4. Otherwise → `Path` (existing `LocalModuleReference`).
 
 Body rules: empty body allowed only for OCI alias when body starts with `:`/`@` (the `storage:::0.32.1` form) – validated after expansion; other alias types require non-empty path.
 
@@ -209,11 +209,11 @@ Key contracts:
 ```csharp
 // pure, no I/O, no config
 abstract record ArtifactAddress(string Text) {
-  record Relative(RelativePath Path);
-  record Qualified(string Scheme, string Body);           // br:, ts:  (later oci:, file:)
-  record SchemeQualifiedAlias(string Scheme, string Alias, string Body); // br/x:, ts/x: (permanent, moduleAliases)
-  // later: record Alias(string Name, string Body);       // x::
-  static ResultWithDiagnosticBuilder<ArtifactAddress> TryParse(string text);
+  record Path();                                           // ./mod.bicep
+  record SchemeQualified(string Scheme, string Body);      // br:, ts:  (later oci:, file:)
+  record SchemeAndAliasQualified(string Scheme, string Alias, string Body); // br/x:, ts/x: (permanent, moduleAliases)
+  // later: record AliasQualified(string Alias, string Body); // x::
+  static ArtifactAddress Parse(string text);              // total: never fails
 }
 
 abstract class ArtifactReference {               // value-ish
@@ -240,8 +240,8 @@ interface IArtifactRegistry {                     // no parsing
 |---|---|---|---|
 | 0.1 ✅ | **Characterization tests** (done) | `Bicep.Core.UnitTests/Registry/ArtifactReferenceResolutionTests.cs` pins end-to-end resolution through the real `ModuleDispatcher`, registries and config discovery (the existing body-parser tests in `Modules/*ReferenceTests.cs` already cover OCI/TS body validation): relative paths (incl. `\`, absolute, `C:/…` treated as scheme `C`, empty), `br:` (casing, digest, port, missing tag, uppercase repo), `br/public:`, `br/<alias>:` (missing, invalid name, empty name, no registry, no modulePath), moduleAliasesMock (tag, digest, invalid segment), `br-mock:`, `ts:` + `ts/<alias>:`, unknown schemes and REP 0022 spellings (`oci:`, `file:`, `avm::`, `br::`, `oci/x:`) as they fail today, extension text, `extension <name>` via the `extensions` map (bare path rewritten relative to the referencing file), implicit extensions (bare path anchored on the referencing file – an inconsistency to resolve in 0.3), and the `LocalModuleReference.Equals` behavior expected to change in 0.5. | New tests green on `main`. |
 | 0.2 ✅ | **Single source of truth for resolved references** (done) | Remove `IArtifactReferenceFactory` from `Compilation`, `SemanticModel`, `ISymbolContext`/`SymbolContext`; `ImportedSymbol`/`WildcardImportSymbol.TryGetArtifactReference()` read `SourceFileGrouping.ArtifactLookup[EnclosingDeclaration].Reference`; LS `BicepDefinitionHandler`/`BicepHoverHandler` read the lookup instead of re-resolving with `EntryPoint`. Expose a helper `IArtifactFileLookupExtensions.TryGetArtifactReference(IArtifactReferenceSyntax)`. | No behavior change; baselines unchanged. |
-| 0.3a ✅ | **`ArtifactAddress` parser + `ArtifactReferenceResolver`** (done) | Pure, total parser `ArtifactAddress.Parse` (`Relative` / `Qualified` / `SchemeQualifiedAlias`) replaces the string splitting in `ModuleDispatcher.TryGetArtifactReference`. `ArtifactReferenceResolver` (implements `IArtifactReferenceFactory`) takes over text/syntax → reference resolution, including the extension declaration / `extensions` map path; `ModuleDispatcher` delegates to it. Registries still parse bodies and expand aliases. | 0.1 tests unchanged (plus parser edge cases pinned before the change). |
-| 0.3b | **Alias expansion + mock isolation in the resolver** | Scheme-qualified alias expansion moves out of `OciArtifactReference.TryParseComponents`/`TemplateSpecModuleReference.TryParse` into the resolver (these now only parse a fully qualified body, with a neutral `aliasContext` for diagnostics). The mock moves out of `OciArtifactRegistry` into `internal` `Artifacts/LegacyModuleAliasMocks/ModuleAliasMockResolver`, called once at step 3. Generalize declaring-URI annotation. Add the mock architecture test (2.11.3). Route implicit extensions through the resolver (see open question 11). Remove `TryParseArtifactReference` from `IArtifactRegistry`. | 0.1 tests unchanged (diagnostic text byte-identical); architecture test green. |
+| 0.3a ✅ | **`ArtifactAddress` parser + `ArtifactReferenceResolver`** (done) | Pure, total parser `ArtifactAddress.Parse` (`Path` / `SchemeQualified` / `SchemeAndAliasQualified`; originally named `Relative` / `Qualified` / `SchemeQualifiedAlias`) replaces the string splitting in `ModuleDispatcher.TryGetArtifactReference`. `ArtifactReferenceResolver` (implements `IArtifactReferenceFactory`) takes over text/syntax → reference resolution, including the extension declaration / `extensions` map path; `ModuleDispatcher` delegates to it. Registries still parse bodies and expand aliases. | 0.1 tests unchanged (plus parser edge cases pinned before the change). |
+| 0.3b ✅ | **Alias expansion + mock isolation in the resolver** (done) | `ArtifactReferenceResolver` now builds references itself: it expands scheme-qualified aliases through `moduleAliases` (`TryExpandSchemeQualifiedAlias`) and dispatches to the OCI/TS/local body parsers. `OciArtifactReference.TryParse`/`TemplateSpecModuleReference.TryParse` only parse a fully qualified body (the alias is passed as a diagnostic-only `aliasContext`). The mock moved from `OciArtifactRegistry` into `internal` `Artifacts/LegacyModuleAliasMocks/ModuleAliasMockResolver` (which also owns `OciArtifactMockedReference` creation), called once before alias expansion; `OciArtifactRegistry` no longer takes an `IFileExplorer`. `TryParseArtifactReference` removed from `IArtifactRegistry`. Declaring-URI annotation generalized to `FindDeclaringUrisByKey(rawLayers, sectionPath)`. Mock architecture test `ModuleAliasMockIsolationTests` added (2.11.3). Implicit extensions already resolve through the resolver's text overload; whether bare paths are config-relative stays open (question 11) because changing it is a behavior change. `.gitignore`: un-ignore `src/*/Artifacts/` (the template's `artifacts/` rule matches it on case-insensitive file systems). Mock config types stay in `Configuration/` until 0.6. | 0.1 tests unchanged (diagnostic text byte-identical); architecture test green (and fails when a reference is planted outside the allowed files). |
 | 0.4 | **Split dispatcher → `IArtifactReferenceResolver` + `IArtifactDistributionManager`** | As in 2.10.2. DI in `BicepCoreServiceCollectionExtensions.cs:47`; Wasm provider; test helpers (`RegistryHelper`, `ServiceBuilder` extensions). Rename `ArtifactDispatcherTests` accordingly. Publish commands resolve via a publish-target path. | Full test suite; CLI publish integration tests. |
 | 0.5 | **Local references** | `LocalModuleReference`/`LocalExtensionReference` hold a resolved `IOUri` (+ original `RelativePath` for display); `Equals` by URI. Local extension caching moves to `LocalArtifactRegistry` (content-addressed `local/sha256_…` unchanged). Delete `OciArtifactMockedReference`; `ModuleAliasMockResolver` returns a `LocalModuleReference`. Delete `OciArtifactMockedRegistry` and the `br-mock` scheme; registry routing by `ArtifactReferenceKind`. `SourceFileGroupingBuilder` `forceRestore` check uses `!IsExternal`/kind instead of `Scheme == ""`. | Mock tests unchanged; restore-dedup test flipped to correct behavior. |
 | 0.6 | **Vocabulary + folders** | Move to `Bicep.Core/Artifacts/*` namespaces; mock config types to `Configuration/LegacyModuleAliasMocks/`; cache-entry renames; `IArtifactMetadataProvider` for hover metadata; split `ModuleReferenceCompletionProvider` into prefix parsing + catalog completion, with alias prefixes (`br/x:`, `ts/x:`, later `x::`) supplied by `IArtifactAliasCatalog`. Mostly mechanical; land last to minimize rebase pain. | Build + full tests; LS completion tests unchanged. |
@@ -288,17 +288,17 @@ The two namespaces stay independent, as the REP requires.
 ```csharp
 abstract record ArtifactAddress(string Text)
 {
-    record Relative(RelativePath Path);
-    record Qualified(string Scheme, string Body);                       // br:, oci:, ts:, file:
-    record SchemeQualifiedAlias(string Scheme, string Alias, string Body); // br/<alias>:, ts/<alias>:   (moduleAliases)
-    record ArtifactAlias(string Alias, string Body);                    // <alias>::                  (artifacts.aliases)
+    record Path();                                                         // ./mod.bicep
+    record SchemeQualified(string Scheme, string Body);                    // br:, oci:, ts:, file:
+    record SchemeAndAliasQualified(string Scheme, string Alias, string Body); // br/<alias>:, ts/<alias>:   (moduleAliases)
+    record AliasQualified(string Alias, string Body);                      // <alias>::                  (artifacts.aliases)
 }
 ```
 
 - The parser recognizes `br/<alias>:` and `ts/<alias>:` directly. Other `<scheme>/<x>:` forms (`oci/…`, `file/…`) get the "scheme-qualified aliases are not supported for this scheme; use `<alias>::`" diagnostic.
 - The resolver's alias-expansion step has two **separate** lookups, one per address form:
-  - `SchemeQualifiedAlias` → `IBicepConfiguration.ModuleAliases`
-  - `ArtifactAlias` → `IBicepConfiguration.Artifacts.Aliases` plus predefined aliases
+  - `SchemeAndAliasQualified` → `IBicepConfiguration.ModuleAliases`
+  - `AliasQualified` → `IBicepConfiguration.Artifacts.Aliases` plus predefined aliases
 
   Each produces `(scheme, body, aliasContext)` for the core OCI/TS/File body parsers, so there is no fallback between the maps. The OCI and Template Spec reference types no longer read config (alias lookup moves out of `OciArtifactReference.TryParseComponents` and `TemplateSpecModuleReference.TryParse`).
 - `aliasContext` feeds the existing "…after resolving alias "X" is not valid" diagnostics for both alias forms.
@@ -312,7 +312,7 @@ Today the mock is spread through shared code:
 - `BicepConfigurationManager.BuildAliasDeclaringUriMap`: declaring-URI annotation hard-coded for `moduleAliasesMock.br`.
 
 Target layout:
-- **`Bicep.Core/Artifacts/LegacyModuleAliasMocks/ModuleAliasMockResolver`** (`internal`) owns all mock behavior. It takes a `SchemeQualifiedAlias` with scheme `br` and returns one of:
+- **`Bicep.Core/Artifacts/LegacyModuleAliasMocks/ModuleAliasMockResolver`** (`internal`) owns all mock behavior. It takes a `SchemeAndAliasQualified` address with scheme `br` and returns one of:
   - `null`: no mock configured for this alias
   - a failure: today's diagnostics, including "modules only"
   - a local file URI plus a display reference `br:<modulePath>`
@@ -338,13 +338,13 @@ Deprecation itself (warnings, a timeline) is a product decision outside REP 0022
 
 ## 3. Work breakdown (PR sequence)
 
-> After Phase 0, feature PR 1 below shrinks to "add `Alias` address form and canonical identity/provenance plumbing"; the resolver, parser, URI-anchored local references and kind-based routing already exist.
+> After Phase 0, feature PR 1 below shrinks to "add `AliasQualified` address form and canonical identity/provenance plumbing"; the resolver, parser, URI-anchored local references and kind-based routing already exist.
 
 Each PR is independently shippable; user-visible syntax lands only when its resolution path is complete. If releases are cut mid-sequence, gate new syntax behind a temporary (hidden) experimental flag removed in PR 10 – the REP says no flag at release (decision needed).
 
 | # | PR | Main files | Tests |
 |---|---|---|---|
-| 1 | **Canonical identity + provenance plumbing** (on top of Phase 0). Add `ArtifactReference.CanonicalIdentity`, `ArtifactProvenance`, and the `Alias` address form (parsed but rejected until PR 4). | `Artifacts/References/*`, `Artifacts/Resolution/*` | Parser tests for `oci:localhost:5000/x:v1`, `br::x`, `storage:::1.0`, `oci/mar:x` error; baselines unchanged. |
+| 1 | **Canonical identity + provenance plumbing** (on top of Phase 0). Add `ArtifactReference.CanonicalIdentity`, `ArtifactProvenance`, and the `AliasQualified` address form (parsed but rejected until PR 4). | `Artifacts/References/*`, `Artifacts/Resolution/*` | Parser tests for `oci:localhost:5000/x:v1`, `br::x`, `storage:::1.0`, `oci/mar:x` error; baselines unchanged. |
 | 2 | **`oci:` scheme.** Register as parse alias of OCI registry; publish target support; Wasm/MCP filters. | `ModuleReferenceSchemes.cs`, `DefaultArtifactRegistryProvider.cs`, `PublishExtensionCommand.cs`, `Interop.cs` | `oci:` ≡ `br:` equality/restore-dedup; publish to `oci:`; source-archive still writes `br:`. |
 | 3 | **`artifacts` config section** (aliases + redirects data model, non-throwing validation, declaring-URI annotation across `extends`, code-defined `mar`/`avm`). | `ArtifactsConfiguration.cs`, `BicepConfiguration*.cs`, `BicepConfigurationManager.cs`, `IBicepConfiguration.cs`, schema | Binding, inheritance (alias/redirect declared in base config resolves from base dir), predefined override type error, merge-replacement semantics. |
 | 4 | **Alias references `<alias>::`** for OCI and TS (incl. `mar`, `avm`, empty-path OCI form). Core-only; independent of `moduleAliases` by construction (separate address form and lookup). | core resolver/parser, `ArtifactsConfiguration.cs`, `DiagnosticBuilder.cs` | Expansion matrix; `br/x:` with only `artifacts.aliases.x` → existing unknown-alias error; same name in both maps with different targets; architecture test still green. |

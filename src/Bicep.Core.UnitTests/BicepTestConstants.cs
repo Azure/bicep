@@ -92,14 +92,14 @@ namespace Bicep.Core.UnitTests
             var transportFactory = new OciRegistryTransportFactory(transport, dockerCredentials);
             var publicMetadataProvider = (services.GetService(typeof(IPublicModuleMetadataProvider)) as IPublicModuleMetadataProvider)
                 ?? StrictMock.Of<IPublicModuleMetadataProvider>().Object;
-            return new DefaultArtifactRegistryProvider(TestRegistryConfiguration, transportFactory, publicMetadataProvider, TemplateSpecRepositoryFactory, FileExplorer);
+            return new DefaultArtifactRegistryProvider(TestRegistryConfiguration, transportFactory, publicMetadataProvider, TemplateSpecRepositoryFactory);
         }
 
         public static readonly RegistryConfiguration TestRegistryConfiguration = new(PermitUntrustedRegistries: true);
 
         public static readonly CloudConfigurationTrustPolicy TestCloudConfigurationTrustPolicy = new();
 
-        public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));
+        public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services), FileExplorer);
 
         public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
             new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzResourceTypeProvider, BicepSourceFileKind.BicepFile), null),

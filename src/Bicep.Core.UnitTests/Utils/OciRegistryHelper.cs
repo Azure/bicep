@@ -91,7 +91,6 @@ namespace Bicep.Core.UnitTests.Utils
                 BicepTestConstants.TestRegistryConfiguration,
                 transportFactory,
                 StrictMock.Of<IPublicModuleMetadataProvider>().Object,
-                new FileSystemFileExplorer(new MockFileSystem()),
                 NullLogger<OciArtifactRegistry>.Instance);
 
             return (registry, blobClient);

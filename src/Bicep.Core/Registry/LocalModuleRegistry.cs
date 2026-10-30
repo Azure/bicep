@@ -31,22 +31,6 @@ namespace Bicep.Core.Registry
                 _ => throw new UnreachableException(),
             };
 
-        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? alias, string reference)
-        {
-            if (artifactType != ArtifactType.Module && artifactType != ArtifactType.Extension)
-            {
-                return new(x => x.UnsupportedArtifactType(artifactType));
-            }
-
-            if (!LocalModuleReference.TryParse(referencingFile, artifactType, reference).IsSuccess(out var @ref, out var failureBuilder))
-            {
-                return new(failureBuilder);
-            }
-
-            return new(@ref);
-        }
-
-
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<LocalModuleReference> references)
         {
             var statuses = new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();

@@ -10,7 +10,7 @@ namespace Bicep.Core.Registry;
 
 public interface IArtifactReferenceFactory
 {
-    ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string reference);
+    ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string referenceText);
 
     ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, IArtifactReferenceSyntax artifactDeclaration);
 }

@@ -97,11 +97,13 @@ namespace Bicep.Core.Registry.Oci
             _ => throw new UnreachableException(),
         };
 
-        // unqualifiedReference is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
-        // The referencingFile is needed to resolve aliases and experimental features
-        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(IFeatureProvider features, IBicepConfiguration configuration, ArtifactType type, string? aliasName, string unqualifiedReference)
+        /// <summary>
+        /// Parses a fully qualified OCI reference body without the scheme, e.g. <c>example.azurecr.invalid/foo/bar:v3</c>.
+        /// </summary>
+        /// <param name="aliasContext">The scheme-qualified alias the body was expanded from, if any. Only used in diagnostics.</param>
+        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(IFeatureProvider features, IBicepConfiguration configuration, ArtifactType type, string? aliasContext, string unqualifiedReference)
         {
-            if (TryParseComponents(configuration, type, aliasName, unqualifiedReference).IsSuccess(out var components, out var errorBuilder))
+            if (OciArtifactAddressComponents.TryParse(unqualifiedReference, aliasContext).IsSuccess(out var components, out var errorBuilder))
             {
                 return new(new OciArtifactReference(features, configuration, type, components.Registry, components.Repository, components.Tag, components.Digest));
             }
@@ -115,27 +117,6 @@ namespace Bicep.Core.Registry.Oci
             this.Type == ArtifactType.Extension
                 ? this.lazyBicepRegistryExtensionArtifact.Value
                 : throw new InvalidOperationException($"Cannot resolve extension artifact for type {this.Type}.");
-
-        private static ResultWithDiagnosticBuilder<OciArtifactAddressComponents> TryParseComponents(IBicepConfiguration configuration, ArtifactType type, string? aliasName, string unqualifiedReference)
-        {
-            if (aliasName is { })
-            {
-                switch (type)
-                {
-                    case ArtifactType.Module:
-                        if (!configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var moduleAlias, out var moduleFailureBuilder))
-                        {
-                            return new(moduleFailureBuilder);
-                        }
-                        unqualifiedReference = $"{moduleAlias}/{unqualifiedReference}";
-                        break;
-                    default:
-                        return new(x => x.UnsupportedArtifactType(type));
-                }
-            }
-
-            return OciArtifactAddressComponents.TryParse(unqualifiedReference, aliasName);
-        }
 
         public override bool Equals(object? obj)
         {

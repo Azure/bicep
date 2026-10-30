@@ -7,30 +7,34 @@ namespace Bicep.Core.Registry;
 /// The syntactic form of an artifact reference string. Parsing is purely textual: it does not consult configuration,
 /// registries or the file system, and it never fails. Validation happens when the address is resolved.
 /// </summary>
+/// <remarks>
+/// "Qualified" names what precedes the body (a scheme, an alias, or both), not whether the body is complete:
+/// an alias-qualified body is only complete after the alias is expanded.
+/// </remarks>
 public abstract record ArtifactAddress(string Text)
 {
     /// <summary>
-    /// A reference without a scheme, e.g. <c>./modules/storage.bicep</c>.
+    /// A path without a scheme or alias, e.g. <c>./modules/storage.bicep</c>.
     /// </summary>
-    public sealed record Relative(string Text) : ArtifactAddress(Text);
+    public sealed record Path(string Text) : ArtifactAddress(Text);
 
     /// <summary>
-    /// A reference with a scheme, e.g. <c>br:contoso.azurecr.io/storage:1.0.0</c>.
+    /// A body qualified by a scheme, e.g. <c>br:contoso.azurecr.io/storage:1.0.0</c>.
     /// </summary>
-    public sealed record Qualified(string Text, string Scheme, string Body) : ArtifactAddress(Text);
+    public sealed record SchemeQualified(string Text, string Scheme, string Body) : ArtifactAddress(Text);
 
     /// <summary>
-    /// A reference with a scheme-qualified alias that is resolved through <c>moduleAliases</c>, e.g. <c>br/contoso:storage:1.0.0</c>.
+    /// A body qualified by a scheme and an alias, which is resolved through <c>moduleAliases</c>, e.g. <c>br/contoso:storage:1.0.0</c>.
     /// </summary>
-    public sealed record SchemeQualifiedAlias(string Text, string Scheme, string Alias, string Body) : ArtifactAddress(Text);
+    public sealed record SchemeAndAliasQualified(string Text, string Scheme, string Alias, string Body) : ArtifactAddress(Text);
 
     public static ArtifactAddress Parse(string text)
     {
-        // The first ':' separates the scheme (optionally qualified with "/<alias>") from the body.
+        // The first ':' separates the scheme (optionally followed by "/<alias>") from the body.
         var colonIndex = text.IndexOf(':');
         if (colonIndex < 0)
         {
-            return new Relative(text);
+            return new Path(text);
         }
 
         var prefix = text[..colonIndex];
@@ -39,9 +43,9 @@ public abstract record ArtifactAddress(string Text)
         var slashIndex = prefix.IndexOf('/');
         if (slashIndex < 0)
         {
-            return new Qualified(text, prefix, body);
+            return new SchemeQualified(text, prefix, body);
         }
 
-        return new SchemeQualifiedAlias(text, prefix[..slashIndex], prefix[(slashIndex + 1)..], body);
+        return new SchemeAndAliasQualified(text, prefix[..slashIndex], prefix[(slashIndex + 1)..], body);
     }
 }

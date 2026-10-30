@@ -26,20 +26,6 @@ namespace Bicep.Core.Registry
 
         public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, TemplateSpecModuleReference reference) => RegistryCapabilities.Default;
 
-        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
-        {
-            if (artifactType != ArtifactType.Module)
-            {
-                return new(x => x.UnsupportedArtifactType(artifactType));
-            }
-            if (!TemplateSpecModuleReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
-            {
-                return new(failureBuilder);
-            }
-
-            return new(@ref);
-        }
-
         public override bool IsArtifactRestoreRequired(TemplateSpecModuleReference reference) => !reference.MainTemplateSpecFile.Exists();
 
         public override Task PublishModule(TemplateSpecModuleReference reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
