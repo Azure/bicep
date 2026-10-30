@@ -109,10 +109,18 @@ namespace Bicep.Core.Semantics
                             outputProperty.Key,
                             type,
                             TryGetMetadataDescription(outputProperty.Value.Metadata),
-                            TypeHelper.IsOrContainsSecureType(type.Type));
+                            TypeHelper.IsOrContainsSecureType(type.Type) || IsDeclaredSecureResourceDerivedType(type.Type));
                     })];
             });
         }
+
+        /// <summary>
+        /// A compiled <c>secureString</c> or <c>secureObject</c> output with resource-derived metadata resolves to a secure
+        /// type (see <see cref="ResourceDerivedTypeResolver"/>), so its metadata must agree before resolution.
+        /// </summary>
+        private static bool IsDeclaredSecureResourceDerivedType(TypeSymbol type)
+            => (TypeHelper.TryRemoveNullability(type) ?? type) is IUnresolvedResourceDerivedType unresolved &&
+                (TypeHelper.TryRemoveNullability(unresolved.FallbackType) ?? unresolved.FallbackType).ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
 
         public ArmTemplateFile SourceFile { get; }
 

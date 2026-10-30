@@ -181,6 +181,59 @@ public class ResourceDerivedTypeResolverTests
         bound.ReturnType.Should().BeSameAs(hydrated);
     }
 
+    [TestMethod]
+    public void Preserves_secure_flag_of_fallback_type()
+    {
+        var hydratedObject = new ObjectType("settings", TypeSymbolValidationFlags.Default, [new NamedTypeProperty("key", LanguageConstants.String)], null);
+        var (objectSut, objectTypeRef) = SetupResolver(hydratedObject);
+
+        var resolvedObject = objectSut.ResolveResourceDerivedTypes(
+            new UnresolvedResourceDerivedType(objectTypeRef, [], LanguageConstants.SecureObject, ResourceDerivedTypeVariant.Input));
+        resolvedObject.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+        resolvedObject.Should().BeOfType<ObjectType>().Subject.Properties.Should().ContainKey("key");
+
+        var (stringSut, stringTypeRef) = SetupResolver(TypeFactory.CreateStringType(minLength: 1, maxLength: 32, pattern: "^[a-z]+$"));
+        var resolvedString = stringSut.ResolveResourceDerivedTypes(
+            new UnresolvedResourceDerivedType(stringTypeRef, [], LanguageConstants.SecureString, ResourceDerivedTypeVariant.Input));
+        resolvedString.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+        var resolvedStringType = resolvedString.Should().BeOfType<StringType>().Subject;
+        resolvedStringType.MinLength.Should().Be(1);
+        resolvedStringType.MaxLength.Should().Be(32);
+        resolvedStringType.Pattern.Should().Be("^[a-z]+$");
+
+        // Nullable parameters wrap the declared schema in a union with null.
+        var (nullableSut, nullableTypeRef) = SetupResolver(hydratedObject);
+        var resolvedNullable = nullableSut.ResolveResourceDerivedTypes(
+            new UnresolvedResourceDerivedType(nullableTypeRef, [], TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.SecureObject), ResourceDerivedTypeVariant.Input));
+        resolvedNullable.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+    }
+
+    [TestMethod]
+    [DynamicData(nameof(GetSecureFallbackShapes))]
+    public void Secure_fallback_must_not_replace_richer_resolved_types(TypeSymbol hydrated, TypeSymbol fallback)
+    {
+        var (sut, typeRef) = SetupResolver(hydrated);
+
+        var resolved = sut.ResolveResourceDerivedTypes(
+            new UnresolvedResourceDerivedType(typeRef, [], fallback, ResourceDerivedTypeVariant.Input));
+
+        resolved.Should().BeSameAs(hydrated);
+    }
+
+    private static IEnumerable<object[]> GetSecureFallbackShapes()
+    {
+        yield return [TypeFactory.CreateStringLiteralType("fixed"), LanguageConstants.SecureString];
+        yield return [TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("first"), TypeFactory.CreateStringLiteralType("second")), LanguageConstants.SecureString];
+        yield return [TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.String), LanguageConstants.SecureString];
+        yield return [new DiscriminatedObjectType("settings", TypeSymbolValidationFlags.Default, "kind",
+            [
+                new ObjectType("first", TypeSymbolValidationFlags.Default,
+                    [new NamedTypeProperty("kind", TypeFactory.CreateStringLiteralType("first"), TypePropertyFlags.Required)], null),
+                new ObjectType("second", TypeSymbolValidationFlags.Default,
+                    [new NamedTypeProperty("kind", TypeFactory.CreateStringLiteralType("second"), TypePropertyFlags.Required)], null),
+            ]), LanguageConstants.SecureObject];
+    }
+
     private static (ResourceDerivedTypeResolver sut, ResourceTypeReference unhydratedTypeRef) SetupResolver(TypeSymbol hydratedType)
     {
         var unhydratedTypeRef = new ResourceTypeReference("type", "version");

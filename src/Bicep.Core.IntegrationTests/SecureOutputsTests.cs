@@ -396,4 +396,102 @@ public class SecureOutputsTests
             ("BCP426", DiagnosticLevel.Error, "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda."),
         ]);
     }
+
+    // A compiled module (from a registry, template spec, or local JSON file) records a
+    // resource-derived output as its ARM type plus a `__bicep_resource_derived_type!` source.
+    // The output stays secure when the ARM type is, matching the same module compiled from source.
+    private static string CompiledModuleWithResourceDerivedOutput(string armType, string source, string value) => $$"""
+        {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "resources": {},
+          "outputs": {
+            "out": {
+              "type": "{{armType}}",
+              "value": {{value}},
+              "metadata": { "__bicep_resource_derived_type!": { "source": "{{source}}" } }
+            }
+          }
+        }
+        """;
+
+    private const string VmAdminUsernameSource = "Microsoft.Compute/virtualMachines@2024-07-01#properties/properties/properties/osProfile/properties/adminUsername";
+    private const string VmHardwareProfileSource = "Microsoft.Compute/virtualMachines@2024-07-01#properties/properties/properties/hardwareProfile";
+
+    [TestMethod]
+    [DataRow("securestring", "string", VmAdminUsernameSource, "\"foo\"", "[listOutputsWithSecureValues('mod', '2025-04-01').out]")]
+    [DataRow("string", "string", VmAdminUsernameSource, "\"foo\"", "[reference('mod').outputs.out.value]")]
+    [DataRow("secureObject", "object", VmHardwareProfileSource, "{}", "[listOutputsWithSecureValues('mod', '2025-04-01').out]")]
+    [DataRow("object", "object", VmHardwareProfileSource, "{}", "[reference('mod').outputs.out.value]")]
+    public void Resource_derived_output_of_compiled_module_should_keep_secure_flag(string armType, string bicepType, string source, string value, string expected)
+    {
+        var result = CompilationHelper.Compile(
+            ("mod.json", CompiledModuleWithResourceDerivedOutput(armType, source, value)),
+            ("main.bicep", $$"""
+                module mod 'mod.json' = {}
+
+                @secure()
+                output out {{bicepType}} = mod.outputs.out
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("$.outputs.out.value", expected);
+    }
+
+    [TestMethod]
+    public void Secure_resource_derived_output_of_compiled_module_should_be_blocked_on_reference_via_lambda_variable()
+    {
+        var result = CompilationHelper.Compile(
+            ("mod.json", CompiledModuleWithResourceDerivedOutput("securestring", VmAdminUsernameSource, "\"foo\"")),
+            ("main.bicep", """
+                module mod 'mod.json' = [for i in range(0, 1): {}]
+
+                output out array = map(mod, m => m.outputs.out)
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP426", DiagnosticLevel.Error, "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda."),
+        ]);
+    }
+
+    [TestMethod]
+    public void Non_sensitive_resource_derived_output_of_compiled_module_should_be_allowed_on_reference_via_lambda_variable()
+    {
+        var result = CompilationHelper.Compile(
+            ("mod.json", CompiledModuleWithResourceDerivedOutput("string", VmAdminUsernameSource, "\"foo\"")),
+            ("main.bicep", """
+                module mod 'mod.json' = [for i in range(0, 1): {}]
+
+                output out array = map(mod, m => m.outputs.out)
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("$.outputs.out.value", "[map(references('mod'), lambda('m', lambdaVariables('m').outputs.out.value))]");
+    }
+
+    [TestMethod]
+    public void Secure_resource_derived_output_of_compiled_module_should_force_symbolic_names()
+    {
+        // A named module and a non-output sink leave nothing else to force symbolic names.
+        var result = CompilationHelper.Compile(
+            ("mod.json", CompiledModuleWithResourceDerivedOutput("securestring", VmAdminUsernameSource, "\"foo\"")),
+            ("main.bicep", """
+                module mod 'mod.json' = {
+                  name: 'mod'
+                }
+
+                resource secret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+                  name: 'kv/s'
+                  properties: {
+                    value: mod.outputs.out
+                  }
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("$.languageVersion", "2.0");
+        result.Template.Should().HaveValueAtPath("$.resources.secret.properties.value", "[listOutputsWithSecureValues('mod', '2025-04-01').out]");
+    }
 }
