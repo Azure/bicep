@@ -428,7 +428,7 @@
     <comment>{0} property name</comment>
   </data>
   <data name="UseSecureValueForSecureInputsRule_Description" xml:space="preserve">
-    <value>Resource properties expecting secure input should be assigned secure values.</value>
+    <value>Resource properties and module parameters expecting secure input should be assigned secure values.</value>
   </data>
   <data name="UseParentPropertyRule_MessageFormat" xml:space="preserve">
     <value>Resource "{0}" has its name formatted as a child of resource "{1}". The syntax can be simplified by using the parent property.</value>
