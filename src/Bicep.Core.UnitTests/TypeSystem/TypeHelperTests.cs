@@ -19,6 +19,130 @@ namespace Bicep.Core.UnitTests.TypeSystem;
 public class TypeHelperTests
 {
     [TestMethod]
+    public void Secure_type_paths_preserve_property_segments()
+    {
+        var type = new ObjectType("paths", default,
+        [
+            new("[0]", LanguageConstants.SecureString),
+            new("a", new ObjectType("nested", default, [new("b", LanguageConstants.SecureString)])),
+            new("a.b", LanguageConstants.SecureString),
+        ]);
+
+        TypeHelper.FindPathsToSecureTypeComponents(type).Should().Equal(".[0]", ".a.b", ".a.b");
+        TypeHelper.FindPathsToOutermostSecureTypeComponents(type).Should().SatisfyRespectively(
+            path => path.Should().Equal(".[0]"),
+            path => path.Should().Equal(".a", ".b"),
+            path => path.Should().Equal(".a.b"));
+    }
+
+    [TestMethod]
+    public void Secure_type_paths_visit_arrays_tuples_dictionaries_and_nullable_members()
+    {
+        var type = new ObjectType("paths", default,
+        [
+            new("array", new TypedArrayType(LanguageConstants.SecureString, default)),
+            new("nullable", TypeHelper.MakeNullable(LanguageConstants.SecureString)),
+            new("tuple", new TupleType([LanguageConstants.String, LanguageConstants.SecureString], default)),
+        ], new TypeProperty(LanguageConstants.SecureString));
+
+        TypeHelper.FindPathsToSecureTypeComponents(type).Should().Equal(".*", ".array[*]", ".nullable", ".tuple[1]");
+        TypeHelper.FindPathsToOutermostSecureTypeComponents(type).Should().SatisfyRespectively(
+            path => path.Should().Equal("*"),
+            path => path.Should().Equal(".array", "[*]"),
+            path => path.Should().Equal(".nullable"),
+            path => path.Should().Equal(".tuple", "[1]"));
+    }
+
+    [TestMethod]
+    public void Outermost_secure_paths_distinguish_literal_stars_from_dictionary_entries()
+    {
+        var type = new ObjectType("paths", default,
+            [new("*", LanguageConstants.SecureString)], new TypeProperty(LanguageConstants.SecureString));
+
+        TypeHelper.FindPathsToSecureTypeComponents(type).Should().Equal(".*", ".*");
+        TypeHelper.FindPathsToOutermostSecureTypeComponents(type).Should().SatisfyRespectively(
+            path => path.Should().Equal("*"),
+            path => path.Should().Equal(".*"));
+    }
+
+    [TestMethod]
+    public void Outermost_secure_type_paths_stop_at_secure_containers_without_changing_string_paths()
+    {
+        var type = new ObjectType("secureContainer", TypeSymbolValidationFlags.IsSecure,
+            [new("secret", LanguageConstants.SecureString)]);
+
+        TypeHelper.FindPathsToSecureTypeComponents(type).Should().Equal("", ".secret");
+        TypeHelper.FindPathsToOutermostSecureTypeComponents(type).Should().ContainSingle()
+            .Which.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public void Secure_type_paths_with_trailing_accesses_only_include_secure_containers()
+    {
+        var type = TypeHelper.CreateTypeUnion(
+            LanguageConstants.SecureString,
+            new ObjectType("container", default, [new("secret", LanguageConstants.SecureString)]));
+
+        TypeHelper.FindPathsToSecureTypeComponents(type).Should().BeEquivalentTo(["", ".secret"]);
+        TypeHelper.FindPathsToSecureTypeComponents(type, hasTrailingAccessExpressions: true).Should().Equal("");
+    }
+
+    [TestMethod]
+    public void Outermost_secure_type_paths_visit_discriminated_variants_without_changing_string_paths()
+    {
+        var type = new DiscriminatedObjectType("variants", default, "kind",
+        [
+            new ObjectType("first", default,
+            [
+                new("kind", TypeFactory.CreateStringLiteralType("first"), TypePropertyFlags.Required),
+                new("secret", LanguageConstants.SecureString),
+            ]),
+            new ObjectType("second", default,
+            [
+                new("kind", TypeFactory.CreateStringLiteralType("second"), TypePropertyFlags.Required),
+                new("public", LanguageConstants.String),
+            ]),
+        ]);
+
+        TypeHelper.FindPathsToOutermostSecureTypeComponents(type).Should().ContainSingle()
+            .Which.Should().Equal(".secret");
+        TypeHelper.FindPathsToSecureTypeComponents(type).Should().BeEmpty();
+        TypeHelper.IsOrContainsSecureType(type).Should().BeFalse();
+    }
+
+    [TestMethod]
+    public void Secure_type_paths_stop_cycles_without_skipping_shared_types_at_other_paths()
+    {
+        ObjectType? recursive = null;
+        recursive = new ObjectType("recursive", default,
+        [
+            new("next", new DeferredTypeReference(() => recursive!)),
+            new("secret", LanguageConstants.SecureString),
+        ]);
+        var type = new ObjectType("root", default, [new("first", recursive), new("second", recursive)]);
+
+        TypeHelper.FindPathsToSecureTypeComponents(type).Should().Equal(".first.secret", ".second.secret");
+        TypeHelper.FindPathsToOutermostSecureTypeComponents(type).Should().SatisfyRespectively(
+            path => path.Should().Equal(".first", ".secret"),
+            path => path.Should().Equal(".second", ".secret"));
+    }
+
+    [TestMethod]
+    [DataRow(64, 1)]
+    [DataRow(65, 0)]
+    public void Outermost_secure_type_paths_retain_the_flow_depth_limit(int depth, int expectedCount)
+    {
+        TypeSymbol type = LanguageConstants.SecureString;
+        for (var i = 0; i < depth; i++)
+        {
+            type = new ObjectType($"level{i}", default, [new("nested", type)]);
+        }
+
+        TypeHelper.FindPathsToOutermostSecureTypeComponents(type).Should().HaveCount(expectedCount);
+        TypeHelper.FindPathsToSecureTypeComponents(type).Should().ContainSingle();
+    }
+
+    [TestMethod]
     [DynamicData(nameof(GetPrimitiveCollapsePositiveTestCases))]
     public void Primitive_collapse_preserves_and_fuses_refinements(TypeSymbol expected, params TypeSymbol[] toCollapse)
     {
