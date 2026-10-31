@@ -97,15 +97,39 @@ public class ResourceDerivedTypeResolver
                 return unresolved.FallbackType;
             }
 
-            return unresolved.Variant switch
+            return PreserveSecureFlag(unresolved.Variant switch
             {
                 ResourceDerivedTypeVariant.Input => TypeHelper.RemovePropertyFlagsRecursively(current, TypePropertyFlags.WriteOnly),
                 ResourceDerivedTypeVariant.Output => TypeHelper.RemovePropertyFlagsRecursively(current, TypePropertyFlags.ReadOnly),
                 _ => current,
-            };
+            }, unresolved.FallbackType);
         }
 
         return unresolved.FallbackType;
+    }
+
+    /// <summary>
+    /// A compiled <c>secureString</c> or <c>secureObject</c> parameter keeps that schema as its fallback. The resource's own type
+    /// usually isn't secure, so carry the flag over rather than lose it.
+    /// </summary>
+    private static TypeSymbol PreserveSecureFlag(TypeSymbol resolved, TypeSymbol fallback)
+    {
+        // TODO: Distinguish declared parameter protection from sensitivity inherited from resource types.
+        // Preserving an explicit secure schema does not make an unprotected resourceInput<> parameter secure.
+        if (!(TypeHelper.TryRemoveNullability(fallback) ?? fallback).ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) ||
+            resolved.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+        {
+            return resolved;
+        }
+
+        var flags = resolved.ValidationFlags | TypeSymbolValidationFlags.IsSecure;
+        return resolved switch
+        {
+            StringType @string => TypeFactory.CreateStringType(@string.MinLength, @string.MaxLength, @string.Pattern, flags),
+            ObjectType @object => new ObjectType(@object.Name, flags, @object.Properties.Values, @object.AdditionalProperties, @object.MethodResolver.CopyToObject),
+            // TODO: Preserve declared protection on richer shapes without losing their validation constraints.
+            _ => resolved,
+        };
     }
 
     private static TypeProperty? TryGetNamedProperty(ObjectType @object, string propertyName)
