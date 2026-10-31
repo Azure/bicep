@@ -113,6 +113,14 @@ If you'd like to start contributing to Bicep, you can search for issues tagged a
 * If a significant amount of design is required, please include a proposal in the issue and wait for approval before working on code. If there's anything you're not sure about, please feel free to discuss this in the issue. We'd much rather all be on the same page at the start, so that there's less chance that drastic changes will be needed when your pull request is reviewed.
 * We report on code coverage; please ensure any new code you add is sufficiently covered by tests.
 
+### Documentation
+
+User-facing Bicep product documentation (the content published to Microsoft Learn) lives in the [azure-docs-pr](https://github.com/MicrosoftDocs/azure-docs-pr) repository under `articles/azure-resource-manager/bicep/`, not in this repository. If your change needs documentation:
+
+* Do not open a documentation-only PR here. Open it directly in azure-docs-pr so it lands in the repo that publishes to Learn and is routed to the docs owners for review.
+* For a code change that needs docs, keep the code PR here and apply the `📘 Docs Needed` label. The documentation is authored separately in azure-docs-pr and tracked back to your PR. Once the docs merge, the label moves to `📘 Docs Completed`.
+* In-repo engineering docs (design notes, proposals, and contributor guides under `./docs`) still belong in this repository.
+
 ### Example Files
 
 We are integrating the Bicep examples into the [Azure QuickStart Templates](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/README.md).  If you'd like to contribute new example `.bicep` files that showcase abilities of the language, please follow [these instructions](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/README.md) to add them directly there.  We can still take bug reports and fixes for the existing examples for the time being.
