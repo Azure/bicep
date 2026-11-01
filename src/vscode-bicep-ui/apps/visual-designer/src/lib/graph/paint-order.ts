@@ -161,7 +161,7 @@ export function computePaintOrder(
 
     // What stays below the occupied compound nodes: each sibling drawn below one of them that overlaps it.
     const sunk = new Set(occupied);
-    for (let changed = true; changed; ) {
+    for (let changed = true; changed;) {
       changed = false;
       for (const id of siblings) {
         if (sunk.has(id) || lifted.has(id)) {
