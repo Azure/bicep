@@ -16,7 +16,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
 
         private record CompletionNotification(ICompilationManager CompilationManager, DocumentUri Uri);
 
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IArtifactRestorer restorer;
 
         private readonly Queue<QueueItem> queue = new();
 
@@ -29,9 +29,9 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
         private bool disposed = false;
         private Task? consumerTask;
 
-        public ModuleRestoreScheduler(IModuleDispatcher moduleDispatcher)
+        public ModuleRestoreScheduler(IArtifactRestorer restorer)
         {
-            this.moduleDispatcher = moduleDispatcher;
+            this.restorer = restorer;
         }
 
         /// <summary>
@@ -115,11 +115,11 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
                 }
 
                 // this blocks until restore is completed
-                // the dispatcher stores the results internally and manages their lifecycle
+                // the distribution manager stores the results internally and manages their lifecycle
                 foreach (var item in items)
                 {
                     token.ThrowIfCancellationRequested();
-                    if (!await this.moduleDispatcher.RestoreArtifacts(item.ModuleReferences, forceRestore: false))
+                    if (!await this.restorer.RestoreArtifacts(item.ModuleReferences, forceRestore: false))
                     {
                         // nothing needed to be restored
                         // no need to notify about completion
@@ -132,7 +132,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
                     item.CompilationManager.RefreshCompilation(item.Uri);
                 }
 
-                this.moduleDispatcher.PruneRestoreStatuses();
+                this.restorer.PruneRestoreStatuses();
             }
         }
 

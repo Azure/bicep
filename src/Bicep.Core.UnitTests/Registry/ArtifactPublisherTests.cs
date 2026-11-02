@@ -1,0 +1,108 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Registry;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.UnitTests.Mock;
+using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+
+namespace Bicep.Core.UnitTests.Registry
+{
+    [TestClass]
+    public class ArtifactPublisherTests
+    {
+        [TestMethod]
+        [DataRow(ArtifactType.Module, RegistryCapabilities.Default, false)]
+        [DataRow(ArtifactType.Module, RegistryCapabilities.Publish, true)]
+        [DataRow(ArtifactType.Extension, RegistryCapabilities.Default, false)]
+        [DataRow(ArtifactType.Extension, RegistryCapabilities.Publish, true)]
+        public void CanPublish_UsesRegistryCapabilities(ArtifactType artifactType, RegistryCapabilities capabilities, bool expected)
+        {
+            var reference = new MockArtifactReference(BicepTestConstants.DummyBicepFile, "target");
+            var registry = CreateRegistry();
+            registry.Setup(x => x.GetCapabilities(artifactType, reference)).Returns(capabilities);
+
+            CreatePublisher(registry.Object).CanPublish(artifactType, reference).Should().Be(expected);
+        }
+
+        [TestMethod]
+        public async Task Exists_UsesTheRequestedArtifactType()
+        {
+            var reference = new MockArtifactReference(BicepTestConstants.DummyBicepFile, "target");
+            var registry = CreateRegistry();
+            registry.Setup(x => x.CheckArtifactExists(ArtifactType.Module, reference)).ReturnsAsync(true);
+            registry.Setup(x => x.CheckArtifactExists(ArtifactType.Extension, reference)).ReturnsAsync(false);
+
+            var publisher = CreatePublisher(registry.Object);
+
+            (await publisher.ModuleExists(reference)).Should().BeTrue();
+            (await publisher.ExtensionExists(reference)).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public async Task PublishModule_PassesTheTemplateDescriptionToTheRegistry()
+        {
+            var reference = new MockArtifactReference(BicepTestConstants.DummyBicepFile, "target");
+            var template = BinaryData.FromString("""{ "metadata": { "description": "My module" } }""");
+            var sources = BinaryData.FromString("sources");
+            var registry = CreateRegistry();
+            registry.Setup(x => x.PublishModule(reference, template, sources, "https://docs", "My module")).Returns(Task.CompletedTask);
+
+            await CreatePublisher(registry.Object).PublishModule(reference, template, sources, "https://docs");
+
+            registry.Verify(x => x.PublishModule(reference, template, sources, "https://docs", "My module"), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task PublishExtension_PassesThePackageToTheRegistry()
+        {
+            var reference = new MockArtifactReference(BicepTestConstants.DummyBicepFile, "target");
+            var package = new ExtensionPackage(BinaryData.FromString("types"), LocalDeployEnabled: false, []);
+            var registry = CreateRegistry();
+            registry.Setup(x => x.PublishExtension(reference, package)).Returns(Task.CompletedTask);
+
+            await CreatePublisher(registry.Object).PublishExtension(reference, package);
+
+            registry.Verify(x => x.PublishExtension(reference, package), Times.Once);
+        }
+
+        private static Mock<IArtifactRegistry> CreateRegistry()
+        {
+            var registry = StrictMock.Of<IArtifactRegistry>();
+            registry.SetupGet(x => x.Scheme).Returns("mock");
+            return registry;
+        }
+
+        private static IArtifactPublisher CreatePublisher(params IArtifactRegistry[] registries) => new ArtifactPublisher(new MockArtifactRegistryProvider(registries));
+
+        private class MockArtifactReference : ArtifactReference
+        {
+            public MockArtifactReference(BicepSourceFile referencingFile, string reference)
+                : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), "mock")
+            {
+                this.Reference = reference;
+            }
+
+            public string Reference { get; }
+
+            public override string UnqualifiedReference => this.Reference;
+
+            public override bool IsExternal => true;
+
+            public override bool Equals(object? obj) => obj is MockArtifactReference other && this.Reference.Equals(other.Reference);
+
+            public override int GetHashCode() => this.Reference.GetHashCode();
+
+            public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => new(DummyFileHandle.Default);
+        }
+
+        private class MockArtifactRegistryProvider(IEnumerable<IArtifactRegistry> registries) : ArtifactRegistryProvider(registries)
+        {
+        }
+    }
+}

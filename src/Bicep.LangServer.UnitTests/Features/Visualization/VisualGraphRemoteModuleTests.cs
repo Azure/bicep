@@ -77,7 +77,7 @@ public class VisualGraphRemoteModuleTests
         var restorableReferences = GetRestorableReferences(builder, context, graph);
         restorableReferences.Should().ContainSingle().Which.Should().Match<KeyValuePair<string, OciArtifactReference>>(pair =>
             pair.Key == "storage::leaf" && pair.Value.FullyQualifiedReference == $"br:{Registry}/test/leaf:v1");
-        services.Build().Construct<IModuleDispatcher>().GetArtifactRestoreStatus(restorableReferences["storage::leaf"], out _)
+        services.Build().Construct<IArtifactRestorer>().GetRestoreStatus(restorableReferences["storage::leaf"], out _)
             .Should().Be(ArtifactRestoreStatus.Unknown);
     }
 
@@ -288,7 +288,7 @@ public class VisualGraphRemoteModuleTests
             NullLogger<VisualGraphRestoreModuleHandler>.Instance,
             CreateCompilationManager(context),
             builder,
-            provider.Construct<IModuleDispatcher>());
+            provider.Construct<IArtifactRestorer>());
 
         return handler.Handle(new(new() { Uri = GetDocumentUri(context) }, nodeId), CancellationToken.None);
     }
@@ -375,9 +375,10 @@ public class VisualGraphRemoteModuleTests
                 """));
         storage.Template.Should().NotBeNull();
 
-        var dispatcher = services.Build().Construct<IModuleDispatcher>();
-        var storageReference = dispatcher.TryGetArtifactReference(BicepTestConstants.DummyBicepFile, ArtifactType.Module, $"br:{Registry}/test/storage:v1").Unwrap();
-        await dispatcher.PublishModule(
+        var provider = services.Build();
+        var resolver = provider.Construct<IArtifactReferenceResolver>();
+        var storageReference = resolver.TryResolve(BicepTestConstants.DummyBicepFile, ArtifactType.Module, $"br:{Registry}/test/storage:v1").Unwrap();
+        await provider.Construct<IArtifactPublisher>().PublishModule(
             storageReference,
             BinaryData.FromString(storage.Template!.ToString()),
             SourceArchive.CreateFrom(storage.Compilation.SourceFileGrouping).PackIntoBinaryData(),

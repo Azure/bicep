@@ -33,14 +33,17 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
     {
         public const string BicepExternalSourceLspMethodName = "textDocument/bicepExternalSource";
 
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IArtifactReferenceResolver referenceResolver;
+        private readonly IArtifactRestorer restorer;
         private readonly ISourceFileFactory sourceFileFactory;
 
         public BicepExternalSourceRequestHandler(
-            IModuleDispatcher moduleDispatcher,
+            IArtifactReferenceResolver referenceResolver,
+            IArtifactRestorer restorer,
             ISourceFileFactory sourceFileFactory)
         {
-            this.moduleDispatcher = moduleDispatcher;
+            this.referenceResolver = referenceResolver;
+            this.restorer = restorer;
             this.sourceFileFactory = sourceFileFactory;
         }
 
@@ -50,7 +53,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.
             var dummyReferencingFile = this.sourceFileFactory.CreateDummyArtifactReferencingFile();
-            if (!moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, request.Target).IsSuccess(out var moduleReference))
+            if (!referenceResolver.TryResolve(dummyReferencingFile, ArtifactType.Module, request.Target).IsSuccess(out var moduleReference))
             {
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"The client specified an invalid module reference '{request.Target}'."));
@@ -62,7 +65,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                     $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests."));
             }
 
-            if (!moduleDispatcher.TryGetLocalArtifactEntryPointFileHandle(moduleReference).IsSuccess())
+            if (!restorer.TryGetEntryPoint(moduleReference).IsSuccess())
             {
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'."));

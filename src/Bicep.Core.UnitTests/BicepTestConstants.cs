@@ -99,8 +99,6 @@ namespace Bicep.Core.UnitTests
 
         public static readonly CloudConfigurationTrustPolicy TestCloudConfigurationTrustPolicy = new();
 
-        public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services), FileExplorer);
-
         public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
             new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzResourceTypeProvider, BicepSourceFileKind.BicepFile), null),
             new("sys", SystemNamespaceType.Create("sys", Features, BicepSourceFileKind.BicepFile), null),

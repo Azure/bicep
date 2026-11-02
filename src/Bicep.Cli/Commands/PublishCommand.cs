@@ -27,7 +27,8 @@ namespace Bicep.Cli.Commands
     {
         private readonly DiagnosticLogger diagnosticLogger;
         private readonly BicepCompiler compiler;
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IArtifactReferenceResolver referenceResolver;
+        private readonly IArtifactPublisher publisher;
         private readonly IFileExplorer fileExplorer;
         private readonly ISourceFileFactory sourceFileFactory;
         private readonly IOContext ioContext;
@@ -37,14 +38,16 @@ namespace Bicep.Cli.Commands
             DiagnosticLogger diagnosticLogger,
             BicepCompiler compiler,
             IOContext ioContext,
-            IModuleDispatcher moduleDispatcher,
+            IArtifactReferenceResolver referenceResolver,
+            IArtifactPublisher publisher,
             ISourceFileFactory sourceFileFactory,
             IFileExplorer fileExplorer,
             InputOutputArgumentsResolver inputOutputArgumentsResolver)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.compiler = compiler;
-            this.moduleDispatcher = moduleDispatcher;
+            this.referenceResolver = referenceResolver;
+            this.publisher = publisher;
             this.fileExplorer = fileExplorer;
             this.sourceFileFactory = sourceFileFactory;
             this.ioContext = ioContext;
@@ -109,11 +112,11 @@ namespace Bicep.Cli.Commands
             try
             {
                 // If we don't want to overwrite, ensure module doesn't exist
-                if (!overwriteIfExists && await this.moduleDispatcher.CheckModuleExists(target))
+                if (!overwriteIfExists && await this.publisher.ModuleExists(target))
                 {
                     throw new BicepException($"The module \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing module.");
                 }
-                await this.moduleDispatcher.PublishModule(target, compiledArmTemplate, bicepSources, documentationUri);
+                await this.publisher.PublishModule(target, compiledArmTemplate, bicepSources, documentationUri);
             }
             catch (ExternalArtifactException exception)
             {
@@ -125,15 +128,14 @@ namespace Bicep.Cli.Commands
         {
             var dummyReferencingFile = this.sourceFileFactory.CreateBicepFile(targetModuleUri, string.Empty);
 
-            if (!this.moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, targetModuleReference).IsSuccess(out var moduleReference, out var failureBuilder))
+            if (!this.referenceResolver.TryResolve(dummyReferencingFile, ArtifactType.Module, targetModuleReference).IsSuccess(out var moduleReference, out var failureBuilder))
             {
-                // TODO: We should probably clean up the dispatcher contract so this sort of thing isn't necessary (unless we change how target module is set in this command)
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
 
                 throw new BicepException(message);
             }
 
-            if (!this.moduleDispatcher.GetRegistryCapabilities(ArtifactType.Module, moduleReference).HasFlag(RegistryCapabilities.Publish))
+            if (!this.publisher.CanPublish(ArtifactType.Module, moduleReference))
             {
                 throw new BicepException($"The specified module target \"{targetModuleReference}\" is not supported.");
             }

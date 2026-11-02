@@ -23,18 +23,18 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
         private readonly VisualGraphBuilder graphBuilder;
 
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IArtifactRestorer restorer;
 
         public VisualGraphRestoreModuleHandler(
             ILogger<VisualGraphRestoreModuleHandler> logger,
             ICompilationManager compilationManager,
             VisualGraphBuilder graphBuilder,
-            IModuleDispatcher moduleDispatcher)
+            IArtifactRestorer restorer)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
             this.graphBuilder = graphBuilder;
-            this.moduleDispatcher = moduleDispatcher;
+            this.restorer = restorer;
         }
 
         public async Task<VisualGraphRestoreModuleResult> Handle(VisualGraphRestoreModuleParams request, CancellationToken cancellationToken)
@@ -48,10 +48,10 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             // A module that is not restored yet is restored as the editor would. Anything else is the user retrying after an
             // error, which forces the restore: it retries a recent failure, and replaces a cached archive that cannot be read.
-            var isRetry = this.moduleDispatcher.GetArtifactRestoreStatus(registryReference, out _) != ArtifactRestoreStatus.Unknown;
-            await this.moduleDispatcher.RestoreArtifacts([registryReference], forceRestore: isRetry);
+            var isRetry = this.restorer.GetRestoreStatus(registryReference, out _) != ArtifactRestoreStatus.Unknown;
+            await this.restorer.RestoreArtifacts([registryReference], forceRestore: isRetry);
 
-            var status = this.moduleDispatcher.GetArtifactRestoreStatus(registryReference, out var failureBuilder);
+            var status = this.restorer.GetRestoreStatus(registryReference, out var failureBuilder);
 
             if (status != ArtifactRestoreStatus.Succeeded)
             {

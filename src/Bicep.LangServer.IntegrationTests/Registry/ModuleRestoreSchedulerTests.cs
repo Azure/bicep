@@ -35,8 +35,8 @@ namespace Bicep.LangServer.IntegrationTests.Registry
         [TestMethod]
         public async Task DisposeAfterCreateShouldNotThrow()
         {
-            var moduleDispatcher = Repository.Create<IModuleDispatcher>();
-            await using var scheduler = new ModuleRestoreScheduler(moduleDispatcher.Object);
+            var restorer = Repository.Create<IArtifactRestorer>();
+            await using var scheduler = new ModuleRestoreScheduler(restorer.Object);
             // intentional extra call to dispose()
             await scheduler.DisposeAsync();
         }
@@ -44,8 +44,8 @@ namespace Bicep.LangServer.IntegrationTests.Registry
         [TestMethod]
         public async Task DisposeAfterStartShouldNotThrow()
         {
-            var moduleDispatcher = Repository.Create<IModuleDispatcher>();
-            await using (var scheduler = new ModuleRestoreScheduler(moduleDispatcher.Object))
+            var restorer = Repository.Create<IArtifactRestorer>();
+            await using (var scheduler = new ModuleRestoreScheduler(restorer.Object))
             {
                 scheduler.Start();
 
@@ -53,7 +53,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
                 await scheduler.DisposeAsync();
             }
 
-            await using (var scheduler = new ModuleRestoreScheduler(moduleDispatcher.Object))
+            await using (var scheduler = new ModuleRestoreScheduler(restorer.Object))
             {
                 await Task.Yield();
                 await Task.Delay(TimeSpan.FromSeconds(1));
@@ -65,8 +65,8 @@ namespace Bicep.LangServer.IntegrationTests.Registry
         [TestMethod]
         public async Task PublicMethodsShouldThrowAfterDispose()
         {
-            var moduleDispatcher = Repository.Create<IModuleDispatcher>();
-            var scheduler = new ModuleRestoreScheduler(moduleDispatcher.Object);
+            var restorer = Repository.Create<IArtifactRestorer>();
+            var scheduler = new ModuleRestoreScheduler(restorer.Object);
             await scheduler.DisposeAsync();
 
             Action startFail = () => scheduler.Start();
@@ -82,7 +82,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             var mockRegistry = new MockRegistry();
             var provider = new MockArtifactRegistryProvider(mockRegistry.AsEnumerable());
 
-            var dispatcher = new ModuleDispatcher(provider, BicepTestConstants.FileExplorer);
+            var restorer = new ArtifactRestorer(provider);
 
             var firstUri = DocumentUri.From("foo://one");
             var firstSource = new TaskCompletionSource<bool>();
@@ -102,7 +102,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             var secondFileSet = CreateArtifactReferences(mockRegistry, "three", "four");
             var thirdFileSet = CreateArtifactReferences(mockRegistry, "five", "six");
 
-            await using (var scheduler = new ModuleRestoreScheduler(dispatcher))
+            await using (var scheduler = new ModuleRestoreScheduler(restorer))
             {
                 scheduler.RequestModuleRestore(compilationManager.Object, firstUri, firstFileSet);
                 scheduler.RequestModuleRestore(compilationManager.Object, secondUri, secondFileSet);
