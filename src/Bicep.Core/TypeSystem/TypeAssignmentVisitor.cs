@@ -164,7 +164,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 ITypeReference GetItemType(ForSyntax @for)
-                    => GetIterationTargetType(@for)?.Item ?? LanguageConstants.Any;
+                    => TypeHelper.GetArrayItemType(typeManager.GetTypeInfo(@for.Expression));
 
                 long GetEnumerationTargetLength(ForSyntax @for) => GetIterationTargetType(@for)?.MaxLength switch
                 {
