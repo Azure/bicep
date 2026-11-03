@@ -19,6 +19,20 @@ namespace Bicep.Core.UnitTests.TypeSystem;
 public class TypeHelperTests
 {
     [TestMethod]
+    public void Array_item_types_preserve_union_members_and_ignore_empty_tuples()
+    {
+        TypeHelper.GetArrayItemType(TypeHelper.CreateTypeUnion(
+            new TypedArrayType(LanguageConstants.SecureString, default), new TupleType([], default)))
+            .Should().BeSameAs(LanguageConstants.SecureString);
+
+        TypeHelper.GetArrayItemType(TypeHelper.CreateTypeUnion(
+            new TypedArrayType(LanguageConstants.SecureString, default),
+            new TypedArrayType(LanguageConstants.String, default)))
+            .Should().BeOfType<UnionType>().Subject.Members.Select(member => member.Type)
+            .Should().BeEquivalentTo([LanguageConstants.String, LanguageConstants.SecureString]);
+    }
+
+    [TestMethod]
     [DynamicData(nameof(GetPrimitiveCollapsePositiveTestCases))]
     public void Primitive_collapse_preserves_and_fuses_refinements(TypeSymbol expected, params TypeSymbol[] toCollapse)
     {
