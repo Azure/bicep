@@ -51,7 +51,11 @@ describe("computePaintOrder", () => {
   });
 
   it("does not parse IDs and treats a node with an absent parent as a root", () => {
-    const paintOrder = computePaintOrder([node("m::child", null, null), node("orphan", "missing", null)], [], ["orphan"]);
+    const paintOrder = computePaintOrder(
+      [node("m::child", null, null), node("orphan", "missing", null)],
+      [],
+      ["orphan"],
+    );
 
     expect([...paintOrder.nodeZIndices.keys()]).toEqual(["m::child", "orphan"]);
   });
