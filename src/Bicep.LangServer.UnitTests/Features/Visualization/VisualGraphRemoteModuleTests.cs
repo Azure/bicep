@@ -77,8 +77,8 @@ public class VisualGraphRemoteModuleTests
         var restorableReferences = GetRestorableReferences(builder, context, graph);
         restorableReferences.Should().ContainSingle().Which.Should().Match<KeyValuePair<string, OciArtifactReference>>(pair =>
             pair.Key == "storage::leaf" && pair.Value.FullyQualifiedReference == $"br:{Registry}/test/leaf:v1");
-        services.Build().Construct<IArtifactRestorer>().GetRestoreStatus(restorableReferences["storage::leaf"], out _)
-            .Should().Be(ArtifactRestoreStatus.Unknown);
+        services.Build().Construct<IArtifactRestorer>().GetRestoreState(restorableReferences["storage::leaf"])
+            .Should().BeOfType<ArtifactRestoreState.NotRestored>();
     }
 
     [TestMethod]
@@ -378,11 +378,12 @@ public class VisualGraphRemoteModuleTests
         var provider = services.Build();
         var resolver = provider.Construct<IArtifactReferenceResolver>();
         var storageReference = resolver.TryResolve(BicepTestConstants.DummyBicepFile, ArtifactType.Module, $"br:{Registry}/test/storage:v1").Unwrap();
-        await provider.Construct<IArtifactPublisher>().PublishModule(
+        await provider.Construct<IArtifactPublisher>().PublishAsync(
             storageReference,
-            BinaryData.FromString(storage.Template!.ToString()),
-            SourceArchive.CreateFrom(storage.Compilation.SourceFileGrouping).PackIntoBinaryData(),
-            documentationUri: null);
+            new ModulePackage(
+                BinaryData.FromString(storage.Template!.ToString()),
+                SourceArchive.CreateFrom(storage.Compilation.SourceFileGrouping).PackIntoBinaryData(),
+                DocumentationUri: null));
 
         this.cacheRootDirectory.Delete();
 

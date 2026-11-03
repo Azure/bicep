@@ -173,7 +173,7 @@ public static class RegistryHelper
         }
 
         BinaryData? sourcesStream = module.WithSource ? SourceArchive.CreateFrom(result.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
-        await publisher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri);
+        await publisher.PublishAsync(targetReference, new ModulePackage(BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri));
     }
 
     // Creates a new registry client factory and publishes the specified modules to the registry.
@@ -295,7 +295,7 @@ public static class RegistryHelper
             throw new InvalidOperationException($"Failed to get reference '{errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}'.");
         }
 
-        await publisher.PublishExtension(targetReference, package);
+        await publisher.PublishAsync(targetReference, package);
     }
 
     private static List<RepoTagDescriptor> ToTagDescriptors(IEnumerable<string> tags)

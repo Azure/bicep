@@ -28,9 +28,8 @@ namespace Bicep.Core.Modules
         private readonly BicepSourceFile referencingFile;
 
         private LocalModuleReference(BicepSourceFile referencingFile, ArtifactType artifactType, RelativePath path)
-            : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactReferenceSchemes.Local)
+            : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactReferenceSchemes.Local, artifactType)
         {
-            ArtifactType = artifactType;
             this.Path = path;
             this.referencingFile = referencingFile;
             this.lazyTargetFileResult = new(() => TryGetRelativeFile(this.Path));
@@ -40,8 +39,6 @@ namespace Bicep.Core.Modules
 
         public ResultWithDiagnosticBuilder<IFileHandle> TryGetRelativeFile(RelativePath path)
             => referencingFile.FileHandle.TryGetRelativeFile(path);
-
-        public ArtifactType ArtifactType { get; }
 
         /// <summary>
         /// Gets the relative path to the module.
@@ -64,14 +61,12 @@ namespace Bicep.Core.Modules
 
         public override string FullyQualifiedReference => this.Path;
 
-        public override bool IsExternal => false;
-
         public static ResultWithDiagnosticBuilder<LocalModuleReference> TryParse(BicepSourceFile referencingFile, ArtifactType artifactType, string unqualifiedReference) =>
             RelativePath.TryCreate(unqualifiedReference).Transform(relativePath => new LocalModuleReference(referencingFile, artifactType, relativePath));
 
         public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle()
         {
-            if (this.ArtifactType == ArtifactType.Module)
+            if (this.Type == ArtifactType.Module)
             {
                 return this.lazyTargetFileResult.Value;
             }
@@ -87,7 +82,7 @@ namespace Bicep.Core.Modules
             return new(this.lazyLocalExtensionArtifact.Value.TypesTgzFile);
         }
 
-        public IExtensionArtifact ResolveExtensionArtifact() => this.ArtifactType == ArtifactType.Extension
+        public IExtensionArtifact ResolveExtensionArtifact() => this.Type == ArtifactType.Extension
             ? this.lazyLocalExtensionArtifact.Value
             : throw new InvalidOperationException("Cannot resolve extension artifact for local module reference.");
     }

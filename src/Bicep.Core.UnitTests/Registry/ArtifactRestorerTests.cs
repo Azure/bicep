@@ -54,27 +54,20 @@ namespace Bicep.Core.UnitTests.Registry
 
             var restorer = CreateRestorer(fail.Object, mock.Object);
 
-            restorer.GetRestoreStatus(validRef, out var goodAvailabilityBuilder).Should().Be(ArtifactRestoreStatus.Unknown);
-            goodAvailabilityBuilder!.Should().HaveCode("BCP190");
-            goodAvailabilityBuilder!.Should().HaveMessage("The artifact with reference \"mock:validRef\" has not been restored.");
+            restorer.GetRestoreState(validRef).Should().BeOfType<ArtifactRestoreState.NotRestored>();
+            restorer.GetRestoreState(validRef2).Should().BeOfType<ArtifactRestoreState.Restored>();
+            restorer.GetRestoreState(validRef3).Should().BeOfType<ArtifactRestoreState.NotRestored>();
 
-            restorer.GetRestoreStatus(validRef2, out var goodAvailabilityBuilder2).Should().Be(ArtifactRestoreStatus.Succeeded);
-            goodAvailabilityBuilder2!.Should().BeNull();
+            (await restorer.RestoreAsync(new[] { validRef, validRef3 }, RestoreMode.IfMissing)).Should().BeTrue();
 
-            restorer.GetRestoreStatus(validRef3, out var goodAvailabilityBuilder3).Should().Be(ArtifactRestoreStatus.Unknown);
-            goodAvailabilityBuilder3!.Should().HaveCode("BCP190");
-            goodAvailabilityBuilder3!.Should().HaveMessage("The artifact with reference \"mock:validRef3\" has not been restored.");
-
-            (await restorer.RestoreArtifacts(new[] { validRef, validRef3 }, false)).Should().BeTrue();
-
-            restorer.GetRestoreStatus(validRef3, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ArtifactRestoreStatus.Failed);
-            goodAvailabilityBuilder3AfterRestore!.Should().HaveCode("RegFail");
-            goodAvailabilityBuilder3AfterRestore!.Should().HaveMessage("Failed to restore module");
+            var failed = restorer.GetRestoreState(validRef3).Should().BeOfType<ArtifactRestoreState.RestoreFailed>().Subject;
+            failed.Error.Should().HaveCode("RegFail");
+            failed.Error.Should().HaveMessage("Failed to restore module");
         }
 
         [TestMethod]
         [DynamicData(nameof(GetConfigurationData))]
-        public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(IBicepConfiguration changedConfiguration, ArtifactRestoreStatus expectedStatus)
+        public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(IBicepConfiguration changedConfiguration, Type expectedState)
         {
             var badFile = BicepTestConstants.CreateDummyBicepFile(BicepTestConstants.CreateMockConfiguration());
             var badReference = new MockModuleReference(badFile, "bad");
@@ -93,16 +86,16 @@ namespace Bicep.Core.UnitTests.Registry
 
             var restorer = CreateRestorer(registryMock.Object);
 
-            await restorer.RestoreArtifacts(new[] { badReference }, false);
+            await restorer.RestoreAsync(new[] { badReference }, RestoreMode.IfMissing);
 
             // Act.
             badFile = BicepTestConstants.CreateDummyBicepFile(changedConfiguration);
             badReference = new MockModuleReference(badFile, "bad");
 
-            var status = restorer.GetRestoreStatus(badReference, out _);
+            var state = restorer.GetRestoreState(badReference);
 
             // Assert.
-            status.Should().Be(expectedStatus);
+            state.Should().BeOfType(expectedState);
         }
 
         private static IEnumerable<object[]> GetConfigurationData()
@@ -115,7 +108,7 @@ namespace Bicep.Core.UnitTests.Registry
                     ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "HTTPS://EXAMPLE.INVALID",
                     ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid/",
                 }),
-                ArtifactRestoreStatus.Failed
+                typeof(ArtifactRestoreState.RestoreFailed)
             };
 
             yield return new object[]
@@ -127,7 +120,7 @@ namespace Bicep.Core.UnitTests.Registry
                     ["cloud.profiles.MyCloud.resourceManagerEndpoint"] = "HTTPS://EXAMPLE.INVALID",
                     ["cloud.profiles.MyCloud.activeDirectoryAuthority"] = "https://example.invalid/",
                 }),
-                ArtifactRestoreStatus.Failed
+                typeof(ArtifactRestoreState.RestoreFailed)
             };
 
             yield return new object[]
@@ -139,7 +132,7 @@ namespace Bicep.Core.UnitTests.Registry
                     ["cloud.profiles.MyCloud.resourceManagerEndpoint"] = "https://example.invalid",
                     ["cloud.profiles.MyCloud.activeDirectoryAuthority"] = "https://foo.bar.com",
                 }),
-                ArtifactRestoreStatus.Unknown
+                typeof(ArtifactRestoreState.NotRestored)
             };
 
             yield return new object[]
@@ -149,7 +142,7 @@ namespace Bicep.Core.UnitTests.Registry
                 {
                     ["cloud.credentialPrecedence"] = new[] { "VisualStudioCode" },
                 }),
-                ArtifactRestoreStatus.Unknown
+                typeof(ArtifactRestoreState.NotRestored)
             };
         }
 
@@ -178,19 +171,19 @@ namespace Bicep.Core.UnitTests.Registry
             registryMock.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>())).Returns(Task.CompletedTask);
             var restorer = CreateRestorer(registryMock.Object);
 
-            await restorer.RestoreArtifacts([reference], forceRestore: false);
-            restorer.GetRestoreStatus(reference, out _).Should().Be(ArtifactRestoreStatus.Failed);
+            await restorer.RestoreAsync([reference], RestoreMode.IfMissing);
+            restorer.GetRestoreState(reference).Should().BeOfType<ArtifactRestoreState.RestoreFailed>();
 
-            await restorer.RestoreArtifacts([reference], forceRestore: true);
-            restorer.GetRestoreStatus(reference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+            await restorer.RestoreAsync([reference], RestoreMode.Force);
+            restorer.GetRestoreState(reference).Should().BeOfType<ArtifactRestoreState.Restored>();
         }
 
         private static IArtifactRestorer CreateRestorer(params IArtifactRegistry[] registries) => new ArtifactRestorer(new MockArtifactRegistryProvider(registries));
 
-        private class MockModuleReference : ArtifactReference
+        private class MockModuleReference : ExternalArtifactReference
         {
             public MockModuleReference(BicepSourceFile referencingFile, string reference)
-                : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), "mock")
+                : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), "mock", ArtifactType.Module)
             {
                 this.Reference = reference;
             }
@@ -198,8 +191,6 @@ namespace Bicep.Core.UnitTests.Registry
             public string Reference { get; }
 
             public override string UnqualifiedReference => this.Reference;
-
-            public override bool IsExternal => true;
 
             public override bool Equals(object? obj) => obj is MockModuleReference other && this.Reference.Equals(other.Reference);
 

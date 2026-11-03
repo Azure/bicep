@@ -33,16 +33,13 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
     {
         public const string BicepExternalSourceLspMethodName = "textDocument/bicepExternalSource";
 
-        private readonly IArtifactReferenceResolver referenceResolver;
         private readonly IArtifactRestorer restorer;
         private readonly ISourceFileFactory sourceFileFactory;
 
         public BicepExternalSourceRequestHandler(
-            IArtifactReferenceResolver referenceResolver,
             IArtifactRestorer restorer,
             ISourceFileFactory sourceFileFactory)
         {
-            this.referenceResolver = referenceResolver;
             this.restorer = restorer;
             this.sourceFileFactory = sourceFileFactory;
         }
@@ -52,18 +49,25 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             // If any of the following paths results in an exception being thrown (and surfaced client-side to the user),
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.
+            //
+            // The target is a stored, fully qualified "br:" reference (see ExternalSourceReference.ToUri), so it is parsed
+            // directly: aliases, relative paths and redirects never apply to it.
+            var address = ArtifactAddress.Parse(request.Target);
+            if (address is ArtifactAddress.Path)
+            {
+                return Task.FromResult(new BicepExternalSourceResponse(null,
+                    $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests."));
+            }
+
             var dummyReferencingFile = this.sourceFileFactory.CreateDummyArtifactReferencingFile();
-            if (!referenceResolver.TryResolve(dummyReferencingFile, ArtifactType.Module, request.Target).IsSuccess(out var moduleReference))
+            if (address is not ArtifactAddress.SchemeQualified { Scheme: OciArtifactReferenceFacts.Scheme, Body: var body } ||
+                !OciArtifactReference.TryParse(dummyReferencingFile.LoadFeatures(), dummyReferencingFile.LoadConfiguration(), ArtifactType.Module, aliasContext: null, body).IsSuccess(out var ociModuleReference))
             {
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"The client specified an invalid module reference '{request.Target}'."));
             }
 
-            if (moduleReference is not OciArtifactReference ociModuleReference)
-            {
-                return Task.FromResult(new BicepExternalSourceResponse(null,
-                    $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests."));
-            }
+            var moduleReference = ociModuleReference;
 
             if (!restorer.TryGetEntryPoint(moduleReference).IsSuccess())
             {

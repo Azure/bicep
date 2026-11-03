@@ -19,7 +19,7 @@ namespace Bicep.Core.Registry.Oci
         private readonly string? fullyQualifiedReference;
 
         public OciArtifactMockedReference(BicepSourceFile referencingFile, string modulePath, IFileHandle fileHandle, string? fullyQualifiedReference = null)
-            : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), OciArtifactReferenceFacts.MockedScheme)
+            : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), OciArtifactReferenceFacts.MockedScheme, ArtifactType.Module)
         {
             this.modulePath = modulePath;
             this.fileHandle = fileHandle;
@@ -30,8 +30,6 @@ namespace Bicep.Core.Registry.Oci
         public override string FullyQualifiedReference => fullyQualifiedReference ?? $"{OciArtifactReferenceFacts.Scheme}:{UnqualifiedReference}";
 
         public override string UnqualifiedReference => modulePath;
-
-        public override bool IsExternal => false;
 
         public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle()
         {

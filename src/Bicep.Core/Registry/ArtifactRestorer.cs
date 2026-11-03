@@ -1,221 +1,132 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.IO.Abstraction;
 
-namespace Bicep.Core.Registry
+namespace Bicep.Core.Registry;
+
+public class ArtifactRestorer : IArtifactRestorer
 {
-    public class ArtifactRestorer : IArtifactRestorer
+    private readonly RestoreFailureCache failureCache = new();
+
+    private readonly IArtifactRegistryProvider registryProvider;
+
+    public ArtifactRestorer(IArtifactRegistryProvider registryProvider)
     {
-        private static readonly TimeSpan FailureExpirationInterval = TimeSpan.FromMinutes(30);
+        this.registryProvider = registryProvider;
+    }
 
-        private readonly ConcurrentDictionary<RestoreFailureKey, RestoreFailureInfo> restoreFailures = new();
-
-        private readonly IArtifactRegistryProvider registryProvider;
-
-        public ArtifactRestorer(IArtifactRegistryProvider registryProvider)
+    public ArtifactRestoreState GetRestoreState(ArtifactReference reference)
+    {
+        if (this.failureCache.TryGetFailure(reference, out var error))
         {
-            this.registryProvider = registryProvider;
+            return new ArtifactRestoreState.RestoreFailed(error);
         }
 
-        public ArtifactRestoreStatus GetRestoreStatus(
-            ArtifactReference artifactReference,
-            out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
+        if (this.GetRegistry(reference).IsArtifactRestoreRequired(reference))
         {
-            var registry = this.GetRegistry(artifactReference);
-            var configuration = artifactReference.Configuration;
-
-            // have we already failed to restore this artifact?
-            if (this.HasRestoreFailed(artifactReference, configuration, out var restoreFailureBuilder))
-            {
-                failureBuilder = restoreFailureBuilder;
-                return ArtifactRestoreStatus.Failed;
-            }
-
-            if (registry.IsArtifactRestoreRequired(artifactReference))
-            {
-                // module is not present on the local file system
-                failureBuilder = x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference);
-                return ArtifactRestoreStatus.Unknown;
-            }
-
-            failureBuilder = null;
-            return ArtifactRestoreStatus.Succeeded;
+            return new ArtifactRestoreState.NotRestored();
         }
 
-        public ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPoint(ArtifactReference artifactReference)
-        {
-            var configuration = artifactReference.Configuration;
-            // has restore already failed for this artifact?
-            if (this.HasRestoreFailed(artifactReference, configuration, out var restoreFailureBuilder))
-            {
-                return new(restoreFailureBuilder);
-            }
+        return new ArtifactRestoreState.Restored();
+    }
 
-            return artifactReference.TryGetEntryPointFileHandle();
+    public ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPoint(ArtifactReference reference)
+    {
+        if (this.failureCache.TryGetFailure(reference, out var error))
+        {
+            return new(error);
         }
 
-        public async Task<bool> RestoreArtifacts(IEnumerable<ArtifactReference> references, bool forceRestore)
+        return reference.TryGetEntryPointFileHandle();
+    }
+
+    public async Task<bool> RestoreAsync(IEnumerable<ArtifactReference> references, RestoreMode mode)
+    {
+        try
         {
-            // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
-
-            // many module declarations can point to the same module
-            var uniqueReferences = references.Distinct().ToArray();
-
-            if (forceRestore)
-            {
-                // Forcing a restore retries modules that failed recently, rather than reporting the earlier failure.
-                foreach (var reference in uniqueReferences)
-                {
-                    this.restoreFailures.TryRemove(new((CloudConfiguration)reference.Configuration.Cloud, reference), out _);
-                }
-            }
-
-            // Call OnRestoreArtifacts on each registry provider. Can (currently at least) be done in parallel to restore.
-            var onRestoreArtifactsTasks = new List<Task>();
-            foreach (var scheme in this.registryProvider.SupportedSchemes)
-            {
-                var registry = this.registryProvider.GetRegistry(scheme);
-
-                try
-                {
-                    onRestoreArtifactsTasks.Add(registry.OnRestoreArtifacts(forceRestore));
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine($"{nameof(IArtifactRegistry.OnRestoreArtifacts)} failed: {ex.Message}");
-                }
-            }
-
-            if (!forceRestore &&
-                uniqueReferences.All(module => this.GetRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
-            {
-                // all the modules have already been restored - no need to do anything
-                return false;
-            }
-
-            // split modules refs by registry
-            var referencesByRegistry = uniqueReferences.ToLookup(@ref => this.registryProvider.GetRegistry(@ref.Scheme));
-
-            // send each set of refs to its own registry
-            foreach (var registry in referencesByRegistry.Select(byRegistry => byRegistry.Key))
-            {
-                // if we're asked to purge modules cache
-                if (forceRestore)
-                {
-                    var invalidateFailures = await registry.InvalidateArtifactsCache(referencesByRegistry[registry]);
-
-                    // update cache invalidation status for each failed module
-                    foreach (var (failedReference, failureBuilder) in invalidateFailures)
-                    {
-                        this.SetRestoreFailure(failedReference, failedReference.Configuration, failureBuilder);
-                    }
-                }
-
-                var restoreFailures = await registry.RestoreArtifacts(referencesByRegistry[registry]);
-
-                // update restore status for each failed module restore
-                foreach (var (failedReference, failureBuilder) in restoreFailures)
-                {
-                    this.SetRestoreFailure(failedReference, failedReference.Configuration, failureBuilder);
-                }
-
-                try
-                {
-                    await Task.WhenAll(onRestoreArtifactsTasks);
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine($"{nameof(IArtifactRegistry.OnRestoreArtifacts)} failed: {ex.Message}");
-                }
-            }
-
-            return true;
+            return await this.RestoreCoreAsync(references, mode);
         }
-
-        public void PruneRestoreStatuses()
+        finally
         {
-            // concurrent dictionary enumeration does NOT provide a point-in-time snapshot of values in the dictionary
-            // however it also does not take a lock on all the items
-            var dateTime = DateTime.UtcNow;
-            foreach (var (key, value) in this.restoreFailures)
+            this.failureCache.RemoveExpired();
+        }
+    }
+
+    private async Task<bool> RestoreCoreAsync(IEnumerable<ArtifactReference> references, RestoreMode mode)
+    {
+        var force = mode == RestoreMode.Force;
+
+        // WARNING: The operations on references here rely on the custom Equals() implementations and NOT on object identity.
+        // Many declarations can point to the same artifact.
+        var uniqueReferences = references.Distinct().ToArray();
+
+        if (force)
+        {
+            // Forcing a restore retries artifacts that failed recently, rather than reporting the earlier failure.
+            foreach (var reference in uniqueReferences)
             {
-                if (IsFailureInfoExpired(value, dateTime))
-                {
-                    // value is expired - remove it
-                    this.restoreFailures.TryRemove(key, out _);
-                }
+                this.failureCache.Remove(reference);
             }
         }
 
-        private IArtifactRegistry GetRegistry(ArtifactReference reference) => this.registryProvider.GetRegistry(reference.Scheme);
-
-        private bool HasRestoreFailed(ArtifactReference reference, IBicepConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
+        // Call OnRestoreArtifacts on each registry. Can (currently at least) be done in parallel to restore.
+        var onRestoreArtifactsTasks = new List<Task>();
+        foreach (var scheme in this.registryProvider.SupportedSchemes)
         {
-            if (this.restoreFailures.TryGetValue(new((CloudConfiguration)configuration.Cloud, reference), out var failureInfo) && !IsFailureInfoExpired(failureInfo, DateTime.UtcNow))
-            {
-                // the restore operation failed on the module previously
-                // and the record of the failure has not yet expired
-                failureBuilder = failureInfo.FailureBuilder;
-                return true;
-            }
+            var registry = this.registryProvider.GetRegistry(scheme);
 
-            failureBuilder = null;
+            try
+            {
+                onRestoreArtifactsTasks.Add(registry.OnRestoreArtifacts(force));
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"{nameof(IArtifactRegistry.OnRestoreArtifacts)} failed: {ex.Message}");
+            }
+        }
+
+        if (!force && uniqueReferences.All(reference => this.GetRestoreState(reference) is ArtifactRestoreState.Restored))
+        {
+            // All the artifacts have already been restored - no need to do anything.
             return false;
         }
 
-        private static bool IsFailureInfoExpired(RestoreFailureInfo failureInfo, DateTime dateTime) => dateTime >= failureInfo.Expiration;
+        var referencesByRegistry = uniqueReferences.ToLookup(this.GetRegistry);
 
-        private void SetRestoreFailure(ArtifactReference reference, IBicepConfiguration configuration, DiagnosticBuilder.DiagnosticBuilderDelegate failureBuilder)
+        foreach (var registry in referencesByRegistry.Select(byRegistry => byRegistry.Key))
         {
-            // as the user is typing, the modules will keep getting recompiled
-            // we can't keep retrying syntactically correct references to non-existent modules on every key press
-            // absolute expiration here will ensure that the next retry is delayed until the specified interval passes
-            // we're not doing sliding expiration because we want a retry to happen eventually
-            // (we may consider adding an ability to immediately retry to the UX in the future as well)
-            var expiration = DateTime.UtcNow.Add(FailureExpirationInterval);
-            this.restoreFailures.TryAdd(new((CloudConfiguration)configuration.Cloud, reference), new RestoreFailureInfo(reference, failureBuilder, expiration));
-        }
-
-        private class RestoreFailureKey
-        {
-            private readonly CloudConfiguration configuration;
-
-            private readonly ArtifactReference reference;
-
-            public RestoreFailureKey(CloudConfiguration configuration, ArtifactReference reference)
+            if (force)
             {
-                this.configuration = configuration;
-                this.reference = reference;
+                var invalidateFailures = await registry.InvalidateArtifactsCache(referencesByRegistry[registry]);
+
+                foreach (var (failedReference, failureBuilder) in invalidateFailures)
+                {
+                    this.failureCache.Add(failedReference, failureBuilder);
+                }
             }
 
-            public override bool Equals(object? obj) =>
-                obj is RestoreFailureKey other &&
-                this.configuration.Equals(other.configuration) &&
-                this.reference.Equals(other.reference);
+            var restoreFailures = await registry.RestoreArtifacts(referencesByRegistry[registry]);
 
-            public override int GetHashCode() => HashCode.Combine(this.configuration, this.reference);
-        }
-
-        private class RestoreFailureInfo
-        {
-            public RestoreFailureInfo(ArtifactReference reference, DiagnosticBuilder.DiagnosticBuilderDelegate failureBuilder, DateTime expiration)
+            foreach (var (failedReference, failureBuilder) in restoreFailures)
             {
-                this.Reference = reference;
-                this.FailureBuilder = failureBuilder;
-                this.Expiration = expiration;
+                this.failureCache.Add(failedReference, failureBuilder);
             }
 
-            public ArtifactReference Reference { get; }
-
-            public DiagnosticBuilder.DiagnosticBuilderDelegate FailureBuilder { get; }
-
-            public DateTime Expiration { get; }
+            try
+            {
+                await Task.WhenAll(onRestoreArtifactsTasks);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"{nameof(IArtifactRegistry.OnRestoreArtifacts)} failed: {ex.Message}");
+            }
         }
+
+        return true;
     }
+
+    private IArtifactRegistry GetRegistry(ArtifactReference reference) => this.registryProvider.GetRegistry(reference.Scheme);
 }

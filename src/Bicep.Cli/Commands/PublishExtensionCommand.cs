@@ -116,12 +116,12 @@ namespace Bicep.Cli.Commands
             try
             {
                 // If we don't want to overwrite, ensure extension doesn't exist
-                if (!overwriteIfExists && await publisher.ExtensionExists(target))
+                if (!overwriteIfExists && await publisher.ExistsAsync(target))
                 {
                     throw new BicepException($"The extension \"{target.FullyQualifiedReference}\" already exists. Use --force to overwrite the existing extension.");
                 }
                 Trace.WriteLine($"Publishing extension package to \"{target.FullyQualifiedReference}\".");
-                await publisher.PublishExtension(target, package);
+                await publisher.PublishAsync(target, package);
                 Trace.WriteLine($"Successfully published extension package to \"{target.FullyQualifiedReference}\".");
             }
             catch (ExternalArtifactException exception)
@@ -156,7 +156,7 @@ namespace Bicep.Cli.Commands
                 throw new BicepException(message);
             }
 
-            if (!publisher.CanPublish(ArtifactType.Extension, extensionReference))
+            if (!publisher.CanPublish(extensionReference))
             {
                 throw new BicepException($"The specified extension target \"{targetReference}\" is not supported.");
             }

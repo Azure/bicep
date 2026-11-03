@@ -8,13 +8,10 @@ namespace Bicep.Core.Registry;
 /// </summary>
 public interface IArtifactPublisher
 {
-    bool CanPublish(ArtifactType artifactType, ArtifactReference reference);
+    bool CanPublish(ArtifactReference target);
 
-    Task<bool> ModuleExists(ArtifactReference reference);
+    Task<bool> ExistsAsync(ArtifactReference target);
 
-    Task<bool> ExtensionExists(ArtifactReference reference);
-
-    Task PublishModule(ArtifactReference reference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri);
-
-    Task PublishExtension(ArtifactReference reference, ExtensionPackage package);
+    /// <exception cref="ArgumentException">The package type does not match the target type.</exception>
+    Task PublishAsync(ArtifactReference target, ArtifactPackage package);
 }

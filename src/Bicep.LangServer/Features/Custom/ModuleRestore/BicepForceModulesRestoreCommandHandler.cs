@@ -78,13 +78,18 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
             }
 
             // restore is supposed to only restore the module references that are syntactically valid
-            await this.restorer.RestoreArtifacts(artifactReferencesToRestore, forceRestore: true);
+            await this.restorer.RestoreAsync(artifactReferencesToRestore, RestoreMode.Force);
 
             // if all are marked as success
             var sbRestoreSummary = new StringBuilder();
             foreach (var module in artifactReferencesToRestore)
             {
-                var restoreStatus = this.restorer.GetRestoreStatus(module, out _);
+                var restoreStatus = this.restorer.GetRestoreState(module) switch
+                {
+                    ArtifactRestoreState.Restored => "Succeeded",
+                    ArtifactRestoreState.RestoreFailed => "Failed",
+                    _ => "Unknown",
+                };
                 sbRestoreSummary.Append($"{System.Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
             }
 

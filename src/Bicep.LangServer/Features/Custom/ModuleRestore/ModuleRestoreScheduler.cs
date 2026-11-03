@@ -119,7 +119,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
                 foreach (var item in items)
                 {
                     token.ThrowIfCancellationRequested();
-                    if (!await this.restorer.RestoreArtifacts(item.ModuleReferences, forceRestore: false))
+                    if (!await this.restorer.RestoreAsync(item.ModuleReferences, RestoreMode.IfMissing))
                     {
                         // nothing needed to be restored
                         // no need to notify about completion
@@ -131,8 +131,6 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
                     token.ThrowIfCancellationRequested();
                     item.CompilationManager.RefreshCompilation(item.Uri);
                 }
-
-                this.restorer.PruneRestoreStatuses();
             }
         }
 

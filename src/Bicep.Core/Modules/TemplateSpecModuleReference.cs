@@ -13,7 +13,7 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Modules
 {
-    public class TemplateSpecModuleReference : ArtifactReference
+    public class TemplateSpecModuleReference : ExternalArtifactReference
     {
         private readonly Lazy<TemplateSpecModuleArtifact> templateSpecModuleArtifact;
 
@@ -26,7 +26,7 @@ namespace Bicep.Core.Modules
         private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         private TemplateSpecModuleReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
-            : base(featureProvider, configuration, ArtifactReferenceSchemes.TemplateSpecs)
+            : base(featureProvider, configuration, ArtifactReferenceSchemes.TemplateSpecs, ArtifactType.Module)
         {
             this.SubscriptionId = subscriptionId;
             this.ResourceGroupName = resourceGroupName;
@@ -46,8 +46,6 @@ namespace Bicep.Core.Modules
         public string Version { get; }
 
         public string TemplateSpecResourceId => $"/subscriptions/{this.SubscriptionId}/resourceGroups/{this.ResourceGroupName}/providers/Microsoft.Resources/templateSpecs/{this.TemplateSpecName}/versions/{this.Version}";
-
-        public override bool IsExternal => true;
 
         public IFileHandle MainTemplateSpecFile => this.templateSpecModuleArtifact.Value.MainTemplateSpecFile;
 

@@ -10,6 +10,7 @@ using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Core;
+using Bicep.Core.Artifacts.LegacyModuleAliasMocks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
@@ -112,11 +113,11 @@ namespace Bicep.Cli.Commands
             try
             {
                 // If we don't want to overwrite, ensure module doesn't exist
-                if (!overwriteIfExists && await this.publisher.ModuleExists(target))
+                if (!overwriteIfExists && await this.publisher.ExistsAsync(target))
                 {
                     throw new BicepException($"The module \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing module.");
                 }
-                await this.publisher.PublishModule(target, compiledArmTemplate, bicepSources, documentationUri);
+                await this.publisher.PublishAsync(target, new ModulePackage(compiledArmTemplate, bicepSources, documentationUri));
             }
             catch (ExternalArtifactException exception)
             {
@@ -128,14 +129,18 @@ namespace Bicep.Cli.Commands
         {
             var dummyReferencingFile = this.sourceFileFactory.CreateBicepFile(targetModuleUri, string.Empty);
 
-            if (!this.referenceResolver.TryResolve(dummyReferencingFile, ArtifactType.Module, targetModuleReference).IsSuccess(out var moduleReference, out var failureBuilder))
+            // A moduleAliasesMock alias is resolved to a local file, which cannot be published.
+            var result = new ModuleAliasMockRule(this.fileExplorer).TryRedirect(dummyReferencingFile, ArtifactType.Module, ArtifactAddress.Parse(targetModuleReference)) ??
+                this.referenceResolver.TryResolve(dummyReferencingFile, ArtifactType.Module, targetModuleReference);
+
+            if (!result.IsSuccess(out var moduleReference, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
 
                 throw new BicepException(message);
             }
 
-            if (!this.publisher.CanPublish(ArtifactType.Module, moduleReference))
+            if (!this.publisher.CanPublish(moduleReference))
             {
                 throw new BicepException($"The specified module target \"{targetModuleReference}\" is not supported.");
             }

@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
@@ -10,34 +12,40 @@ using Bicep.IO.Abstraction;
 namespace Bicep.Core.Artifacts.LegacyModuleAliasMocks;
 
 /// <summary>
-/// Resolves <c>br/&lt;alias&gt;:</c> module references whose alias is configured in <c>moduleAliasesMock</c> to local files.
+/// Redirects <c>br/&lt;alias&gt;:</c> module references whose alias is configured in <c>moduleAliasesMock</c> to local files.
 /// </summary>
 /// <remarks>
 /// All <c>moduleAliasesMock</c> behavior is isolated here so the feature can be deleted without touching shared code
 /// (an architecture test enforces this). To delete it, remove:
 /// <list type="bullet">
 ///   <item>the <c>LegacyModuleAliasMocks</c> folders in product code and tests;</item>
-///   <item>the call to this resolver in <see cref="ArtifactReferenceResolver"/>;</item>
+///   <item>the rule registration in <see cref="ArtifactRedirectTable"/>;</item>
+///   <item>the call in the CLI <c>publish</c> command, which keeps rejecting mocked aliases as publish targets;</item>
 ///   <item>the <c>ModuleAliasesMock</c> configuration property, its bind/<c>With</c>/<c>WriteTo</c> code and its declaring-URI registration;</item>
 ///   <item>the <c>moduleAliasesMock</c> placeholder in the built-in <c>bicepconfig.json</c> and in the schema;</item>
 ///   <item>diagnostic methods that become unused (their BCP codes stay reserved).</item>
 /// </list>
 /// </remarks>
-internal sealed class ModuleAliasMockResolver
+public sealed class ModuleAliasMockRule : ArtifactRedirectRule
 {
     private readonly IFileExplorer fileExplorer;
 
-    public ModuleAliasMockResolver(IFileExplorer fileExplorer)
+    public ModuleAliasMockRule(IFileExplorer fileExplorer)
     {
         this.fileExplorer = fileExplorer;
     }
 
     /// <summary>
-    /// Resolves a <c>br/&lt;alias&gt;:</c> reference through <c>moduleAliasesMock</c>.
+    /// Redirects a <c>br/&lt;alias&gt;:</c> reference through <c>moduleAliasesMock</c>.
     /// Returns <c>null</c> if no mock is configured for the alias, in which case the reference is resolved normally.
     /// </summary>
-    public ResultWithDiagnosticBuilder<ArtifactReference>? TryResolve(BicepSourceFile referencingFile, ArtifactType artifactType, string aliasName, string unqualifiedReference)
+    public override ResultWithDiagnosticBuilder<ArtifactReference>? TryRedirect(BicepSourceFile referencingFile, ArtifactType artifactType, ArtifactAddress address)
     {
+        if (address is not ArtifactAddress.SchemeAndAliasQualified { Scheme: ArtifactReferenceSchemes.Oci, Alias: var aliasName, Body: var unqualifiedReference })
+        {
+            return null;
+        }
+
         var configuration = referencingFile.LoadConfiguration();
         if (!configuration.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out _))
         {
