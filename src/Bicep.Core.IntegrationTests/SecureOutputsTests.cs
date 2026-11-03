@@ -494,4 +494,51 @@ public class SecureOutputsTests
         result.Template.Should().HaveValueAtPath("$.languageVersion", "2.0");
         result.Template.Should().HaveValueAtPath("$.resources.secret.properties.value", "[listOutputsWithSecureValues('mod', '2025-04-01').out]");
     }
+
+    [TestMethod]
+    [DataRow("securestring", VmAdminUsernameSource, "\"foo\"")]
+    [DataRow("secureObject", VmHardwareProfileSource, "{}")]
+    public void Secure_resource_derived_output_of_compiled_module_should_be_blocked_with_local_deploy(string armType, string source, string value)
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(LocalDeployEnabled: true)),
+            ("mod.json", CompiledModuleWithResourceDerivedOutput(armType, source, value)),
+            ("main.bicep", """
+                targetScope = 'local'
+
+                module mod 'mod.json' = {
+                  scope: resourceGroup('00000000-0000-0000-0000-000000000000', 'foo')
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotGenerateATemplate().And.HaveDiagnostics(
+        [
+            ("BCP421", DiagnosticLevel.Error, """Module "mod" contains one or more secure outputs, which are not supported with "targetScope" set to "local"."""),
+            // Local scope has no built-in Azure resource types.
+            ("BCP081", DiagnosticLevel.Warning, """Resource type "Microsoft.Compute/virtualMachines@2024-07-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."""),
+        ]);
+    }
+
+    [TestMethod]
+    [DataRow("string", VmAdminUsernameSource, "\"foo\"")]
+    [DataRow("object", VmHardwareProfileSource, "{}")]
+    public void Non_sensitive_resource_derived_output_of_compiled_module_should_be_allowed_with_local_deploy(string armType, string source, string value)
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(LocalDeployEnabled: true)),
+            ("mod.json", CompiledModuleWithResourceDerivedOutput(armType, source, value)),
+            ("main.bicep", """
+                targetScope = 'local'
+
+                module mod 'mod.json' = {
+                  scope: resourceGroup('00000000-0000-0000-0000-000000000000', 'foo')
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP081", DiagnosticLevel.Warning, """Resource type "Microsoft.Compute/virtualMachines@2024-07-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."""),
+        ]);
+        result.Template.Should().NotBeNull();
+    }
 }
