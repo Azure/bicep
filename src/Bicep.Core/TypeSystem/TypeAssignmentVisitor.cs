@@ -1370,7 +1370,10 @@ namespace Bicep.Core.TypeSystem
 
                 // normally we would also do an assignability check, but we allow "any" type in string interpolation expressions
                 // so the assignability check cannot possibly fail (we already collected type errors from the inner expressions at this point)
-                return TypeFactory.CreateStringType(maxLength: maxLength, minLength: minLength switch
+                return TypeFactory.CreateStringType(
+                    // Interpolated strings contain their embedded values, so preserve any security those values carry.
+                    validationFlags: expressionTypes.Any(TypeHelper.IsOrContainsSecureType) ? TypeSymbolValidationFlags.IsSecure : default,
+                    maxLength: maxLength, minLength: minLength switch
                 {
                     <= 0 => null,
                     _ => minLength,
