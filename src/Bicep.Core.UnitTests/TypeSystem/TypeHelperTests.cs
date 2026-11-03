@@ -33,6 +33,21 @@ public class TypeHelperTests
     }
 
     [TestMethod]
+    public void Closed_union_variants_do_not_supply_undeclared_properties()
+    {
+        ObjectType secure = new("secure", default, [new("value", LanguageConstants.SecureString)],
+            new(LanguageConstants.Any, TypePropertyFlags.FallbackProperty));
+        ObjectType empty = new("empty", default, [], new(LanguageConstants.Any, TypePropertyFlags.FallbackProperty));
+        ObjectType open = new("open", default, [], new(LanguageConstants.String));
+
+        TypeHelper.TryCollapseTypes([secure, empty]).Should().BeOfType<ObjectType>().Subject
+            .Properties["value"].TypeReference.Type.Should().BeSameAs(LanguageConstants.SecureString);
+        TypeHelper.TryCollapseTypes([secure, open]).Should().BeOfType<ObjectType>().Subject
+            .Properties["value"].TypeReference.Type.Should().BeOfType<UnionType>().Subject.Members.Select(member => member.Type)
+            .Should().BeEquivalentTo([LanguageConstants.String, LanguageConstants.SecureString]);
+    }
+
+    [TestMethod]
     public void Object_merge_preserves_nested_members_and_replacements()
     {
         ObjectType first = new("first", default, [new("password", LanguageConstants.SecureString, TypePropertyFlags.Required)]);

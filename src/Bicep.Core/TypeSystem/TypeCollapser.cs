@@ -24,6 +24,16 @@ internal static class TypeCollapser
     /// </remarks>
     private static TypeSymbol? TryCollapse(UnionType unionType)
     {
+        // Keep secure and non-secure members separate so a public alternative cannot be treated as secure.
+        // Null does not count as a public alternative.
+        if (Flatten(unionType)
+            .Where(member => member is not NullType)
+            .Select(member => member.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+            .Distinct().Count() > 1)
+        {
+            return null;
+        }
+
         var collapseState = UnionCollapseState.Initialize();
         foreach (var member in Flatten(unionType))
         {
@@ -401,7 +411,9 @@ internal static class TypeCollapser
                             // value. Make sure it is not flagged as required.
                             propertyFlags &= ~TypePropertyFlags.Required;
 
-                            if (member.AdditionalProperties?.TypeReference.Type is { } addlPropertiesType)
+                            // An implicit fallback of any means the property is absent, not that it can have any type.
+                            if (member.HasExplicitAdditionalPropertiesType &&
+                                member.AdditionalProperties?.TypeReference.Type is { } addlPropertiesType)
                             {
                                 possibleTypes.Add(addlPropertiesType);
                             }
