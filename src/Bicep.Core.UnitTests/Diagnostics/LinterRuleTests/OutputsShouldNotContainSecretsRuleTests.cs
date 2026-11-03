@@ -431,5 +431,22 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
         }
+        [TestMethod]
+        [DataRow("union(secureObj, { extra: 1 })")]
+        [DataRow("union({ extra: 1 }, typedSecureObj)")]
+        [DataRow("union(enabled ? secureObj : {}, { extra: 1 })")]
+        public void Union_with_a_secure_object_is_secure(string expression)
+            => CompileAndTest($$"""
+                @secure()
+                param secureObj object
+                @secure()
+                param typedSecureObj {
+                  flag: bool
+                }
+                param enabled bool
+                var merged = {{expression}}
+                output o object = merged
+                """, OnCompileErrors.IncludeErrors, [$"{description} Found possible secret: secure value 'merged'"]);
+
     }
 }

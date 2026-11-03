@@ -664,16 +664,16 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
 
                 yield return new FunctionOverloadBuilder("union")
-                    // TODO even with non-literal types, some type arithmetic could be performed
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("union", LanguageConstants.Object), LanguageConstants.Object)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("union", (_, _, _, argumentTypes) =>
+                        new(TypeHelper.MergeObjectTypes(argumentTypes))), LanguageConstants.Object)
                     .WithGenericDescription(UnionDescription)
                     .WithDescription("Returns a single object with all elements from the parameters. Duplicate keys are only included once.")
                     .WithVariableParameter("object", LanguageConstants.Object, minimumCount: 2, "The first object to use for joining elements.")
                     .Build();
 
                 yield return new FunctionOverloadBuilder("union")
-                    // TODO even with non-literal types, some type arithmetic could be performed
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("union", LanguageConstants.Array), LanguageConstants.Array)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("union", (_, _, _, argumentTypes) =>
+                        new(TypeFactory.CreateArrayType(TypeHelper.CreateTypeUnion(argumentTypes.Select(TypeHelper.GetArrayItemType))))), LanguageConstants.Array)
                     .WithGenericDescription(UnionDescription)
                     .WithDescription("Returns a single array with all elements from the parameters. Duplicate values are only included once.")
                     .WithVariableParameter("object", LanguageConstants.Array, minimumCount: 2, "The first array to use for joining elements.")
