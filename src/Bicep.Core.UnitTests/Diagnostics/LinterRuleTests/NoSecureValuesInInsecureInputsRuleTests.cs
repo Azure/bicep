@@ -113,6 +113,20 @@ module child 'child.bicep' = {
             Message("plainObj", "secure value 'parentObj'"));
 
     [TestMethod]
+    [DataRow("union({ first: parentSecret }, { second: parentSecret })")]
+    [DataRow("{ first: parentSecret, second: parentSecret }")]
+    public void Secure_members_of_object_constructors_should_warn_for_plain_input(string expression)
+        => CompileAndTest($$"""
+module child 'child.bicep' = {
+  params: {
+    plainObj: {{expression}}
+  }
+}
+""",
+            Message("plainObj.first", "secure value 'parentSecret'"),
+            Message("plainObj.second", "secure value 'parentSecret'"));
+
+    [TestMethod]
     public void Secure_values_passed_to_secure_module_params_should_not_warn()
         => CompileAndTest("""
 module child 'child.bicep' = {

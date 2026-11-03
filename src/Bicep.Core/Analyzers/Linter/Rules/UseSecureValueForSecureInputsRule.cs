@@ -146,7 +146,7 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
             }
 
             // Check every argument that can still supply this path after combination.
-            if (!path.IsEmpty && SecureValueFlow.TryGetCombinedValues(model, leaf) is { } combined)
+            if (SecureValueFlow.TryGetCombinedValues(model, leaf) is { } combined)
             {
                 var combinedPath = SecureValueFlow.ForgetPosition(path);
                 return combined.Where((_, index) => !SecureValueFlow.IsOverwrittenByObjectUnion(model, leaf, index, combinedPath))

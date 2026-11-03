@@ -260,6 +260,40 @@ module unprotected 'child.bicep' = {
             new Options(IncludePosition: IncludePosition.None, AdditionalFiles: [("child.bicep", ChildModule)]));
 
     [TestMethod]
+    [DataRow("union({ first: secret }, { second: secret })", false)]
+    [DataRow("{ first: secret, second: secret }", false)]
+    [DataRow("union({ first: secret }, { second: plain })", true)]
+    [DataRow("union({ first: plain }, { second: secret })", true)]
+    [DataRow("{ first: secret, second: plain }", true)]
+    [DataRow("union({ first: secret }, {}, { second: secret })", false)]
+    [DataRow("union({ nested: { first: secret } }, { nested: { second: secret } })", false)]
+    [DataRow("union(secureObject, { second: secret })", false)]
+    [DataRow("union(plainObject, { second: secret })", true)]
+    [DataRow("{ value: concat(secret, secret) }", false)]
+    [DataRow("{ value: concat(secret, plain) }", true)]
+    [DataRow("{ items: union([secret], [secret]) }", false)]
+    [DataRow("{ items: union([secret], [plain]) }", true)]
+    [DataRow("{ items: concat([secret], [secret]) }", false)]
+    [DataRow("{ items: concat([secret], [plain]) }", true)]
+    public void Secure_object_inputs_check_members_of_combined_values_and_literals(string expression, bool shouldWarn)
+        => CompileAndTestWithChildNoPosition($$"""
+@secure()
+param secret string
+
+@secure()
+param secureObject object
+
+param plain string
+param plainObject object
+
+module child 'child.bicep' = {
+  params: {
+    secureObj: {{expression}}
+  }
+}
+""", shouldWarn ? [Message("secureObj")] : []);
+
+    [TestMethod]
     public void Module_param_expecting_secure_value_should_warn_for_literal()
         => CompileAndTestWithChild("""
 module child 'child.bicep' = {
