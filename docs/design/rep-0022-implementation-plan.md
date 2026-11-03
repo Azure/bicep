@@ -144,7 +144,7 @@ record FileArtifactAlias(string Path);
 
 ## 2.10 Phase 0 – Refactor artifact references, resolution and dispatching (no behavior change)
 
-Goal: make the REP work additive. Every Phase 0 PR must leave **all baselines and test expectations unchanged** (except tests that only exercise renamed types). `Azure.Bicep.Core` is published to nuget.org but explicitly unsupported ("we reserve the right to push breaking changes"), so renames are fine; call them out in release notes.
+Goal: make the REP work additive. Every Phase 0 PR must leave **all baselines and test expectations unchanged** (except tests that only exercise renamed types). `Azure.Bicep.Core` is published to nuget.org but explicitly unsupported ("we reserve the right to push breaking changes"), so renames are fine.
 
 ### 2.10.1 Problems found (evidence)
 
@@ -358,8 +358,6 @@ Risks / mitigations:
 
 ### 2.10.5 Phase 0.4 validation
 
-Unsupported `Azure.Bicep.Core` API change (release notes): `IModuleDispatcher` and `IArtifactReferenceFactory` are removed; consumers use `IArtifactReferenceResolver`, `IArtifactRestorer` and/or `IArtifactPublisher`.
-
 The package feed used for validation has no Scriban 7.5.3 (latest 7.5.1) or Markdig 1.5.0 (latest 1.4.2), and nuget.org was unreachable. The runs below used a temporary local Scriban 7.5.1 override, which was reverted; the committed pin stays at 7.5.3. Re-run with the pinned versions in CI.
 
 | Command | Result |
@@ -375,12 +373,6 @@ The package feed used for validation has no Scriban 7.5.3 (latest 7.5.1) or Mark
 | `dotnet test --project src\Bicep.McpServer.UnitTests\Bicep.McpServer.UnitTests.csproj --no-build` | Passed: 95 |
 
 ### 2.10.6 Phase 0.5 validation
-
-Unsupported `Azure.Bicep.Core` API changes (release notes):
-- `ArtifactReference.Type` replaces `LocalModuleReference.ArtifactType` (and moves `OciArtifactReference.Type` to the base class); `IsExternal` is replaced by the `ExternalArtifactReference` base class.
-- `IArtifactReferenceResolver` has one `TryResolve(BicepSourceFile, ArtifactType, string)` method; `ArtifactReferenceResolver` no longer takes an `IFileExplorer`.
-- `IArtifactRestorer`: `GetRestoreState` (returns `ArtifactRestoreState`) and `RestoreAsync(references, RestoreMode)` replace `GetRestoreStatus`, `RestoreArtifacts` and `PruneRestoreStatuses`; `ArtifactRestoreStatus` is removed.
-- `IArtifactPublisher`: `CanPublish(target)`, `ExistsAsync(target)` and `PublishAsync(target, ArtifactPackage)` replace the module/extension method pairs.
 
 No behavior change. New CLI tests pin existing publish-target behavior: `bicep publish --target br/<alias>:…` publishes through `moduleAliases`, and a mocked alias is rejected with "target not supported".
 
