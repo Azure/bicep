@@ -2081,7 +2081,7 @@ namespace Bicep.Core.TypeSystem
 
                 // the property is not valid
                 // there's already a parse error for it, so we don't need to add a type error as well
-                ObjectType when !syntax.PropertyName.IsValid => ErrorType.Empty(),
+                ObjectLikeType when !syntax.PropertyName.IsValid => ErrorType.Empty(),
 
                 ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType,
                     syntax.PropertyName,
@@ -2097,8 +2097,12 @@ namespace Bicep.Core.TypeSystem
                     syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(unionType),
                     diagnostics),
 
-                // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
-                DiscriminatedObjectType => LanguageConstants.Any,
+                DiscriminatedObjectType discriminated => TypeHelper.GetNamedPropertyType(discriminated,
+                    syntax.PropertyName,
+                    syntax.PropertyName.IdentifierName,
+                    syntax.IsSafeAccess,
+                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(discriminated),
+                    diagnostics),
 
                 // We can assign to an object, but we don't have a type for that object.
                 // The best we can do is allow it and return the 'any' type.
