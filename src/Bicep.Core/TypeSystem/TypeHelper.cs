@@ -75,6 +75,76 @@ namespace Bicep.Core.TypeSystem
             _ => LanguageConstants.Any,
         };
 
+        /// <summary>
+        /// Merges object properties in order, recursively merging nested object types. Later properties override
+        /// earlier ones, but optional properties retain the earlier type as an alternative.
+        /// </summary>
+        public static TypeSymbol MergeObjectTypes(IEnumerable<TypeSymbol> types)
+            => MergeObjectTypes(types, []);
+
+        /// <summary>
+        /// Merges object types while tracking visited pairs to avoid recursion cycles.
+        /// Falls back to 'object' for unknown property sets or recursive pairs, keeping @secure if any input has it.
+        /// </summary>
+        private static TypeSymbol MergeObjectTypes(IEnumerable<TypeSymbol> types, HashSet<(TypeSymbol, TypeSymbol)> visiting)
+        {
+            var inputs = types.ToArray();
+
+            // The result holds every input's members, so it's secure if any input, or any alternative of one, is
+            // secure as a whole. Secure properties stay secure on their own, so they don't make the whole result secure.
+            var isSecure = inputs.Any(input => FindPathsToSecureTypeComponents(input, hasTrailingAccessExpressions: true).Any());
+            var fallback = isSecure ? LanguageConstants.SecureObject : LanguageConstants.Object;
+
+            Dictionary<string, NamedTypeProperty> properties = new(LanguageConstants.IdentifierComparer);
+            TypeProperty? additionalProperties = null;
+            foreach (var input in inputs)
+            {
+                // Collapse a union of objects (for example from a ternary) into one shape. Dictionaries have unknown
+                // keys, so we can't list the merged properties.
+                if (TryCollapseTypes([input]) is not ObjectType obj || obj.HasExplicitAdditionalPropertiesType)
+                {
+                    return fallback;
+                }
+
+                // An open object, such as a declared object type, may hold properties it doesn't list.
+                additionalProperties ??= obj.AdditionalProperties;
+                foreach (var property in obj.Properties.Values)
+                {
+                    if (properties.TryGetValue(property.Name, out var previous))
+                    {
+                        var mergedType = property.TypeReference.Type;
+                        if (previous.TypeReference.Type is ObjectType previousObject && mergedType is ObjectType nextObject)
+                        {
+                            var pair = (previousObject, nextObject);
+                            if (!visiting.Add(pair))
+                            {
+                                return fallback;
+                            }
+
+                            mergedType = MergeObjectTypes([previousObject, nextObject], visiting);
+                            visiting.Remove(pair);
+                        }
+
+                        properties[property.Name] = new(property.Name,
+                            property.Flags.HasFlag(TypePropertyFlags.Required)
+                                ? mergedType
+                                : CreateTypeUnion(previous.TypeReference, mergedType),
+                            previous.Flags | property.Flags);
+                    }
+                    else
+                    {
+                        properties[property.Name] = property;
+                    }
+                }
+            }
+
+            return new ObjectType(
+                LanguageConstants.Object.Name,
+                isSecure ? TypeSymbolValidationFlags.IsSecure : TypeSymbolValidationFlags.Default,
+                properties.Values,
+                additionalProperties);
+        }
+
         public static LambdaType CreateLambdaType(IEnumerable<ITypeReference> argumentTypes, IEnumerable<ITypeReference> optionalArgumentTypes, TypeSymbol returnType)
             => new([.. argumentTypes], [.. optionalArgumentTypes], returnType);
 
