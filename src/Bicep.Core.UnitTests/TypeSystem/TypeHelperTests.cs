@@ -19,6 +19,30 @@ namespace Bicep.Core.UnitTests.TypeSystem;
 public class TypeHelperTests
 {
     [TestMethod]
+    [DynamicData(nameof(GetSecureTypeTestCases))]
+    public void Secure_type_checks_ignore_nullability_but_not_nested_members(TypeSymbol type, bool expected)
+        => TypeHelper.IsSecureType(type).Should().Be(expected);
+
+    private static IEnumerable<object[]> GetSecureTypeTestCases()
+    {
+        yield return [LanguageConstants.SecureString, true];
+        yield return [LanguageConstants.SecureObject, true];
+        yield return [TypeHelper.MakeNullable(LanguageConstants.SecureString), true];
+        yield return [TypeHelper.MakeNullable(LanguageConstants.SecureObject), true];
+        yield return [LanguageConstants.String, false];
+        yield return [LanguageConstants.Object, false];
+        yield return [TypeHelper.MakeNullable(LanguageConstants.String), false];
+        yield return [TypeHelper.MakeNullable(LanguageConstants.Object), false];
+        yield return [LanguageConstants.Any, false];
+        yield return [LanguageConstants.Null, false];
+        yield return [LanguageConstants.Never, false];
+        yield return [new ObjectType("nested", default, [new("secret", LanguageConstants.SecureString)]), false];
+        yield return [new TypedArrayType(LanguageConstants.SecureString, default), false];
+        yield return [new TupleType([LanguageConstants.SecureString], default), false];
+        yield return [TypeHelper.CreateTypeUnion(LanguageConstants.SecureString, LanguageConstants.Int, LanguageConstants.Null), false];
+    }
+
+    [TestMethod]
     public void Secure_type_paths_preserve_property_segments()
     {
         var type = new ObjectType("paths", default,

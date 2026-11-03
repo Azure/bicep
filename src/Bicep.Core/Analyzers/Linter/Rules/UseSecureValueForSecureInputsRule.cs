@@ -30,7 +30,7 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
         => string.Format(CoreResources.UseSecureValueForSecureInputsRule_MessageFormat, values);
 
     private static bool ExpectsSecureType(SemanticModel model, SyntaxBase syntax)
-        => model.GetDeclaredType(syntax) is { } type && SecureValueFlow.IsSecureType(type);
+        => model.GetDeclaredType(syntax) is { } type && TypeHelper.IsSecureType(type);
 
     private static IEnumerable<ObjectPropertySyntax> GetSecureObjectPropertiesFromTypeInformation(SemanticModel model)
     {
@@ -65,31 +65,18 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
             }
         }
 
-        foreach (var module in model.Root.ModuleDeclarations)
+        foreach (var (property, name, sinkType) in SecureValueFlow.GetModuleParameters(model))
         {
-            if (module.DeclaringModule.TryGetBody()?.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName) is not { Value: ObjectSyntax paramsObject })
+            foreach (var slot in SecureValueFlow.GetInputSlots(model, property.Value, name, sinkType).Where(slot => !slot.IsObjectKey))
             {
-                continue;
-            }
-
-            foreach (var property in paramsObject.Properties)
-            {
-                if (property.TryGetKeyText() is not { } name || model.GetDeclaredType(property) is not { } sinkType)
+                foreach (var securePath in SecureValueFlow.FindSecurePaths(slot.SinkType))
                 {
-                    continue;
-                }
-
-                foreach (var slot in SecureValueFlow.GetInputSlots(model, property.Value, name, sinkType).Where(slot => !slot.IsObjectKey))
-                {
-                    foreach (var securePath in SecureValueFlow.FindSecurePaths(slot.SinkType))
+                    // A value placed inside a secure container must be entirely secure.
+                    if (!SecureValueFlow.IsOverwritten(securePath, slot.OverriddenProperties) &&
+                        SecureValueFlow.TryStripPrefix(securePath, slot.Prefix) is { } pathInValue &&
+                        !analyzer.IsSecureAtPath(property, slot.Value, pathInValue))
                     {
-                        // A value placed inside a secure container must be entirely secure.
-                        if (!SecureValueFlow.IsOverwritten(securePath, slot.OverriddenProperties) &&
-                            SecureValueFlow.TryStripPrefix(securePath, slot.Prefix) is { } pathInValue &&
-                            !analyzer.IsSecureAtPath(property, slot.Value, pathInValue))
-                        {
-                            yield return CreateDiagnosticForSpan(diagnosticLevel, slot.Value.Span, [slot.Input + SecureValueFlow.FormatPath(securePath)]);
-                        }
+                        yield return CreateDiagnosticForSpan(diagnosticLevel, slot.Value.Span, [slot.Input + SecureValueFlow.FormatPath(securePath)]);
                     }
                 }
             }
@@ -128,7 +115,6 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
                     return SecureValueFlow.GetObjectChildren(model, @object).All(entry => entry.Child switch
                     {
                         _ when SecureValueFlow.IsOverwritten(path, entry.OverriddenProperties) => true,
-                        ObjectPropertySyntax property when property.TryGetKeyText() is { } name && entry.OverriddenProperties.Contains(name) => true,
                         ObjectPropertySyntax property when key is null => IsSecureAtPath(container, property.Value, path),
                         ObjectPropertySyntax property when property.TryGetKeyText() is not { } name || SecureValueFlow.SegmentsMatch(SecureValueFlow.FormatProperty(name), key)
                             => IsSecureAtPath(container, property.Value, memberPath),
@@ -183,7 +169,7 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
                 TypeHelper.SatisfiesCondition(SecureValueFlow.GetEffectiveType(model, leaf), type => type switch
                 {
                     NullType => true,
-                    ObjectType @object when !overridden.IsEmpty && !SecureValueFlow.IsSecureType(@object)
+                    ObjectType @object when !overridden.IsEmpty && !TypeHelper.IsSecureType(@object)
                         => @object.Properties.Values
                             .Where(property => !overridden.Contains(property.Name))
                             .All(property => IsSecureAtPath(container, leaf, [SecureValueFlow.FormatProperty(property.Name)])) &&
@@ -195,28 +181,20 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
         {
             var target = path.IsEmpty ? null : SecureValueFlow.TryParseIndex(path[0]);
             var itemPath = path.IsEmpty ? path : path.RemoveAt(0);
-            int? position = 0;
-            foreach (var child in array.Children)
+            foreach (var (value, position, isSpread) in SecureValueFlow.GetArrayEntries(array))
             {
-                if (child is ArrayItemSyntax item)
-                {
-                    if ((target is null || position is null || position == target) && !IsSecureAtPath(container, item.Value, itemPath))
-                    {
-                        return false;
-                    }
-
-                    position++;
-                }
-                else if (child is SpreadExpressionSyntax spread)
+                if (isSpread)
                 {
                     // Any item of the spread can land at the position being checked, unless it's before the spread.
                     var spreadPath = path.IsEmpty ? path : itemPath.Insert(0, SecureValueFlow.AnyIndex);
-                    if ((target is null || position is null || target >= position) && !IsSecureAtPath(container, spread.Expression, spreadPath))
+                    if ((target is null || position is null || target >= position) && !IsSecureAtPath(container, value, spreadPath))
                     {
                         return false;
                     }
-
-                    position = null;
+                }
+                else if ((target is null || position is null || position == target) && !IsSecureAtPath(container, value, itemPath))
+                {
+                    return false;
                 }
             }
 

@@ -37,9 +37,28 @@ public static class SecureValueFlow
         bool IsObjectKey = false,
         ImmutableHashSet<string>? OverriddenProperties = null);
 
+    public static IEnumerable<(ObjectPropertySyntax Property, string Name, TypeSymbol SinkType)> GetModuleParameters(SemanticModel model)
+    {
+        foreach (var module in model.Root.ModuleDeclarations)
+        {
+            if (module.DeclaringModule.TryGetBody()?.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName) is not { Value: ObjectSyntax paramsObject })
+            {
+                continue;
+            }
+
+            foreach (var property in paramsObject.Properties)
+            {
+                if (property.TryGetKeyText() is { } name && model.GetDeclaredType(property) is { } sinkType)
+                {
+                    yield return (property, name, sinkType);
+                }
+            }
+        }
+    }
+
     /// <summary>
-    /// Properties and spreads with the names that later entries definitely replace. Unknown keys and optional
-    /// properties cannot prove an earlier value is overwritten.
+    /// Properties and spreads that can still contribute values, with the names that later entries definitely
+    /// replace. Unknown keys and optional properties cannot prove an earlier value is overwritten.
     /// </summary>
     public static IEnumerable<(SyntaxBase Child, ImmutableHashSet<string> OverriddenProperties)> GetObjectChildren(SemanticModel model, ObjectSyntax syntax)
     {
@@ -47,8 +66,14 @@ public static class SecureValueFlow
         var children = new List<(SyntaxBase, ImmutableHashSet<string>)>();
         foreach (var child in syntax.Children.Reverse())
         {
+            var name = child is ObjectPropertySyntax property ? property.TryGetKeyText() : null;
+            if (name is not null && overridden.Contains(name))
+            {
+                continue;
+            }
+
             children.Add((child, overridden));
-            if (child is ObjectPropertySyntax property && property.TryGetKeyText() is { } name)
+            if (name is not null)
             {
                 overridden = overridden.Add(name);
             }
@@ -64,6 +89,27 @@ public static class SecureValueFlow
         return children;
     }
 
+    /// <summary>
+    /// Array values and their positions. A spread starts at the current position and makes later positions unknown.
+    /// </summary>
+    public static IEnumerable<(SyntaxBase Value, int? Position, bool IsSpread)> GetArrayEntries(ArraySyntax array)
+    {
+        int? position = 0;
+        foreach (var child in array.Children)
+        {
+            if (child is ArrayItemSyntax item)
+            {
+                yield return (item.Value, position, false);
+                position++;
+            }
+            else if (child is SpreadExpressionSyntax spread)
+            {
+                yield return (spread.Expression, position, true);
+                position = null;
+            }
+        }
+    }
+
     public static bool IsOverwritten(ImmutableArray<string> path, ImmutableHashSet<string>? overridden)
         => !path.IsEmpty && TryGetPropertyName(path[0]) is { } name && overridden?.Contains(name) == true;
 
@@ -74,7 +120,7 @@ public static class SecureValueFlow
     /// </summary>
     public static IEnumerable<InputSlot> GetInputSlots(SemanticModel model, SyntaxBase value, string input, TypeSymbol sinkType)
     {
-        if (IsSecureType(sinkType))
+        if (TypeHelper.IsSecureType(sinkType))
         {
             yield return new(value, input, sinkType, []);
             yield break;
@@ -85,11 +131,6 @@ public static class SecureValueFlow
             case ObjectSyntax @object:
                 foreach (var (child, overridden) in GetObjectChildren(model, @object))
                 {
-                    if (child is ObjectPropertySyntax skippedProperty && skippedProperty.TryGetKeyText() is { } keyName && overridden.Contains(keyName))
-                    {
-                        continue;
-                    }
-
                     if (child is ObjectPropertySyntax { Key: StringSyntax { Expressions.Length: > 0 } key })
                     {
                         yield return new(key, input, sinkType, [], IsObjectKey: true);
@@ -113,24 +154,20 @@ public static class SecureValueFlow
                 yield break;
 
             case ArraySyntax array:
-                int? position = 0;
-                foreach (var child in array.Children)
+                foreach (var (item, position, isSpread) in GetArrayEntries(array))
                 {
-                    if (child is ArrayItemSyntax item)
+                    if (isSpread)
+                    {
+                        // A spread's items can land at any position from where it starts.
+                        yield return new(item, input, GetRemainingItemsType(sinkType, position), []);
+                    }
+                    else
                     {
                         var segment = position is { } index ? FormatIndex(index) : AnyIndex;
-                        foreach (var slot in GetInputSlots(model, item.Value, input + segment, GetItemType(sinkType, position)))
+                        foreach (var slot in GetInputSlots(model, item, input + segment, GetItemType(sinkType, position)))
                         {
                             yield return slot;
                         }
-
-                        position++;
-                    }
-                    else if (child is SpreadExpressionSyntax spread)
-                    {
-                        // A spread's items can land at any position from where it starts.
-                        yield return new(spread.Expression, input, GetRemainingItemsType(sinkType, position), []);
-                        position = null;
                     }
                 }
 
@@ -178,17 +215,12 @@ public static class SecureValueFlow
     /// The arguments of a <c>union</c> or <c>concat</c> call. Array items can move; object union can replace values.
     /// </summary>
     public static IEnumerable<SyntaxBase>? TryGetCombinedValues(SemanticModel model, SyntaxBase syntax)
-        => syntax is FunctionCallSyntaxBase functionCall &&
-            (functionCall.Name.IdentifierName.Equals("union", StringComparison.OrdinalIgnoreCase) ||
-                functionCall.Name.IdentifierName.Equals("concat", StringComparison.OrdinalIgnoreCase)) &&
-            SemanticModelHelper.TryGetFunctionInNamespace(model, SystemNamespaceType.BuiltInName, functionCall) is not null
-            ? functionCall.Arguments.Select(argument => argument.Expression)
-            : null;
+        => (SemanticModelHelper.TryGetNamedFunction(model, SystemNamespaceType.BuiltInName, "union", syntax) ??
+            SemanticModelHelper.TryGetNamedFunction(model, SystemNamespaceType.BuiltInName, "concat", syntax))
+            ?.Arguments.Select(argument => argument.Expression);
 
     public static bool IsOverwrittenByObjectUnion(SemanticModel model, SyntaxBase syntax, int argumentIndex, ImmutableArray<string> path)
-        => syntax is FunctionCallSyntaxBase functionCall &&
-            functionCall.Name.IdentifierName.Equals("union", StringComparison.OrdinalIgnoreCase) &&
-            SemanticModelHelper.TryGetFunctionInNamespace(model, SystemNamespaceType.BuiltInName, functionCall) is not null &&
+        => SemanticModelHelper.TryGetNamedFunction(model, SystemNamespaceType.BuiltInName, "union", syntax) is { } functionCall &&
             model.GetTypeInfo(syntax) is ObjectType &&
             functionCall.Arguments.Skip(argumentIndex + 1).Any(argument => ReplacesObjectPath(GetEffectiveType(model, argument.Expression), path));
 
@@ -310,7 +342,7 @@ public static class SecureValueFlow
     /// <c>secureObjectParam.?key</c>. Members of a secure container are secure even when their own type is not.
     /// </summary>
     public static bool IsReadFromSecureValue(SemanticModel model, SyntaxBase syntax)
-        => GetAccessChain(syntax).Skip(1).Take(MaxDepth).Any(baseExpression => IsSecureType(GetEffectiveType(model, baseExpression)));
+        => GetAccessChain(syntax).Skip(1).Take(MaxDepth).Any(baseExpression => TypeHelper.IsSecureType(GetEffectiveType(model, baseExpression)));
 
     /// <summary>
     /// The type of an expression, recovering the item types of loop and lambda variables where the type checker
@@ -401,9 +433,9 @@ public static class SecureValueFlow
         };
 
         // Which lambda parameters receive items of the first argument.
-        var receivesItem = functionCall.Name.IdentifierName.ToLowerInvariant() switch
+        var receivesItem = functionCall.Name.IdentifierName switch
         {
-            "map" or "filter" or "toobject" or "groupby" => parameterIndex == 0,
+            "map" or "filter" or "toObject" or "groupBy" => parameterIndex == 0,
             "sort" => parameterIndex is 0 or 1,
             "reduce" => parameterIndex == 1,
             _ => false,
@@ -441,13 +473,6 @@ public static class SecureValueFlow
         NullType => LanguageConstants.Never,
         _ => LanguageConstants.Any,
     };
-
-    /// <summary>
-    /// Whether the type is secure, ignoring nullability.
-    /// </summary>
-    public static bool IsSecureType(TypeSymbol type)
-        => type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) ||
-            (TypeHelper.TryRemoveNullability(type) is { } nonNullable && nonNullable.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure));
 
     /// <summary>
     /// Enumerates the paths within a type at which a value must be secure.

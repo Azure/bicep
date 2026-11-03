@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Common;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.TypeSystem;
@@ -165,6 +166,82 @@ var values = [for item in (items ?? []): item.token]
     }
 
     [TestMethod]
+    [DataRow("map(items, (item, index) => item)", new[] { true, false })]
+    [DataRow("filter(items, item => !empty(item))", new[] { true })]
+    [DataRow("toObject(items, item => item)", new[] { true })]
+    [DataRow("groupBy(items, item => item)", new[] { true })]
+    [DataRow("sort(items, (left, right) => length(left) < length(right))", new[] { true, true })]
+    [DataRow("reduce(items, '', (acc, item) => '${acc}${item}')", new[] { false, true })]
+    public void Lambda_item_sources_follow_the_named_system_function(string expression, bool[] receivesItem)
+    {
+        var model = CompilationHelper.Compile($$"""
+param items string[]
+var value = {{expression}}
+""").Compilation.GetEntrypointSemanticModel();
+        var call = (FunctionCallSyntaxBase)model.Root.VariableDeclarations.Single().DeclaringVariable.Value;
+        var lambda = (LambdaSyntax)call.Arguments.Last().Expression;
+
+        lambda.GetLocalVariables()
+            .Select(variable => SecureValueFlow.TryGetItemSource(model, (LocalVariableSymbol)model.GetSymbolInfo(variable)!))
+            .Should().Equal(receivesItem.Select(isItem => isItem ? call.Arguments[0].Expression : null));
+    }
+
+    [TestMethod]
+    [DataRow("...{ value: 'replacement' }", false)]
+    [DataRow("...{ Value: 'replacement' }", true)]
+    [DataRow("...optional", true)]
+    [DataRow("...unknown", true)]
+    [DataRow("'${key}': 'replacement'", true)]
+    public void Object_children_drop_only_definitely_overwritten_properties(string replacement, bool keepsInitial)
+    {
+        var model = CompilationHelper.Compile($$"""
+param optional { value: string? }
+param unknown object
+param key string
+var value = {
+  ...unknown
+  value: 'initial'
+  {{replacement}}
+}
+""").Compilation.GetEntrypointSemanticModel();
+        var value = (ObjectSyntax)model.Root.VariableDeclarations.Single().DeclaringVariable.Value;
+        var children = SecureValueFlow.GetObjectChildren(model, value).ToArray();
+
+        children.Select(entry => entry.Child).OfType<ObjectPropertySyntax>()
+            .Any(property => property.TryGetKeyText() == "value").Should().Be(keepsInitial);
+        children.First(entry => entry.Child is SpreadExpressionSyntax).OverriddenProperties.Should().Contain("value");
+    }
+
+    [TestMethod]
+    public void Array_entries_preserve_positions_until_a_spread()
+    {
+        var model = CompilationHelper.Compile("""
+var value = [
+  'first'
+  'second'
+  ...[]
+  'third'
+  ...['fourth']
+  'fifth'
+]
+""").Compilation.GetEntrypointSemanticModel();
+        var value = (ArraySyntax)model.Root.VariableDeclarations.Single().DeclaringVariable.Value;
+        (string Value, int? Position, bool IsSpread)[] expected =
+        [
+            ("'first'", 0, false),
+            ("'second'", 1, false),
+            ("[]", 2, true),
+            ("'third'", null, false),
+            ("['fourth']", null, true),
+            ("'fifth'", null, false),
+        ];
+
+        SecureValueFlow.GetArrayEntries(value)
+            .Select(entry => (entry.Value.ToString().Trim(), entry.Position, entry.IsSpread))
+            .Should().Equal(expected);
+    }
+
+    [TestMethod]
     public void Input_slots_pair_constructed_values_with_declared_destination_types()
     {
         var model = CompilationHelper.Compile(
@@ -185,13 +262,41 @@ param settings {
   names: string[]
 }
 """)).Compilation.GetEntrypointSemanticModel();
-        var property = model.Root.ModuleDeclarations.Single().DeclaringModule.TryGetBody()!
-            .TryGetPropertyByName("params")!.Value.Should().BeOfType<ObjectSyntax>().Subject.Properties.Single();
-        var slots = SecureValueFlow.GetInputSlots(model, property.Value, "settings", model.GetDeclaredType(property)!).ToArray();
+        var (property, name, sinkType) = SecureValueFlow.GetModuleParameters(model).Should().ContainSingle().Subject;
+        var slots = SecureValueFlow.GetInputSlots(model, property.Value, name, sinkType).ToArray();
 
         slots.Select(slot => slot.Input).Should().Equal("settings.password", "settings.names[0]");
-        SecureValueFlow.IsSecureType(slots[0].SinkType).Should().BeTrue();
-        SecureValueFlow.IsSecureType(slots[1].SinkType).Should().BeFalse();
+        TypeHelper.IsSecureType(slots[0].SinkType).Should().BeTrue();
+        TypeHelper.IsSecureType(slots[1].SinkType).Should().BeFalse();
+    }
+
+    [TestMethod]
+    [DataRow("union(first, second)", true)]
+    [DataRow("sys.union(first, second)", true)]
+    [DataRow("concat(first, second)", true)]
+    [DataRow("sys.concat(first, second)", true)]
+    [DataRow("Union(first, second)", false)]
+    [DataRow("flatten([first, second])", false)]
+    public void Combined_values_only_follow_named_system_functions(string expression, bool combinesValues)
+    {
+        var model = CompilationHelper.Compile($$"""
+param first string[]
+param second string[]
+var value = {{expression}}
+""").Compilation.GetEntrypointSemanticModel();
+        var value = model.Root.VariableDeclarations.Single().DeclaringVariable.Value;
+        var combined = SecureValueFlow.TryGetCombinedValues(model, value);
+
+        if (combinesValues)
+        {
+            combined.Should().NotBeNull().And.SatisfyRespectively(
+                argument => argument.ToString().Should().Be("first"),
+                argument => argument.ToString().Should().Be("second"));
+        }
+        else
+        {
+            combined.Should().BeNull();
+        }
     }
 
     [TestMethod]

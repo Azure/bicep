@@ -40,34 +40,21 @@ public sealed class NoSecureValuesInInsecureInputsRule : LinterRuleBase
     public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
     {
         var analyzer = new Analyzer(model);
-        foreach (var module in model.Root.ModuleDeclarations)
+        foreach (var (property, name, sinkType) in SecureValueFlow.GetModuleParameters(model))
         {
-            if (module.DeclaringModule.TryGetBody()?.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName) is not { Value: ObjectSyntax paramsObject })
+            var findings = SecureValueFlow.GetInputSlots(model, property.Value, name, sinkType)
+                .Where(slot => slot.SinkType is not ErrorType && !(slot.Prefix.IsEmpty && TypeHelper.IsSecureType(slot.SinkType)))
+                .SelectMany(slot => analyzer.GetSecretSources(slot.Value)
+                    .Where(source => !IsModuleSecureParameterOnlyFunction(model, source.Syntax))
+                    .Where(source => !SecureValueFlow.IsOverwritten(source.Path, slot.OverriddenProperties))
+                    .Select(source => (source, path: slot.Prefix.AddRange(source.Path)))
+                    .Where(x => !SecureValueFlow.IsSecureAtPath(slot.SinkType, x.path))
+                    .Select(x => (x.source.Syntax, Input: slot.Input + SecureValueFlow.FormatPath(x.path), x.source.Found)))
+                .Distinct();
+
+            foreach (var (syntax, input, found) in findings)
             {
-                continue;
-            }
-
-            foreach (var property in paramsObject.Properties)
-            {
-                if (property.TryGetKeyText() is not { } name || model.GetDeclaredType(property) is not { } sinkType)
-                {
-                    continue;
-                }
-
-                var findings = SecureValueFlow.GetInputSlots(model, property.Value, name, sinkType)
-                    .Where(slot => slot.SinkType is not ErrorType && !(slot.Prefix.IsEmpty && SecureValueFlow.IsSecureType(slot.SinkType)))
-                    .SelectMany(slot => analyzer.GetSecretSources(slot.Value)
-                        .Where(source => !IsModuleSecureParameterOnlyFunction(model, source.Syntax))
-                        .Where(source => !SecureValueFlow.IsOverwritten(source.Path, slot.OverriddenProperties))
-                        .Select(source => (source, path: slot.Prefix.AddRange(source.Path)))
-                        .Where(x => !SecureValueFlow.IsSecureAtPath(slot.SinkType, x.path))
-                        .Select(x => (x.source.Syntax, Input: slot.Input + SecureValueFlow.FormatPath(x.path), x.source.Found)))
-                    .Distinct();
-
-                foreach (var (syntax, input, found) in findings)
-                {
-                    yield return CreateDiagnosticForSpan(diagnosticLevel, syntax.Span, input, found);
-                }
+                yield return CreateDiagnosticForSpan(diagnosticLevel, syntax.Span, input, found);
             }
         }
     }
@@ -102,7 +89,6 @@ public sealed class NoSecureValuesInInsecureInputsRule : LinterRuleBase
                     => SecureValueFlow.GetDataLeaves(syntax).SelectMany(leaf => GetSecretSources(leaf)),
                 ObjectSyntax @object => SecureValueFlow.GetObjectChildren(model, @object).SelectMany(entry => entry.Child switch
                 {
-                    ObjectPropertySyntax property when property.TryGetKeyText() is { } name && entry.OverriddenProperties.Contains(name) => [],
                     ObjectPropertySyntax property => GetPropertySources(property),
                     SpreadExpressionSyntax spread => GetSecretSources(spread.Expression)
                         .Where(source => !SecureValueFlow.IsOverwritten(source.Path, entry.OverriddenProperties)),
@@ -132,31 +118,9 @@ public sealed class NoSecureValuesInInsecureInputsRule : LinterRuleBase
                     : []);
 
         private IEnumerable<SecretSource> GetArraySources(ArraySyntax array)
-        {
-            int? position = 0;
-            foreach (var child in array.Children)
-            {
-                if (child is ArrayItemSyntax item)
-                {
-                    var segment = position is { } index ? SecureValueFlow.FormatIndex(index) : SecureValueFlow.AnyIndex;
-                    foreach (var source in Prefix(segment, GetSecretSources(item.Value)))
-                    {
-                        yield return source;
-                    }
-
-                    position++;
-                }
-                else if (child is SpreadExpressionSyntax spread)
-                {
-                    foreach (var source in AnyPosition(GetSecretSources(spread.Expression)))
-                    {
-                        yield return source;
-                    }
-
-                    position = null;
-                }
-            }
-        }
+            => SecureValueFlow.GetArrayEntries(array).SelectMany(entry => entry.IsSpread
+                ? AnyPosition(GetSecretSources(entry.Value))
+                : Prefix(entry.Position is { } index ? SecureValueFlow.FormatIndex(index) : SecureValueFlow.AnyIndex, GetSecretSources(entry.Value)));
 
         private IEnumerable<SecretSource> GetTypedSources(SyntaxBase syntax)
         {
@@ -251,10 +215,9 @@ public sealed class NoSecureValuesInInsecureInputsRule : LinterRuleBase
         }
 
         private SyntaxBase? TryGetSystemFunctionArgument(FunctionCallSyntaxBase functionCall, string name, int index)
-            => functionCall.Name.IdentifierName.Equals(name, StringComparison.OrdinalIgnoreCase) &&
-                index < functionCall.Arguments.Length &&
-                SemanticModelHelper.TryGetFunctionInNamespace(model, SystemNamespaceType.BuiltInName, functionCall) is not null
-                ? functionCall.Arguments[index].Expression
+            => SemanticModelHelper.TryGetNamedFunction(model, SystemNamespaceType.BuiltInName, name, functionCall) is { } call &&
+                index < call.Arguments.Length
+                ? call.Arguments[index].Expression
                 : null;
     }
 

@@ -116,7 +116,7 @@ public class ResourceDerivedTypeResolver
     {
         // TODO: Distinguish declared parameter protection from sensitivity inherited from resource types.
         // Preserving an explicit secure schema does not make an unprotected resourceInput<> parameter secure.
-        if (!(TypeHelper.TryRemoveNullability(fallback) ?? fallback).ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) ||
+        if (!TypeHelper.IsSecureType(fallback) ||
             resolved.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
         {
             return resolved;

@@ -120,7 +120,7 @@ namespace Bicep.Core.Semantics
         /// </summary>
         private static bool IsDeclaredSecureResourceDerivedType(TypeSymbol type)
             => (TypeHelper.TryRemoveNullability(type) ?? type) is IUnresolvedResourceDerivedType unresolved &&
-                (TypeHelper.TryRemoveNullability(unresolved.FallbackType) ?? unresolved.FallbackType).ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
+                TypeHelper.IsSecureType(unresolved.FallbackType);
 
         public ArmTemplateFile SourceFile { get; }
 

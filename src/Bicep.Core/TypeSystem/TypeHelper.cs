@@ -782,6 +782,13 @@ namespace Bicep.Core.TypeSystem
         public static bool MatchesPattern(string pattern, string value)
             => Regex.IsMatch(value, pattern, RegexOptions.NonBacktracking);
 
+        /// <summary>
+        /// Whether the type is secure, ignoring nullability.
+        /// </summary>
+        public static bool IsSecureType(TypeSymbol type)
+            => type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) ||
+                (TryRemoveNullability(type) is { } nonNullable && nonNullable.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure));
+
         public static bool IsOrContainsSecureType(TypeSymbol type)
             => FindPathsToSecureTypeComponents(type, false).Any();
 
