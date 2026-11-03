@@ -453,6 +453,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             @discriminator('kind')
             param p { kind: 'a', x: string } | { kind: 'b', y: string }
             """)]
+        [DataRow("param p resourceInput<'Microsoft.DataFactory/factories/linkedservices@2018-06-01'>.properties")]
         public void Secure_discriminated_object_is_secure(string declaration)
             => CompileAndTest($"""
                 @secure()

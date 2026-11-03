@@ -29,6 +29,60 @@ public class SecureOutputsTests
     public TestContext? TestContext { get; set; }
 
     [TestMethod]
+    [DataRow("secureString", "string", "userData", "\"value\"")]
+    [DataRow("secureObject", "object", "hardwareProfile", "{}")]
+    public void Compiled_resource_derived_outputs_keep_secure_emission_and_restrictions(string schemaType, string type, string property, string value)
+    {
+        var child = $$"""
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "languageVersion": "2.0",
+              "contentVersion": "1.0.0.0",
+              "definitions": {
+                "result": {
+                  "type": "{{schemaType}}",
+                  "metadata": {
+                    "__bicep_resource_derived_type!": {
+                      "source": "Microsoft.Compute/virtualMachines@2024-07-01#properties/properties/properties/{{property}}"
+                    }
+                  }
+                }
+              },
+              "outputs": {
+                "value": {
+                  "$ref": "#/definitions/result",
+                  "value": {{value}}
+                }
+              },
+              "resources": {}
+            }
+            """;
+        var parent = $$"""
+            module child 'child.json' = {
+              name: 'child'
+            }
+            output value {{type}} = child.outputs.value
+            """;
+        var result = CompilationHelper.Compile(("main.bicep", parent), ("child.json", child));
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("$.languageVersion", "2.0");
+        result.Template.Should().HaveValueAtPath("$.outputs.value.value", "[listOutputsWithSecureValues('child', '2025-04-01').value]");
+
+        var indirect = CompilationHelper.Compile(("main.bicep", parent.Replace("child.outputs.value", "alias.outputs.value") + "\nvar alias = child"),
+            ("child.json", child));
+        indirect.Diagnostics.Should().Contain(diagnostic => diagnostic.Code == "BCP426");
+
+        var local = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(LocalDeployEnabled: true)),
+            ("main.bicep", "targetScope = 'local'\nmodule child 'child.json' = { name: 'child' }"), ("child.json", child));
+        local.Diagnostics.Should().Contain(diagnostic => diagnostic.Code == "BCP421");
+
+        var plainChild = child.Replace(schemaType, type);
+        var plain = CompilationHelper.Compile(("main.bicep", parent), ("child.json", plainChild));
+        plain.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        plain.Template!.SelectToken("$.outputs.value.value")!.Value<string>().Should().Contain("reference(").And.NotContain("listOutputsWithSecureValues");
+    }
+
+    [TestMethod]
     public void Test_Deployments_Secure_Outputs_Expect_No_Error()
     {
         // https://github.com/Azure/bicep/issues/2163

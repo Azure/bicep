@@ -25,6 +25,42 @@ namespace Bicep.Core.UnitTests.TypeSystem;
 public class ResourceDerivedTypeResolverTests
 {
     [TestMethod]
+    [DataRow(ResourceDerivedTypeVariant.Input)]
+    [DataRow(ResourceDerivedTypeVariant.Output)]
+    [DataRow(ResourceDerivedTypeVariant.None)]
+    public void Declared_security_survives_resource_type_resolution(ResourceDerivedTypeVariant variant)
+    {
+        var text = TypeFactory.CreateStringType(2, 20, "^[a-z]+$");
+        var (resolver, reference) = SetupResolver(text);
+        var unresolved = new UnresolvedResourceDerivedType(reference, [], LanguageConstants.SecureString, variant);
+        unresolved.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+        var resolved = resolver.ResolveResourceDerivedTypes(unresolved).Should().BeOfType<StringType>().Subject;
+        resolved.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+        resolved.MinLength.Should().Be(2);
+        resolved.MaxLength.Should().Be(20);
+        resolved.Pattern.Should().Be("^[a-z]+$");
+
+        ObjectType obj = new("settings", default, [new("value", LanguageConstants.String)], new(LanguageConstants.String));
+        (resolver, reference) = SetupResolver(obj);
+        unresolved = new(reference, [], TypeHelper.MakeNullable(LanguageConstants.SecureObject), variant);
+        TypeHelper.IsOrContainsSecureType(unresolved).Should().BeTrue();
+        var resolvedObject = resolver.ResolveResourceDerivedTypes(unresolved).Should().BeOfType<ObjectType>().Subject;
+        resolvedObject.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+        resolvedObject.Properties.Keys.Should().Equal("value");
+        resolvedObject.AdditionalProperties?.TypeReference.Type.Should().BeSameAs(LanguageConstants.String);
+
+        DiscriminatedObjectType discriminated = new("kinds", default, "kind", [
+            new ObjectType("a", default, [new("kind", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required)]),
+            new ObjectType("b", default, [new("kind", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required)]),
+        ]);
+        (resolver, reference) = SetupResolver(discriminated);
+        unresolved = new(reference, [], LanguageConstants.SecureObject, variant);
+        var resolvedDiscriminated = resolver.ResolveResourceDerivedTypes(unresolved).Should().BeOfType<DiscriminatedObjectType>().Subject;
+        resolvedDiscriminated.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+        resolvedDiscriminated.UnionMembersByKey.Keys.Should().BeEquivalentTo(["'a'", "'b'"]);
+    }
+
+    [TestMethod]
     [DynamicData(nameof(GetTypesNotInNeedOfBinding))]
     public void Returns_input_if_no_unbound_types_are_enclosed(TypeSymbol type)
     {
