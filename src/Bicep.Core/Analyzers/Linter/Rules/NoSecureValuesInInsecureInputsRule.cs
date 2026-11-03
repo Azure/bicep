@@ -158,13 +158,18 @@ public sealed class NoSecureValuesInInsecureInputsRule : LinterRuleBase
             }
         }
 
-        private IEnumerable<SecretSource> GetDirectReferenceSources(SyntaxBase syntax)
+        private IEnumerable<SecretSource> GetTypedSources(SyntaxBase syntax)
         {
             var text = syntax.ToString().Trim();
-            IEnumerable<SecretSource> typed = SecureValueFlow.IsReadFromSecureValue(model, syntax)
+            return SecureValueFlow.IsReadFromSecureValue(model, syntax)
                 ? [new([], FoundSecureValue(text), syntax)]
                 : SecureValueFlow.FindSecurePaths(SecureValueFlow.GetEffectiveType(model, syntax))
                     .Select(path => new SecretSource(path, FoundSecureValue(text + SecureValueFlow.FormatPath(path)), syntax));
+        }
+
+        private IEnumerable<SecretSource> GetDirectReferenceSources(SyntaxBase syntax)
+        {
+            var typed = GetTypedSources(syntax);
 
             // A value computed from a secure value (e.g. by interpolation) loses the secure flag, so follow variables,
             // and loop and lambda items back to what they iterate, keeping only what's reachable through this
@@ -212,10 +217,7 @@ public sealed class NoSecureValuesInInsecureInputsRule : LinterRuleBase
         private IEnumerable<SecretSource> GetExpressionSources(SyntaxBase syntax)
         {
             // The result's own type may have secure members, e.g. a function returning a user-defined type.
-            IEnumerable<SecretSource> typed = SecureValueFlow.IsReadFromSecureValue(model, syntax)
-                ? [new([], FoundSecureValue(syntax.ToString().Trim()), syntax)]
-                : SecureValueFlow.FindSecurePaths(SecureValueFlow.GetEffectiveType(model, syntax))
-                    .Select(path => new SecretSource(path, FoundSecureValue(syntax.ToString().Trim() + SecureValueFlow.FormatPath(path)), syntax));
+            var typed = GetTypedSources(syntax);
 
             // Without a structure to follow, any secret in the expression may end up anywhere in its result.
             var references = ReferenceCollector.Collect(syntax)
