@@ -81,8 +81,14 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithFeatureProviderFactory(this IServiceCollection services, IFeatureProviderFactory featureProviderFactory)
         => Register(services, featureProviderFactory);
 
-    public static IServiceCollection WithModuleDispatcher(this IServiceCollection services, IModuleDispatcher moduleDispatcher)
-        => Register(services, moduleDispatcher);
+    public static IServiceCollection WithArtifactReferenceResolver(this IServiceCollection services, IArtifactReferenceResolver referenceResolver)
+        => Register(services, referenceResolver);
+
+    public static IServiceCollection WithArtifactRestorer(this IServiceCollection services, IArtifactRestorer restorer)
+        => Register(services, restorer);
+
+    public static IServiceCollection WithArtifactPublisher(this IServiceCollection services, IArtifactPublisher publisher)
+        => Register(services, publisher);
 
     public static IServiceCollection WithCompilationManager(this IServiceCollection services, ICompilationManager compilationManager)
         => Register(services, compilationManager);

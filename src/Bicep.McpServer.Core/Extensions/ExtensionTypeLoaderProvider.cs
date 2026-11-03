@@ -17,17 +17,17 @@ namespace Bicep.McpServer.Core.Extensions;
 
 public class ExtensionTypeLoaderProvider
 {
-    private readonly IModuleDispatcher moduleDispatcher;
+    private readonly IArtifactRestorer restorer;
     private readonly IFeatureProvider featureProvider;
 
     private readonly ConcurrentDictionary<string, ITypeLoader> loaderCache = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, IReadOnlyList<string>> tagCache = new(StringComparer.OrdinalIgnoreCase);
 
     public ExtensionTypeLoaderProvider(
-        IModuleDispatcher moduleDispatcher,
+        IArtifactRestorer restorer,
         IFeatureProviderFactory featureProviderFactory)
     {
-        this.moduleDispatcher = moduleDispatcher;
+        this.restorer = restorer;
 
         // The dummy path is never opened or read — it's only used by GetFeatureProvider to resolve
         // the nearest bicepconfig.json (none is found, so built-in defaults are used).
@@ -71,7 +71,7 @@ public class ExtensionTypeLoaderProvider
 
     /// <summary>
     /// Gets an <see cref="ITypeLoader"/> for a specific extension and tag.
-    /// Uses <see cref="IModuleDispatcher"/> to restore the artifact from MCR (with caching handled by the compiler's OCI registry).
+    /// Uses <see cref="IArtifactRestorer"/> to restore the artifact from MCR (with caching handled by the compiler's OCI registry).
     /// Results are also cached in-memory for fast repeated access.
     /// </summary>
     /// <param name="extension">The well-known extension to load.</param>
@@ -90,9 +90,9 @@ public class ExtensionTypeLoaderProvider
             extension.Registry, extension.Repository, tag, digest: null);
 
         // RestoreArtifacts is a no-op if already cached on disk
-        await moduleDispatcher.RestoreArtifacts([reference], forceRestore: false);
+        await restorer.RestoreArtifacts([reference], forceRestore: false);
 
-        if (!moduleDispatcher.TryGetLocalArtifactEntryPointFileHandle(reference)
+        if (!restorer.TryGetEntryPoint(reference)
             .IsSuccess(out var fileHandle, out var errorBuilder))
         {
             var diagnostic = errorBuilder(DiagnosticBuilder.ForDocumentStart());

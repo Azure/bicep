@@ -79,7 +79,7 @@ namespace Bicep.Core.Samples
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory));
 
-            var dispatcher = services.Construct<IModuleDispatcher>();
+            var resolver = services.Construct<IArtifactReferenceResolver>();
             var sourceFileFactory = services.Construct<ISourceFileFactory>();
             var dummyReferencingFile = BicepTestConstants.DummyBicepFile;
 
@@ -89,7 +89,7 @@ namespace Bicep.Core.Samples
             {
                 var target = publishInfo.Metadata.Target;
 
-                if (!dispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, target).IsSuccess(out var @ref) || @ref is not OciArtifactReference targetReference)
+                if (!resolver.TryResolve(dummyReferencingFile, ArtifactType.Module, target).IsSuccess(out var @ref) || @ref is not OciArtifactReference targetReference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
                 }
@@ -112,14 +112,14 @@ namespace Bicep.Core.Samples
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory));
 
-            var dispatcher = services.Construct<IModuleDispatcher>();
+            var resolver = services.Construct<IArtifactReferenceResolver>();
             var sourceFileFactory = services.Construct<ISourceFileFactory>();
             var dummyReferencingFile = BicepTestConstants.DummyBicepFile;
             var repositoryMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecRepository>>();
 
             foreach (var (moduleName, templateSpecInfo) in templateSpecs)
             {
-                if (!dispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, templateSpecInfo.Metadata.Target).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
+                if (!resolver.TryResolve(dummyReferencingFile, ArtifactType.Module, templateSpecInfo.Metadata.Target).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }

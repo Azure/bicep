@@ -7,17 +7,19 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Bicep.Core.UnitTests.Registry;
 
 /// <summary>
 /// Characterization tests that pin how artifact reference text is resolved to an <see cref="ArtifactReference"/>
-/// through the real module dispatcher, registries and configuration discovery.
+/// through the real resolver, registries and configuration discovery.
 /// These protect the Phase 0 refactor of REP 0022 (artifact aliases and redirects) from unintended behavior changes.
 /// </summary>
 [TestClass]
@@ -53,9 +55,28 @@ public class ArtifactReferenceResolutionTests
 
     private static readonly IOUri ConfigUri = CreateUri("/repo/bicepconfig.json");
 
+    [TestMethod]
+    [DataRow("fakeScheme:fakeModule")]
+    [DataRow("test.bicep")]
+    public void NoRegistries_ValidateModuleReference_ShouldReturnError(string referenceText)
+    {
+        var file = BicepTestConstants.SourceFileFactory.CreateBicepFile(DummyFileHandle.Default, $"module foo '{referenceText}' = {{}}");
+        var module = file.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
+        var registryProvider = StrictMock.Of<IArtifactRegistryProvider>();
+        registryProvider.SetupGet(x => x.SupportedSchemes).Returns([]);
+        registryProvider.Setup(x => x.TryGetRegistry(It.IsAny<string>())).Returns((IArtifactRegistry?)null);
+        var resolver = new ArtifactReferenceResolver(registryProvider.Object, BicepTestConstants.FileExplorer);
+
+        var result = resolver.TryResolve(BicepTestConstants.DummyBicepFile, module);
+
+        result.IsSuccess(out var reference, out _).Should().BeFalse();
+        reference.Should().BeNull();
+        Describe(result).Should().Be("BCP189: Module references are not supported in this context.");
+    }
+
     private static IOUri CreateUri(string path) => new("file", "", path);
 
-    private static (BicepSourceFile EntryPoint, SourceFileGrouping Grouping, IModuleDispatcher Dispatcher) Setup(string entryPath = "/repo/sub/main.bicep", string entryContents = "", string bicepConfig = BicepConfig)
+    private static (BicepSourceFile EntryPoint, SourceFileGrouping Grouping, IArtifactReferenceResolver Resolver) Setup(string entryPath = "/repo/sub/main.bicep", string entryContents = "", string bicepConfig = BicepConfig)
     {
         var fileExplorer = new InMemoryFileExplorer();
         fileExplorer.GetFile(ConfigUri).WriteAllText(bicepConfig);
@@ -69,7 +90,7 @@ public class ArtifactReferenceResolutionTests
         var compilation = services.GetRequiredService<BicepCompiler>().CreateCompilationWithoutRestore(CreateUri(entryPath));
         var grouping = compilation.SourceFileGrouping;
 
-        return (grouping.EntryPoint, grouping, services.GetRequiredService<IModuleDispatcher>());
+        return (grouping.EntryPoint, grouping, services.GetRequiredService<IArtifactReferenceResolver>());
     }
 
     private static string Describe(ResultWithDiagnosticBuilder<ArtifactReference> result) =>
@@ -160,9 +181,9 @@ public class ArtifactReferenceResolutionTests
     [DataRow("unknown/alias:storage:1.0.0", "BCP189: The specified module reference scheme \"unknown\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
     public void Module_reference_text_resolves_to_expected_reference(string referenceText, string expected)
     {
-        var (entryPoint, _, dispatcher) = Setup();
+        var (entryPoint, _, resolver) = Setup();
 
-        Describe(dispatcher.TryGetArtifactReference(entryPoint, ArtifactType.Module, referenceText)).Should().Be(expected);
+        Describe(resolver.TryResolve(entryPoint, ArtifactType.Module, referenceText)).Should().Be(expected);
     }
 
     [TestMethod]
@@ -175,9 +196,9 @@ public class ArtifactReferenceResolutionTests
     [DataRow("builtin:", "BCP189: The specified module reference scheme \"builtin\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
     public void Extension_reference_text_resolves_to_expected_reference(string referenceText, string expected)
     {
-        var (entryPoint, _, dispatcher) = Setup();
+        var (entryPoint, _, resolver) = Setup();
 
-        Describe(dispatcher.TryGetArtifactReference(entryPoint, ArtifactType.Extension, referenceText)).Should().Be(expected);
+        Describe(resolver.TryResolve(entryPoint, ArtifactType.Extension, referenceText)).Should().Be(expected);
     }
 
     [TestMethod]
@@ -189,12 +210,12 @@ public class ArtifactReferenceResolutionTests
     [DataRow("extension 'br:contoso.azurecr.io/extensions/foo:1.0.0'", "OciArtifactReference br:contoso.azurecr.io/extensions/foo:1.0.0")]
     public void Extension_declaration_resolves_to_expected_reference(string declaration, string expected)
     {
-        var (entryPoint, grouping, dispatcher) = Setup(entryContents: declaration);
+        var (entryPoint, grouping, resolver) = Setup(entryContents: declaration);
         var syntax = entryPoint.ProgramSyntax.Declarations.OfType<ExtensionDeclarationSyntax>().Single();
 
-        Describe(dispatcher.TryGetArtifactReference(entryPoint, syntax)).Should().Be(expected);
+        Describe(resolver.TryResolve(entryPoint, syntax)).Should().Be(expected);
 
-        // The source file grouping stores the same reference that the dispatcher produces.
+        // The source file grouping stores the same reference that the resolver produces.
         Describe(grouping.ArtifactLookup[syntax]).Should().Be(expected);
     }
 
@@ -202,7 +223,7 @@ public class ArtifactReferenceResolutionTests
     public void Implicit_extension_with_a_bare_path_is_resolved_relative_to_the_referencing_file()
     {
         // Pins current behavior: unlike "extension localExt", an implicit extension passes the raw "extensions" value
-        // to the dispatcher, so a bare path is anchored on the referencing file rather than on bicepconfig.json.
+        // to the resolver, so a bare path is anchored on the referencing file rather than on bicepconfig.json.
         var (entryPoint, grouping, _) = Setup(bicepConfig: """
             {
               "extensions": { "localExt": "./extensions/local.tgz" },
@@ -220,11 +241,11 @@ public class ArtifactReferenceResolutionTests
     {
         // Pins current behavior: equality only compares the relative path text, not the file it resolves to.
         // Phase 0.5 of the REP 0022 implementation plan is expected to change this to compare resolved file URIs.
-        var (first, _, dispatcher) = Setup("/repo/a/main.bicep");
+        var (first, _, resolver) = Setup("/repo/a/main.bicep");
         var (second, _, _) = Setup("/repo/b/main.bicep");
 
-        var firstReference = dispatcher.TryGetArtifactReference(first, ArtifactType.Module, "mod.bicep").Unwrap();
-        var secondReference = dispatcher.TryGetArtifactReference(second, ArtifactType.Module, "mod.bicep").Unwrap();
+        var firstReference = resolver.TryResolve(first, ArtifactType.Module, "mod.bicep").Unwrap();
+        var secondReference = resolver.TryResolve(second, ArtifactType.Module, "mod.bicep").Unwrap();
 
         firstReference.TryGetEntryPointFileHandle().Unwrap().Uri.Path.Should().Be("/repo/a/mod.bicep");
         secondReference.TryGetEntryPointFileHandle().Unwrap().Uri.Path.Should().Be("/repo/b/mod.bicep");

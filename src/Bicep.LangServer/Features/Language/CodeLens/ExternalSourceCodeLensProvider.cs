@@ -21,7 +21,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
     {
         private static readonly Range DocumentStart = new(new Position(0, 0), new Position(0, 0));
 
-        public static IEnumerable<LspCodeLens> GetCodeLenses(IModuleDispatcher moduleDispatcher, ISourceFileFactory sourceFileFactory, CodeLensParams request, CancellationToken cancellationToken)
+        public static IEnumerable<LspCodeLens> GetCodeLenses(ISourceFileFactory sourceFileFactory, CodeLensParams request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

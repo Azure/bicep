@@ -1,21 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
-using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
@@ -23,35 +18,8 @@ using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 namespace Bicep.Core.UnitTests.Registry
 {
     [TestClass]
-    public class ModuleDispatcherTests
+    public class ArtifactRestorerTests
     {
-        [TestMethod]
-        public void NoRegistries_ValidateModuleReference_ShouldReturnError()
-        {
-            var module = CreateModule("fakeScheme:fakeModule");
-            var dispatcher = CreateDispatcher();
-
-            dispatcher.TryGetArtifactReference(BicepTestConstants.DummyBicepFile, module).IsSuccess(out var reference, out var failureBuilder).Should().BeFalse();
-            reference.Should().BeNull();
-            failureBuilder!.Should().NotBeNull();
-
-            using (new AssertionScope())
-            {
-                failureBuilder!.Should().HaveCode("BCP189");
-                failureBuilder!.Should().HaveMessage("Module references are not supported in this context.");
-            }
-
-            var localModule = CreateModule("test.bicep");
-            dispatcher.TryGetArtifactReference(BicepTestConstants.DummyBicepFile, localModule).IsSuccess(out var localModuleReference, out var localModuleFailureBuilder).Should().BeFalse();
-            localModuleReference.Should().BeNull();
-            failureBuilder!.Should().NotBeNull();
-            using (new AssertionScope())
-            {
-                localModuleFailureBuilder!.Should().HaveCode("BCP189");
-                localModuleFailureBuilder!.Should().HaveMessage("Module references are not supported in this context.");
-            }
-        }
-
         [TestMethod]
         public async Task MockRegistries_ModuleLifecycle()
         {
@@ -84,22 +52,22 @@ namespace Bicep.Core.UnitTests.Registry
                     [validRef3] = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Compiler, "RegFail", "Failed to restore module")
                 });
 
-            var dispatcher = CreateDispatcher(fail.Object, mock.Object);
+            var restorer = CreateRestorer(fail.Object, mock.Object);
 
-            dispatcher.GetArtifactRestoreStatus(validRef, out var goodAvailabilityBuilder).Should().Be(ArtifactRestoreStatus.Unknown);
+            restorer.GetRestoreStatus(validRef, out var goodAvailabilityBuilder).Should().Be(ArtifactRestoreStatus.Unknown);
             goodAvailabilityBuilder!.Should().HaveCode("BCP190");
             goodAvailabilityBuilder!.Should().HaveMessage("The artifact with reference \"mock:validRef\" has not been restored.");
 
-            dispatcher.GetArtifactRestoreStatus(validRef2, out var goodAvailabilityBuilder2).Should().Be(ArtifactRestoreStatus.Succeeded);
+            restorer.GetRestoreStatus(validRef2, out var goodAvailabilityBuilder2).Should().Be(ArtifactRestoreStatus.Succeeded);
             goodAvailabilityBuilder2!.Should().BeNull();
 
-            dispatcher.GetArtifactRestoreStatus(validRef3, out var goodAvailabilityBuilder3).Should().Be(ArtifactRestoreStatus.Unknown);
+            restorer.GetRestoreStatus(validRef3, out var goodAvailabilityBuilder3).Should().Be(ArtifactRestoreStatus.Unknown);
             goodAvailabilityBuilder3!.Should().HaveCode("BCP190");
             goodAvailabilityBuilder3!.Should().HaveMessage("The artifact with reference \"mock:validRef3\" has not been restored.");
 
-            (await dispatcher.RestoreArtifacts(new[] { validRef, validRef3 }, false)).Should().BeTrue();
+            (await restorer.RestoreArtifacts(new[] { validRef, validRef3 }, false)).Should().BeTrue();
 
-            dispatcher.GetArtifactRestoreStatus(validRef3, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ArtifactRestoreStatus.Failed);
+            restorer.GetRestoreStatus(validRef3, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ArtifactRestoreStatus.Failed);
             goodAvailabilityBuilder3AfterRestore!.Should().HaveCode("RegFail");
             goodAvailabilityBuilder3AfterRestore!.Should().HaveMessage("Failed to restore module");
         }
@@ -123,15 +91,15 @@ namespace Bicep.Core.UnitTests.Registry
             registryMock.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>()))
                 .Returns(Task.CompletedTask);
 
-            var dispatcher = CreateDispatcher(registryMock.Object);
+            var restorer = CreateRestorer(registryMock.Object);
 
-            await dispatcher.RestoreArtifacts(new[] { badReference }, false);
+            await restorer.RestoreArtifacts(new[] { badReference }, false);
 
             // Act.
             badFile = BicepTestConstants.CreateDummyBicepFile(changedConfiguration);
             badReference = new MockModuleReference(badFile, "bad");
 
-            var status = dispatcher.GetArtifactRestoreStatus(badReference, out _);
+            var status = restorer.GetRestoreStatus(badReference, out _);
 
             // Assert.
             status.Should().Be(expectedStatus);
@@ -208,22 +176,16 @@ namespace Bicep.Core.UnitTests.Registry
                 .ReturnsAsync(new Dictionary<ArtifactReference, DiagnosticBuilderDelegate>());
             registryMock.Setup(x => x.IsArtifactRestoreRequired(reference)).Returns(() => !isRestored);
             registryMock.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>())).Returns(Task.CompletedTask);
-            var dispatcher = CreateDispatcher(registryMock.Object);
+            var restorer = CreateRestorer(registryMock.Object);
 
-            await dispatcher.RestoreArtifacts([reference], forceRestore: false);
-            dispatcher.GetArtifactRestoreStatus(reference, out _).Should().Be(ArtifactRestoreStatus.Failed);
+            await restorer.RestoreArtifacts([reference], forceRestore: false);
+            restorer.GetRestoreStatus(reference, out _).Should().Be(ArtifactRestoreStatus.Failed);
 
-            await dispatcher.RestoreArtifacts([reference], forceRestore: true);
-            dispatcher.GetArtifactRestoreStatus(reference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+            await restorer.RestoreArtifacts([reference], forceRestore: true);
+            restorer.GetRestoreStatus(reference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
         }
 
-        private static IModuleDispatcher CreateDispatcher(params IArtifactRegistry[] registries) => new ModuleDispatcher(new MockArtifactRegistryProvider(registries), BicepTestConstants.FileExplorer);
-
-        private static ModuleDeclarationSyntax CreateModule(string reference)
-        {
-            var file = BicepTestConstants.SourceFileFactory.CreateBicepFile(DummyFileHandle.Default, $"module foo '{reference}' = {{}}");
-            return file.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
-        }
+        private static IArtifactRestorer CreateRestorer(params IArtifactRegistry[] registries) => new ArtifactRestorer(new MockArtifactRegistryProvider(registries));
 
         private class MockModuleReference : ArtifactReference
         {

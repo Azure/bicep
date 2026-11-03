@@ -41,7 +41,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     /// module is a leaf whose <see cref="GraphNode.SourceStatus"/> says why.
     /// </para>
     /// </summary>
-    public sealed class VisualGraphBuilder(BicepCompiler compiler, IModuleDispatcher moduleDispatcher)
+    public sealed class VisualGraphBuilder(BicepCompiler compiler, IArtifactRestorer restorer)
     {
         /// <summary>A Bicep file whose declarations become nodes under <paramref name="ParentId"/>.</summary>
         /// <param name="Archive">Where the file is in a registry module's published source; null for a file in the compilation.</param>
@@ -298,7 +298,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 return new ModuleExpansion.Leaf();
             }
 
-            switch (moduleDispatcher.GetArtifactRestoreStatus(registryReference, out var failureBuilder))
+            switch (restorer.GetRestoreStatus(registryReference, out var failureBuilder))
             {
                 case ArtifactRestoreStatus.Unknown:
                     return new ModuleExpansion.Unrestored(registryReference);

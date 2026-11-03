@@ -22,7 +22,8 @@ namespace Bicep.Core.SourceGraph
     public class SourceFileGroupingBuilder
     {
         private readonly IFileExplorer fileExplorer;
-        private readonly IModuleDispatcher dispatcher;
+        private readonly IArtifactReferenceResolver referenceResolver;
+        private readonly IArtifactRestorer restorer;
         private readonly IActiveSourceFileLookup workspace;
         private readonly ISourceFileFactory sourceFileFactory;
 
@@ -33,13 +34,15 @@ namespace Bicep.Core.SourceGraph
 
         private SourceFileGroupingBuilder(
             IFileExplorer fileExplorer,
-            IModuleDispatcher moduleDispatcher,
+            IArtifactReferenceResolver referenceResolver,
+            IArtifactRestorer restorer,
             IActiveSourceFileLookup workspace,
             ISourceFileFactory sourceFileFactory,
             bool forceModulesRestore = false)
         {
             this.fileExplorer = fileExplorer;
-            this.dispatcher = moduleDispatcher;
+            this.referenceResolver = referenceResolver;
+            this.restorer = restorer;
             this.workspace = workspace;
             this.sourceFileFactory = sourceFileFactory;
             this.artifactLookup = [];
@@ -50,14 +53,16 @@ namespace Bicep.Core.SourceGraph
 
         private SourceFileGroupingBuilder(
             IFileExplorer fileExplorer,
-            IModuleDispatcher moduleDispatcher,
+            IArtifactReferenceResolver referenceResolver,
+            IArtifactRestorer restorer,
             IActiveSourceFileLookup workspace,
             ISourceFileFactory sourceFileFactory,
             SourceFileGrouping current,
             bool forceArtifactRestore = false)
         {
             this.fileExplorer = fileExplorer;
-            this.dispatcher = moduleDispatcher;
+            this.referenceResolver = referenceResolver;
+            this.restorer = restorer;
             this.workspace = workspace;
             this.sourceFileFactory = sourceFileFactory;
             this.artifactLookup = current.ArtifactLookup.Where(x => x.Value.Result.IsSuccess()).ToDictionary();
@@ -66,16 +71,16 @@ namespace Bicep.Core.SourceGraph
             this.forceRestore = forceArtifactRestore;
         }
 
-        public static SourceFileGrouping Build(IFileExplorer fileExplorer, IModuleDispatcher moduleDispatcher, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, IOUri entryFileUri, bool forceModulesRestore = false)
+        public static SourceFileGrouping Build(IFileExplorer fileExplorer, IArtifactReferenceResolver referenceResolver, IArtifactRestorer restorer, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, IOUri entryFileUri, bool forceModulesRestore = false)
         {
-            var builder = new SourceFileGroupingBuilder(fileExplorer, moduleDispatcher, workspace, sourceFileFactory, forceModulesRestore);
+            var builder = new SourceFileGroupingBuilder(fileExplorer, referenceResolver, restorer, workspace, sourceFileFactory, forceModulesRestore);
 
             return builder.Build(entryFileUri);
         }
 
-        public static SourceFileGrouping Rebuild(IFileExplorer fileExplorer, IModuleDispatcher moduleDispatcher, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, SourceFileGrouping current)
+        public static SourceFileGrouping Rebuild(IFileExplorer fileExplorer, IArtifactReferenceResolver referenceResolver, IArtifactRestorer restorer, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, SourceFileGrouping current)
         {
-            var builder = new SourceFileGroupingBuilder(fileExplorer, moduleDispatcher, workspace, sourceFileFactory, current);
+            var builder = new SourceFileGroupingBuilder(fileExplorer, referenceResolver, restorer, workspace, sourceFileFactory, current);
 
             var sourceFilesRequiringRestore = new HashSet<ISourceFile>();
             foreach (var (syntax, artifact) in current.ArtifactLookup.Where(x => SourceFileGrouping.ShouldRestore(x.Value)))
@@ -243,7 +248,7 @@ namespace Bicep.Core.SourceGraph
                 return new(extensionName, extensionEntry, null);
             }
 
-            if (!dispatcher.TryGetArtifactReference(referencingFile, ArtifactType.Extension, extensionEntry.Value).IsSuccess(out var artifactReference, out errorBuilder))
+            if (!referenceResolver.TryResolve(referencingFile, ArtifactType.Extension, extensionEntry.Value).IsSuccess(out var artifactReference, out errorBuilder))
             {
                 // reference is not valid
                 return new(extensionName, extensionEntry, new(referencingFile, null, null, new(errorBuilder), RequiresRestore: false));
@@ -255,7 +260,7 @@ namespace Bicep.Core.SourceGraph
 
         private ArtifactResolutionInfo GetArtifactRestoreResult(BicepSourceFile referencingFile, IArtifactReferenceSyntax referenceSyntax)
         {
-            if (!dispatcher.TryGetArtifactReference(referencingFile, referenceSyntax).IsSuccess(out var artifactReference, out var errorBuilder))
+            if (!referenceResolver.TryResolve(referencingFile, referenceSyntax).IsSuccess(out var artifactReference, out var errorBuilder))
             {
                 // artifact reference is not valid
                 return new(referencingFile, referenceSyntax, null, new(errorBuilder), RequiresRestore: false);
@@ -268,7 +273,7 @@ namespace Bicep.Core.SourceGraph
 
         private (ResultWithDiagnosticBuilder<IFileHandle> result, bool requiresRestore) GetArtifactRestoreResult(ArtifactReference artifactReference)
         {
-            if (!dispatcher.TryGetLocalArtifactEntryPointFileHandle(artifactReference).IsSuccess(out var artifactFileHandle, out var artifactGetPathFailureBuilder))
+            if (!restorer.TryGetEntryPoint(artifactReference).IsSuccess(out var artifactFileHandle, out var artifactGetPathFailureBuilder))
             {
                 // invalid artifact reference - exit early to show the user the diagnostic
                 return (new(artifactGetPathFailureBuilder), requiresRestore: false);
@@ -285,7 +290,7 @@ namespace Bicep.Core.SourceGraph
                 return (new(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference)), requiresRestore: true);
             }
 
-            var restoreStatus = dispatcher.GetArtifactRestoreStatus(artifactReference, out var restoreErrorBuilder);
+            var restoreStatus = restorer.GetRestoreStatus(artifactReference, out var restoreErrorBuilder);
             switch (restoreStatus)
             {
                 case ArtifactRestoreStatus.Unknown:

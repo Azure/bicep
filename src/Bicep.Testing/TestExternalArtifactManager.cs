@@ -29,10 +29,11 @@ namespace Bicep.Testing
 
         public async Task PublishRegistryModule(string moduleArtifactId, string moduleContent, bool withSource = false, string? documentationUri = null)
         {
-            var dispatcher = this.compiler.GetService<IModuleDispatcher>();
+            var resolver = this.compiler.GetService<IArtifactReferenceResolver>();
+            var publisher = this.compiler.GetService<IArtifactPublisher>();
             var sourceFileFactory = compiler.GetService<ISourceFileFactory>();
             var dummyFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
-            var targetReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Module, moduleArtifactId).Unwrap();
+            var targetReference = resolver.TryResolve(dummyFile, ArtifactType.Module, moduleArtifactId).Unwrap();
             var compilationResult = await compiler.Compile(moduleContent);
 
             if (compilationResult.Template is null)
@@ -41,7 +42,7 @@ namespace Bicep.Testing
             }
 
             BinaryData? sourceArchiveData = withSource ? SourceArchive.CreateFrom(compilationResult.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
-            await dispatcher.PublishModule(targetReference, BinaryData.FromString(compilationResult.Template.ToString()), sourceArchiveData, documentationUri);
+            await publisher.PublishModule(targetReference, BinaryData.FromString(compilationResult.Template.ToString()), sourceArchiveData, documentationUri);
         }
 
         public async Task PublishRegistryModules(IEnumerable<RegistryModulePublishArguments> modules)
@@ -73,13 +74,14 @@ namespace Bicep.Testing
 
         public async Task PublishExtension(MockExtensionData extension)
         {
-            var dispatcher = this.compiler.GetService<IModuleDispatcher>();
+            var resolver = this.compiler.GetService<IArtifactReferenceResolver>();
+            var publisher = this.compiler.GetService<IArtifactPublisher>();
             var sourceFileFactory = compiler.GetService<ISourceFileFactory>();
             var dummyFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
-            var extensionReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Extension, extension.ExtensionRepoReference).Unwrap();
+            var extensionReference = resolver.TryResolve(dummyFile, ArtifactType.Extension, extension.ExtensionRepoReference).Unwrap();
             var extensionPackage = new ExtensionPackage(extension.TypesTgzData, false, []);
 
-            await dispatcher.PublishExtension(extensionReference, extensionPackage);
+            await publisher.PublishExtension(extensionReference, extensionPackage);
         }
 
         public async Task PublishExtensions(IEnumerable<MockExtensionData> extensions)

@@ -2,26 +2,15 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
-using Bicep.Core.Navigation;
-using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Semantics;
-using Bicep.Core.SourceGraph;
-using Bicep.Core.SourceLink;
-using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
 {
-    public class ModuleDispatcher : IModuleDispatcher
+    public class ArtifactRestorer : IArtifactRestorer
     {
         private static readonly TimeSpan FailureExpirationInterval = TimeSpan.FromMinutes(30);
 
@@ -29,27 +18,12 @@ namespace Bicep.Core.Registry
 
         private readonly IArtifactRegistryProvider registryProvider;
 
-        private readonly ArtifactReferenceResolver referenceResolver;
-
-        public ModuleDispatcher(IArtifactRegistryProvider registryProvider, IFileExplorer fileExplorer)
+        public ArtifactRestorer(IArtifactRegistryProvider registryProvider)
         {
             this.registryProvider = registryProvider;
-            this.referenceResolver = new(registryProvider, fileExplorer);
         }
 
-        public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string referenceText)
-            => this.referenceResolver.TryGetArtifactReference(referencingFile, artifactType, referenceText);
-
-        public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, IArtifactReferenceSyntax artifactReferenceSyntax)
-            => this.referenceResolver.TryGetArtifactReference(referencingFile, artifactReferenceSyntax);
-
-        public RegistryCapabilities GetRegistryCapabilities(ArtifactType artifactType, ArtifactReference artifactReference)
-        {
-            var registry = this.GetRegistry(artifactReference);
-            return registry.GetCapabilities(artifactType, artifactReference);
-        }
-
-        public ArtifactRestoreStatus GetArtifactRestoreStatus(
+        public ArtifactRestoreStatus GetRestoreStatus(
             ArtifactReference artifactReference,
             out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
         {
@@ -74,7 +48,7 @@ namespace Bicep.Core.Registry
             return ArtifactRestoreStatus.Succeeded;
         }
 
-        public ResultWithDiagnosticBuilder<IFileHandle> TryGetLocalArtifactEntryPointFileHandle(ArtifactReference artifactReference)
+        public ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPoint(ArtifactReference artifactReference)
         {
             var configuration = artifactReference.Configuration;
             // has restore already failed for this artifact?
@@ -119,7 +93,7 @@ namespace Bicep.Core.Registry
             }
 
             if (!forceRestore &&
-                uniqueReferences.All(module => this.GetArtifactRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
+                uniqueReferences.All(module => this.GetRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
             {
                 // all the modules have already been restored - no need to do anything
                 return false;
@@ -162,33 +136,6 @@ namespace Bicep.Core.Registry
             }
 
             return true;
-        }
-
-        public async Task PublishModule(ArtifactReference reference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri)
-        {
-            var registry = this.GetRegistry(reference);
-
-            var description = DescriptionHelper.TryGetFromArmTemplate(compiledArmTemplate);
-            await registry.PublishModule(reference, compiledArmTemplate, bicepSources, documentationUri, description);
-        }
-
-        public async Task PublishExtension(ArtifactReference reference, ExtensionPackage package)
-        {
-            var registry = this.GetRegistry(reference);
-
-            await registry.PublishExtension(reference, package);
-        }
-
-        public async Task<bool> CheckModuleExists(ArtifactReference reference)
-        {
-            var registry = this.GetRegistry(reference);
-            return await registry.CheckArtifactExists(ArtifactType.Module, reference);
-        }
-
-        public async Task<bool> CheckExtensionExists(ArtifactReference reference)
-        {
-            var registry = this.GetRegistry(reference);
-            return await registry.CheckArtifactExists(ArtifactType.Extension, reference);
         }
 
         public void PruneRestoreStatuses()

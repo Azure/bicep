@@ -581,7 +581,6 @@ using 'main.bicep'
         var mockExtensionFactory = StrictMock.Of<ILocalExtensionFactory>();
         mockExtensionFactory.Setup(x => x.Start(It.IsAny<IOUri>())).ReturnsAsync(extension);
         var serviceProvider = services.Build().Construct<IServiceProvider>();
-        var moduleDispatcher = BicepTestConstants.CreateModuleDispatcher(serviceProvider);
 
         await using LocalExtensionDispatcher extensionDispatcher = new(
             serviceProvider.GetRequiredService<IBicepConfigurationManager>(),

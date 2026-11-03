@@ -520,7 +520,8 @@ module moduleB './moduleB.bicep' = {
                 BicepTestConstants.EmptyEnvironment,
                 TestTypeHelper.CreateEmptyNamespaceProvider(),
                 fileExplorer,
-                services.Construct<IModuleDispatcher>(),
+                services.Construct<IArtifactReferenceResolver>(),
+                services.Construct<IArtifactRestorer>(),
                 BicepTestConstants.LinterAnalyzer,
                 BicepTestConstants.SourceFileFactory,
                 CompilerVersionCheckOptions.Default);

@@ -29,7 +29,8 @@ using Microsoft.Extensions.Logging;
 namespace Bicep.Cli.Commands
 {
     public class PublishExtensionCommand(
-        IModuleDispatcher moduleDispatcher,
+        IArtifactReferenceResolver referenceResolver,
+        IArtifactPublisher publisher,
         ISourceFileFactory sourceFileFactory,
         IFileExplorer fileExplorer,
         InputOutputArgumentsResolver inputOutputArgumentsResolver,
@@ -115,12 +116,12 @@ namespace Bicep.Cli.Commands
             try
             {
                 // If we don't want to overwrite, ensure extension doesn't exist
-                if (!overwriteIfExists && await moduleDispatcher.CheckExtensionExists(target))
+                if (!overwriteIfExists && await publisher.ExtensionExists(target))
                 {
                     throw new BicepException($"The extension \"{target.FullyQualifiedReference}\" already exists. Use --force to overwrite the existing extension.");
                 }
                 Trace.WriteLine($"Publishing extension package to \"{target.FullyQualifiedReference}\".");
-                await moduleDispatcher.PublishExtension(target, package);
+                await publisher.PublishExtension(target, package);
                 Trace.WriteLine($"Successfully published extension package to \"{target.FullyQualifiedReference}\".");
             }
             catch (ExternalArtifactException exception)
@@ -148,15 +149,14 @@ namespace Bicep.Cli.Commands
 
             var dummyReferencingFile = sourceFileFactory.CreateBicepFile(dummyReferencingFileUri, "");
 
-            if (!moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Extension, targetReference).IsSuccess(out var extensionReference, out var failureBuilder))
+            if (!referenceResolver.TryResolve(dummyReferencingFile, ArtifactType.Extension, targetReference).IsSuccess(out var extensionReference, out var failureBuilder))
             {
-                // TODO: We should probably clean up the dispatcher contract so this sort of thing isn't necessary (unless we change how target module is set in this command)
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
 
                 throw new BicepException(message);
             }
 
-            if (!moduleDispatcher.GetRegistryCapabilities(ArtifactType.Extension, extensionReference).HasFlag(RegistryCapabilities.Publish))
+            if (!publisher.CanPublish(ArtifactType.Extension, extensionReference))
             {
                 throw new BicepException($"The specified extension target \"{targetReference}\" is not supported.");
             }

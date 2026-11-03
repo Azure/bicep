@@ -28,7 +28,7 @@ namespace Bicep.Core.Registry;
 /// </list>
 /// Registries do not parse references; they only operate on resolved references.
 /// </remarks>
-public sealed class ArtifactReferenceResolver : IArtifactReferenceFactory
+public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
 {
     private readonly IArtifactRegistryProvider registryProvider;
     private readonly ModuleAliasMockResolver moduleAliasMockResolver;
@@ -39,7 +39,7 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceFactory
         this.moduleAliasMockResolver = new(fileExplorer);
     }
 
-    public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string referenceText) =>
+    public ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(BicepSourceFile referencingFile, ArtifactType artifactType, string referenceText) =>
         ArtifactAddress.Parse(referenceText) switch
         {
             ArtifactAddress.Path path => this.TryResolvePath(referencingFile, artifactType, path.Text),
@@ -48,7 +48,7 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceFactory
             var address => throw new UnreachableException($"Unexpected artifact address type '{address.GetType().Name}'."),
         };
 
-    public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, IArtifactReferenceSyntax artifactReferenceSyntax)
+    public ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(BicepSourceFile referencingFile, IArtifactReferenceSyntax artifactReferenceSyntax)
     {
         if (artifactReferenceSyntax is ExtensionDeclarationSyntax extensionSyntax)
         {
@@ -57,7 +57,7 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceFactory
                 return new(extensionFailureBuilder);
             }
 
-            return this.TryGetArtifactReference(referencingFile, artifactReferenceSyntax.GetArtifactType(), extensionReferenceText);
+            return this.TryResolve(referencingFile, artifactReferenceSyntax.GetArtifactType(), extensionReferenceText);
         }
 
         if (!SyntaxHelper.TryGetForeignTemplatePath(artifactReferenceSyntax, GetPathNotSpecifiedErrorBuilder(artifactReferenceSyntax)).IsSuccess(out var referenceText, out var failureBuilder))
@@ -65,7 +65,7 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceFactory
             return new(failureBuilder);
         }
 
-        return this.TryGetArtifactReference(referencingFile, artifactReferenceSyntax.GetArtifactType(), referenceText);
+        return this.TryResolve(referencingFile, artifactReferenceSyntax.GetArtifactType(), referenceText);
     }
 
     /// <summary>

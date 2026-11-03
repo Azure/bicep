@@ -44,7 +44,9 @@ public static class BicepCoreServiceCollectionExtensions
         services.TryAddSingleton<IOciRegistryTransportFactory, OciRegistryTransportFactory>();
         services.TryAddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
         services.TryAddSingleton<IArmClientProvider, ArmClientProvider>();
-        services.TryAddSingleton<IModuleDispatcher, ModuleDispatcher>();
+        services.TryAddSingleton<IArtifactReferenceResolver, ArtifactReferenceResolver>();
+        services.TryAddSingleton<IArtifactRestorer, ArtifactRestorer>();
+        services.TryAddSingleton<IArtifactPublisher, ArtifactPublisher>();
         services.TryAddSingleton<RegistryConfiguration>(serviceProvider =>
         {
             var environment = serviceProvider.GetRequiredService<IEnvironment>();

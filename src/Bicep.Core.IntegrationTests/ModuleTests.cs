@@ -193,9 +193,10 @@ module main 'main.bicep' = {
             var fileExplorerMock = StrictMock.Of<IFileExplorer>();
             fileExplorerMock.Setup(x => x.GetFile(fileUri)).Returns(fileHandleMock.Object);
 
-            var mockDispatcher = StrictMock.Of<IModuleDispatcher>().Object;
+            var mockResolver = StrictMock.Of<IArtifactReferenceResolver>().Object;
+            var mockRestorer = StrictMock.Of<IArtifactRestorer>().Object;
 
-            Action buildAction = () => SourceFileGroupingBuilder.Build(fileExplorerMock.Object, mockDispatcher, new ActiveSourceFileSet(), BicepTestConstants.SourceFileFactory, fileUri);
+            Action buildAction = () => SourceFileGroupingBuilder.Build(fileExplorerMock.Object, mockResolver, mockRestorer, new ActiveSourceFileSet(), BicepTestConstants.SourceFileFactory, fileUri);
             buildAction.Should().Throw<DiagnosticException>()
                 .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred reading file. Mock read failure!");
         }

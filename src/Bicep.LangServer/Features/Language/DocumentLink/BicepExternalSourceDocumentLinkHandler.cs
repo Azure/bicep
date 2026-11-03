@@ -42,7 +42,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
     /// <summary>
     /// This handles the case where the document is a source file from an external module, and we've been asked to return nested links within it (to files local to that module or to other external modules)
     /// </summary>
-    public class BicepExternalSourceDocumentLinkHandler(IModuleDispatcher ModuleDispatcher, ILanguageServerFacade Server, ISourceFileFactory sourceFileFactory)
+    public class BicepExternalSourceDocumentLinkHandler(IArtifactRestorer restorer, ILanguageServerFacade Server, ISourceFileFactory sourceFileFactory)
         : DocumentLinkHandlerBase<ExternalSourceDocumentLinkData>
     {
         protected override Task<DocumentLinkContainer<ExternalSourceDocumentLinkData>> HandleParams(DocumentLinkParams request, CancellationToken cancellationToken)
@@ -57,7 +57,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await ResolveDocumentLink(request, ModuleDispatcher, sourceFileFactory, Server);
+            return await ResolveDocumentLink(request, restorer, sourceFileFactory, Server);
         }
 
         protected override DocumentLinkRegistrationOptions CreateRegistrationOptions(DocumentLinkCapability capability, LspClientCapabilities clientCapabilities) => new()
@@ -131,7 +131,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
         public static async Task<DocumentLink<ExternalSourceDocumentLinkData>> ResolveDocumentLink(
             DocumentLink<ExternalSourceDocumentLinkData> request,
-            IModuleDispatcher moduleDispatcher,
+            IArtifactRestorer restorer,
             ISourceFileFactory sourceFileFactory,
             ILanguageServerFacade server)
         {
@@ -146,16 +146,16 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                 return GetAlternateLink();
             }
 
-            var restoreStatus = moduleDispatcher.GetArtifactRestoreStatus(targetArtifactReference, out var errorBuilder);
+            var restoreStatus = restorer.GetRestoreStatus(targetArtifactReference, out var errorBuilder);
             var errorMessage = errorBuilder?.Invoke(ForDocumentStart()).Message;
             Trace.WriteLineIf(errorMessage is { }, $"Restore status: {errorMessage})");
             if (restoreStatus == ArtifactRestoreStatus.Unknown)
             {
                 // We haven't tried restoring this module yet. Let's try it now.
                 Trace.WriteLine($"Attempting to restore module {targetArtifactReference.FullyQualifiedReference}");
-                await moduleDispatcher.RestoreArtifacts(new[] { targetArtifactReference }, forceRestore: false);
+                await restorer.RestoreArtifacts(new[] { targetArtifactReference }, forceRestore: false);
 
-                restoreStatus = moduleDispatcher.GetArtifactRestoreStatus(targetArtifactReference, out errorBuilder);
+                restoreStatus = restorer.GetRestoreStatus(targetArtifactReference, out errorBuilder);
                 errorMessage = errorBuilder?.Invoke(ForDocumentStart()).Message;
                 Trace.WriteLineIf(errorMessage is { }, $"New restore status: {errorMessage})");
 
