@@ -427,8 +427,19 @@
     <value>Property '{0}' expects a secure value, but the value provided may not be secure.</value>
     <comment>{0} property name</comment>
   </data>
+  <data name="UseSecureValueForSecureInputsRule_ModuleParameterMessageFormat" xml:space="preserve">
+    <value>Module parameter '{0}' expects a secure value, but the value provided may not be secure.</value>
+    <comment>{0} parameter path</comment>
+  </data>
   <data name="UseSecureValueForSecureInputsRule_Description" xml:space="preserve">
-    <value>Resource properties expecting secure input should be assigned secure values.</value>
+    <value>Resource properties and module parameters expecting secure input should be assigned secure values.</value>
+  </data>
+  <data name="NoSecureValuesInInsecureInputsRule_Description" xml:space="preserve">
+    <value>Secure values should only be assigned to secure module parameters.</value>
+  </data>
+  <data name="NoSecureValuesInInsecureInputsRule_MessageFormat" xml:space="preserve">
+    <value>Module parameter '{0}' is not secure, but is assigned a secure value. The value will be visible in the module deployment's inputs.</value>
+    <comment>{0} parameter path</comment>
   </data>
   <data name="UseParentPropertyRule_MessageFormat" xml:space="preserve">
     <value>Resource "{0}" has its name formatted as a child of resource "{1}". The syntax can be simplified by using the parent property.</value>
