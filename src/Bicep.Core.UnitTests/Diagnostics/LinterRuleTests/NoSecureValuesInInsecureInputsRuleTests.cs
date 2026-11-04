@@ -9,9 +9,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 
-// Reduced forwarding boundaries from https://github.com/Azure/bicep-registry-modules/pull/7472.
+// Reduced from the before and after states of https://github.com/Azure/bicep-registry-modules/pull/7472.
+// These retain forwarding expressions, not resource setup. Tests marked "Not in AVM" are synthetic edge cases
+// around an AVM binding.
 [TestClass]
-public class NoSecureValuesInInsecureInputsRuleTests : LinterRuleTestsBase
+public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTestsBase
 {
     [TestMethod]
     [DataRow("empty(secret)", "bool")]
@@ -113,61 +115,114 @@ public class NoSecureValuesInInsecureInputsRuleTests : LinterRuleTestsBase
             }
             """, $"param value {type}", 0, 1);
 
+    // api-management/service/cache: the parent and the child both gained `@secure()`, so each side is checked
+    // against the other. Before the change neither was secure, and that state has to stay clean too.
     [TestMethod]
-    public void Avm_cache_child_requires_secure_parameter()
+    public void Avm_cache_requires_securing_parent_and_child_together()
     {
         const string parent = """
-            @secure()
-            param value string
-            module child 'child.bicep' = {
-              name: 'cache'
+            type cacheType = {
+              SECURE
+              connectionString: string
+            }
+            param caches cacheType[]?
+            module children 'child.bicep' = [for (cache, index) in (caches ?? []): {
+              name: 'cache-${index}'
               params: {
-                connectionString: value
-              }
-            }
-            """;
-        AssertFlow(parent, "param connectionString string", 0, 1);
-        AssertFlow(parent, "@secure()\nparam connectionString string", 0, 0);
-    }
-
-    [TestMethod]
-    public void Avm_portal_union_only_checks_properties_present_in_each_variant()
-    {
-        const string parent = """
-            @discriminator('name')
-            type setting = signIn | delegation
-            type signIn = {
-              name: 'signin'
-              properties: {
-                enabled: bool
-              }
-            }
-            type delegation = {
-              name: 'delegation'
-              properties: {
-                @secure()
-                validationKey: string?
-                url: string?
-              }
-            }
-            param settings setting[]?
-            module children 'child.bicep' = [for (setting, index) in (settings ?? []): {
-              name: 'portal-${index}'
-              params: {
-                properties: setting.properties
+                connectionString: cache.connectionString
               }
             }]
             """;
-        AssertFlow(parent, "param properties object", 0, 1);
-        AssertFlow(parent, """
-            param properties {
-              enabled: bool?
-              @secure()
-              validationKey: string?
-              url: string?
-            }
-            """, 0, 0);
+        AssertHardening(parent, "@secure()\nparam connectionString string", "connectionString");
+        AssertFlow(parent.Replace("SECURE", ""), "param connectionString string", [], []);
     }
+
+    // api-management/service/portalsetting: the child went from a resource-derived type, which is not secure
+    // in the emitted module parameter, to a type with a secure `validationKey`.
+    private const string ApimPortalSettings = """
+        @discriminator('name')
+        type portalSettingsType = signInPropertiesType | signUpPropertiesType | delegationPropertiesType
+        type signInPropertiesType = {
+          name: 'signin'
+          properties: {
+            enabled: bool
+          }
+        }
+        type signUpPropertiesType = {
+          name: 'signup'
+          properties: {
+            enabled: bool?
+            termsOfService: {
+              consentRequired: bool?
+              enabled: bool?
+              text: string?
+            }?
+          }
+        }
+        type delegationPropertiesType = {
+          name: 'delegation'
+          properties: {
+            subscriptions: {
+              enabled: bool
+            }?
+            url: string?
+            userRegistration: {
+              enabled: bool
+            }?
+            @secure()
+            validationKey: string?
+          }
+        }
+        param portalsettings portalSettingsType[]?
+        module children 'child.bicep' = [for (portalsetting, index) in (portalsettings ?? []): {
+          name: 'portal-${index}'
+          params: {
+            properties: portalsetting.properties
+          }
+        }]
+        """;
+
+    private const string PortalSettingPropertiesChild = """
+        param properties {
+          enabled: bool?
+          termsOfService: {
+            consentRequired: bool?
+            enabled: bool?
+            text: string?
+          }?
+          subscriptions: {
+            enabled: bool?
+          }?
+          url: string?
+          userRegistration: {
+            enabled: bool?
+          }?
+          @secure()
+          validationKey: string?
+        }
+        """;
+
+    [TestMethod]
+    public void Avm_portal_settings_union_checks_only_properties_present_in_each_variant()
+    {
+        AssertFlow(ApimPortalSettings, "param properties resourceInput<'Microsoft.ApiManagement/service/portalsettings@2024-05-01'>.properties", [], [LeakWarning("properties.validationKey")]);
+        AssertFlow(ApimPortalSettings, PortalSettingPropertiesChild, [], []);
+    }
+
+    // Not in AVM: its sign-in variant has no `validationKey`. Giving it a plain one makes the secure child field
+    // warn, because the value for that variant could be plain.
+    [TestMethod]
+    public void Portal_settings_variant_with_a_plain_validation_key_does_not_satisfy_the_secure_child_field()
+        => AssertFlow(ApimPortalSettings.Replace("""
+              properties: {
+                enabled: bool
+              }
+            """, """
+              properties: {
+                enabled: bool
+                validationKey: string?
+              }
+            """), PortalSettingPropertiesChild, [InputWarning("properties.validationKey")], []);
 
     [TestMethod]
     [DataRow("union")]
@@ -195,6 +250,171 @@ public class NoSecureValuesInInsecureInputsRuleTests : LinterRuleTestsBase
             """, 0, 0);
     }
 
+    // Not in AVM: its export child declares a secure value member, so a plain `array` child is a leak.
+    [TestMethod]
+    public void Sql_secrets_export_is_a_secure_source_for_a_plain_child()
+        => AssertFlow(SqlSecretsExport.Replace("SECURE", "@secure()"), "param secretsToSet array", [], [LeakWarning("secretsToSet[*].value")]);
+
+    // Not in AVM: a resource-derived dictionary forwarded on its own, with nothing secure to infer from.
+    [TestMethod]
+    public void Flux_resource_derived_dictionary_alone_is_not_a_secure_source()
+        => AssertFlow("""
+            param settings resourceInput<'Microsoft.KubernetesConfiguration/fluxConfigurations@2025-04-01'>.properties.configurationProtectedSettings?
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                settings: settings
+              }
+            }
+            """, "param settings object?", 0, 0);
+
+    private const string VmExtensionChild = """
+        param name string
+        param typeHandlerVersion string
+        param autoUpgradeMinorVersion bool
+        param enableAutomaticUpgrade bool
+        param settings object?
+        @secure()
+        param protectedSettings object?
+        param supressFailures bool = false
+        param tags object?
+        """;
+
+    // compute/virtual-machine: the whole `@secure()` object is a secure source for every member forwarded from
+    // it, not only the password that is put in `protectedSettings`.
+    [TestMethod]
+    public void Avm_vm_domain_join_secure_object_marks_every_forwarded_member()
+        => AssertFlow("""
+            @secure()
+            param extensionDomainJoinPassword string = ''
+            @secure()
+            param extensionDomainJoinConfig object = {}
+            param tags object?
+            module vm_domainJoinExtension 'child.bicep' = if (contains(extensionDomainJoinConfig, 'enabled') && extensionDomainJoinConfig.enabled) {
+              name: 'domain-join'
+              params: {
+                name: extensionDomainJoinConfig.?name ?? 'DomainJoin'
+                typeHandlerVersion: extensionDomainJoinConfig.?typeHandlerVersion ?? '1.3'
+                autoUpgradeMinorVersion: extensionDomainJoinConfig.?autoUpgradeMinorVersion ?? true
+                enableAutomaticUpgrade: extensionDomainJoinConfig.?enableAutomaticUpgrade ?? false
+                settings: extensionDomainJoinConfig.?settings ?? {
+                  Name: extensionDomainJoinConfig.?domainName
+                  OUPath: extensionDomainJoinConfig.?ouPath
+                  User: extensionDomainJoinConfig.?user
+                  Restart: extensionDomainJoinConfig.?restart
+                  Options: extensionDomainJoinConfig.?options
+                }
+                supressFailures: extensionDomainJoinConfig.?supressFailures ?? false
+                tags: extensionDomainJoinConfig.?tags ?? tags
+                protectedSettings: {
+                  Password: extensionDomainJoinPassword
+                }
+              }
+            }
+            """, VmExtensionChild, [],
+            [
+                LeakWarning("name"),
+                LeakWarning("typeHandlerVersion"),
+                LeakWarning("autoUpgradeMinorVersion"),
+                LeakWarning("enableAutomaticUpgrade"),
+                LeakWarning("settings"),
+                LeakWarning("settings.Name"),
+                LeakWarning("settings.OUPath"),
+                LeakWarning("settings.User"),
+                LeakWarning("settings.Restart"),
+                LeakWarning("settings.Options"),
+                LeakWarning("supressFailures"),
+                LeakWarning("tags"),
+            ]);
+
+    // compute/virtual-machine-scale-set
+    [TestMethod]
+    public void Avm_vmss_domain_join_secure_object_marks_every_forwarded_member()
+        => AssertFlow("""
+            @secure()
+            param extensionDomainJoinPassword string = ''
+            @secure()
+            param extensionDomainJoinConfig object = {
+              enabled: false
+            }
+            module vmss_domainJoinExtension 'child.bicep' = if (extensionDomainJoinConfig.enabled) {
+              name: 'domain-join'
+              params: {
+                name: 'DomainJoin'
+                typeHandlerVersion: extensionDomainJoinConfig.?typeHandlerVersion ?? '1.3'
+                autoUpgradeMinorVersion: extensionDomainJoinConfig.?autoUpgradeMinorVersion ?? true
+                enableAutomaticUpgrade: extensionDomainJoinConfig.?enableAutomaticUpgrade ?? false
+                settings: extensionDomainJoinConfig.settings
+                protectedSettings: {
+                  Password: extensionDomainJoinPassword
+                }
+                provisionAfterExtensions: extensionDomainJoinConfig.?provisionAfterExtensions
+              }
+            }
+            """, """
+            param name string
+            param typeHandlerVersion string
+            param autoUpgradeMinorVersion bool
+            param enableAutomaticUpgrade bool
+            param settings object?
+            @secure()
+            param protectedSettings object?
+            param provisionAfterExtensions string[]?
+            """, [],
+            [
+                LeakWarning("typeHandlerVersion"),
+                LeakWarning("autoUpgradeMinorVersion"),
+                LeakWarning("enableAutomaticUpgrade"),
+                LeakWarning("settings"),
+                LeakWarning("provisionAfterExtensions"),
+            ]);
+
+    // compute/virtual-machine: the host pool registration token is the secret, but the whole object is secure.
+    [TestMethod]
+    public void Avm_host_pool_registration_secure_object_marks_every_forwarded_member()
+        => AssertFlow("""
+            @secure()
+            param extensionHostPoolRegistration object = {
+              enabled: false
+            }
+            param tags object?
+            module vm_hostPoolRegistrationExtension 'child.bicep' = if (extensionHostPoolRegistration.enabled) {
+              name: 'host-pool'
+              params: {
+                name: extensionHostPoolRegistration.?name ?? 'HostPoolRegistration'
+                typeHandlerVersion: extensionHostPoolRegistration.?typeHandlerVersion ?? '2.77'
+                autoUpgradeMinorVersion: extensionHostPoolRegistration.?autoUpgradeMinorVersion ?? true
+                enableAutomaticUpgrade: extensionHostPoolRegistration.?enableAutomaticUpgrade ?? false
+                settings: {
+                  modulesUrl: extensionHostPoolRegistration.modulesUrl
+                  configurationFunction: extensionHostPoolRegistration.configurationFunction
+                  properties: {
+                    hostPoolName: extensionHostPoolRegistration.hostPoolName
+                    aadJoin: true
+                  }
+                }
+                protectedSettings: {
+                  properties: {
+                    registrationInfoToken: extensionHostPoolRegistration.registrationInfoToken
+                  }
+                }
+                supressFailures: extensionHostPoolRegistration.?supressFailures ?? false
+                tags: extensionHostPoolRegistration.?tags ?? tags
+              }
+            }
+            """, VmExtensionChild, [],
+            [
+                LeakWarning("name"),
+                LeakWarning("typeHandlerVersion"),
+                LeakWarning("autoUpgradeMinorVersion"),
+                LeakWarning("enableAutomaticUpgrade"),
+                LeakWarning("settings.modulesUrl"),
+                LeakWarning("settings.configurationFunction"),
+                LeakWarning("settings.properties.hostPoolName"),
+                LeakWarning("supressFailures"),
+                LeakWarning("tags"),
+            ]);
+
     [TestMethod]
     [DataRow(false, "vault.getSecret('value')")]
     [DataRow(true, "vault.getSecret('value')")]
@@ -219,7 +439,7 @@ public class NoSecureValuesInInsecureInputsRuleTests : LinterRuleTestsBase
             }
             """;
         var source = (includeOtherSecret ? parent : parent.Replace("      secret", "      'public'")).Replace("vault.getSecret('value')", expression);
-        var result = CompilationHelper.Compile(("main.bicep", source), ("child.bicep", "param values array"));
+        var result = CompileModule(source, "param values array");
         result.Diagnostics.Where(diagnostic => diagnostic.Code == "BCP180").Should().ContainSingle();
         result.Diagnostics.Where(diagnostic => diagnostic.Code == NoSecureValuesInInsecureInputsRule.Code).Should().HaveCount(includeOtherSecret ? 1 : 0);
     }
@@ -292,13 +512,74 @@ public class NoSecureValuesInInsecureInputsRuleTests : LinterRuleTestsBase
         AssertFlow(parent.Replace("KIND", "plain"), child, 0, 1);
     }
 
-    private static void AssertFlow(string parent, string child, int inputWarnings, int leakWarnings, string childPath = "child.bicep")
+    // Not in AVM: a synthetic resourceInput child. The resource type marks `adminPassword` secure, and the retry
+    // takes that as protection, though the emitted module parameter does not protect it.
+    [TestMethod]
+    [Ignore("Deferred: resourceInput sensitivity is not proof of emitted module parameter protection.")]
+    public void Resource_input_os_profile_should_not_hide_a_plain_child_parameter()
+        => AssertFlow("""
+            @secure()
+            param password string
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                osProfile: {
+                  adminPassword: password
+                }
+              }
+            }
+            """, "param osProfile resourceInput<'Microsoft.Compute/virtualMachines@2024-07-01'>.properties.osProfile", [], [LeakWarning("osProfile.adminPassword")]);
+
+    // container-service/managed-cluster forwards `fluxExtension.?fluxConfigurations` to
+    // kubernetes-configuration/extension.
+    [TestMethod]
+    [Ignore("Deferred: compiled resourceInput items inherit sensitivity without ARM parameter protection.")]
+    public void Aks_flux_array_should_warn_for_unprotected_resource_input_child()
     {
-        var result = CompilationHelper.Compile(("main.bicep", parent), (childPath, child));
-        result.Diagnostics.Where(diagnostic => diagnostic.Level == DiagnosticLevel.Error).Should().BeEmpty();
-        result.Diagnostics.Where(diagnostic => diagnostic.Code == UseSecureValueForSecureInputsRule.Code)
-            .Select(diagnostic => diagnostic.Level).Should().Equal(Enumerable.Repeat(DiagnosticLevel.Warning, inputWarnings));
-        result.Diagnostics.Where(diagnostic => diagnostic.Code == NoSecureValuesInInsecureInputsRule.Code)
-            .Select(diagnostic => diagnostic.Level).Should().Equal(Enumerable.Repeat(DiagnosticLevel.Warning, leakWarnings));
+        const string child = """
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "languageVersion": "2.0",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "fluxConfigurations": {
+                  "type": "array",
+                  "nullable": true,
+                  "items": {
+                    "type": "object",
+                    "metadata": {
+                      "__bicep_resource_derived_type!": {
+                        "source": "Microsoft.KubernetesConfiguration/fluxConfigurations@2025-04-01#properties/properties"
+                      }
+                    }
+                  }
+                }
+              },
+              "resources": {}
+            }
+            """;
+        string[] secretPaths =
+        [
+            "azureBlob.accountKey",
+            "azureBlob.sasToken",
+            "azureBlob.servicePrincipal.clientCertificate",
+            "azureBlob.servicePrincipal.clientCertificatePassword",
+            "azureBlob.servicePrincipal.clientSecret",
+            "ociRepository.tlsConfig.caCertificate",
+            "ociRepository.tlsConfig.clientCertificate",
+            "ociRepository.tlsConfig.privateKey",
+        ];
+        AssertFlow("""
+            type extensionType = {
+              fluxConfigurations: resourceInput<'Microsoft.KubernetesConfiguration/fluxConfigurations@2025-04-01'>.properties[]?
+            }
+            param fluxExtension extensionType
+            module extension 'child.json' = {
+              name: 'extension'
+              params: {
+                fluxConfigurations: fluxExtension.?fluxConfigurations
+              }
+            }
+            """, child, [], [.. secretPaths.Select(path => LeakWarning($"fluxConfigurations[*].{path}"))], "child.json");
     }
 }
