@@ -37,6 +37,8 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
+            var secretCount = possibleSecrets.Count;
+
             // Look for references of secure values, e.g.:
             //
             //   @secure()
@@ -45,14 +47,22 @@ namespace Bicep.Core.Analyzers.Linter.Common
             possibleSecrets.AddRange(FindPathsToSecureTypeComponents(semanticModel.GetTypeInfo(syntax))
                 .Select(pathToSecureComponent => new PossibleSecret(syntax.Name, PossibleSecretMessage(syntax.Name.IdentifierName + pathToSecureComponent))));
 
+            // A copied member of a secure object may have a plain type (for example secureObject.number).
+            // Follow its initializer only when the type hasn't already told us where the secret is.
+            if (possibleSecrets.Count == secretCount &&
+                trailingAccessExpressions == 0 &&
+                semanticModel.GetSymbolInfo(syntax) is VariableSymbol variable &&
+                semanticModel.Binder.TryGetCycle(variable) is null)
+            {
+                VisitForwarded(variable.DeclaringVariable.Value, syntax.Name);
+            }
+
             base.VisitVariableAccessSyntax(syntax);
         }
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            possibleSecrets.AddRange(FindPathsToSecureTypeComponents(semanticModel.GetTypeInfo(syntax))
-                .Select(pathToSecureComponent => new PossibleSecret(syntax.PropertyName, PossibleSecretMessage(syntax.ToString() + pathToSecureComponent))));
-
+            CheckAccessExpression(syntax);
             trailingAccessExpressions++;
             base.VisitPropertyAccessSyntax(syntax);
             trailingAccessExpressions--;
@@ -60,12 +70,53 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            possibleSecrets.AddRange(FindPathsToSecureTypeComponents(semanticModel.GetTypeInfo(syntax))
-                .Select(pathToSecureComponent => new PossibleSecret(syntax.IndexExpression, PossibleSecretMessage(syntax.ToString() + pathToSecureComponent))));
-
+            CheckAccessExpression(syntax);
             trailingAccessExpressions++;
             base.VisitArrayAccessSyntax(syntax);
             trailingAccessExpressions--;
+        }
+
+        private void CheckAccessExpression(AccessExpressionSyntax syntax)
+        {
+            var secretCount = possibleSecrets.Count;
+            possibleSecrets.AddRange(FindPathsToSecureTypeComponents(semanticModel.GetTypeInfo(syntax))
+                .Select(pathToSecureComponent => new PossibleSecret(syntax.IndexExpression, PossibleSecretMessage(syntax.ToString() + pathToSecureComponent))));
+
+            if (possibleSecrets.Count == secretCount &&
+                trailingAccessExpressions == 0 &&
+                syntax.TryGetPropertyName() is { } propertyName &&
+                TryGetObjectPropertyValue(syntax.BaseExpression, propertyName) is { } propertyValue)
+            {
+                VisitForwarded(propertyValue, syntax.IndexExpression);
+            }
+        }
+
+        private SyntaxBase? TryGetObjectPropertyValue(SyntaxBase syntax, string propertyName)
+            // Follow only the selected property, not its siblings. Spreads may replace that property,
+            // and cyclic variables already have a compiler diagnostic, so neither is followed here.
+            => syntax switch
+            {
+                ObjectSyntax obj when !obj.Children.OfType<SpreadExpressionSyntax>().Any()
+                    => obj.TryGetPropertyByName(propertyName)?.Value,
+                VariableAccessSyntax access when semanticModel.GetSymbolInfo(access) is VariableSymbol variable &&
+                    semanticModel.Binder.TryGetCycle(variable) is null
+                    => TryGetObjectPropertyValue(variable.DeclaringVariable.Value, propertyName),
+                AccessExpressionSyntax access when access.TryGetPropertyName() is { } selectedProperty &&
+                    TryGetObjectPropertyValue(access.BaseExpression, selectedProperty) is { } selectedValue
+                    => TryGetObjectPropertyValue(selectedValue, propertyName),
+                _ => null,
+            };
+
+        private void VisitForwarded(SyntaxBase syntax, SyntaxBase anchor)
+        {
+            var firstForwardedSecret = possibleSecrets.Count;
+            Visit(syntax);
+
+            // Keep the secret's name, but report it on this read rather than in a shared variable declaration.
+            for (var index = firstForwardedSecret; index < possibleSecrets.Count; index++)
+            {
+                possibleSecrets[index] = possibleSecrets[index] with { Syntax = anchor };
+            }
         }
 
         internal static string PossibleSecretMessage(string possibleSecretName) => string.Format(CoreResources.PossibleSecretMessageSecureParam, possibleSecretName);
@@ -99,6 +150,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
         {
             if (DoesNotRevealSecrets(syntax))
             {
+                // Some functions return a result that doesn't reveal their arguments' values.
                 return;
             }
 
