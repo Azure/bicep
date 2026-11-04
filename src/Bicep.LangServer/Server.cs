@@ -18,6 +18,7 @@ using Bicep.LanguageServer.Features.Custom.Linter;
 using Bicep.LanguageServer.Features.Custom.LocalDeploy;
 using Bicep.LanguageServer.Features.Custom.ModuleRestore;
 using Bicep.LanguageServer.Features.Custom.Parameters;
+using Bicep.LanguageServer.Features.Custom.Refactoring;
 using Bicep.LanguageServer.Features.Custom.Visualization;
 using Bicep.LanguageServer.Features.Language.CodeAction;
 using Bicep.LanguageServer.Features.Language.CodeLens;
@@ -97,6 +98,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDeploymentScopeRequestHandler>()
                     .WithHandler<BicepDeploymentParametersHandler>()
                     .WithHandler<ImportKubernetesManifestHandler>()
+                    .WithHandler<ExtractToModuleHandler>()
                     .WithHandler<InsertResourceHandler>()
                     .WithHandler<BicepEditLinterRuleCommandHandler>()
                     .WithHandler<LocalDeployHandler>()
