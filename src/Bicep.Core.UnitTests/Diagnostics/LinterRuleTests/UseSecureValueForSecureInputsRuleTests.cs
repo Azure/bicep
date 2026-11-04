@@ -382,6 +382,24 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
             .Be("Module parameter 'config.password' expects a secure value, but the value provided may not be secure.");
     }
 
+    [TestMethod]
+    [DataRow("uniqueString(secret)")]
+    [DataRow("guid(secret)")]
+    [DataRow("nameof(secret)")]
+    [DataRow("string(length(secret))")]
+    [DataRow("'${length(secret)}'")]
+    public void Non_secret_results_do_not_satisfy_secure_module_parameters(string expression)
+        => AssertFlow($$"""
+            @secure()
+            param secret string
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                value: {{expression}}
+              }
+            }
+            """, "@secure()\nparam value string", 1, 0);
+
     private static void AssertHardening(string parent, string child, string childPath = "child.bicep")
     {
         AssertFlow(parent.Replace("SECURE", ""), child, 1, 0, childPath);

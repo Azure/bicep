@@ -14,6 +14,106 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 public class NoSecureValuesInInsecureInputsRuleTests : LinterRuleTestsBase
 {
     [TestMethod]
+    [DataRow("empty(secret)", "bool")]
+    [DataRow("empty(secrets)", "bool")]
+    [DataRow("empty(secureObj)", "bool")]
+    [DataRow("length(secret)", "int")]
+    [DataRow("length(secrets)", "int")]
+    [DataRow("length(secureObj)", "int")]
+    [DataRow("contains(secret, 'x')", "bool")]
+    [DataRow("contains(secrets, secret)", "bool")]
+    [DataRow("contains(secureObj, 'flag')", "bool")]
+    [DataRow("startsWith(secret, 'x')", "bool")]
+    [DataRow("endsWith(secret, 'x')", "bool")]
+    [DataRow("indexOf(secret, 'x')", "int")]
+    [DataRow("indexOf(secrets, secret)", "int")]
+    [DataRow("lastIndexOf(secret, 'x')", "int")]
+    [DataRow("lastIndexOf(secrets, secret)", "int")]
+    [DataRow("uniqueString(secret)", "string")]
+    [DataRow("guid(secret)", "string")]
+    [DataRow("nameof(secret)", "string")]
+    [DataRow("sys.empty(secret)", "bool")]
+    [DataRow("sys.length(secret)", "int")]
+    [DataRow("sys.contains(secureObj, 'flag')", "bool")]
+    [DataRow("sys.uniqueString(secret)", "string")]
+    [DataRow("sys.guid(secret)", "string")]
+    [DataRow("sys.nameof(secret)", "string")]
+    [DataRow("secret == 'x'", "bool")]
+    [DataRow("secret != 'x'", "bool")]
+    [DataRow("secret =~ 'x'", "bool")]
+    [DataRow("secret !~ 'x'", "bool")]
+    [DataRow("secret < 'x'", "bool")]
+    [DataRow("secret <= 'x'", "bool")]
+    [DataRow("secret > 'x'", "bool")]
+    [DataRow("secret >= 'x'", "bool")]
+    [DataRow("secureObj.flag && enabled", "bool")]
+    [DataRow("secureObj.flag || enabled", "bool")]
+    [DataRow("!secureObj.flag", "bool")]
+    public void Non_secret_results_do_not_warn_directly_or_through_other_expressions(string expression, string type)
+        => AssertFlow($$"""
+            @secure()
+            param secret string
+            @secure()
+            param secureObj {
+              flag: bool
+              number: int
+            }
+            @secure()
+            type secretString = string
+            param secrets secretString[]
+            param enabled bool
+            var result = {{expression}}
+            var settings = {
+              value: result
+            }
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                direct: {{expression}}
+                alias: result
+                nested: settings
+                text: '${settings.value}'
+              }
+            }
+            """, $$"""
+            param direct {{type}}
+            param alias {{type}}
+            param nested {
+              value: {{type}}
+            }
+            param text string
+            """, 0, 0);
+
+    [TestMethod]
+    [DataRow("toUpper(secret)", "string")]
+    [DataRow("sys.toUpper(secret)", "string")]
+    [DataRow("first(secrets)!", "string")]
+    [DataRow("secureObj.flag", "bool")]
+    [DataRow("secureObj.number + 1", "int")]
+    [DataRow("-secureObj.number", "int")]
+    [DataRow("secret == 'x' ? secret : 'public'", "string")]
+    [DataRow("concat(uniqueString(secret), secret)", "string")]
+    public void Expressions_that_still_reveal_secrets_warn(string expression, string type)
+        => AssertFlow($$"""
+            @secure()
+            param secret string
+            @secure()
+            param secureObj {
+              flag: bool
+              number: int
+            }
+            @secure()
+            type secretString = string
+            param secrets secretString[]
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                value: {{expression}}
+              }
+            }
+            """, $"param value {type}", 0, 1);
+
+    [TestMethod]
     public void Avm_cache_child_requires_secure_parameter()
     {
         const string parent = """
