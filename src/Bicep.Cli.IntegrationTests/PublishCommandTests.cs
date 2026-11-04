@@ -83,6 +83,62 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().Contain("The specified module target \"./test.bicep\" is not supported.");
         }
 
+        private const string AliasedPublishTargetConfig = """
+            {
+              "moduleAliases": {
+                "br": {
+                  "plain": { "registry": "example.com", "modulePath": "modules" },
+                  "mockedToo": { "registry": "example.com", "modulePath": "modules" }
+                }
+              },
+              "moduleAliasesMock": {
+                "br": {
+                  "mocked": { "mapToFilePath": "./mocks" },
+                  "mockedToo": { "mapToFilePath": "./mocks" }
+                }
+              }
+            }
+            """;
+
+        [TestMethod]
+        public async Task Publish_TargetWithAModuleAlias_ShouldPublishThroughTheAlias()
+        {
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", "output myOutput string = 'hello!'");
+            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", AliasedPublishTargetConfig, Path.GetDirectoryName(bicepPath));
+
+            var clientFactory = CreateMockRegistryClient(new RepoDescriptor("example.com", "modules/hello", ["v1"]));
+            var testClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, new Uri("https://example.com"), "modules/hello");
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br/plain:hello:v1");
+
+            result.Should().Be(0);
+            output.Should().BeEmpty();
+            AssertNoErrors(error);
+            testClient.ManifestTags.Should().ContainKey("v1");
+        }
+
+        [TestMethod]
+        [DataRow("br/mocked:hello:v1")]
+        [DataRow("br/mockedToo:hello:v1")]
+        public async Task Publish_TargetWithAMockedModuleAlias_ShouldProduceExpectedError(string target)
+        {
+            // A moduleAliasesMock alias resolves to a local file, so it is not a valid publish target,
+            // even when the same alias is also defined in moduleAliases.
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", "output myOutput string = 'hello!'");
+            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", AliasedPublishTargetConfig, Path.GetDirectoryName(bicepPath));
+
+            var clientFactory = CreateMockRegistryClient(new RepoDescriptor("example.com", "modules/hello", ["v1"]));
+            var testClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, new Uri("https://example.com"), "modules/hello");
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", target);
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().Contain($"The specified module target \"{target}\" is not supported.");
+            testClient.ManifestTags.Should().BeEmpty();
+        }
         [TestMethod]
         public async Task Publish_OciDigestTarget_ShouldProduceExpectedError()
         {

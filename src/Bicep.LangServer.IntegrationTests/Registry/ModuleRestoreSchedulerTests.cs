@@ -197,10 +197,10 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public Task OnRestoreArtifacts(bool forceRestore) => Task.CompletedTask;
         }
 
-        private class MockArtifactRef : ArtifactReference
+        private class MockArtifactRef : ExternalArtifactReference
         {
             public MockArtifactRef(BicepSourceFile referencingFile, string value)
-                : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), "mock")
+                : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), "mock", ArtifactType.Module)
             {
                 this.Value = value;
             }
@@ -208,8 +208,6 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public string Value { get; }
 
             public override string UnqualifiedReference => this.Value;
-
-            public override bool IsExternal => true;
 
             public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => new(DummyFileHandle.Default);
         }

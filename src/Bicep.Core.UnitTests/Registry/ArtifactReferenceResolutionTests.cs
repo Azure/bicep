@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
+using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
@@ -65,9 +67,9 @@ public class ArtifactReferenceResolutionTests
         var registryProvider = StrictMock.Of<IArtifactRegistryProvider>();
         registryProvider.SetupGet(x => x.SupportedSchemes).Returns([]);
         registryProvider.Setup(x => x.TryGetRegistry(It.IsAny<string>())).Returns((IArtifactRegistry?)null);
-        var resolver = new ArtifactReferenceResolver(registryProvider.Object, BicepTestConstants.FileExplorer);
+        var resolver = new RedirectingArtifactResolver(new ArtifactReferenceResolver(registryProvider.Object), BicepTestConstants.FileExplorer);
 
-        var result = resolver.TryResolve(BicepTestConstants.DummyBicepFile, module);
+        var result = ResolveDeclaration(resolver, BicepTestConstants.DummyBicepFile, module);
 
         result.IsSuccess(out var reference, out _).Should().BeFalse();
         reference.Should().BeNull();
@@ -76,7 +78,7 @@ public class ArtifactReferenceResolutionTests
 
     private static IOUri CreateUri(string path) => new("file", "", path);
 
-    private static (BicepSourceFile EntryPoint, SourceFileGrouping Grouping, IArtifactReferenceResolver Resolver) Setup(string entryPath = "/repo/sub/main.bicep", string entryContents = "", string bicepConfig = BicepConfig)
+    private static (BicepSourceFile EntryPoint, SourceFileGrouping Grouping, RedirectingArtifactResolver Resolver) Setup(string entryPath = "/repo/sub/main.bicep", string entryContents = "", string bicepConfig = BicepConfig)
     {
         var fileExplorer = new InMemoryFileExplorer();
         fileExplorer.GetFile(ConfigUri).WriteAllText(bicepConfig);
@@ -90,8 +92,14 @@ public class ArtifactReferenceResolutionTests
         var compilation = services.GetRequiredService<BicepCompiler>().CreateCompilationWithoutRestore(CreateUri(entryPath));
         var grouping = compilation.SourceFileGrouping;
 
-        return (grouping.EntryPoint, grouping, services.GetRequiredService<IArtifactReferenceResolver>());
+        // The compiler resolves references through the redirect layer, which applies moduleAliasesMock.
+        return (grouping.EntryPoint, grouping, new RedirectingArtifactResolver(services.GetRequiredService<IArtifactReferenceResolver>(), fileExplorer));
     }
+
+    private static ResultWithDiagnosticBuilder<ArtifactReference> ResolveDeclaration(RedirectingArtifactResolver resolver, BicepSourceFile referencingFile, IArtifactReferenceSyntax syntax) =>
+        ArtifactReferenceText.TryGet(referencingFile, syntax).IsSuccess(out var referenceText, out var errorBuilder)
+            ? resolver.TryResolve(referencingFile, syntax.GetArtifactType(), referenceText)
+            : new(errorBuilder);
 
     private static string Describe(ResultWithDiagnosticBuilder<ArtifactReference> result) =>
         result.IsSuccess(out var reference, out var errorBuilder) ? Describe(reference) : Describe(errorBuilder);
@@ -213,7 +221,7 @@ public class ArtifactReferenceResolutionTests
         var (entryPoint, grouping, resolver) = Setup(entryContents: declaration);
         var syntax = entryPoint.ProgramSyntax.Declarations.OfType<ExtensionDeclarationSyntax>().Single();
 
-        Describe(resolver.TryResolve(entryPoint, syntax)).Should().Be(expected);
+        Describe(ResolveDeclaration(resolver, entryPoint, syntax)).Should().Be(expected);
 
         // The source file grouping stores the same reference that the resolver produces.
         Describe(grouping.ArtifactLookup[syntax]).Should().Be(expected);
@@ -237,10 +245,23 @@ public class ArtifactReferenceResolutionTests
     }
 
     [TestMethod]
+    [DataRow("br/mocked:network/vnet:1.0.0", "BCP213: The OCI artifact module alias name \"mocked\" does not exist in the Bicep configuration \"<bicepconfig>\".")]
+    [DataRow("br/contoso:storage:1.0.0", "OciArtifactReference br:contoso.azurecr.io/bicep/modules/storage:1.0.0")]
+    public void Module_alias_mocks_only_apply_to_what_the_compiler_loads(string referenceText, string expected)
+    {
+        // The resolver never applies mocks. The compiler applies them through the redirect layer, and
+        // `bicep publish` applies the mock rule only to keep rejecting mocked aliases as targets.
+        var (entryPoint, _, _) = Setup();
+        var resolver = new ArtifactReferenceResolver(BicepTestConstants.CreateRegistryProvider(BicepTestConstants.EmptyServiceProvider));
+
+        Describe(resolver.TryResolve(entryPoint, ArtifactType.Module, referenceText)).Should().Be(expected);
+    }
+
+    [TestMethod]
     public void Local_module_references_with_the_same_text_from_different_folders_are_equal()
     {
         // Pins current behavior: equality only compares the relative path text, not the file it resolves to.
-        // Phase 0.5 of the REP 0022 implementation plan is expected to change this to compare resolved file URIs.
+        // Phase 0.6 of the REP 0022 implementation plan is expected to change this to compare resolved file URIs.
         var (first, _, resolver) = Setup("/repo/a/main.bicep");
         var (second, _, _) = Setup("/repo/b/main.bicep");
 

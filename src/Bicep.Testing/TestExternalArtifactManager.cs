@@ -42,7 +42,7 @@ namespace Bicep.Testing
             }
 
             BinaryData? sourceArchiveData = withSource ? SourceArchive.CreateFrom(compilationResult.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
-            await publisher.PublishModule(targetReference, BinaryData.FromString(compilationResult.Template.ToString()), sourceArchiveData, documentationUri);
+            await publisher.PublishAsync(targetReference, new ModulePackage(BinaryData.FromString(compilationResult.Template.ToString()), sourceArchiveData, documentationUri));
         }
 
         public async Task PublishRegistryModules(IEnumerable<RegistryModulePublishArguments> modules)
@@ -81,7 +81,7 @@ namespace Bicep.Testing
             var extensionReference = resolver.TryResolve(dummyFile, ArtifactType.Extension, extension.ExtensionRepoReference).Unwrap();
             var extensionPackage = new ExtensionPackage(extension.TypesTgzData, false, []);
 
-            await publisher.PublishExtension(extensionReference, extensionPackage);
+            await publisher.PublishAsync(extensionReference, extensionPackage);
         }
 
         public async Task PublishExtensions(IEnumerable<MockExtensionData> extensions)

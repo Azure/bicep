@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.Registry;
@@ -14,5 +13,4 @@ public interface IArtifactReferenceResolver
 {
     ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(BicepSourceFile referencingFile, ArtifactType artifactType, string referenceText);
 
-    ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(BicepSourceFile referencingFile, IArtifactReferenceSyntax artifactDeclaration);
 }

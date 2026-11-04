@@ -10,7 +10,10 @@ public record ExtensionBinary(
     SupportedArchitecture Architecture,
     BinaryData Data);
 
-public record ExtensionPackage(
+public sealed record ExtensionPackage(
     BinaryData Types,
     bool LocalDeployEnabled,
-    ImmutableArray<ExtensionBinary> Binaries);
+    ImmutableArray<ExtensionBinary> Binaries) : ArtifactPackage
+{
+    public override ArtifactType Type => ArtifactType.Extension;
+}

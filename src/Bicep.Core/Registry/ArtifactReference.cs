@@ -14,14 +14,20 @@ namespace Bicep.Core.Registry
     /// </summary>
     public abstract class ArtifactReference
     {
-        protected ArtifactReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, string scheme)
+        protected ArtifactReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, string scheme, ArtifactType type)
         {
             Scheme = scheme;
+            Type = type;
             FeatureProvider = featureProvider;
             Configuration = configuration;
         }
 
         public string Scheme { get; }
+
+        /// <summary>
+        /// Gets the type of the referenced artifact.
+        /// </summary>
+        public ArtifactType Type { get; }
 
         public IFeatureProvider FeatureProvider { get; }
 
@@ -36,11 +42,6 @@ namespace Bicep.Core.Registry
         /// Gets the unqualified artifact reference, which does not include the scheme.
         /// </summary>
         public abstract string UnqualifiedReference { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether this reference points to an external artifact.
-        /// </summary>
-        public abstract bool IsExternal { get; }
 
         public abstract ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle();
 

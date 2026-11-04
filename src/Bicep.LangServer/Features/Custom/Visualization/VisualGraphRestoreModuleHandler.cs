@@ -48,20 +48,29 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             // A module that is not restored yet is restored as the editor would. Anything else is the user retrying after an
             // error, which forces the restore: it retries a recent failure, and replaces a cached archive that cannot be read.
-            var isRetry = this.restorer.GetRestoreStatus(registryReference, out _) != ArtifactRestoreStatus.Unknown;
-            await this.restorer.RestoreArtifacts([registryReference], forceRestore: isRetry);
+            var isRetry = this.restorer.GetRestoreState(registryReference) is not ArtifactRestoreState.NotRestored;
+            await this.restorer.RestoreAsync([registryReference], isRetry ? RestoreMode.Force : RestoreMode.IfMissing);
 
-            var status = this.restorer.GetRestoreStatus(registryReference, out var failureBuilder);
+            var state = this.restorer.GetRestoreState(registryReference);
 
-            if (status != ArtifactRestoreStatus.Succeeded)
+            if (state is not ArtifactRestoreState.Restored)
             {
                 this.logger.LogWarning(
                     "Could not restore module {Module} for the visualizer: {Message}",
                     registryReference.FullyQualifiedReference,
-                    failureBuilder?.Invoke(DiagnosticBuilder.ForDocumentStart()).Message);
+                    GetErrorMessage(registryReference, state));
             }
 
-            return new(Restored: status == ArtifactRestoreStatus.Succeeded);
+            return new(Restored: state is ArtifactRestoreState.Restored);
+        }
+
+        private static string GetErrorMessage(ArtifactReference reference, ArtifactRestoreState state)
+        {
+            DiagnosticBuilder.DiagnosticBuilderDelegate error = state is ArtifactRestoreState.RestoreFailed failed
+                ? failed.Error
+                : x => x.ArtifactRequiresRestore(reference.FullyQualifiedReference);
+
+            return error(DiagnosticBuilder.ForDocumentStart()).Message;
         }
     }
 }

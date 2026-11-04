@@ -38,7 +38,7 @@ namespace Bicep.LangServer.IntegrationTests
         public TestContext? TestContext { get; set; }
 
 #if WINDOWS_BUILD
-    private const string ROOT = "c:\\";
+        private const string ROOT = "c:\\";
 #else
         private const string ROOT = "/";
 #endif
@@ -82,9 +82,8 @@ namespace Bicep.LangServer.IntegrationTests
             cacheRootDirectoryMock.Setup(x => x.GetDirectory(It.IsAny<string>())).Returns(cacheDirectoryMock.Object);
 
             var restorer = StrictMock.Of<IArtifactRestorer>();
-            restorer.Setup(x => x.RestoreArtifacts(It.IsAny<ImmutableArray<ArtifactReference>>(), It.IsAny<bool>())).
+            restorer.Setup(x => x.RestoreAsync(It.IsAny<ImmutableArray<ArtifactReference>>(), It.IsAny<RestoreMode>())).
                 ReturnsAsync(true);
-            restorer.Setup(x => x.PruneRestoreStatuses());
 
             MockRepository repository = new(MockBehavior.Strict);
             var provider = repository.Create<IArtifactRegistryProvider>();

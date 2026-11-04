@@ -1,29 +1,35 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using Bicep.Core.Semantics;
 
 namespace Bicep.Core.Registry;
 
 public class ArtifactPublisher(IArtifactRegistryProvider registryProvider) : IArtifactPublisher
 {
-    public bool CanPublish(ArtifactType artifactType, ArtifactReference reference) =>
-        this.GetRegistry(reference).GetCapabilities(artifactType, reference).HasFlag(RegistryCapabilities.Publish);
+    public bool CanPublish(ArtifactReference target) =>
+        this.GetRegistry(target).GetCapabilities(target.Type, target).HasFlag(RegistryCapabilities.Publish);
 
-    public Task<bool> ModuleExists(ArtifactReference reference) =>
-        this.GetRegistry(reference).CheckArtifactExists(ArtifactType.Module, reference);
+    public Task<bool> ExistsAsync(ArtifactReference target) =>
+        this.GetRegistry(target).CheckArtifactExists(target.Type, target);
 
-    public Task<bool> ExtensionExists(ArtifactReference reference) =>
-        this.GetRegistry(reference).CheckArtifactExists(ArtifactType.Extension, reference);
-
-    public Task PublishModule(ArtifactReference reference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri)
+    public Task PublishAsync(ArtifactReference target, ArtifactPackage package)
     {
-        var description = DescriptionHelper.TryGetFromArmTemplate(compiledArmTemplate);
-        return this.GetRegistry(reference).PublishModule(reference, compiledArmTemplate, bicepSources, documentationUri, description);
-    }
+        if (target.Type != package.Type)
+        {
+            throw new ArgumentException($"Cannot publish a package of type '{package.Type}' to a target of type '{target.Type}'.", nameof(package));
+        }
 
-    public Task PublishExtension(ArtifactReference reference, ExtensionPackage package) =>
-        this.GetRegistry(reference).PublishExtension(reference, package);
+        var registry = this.GetRegistry(target);
+
+        return package switch
+        {
+            ModulePackage module => registry.PublishModule(target, module.Template, module.Sources, module.DocumentationUri, DescriptionHelper.TryGetFromArmTemplate(module.Template)),
+            ExtensionPackage extension => registry.PublishExtension(target, extension),
+            _ => throw new UnreachableException($"Unexpected package type '{package.GetType().Name}'."),
+        };
+    }
 
     private IArtifactRegistry GetRegistry(ArtifactReference reference) => registryProvider.GetRegistry(reference.Scheme);
 }

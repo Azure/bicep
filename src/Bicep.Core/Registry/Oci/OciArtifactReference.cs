@@ -17,22 +17,21 @@ using Bicep.IO.Utils;
 
 namespace Bicep.Core.Registry.Oci
 {
-    public class OciArtifactReference : ArtifactReference, IOciArtifactReference, IExtensionArtifactReference
+    public class OciArtifactReference : ExternalArtifactReference, IOciArtifactReference, IExtensionArtifactReference
     {
         private readonly Lazy<BicepRegistryModuleArtifact> lazyBicepRegistryModuleArtifact;
         private readonly Lazy<BicepRegistryExtensionArtifact> lazyBicepRegistryExtensionArtifact;
 
         public OciArtifactReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, ArtifactType type, IOciArtifactAddressComponents artifactIdParts) :
-            base(featureProvider, configuration, OciArtifactReferenceFacts.Scheme)
+            base(featureProvider, configuration, OciArtifactReferenceFacts.Scheme, type)
         {
-            Type = type;
             AddressComponents = artifactIdParts;
             lazyBicepRegistryModuleArtifact = new(() => new(this.AddressComponents, this.FeatureProvider.CacheRootDirectory));
             lazyBicepRegistryExtensionArtifact = new(() => new(this.AddressComponents, this.FeatureProvider.CacheRootDirectory));
         }
 
         public OciArtifactReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, ArtifactType type, string registry, string repository, string? tag, string? digest) :
-            base(featureProvider, configuration, OciArtifactReferenceFacts.Scheme)
+            base(featureProvider, configuration, OciArtifactReferenceFacts.Scheme, type)
         {
             switch (tag, digest)
             {
@@ -42,18 +41,12 @@ namespace Bicep.Core.Registry.Oci
                     throw new ArgumentException($"Both {nameof(tag)} and {nameof(digest)} cannot be non-null.");
             }
 
-            Type = type;
             AddressComponents = new OciArtifactAddressComponents(registry, repository, tag, digest);
             lazyBicepRegistryModuleArtifact = new(() => new(this.AddressComponents, this.FeatureProvider.CacheRootDirectory));
             lazyBicepRegistryExtensionArtifact = new(() => new(this.AddressComponents, this.FeatureProvider.CacheRootDirectory));
         }
 
         public IOciArtifactAddressComponents AddressComponents { get; }
-
-        /// <summary>
-        /// Gets the type of artifact reference.
-        /// </summary>
-        public ArtifactType Type { get; }
 
         /// <summary>
         /// Gets the registry URI.
@@ -81,8 +74,6 @@ namespace Bicep.Core.Registry.Oci
         public string ArtifactId => AddressComponents.ArtifactId;
 
         public override string UnqualifiedReference => ArtifactId;
-
-        public override bool IsExternal => true;
 
         public IFileHandle ModuleMainTemplateFile => this.lazyBicepRegistryModuleArtifact.Value.MainTemplateFile;
 

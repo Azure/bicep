@@ -50,7 +50,7 @@ namespace Bicep.Core.UnitTests.Registry
         public void TryGetArtifactReference_ShouldSucceedForNonAzureRegistry()
         {
             var referencingFile = BicepTestConstants.CreateDummyBicepFile(featureOverrides: new FeatureProviderOverrides(OciEnabled: false));
-            var resolver = new ArtifactReferenceResolver(BicepTestConstants.CreateRegistryProvider(BicepTestConstants.EmptyServiceProvider), BicepTestConstants.FileExplorer);
+            var resolver = new ArtifactReferenceResolver(BicepTestConstants.CreateRegistryProvider(BicepTestConstants.EmptyServiceProvider));
 
             var result = resolver.TryResolve(referencingFile, ArtifactType.Module, "br:ghcr.io/contoso/app:v1");
 

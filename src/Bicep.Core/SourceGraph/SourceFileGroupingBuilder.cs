@@ -3,6 +3,7 @@
 
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -22,7 +23,7 @@ namespace Bicep.Core.SourceGraph
     public class SourceFileGroupingBuilder
     {
         private readonly IFileExplorer fileExplorer;
-        private readonly IArtifactReferenceResolver referenceResolver;
+        private readonly RedirectingArtifactResolver referenceResolver;
         private readonly IArtifactRestorer restorer;
         private readonly IActiveSourceFileLookup workspace;
         private readonly ISourceFileFactory sourceFileFactory;
@@ -41,7 +42,7 @@ namespace Bicep.Core.SourceGraph
             bool forceModulesRestore = false)
         {
             this.fileExplorer = fileExplorer;
-            this.referenceResolver = referenceResolver;
+            this.referenceResolver = new(referenceResolver, fileExplorer);
             this.restorer = restorer;
             this.workspace = workspace;
             this.sourceFileFactory = sourceFileFactory;
@@ -61,7 +62,7 @@ namespace Bicep.Core.SourceGraph
             bool forceArtifactRestore = false)
         {
             this.fileExplorer = fileExplorer;
-            this.referenceResolver = referenceResolver;
+            this.referenceResolver = new(referenceResolver, fileExplorer);
             this.restorer = restorer;
             this.workspace = workspace;
             this.sourceFileFactory = sourceFileFactory;
@@ -260,7 +261,8 @@ namespace Bicep.Core.SourceGraph
 
         private ArtifactResolutionInfo GetArtifactRestoreResult(BicepSourceFile referencingFile, IArtifactReferenceSyntax referenceSyntax)
         {
-            if (!referenceResolver.TryResolve(referencingFile, referenceSyntax).IsSuccess(out var artifactReference, out var errorBuilder))
+            if (!ArtifactReferenceText.TryGet(referencingFile, referenceSyntax).IsSuccess(out var referenceText, out var errorBuilder) ||
+                !referenceResolver.TryResolve(referencingFile, referenceSyntax.GetArtifactType(), referenceText).IsSuccess(out var artifactReference, out errorBuilder))
             {
                 // artifact reference is not valid
                 return new(referencingFile, referenceSyntax, null, new(errorBuilder), RequiresRestore: false);
@@ -290,17 +292,13 @@ namespace Bicep.Core.SourceGraph
                 return (new(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference)), requiresRestore: true);
             }
 
-            var restoreStatus = restorer.GetRestoreStatus(artifactReference, out var restoreErrorBuilder);
-            switch (restoreStatus)
+            switch (restorer.GetRestoreState(artifactReference))
             {
-                case ArtifactRestoreStatus.Unknown:
+                case ArtifactRestoreState.NotRestored:
                     // we have not yet attempted to restore the module, so let's do it
                     return (new(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference)), requiresRestore: true);
-                case ArtifactRestoreStatus.Failed:
-                    // the module has not yet been restored or restore failed
-                    // in either case, set the error
-                    restoreErrorBuilder ??= new(x => x.ArtifactRestoreFailed(artifactReference.FullyQualifiedReference));
-                    return (new(restoreErrorBuilder), requiresRestore: false);
+                case ArtifactRestoreState.RestoreFailed failed:
+                    return (new(failed.Error), requiresRestore: false);
                 default:
                     break;
             }

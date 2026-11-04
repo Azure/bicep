@@ -185,7 +185,7 @@ namespace Bicep.LanguageServer.Features.Language.Definition
 
         private DocumentUri GetArtifactSourceLinkUri(ISourceFile sourceFile, ArtifactReference reference)
         {
-            if (!this.CanClientAcceptRegistryContent() || !reference.IsExternal)
+            if (!this.CanClientAcceptRegistryContent() || reference is not ExternalArtifactReference)
             {
                 // the client doesn't support the bicep-extsrc scheme or we're dealing with a local module
                 // just use the file URI

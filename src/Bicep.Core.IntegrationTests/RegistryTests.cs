@@ -177,14 +177,14 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty.
             foreach (var moduleReference in moduleReferences)
             {
-                restorer.GetRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
+                restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.NotRestored>();
             }
 
             const int ConcurrentTasks = 10;
             var tasks = new List<Task<bool>>();
             for (int i = 0; i < ConcurrentTasks; i++)
             {
-                tasks.Add(Task.Run(() => restorer.RestoreArtifacts(moduleReferences, forceRestore: false)));
+                tasks.Add(Task.Run(() => restorer.RestoreAsync(moduleReferences, RestoreMode.IfMissing)));
             }
 
             var result = await Task.WhenAll(tasks);
@@ -193,10 +193,10 @@ namespace Bicep.Core.IntegrationTests
             // modules should now be in the cache
             foreach (var moduleReference in moduleReferences)
             {
-                var restoreResult = restorer.GetRestoreStatus(moduleReference, out var errorBuilder);
-                var error = errorBuilder?.Invoke(DiagnosticBuilder.ForDocumentStart());
+                var restoreState = restorer.GetRestoreState(moduleReference);
+                var error = (restoreState as ArtifactRestoreState.RestoreFailed)?.Error(DiagnosticBuilder.ForDocumentStart());
 
-                restoreResult.Should().Be(ArtifactRestoreStatus.Succeeded, $"code: {error?.Code}, message: {error?.Message}");
+                restoreState.Should().BeOfType<ArtifactRestoreState.Restored>($"code: {error?.Code}, message: {error?.Message}");
             }
         }
 
@@ -233,7 +233,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                restorer.GetRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
+                restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.NotRestored>();
             }
 
             restorer.TryGetEntryPoint(moduleReferences[0]).IsSuccess(out var moduleFile).Should().BeTrue();
@@ -247,11 +247,11 @@ namespace Bicep.Core.IntegrationTests
             // let's try to restore a module while holding a lock
             using (@lock)
             {
-                (await restorer.RestoreArtifacts(moduleReferences, forceRestore: false)).Should().BeTrue();
+                (await restorer.RestoreAsync(moduleReferences, RestoreMode.IfMissing)).Should().BeTrue();
             }
 
             // the first module should have failed due to a timeout
-            restorer.GetRestoreStatus(moduleReferences[0], out var failureBuilder).Should().Be(ArtifactRestoreStatus.Failed);
+            var failureBuilder = restorer.GetRestoreState(moduleReferences[0]).Should().BeOfType<ArtifactRestoreState.RestoreFailed>().Subject.Error;
             using (new AssertionScope())
             {
                 failureBuilder!.Should().HaveCode("BCP192");
@@ -261,7 +261,7 @@ namespace Bicep.Core.IntegrationTests
             // all other modules should have succeeded
             foreach (var moduleReference in moduleReferences.Skip(1))
             {
-                restorer.GetRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+                restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.Restored>();
             }
         }
 
@@ -297,7 +297,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                restorer.GetRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
+                restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.NotRestored>();
             }
 
             restorer.TryGetEntryPoint(moduleReferences[0]).IsSuccess(out var moduleFile).Should().BeTrue();
@@ -311,7 +311,7 @@ namespace Bicep.Core.IntegrationTests
             // let's try to restore a module while holding a lock
             using (@lock)
             {
-                (await restorer.RestoreArtifacts(moduleReferences, forceRestore: true)).Should().BeTrue();
+                (await restorer.RestoreAsync(moduleReferences, RestoreMode.Force)).Should().BeTrue();
             }
 
             // REF: FileLockTests.cs/FileLockShouldNotThrowIfLockFileIsDeleted()
@@ -319,18 +319,18 @@ namespace Bicep.Core.IntegrationTests
             using (new AssertionScope())
             {
 #if WINDOWS_BUILD
-                restorer.GetRestoreStatus(moduleReferences[0], out var failureBuilder).Should().Be(ArtifactRestoreStatus.Failed);
+                var failureBuilder = restorer.GetRestoreState(moduleReferences[0]).Should().BeOfType<ArtifactRestoreState.RestoreFailed>().Subject.Error;
 
                 failureBuilder!.Should().HaveCode("BCP233");
                 failureBuilder!.Should().HaveMessageStartWith($"Unable to delete the module with reference \"{moduleReferences[0].FullyQualifiedReference}\" from cache: Exceeded the timeout of \"00:00:30\" for the lock on file \"{lockFile.Uri}\" to be released.");
 #else
-                restorer.GetRestoreStatus(moduleReferences[0], out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+                restorer.GetRestoreState(moduleReferences[0]).Should().BeOfType<ArtifactRestoreState.Restored>();
 #endif
 
                 // all other modules should have succeeded
                 foreach (var moduleReference in moduleReferences.Skip(1))
                 {
-                    restorer.GetRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+                    restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.Restored>();
                 }
             }
 
@@ -369,19 +369,19 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                restorer.GetRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
+                restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.NotRestored>();
             }
 
             restorer.TryGetEntryPoint(moduleReferences[0]).IsSuccess(out var moduleFile).Should().BeTrue();
 
             moduleFile!.GetParent().EnsureExists();
 
-            (await restorer.RestoreArtifacts(moduleReferences, forceRestore: true)).Should().BeTrue();
+            (await restorer.RestoreAsync(moduleReferences, RestoreMode.Force)).Should().BeTrue();
 
             // all other modules should have succeeded
             foreach (var moduleReference in moduleReferences)
             {
-                restorer.GetRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+                restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.Restored>();
             }
         }
 

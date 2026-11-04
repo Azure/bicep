@@ -298,13 +298,13 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 return new ModuleExpansion.Leaf();
             }
 
-            switch (restorer.GetRestoreStatus(registryReference, out var failureBuilder))
+            switch (restorer.GetRestoreState(registryReference))
             {
-                case ArtifactRestoreStatus.Unknown:
+                case ArtifactRestoreState.NotRestored:
                     return new ModuleExpansion.Unrestored(registryReference);
 
-                case ArtifactRestoreStatus.Failed:
-                    return new ModuleExpansion.Failed(registryReference, failureBuilder?.Invoke(DiagnosticBuilder.ForDocumentStart()).Message);
+                case ArtifactRestoreState.RestoreFailed failed:
+                    return new ModuleExpansion.Failed(registryReference, failed.Error(DiagnosticBuilder.ForDocumentStart()).Message);
             }
 
             if (!registryReference.TryLoadSourceArchive().IsSuccess(out var archive, out var exception))

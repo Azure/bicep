@@ -89,8 +89,8 @@ public class ExtensionTypeLoaderProvider
             featureProvider, BicepConfiguration.BuiltIn, ArtifactType.Extension,
             extension.Registry, extension.Repository, tag, digest: null);
 
-        // RestoreArtifacts is a no-op if already cached on disk
-        await restorer.RestoreArtifacts([reference], forceRestore: false);
+        // RestoreAsync is a no-op if already cached on disk
+        await restorer.RestoreAsync([reference], RestoreMode.IfMissing);
 
         if (!restorer.TryGetEntryPoint(reference)
             .IsSuccess(out var fileHandle, out var errorBuilder))

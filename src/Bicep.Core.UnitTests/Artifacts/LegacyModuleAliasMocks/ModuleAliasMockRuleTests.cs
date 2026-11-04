@@ -18,7 +18,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
 {
     [TestClass]
-    public class ModuleAliasMockResolverTests
+    public class ModuleAliasMockRuleTests
     {
         [TestMethod]
         [DataRow("keyvault:1.0.0", "keyvault")]
@@ -32,7 +32,7 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
         [DataRow("@sha256:abc", "")]
         public void ExtractModulePath_ShouldExtractCorrectPath(string input, string expected)
         {
-            ModuleAliasMockResolver.ExtractModulePath(input).Should().Be(expected);
+            ModuleAliasMockRule.ExtractModulePath(input).Should().Be(expected);
         }
 
         [TestMethod]
@@ -42,7 +42,7 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result = ModuleAliasMockResolver.TryCreateReference(
+            var result = ModuleAliasMockRule.TryCreateReference(
                 referencingFile,
                 "./modules",
                 configFileUri,
@@ -61,7 +61,7 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result = ModuleAliasMockResolver.TryCreateReference(
+            var result = ModuleAliasMockRule.TryCreateReference(
                 referencingFile,
                 "../bicepModules",
                 configFileUri,
@@ -71,7 +71,7 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
             result.IsSuccess(out var reference, out _).Should().BeTrue();
             reference!.UnqualifiedReference.Should().Be("keyvault");
             reference!.FullyQualifiedReference.Should().Be("br:keyvault");
-            reference!.IsExternal.Should().BeFalse();
+            reference.Should().NotBeAssignableTo<ExternalArtifactReference>();
             reference.Scheme.Should().Be(OciArtifactReferenceFacts.MockedScheme);
         }
 
@@ -82,7 +82,7 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result = ModuleAliasMockResolver.TryCreateReference(
+            var result = ModuleAliasMockRule.TryCreateReference(
                 referencingFile,
                 "./modules",
                 configFileUri,
@@ -101,7 +101,7 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result = ModuleAliasMockResolver.TryCreateReference(
+            var result = ModuleAliasMockRule.TryCreateReference(
                 referencingFile,
                 "./modules",
                 configFileUri,
@@ -120,7 +120,7 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var parseResult = ModuleAliasMockResolver.TryCreateReference(
+            var parseResult = ModuleAliasMockRule.TryCreateReference(
                 referencingFile,
                 "../bicepModules",
                 configFileUri,
@@ -143,9 +143,9 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result1 = ModuleAliasMockResolver.TryCreateReference(
+            var result1 = ModuleAliasMockRule.TryCreateReference(
                 referencingFile, "../bicepModules", configFileUri, "keyvault:1.0.0", fileExplorer);
-            var result2 = ModuleAliasMockResolver.TryCreateReference(
+            var result2 = ModuleAliasMockRule.TryCreateReference(
                 referencingFile, "../bicepModules", configFileUri, "keyvault:2.0.0", fileExplorer);
 
             result1.IsSuccess(out var ref1, out _).Should().BeTrue();
@@ -162,9 +162,9 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result1 = ModuleAliasMockResolver.TryCreateReference(
+            var result1 = ModuleAliasMockRule.TryCreateReference(
                 referencingFile, "../bicepModules", configFileUri, "keyvault:1.0.0", fileExplorer);
-            var result2 = ModuleAliasMockResolver.TryCreateReference(
+            var result2 = ModuleAliasMockRule.TryCreateReference(
                 referencingFile, "../bicepModules", configFileUri, "storage:1.0.0", fileExplorer);
 
             result1.IsSuccess(out var ref1, out _).Should().BeTrue();
@@ -233,7 +233,7 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
             var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
-            var result = ModuleAliasMockResolver.TryCreateReference(
+            var result = ModuleAliasMockRule.TryCreateReference(
                 referencingFile,
                 "./modules",
                 configFileUri,

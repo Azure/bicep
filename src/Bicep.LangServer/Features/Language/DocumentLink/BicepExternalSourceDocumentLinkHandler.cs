@@ -146,28 +146,28 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                 return GetAlternateLink();
             }
 
-            var restoreStatus = restorer.GetRestoreStatus(targetArtifactReference, out var errorBuilder);
-            var errorMessage = errorBuilder?.Invoke(ForDocumentStart()).Message;
-            Trace.WriteLineIf(errorMessage is { }, $"Restore status: {errorMessage})");
-            if (restoreStatus == ArtifactRestoreStatus.Unknown)
+            var restoreState = restorer.GetRestoreState(targetArtifactReference);
+            Trace.WriteLine($"Restore state: {restoreState.GetType().Name}");
+            if (restoreState is ArtifactRestoreState.NotRestored)
             {
                 // We haven't tried restoring this module yet. Let's try it now.
                 Trace.WriteLine($"Attempting to restore module {targetArtifactReference.FullyQualifiedReference}");
-                await restorer.RestoreArtifacts(new[] { targetArtifactReference }, forceRestore: false);
+                await restorer.RestoreAsync(new[] { targetArtifactReference }, RestoreMode.IfMissing);
 
-                restoreStatus = restorer.GetRestoreStatus(targetArtifactReference, out errorBuilder);
-                errorMessage = errorBuilder?.Invoke(ForDocumentStart()).Message;
-                Trace.WriteLineIf(errorMessage is { }, $"New restore status: {errorMessage})");
+                restoreState = restorer.GetRestoreState(targetArtifactReference);
+                Trace.WriteLine($"New restore state: {restoreState.GetType().Name}");
 
-                if (restoreStatus != ArtifactRestoreStatus.Succeeded)
+                if (restoreState is not ArtifactRestoreState.Restored)
                 {
-                    var diagnostic = errorBuilder?.Invoke(DiagnosticBuilder.ForDocumentStart());
-                    var restoreMessage = diagnostic?.Message ?? "Unknown error";
+                    DiagnosticBuilder.DiagnosticBuilderDelegate restoreError = restoreState is ArtifactRestoreState.RestoreFailed failed
+                        ? failed.Error
+                        : x => x.ArtifactRequiresRestore(targetArtifactReference.FullyQualifiedReference);
+                    var restoreMessage = restoreError(DiagnosticBuilder.ForDocumentStart()).Message;
                     server.Window.ShowWarning($"Unable to restore module {targetArtifactReference.FullyQualifiedReference}: {restoreMessage}");
                     return GetAlternateLink();
                 }
             }
-            else if (restoreStatus == ArtifactRestoreStatus.Failed)
+            else if (restoreState is ArtifactRestoreState.RestoreFailed)
             {
                 server.Window.ShowWarning("Restore previously failed. Force module restore or restart to try again.");
                 return GetAlternateLink();

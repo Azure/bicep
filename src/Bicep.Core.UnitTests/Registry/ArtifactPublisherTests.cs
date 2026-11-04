@@ -23,25 +23,26 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow(ArtifactType.Extension, RegistryCapabilities.Publish, true)]
         public void CanPublish_UsesRegistryCapabilities(ArtifactType artifactType, RegistryCapabilities capabilities, bool expected)
         {
-            var reference = new MockArtifactReference(BicepTestConstants.DummyBicepFile, "target");
+            var reference = new MockArtifactReference(BicepTestConstants.DummyBicepFile, "target", artifactType);
             var registry = CreateRegistry();
             registry.Setup(x => x.GetCapabilities(artifactType, reference)).Returns(capabilities);
 
-            CreatePublisher(registry.Object).CanPublish(artifactType, reference).Should().Be(expected);
+            CreatePublisher(registry.Object).CanPublish(reference).Should().Be(expected);
         }
 
         [TestMethod]
-        public async Task Exists_UsesTheRequestedArtifactType()
+        public async Task Exists_UsesTheTargetArtifactType()
         {
-            var reference = new MockArtifactReference(BicepTestConstants.DummyBicepFile, "target");
+            var moduleReference = new MockArtifactReference(BicepTestConstants.DummyBicepFile, "module", ArtifactType.Module);
+            var extensionReference = new MockArtifactReference(BicepTestConstants.DummyBicepFile, "extension", ArtifactType.Extension);
             var registry = CreateRegistry();
-            registry.Setup(x => x.CheckArtifactExists(ArtifactType.Module, reference)).ReturnsAsync(true);
-            registry.Setup(x => x.CheckArtifactExists(ArtifactType.Extension, reference)).ReturnsAsync(false);
+            registry.Setup(x => x.CheckArtifactExists(ArtifactType.Module, moduleReference)).ReturnsAsync(true);
+            registry.Setup(x => x.CheckArtifactExists(ArtifactType.Extension, extensionReference)).ReturnsAsync(false);
 
             var publisher = CreatePublisher(registry.Object);
 
-            (await publisher.ModuleExists(reference)).Should().BeTrue();
-            (await publisher.ExtensionExists(reference)).Should().BeFalse();
+            (await publisher.ExistsAsync(moduleReference)).Should().BeTrue();
+            (await publisher.ExistsAsync(extensionReference)).Should().BeFalse();
         }
 
         [TestMethod]
@@ -53,7 +54,7 @@ namespace Bicep.Core.UnitTests.Registry
             var registry = CreateRegistry();
             registry.Setup(x => x.PublishModule(reference, template, sources, "https://docs", "My module")).Returns(Task.CompletedTask);
 
-            await CreatePublisher(registry.Object).PublishModule(reference, template, sources, "https://docs");
+            await CreatePublisher(registry.Object).PublishAsync(reference, new ModulePackage(template, sources, "https://docs"));
 
             registry.Verify(x => x.PublishModule(reference, template, sources, "https://docs", "My module"), Times.Once);
         }
@@ -61,14 +62,25 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public async Task PublishExtension_PassesThePackageToTheRegistry()
         {
-            var reference = new MockArtifactReference(BicepTestConstants.DummyBicepFile, "target");
+            var reference = new MockArtifactReference(BicepTestConstants.DummyBicepFile, "target", ArtifactType.Extension);
             var package = new ExtensionPackage(BinaryData.FromString("types"), LocalDeployEnabled: false, []);
             var registry = CreateRegistry();
             registry.Setup(x => x.PublishExtension(reference, package)).Returns(Task.CompletedTask);
 
-            await CreatePublisher(registry.Object).PublishExtension(reference, package);
+            await CreatePublisher(registry.Object).PublishAsync(reference, package);
 
             registry.Verify(x => x.PublishExtension(reference, package), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task Publish_RejectsAPackageThatDoesNotMatchTheTargetType()
+        {
+            var reference = new MockArtifactReference(BicepTestConstants.DummyBicepFile, "target", ArtifactType.Module);
+            var package = new ExtensionPackage(BinaryData.FromString("types"), LocalDeployEnabled: false, []);
+
+            var publish = () => CreatePublisher(CreateRegistry().Object).PublishAsync(reference, package);
+
+            await publish.Should().ThrowAsync<ArgumentException>();
         }
 
         private static Mock<IArtifactRegistry> CreateRegistry()
@@ -80,10 +92,10 @@ namespace Bicep.Core.UnitTests.Registry
 
         private static IArtifactPublisher CreatePublisher(params IArtifactRegistry[] registries) => new ArtifactPublisher(new MockArtifactRegistryProvider(registries));
 
-        private class MockArtifactReference : ArtifactReference
+        private class MockArtifactReference : ExternalArtifactReference
         {
-            public MockArtifactReference(BicepSourceFile referencingFile, string reference)
-                : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), "mock")
+            public MockArtifactReference(BicepSourceFile referencingFile, string reference, ArtifactType type = ArtifactType.Module)
+                : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), "mock", type)
             {
                 this.Reference = reference;
             }
@@ -91,8 +103,6 @@ namespace Bicep.Core.UnitTests.Registry
             public string Reference { get; }
 
             public override string UnqualifiedReference => this.Reference;
-
-            public override bool IsExternal => true;
 
             public override bool Equals(object? obj) => obj is MockArtifactReference other && this.Reference.Equals(other.Reference);
 

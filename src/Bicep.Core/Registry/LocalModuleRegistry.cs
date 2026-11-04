@@ -37,7 +37,7 @@ namespace Bicep.Core.Registry
 
             foreach (var reference in references)
             {
-                if (reference.ArtifactType == ArtifactType.Extension)
+                if (reference.Type == ArtifactType.Extension)
                 {
                     if (TryReadContent(reference) is not { } binaryData)
                     {
@@ -78,7 +78,7 @@ namespace Bicep.Core.Registry
             base.InvalidateArtifactsCacheInternal(references);
 
         public override bool IsArtifactRestoreRequired(LocalModuleReference reference) =>
-            reference.ArtifactType == ArtifactType.Extension && !this.GetTypesTgzFile(reference).Exists();
+            reference.Type == ArtifactType.Extension && !this.GetTypesTgzFile(reference).Exists();
 
         public override Task PublishModule(LocalModuleReference moduleReference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, string? description) =>
             throw new NotSupportedException("Local modules cannot be published.");

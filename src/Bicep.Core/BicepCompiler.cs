@@ -86,7 +86,7 @@ public class BicepCompiler
         // (the diagnostics will be collected during compilation)
         var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(forceRestore);
 
-        if (await restorer.RestoreArtifacts(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore: forceRestore))
+        if (await restorer.RestoreAsync(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore ? RestoreMode.Force : RestoreMode.IfMissing))
         {
             // modules had to be restored - recompile
             sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, referenceResolver, restorer, workspace, this.SourceFileFactory, sourceFileGrouping);
@@ -100,7 +100,7 @@ public class BicepCompiler
         var sourceFileGrouping = compilation.SourceFileGrouping;
         var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(forceRestore);
 
-        if (await restorer.RestoreArtifacts(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore))
+        if (await restorer.RestoreAsync(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore ? RestoreMode.Force : RestoreMode.IfMissing))
         {
             // artifacts had to be restored - recompile
             sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, referenceResolver, restorer, workspace, this.SourceFileFactory, sourceFileGrouping);
