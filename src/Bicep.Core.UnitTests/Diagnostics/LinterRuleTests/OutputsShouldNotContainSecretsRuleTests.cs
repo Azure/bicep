@@ -448,5 +448,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 output o object = merged
                 """, OnCompileErrors.IncludeErrors, [$"{description} Found possible secret: secure value 'merged'"]);
 
+        [TestMethod]
+        [DataRow("""
+            @discriminator('kind')
+            param p { kind: 'a', x: string } | { kind: 'b', y: string }
+            """)]
+        public void Secure_discriminated_object_is_secure(string declaration)
+            => CompileAndTest($"""
+                @secure()
+                {declaration}
+                output o object = p
+                """, OnCompileErrors.IncludeErrors, [$"{description} Found possible secret: secure value 'p'"]);
+
     }
 }
