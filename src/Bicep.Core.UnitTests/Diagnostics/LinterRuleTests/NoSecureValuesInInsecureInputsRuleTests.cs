@@ -81,6 +81,8 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
     [DataRow("chained.text", "string")]
     [DataRow("chained.interpolated", "string")]
     [DataRow("chained.nested.number", "int")]
+    [DataRow("union(chained, {})", "object")]
+    [DataRow("sys.union(chained, {})", "object")]
     public void Copied_secure_object_members_are_reported_on_the_module_argument(string expression, string type)
     {
         var parent = $$"""
@@ -211,6 +213,24 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
               }
             }
             """, $"param value {type}", 0, 1);
+
+    [TestMethod]
+    [DataRow("split(secret, ',')")]
+    [DataRow("items(secureObj)")]
+    [DataRow("array(secret)")]
+    public void Function_results_that_hide_secrets_leak_as_whole_values(string expression)
+        => AssertFlow($$"""
+            @secure()
+            param secret string
+            @secure()
+            param secureObj object
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                value: {{expression}}
+              }
+            }
+            """, "param value array", 0, 1);
 
     [TestMethod]
     public void Union_of_a_secure_object_and_an_empty_object_satisfies_a_secure_module_parameter()

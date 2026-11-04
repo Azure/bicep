@@ -424,6 +424,7 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
     [DataRow("union({ first: secret }, { second: plain })", 1)]
     [DataRow("union({ first: plain }, { first: secret })", 0)]
     [DataRow("union({ first: secret }, { first: plain })", 1)]
+    [DataRow("sys.union({ first: secret }, { first: plain })", 1)]
     [DataRow("{ nested: [secret] }", 0)]
     [DataRow("{ nested: [secret, plain] }", 1)]
     public void Object_union_and_literal_have_equivalent_security(string expression, int warnings)

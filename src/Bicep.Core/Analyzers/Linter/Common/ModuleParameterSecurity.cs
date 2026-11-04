@@ -4,6 +4,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
@@ -119,12 +120,14 @@ public static class ModuleParameterSecurity
             // It excludes getSecret(), whose use inside interpolation already produces BCP180.
             var source = value is StringSyntax { Expressions.Length: > 0 } ? LanguageConstants.String : model.GetTypeInfo(value);
             var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, value).ToList();
-            // Treat a secret-containing expression as wholly secure only when its result is scalar or unknown, the
-            // secret is the expression itself, or an access's type lost its security flag. Check composite values by member.
-            var sourceSecure = secrets.Any(secret =>
-                source is StringType or IntegerType or BooleanType or AnyType ||
-                ReferenceEquals(secret.Syntax, value) ||
-                value is AccessExpressionSyntax && !TypeHelper.IsOrContainsSecureType(source));
+            // union() tracks secure member types and can overwrite them with public values. Don't put those
+            // discarded secrets back on the result; use the merged type instead.
+            var hasTrackedUnionSecrets = SemanticModelHelper.TryGetNamedFunction(model, SystemNamespaceType.BuiltInName, "union", value) is { } union &&
+                union.Arguments.Any(argument => TypeHelper.IsOrContainsSecureType(model.GetTypeInfo(argument.Expression)));
+            // If a result type doesn't retain the secret, treat the whole result as secure. Composite types that
+            // retain secure members are compared member by member below.
+            var sourceSecure = secrets.Any(secret => ReferenceEquals(secret.Syntax, value)) ||
+                secrets.Count > 0 && !hasTrackedUnionSecrets && !TypeHelper.IsOrContainsSecureType(source);
 
             // Name the leaf when it is the secure read itself; otherwise name the first secret inside it.
             var secret = value is AccessExpressionSyntax or VariableAccessSyntax ? null : secrets.FirstOrDefault();
