@@ -24,5 +24,5 @@ public sealed class NoSecureValuesInInsecureInputsRule : LinterRuleBase
     public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         => ModuleParameterSecurity.EnumerateAssignments(model).SelectMany(assignment =>
             ModuleParameterSecurity.EnumerateMismatches(model, assignment, secureInput: false)
-                .Select(path => CreateDiagnosticForSpan(diagnosticLevel, assignment.Value.Span, path)));
+                .Select(mismatch => CreateDiagnosticForSpan(diagnosticLevel, mismatch.Syntax.Span, mismatch.Path, mismatch.FoundMessage)));
 }

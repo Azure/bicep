@@ -56,21 +56,23 @@ public abstract class ModuleParameterSecurityTestsBase : LinterRuleTestsBase
 
     // Replaces the `SECURE` marker in the parent with nothing, then with `@secure()`, to check both directions
     // of hardening. A secure child warns while the parent stays plain, and the warning goes away once the parent
-    // is secure. The same secure parent then leaks into a child that has lost `@secure()`. The leak is reported
-    // at `path` unless the plain child resolves to a different path, and `plainChild` replaces the default of
-    // dropping every `@secure()` from the child for children that don't use the decorator, like compiled JSON.
-    protected static void AssertHardening(string parent, string child, string path, string childPath = "child.bicep", string? plainChild = null, string? leakPath = null)
+    // is secure. The same secure parent then leaks into a child that has lost `@secure()`, once for each of the
+    // `leakSources` that reaches it. The leak is reported at `path` unless the plain child resolves to a different
+    // path, and `plainChild` replaces the default of dropping every `@secure()` from the child for children that
+    // don't use the decorator, like compiled JSON.
+    protected static void AssertHardening(string parent, string child, string path, string[] leakSources, string childPath = "child.bicep", string? plainChild = null, string? leakPath = null)
     {
         AssertFlow(parent.Replace("SECURE", ""), child, [InputWarning(path)], [], childPath);
         AssertFlow(parent.Replace("SECURE", "@secure()"), child, [], [], childPath);
-        AssertFlow(parent.Replace("SECURE", "@secure()"), plainChild ?? child.Replace("@secure()", ""), [], [LeakWarning(leakPath ?? path)], childPath);
+        AssertFlow(parent.Replace("SECURE", "@secure()"), plainChild ?? child.Replace("@secure()", ""), [],
+            [.. leakSources.Select(source => LeakWarning(leakPath ?? path, source))], childPath);
     }
 
     protected static string InputWarning(string input)
         => $"Module parameter '{input}' expects a secure value, but the value provided may not be secure.";
 
-    protected static string LeakWarning(string input)
-        => $"Module parameter '{input}' is not secure, but is assigned a secure value. The value will be visible in the module deployment's inputs.";
+    protected static string LeakWarning(string input, string source)
+        => $"Module parameter '{input}' is not secure, but is assigned secure value '{source}'. The value will be visible in the module deployment's inputs.";
 
     protected static CompilationResult CompileModule(string parent, string child, string childPath = "child.bicep")
         => CompilationHelper.Compile(("main.bicep", parent), (childPath, child));

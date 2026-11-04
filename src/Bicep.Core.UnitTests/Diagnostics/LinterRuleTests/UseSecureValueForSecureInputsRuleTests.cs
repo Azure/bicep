@@ -12,6 +12,36 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 [TestClass]
 public class UseSecureValueForSecureInputsRuleTests : ModuleParameterSecurityTestsBase
 {
+    [TestMethod]
+    [DataRow("{ value: source }", "source")]
+    [DataRow("alias", "alias")]
+    public void Module_warnings_point_to_the_leaf_or_module_variable_reference(string expression, string anchor)
+    {
+        var parent = $$"""
+            param source string
+            var config = { value: source }
+            var alias = config
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                config: {{expression}}
+              }
+            }
+            """;
+        var result = CompileModule(parent, """
+            param config {
+              @secure()
+              value: string
+            }
+            """);
+        result.Diagnostics.Where(diagnostic => diagnostic.Level == DiagnosticLevel.Error).Should().BeEmpty();
+        var warning = result.Diagnostics.Where(diagnostic => diagnostic.Code == UseSecureValueForSecureInputsRule.Code)
+            .Should().ContainSingle().Subject;
+        warning.Message.Should().Be(InputWarning("config.value"));
+        warning.Span.Position.Should().Be(parent.LastIndexOf(anchor, StringComparison.Ordinal));
+        warning.Span.Length.Should().Be(anchor.Length);
+    }
+
     private void CompileAndTest(string text, int expectedDiagnosticCount, Options? options = null)
     {
         AssertLinterRuleDiagnostics(UseSecureValueForSecureInputsRule.Code, text, expectedDiagnosticCount, options);
@@ -190,7 +220,7 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
                 {{member}}: item.{{nullable}}{{member}}
               }
             }]
-            """, $"@secure()\nparam {member} string{nullable}", member);
+            """, $"@secure()\nparam {member} string{nullable}", member, [$"item.{nullable}{member}"]);
     }
 
     [TestMethod]
@@ -207,7 +237,7 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
                 certificateValue: certificate.?certificateValue
               }
             }
-            """, "@secure()\nparam certificateValue string?", "certificateValue");
+            """, "@secure()\nparam certificateValue string?", "certificateValue", ["certificate.?certificateValue"]);
 
     [TestMethod]
     public void Avm_named_value_fallback_requires_secure_parameter()
@@ -224,7 +254,7 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
                 value: item.?value ?? newGuidValue
               }
             }]
-            """, "@secure()\nparam value string", "value");
+            """, "@secure()\nparam value string", "value", ["item.?value", "newGuidValue"]);
 
     [TestMethod]
     public void Avm_automation_variables_require_typed_secure_value()
@@ -247,7 +277,7 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
             }[] = []
             """;
         AssertFlow(typed + binding, "@secure()\nparam value string", 0, 0);
-        AssertFlow(typed + binding, "param value string", [], [LeakWarning("value")]);
+        AssertFlow(typed + binding, "param value string", [], [LeakWarning("value", "item.value")]);
     }
 
     [TestMethod]
@@ -271,7 +301,7 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
             }
             """;
         AssertFlow(typed + binding, "@secure()\nparam protectedSettings object?", 0, 0);
-        AssertFlow(typed + binding, "param protectedSettings object?", [], [LeakWarning("protectedSettings")]);
+        AssertFlow(typed + binding, "param protectedSettings object?", [], [LeakWarning("protectedSettings", "config.?protectedSettings")]);
     }
 
     [TestMethod]
@@ -282,7 +312,7 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
               @secure()
               value: string
             }[]
-            """, "secretsToSet[*].value");
+            """, "secretsToSet[*].value", ["administratorLoginPassword"]);
 
     // compute/virtual-machine and compute/virtual-machine-scale-set use the same custom script binding. The AVM
     // change left it alone because its parent field was already `@secure()`, so it has to stay free of warnings.
@@ -346,7 +376,7 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
                 credentials: logger.?credentials
               }
             }]
-            """, "@secure()\nparam credentials resourceInput<'Microsoft.ApiManagement/service/workspaces/loggers@2024-05-01'>.properties.credentials?", "credentials.*", leakPath: "credentials");
+            """, "@secure()\nparam credentials resourceInput<'Microsoft.ApiManagement/service/workspaces/loggers@2024-05-01'>.properties.credentials?", "credentials.*", ["logger.?credentials"], leakPath: "credentials");
 
     [TestMethod]
     [DataRow(false)]
@@ -384,7 +414,8 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
               "resources": {}
             }
             """;
-        AssertHardening(parent, child, "configurationProtectedSettings.*", "child.json", child.Replace("secureObject", "object"), "configurationProtectedSettings");
+        AssertHardening(parent, child, "configurationProtectedSettings.*", [$"{(loop ? "item" : "inputs![0]")}.?configurationProtectedSettings"],
+            "child.json", child.Replace("secureObject", "object"), "configurationProtectedSettings");
     }
 
     [TestMethod]

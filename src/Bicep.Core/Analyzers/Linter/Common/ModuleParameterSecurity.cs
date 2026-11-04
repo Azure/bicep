@@ -27,9 +27,17 @@ public static class ModuleParameterSecurity
                     : []);
 
     /// <summary>
+    /// Describes a secure-value mismatch and the source syntax that should be reported.
+    /// </summary>
+    /// <param name="Path">The parameter or nested member that needs protection.</param>
+    /// <param name="Syntax">The source expression or reference to highlight.</param>
+    /// <param name="FoundMessage">The description of the possible secret for the leak warning.</param>
+    public record Mismatch(string Path, SyntaxBase Syntax, string FoundMessage);
+
+    /// <summary>
     /// Finds mismatches between module parameter assignments and their declared types.
     /// </summary>
-    public static IEnumerable<string> EnumerateMismatches(SemanticModel model, ObjectPropertySyntax assignment, bool secureInput)
+    public static IEnumerable<Mismatch> EnumerateMismatches(SemanticModel model, ObjectPropertySyntax assignment, bool secureInput)
     {
         if (model.GetDeclaredType(assignment) is not { } parameterType ||
             assignment.TryGetKeyText() is not { } parameterName)
@@ -39,9 +47,11 @@ public static class ModuleParameterSecurity
 
         var resolver = secureInput ? ResourceTypeResolver.Create(model) : null;
         // Overlapping union alternatives can report the same mismatch more than once.
-        return CheckExpression(assignment.Value, parameterType, parameterName).Distinct();
+        return CheckExpression(assignment.Value, parameterType, parameterName, reference: null).Distinct();
 
-        IEnumerable<string> CheckExpression(SyntaxBase value, TypeSymbol target, string path)
+        // A finding is reported on the value it comes from, or on the variable reference that led to it, since
+        // a variable's declaration can be shared by several modules.
+        IEnumerable<Mismatch> CheckExpression(SyntaxBase value, TypeSymbol target, string path, SyntaxBase? reference)
         {
             // Compiler errors already explain why this value cannot be checked.
             if (model.GetTypeInfo(value) is ErrorType)
@@ -62,31 +72,31 @@ public static class ModuleParameterSecurity
             var parts = value switch
             {
                 ParenthesizedExpressionSyntax parenthesized =>
-                    CheckExpression(parenthesized.Expression, target, path),
+                    CheckExpression(parenthesized.Expression, target, path, reference),
                 NonNullAssertionSyntax nonNull =>
-                    CheckExpression(nonNull.BaseExpression, target, path),
+                    CheckExpression(nonNull.BaseExpression, target, path, reference),
                 VariableAccessSyntax access when model.GetSymbolInfo(access) is VariableSymbol variable =>
-                    CheckExpression(variable.DeclaringVariable.Value, target, path),
+                    CheckExpression(variable.DeclaringVariable.Value, target, path, reference ?? access),
                 TernaryOperationSyntax ternary =>
-                    CheckExpression(ternary.TrueExpression, target, path)
-                        .Concat(CheckExpression(ternary.FalseExpression, target, path)),
+                    CheckExpression(ternary.TrueExpression, target, path, reference)
+                        .Concat(CheckExpression(ternary.FalseExpression, target, path, reference)),
                 BinaryOperationSyntax { Operator: BinaryOperator.Coalesce } coalesce =>
-                    CheckExpression(coalesce.LeftExpression, target, path)
-                        .Concat(CheckExpression(coalesce.RightExpression, target, path)),
+                    CheckExpression(coalesce.LeftExpression, target, path, reference)
+                        .Concat(CheckExpression(coalesce.RightExpression, target, path, reference)),
                 ObjectSyntax obj when Variants(target) is { } variants =>
                     variants.Where(variant => MayMatch(model.GetTypeInfo(obj), variant))
-                        .SelectMany(variant => CheckExpression(obj, variant, path)),
+                        .SelectMany(variant => CheckExpression(obj, variant, path, reference)),
                 ObjectSyntax obj when !obj.Children.OfType<SpreadExpressionSyntax>().Any() =>
                     obj.Properties.SelectMany(property =>
                     {
                         var name = property.TryGetKeyText();
-                        return CheckExpression(property.Value, Member(target, name), $"{path}.{name ?? "*"}");
+                        return CheckExpression(property.Value, Member(target, name), $"{path}.{name ?? "*"}", reference);
                     }),
                 ArraySyntax array when !array.Children.OfType<SpreadExpressionSyntax>().Any() =>
                     array.Items.SelectMany((item, index) =>
-                        CheckExpression(item.Value, Item(target, index), $"{path}[{index}]")),
+                        CheckExpression(item.Value, Item(target, index), $"{path}[{index}]", reference)),
                 ForSyntax loop =>
-                    CheckExpression(loop.Body, Item(target), $"{path}[*]"),
+                    CheckExpression(loop.Body, Item(target), $"{path}[*]", reference),
                 _ => null,
             };
 
@@ -116,9 +126,13 @@ public static class ModuleParameterSecurity
                 ReferenceEquals(secret.Syntax, value) ||
                 value is AccessExpressionSyntax && !TypeHelper.IsOrContainsSecureType(source));
 
+            // Name the leaf when it is the secure read itself; otherwise name the first secret inside it.
+            var secret = value is AccessExpressionSyntax or VariableAccessSyntax ? null : secrets.FirstOrDefault();
+            var syntax = reference ?? secret?.Syntax ?? value;
+            var foundMessage = secret?.FoundMessage ?? FindPossibleSecretsVisitor.PossibleSecretMessage(value.ToString().Trim());
             foreach (var mismatchPath in Compare(source, target, path, sourceSecure, false, []))
             {
-                yield return mismatchPath;
+                yield return new(mismatchPath, syntax, foundMessage);
             }
         }
 

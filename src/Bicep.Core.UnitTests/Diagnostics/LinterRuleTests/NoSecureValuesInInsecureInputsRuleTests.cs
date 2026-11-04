@@ -16,6 +16,33 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTestsBase
 {
     [TestMethod]
+    [DataRow("{ value: secret }", "secret")]
+    [DataRow("alias", "alias")]
+    [DataRow("union({ value: secret }, {})", "secret")]
+    public void Module_warnings_name_the_leaf_and_point_to_its_use(string expression, string anchor)
+    {
+        var parent = $$"""
+            @secure()
+            param secret string
+            var config = { value: secret }
+            var alias = config
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                config: {{expression}}
+              }
+            }
+            """;
+        var result = CompileModule(parent, "param config { value: string }");
+        result.Diagnostics.Where(diagnostic => diagnostic.Level == DiagnosticLevel.Error).Should().BeEmpty();
+        var warning = result.Diagnostics.Where(diagnostic => diagnostic.Code == NoSecureValuesInInsecureInputsRule.Code)
+            .Should().ContainSingle().Subject;
+        warning.Message.Should().Be(LeakWarning("config.value", "secret"));
+        warning.Span.Position.Should().Be(parent.LastIndexOf(anchor, StringComparison.Ordinal));
+        warning.Span.Length.Should().Be(anchor.Length);
+    }
+
+    [TestMethod]
     [DataRow("empty(secret)", "bool")]
     [DataRow("empty(secrets)", "bool")]
     [DataRow("empty(secureObj)", "bool")]
@@ -133,7 +160,7 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
               }
             }]
             """;
-        AssertHardening(parent, "@secure()\nparam connectionString string", "connectionString");
+        AssertHardening(parent, "@secure()\nparam connectionString string", "connectionString", ["cache.connectionString"]);
         AssertFlow(parent.Replace("SECURE", ""), "param connectionString string", [], []);
     }
 
@@ -205,7 +232,7 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
     [TestMethod]
     public void Avm_portal_settings_union_checks_only_properties_present_in_each_variant()
     {
-        AssertFlow(ApimPortalSettings, "param properties resourceInput<'Microsoft.ApiManagement/service/portalsettings@2024-05-01'>.properties", [], [LeakWarning("properties.validationKey")]);
+        AssertFlow(ApimPortalSettings, "param properties resourceInput<'Microsoft.ApiManagement/service/portalsettings@2024-05-01'>.properties", [], [LeakWarning("properties.validationKey", "portalsetting.properties")]);
         AssertFlow(ApimPortalSettings, PortalSettingPropertiesChild, [], []);
     }
 
@@ -253,7 +280,7 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
     // Not in AVM: its export child declares a secure value member, so a plain `array` child is a leak.
     [TestMethod]
     public void Sql_secrets_export_is_a_secure_source_for_a_plain_child()
-        => AssertFlow(SqlSecretsExport.Replace("SECURE", "@secure()"), "param secretsToSet array", [], [LeakWarning("secretsToSet[*].value")]);
+        => AssertFlow(SqlSecretsExport.Replace("SECURE", "@secure()"), "param secretsToSet array", [], [LeakWarning("secretsToSet[*].value", "administratorLoginPassword")]);
 
     // Not in AVM: a resource-derived dictionary forwarded on its own, with nothing secure to infer from.
     [TestMethod]
@@ -313,18 +340,18 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
             }
             """, VmExtensionChild, [],
             [
-                LeakWarning("name"),
-                LeakWarning("typeHandlerVersion"),
-                LeakWarning("autoUpgradeMinorVersion"),
-                LeakWarning("enableAutomaticUpgrade"),
-                LeakWarning("settings"),
-                LeakWarning("settings.Name"),
-                LeakWarning("settings.OUPath"),
-                LeakWarning("settings.User"),
-                LeakWarning("settings.Restart"),
-                LeakWarning("settings.Options"),
-                LeakWarning("supressFailures"),
-                LeakWarning("tags"),
+                LeakWarning("name", "extensionDomainJoinConfig.?name"),
+                LeakWarning("typeHandlerVersion", "extensionDomainJoinConfig.?typeHandlerVersion"),
+                LeakWarning("autoUpgradeMinorVersion", "extensionDomainJoinConfig.?autoUpgradeMinorVersion"),
+                LeakWarning("enableAutomaticUpgrade", "extensionDomainJoinConfig.?enableAutomaticUpgrade"),
+                LeakWarning("settings", "extensionDomainJoinConfig.?settings"),
+                LeakWarning("settings.Name", "extensionDomainJoinConfig.?domainName"),
+                LeakWarning("settings.OUPath", "extensionDomainJoinConfig.?ouPath"),
+                LeakWarning("settings.User", "extensionDomainJoinConfig.?user"),
+                LeakWarning("settings.Restart", "extensionDomainJoinConfig.?restart"),
+                LeakWarning("settings.Options", "extensionDomainJoinConfig.?options"),
+                LeakWarning("supressFailures", "extensionDomainJoinConfig.?supressFailures"),
+                LeakWarning("tags", "extensionDomainJoinConfig.?tags"),
             ]);
 
     // compute/virtual-machine-scale-set
@@ -362,11 +389,11 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
             param provisionAfterExtensions string[]?
             """, [],
             [
-                LeakWarning("typeHandlerVersion"),
-                LeakWarning("autoUpgradeMinorVersion"),
-                LeakWarning("enableAutomaticUpgrade"),
-                LeakWarning("settings"),
-                LeakWarning("provisionAfterExtensions"),
+                LeakWarning("typeHandlerVersion", "extensionDomainJoinConfig.?typeHandlerVersion"),
+                LeakWarning("autoUpgradeMinorVersion", "extensionDomainJoinConfig.?autoUpgradeMinorVersion"),
+                LeakWarning("enableAutomaticUpgrade", "extensionDomainJoinConfig.?enableAutomaticUpgrade"),
+                LeakWarning("settings", "extensionDomainJoinConfig.settings"),
+                LeakWarning("provisionAfterExtensions", "extensionDomainJoinConfig.?provisionAfterExtensions"),
             ]);
 
     // compute/virtual-machine: the host pool registration token is the secret, but the whole object is secure.
@@ -404,15 +431,15 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
             }
             """, VmExtensionChild, [],
             [
-                LeakWarning("name"),
-                LeakWarning("typeHandlerVersion"),
-                LeakWarning("autoUpgradeMinorVersion"),
-                LeakWarning("enableAutomaticUpgrade"),
-                LeakWarning("settings.modulesUrl"),
-                LeakWarning("settings.configurationFunction"),
-                LeakWarning("settings.properties.hostPoolName"),
-                LeakWarning("supressFailures"),
-                LeakWarning("tags"),
+                LeakWarning("name", "extensionHostPoolRegistration.?name"),
+                LeakWarning("typeHandlerVersion", "extensionHostPoolRegistration.?typeHandlerVersion"),
+                LeakWarning("autoUpgradeMinorVersion", "extensionHostPoolRegistration.?autoUpgradeMinorVersion"),
+                LeakWarning("enableAutomaticUpgrade", "extensionHostPoolRegistration.?enableAutomaticUpgrade"),
+                LeakWarning("settings.modulesUrl", "extensionHostPoolRegistration.modulesUrl"),
+                LeakWarning("settings.configurationFunction", "extensionHostPoolRegistration.configurationFunction"),
+                LeakWarning("settings.properties.hostPoolName", "extensionHostPoolRegistration.hostPoolName"),
+                LeakWarning("supressFailures", "extensionHostPoolRegistration.?supressFailures"),
+                LeakWarning("tags", "extensionHostPoolRegistration.?tags"),
             ]);
 
     [TestMethod]
@@ -445,10 +472,11 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
     }
 
     [TestMethod]
-    [DataRow("storage.listKeys()", "object")]
-    [DataRow("storage.listKeys().keys[0].value", "string")]
-    public void Runtime_secret_functions_warn_for_plain_module_parameters(string expression, string type)
-        => AssertFlow($$"""
+    [DataRow("storage.listKeys()", "object", "function 'listKeys'")]
+    [DataRow("storage.listKeys().keys[0].value", "string", "secure value 'storage.listKeys().keys[0].value'")]
+    public void Runtime_secret_functions_warn_for_plain_module_parameters(string expression, string type, string found)
+    {
+        var parent = $$"""
             resource storage 'Microsoft.Storage/storageAccounts@2024-01-01' existing = {
               name: 'storage'
             }
@@ -458,7 +486,15 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
                 value: {{expression}}
               }
             }
-            """, $"param value {type}", 0, 1);
+            """;
+        var result = CompileModule(parent, $"param value {type}");
+        result.Diagnostics.Where(diagnostic => diagnostic.Level == DiagnosticLevel.Error).Should().BeEmpty();
+        var warning = result.Diagnostics.Where(diagnostic => diagnostic.Code == NoSecureValuesInInsecureInputsRule.Code)
+            .Should().ContainSingle().Subject;
+        warning.Message.Should().Be($"Module parameter 'value' is not secure, but is assigned {found}. The value will be visible in the module deployment's inputs.");
+        warning.Span.Position.Should().Be(parent.LastIndexOf(expression, StringComparison.Ordinal));
+        warning.Span.Length.Should().Be(expression.Length);
+    }
 
     [TestMethod]
     public void Interpolation_keeps_security_through_object_properties()
@@ -528,7 +564,7 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
                 }
               }
             }
-            """, "param osProfile resourceInput<'Microsoft.Compute/virtualMachines@2024-07-01'>.properties.osProfile", [], [LeakWarning("osProfile.adminPassword")]);
+            """, "param osProfile resourceInput<'Microsoft.Compute/virtualMachines@2024-07-01'>.properties.osProfile", [], [LeakWarning("osProfile.adminPassword", "password")]);
 
     // container-service/managed-cluster forwards `fluxExtension.?fluxConfigurations` to
     // kubernetes-configuration/extension.
@@ -580,6 +616,6 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
                 fluxConfigurations: fluxExtension.?fluxConfigurations
               }
             }
-            """, child, [], [.. secretPaths.Select(path => LeakWarning($"fluxConfigurations[*].{path}"))], "child.json");
+            """, child, [], [.. secretPaths.Select(path => LeakWarning($"fluxConfigurations[*].{path}", "fluxExtension.?fluxConfigurations"))], "child.json");
     }
 }

@@ -438,8 +438,8 @@
     <value>Secure values should only be assigned to secure module parameters.</value>
   </data>
   <data name="NoSecureValuesInInsecureInputsRule_MessageFormat" xml:space="preserve">
-    <value>Module parameter '{0}' is not secure, but is assigned a secure value. The value will be visible in the module deployment's inputs.</value>
-    <comment>{0} parameter path</comment>
+    <value>Module parameter '{0}' is not secure, but is assigned {1}. The value will be visible in the module deployment's inputs.</value>
+    <comment>{0} parameter path, {1} the secret found, such as "secure value 'x'" or "function 'listKeys'"</comment>
   </data>
   <data name="UseParentPropertyRule_MessageFormat" xml:space="preserve">
     <value>Resource "{0}" has its name formatted as a child of resource "{1}". The syntax can be simplified by using the parent property.</value>
