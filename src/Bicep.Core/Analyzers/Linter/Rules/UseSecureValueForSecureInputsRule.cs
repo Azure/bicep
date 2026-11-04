@@ -62,10 +62,10 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
     {
         foreach (var assignment in ModuleParameterSecurity.EnumerateAssignments(model))
         {
-            foreach (var path in ModuleParameterSecurity.EnumerateMismatches(model, assignment, secureInput: true))
+            foreach (var mismatch in ModuleParameterSecurity.EnumerateMismatches(model, assignment, secureInput: true))
             {
-                yield return CreateDiagnostic(assignment.Value.Span,
-                    string.Format(CoreResources.UseSecureValueForSecureInputsRule_ModuleParameterMessageFormat, path)) with { Level = diagnosticLevel };
+                yield return CreateDiagnostic(mismatch.Syntax.Span,
+                    string.Format(CoreResources.UseSecureValueForSecureInputsRule_ModuleParameterMessageFormat, mismatch.Path)) with { Level = diagnosticLevel };
             }
         }
 
