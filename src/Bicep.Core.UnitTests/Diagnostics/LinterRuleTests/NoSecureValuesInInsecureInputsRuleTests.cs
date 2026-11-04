@@ -43,6 +43,76 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
     }
 
     [TestMethod]
+    public void Secure_values_forwarded_through_object_properties_leak_into_plain_module_parameters()
+        => AssertFlow("""
+            @secure()
+            param secret string
+            var original = {
+              direct: secret
+              interpolated: '${secret}'
+              public: 'not secret'
+            }
+            var alias = original
+            var chainedAlias = alias
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                direct: chainedAlias.direct
+                indexed: chainedAlias['direct']
+                interpolated: chainedAlias.interpolated
+                public: chainedAlias.public
+              }
+            }
+            """, """
+            param direct string
+            param indexed string
+            param interpolated string
+            param public string
+            """, [], [
+                LeakWarning("direct", "chainedAlias.direct"),
+                LeakWarning("indexed", "chainedAlias['direct']"),
+                LeakWarning("interpolated", "chainedAlias.interpolated"),
+            ]);
+
+    [TestMethod]
+    [DataRow("chained.number", "int")]
+    [DataRow("chained['number']", "int")]
+    [DataRow("chained.flag", "bool")]
+    [DataRow("chained.text", "string")]
+    [DataRow("chained.interpolated", "string")]
+    [DataRow("chained.nested.number", "int")]
+    public void Copied_secure_object_members_are_reported_on_the_module_argument(string expression, string type)
+    {
+        var parent = $$"""
+            @secure()
+            param secureObj { number: int, flag: bool, text: string }
+            var original = {
+              number: secureObj.number
+              flag: secureObj.flag
+              text: secureObj.text
+              interpolated: '${secureObj.number}'
+              nested: { number: secureObj.number }
+              public: 'not secret'
+            }
+            var alias = original
+            var chained = alias
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                value: {{expression}}
+                public: chained.public
+              }
+            }
+            """;
+        var result = CompileModule(parent, $"param value {type}\nparam public string");
+        result.Diagnostics.Where(diagnostic => diagnostic.Level == DiagnosticLevel.Error).Should().BeEmpty();
+        var warning = result.Diagnostics.Where(diagnostic => diagnostic.Code == NoSecureValuesInInsecureInputsRule.Code)
+            .Should().ContainSingle().Subject;
+        warning.Span.Position.Should().BeGreaterThanOrEqualTo(parent.LastIndexOf(expression, StringComparison.Ordinal));
+        warning.Span.Position.Should().BeLessThan(parent.LastIndexOf(expression, StringComparison.Ordinal) + expression.Length);
+    }
+
+    [TestMethod]
     [DataRow("empty(secret)", "bool")]
     [DataRow("empty(secrets)", "bool")]
     [DataRow("empty(secureObj)", "bool")]
@@ -141,6 +211,54 @@ public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTe
               }
             }
             """, $"param value {type}", 0, 1);
+
+    [TestMethod]
+    public void Union_of_a_secure_object_and_an_empty_object_satisfies_a_secure_module_parameter()
+        => AssertFlow("""
+            @secure()
+            param secureObj object
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                config: union(secureObj, {})
+              }
+            }
+            """, "@secure()\nparam config object", [], []);
+
+    [TestMethod]
+    [DataRow("""
+        @discriminator('kind')
+        param value { kind: 'a', x: string } | { kind: 'b', y: string }
+        """)]
+    [DataRow("param value resourceInput<'Microsoft.DataFactory/factories/linkedservices@2018-06-01'>.properties")]
+    public void Secure_discriminated_parameters_leak_into_plain_module_parameters(string declaration)
+        => AssertFlow($$"""
+            @secure()
+            {{declaration}}
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                config: value
+              }
+            }
+            """, "param config object", [], [LeakWarning("config", "value")]);
+
+    [TestMethod]
+    public void Cyclic_property_initializers_do_not_produce_security_warnings()
+    {
+        var result = CompileModule("""
+            var cyclic = { value: cyclic.value }
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                value: cyclic.value
+              }
+            }
+            """, "param value string");
+        result.Diagnostics.Where(diagnostic => diagnostic.Level == DiagnosticLevel.Error).Should().NotBeEmpty();
+        result.Diagnostics.Where(diagnostic => diagnostic.Code is NoSecureValuesInInsecureInputsRule.Code or UseSecureValueForSecureInputsRule.Code)
+            .Should().BeEmpty();
+    }
 
     // api-management/service/cache: the parent and the child both gained `@secure()`, so each side is checked
     // against the other. Before the change neither was secure, and that state has to stay clean too.

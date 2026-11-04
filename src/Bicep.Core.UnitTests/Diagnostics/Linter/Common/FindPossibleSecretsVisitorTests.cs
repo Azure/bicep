@@ -34,6 +34,32 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
             }
         }
 
+        [TestMethod]
+        [DataRow("alias.number")]
+        [DataRow("alias['number']")]
+        [DataRow("alias.interpolated")]
+        [DataRow("alias")]
+        public void Followed_findings_point_to_the_read_not_the_variable_declaration(string expression)
+        {
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore($$"""
+                @secure()
+                param secureObj { number: int }
+                var original = { number: secureObj.number, interpolated: '${secureObj.number}' }
+                var alias = original
+                output result = {{expression}}
+                """);
+            var output = ((BicepFile)result.EntryPointFile).ProgramSyntax.Children.OfType<OutputDeclarationSyntax>().Single();
+            var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(result.Compilation.GetEntrypointSemanticModel(), output.Value).ToArray();
+            secrets.Should().NotBeEmpty();
+            foreach (var secret in secrets)
+            {
+                secret.FoundMessage.Should().Be("secure value 'secureObj'");
+                secret.Syntax.Span.Position.Should().BeGreaterThanOrEqualTo(output.Value.Span.Position);
+                (secret.Syntax.Span.Position + secret.Syntax.Span.Length).Should()
+                    .BeLessThanOrEqualTo(output.Value.Span.Position + output.Value.Span.Length);
+            }
+        }
+
         [DataRow(@" // This is a failing example from the docs
             @secure()
             param secureParam string
@@ -156,6 +182,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
                 output badResult object = az.listAnything(resourceId('Microsoft.Storage/storageAccounts', 'storageName'), '2021-02-01')
             ",
             "function 'listAnything'"
+        )]
+        [DataRow(@"
+                @secure()
+                param secret string
+
+                var cyclic = {
+                  value: cyclic.value
+                }
+
+                output test string = cyclic.value
+            "
         )]
         [TestMethod]
         public void Test(string text, params string[] expectedMessages)

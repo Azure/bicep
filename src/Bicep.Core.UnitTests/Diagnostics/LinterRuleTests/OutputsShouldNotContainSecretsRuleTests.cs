@@ -450,6 +450,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
         }
+
         [TestMethod]
         [DataRow("union(secureObj, { extra: 1 })")]
         [DataRow("union({ extra: 1 }, typedSecureObj)")]
@@ -480,5 +481,56 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 output o object = p
                 """, OnCompileErrors.IncludeErrors, [$"{description} Found possible secret: secure value 'p'"]);
 
+        [TestMethod]
+        public void Secure_values_forwarded_through_object_properties_are_still_found()
+            => CompileAndTest("""
+                @secure()
+                param secret string
+                var original = {
+                  direct: secret
+                  interpolated: '${secret}'
+                  public: 'not secret'
+                }
+                var alias = original
+                var chainedAlias = alias
+                output direct string = chainedAlias.direct
+                output indexed string = chainedAlias['direct']
+                output interpolated string = chainedAlias.interpolated
+                output public string = chainedAlias.public
+                output whole object = chainedAlias
+                """, OnCompileErrors.IncludeErrors, [
+                    $"{description} Found possible secret: secure value 'chainedAlias.direct'",
+                    $"{description} Found possible secret: secure value 'chainedAlias['direct']'",
+                    $"{description} Found possible secret: secure value 'chainedAlias.interpolated'",
+                    $"{description} Found possible secret: secure value 'chainedAlias.direct'",
+                    $"{description} Found possible secret: secure value 'chainedAlias.interpolated'",
+                ]);
+
+        [TestMethod]
+        [DataRow("chained.number", "int", 1)]
+        [DataRow("chained['number']", "int", 1)]
+        [DataRow("chained.flag", "bool", 1)]
+        [DataRow("chained.text", "string", 1)]
+        [DataRow("chained.interpolated", "string", 1)]
+        [DataRow("chained.nested.number", "int", 1)]
+        [DataRow("chained.public", "string", 0)]
+        [DataRow("chained", "object", 1)]
+        public void Copied_secure_object_members_are_still_found(string expression, string type, int warnings)
+            => CompileAndTest($$"""
+                @secure()
+                param secureObj { number: int, flag: bool, text: string }
+                var original = {
+                  number: secureObj.number
+                  flag: secureObj.flag
+                  text: secureObj.text
+                  interpolated: '${secureObj.number}'
+                  nested: { number: secureObj.number }
+                  public: 'not secret'
+                }
+                var alias = original
+                var chained = alias
+                output result {{type}} = {{expression}}
+                """, OnCompileErrors.IncludeErrors,
+                Enumerable.Repeat($"{description} Found possible secret: secure value 'secureObj'", warnings).ToArray());
     }
 }
