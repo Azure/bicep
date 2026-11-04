@@ -17,6 +17,25 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         const string description = "Outputs should not contain secrets.";
 
+        [TestMethod]
+        [DataRow("length(secret)")]
+        [DataRow("sys.length(secret)")]
+        [DataRow("length(settings)")]
+        public void Secret_length_can_be_output_directly_or_indirectly(string expression)
+            => CompileAndTest($$"""
+                @secure()
+                @minLength(2)
+                @maxLength(20)
+                param secret string
+                @secure()
+                param settings object
+                var count = {{expression}}
+                var values = { count: count }
+                output n int = {{expression}}
+                output indirect int = values.count
+                output text string = '${count}'
+                """, OnCompileErrors.IncludeErrors, []);
+
         [DataRow(@" // This is a failing example from the docs
             @secure()
             param secureParam string
