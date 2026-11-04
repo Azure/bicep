@@ -19,7 +19,7 @@ namespace Bicep.Core.UnitTests.Modules
             var subClasses = GetModuleRefSubClasses().ToList();
 
             subClasses.Should().HaveCountGreaterOrEqualTo(1);
-            subClasses.Should().Contain(item => (Type)item[0] == typeof(LocalModuleReference));
+            subClasses.Should().Contain(item => (Type)item[0] == typeof(LocalArtifactReference));
         }
 
         [TestMethod]

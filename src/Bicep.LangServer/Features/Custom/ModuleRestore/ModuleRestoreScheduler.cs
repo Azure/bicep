@@ -12,7 +12,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
 {
     public sealed class ModuleRestoreScheduler : IModuleRestoreScheduler, IAsyncDisposable
     {
-        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ArtifactReference> ModuleReferences);
+        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ExternalArtifactReference> ModuleReferences);
 
         private record CompletionNotification(ICompilationManager CompilationManager, DocumentUri Uri);
 
@@ -41,7 +41,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
         /// <param name="compilationManager"></param>
         /// <param name="artifacts">The artifacts</param>
         /// <param name="documentUri">The document URI that needs to be recompiled once restore completes asynchronously</param>
-        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ArtifactReference> artifacts)
+        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ExternalArtifactReference> artifacts)
         {
             this.CheckDisposed();
 

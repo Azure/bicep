@@ -13,5 +13,8 @@ namespace Bicep.Core.Registry
     {
         public static IArtifactRegistry GetRegistry(this IArtifactRegistryProvider provider, string scheme) =>
             provider.TryGetRegistry(scheme) ?? throw new ArgumentException($"No artifact registry is configured for the scheme '{scheme}'.");
+
+        public static IArtifactRegistry GetRegistry(this IArtifactRegistryProvider provider, ExternalArtifactReference reference) =>
+            provider.TryGetRegistry(reference) ?? throw new ArgumentException($"No artifact registry is configured for references of type '{reference.GetType().Name}'.");
     }
 }

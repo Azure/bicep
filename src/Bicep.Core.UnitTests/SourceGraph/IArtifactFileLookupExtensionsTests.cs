@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
@@ -41,15 +41,15 @@ public class IArtifactFileLookupExtensionsTests
         var fileSymbol = result.Compilation.GetEntrypointSemanticModel().Root;
 
         var importedSymbol = fileSymbol.ImportedSymbols.Should().ContainSingle().Subject;
-        importedSymbol.TryGetArtifactReference().Should().BeOfType<LocalModuleReference>()
+        importedSymbol.TryGetArtifactReference().Should().BeOfType<LocalArtifactReference>()
             .And.BeSameAs(grouping.ArtifactLookup[importedSymbol.EnclosingDeclaration].Reference);
 
         var wildcardImport = fileSymbol.WildcardImports.Should().ContainSingle().Subject;
-        wildcardImport.TryGetArtifactReference().Should().BeOfType<LocalModuleReference>()
+        wildcardImport.TryGetArtifactReference().Should().BeOfType<LocalArtifactReference>()
             .And.BeSameAs(grouping.ArtifactLookup[wildcardImport.EnclosingDeclaration].Reference);
 
         var module = fileSymbol.ModuleDeclarations.Should().ContainSingle().Subject;
-        grouping.TryGetArtifactReference(module.DeclaringModule).Should().BeOfType<LocalModuleReference>()
+        grouping.TryGetArtifactReference(module.DeclaringModule).Should().BeOfType<LocalArtifactReference>()
             .And.BeSameAs(grouping.ArtifactLookup[module.DeclaringModule].Reference);
     }
 

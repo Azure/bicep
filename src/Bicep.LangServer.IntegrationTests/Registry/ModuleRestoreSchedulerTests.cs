@@ -152,47 +152,44 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             }
         }
 
-        private static ImmutableArray<ArtifactReference> CreateArtifactReferences(MockRegistry mockRegistry, params string[] references) => references
-            .Select(x => mockRegistry.TryParseArtifactReference(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, x).Unwrap())
+        private static ImmutableArray<ExternalArtifactReference> CreateArtifactReferences(MockRegistry mockRegistry, params string[] references) => references
+            .Select(x => (ExternalArtifactReference)new MockArtifactRef(BicepTestConstants.DummyBicepFile, x))
             .ToImmutableArray();
 
         private class MockRegistry : IArtifactRegistry
         {
-            public ConcurrentStack<IEnumerable<ArtifactReference>> ModuleRestores { get; } = new();
+            public ConcurrentStack<IEnumerable<ExternalArtifactReference>> ModuleRestores { get; } = new();
 
             public string Scheme => "mock";
 
-            public RegistryCapabilities GetCapabilities(ArtifactType artifactType, ArtifactReference _) => throw new NotImplementedException();
+            public bool CanHandle(ExternalArtifactReference reference) => reference is MockArtifactRef;
 
-            public bool IsArtifactRestoreRequired(ArtifactReference _) => true;
+            public RegistryCapabilities GetCapabilities(ArtifactType artifactType, ExternalArtifactReference _) => throw new NotImplementedException();
 
-            public Task PublishModule(ArtifactReference _, BinaryData __, BinaryData? ___, string? ____, string? _____)
+            public bool IsArtifactRestoreRequired(ExternalArtifactReference _) => true;
+
+            public Task PublishModule(ExternalArtifactReference _, BinaryData __, BinaryData? ___, string? ____, string? _____)
                 => throw new NotImplementedException();
 
-            public Task PublishExtension(ArtifactReference _, ExtensionPackage __)
+            public Task PublishExtension(ExternalArtifactReference _, ExtensionPackage __)
                 => throw new NotImplementedException();
 
-            public Task<bool> CheckArtifactExists(ArtifactType artifactType, ArtifactReference reference) => throw new NotImplementedException();
+            public Task<bool> CheckArtifactExists(ArtifactType artifactType, ExternalArtifactReference reference) => throw new NotImplementedException();
 
-            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> _)
+            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ExternalArtifactReference> _)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references)
+            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ExternalArtifactReference> references)
             {
                 this.ModuleRestores.Push(references);
                 return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>>(new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>());
             }
 
-            public string? GetDocumentationUri(ArtifactReference _) => null;
+            public string? GetDocumentationUri(ExternalArtifactReference _) => null;
 
-            public Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference _) => Task.FromResult<string?>(null);
-
-            public ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType _, string? __, string reference)
-            {
-                return new(new MockArtifactRef(referencingFile, reference));
-            }
+            public Task<string?> TryGetModuleDescription(ModuleSymbol module, ExternalArtifactReference _) => Task.FromResult<string?>(null);
 
             public Task OnRestoreArtifacts(bool forceRestore) => Task.CompletedTask;
         }

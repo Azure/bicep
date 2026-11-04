@@ -50,9 +50,13 @@ namespace Bicep.Core.UnitTests.Registry
         public void TryGetArtifactReference_ShouldSucceedForNonAzureRegistry()
         {
             var referencingFile = BicepTestConstants.CreateDummyBicepFile(featureOverrides: new FeatureProviderOverrides(OciEnabled: false));
-            var resolver = new ArtifactReferenceResolver(BicepTestConstants.CreateRegistryProvider(BicepTestConstants.EmptyServiceProvider));
+            var resolver = new ArtifactReferenceResolver(
+                BicepTestConstants.CreateRegistryProvider(BicepTestConstants.EmptyServiceProvider),
+                BicepTestConstants.FileExplorer,
+                BicepTestConstants.BuiltInOnlyConfigurationManager,
+                IFeatureProviderFactory.WithStaticFeatureProvider(referencingFile.LoadFeatures()));
 
-            var result = resolver.TryResolve(referencingFile, ArtifactType.Module, "br:ghcr.io/contoso/app:v1");
+            var result = resolver.TryResolve(referencingFile.FileHandle.Uri, ArtifactType.Module, "br:ghcr.io/contoso/app:v1");
 
             result.IsSuccess(out var artifactReference, out _).Should().BeTrue();
             artifactReference.Should().BeOfType<OciArtifactReference>();

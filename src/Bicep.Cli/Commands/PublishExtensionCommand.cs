@@ -31,7 +31,6 @@ namespace Bicep.Cli.Commands
     public class PublishExtensionCommand(
         IArtifactReferenceResolver referenceResolver,
         IArtifactPublisher publisher,
-        ISourceFileFactory sourceFileFactory,
         IFileExplorer fileExplorer,
         InputOutputArgumentsResolver inputOutputArgumentsResolver,
         ILocalExtensionFactory localExtensionFactory,
@@ -136,20 +135,18 @@ namespace Bicep.Cli.Commands
 
             if (!targetReference.StartsWith("br:") && !targetReference.StartsWith("ts:"))
             {
-                // If targetReference is a fully qualified file, we need to create a dummy artifact referencing
-                // file with the path, and change targetReference to be the file name so it is a relative reference,
-                // because absoluate reference is not supported by Bicep.
+                // A file path target is resolved as a reference relative to itself, because absolute paths are not
+                // valid artifact references.
                 dummyReferencingFileUri = inputOutputArgumentsResolver.PathToUri(targetReference);
                 targetReference = dummyReferencingFileUri.GetFileName();
             }
             else
             {
+                // A placeholder in the current directory, so that configuration is loaded from there.
                 dummyReferencingFileUri = IOUri.FromFilePath(Path.Join(environment.CurrentDirectory, "dummy"));
             }
 
-            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(dummyReferencingFileUri, "");
-
-            if (!referenceResolver.TryResolve(dummyReferencingFile, ArtifactType.Extension, targetReference).IsSuccess(out var extensionReference, out var failureBuilder))
+            if (!referenceResolver.TryResolve(dummyReferencingFileUri, ArtifactType.Extension, targetReference).IsSuccess(out var extensionReference, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
 

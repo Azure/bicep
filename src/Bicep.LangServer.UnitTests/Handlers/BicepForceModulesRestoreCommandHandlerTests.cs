@@ -69,7 +69,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         }
 
         [TestMethod]
-        public async Task Handle_WithValidPath_AndThreeLocalModulesInInputFile_ReturnsSummaryMessage()
+        public async Task Handle_WithValidPath_AndThreeLocalModulesInInputFile_SkipsRestore()
         {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
@@ -108,11 +108,12 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             string expected = StringUtils.ReplaceNewlines(await handler.Handle(bicepFilePath, CancellationToken.None), "|");
 
-            expected.Should().Be(@"Restore (force) summary: |  * ./localmodule1.bicep: Succeeded|  * ./localmodule2.bicep: Succeeded");
+            // Local modules are never restored.
+            expected.Should().Be(@"Restore (force) skipped. No modules references in input file.");
         }
 
         [TestMethod]
-        public async Task Handle_WithValidPath_AndTwoLocalModules_InInputFile_WhichOneDoNotExist_ReturnsSummaryMessage()
+        public async Task Handle_WithValidPath_AndTwoLocalModules_InInputFile_WhichOneDoNotExist_SkipsRestore()
         {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
@@ -144,7 +145,8 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             string expected = StringUtils.ReplaceNewlines(await handler.Handle(bicepFilePath, CancellationToken.None), "|");
 
-            expected.Should().Be(@"Restore (force) summary: |  * ./localmodule1.bicep: Succeeded|  * ./localmodule2.bicep: Failed");
+            // Local modules are never restored, even when they do not exist.
+            expected.Should().Be(@"Restore (force) skipped. No modules references in input file.");
         }
 
 

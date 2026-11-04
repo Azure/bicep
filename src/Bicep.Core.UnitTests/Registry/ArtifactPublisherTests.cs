@@ -87,6 +87,7 @@ namespace Bicep.Core.UnitTests.Registry
         {
             var registry = StrictMock.Of<IArtifactRegistry>();
             registry.SetupGet(x => x.Scheme).Returns("mock");
+            registry.Setup(x => x.CanHandle(It.IsAny<ExternalArtifactReference>())).Returns(true);
             return registry;
         }
 

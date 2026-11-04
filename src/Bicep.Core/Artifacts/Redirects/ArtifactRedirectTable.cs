@@ -3,9 +3,10 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Artifacts.LegacyModuleAliasMocks;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.Registry;
-using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.Redirects;
@@ -22,13 +23,14 @@ public sealed class ArtifactRedirectTable
         this.rules = [.. rules];
     }
 
-    public static ArtifactRedirectTable Create(IFileExplorer fileExplorer) => new([new ModuleAliasMockRule(fileExplorer)]);
+    public static ArtifactRedirectTable Create(IFileExplorer fileExplorer, IBicepConfigurationManager configurationManager, IFeatureProviderFactory featureProviderFactory) =>
+        new([new ModuleAliasMockRule(fileExplorer, configurationManager, featureProviderFactory)]);
 
-    public ResultWithDiagnosticBuilder<ArtifactReference>? TryRedirect(BicepSourceFile referencingFile, ArtifactType artifactType, ArtifactAddress address)
+    public ResultWithDiagnosticBuilder<ArtifactReference>? TryRedirect(IOUri referencingUri, ArtifactType artifactType, ArtifactAddress address)
     {
         foreach (var rule in this.rules)
         {
-            if (rule.TryRedirect(referencingFile, artifactType, address) is { } result)
+            if (rule.TryRedirect(referencingUri, artifactType, address) is { } result)
             {
                 return result;
             }

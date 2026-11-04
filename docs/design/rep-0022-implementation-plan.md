@@ -182,7 +182,7 @@ Design rules:
 - **Objects carry their own facts.** Every `ArtifactReference` knows its `ArtifactType`, so services take no separate type argument and there are no module/extension method pairs. Whether a reference is local or external is its type, not a flag.
 - **Variation is modelled with types.** Restore states and publish payloads are small type hierarchies. The legacy mock and redirect patterns are subclasses of one redirect-rule type, so deleting the mock means deleting one class.
 
-Related renames (0.7):
+Related renames (0.8):
 - `SourceGraph/Artifacts/ExternalArtifact` & subclasses → `Artifacts/Cache/*CacheEntry` (`OciCacheEntry`, `OciModuleCacheEntry`, `OciExtensionCacheEntry`, `TemplateSpecCacheEntry`, `LocalExtensionCacheEntry`); `IExtensionArtifact` → `IExtensionCacheEntry`.
 - `ExternalArtifactRegistry<,>` → `CachedArtifactRegistry<,>`.
 - `ArtifactReferenceSchemes` → `ArtifactSchemes` in its own file; becomes **text-only** constants (what users type).
@@ -232,7 +232,7 @@ Bicep.Core/Artifacts/
   Registries/   IArtifactRegistry, IArtifactRegistryProvider, OciArtifactRegistry, TemplateSpecArtifactRegistry,
                 CachedArtifactRegistry<,>
   Cache/        *CacheEntry (on-disk layout of restored artifacts and unpacked local extensions)
-  Oci/ …        (existing OCI transport/manifest code moves under Artifacts/Oci or stays in Registry/Oci – decide in 0.7)
+  Oci/ …        (existing OCI transport/manifest code moves under Artifacts/Oci or stays in Registry/Oci – decide in 0.8)
 ```
 
 Key contracts (final shape; comments say which phase introduces what):
@@ -254,22 +254,27 @@ abstract class ArtifactReference {
 }
 
 // Remote artifacts; must be restored before they can be loaded. 0.5.
-abstract class ExternalArtifactReference : ArtifactReference { }   // OciArtifactReference, TemplateSpecModuleReference
+abstract class ExternalArtifactReference : ArtifactReference {   // OciArtifactReference, TemplateSpecModuleReference
+  RegistryContext Context;   // 0.7: replaces the stored configuration and features; part of equality
+}
+
+// 0.7. Name open.
+sealed record RegistryContext(CloudConfiguration Cloud, IOUri CacheRoot, bool OciEnabled);
 
 // Any file on disk: relative paths, file:, file aliases, redirect targets, mock hits. 0.6.
 sealed class LocalArtifactReference : ArtifactReference {
-  IOUri File;          // resolved and anchored by the resolver
-  string SourceText;   // spelling, for display: "./x.bicep", "file:./x.bicep", "lib::x.bicep"
+  IFileHandle File;    // resolved and anchored by the resolver
+  string SourceText;   // spelling, for display: "./x.bicep", "file:./x.bicep", "lib::x.bicep"; "br:<path>" for mock hits
   // Equals: (File, Type)
 }
 
 public interface IArtifactReferenceResolver
 {
-    // 0.5 takes a BicepSourceFile; 0.6 switches to IOUri once local references are URI-anchored.
+    // 0.6: takes an IOUri. 0.7: fully qualified text can also be parsed with an explicit RegistryContext and no location.
     ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(IOUri referencingUri, ArtifactType type, string reference);
 }
 
-public sealed class RedirectingArtifactResolver(IArtifactReferenceResolver resolver)
+public sealed class RedirectingArtifactResolver(IArtifactReferenceResolver resolver, IEnumerable<ArtifactRedirectRule> rules)   // 0.8: rules folded in
 {
     // Rules on the text first (redirect patterns, then the legacy mock), then resolve,
     // then rules on the resolved reference. PR 1 returns ArtifactResolution (reference + provenance).
@@ -290,7 +295,7 @@ public abstract record ArtifactRestoreState
 {
     private ArtifactRestoreState() { }
 
-    public sealed record Restored : ArtifactRestoreState;            // 0.8: carries the cache entry that loading reads
+    public sealed record Restored(IFileHandle EntryPoint) : ArtifactRestoreState;   // 0.7: replaces TryGetEntryPoint
     public sealed record NotRestored : ArtifactRestoreState;
     public sealed record RestoreFailed(DiagnosticBuilder.DiagnosticBuilderDelegate Error) : ArtifactRestoreState;
 }
@@ -306,7 +311,7 @@ public abstract record ArtifactPackage { public abstract ArtifactType Type { get
 public sealed record ModulePackage(BinaryData Template, BinaryData? Sources, string? DocumentationUri) : ArtifactPackage;
 public sealed record ExtensionPackage(BinaryData Types, bool LocalDeployEnabled, ImmutableArray<ExtensionBinary> Binaries) : ArtifactPackage;
 
-// One per remote protocol (OCI, Template Specs). No parsing. Routed by reference type.
+// One per remote protocol (OCI, Template Specs). No parsing. Routed by reference type (0.6); injected as IEnumerable<IArtifactRegistry> (0.8).
 interface IArtifactRegistry {
   bool IsRestoreRequired(ExternalArtifactReference); Task<…> Restore(…); Task<…> InvalidateCache(…);
   bool CanPublish(ExternalArtifactReference); Task Publish(ExternalArtifactReference, ArtifactPackage); Task<bool> Exists(ExternalArtifactReference);
@@ -330,9 +335,9 @@ var file = reference switch
 
 - Registries are routed by reference type instead of scheme strings (0.6), which deletes the `br-mock` scheme and `OciArtifactMockedRegistry`. A mock hit becomes a `LocalArtifactReference` whose display text is still `br:…`. Keep the `br-mock:` rejection diagnostic (`ModuleReferenceSchemeBrFsNotSupported`) as a parser rule so the text behavior is unchanged.
 - Publishing an extension to a local file is done by the publisher (`ExtensionV1Archive.Build` + write); there is no local registry.
-- Locating files on disk belongs to cache entries, which own the on-disk layout; references stop computing their own entry points (0.8).
-- Hover-only metadata (`GetDocumentationUri`, `TryGetModuleDescription(ModuleSymbol, …)`) moves off `IArtifactRegistry` into an `IArtifactMetadataProvider` used by hover (0.7).
-- `CancellationToken` on restore/publish and registry methods (0.8).
+- Locating files on disk belongs to cache entries, which own the on-disk layout; remote references stop computing their own entry points (0.7).
+- Hover-only metadata (`GetDocumentationUri`, `TryGetModuleDescription(ModuleSymbol, …)`) moves off `IArtifactRegistry` into an `IArtifactMetadataProvider` used by hover (0.8).
+- `CancellationToken` on restore/publish and registry methods (0.8, optional).
 
 ### 2.10.4 Phase 0 PRs
 
@@ -344,9 +349,9 @@ var file = reference switch
 | 0.3b ✅ | **Alias expansion + mock isolation in the resolver** (done) | `ArtifactReferenceResolver` now builds references itself: it expands scheme-qualified aliases through `moduleAliases` (`TryExpandSchemeQualifiedAlias`) and dispatches to the OCI/TS/local body parsers. `OciArtifactReference.TryParse`/`TemplateSpecModuleReference.TryParse` only parse a fully qualified body (the alias is passed as a diagnostic-only `aliasContext`). The mock moved from `OciArtifactRegistry` into `internal` `Artifacts/LegacyModuleAliasMocks/ModuleAliasMockResolver` (which also owns `OciArtifactMockedReference` creation), called once before alias expansion; `OciArtifactRegistry` no longer takes an `IFileExplorer`. `TryParseArtifactReference` removed from `IArtifactRegistry`. Declaring-URI annotation generalized to `FindDeclaringUrisByKey(rawLayers, sectionPath)`. Mock architecture test `ModuleAliasMockIsolationTests` added (2.11.3). Implicit extensions already resolve through the resolver's text overload; whether bare paths are config-relative stays open (question 11) because changing it is a behavior change. `.gitignore`: un-ignore `src/*/Artifacts/` (the template's `artifacts/` rule matches it on case-insensitive file systems). Mock config types stay in `Configuration/` until 0.7. 0.5 later moves the mock out of the resolver into the compiler-only redirect layer. | 0.1 tests unchanged (diagnostic text byte-identical); architecture test green (and fails when a reference is planted outside the allowed files). |
 | 0.4 ✅ | **Split `ModuleDispatcher` into resolver, restorer and publisher** (done) | Mechanical split; signatures stay as close to today's as possible. `IArtifactReferenceResolver` = today's `IArtifactReferenceFactory` renamed (`TryResolve(file, type, text)`, `TryResolve(file, syntax)`). `IArtifactRestorer`/`ArtifactRestorer` owns the restore-failure cache: `GetRestoreStatus`, `TryGetEntryPoint`, `RestoreArtifacts`, `PruneRestoreStatuses`. `IArtifactPublisher`/`ArtifactPublisher` is stateless: `CanPublish(type, ref)`, `ModuleExists`, `ExtensionExists`, `PublishModule`, `PublishExtension`. Delete `IModuleDispatcher`, `ModuleDispatcher` and `IArtifactReferenceFactory`. Migrate the compiler, source graph, CLI, LS (including the visualizer), MCP, Wasm and test helpers; DI in `AddBicepCore`. Tests: `ArtifactRestorerTests`, `ArtifactPublisherTests`. | Full test suite; CLI publish integration tests; baselines unchanged. |
 | 0.5 ✅ | **Clean up the artifact service APIs** (done) | (1) `ArtifactReference.Type` on the base class (replaces `LocalModuleReference.ArtifactType` and moves `OciArtifactReference.Type` up; Template Spec → `Module`). (2) `ExternalArtifactReference` base class for `OciArtifactReference` and `TemplateSpecModuleReference`; remove the `IsExternal` flag. (3) Resolver: one `TryResolve(BicepSourceFile, ArtifactType, string)`; the source graph extracts the text from syntax, including the `extensions` config lookup (keep today's bare-path behavior; see question 11). (4) The ext-src request handler parses the stored `br:` reference directly, as `ExternalSourceReference.ToArtifactReference` does. (5) Compiler-only `RedirectingArtifactResolver` + `ArtifactRedirectTable`; `ModuleAliasMockResolver` becomes `ModuleAliasMockRule`, the table's only rule until PR 7. (6) Restorer: `GetRestoreState` → `ArtifactRestoreState` (`Restored`/`NotRestored`/`RestoreFailed`) and `RestoreAsync(refs, RestoreMode)`; the failure cache becomes an internal `RestoreFailureCache` that drops expired entries after each restore, so `PruneRestoreStatuses` is removed. (7) Publisher: `CanPublish(ref)`, `ExistsAsync(ref)`, `PublishAsync(ref, ArtifactPackage)` with `ModulePackage`/`ExtensionPackage`. No behavior change: publish targets do not go through the redirect table, but `bicep publish` applies `ModuleAliasMockRule` before resolving its target, so a mocked `br/<alias>:` target still fails with "target not supported" (even if the alias is also in `moduleAliases`). `publish-extension` treats `br/<alias>:` targets as file paths, so it needs no check. Implementation notes: syntax-to-text extraction lives in the internal `SourceGraph/ArtifactReferenceText`; `SourceFileGroupingBuilder` wraps the injected resolver in `RedirectingArtifactResolver` (so the resolver no longer takes an `IFileExplorer`); `IArtifactRestorer.TryGetEntryPoint` stays until 0.8; the LS force-restore summary keeps its `Succeeded`/`Failed`/`Unknown` text; the new types are `public`, like the rest of Bicep.Core (a Core-wide visibility review is out of scope). | Full test suite; mock tests unchanged; new CLI tests pin alias and mocked-alias publish targets; mock architecture test updated for the new call sites; baselines unchanged. |
-| 0.6 | **Local references** | One `LocalArtifactReference(File, Type, SourceText)` replaces `LocalModuleReference` and `OciArtifactMockedReference`; `Equals` by `(File, Type)`. The resolver takes `IOUri` instead of `BicepSourceFile`, so callers stop creating dummy source files (`CreateDummyArtifactReferencingFile`, CLI publish commands). The restorer accepts only `ExternalArtifactReference`. Local extension `.tgz` files are unpacked on first use (content-addressed `local/sha256_…` layout unchanged), so `LocalModuleRegistry` is deleted and publishing an extension to a local file moves to the publisher. The source graph makes one local-or-external decision, which removes the `Scheme == ""` special case for forced restore. Delete `OciArtifactMockedRegistry` and the `br-mock` scheme; registries are routed by reference type. **Behavior change:** local extensions no longer need a restore, so `--no-restore` builds and the LS before its first restore load them. `bicep restore --force` no longer re-unpacks local extensions (the cache is content-addressed), and the LS force-restore summary lists only remote artifacts. Unpacking keeps the existing lock and atomic write so concurrent LS/CLI compilations are safe. | Mock tests unchanged; restore-dedup test flipped to correct behavior; diagnostic text byte-identical (display uses `SourceText`); local extension without restore. |
-| 0.7 | **Vocabulary + folders** | Move to `Bicep.Core/Artifacts/*` namespaces; mock config types to `Configuration/LegacyModuleAliasMocks/`; cache-entry renames; `IArtifactMetadataProvider` for hover metadata; split `ModuleReferenceCompletionProvider` into prefix parsing + catalog completion, with alias prefixes (`br/x:`, `ts/x:`, later `x::`) supplied by `IArtifactAliasCatalog`. Mostly mechanical; land last to minimize rebase pain. | Build + full tests; LS completion tests unchanged. |
-| 0.8 | *(optional, time-boxed)* **Narrow ambient state; cache owns the on-disk layout** | Replace `IFeatureProvider` + `IBicepConfiguration` on references with a small `ArtifactRegistryContext(CloudConfiguration Cloud, IDirectoryHandle CacheRoot, bool OciEnabled)` captured at resolve time; restore-failure key = (Cloud, Reference). Cache entries own locating files on disk: `ArtifactRestoreState.Restored` carries the cache entry, and `ArtifactReference.TryGetEntryPointFileHandle` and `IArtifactRestorer.TryGetEntryPoint` are removed. Optionally split `CachedArtifactRegistry<,>` into a remote client (pull, push, exists) and an artifact cache (read and write entries), with the restorer combining them. Thread `CancellationToken` through restore, publish and registries. Skip parts that grow beyond a mechanical change. | Full tests. |
+| 0.6 ✅ | **Local references** (done) | One `LocalArtifactReference(File, Type, SourceText)` replaces `LocalModuleReference` and `OciArtifactMockedReference`; `Equals` by `(File, Type)`. The resolver takes `IOUri` instead of `BicepSourceFile`, so resolving no longer needs a parsed source file. This only removes a dummy where the caller already has a real location (CLI `publish` resolves against the input file). Callers without one (`publish-extension`'s `<cwd>/dummy` anchor, LS ext-src, test helpers) still pass a placeholder location, because references carry configuration and features from it; 0.7 removes that need. The restorer accepts only `ExternalArtifactReference`. Local extension `.tgz` files are unpacked on first use (content-addressed `local/sha256_…` layout unchanged), so `LocalModuleRegistry` is deleted and publishing an extension to a local file moves to the publisher. The source graph makes one local-or-external decision, which removes the `Scheme == ""` special case for forced restore. Delete `OciArtifactMockedRegistry` and the `br-mock` scheme; registries are routed by reference type. **Behavior change:** local extensions no longer need a restore, so `--no-restore` builds and the LS before its first restore load them. `bicep restore --force` no longer re-unpacks local extensions (the cache is content-addressed), and the LS force-restore summary lists only remote artifacts. Unpacking keeps the existing lock and atomic write so concurrent LS/CLI compilations are safe. Implementation notes: `LocalArtifactReference(features, configuration, type, IFileHandle File, displayReference)` (display text is the path, or `br:<modulePath>` for mock hits, so diagnostics are unchanged); the resolver resolves the target file eagerly and takes `IFileExplorer`, `IBicepConfigurationManager` and `IFeatureProviderFactory`; `RedirectingArtifactResolver` and the redirect rules also take `IOUri` and are registered in `AddBicepCore`, and the source graph takes the redirecting resolver; local paths no longer depend on a registry, so BCP189 drops its "not supported in this context" variants; `IArtifactRegistry` works on `ExternalArtifactReference` and gains `CanHandle`, and `IArtifactRegistryProvider.TryGetRegistry(ExternalArtifactReference)` routes by type; unpacking lives in `LocalExtensionArtifact.Unpack` (sync lock loop) and unpack I/O failures become BCP192 instead of exceptions; hover gets a local module's description from its semantic model (now also for mock hits); `ImportClosureInfo` keeps the reference text as the template identifier for mock hits. The LS ext-src handlers still parse stored `br:` references with a dummy file for default configuration, because they never call the resolver; 0.7 removes that ambient state. | Mock tests unchanged; restore-dedup test flipped to correct behavior; diagnostic text byte-identical (display uses `SourceText`); local extension without restore. |
+| 0.7 | **Restore context on remote references** | Replace `IFeatureProvider` + `IBicepConfiguration` on `ArtifactReference` with a small value on `ExternalArtifactReference`: `RegistryContext(CloudConfiguration Cloud, IOUri CacheRoot, bool OciEnabled)` (name open). It is part of equality, so the same `br:` artifact reached from folders with different clouds is two references; `Distinct()`, the failure cache and restore are correct without a pair type. The resolver builds it from the referencing file's configuration, so each file keeps its own cloud and cache settings (no behavior change). `LocalArtifactReference` keeps only the cache root, to unpack extensions. Fully qualified `br:`/`ts:` text can be parsed with an explicit context and no location, which removes the dummy locations: the LS ext-src handlers build the context from the document, `publish-extension` anchors on the current directory rather than `<cwd>/dummy`, and test helpers pass real paths or a context. Delete `CreateDummyArtifactReferencingFile`. Restorer: `GetRestoreState(ExternalArtifactReference)` returns `Restored(IFileHandle EntryPoint)` / `NotRestored` / `RestoreFailed(Error)`, which removes `IArtifactRestorer.TryGetEntryPoint` and `TryGetEntryPointFileHandle` for remote references; plus `RestoreAsync`. How the source file grouping stores resolution results (`ArtifactResolutionInfo`) is out of scope here; see `source-graph-ownership.md` (draft, separate branch). **Behavior change (bug fix):** an artifact reached with two different clouds is restored once per cloud instead of once with whichever came first. | Full tests; new test for the same artifact under two clouds; diagnostic text unchanged. |
+| 0.8 | **Cuts, vocabulary and folders** | Replace the registry-provider layer (`IArtifactRegistryProvider`, `ArtifactRegistryProvider`, `DefaultArtifactRegistryProvider`, `ArtifactRegistryProviderExtensions`) with `IEnumerable<IArtifactRegistry>` from DI (Wasm registers only OCI; supported schemes come from `registry.Scheme`). Fold `ArtifactRedirectTable` into `RedirectingArtifactResolver(resolver, IEnumerable<ArtifactRedirectRule>)`. Replace `RegistryCapabilities` with `bool CanPublish(ExternalArtifactReference)` on the registry. Move to `Bicep.Core/Artifacts/*` namespaces; mock config types to `Configuration/LegacyModuleAliasMocks/`; cache-entry renames; `IArtifactMetadataProvider` for hover metadata; split `ModuleReferenceCompletionProvider` into prefix parsing + catalog completion, with alias prefixes (`br/x:`, `ts/x:`, later `x::`) supplied by `IArtifactAliasCatalog`. Optional: thread `CancellationToken` through restore, publish and registries; split `CachedArtifactRegistry<,>` into a remote client and an artifact cache. Mostly mechanical; skip optional parts that grow beyond that. | Build + full tests; LS completion tests unchanged. |
 
 Dependencies: 0.2 is independent (it changes no parsing/resolution logic) and landed first; 0.1 → 0.3a → 0.3b → 0.4 → 0.5 → 0.6 → 0.7 → 0.8.
 
@@ -354,7 +359,7 @@ Risks / mitigations:
 - *Persisted strings*: `FullyQualifiedReference` for OCI stays `br:…`; cache paths (`~/.bicep/br/...`, `local/sha256_…`, TS layout) unchanged – add a test asserting cache directory paths.
 - *LS performance*: 0.2 reduces work (no re-resolution per hover/definition).
 - *Wasm/MCP*: both construct their own registry providers – include in 0.4–0.6 builds.
-- *Scope creep*: 0.8 and the `Registry/Oci` move are explicitly optional.
+- *Scope creep*: the optional parts of 0.8 and the `Registry/Oci` move can be skipped.
 
 ### 2.10.5 Phase 0.4 validation
 
@@ -390,6 +395,24 @@ No behavior change. New CLI tests pin existing publish-target behavior: `bicep p
 
 Next: 0.6.
 
+### 2.10.7 Phase 0.6 validation
+
+Intentional behavior changes, as planned: local extensions are unpacked on first use, so `--no-restore` builds and the LS load them before any restore (new test `Filesystem_extensions_can_be_compiled_without_restore`); the LS force-restore summary lists only remote artifacts (two `BicepForceModulesRestoreCommandHandlerTests` now expect "skipped"); local references are equal when they name the same file (`Local_module_references_with_the_same_text_from_different_folders_are_not_equal`). BCP189 drops its "not supported in this context" variant, which only a registry-less test could reach; local paths now resolve there too. All other diagnostic text is unchanged.
+
+| Command | Result |
+|---|---|
+| `dotnet build Bicep.slnx --no-restore` | 0 warnings, 0 errors |
+| `dotnet test --project src\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj --no-build` | Passed: 7,467 |
+| `dotnet test --project src\Bicep.Core.IntegrationTests\Bicep.Core.IntegrationTests.csproj --no-build` | Passed: 3,508 (baselines unchanged) |
+| `dotnet test --project src\Bicep.Cli.UnitTests\Bicep.Cli.UnitTests.csproj --no-build` | Passed: 85 |
+| `dotnet test --project src\Bicep.Cli.IntegrationTests\Bicep.Cli.IntegrationTests.csproj --no-build` | Passed: 1,169 |
+| `dotnet test --project src\Bicep.LangServer.UnitTests\Bicep.LangServer.UnitTests.csproj --no-build` | Passed: 906 |
+| `dotnet test --project src\Bicep.LangServer.IntegrationTests\Bicep.LangServer.IntegrationTests.csproj --no-build` | Passed: 2,062 |
+| `dotnet test --project src\Bicep.Wasm.UnitTests\Bicep.Wasm.UnitTests.csproj --no-build` | Passed: 11 |
+| `dotnet test --project src\Bicep.McpServer.UnitTests\Bicep.McpServer.UnitTests.csproj --no-build` | Passed: 95 |
+
+Next: 0.7.
+
 ---
 
 ## 2.11 Permanent vs. deletable reference formats
@@ -410,7 +433,7 @@ Next: 0.6.
 | `oci:`, `file:`, `<alias>::`, `artifacts.*` | **Permanent**. New in REP 0022. |
 | Relative paths; `extensions` map values (with a scheme or a bare path) | **Permanent**. |
 | `moduleAliasesMock` (`mapToFilePath`, absolute roots, `OciArtifactMockedReference`) | **Deletable**. Superseded by `artifacts.redirects`. |
-| `br-mock:` scheme | Internal artifact, removed in Phase 0.6. |
+| `br-mock:` scheme | Internal artifact, removed in Phase 0.6 (the text is still rejected with BCP449). |
 
 Terminology for code and docs: avoid calling the permanent forms "legacy". The `Legacy` prefix is used **only** for the internal code location of the deletable mock (`LegacyModuleAliasMocks` folders and namespaces), never in user-facing text (config key, schema, diagnostics, docs); class names inside it are not prefixed (e.g. `LegacyModuleAliasMocks.ModuleAliasMockResolver`).
 - **Scheme-qualified aliases** (`br/<alias>:`, `ts/<alias>:`, backed by `moduleAliases`).

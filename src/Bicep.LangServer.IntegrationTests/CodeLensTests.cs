@@ -82,7 +82,7 @@ namespace Bicep.LangServer.IntegrationTests
             cacheRootDirectoryMock.Setup(x => x.GetDirectory(It.IsAny<string>())).Returns(cacheDirectoryMock.Object);
 
             var restorer = StrictMock.Of<IArtifactRestorer>();
-            restorer.Setup(x => x.RestoreAsync(It.IsAny<ImmutableArray<ArtifactReference>>(), It.IsAny<RestoreMode>())).
+            restorer.Setup(x => x.RestoreAsync(It.IsAny<ImmutableArray<ExternalArtifactReference>>(), It.IsAny<RestoreMode>())).
                 ReturnsAsync(true);
 
             MockRepository repository = new(MockBehavior.Strict);

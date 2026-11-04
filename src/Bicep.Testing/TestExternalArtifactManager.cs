@@ -31,9 +31,7 @@ namespace Bicep.Testing
         {
             var resolver = this.compiler.GetService<IArtifactReferenceResolver>();
             var publisher = this.compiler.GetService<IArtifactPublisher>();
-            var sourceFileFactory = compiler.GetService<ISourceFileFactory>();
-            var dummyFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
-            var targetReference = resolver.TryResolve(dummyFile, ArtifactType.Module, moduleArtifactId).Unwrap();
+            var targetReference = resolver.TryResolve(DummyFileHandle.Default.Uri, ArtifactType.Module, moduleArtifactId).Unwrap();
             var compilationResult = await compiler.Compile(moduleContent);
 
             if (compilationResult.Template is null)
@@ -76,9 +74,7 @@ namespace Bicep.Testing
         {
             var resolver = this.compiler.GetService<IArtifactReferenceResolver>();
             var publisher = this.compiler.GetService<IArtifactPublisher>();
-            var sourceFileFactory = compiler.GetService<ISourceFileFactory>();
-            var dummyFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
-            var extensionReference = resolver.TryResolve(dummyFile, ArtifactType.Extension, extension.ExtensionRepoReference).Unwrap();
+            var extensionReference = resolver.TryResolve(DummyFileHandle.Default.Uri, ArtifactType.Extension, extension.ExtensionRepoReference).Unwrap();
             var extensionPackage = new ExtensionPackage(extension.TypesTgzData, false, []);
 
             await publisher.PublishAsync(extensionReference, extensionPackage);

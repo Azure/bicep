@@ -19,6 +19,8 @@ namespace Bicep.Core.SourceGraph.Artifacts
             this.cacheDirectory = cacheDirectory;
         }
 
+        protected IDirectoryHandle CacheDirectory => this.cacheDirectory;
+
         protected IFileHandle GetFile(string fileName) => this.cacheDirectory.GetFile(fileName);
     }
 }

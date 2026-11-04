@@ -7,14 +7,15 @@ using Bicep.IO.Abstraction;
 namespace Bicep.Core.Registry;
 
 /// <summary>
-/// Restores artifacts into the local artifact cache and tracks recent restore failures.
+/// Restores remote artifacts into the local artifact cache and tracks recent restore failures.
+/// Local artifacts are never restored.
 /// </summary>
 public interface IArtifactRestorer
 {
-    ArtifactRestoreState GetRestoreState(ArtifactReference reference);
+    ArtifactRestoreState GetRestoreState(ExternalArtifactReference reference);
 
-    ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPoint(ArtifactReference reference);
+    ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPoint(ExternalArtifactReference reference);
 
     /// <returns><c>true</c> if a restore was attempted and the caller should recompile.</returns>
-    Task<bool> RestoreAsync(IEnumerable<ArtifactReference> references, RestoreMode mode);
+    Task<bool> RestoreAsync(IEnumerable<ExternalArtifactReference> references, RestoreMode mode);
 }

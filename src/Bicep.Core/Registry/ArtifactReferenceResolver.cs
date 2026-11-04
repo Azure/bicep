@@ -4,10 +4,13 @@
 using System.Diagnostics;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry;
 
@@ -27,18 +30,28 @@ namespace Bicep.Core.Registry;
 public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
 {
     private readonly IArtifactRegistryProvider registryProvider;
+    private readonly IFileExplorer fileExplorer;
+    private readonly IBicepConfigurationManager configurationManager;
+    private readonly IFeatureProviderFactory featureProviderFactory;
 
-    public ArtifactReferenceResolver(IArtifactRegistryProvider registryProvider)
+    public ArtifactReferenceResolver(
+        IArtifactRegistryProvider registryProvider,
+        IFileExplorer fileExplorer,
+        IBicepConfigurationManager configurationManager,
+        IFeatureProviderFactory featureProviderFactory)
     {
         this.registryProvider = registryProvider;
+        this.fileExplorer = fileExplorer;
+        this.configurationManager = configurationManager;
+        this.featureProviderFactory = featureProviderFactory;
     }
 
-    public ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(BicepSourceFile referencingFile, ArtifactType artifactType, string referenceText) =>
+    public ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(IOUri referencingUri, ArtifactType artifactType, string referenceText) =>
         ArtifactAddress.Parse(referenceText) switch
         {
-            ArtifactAddress.Path path => this.TryResolvePath(referencingFile, artifactType, path.Text),
-            ArtifactAddress.SchemeQualified schemeQualified => this.TryResolveSchemeQualified(referencingFile, artifactType, schemeQualified.Scheme, schemeQualified.Body, aliasContext: null),
-            ArtifactAddress.SchemeAndAliasQualified schemeAndAliasQualified => this.TryResolveSchemeAndAliasQualified(referencingFile, artifactType, schemeAndAliasQualified),
+            ArtifactAddress.Path path => this.TryResolvePath(referencingUri, artifactType, path.Text),
+            ArtifactAddress.SchemeQualified schemeQualified => this.TryResolveSchemeQualified(referencingUri, artifactType, schemeQualified.Scheme, schemeQualified.Body, aliasContext: null),
+            ArtifactAddress.SchemeAndAliasQualified schemeAndAliasQualified => this.TryResolveSchemeAndAliasQualified(referencingUri, artifactType, schemeAndAliasQualified),
             var address => throw new UnreachableException($"Unexpected artifact address type '{address.GetType().Name}'."),
         };
 
@@ -75,42 +88,56 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
         }
     }
 
-    private ResultWithDiagnosticBuilder<ArtifactReference> TryResolvePath(BicepSourceFile referencingFile, ArtifactType artifactType, string path)
+    private ResultWithDiagnosticBuilder<ArtifactReference> TryResolvePath(IOUri referencingUri, ArtifactType artifactType, string path)
     {
-        if (!this.IsSupportedScheme(ArtifactReferenceSchemes.Local))
-        {
-            return new(x => x.UnknownModuleReferenceScheme(ArtifactReferenceSchemes.Local, this.registryProvider.SupportedSchemes));
-        }
-
         if (artifactType != ArtifactType.Module && artifactType != ArtifactType.Extension)
         {
             return new(x => x.UnsupportedArtifactType(artifactType));
         }
 
-        return LocalModuleReference.TryParse(referencingFile, artifactType, path).Transform(x => (ArtifactReference)x);
-    }
-
-    private ResultWithDiagnosticBuilder<ArtifactReference> TryResolveSchemeAndAliasQualified(BicepSourceFile referencingFile, ArtifactType artifactType, ArtifactAddress.SchemeAndAliasQualified address)
-    {
-        if (!this.IsSupportedScheme(address.Scheme) || !SupportsSchemeQualifiedAliases(address.Scheme))
-        {
-            // Reported the same way as a fully qualified reference with an unsupported scheme.
-            return this.TryResolveSchemeQualified(referencingFile, artifactType, address.Scheme, address.Body, aliasContext: null);
-        }
-
-
-        if (!TryExpandSchemeQualifiedAlias(referencingFile.LoadConfiguration(), artifactType, address.Scheme, address.Alias, address.Body).IsSuccess(out var expandedBody, out var failureBuilder))
+        if (!RelativePath.TryCreate(path).IsSuccess(out var relativePath, out var failureBuilder))
         {
             return new(failureBuilder);
         }
 
-        return this.TryResolveSchemeQualified(referencingFile, artifactType, address.Scheme, expandedBody, aliasContext: address.Alias);
+        if (!referencingUri.IsFile)
+        {
+            // Relative paths can only be resolved from files on disk, not from in-memory files such as snippets or archived sources.
+            return new(x => x.ErrorOccurredReadingFile(new FileNotFoundException().Message));
+        }
+
+        if (!this.fileExplorer.GetFile(referencingUri).TryGetRelativeFile(relativePath).IsSuccess(out var file, out failureBuilder))
+        {
+            return new(failureBuilder);
+        }
+
+        return new(new LocalArtifactReference(this.GetFeatures(referencingUri), this.GetConfiguration(referencingUri), artifactType, file, path));
     }
 
-    private ResultWithDiagnosticBuilder<ArtifactReference> TryResolveSchemeQualified(BicepSourceFile referencingFile, ArtifactType artifactType, string scheme, string body, string? aliasContext)
+    private ResultWithDiagnosticBuilder<ArtifactReference> TryResolveSchemeAndAliasQualified(IOUri referencingUri, ArtifactType artifactType, ArtifactAddress.SchemeAndAliasQualified address)
     {
-        // An empty scheme must not fall back to the local registry, which is registered under the empty scheme.
-        if (string.IsNullOrEmpty(scheme) || !this.IsSupportedScheme(scheme))
+        if (!this.IsSupportedScheme(address.Scheme) || !SupportsSchemeQualifiedAliases(address.Scheme))
+        {
+            // Reported the same way as a fully qualified reference with an unsupported scheme.
+            return this.TryResolveSchemeQualified(referencingUri, artifactType, address.Scheme, address.Body, aliasContext: null);
+        }
+
+        if (!TryExpandSchemeQualifiedAlias(this.GetConfiguration(referencingUri), artifactType, address.Scheme, address.Alias, address.Body).IsSuccess(out var expandedBody, out var failureBuilder))
+        {
+            return new(failureBuilder);
+        }
+
+        return this.TryResolveSchemeQualified(referencingUri, artifactType, address.Scheme, expandedBody, aliasContext: address.Alias);
+    }
+
+    private ResultWithDiagnosticBuilder<ArtifactReference> TryResolveSchemeQualified(IOUri referencingUri, ArtifactType artifactType, string scheme, string body, string? aliasContext)
+    {
+        if (scheme == OciArtifactReferenceFacts.MockedScheme)
+        {
+            return new(x => x.ModuleReferenceSchemeBrFsNotSupported());
+        }
+
+        if (!this.IsSupportedScheme(scheme))
         {
             return new(x => x.UnknownModuleReferenceScheme(scheme, this.registryProvider.SupportedSchemes));
         }
@@ -118,20 +145,22 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
         switch (scheme)
         {
             case ArtifactReferenceSchemes.Oci:
-                return OciArtifactReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), artifactType, aliasContext, body).Transform(x => (ArtifactReference)x);
+                return OciArtifactReference.TryParse(this.GetFeatures(referencingUri), this.GetConfiguration(referencingUri), artifactType, aliasContext, body).Transform(x => (ArtifactReference)x);
             case ArtifactReferenceSchemes.TemplateSpecs:
                 if (artifactType != ArtifactType.Module)
                 {
                     return new(x => x.UnsupportedArtifactType(artifactType));
                 }
 
-                return TemplateSpecModuleReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), aliasContext, body).Transform(x => (ArtifactReference)x);
-            case ArtifactReferenceSchemes.OciMocked:
-                return new(x => x.ModuleReferenceSchemeBrFsNotSupported());
+                return TemplateSpecModuleReference.TryParse(this.GetFeatures(referencingUri), this.GetConfiguration(referencingUri), aliasContext, body).Transform(x => (ArtifactReference)x);
             default:
                 return new(x => x.UnknownModuleReferenceScheme(scheme, this.registryProvider.SupportedSchemes));
         }
     }
+
+    private IBicepConfiguration GetConfiguration(IOUri referencingUri) => this.configurationManager.GetEffectiveConfiguration(referencingUri);
+
+    private IFeatureProvider GetFeatures(IOUri referencingUri) => this.featureProviderFactory.GetFeatureProvider(referencingUri);
 
     private bool IsSupportedScheme(string scheme) => this.registryProvider.TryGetRegistry(scheme) is not null;
 

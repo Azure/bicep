@@ -9,7 +9,7 @@ using Bicep.IO.Abstraction;
 namespace Bicep.Core.Registry
 {
     public abstract class ExternalArtifactRegistry<TArtifactReference, TArtifactEntity> : ArtifactRegistry<TArtifactReference>
-        where TArtifactReference : ArtifactReference
+        where TArtifactReference : ExternalArtifactReference
     {
         // if we're unable to acquire a lock on the artifact directory in the cache, we will retry until this timeout is reached
         private static readonly TimeSpan ArtifactDirectoryContentionTimeout = TimeSpan.FromSeconds(30);

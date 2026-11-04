@@ -18,7 +18,6 @@ namespace Bicep.Wasm
             IOciRegistryTransportFactory transportFactory,
             ILogger<OciArtifactRegistry>? logger = null)
             : base([
-                new LocalModuleRegistry(),
                 new OciArtifactRegistry(registryConfiguration, transportFactory, publicModuleMetadataProvider, logger ?? NullLogger<OciArtifactRegistry>.Instance),
             ])
         {
