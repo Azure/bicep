@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 
 [TestClass]
-public class UseSecureValueForSecureInputsRuleTests : LinterRuleTestsBase
+public class UseSecureValueForSecureInputsRuleTests : ModuleParameterSecurityTestsBase
 {
     private void CompileAndTest(string text, int expectedDiagnosticCount, Options? options = null)
     {
@@ -163,15 +163,18 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
     public void Linter_validation_should_not_warn_for_conditional_null_assignment(string text)
           => CompileAndTest(text, 0);
 
-    // Reduced forwarding boundaries from https://github.com/Azure/bicep-registry-modules/pull/7472.
+    // Reduced from the before and after states of https://github.com/Azure/bicep-registry-modules/pull/7472.
+    // These retain forwarding expressions, not resource setup. Tests marked "Not in AVM" are synthetic
+    // edge cases around an AVM binding.
+
+    // api-management/service and api-management/service/workspace use the same subscription binding.
     [TestMethod]
-    [DataRow("connectionString", false)]
-    [DataRow("primaryKey", true)]
-    [DataRow("secondaryKey", true)]
-    [DataRow("value", true)]
-    [DataRow("storageAccountAccessKey", true)]
-    [DataRow("contentType", true)]
-    [DataRow("serviceUri", false)]
+    [DataRow("primaryKey", true, DisplayName = "api-management subscriptions primaryKey")]
+    [DataRow("secondaryKey", true, DisplayName = "api-management subscriptions secondaryKey")]
+    [DataRow("value", true, DisplayName = "api-management/service/workspace named values")]
+    [DataRow("storageAccountAccessKey", true, DisplayName = "sql/server security alert policies")]
+    [DataRow("contentType", true, DisplayName = "key-vault/vault secrets")]
+    [DataRow("serviceUri", false, DisplayName = "container-registry/registry webhooks")]
     public void Avm_forwarded_members_require_secure_parent_fields(string member, bool optional)
     {
         var nullable = optional ? "?" : "";
@@ -187,7 +190,7 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
                 {{member}}: item.{{nullable}}{{member}}
               }
             }]
-            """, $"@secure()\nparam {member} string{nullable}");
+            """, $"@secure()\nparam {member} string{nullable}", member);
     }
 
     [TestMethod]
@@ -204,7 +207,7 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
                 certificateValue: certificate.?certificateValue
               }
             }
-            """, "@secure()\nparam certificateValue string?");
+            """, "@secure()\nparam certificateValue string?", "certificateValue");
 
     [TestMethod]
     public void Avm_named_value_fallback_requires_secure_parameter()
@@ -221,7 +224,7 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
                 value: item.?value ?? newGuidValue
               }
             }]
-            """, "@secure()\nparam value string");
+            """, "@secure()\nparam value string", "value");
 
     [TestMethod]
     public void Avm_automation_variables_require_typed_secure_value()
@@ -236,13 +239,15 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
             }]
             """;
         AssertFlow("param variables array = []" + binding, "@secure()\nparam value string", 1, 0);
-        AssertFlow("""
+        const string typed = """
             param variables {
               name: string
               @secure()
               value: string
             }[] = []
-            """ + binding, "@secure()\nparam value string", 0, 0);
+            """;
+        AssertFlow(typed + binding, "@secure()\nparam value string", 0, 0);
+        AssertFlow(typed + binding, "param value string", [], [LeakWarning("value")]);
     }
 
     [TestMethod]
@@ -258,14 +263,75 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
             }
             """;
         AssertFlow("param config object = { enabled: false }" + binding, "@secure()\nparam protectedSettings object?", 1, 0);
-        AssertFlow("""
+        const string typed = """
             param config {
               enabled: bool
               @secure()
               protectedSettings: object?
             }
-            """ + binding, "@secure()\nparam protectedSettings object?", 0, 0);
+            """;
+        AssertFlow(typed + binding, "@secure()\nparam protectedSettings object?", 0, 0);
+        AssertFlow(typed + binding, "param protectedSettings object?", [], [LeakWarning("protectedSettings")]);
     }
+
+    [TestMethod]
+    public void Avm_sql_secrets_export_requires_secure_administrator_password()
+        => AssertHardening(SqlSecretsExport, """
+            param secretsToSet {
+              name: string
+              @secure()
+              value: string
+            }[]
+            """, "secretsToSet[*].value");
+
+    // compute/virtual-machine and compute/virtual-machine-scale-set use the same custom script binding. The AVM
+    // change left it alone because its parent field was already `@secure()`, so it has to stay free of warnings.
+    [TestMethod]
+    public void Avm_custom_script_conditional_spreads_are_valid_for_secure_parent_field()
+        => AssertFlow("""
+            type scriptType = {
+              @secure()
+              protectedSettings: {
+                commandToExecute: string?
+                storageAccountName: string?
+                storageAccountKey: string?
+                fileUris: string[]?
+                managedIdentityResourceId: string?
+              }?
+            }
+            param extensionCustomScriptConfig scriptType?
+            resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' existing = {
+              name: 'identity'
+            }
+            module script 'child.bicep' = {
+              name: 'script'
+              params: {
+                protectedSettings: {
+                  ...(!empty(extensionCustomScriptConfig!.?protectedSettings.?commandToExecute)
+                    ? { commandToExecute: extensionCustomScriptConfig!.protectedSettings!.?commandToExecute }
+                    : {})
+                  ...(!empty(extensionCustomScriptConfig!.?protectedSettings.?storageAccountName)
+                    ? { storageAccountName: extensionCustomScriptConfig!.protectedSettings!.storageAccountName! }
+                    : {})
+                  ...(!empty(extensionCustomScriptConfig!.?protectedSettings.?storageAccountKey)
+                    ? { storageAccountKey: extensionCustomScriptConfig!.protectedSettings!.storageAccountKey! }
+                    : {})
+                  ...(!empty(extensionCustomScriptConfig!.?protectedSettings.?fileUris)
+                    ? { fileUris: extensionCustomScriptConfig!.protectedSettings!.fileUris! }
+                    : {})
+                  ...(extensionCustomScriptConfig!.?protectedSettings.?managedIdentityResourceId != null
+                    ? {
+                        managedIdentity: !empty(extensionCustomScriptConfig!.protectedSettings!.?managedIdentityResourceId)
+                          ? {
+                              clientId: identity.properties.clientId
+                            }
+                          : {}
+                      }
+                    : {})
+                }
+              }
+            }
+            """, "@secure()\nparam protectedSettings object?", 0, 0);
 
     [TestMethod]
     public void Avm_workspace_credentials_require_secure_resource_derived_parent_field()
@@ -280,7 +346,7 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
                 credentials: logger.?credentials
               }
             }]
-            """, "@secure()\nparam credentials resourceInput<'Microsoft.ApiManagement/service/workspaces/loggers@2024-05-01'>.properties.credentials?");
+            """, "@secure()\nparam credentials resourceInput<'Microsoft.ApiManagement/service/workspaces/loggers@2024-05-01'>.properties.credentials?", "credentials.*", leakPath: "credentials");
 
     [TestMethod]
     [DataRow(false)]
@@ -318,7 +384,7 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
               "resources": {}
             }
             """;
-        AssertHardening(parent, child, "child.json");
+        AssertHardening(parent, child, "configurationProtectedSettings.*", "child.json", child.Replace("secureObject", "object"), "configurationProtectedSettings");
     }
 
     [TestMethod]
@@ -342,27 +408,28 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
             }
             """, "@secure()\nparam config object", warnings, 0);
 
+    // compute/virtual-machine-scale-set monitoring extension: a runtime key, or an empty string, is a valid
+    // value inside a secure object, even though the key is the only secret.
     [TestMethod]
-    public void Runtime_secret_and_empty_string_are_valid_inside_secure_object()
+    public void Avm_monitor_runtime_key_or_empty_string_is_valid_inside_secure_object()
         => AssertFlow("""
-            param enabled bool
-            resource workspace 'Microsoft.OperationalInsights/workspaces@2025-02-01' existing = {
+            param monitoringWorkspaceResourceId string
+            resource workspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
               name: 'workspace'
             }
-            module child 'child.bicep' = {
+            module monitor 'child.bicep' = {
               name: 'monitor'
               params: {
-                settings: {
-                  workspaceKey: enabled ? workspace.listKeys().primarySharedKey : ''
+                protectedSettings: {
+                  workspaceKey: !empty(monitoringWorkspaceResourceId) ? workspace.listKeys().primarySharedKey : ''
                 }
               }
             }
-            """, "@secure()\nparam settings object", 0, 0);
+            """, "@secure()\nparam protectedSettings object?", 0, 0);
 
     [TestMethod]
     public void Module_parameter_diagnostic_names_the_parameter_path()
-    {
-        var result = CompilationHelper.Compile(("main.bicep", """
+        => AssertFlow("""
             module child 'child.bicep' = {
               name: 'child'
               params: {
@@ -371,16 +438,12 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
                 }
               }
             }
-            """), ("child.bicep", """
+            """, """
             param config {
               @secure()
               password: string
             }
-            """));
-        result.Diagnostics.Where(diagnostic => diagnostic.Code == UseSecureValueForSecureInputsRule.Code)
-            .Should().ContainSingle().Which.Message.Should()
-            .Be("Module parameter 'config.password' expects a secure value, but the value provided may not be secure.");
-    }
+            """, [InputWarning("config.password")], []);
 
     [TestMethod]
     [DataRow("uniqueString(secret)")]
@@ -399,20 +462,4 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
               }
             }
             """, "@secure()\nparam value string", 1, 0);
-
-    private static void AssertHardening(string parent, string child, string childPath = "child.bicep")
-    {
-        AssertFlow(parent.Replace("SECURE", ""), child, 1, 0, childPath);
-        AssertFlow(parent.Replace("SECURE", "@secure()"), child, 0, 0, childPath);
-    }
-
-    private static void AssertFlow(string parent, string child, int inputWarnings, int leakWarnings, string childPath = "child.bicep")
-    {
-        var result = CompilationHelper.Compile(("main.bicep", parent), (childPath, child));
-        result.Diagnostics.Where(diagnostic => diagnostic.Level == DiagnosticLevel.Error).Should().BeEmpty();
-        result.Diagnostics.Where(diagnostic => diagnostic.Code == UseSecureValueForSecureInputsRule.Code)
-            .Select(diagnostic => diagnostic.Level).Should().Equal(Enumerable.Repeat(DiagnosticLevel.Warning, inputWarnings));
-        result.Diagnostics.Where(diagnostic => diagnostic.Code == NoSecureValuesInInsecureInputsRule.Code)
-            .Select(diagnostic => diagnostic.Level).Should().Equal(Enumerable.Repeat(DiagnosticLevel.Warning, leakWarnings));
-    }
 }
