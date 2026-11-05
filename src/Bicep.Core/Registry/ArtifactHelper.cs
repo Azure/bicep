@@ -9,8 +9,11 @@ namespace Bicep.Core.Registry;
 
 public static class ArtifactHelper
 {
-    public static ImmutableHashSet<ArtifactReference> GetValidArtifactReferences(IEnumerable<ArtifactResolutionInfo> artifacts)
+    /// <summary>
+    /// Gets the distinct remote artifacts to restore. Local artifacts are never restored.
+    /// </summary>
+    public static ImmutableHashSet<ExternalArtifactReference> GetValidArtifactReferences(IEnumerable<ArtifactResolutionInfo> artifacts)
         => [.. artifacts
             .Select(t => t.Reference)
-            .WhereNotNull()];
+            .OfType<ExternalArtifactReference>()];
 }

@@ -11,6 +11,7 @@ using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Core;
 using Bicep.Core.Artifacts.LegacyModuleAliasMocks;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
@@ -31,7 +32,8 @@ namespace Bicep.Cli.Commands
         private readonly IArtifactReferenceResolver referenceResolver;
         private readonly IArtifactPublisher publisher;
         private readonly IFileExplorer fileExplorer;
-        private readonly ISourceFileFactory sourceFileFactory;
+        private readonly IBicepConfigurationManager configurationManager;
+        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IOContext ioContext;
         private readonly InputOutputArgumentsResolver inputOutputArgumentsResolver;
 
@@ -41,7 +43,8 @@ namespace Bicep.Cli.Commands
             IOContext ioContext,
             IArtifactReferenceResolver referenceResolver,
             IArtifactPublisher publisher,
-            ISourceFileFactory sourceFileFactory,
+            IBicepConfigurationManager configurationManager,
+            IFeatureProviderFactory featureProviderFactory,
             IFileExplorer fileExplorer,
             InputOutputArgumentsResolver inputOutputArgumentsResolver)
         {
@@ -50,7 +53,8 @@ namespace Bicep.Cli.Commands
             this.referenceResolver = referenceResolver;
             this.publisher = publisher;
             this.fileExplorer = fileExplorer;
-            this.sourceFileFactory = sourceFileFactory;
+            this.configurationManager = configurationManager;
+            this.featureProviderFactory = featureProviderFactory;
             this.ioContext = ioContext;
             this.inputOutputArgumentsResolver = inputOutputArgumentsResolver;
         }
@@ -127,11 +131,9 @@ namespace Bicep.Cli.Commands
 
         private ArtifactReference ValidateReference(string targetModuleReference, IOUri targetModuleUri)
         {
-            var dummyReferencingFile = this.sourceFileFactory.CreateBicepFile(targetModuleUri, string.Empty);
-
             // A moduleAliasesMock alias is resolved to a local file, which cannot be published.
-            var result = new ModuleAliasMockRule(this.fileExplorer).TryRedirect(dummyReferencingFile, ArtifactType.Module, ArtifactAddress.Parse(targetModuleReference)) ??
-                this.referenceResolver.TryResolve(dummyReferencingFile, ArtifactType.Module, targetModuleReference);
+            var result = new ModuleAliasMockRule(this.fileExplorer, this.configurationManager, this.featureProviderFactory).TryRedirect(targetModuleUri, ArtifactType.Module, ArtifactAddress.Parse(targetModuleReference)) ??
+                this.referenceResolver.TryResolve(targetModuleUri, ArtifactType.Module, targetModuleReference);
 
             if (!result.IsSuccess(out var moduleReference, out var failureBuilder))
             {

@@ -13,6 +13,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Bicep.IO.InMemory;
 using Bicep.Testing;
 using FluentAssertions;
@@ -400,7 +401,7 @@ namespace Bicep.Core.IntegrationTests
             return sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
         }
 
-        private static ResultWithDiagnosticBuilder<ArtifactReference> TryGetModuleReference(IArtifactReferenceResolver resolver, BicepSourceFile referencingFile, string reference) =>
-            resolver.TryResolve(referencingFile, ArtifactType.Module, reference);
+        private static ResultWithDiagnosticBuilder<ExternalArtifactReference> TryGetModuleReference(IArtifactReferenceResolver resolver, BicepSourceFile referencingFile, string reference) =>
+            resolver.TryResolve(referencingFile.FileHandle.Uri, ArtifactType.Module, reference).Transform(x => (ExternalArtifactReference)x);
     }
 }

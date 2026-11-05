@@ -160,10 +160,9 @@ public static class RegistryHelper
         var services = serviceBuilder.Build();
         var resolver = services.Construct<IArtifactReferenceResolver>();
         var publisher = services.Construct<IArtifactPublisher>();
-        var sourceFileFactory = services.Construct<ISourceFileFactory>();
-        var dummyFile = sourceFileFactory.CreateBicepFile(PathHelper.FilePathToFileUrl(fileSystem.Path.GetFullPath("main.bicep")).ToIOUri(), "");
+        var referencingUri = PathHelper.FilePathToFileUrl(fileSystem.Path.GetFullPath("main.bicep")).ToIOUri();
 
-        var targetReference = resolver.TryResolve(dummyFile, ArtifactType.Module, module.PublishTarget).IsSuccess(out var @ref) ? @ref
+        var targetReference = resolver.TryResolve(referencingUri, ArtifactType.Module, module.PublishTarget).IsSuccess(out var @ref) ? @ref
             : throw new InvalidOperationException($"Module '{module.ModuleName}' has an invalid target reference '{module.PublishTarget}'. Specify a reference to an OCI artifact.");
 
         var result = await CompilationHelper.RestoreAndCompile(serviceBuilder, module.BicepSource);
@@ -272,12 +271,12 @@ public static class RegistryHelper
         => await PublishExtensionToRegistryAsync(services, target, new ExtensionPackage(tgzData, false, []), bicepFileUri);
 
     public static Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, ExtensionPackage package, Uri? bicepFileUri = null)
-        => PublishExtensionToRegistryAsync(services.Construct<IArtifactReferenceResolver>(), services.Construct<IArtifactPublisher>(), services.Construct<ISourceFileFactory>(), target, package, bicepFileUri);
+        => PublishExtensionToRegistryAsync(services.Construct<IArtifactReferenceResolver>(), services.Construct<IArtifactPublisher>(), target, package, bicepFileUri);
 
     public static Task PublishExtensionToRegistryAsync(IServiceProvider services, string target, ExtensionPackage package, Uri? bicepFileUri = null)
-        => PublishExtensionToRegistryAsync(services.GetRequiredService<IArtifactReferenceResolver>(), services.GetRequiredService<IArtifactPublisher>(), services.GetRequiredService<ISourceFileFactory>(), target, package, bicepFileUri);
+        => PublishExtensionToRegistryAsync(services.GetRequiredService<IArtifactReferenceResolver>(), services.GetRequiredService<IArtifactPublisher>(), target, package, bicepFileUri);
 
-    private static async Task PublishExtensionToRegistryAsync(IArtifactReferenceResolver resolver, IArtifactPublisher publisher, ISourceFileFactory sourceFileFactory, string target, ExtensionPackage package, Uri? bicepFileUri = null)
+    private static async Task PublishExtensionToRegistryAsync(IArtifactReferenceResolver resolver, IArtifactPublisher publisher, string target, ExtensionPackage package, Uri? bicepFileUri = null)
     {
         if (!target.StartsWith("br:"))
         {
@@ -286,11 +285,9 @@ public static class RegistryHelper
             target = Path.GetFileName(targetUri.LocalPath);
         }
 
-        var bicepFile = bicepFileUri is not null
-            ? sourceFileFactory.CreateBicepFile(bicepFileUri.ToIOUri(), "")
-            : BicepTestConstants.DummyBicepFile;
+        var referencingUri = bicepFileUri?.ToIOUri() ?? BicepTestConstants.DummyBicepFile.FileHandle.Uri;
 
-        if (!resolver.TryResolve(bicepFile, ArtifactType.Extension, target).IsSuccess(out var targetReference, out var errorBuilder))
+        if (!resolver.TryResolve(referencingUri, ArtifactType.Extension, target).IsSuccess(out var targetReference, out var errorBuilder))
         {
             throw new InvalidOperationException($"Failed to get reference '{errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}'.");
         }

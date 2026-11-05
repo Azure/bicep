@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Artifacts.Redirects;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.LegacyModuleAliasMocks;
@@ -29,24 +30,28 @@ namespace Bicep.Core.Artifacts.LegacyModuleAliasMocks;
 public sealed class ModuleAliasMockRule : ArtifactRedirectRule
 {
     private readonly IFileExplorer fileExplorer;
+    private readonly IBicepConfigurationManager configurationManager;
+    private readonly IFeatureProviderFactory featureProviderFactory;
 
-    public ModuleAliasMockRule(IFileExplorer fileExplorer)
+    public ModuleAliasMockRule(IFileExplorer fileExplorer, IBicepConfigurationManager configurationManager, IFeatureProviderFactory featureProviderFactory)
     {
         this.fileExplorer = fileExplorer;
+        this.configurationManager = configurationManager;
+        this.featureProviderFactory = featureProviderFactory;
     }
 
     /// <summary>
     /// Redirects a <c>br/&lt;alias&gt;:</c> reference through <c>moduleAliasesMock</c>.
     /// Returns <c>null</c> if no mock is configured for the alias, in which case the reference is resolved normally.
     /// </summary>
-    public override ResultWithDiagnosticBuilder<ArtifactReference>? TryRedirect(BicepSourceFile referencingFile, ArtifactType artifactType, ArtifactAddress address)
+    public override ResultWithDiagnosticBuilder<ArtifactReference>? TryRedirect(IOUri referencingUri, ArtifactType artifactType, ArtifactAddress address)
     {
         if (address is not ArtifactAddress.SchemeAndAliasQualified { Scheme: ArtifactReferenceSchemes.Oci, Alias: var aliasName, Body: var unqualifiedReference })
         {
             return null;
         }
 
-        var configuration = referencingFile.LoadConfiguration();
+        var configuration = this.configurationManager.GetEffectiveConfiguration(referencingUri);
         if (!configuration.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out _))
         {
             return null;
@@ -71,7 +76,8 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
         // config is resolved from that base config's directory, not the leaf's.
         var resolveBaseUri = mockAlias.DeclaringConfigUri ?? configFileUri;
 
-        if (!TryCreateReference(referencingFile, mockAlias.MapToFilePath, resolveBaseUri, unqualifiedReference, this.fileExplorer, aliasName).IsSuccess(out var mockedReference, out var failureBuilder))
+        var features = this.featureProviderFactory.GetFeatureProvider(referencingUri);
+        if (!TryCreateReference(features, configuration, mockAlias.MapToFilePath, resolveBaseUri, unqualifiedReference, this.fileExplorer, aliasName).IsSuccess(out var mockedReference, out var failureBuilder))
         {
             return new(failureBuilder);
         }
@@ -103,8 +109,9 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
     /// Creates a reference to <c>&lt;mapToFilePath&gt;/&lt;module path&gt;.bicep</c>, where a relative
     /// <paramref name="mapToFilePath"/> is resolved against <paramref name="configFileUri"/>.
     /// </summary>
-    public static ResultWithDiagnosticBuilder<OciArtifactMockedReference> TryCreateReference(
-        BicepSourceFile referencingFile,
+    public static ResultWithDiagnosticBuilder<LocalArtifactReference> TryCreateReference(
+        IFeatureProvider features,
+        IBicepConfiguration configuration,
         string mapToFilePath,
         IOUri configFileUri,
         string unqualifiedReference,
@@ -150,6 +157,7 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
 
         var moduleFileUri = baseUri.Resolve(modulePath + ".bicep");
 
-        return new(new OciArtifactMockedReference(referencingFile, modulePath, fileExplorer.GetFile(moduleFileUri)));
+        // Diagnostics show the module path as an OCI reference without a registry, tag or digest.
+        return new(new LocalArtifactReference(features, configuration, ArtifactType.Module, fileExplorer.GetFile(moduleFileUri), $"{OciArtifactReferenceFacts.Scheme}:{modulePath}"));
     }
 }

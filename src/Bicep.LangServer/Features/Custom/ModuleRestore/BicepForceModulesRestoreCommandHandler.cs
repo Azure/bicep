@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text;
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -23,7 +24,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
     public class BicepForceModulesRestoreCommandHandler : ExecuteTypedResponseCommandHandlerBase<DocumentUri, string>
     {
         private readonly IFileExplorer fileExplorer;
-        private readonly IArtifactReferenceResolver referenceResolver;
+        private readonly RedirectingArtifactResolver referenceResolver;
         private readonly IArtifactRestorer restorer;
         private readonly ICompilationManager compilationManager;
         private readonly IActiveSourceFileSet workspace;
@@ -32,7 +33,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
         public BicepForceModulesRestoreCommandHandler(
             ISerializer serializer,
             IFileExplorer fileExplorer,
-            IArtifactReferenceResolver referenceResolver,
+            RedirectingArtifactResolver referenceResolver,
             IArtifactRestorer restorer,
             ICompilationManager compilationManager,
             IActiveSourceFileSet workspace,

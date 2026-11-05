@@ -35,14 +35,14 @@ namespace Bicep.Core.SourceGraph
 
         private SourceFileGroupingBuilder(
             IFileExplorer fileExplorer,
-            IArtifactReferenceResolver referenceResolver,
+            RedirectingArtifactResolver referenceResolver,
             IArtifactRestorer restorer,
             IActiveSourceFileLookup workspace,
             ISourceFileFactory sourceFileFactory,
             bool forceModulesRestore = false)
         {
             this.fileExplorer = fileExplorer;
-            this.referenceResolver = new(referenceResolver, fileExplorer);
+            this.referenceResolver = referenceResolver;
             this.restorer = restorer;
             this.workspace = workspace;
             this.sourceFileFactory = sourceFileFactory;
@@ -54,7 +54,7 @@ namespace Bicep.Core.SourceGraph
 
         private SourceFileGroupingBuilder(
             IFileExplorer fileExplorer,
-            IArtifactReferenceResolver referenceResolver,
+            RedirectingArtifactResolver referenceResolver,
             IArtifactRestorer restorer,
             IActiveSourceFileLookup workspace,
             ISourceFileFactory sourceFileFactory,
@@ -62,7 +62,7 @@ namespace Bicep.Core.SourceGraph
             bool forceArtifactRestore = false)
         {
             this.fileExplorer = fileExplorer;
-            this.referenceResolver = new(referenceResolver, fileExplorer);
+            this.referenceResolver = referenceResolver;
             this.restorer = restorer;
             this.workspace = workspace;
             this.sourceFileFactory = sourceFileFactory;
@@ -72,14 +72,14 @@ namespace Bicep.Core.SourceGraph
             this.forceRestore = forceArtifactRestore;
         }
 
-        public static SourceFileGrouping Build(IFileExplorer fileExplorer, IArtifactReferenceResolver referenceResolver, IArtifactRestorer restorer, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, IOUri entryFileUri, bool forceModulesRestore = false)
+        public static SourceFileGrouping Build(IFileExplorer fileExplorer, RedirectingArtifactResolver referenceResolver, IArtifactRestorer restorer, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, IOUri entryFileUri, bool forceModulesRestore = false)
         {
             var builder = new SourceFileGroupingBuilder(fileExplorer, referenceResolver, restorer, workspace, sourceFileFactory, forceModulesRestore);
 
             return builder.Build(entryFileUri);
         }
 
-        public static SourceFileGrouping Rebuild(IFileExplorer fileExplorer, IArtifactReferenceResolver referenceResolver, IArtifactRestorer restorer, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, SourceFileGrouping current)
+        public static SourceFileGrouping Rebuild(IFileExplorer fileExplorer, RedirectingArtifactResolver referenceResolver, IArtifactRestorer restorer, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, SourceFileGrouping current)
         {
             var builder = new SourceFileGroupingBuilder(fileExplorer, referenceResolver, restorer, workspace, sourceFileFactory, current);
 
@@ -249,7 +249,7 @@ namespace Bicep.Core.SourceGraph
                 return new(extensionName, extensionEntry, null);
             }
 
-            if (!referenceResolver.TryResolve(referencingFile, ArtifactType.Extension, extensionEntry.Value).IsSuccess(out var artifactReference, out errorBuilder))
+            if (!referenceResolver.TryResolve(referencingFile.FileHandle.Uri, ArtifactType.Extension, extensionEntry.Value).IsSuccess(out var artifactReference, out errorBuilder))
             {
                 // reference is not valid
                 return new(extensionName, extensionEntry, new(referencingFile, null, null, new(errorBuilder), RequiresRestore: false));
@@ -262,7 +262,7 @@ namespace Bicep.Core.SourceGraph
         private ArtifactResolutionInfo GetArtifactRestoreResult(BicepSourceFile referencingFile, IArtifactReferenceSyntax referenceSyntax)
         {
             if (!ArtifactReferenceText.TryGet(referencingFile, referenceSyntax).IsSuccess(out var referenceText, out var errorBuilder) ||
-                !referenceResolver.TryResolve(referencingFile, referenceSyntax.GetArtifactType(), referenceText).IsSuccess(out var artifactReference, out errorBuilder))
+                !referenceResolver.TryResolve(referencingFile.FileHandle.Uri, referenceSyntax.GetArtifactType(), referenceText).IsSuccess(out var artifactReference, out errorBuilder))
             {
                 // artifact reference is not valid
                 return new(referencingFile, referenceSyntax, null, new(errorBuilder), RequiresRestore: false);
@@ -273,7 +273,15 @@ namespace Bicep.Core.SourceGraph
             return new(referencingFile, referenceSyntax, artifactReference, result, RequiresRestore: requiresRestore);
         }
 
-        private (ResultWithDiagnosticBuilder<IFileHandle> result, bool requiresRestore) GetArtifactRestoreResult(ArtifactReference artifactReference)
+        private (ResultWithDiagnosticBuilder<IFileHandle> result, bool requiresRestore) GetArtifactRestoreResult(ArtifactReference artifactReference) => artifactReference switch
+        {
+            // Local files are loaded directly; they are never restored.
+            LocalArtifactReference local => (local.TryGetEntryPointFileHandle(), requiresRestore: false),
+            ExternalArtifactReference external => this.GetExternalArtifactRestoreResult(external),
+            _ => throw new InvalidOperationException($"Unexpected artifact reference type '{artifactReference.GetType().Name}'."),
+        };
+
+        private (ResultWithDiagnosticBuilder<IFileHandle> result, bool requiresRestore) GetExternalArtifactRestoreResult(ExternalArtifactReference artifactReference)
         {
             if (!restorer.TryGetEntryPoint(artifactReference).IsSuccess(out var artifactFileHandle, out var artifactGetPathFailureBuilder))
             {
@@ -283,12 +291,6 @@ namespace Bicep.Core.SourceGraph
 
             if (forceRestore)
             {
-                // keep local modules traversable so nested references can still be discovered during this pass
-                if (string.Equals(artifactReference.Scheme, ArtifactReferenceSchemes.Local, StringComparison.Ordinal))
-                {
-                    return (new(artifactFileHandle), requiresRestore: true);
-                }
-
                 return (new(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference)), requiresRestore: true);
             }
 

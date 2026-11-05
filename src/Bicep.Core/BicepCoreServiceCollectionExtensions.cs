@@ -7,6 +7,7 @@ using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Documentation;
@@ -23,6 +24,7 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Environment = Bicep.Core.Utils.Environment;
@@ -45,6 +47,11 @@ public static class BicepCoreServiceCollectionExtensions
         services.TryAddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
         services.TryAddSingleton<IArmClientProvider, ArmClientProvider>();
         services.TryAddSingleton<IArtifactReferenceResolver, ArtifactReferenceResolver>();
+        services.TryAddSingleton(sp => RedirectingArtifactResolver.Create(
+            sp.GetRequiredService<IArtifactReferenceResolver>(),
+            sp.GetRequiredService<IFileExplorer>(),
+            sp.GetRequiredService<IBicepConfigurationManager>(),
+            sp.GetRequiredService<IFeatureProviderFactory>()));
         services.TryAddSingleton<IArtifactRestorer, ArtifactRestorer>();
         services.TryAddSingleton<IArtifactPublisher, ArtifactPublisher>();
         services.TryAddSingleton<RegistryConfiguration>(serviceProvider =>

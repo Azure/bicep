@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
@@ -520,7 +521,7 @@ module moduleB './moduleB.bicep' = {
                 BicepTestConstants.EmptyEnvironment,
                 TestTypeHelper.CreateEmptyNamespaceProvider(),
                 fileExplorer,
-                services.Construct<IArtifactReferenceResolver>(),
+                services.Construct<RedirectingArtifactResolver>(),
                 services.Construct<IArtifactRestorer>(),
                 BicepTestConstants.LinterAnalyzer,
                 BicepTestConstants.SourceFileFactory,

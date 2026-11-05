@@ -2,34 +2,55 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using Bicep.Core.Extensions;
+using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Semantics;
 
 namespace Bicep.Core.Registry;
 
 public class ArtifactPublisher(IArtifactRegistryProvider registryProvider) : IArtifactPublisher
 {
-    public bool CanPublish(ArtifactReference target) =>
-        this.GetRegistry(target).GetCapabilities(target.Type, target).HasFlag(RegistryCapabilities.Publish);
+    public bool CanPublish(ArtifactReference target) => target switch
+    {
+        // An extension package can be written to a local file; a module cannot.
+        LocalArtifactReference local => local.Type == ArtifactType.Extension,
+        ExternalArtifactReference external => this.GetRegistry(external).GetCapabilities(external.Type, external).HasFlag(RegistryCapabilities.Publish),
+        _ => throw new UnreachableException($"Unexpected reference type '{target.GetType().Name}'."),
+    };
 
-    public Task<bool> ExistsAsync(ArtifactReference target) =>
-        this.GetRegistry(target).CheckArtifactExists(target.Type, target);
+    public Task<bool> ExistsAsync(ArtifactReference target) => target switch
+    {
+        LocalArtifactReference { Type: ArtifactType.Module } => throw new NotSupportedException("Local modules cannot be published."),
+        // Publishing an extension to a local file overwrites it.
+        LocalArtifactReference => Task.FromResult(false),
+        ExternalArtifactReference external => this.GetRegistry(external).CheckArtifactExists(external.Type, external),
+        _ => throw new UnreachableException($"Unexpected reference type '{target.GetType().Name}'."),
+    };
 
-    public Task PublishAsync(ArtifactReference target, ArtifactPackage package)
+    public async Task PublishAsync(ArtifactReference target, ArtifactPackage package)
     {
         if (target.Type != package.Type)
         {
             throw new ArgumentException($"Cannot publish a package of type '{package.Type}' to a target of type '{target.Type}'.", nameof(package));
         }
 
-        var registry = this.GetRegistry(target);
-
-        return package switch
+        switch (target, package)
         {
-            ModulePackage module => registry.PublishModule(target, module.Template, module.Sources, module.DocumentationUri, DescriptionHelper.TryGetFromArmTemplate(module.Template)),
-            ExtensionPackage extension => registry.PublishExtension(target, extension),
-            _ => throw new UnreachableException($"Unexpected package type '{package.GetType().Name}'."),
-        };
+            case (LocalArtifactReference, ModulePackage):
+                throw new NotSupportedException("Local modules cannot be published.");
+            case (LocalArtifactReference local, ExtensionPackage extension):
+                local.File.Write(await ExtensionV1Archive.Build(extension));
+                return;
+            case (ExternalArtifactReference external, ModulePackage module):
+                await this.GetRegistry(external).PublishModule(external, module.Template, module.Sources, module.DocumentationUri, DescriptionHelper.TryGetFromArmTemplate(module.Template));
+                return;
+            case (ExternalArtifactReference external, ExtensionPackage extension):
+                await this.GetRegistry(external).PublishExtension(external, extension);
+                return;
+            default:
+                throw new UnreachableException($"Unexpected reference type '{target.GetType().Name}' or package type '{package.GetType().Name}'.");
+        }
     }
 
-    private IArtifactRegistry GetRegistry(ArtifactReference reference) => registryProvider.GetRegistry(reference.Scheme);
+    private IArtifactRegistry GetRegistry(ExternalArtifactReference reference) => registryProvider.GetRegistry(reference);
 }

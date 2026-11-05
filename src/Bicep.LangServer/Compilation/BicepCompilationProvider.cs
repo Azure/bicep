@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
@@ -25,7 +26,7 @@ namespace Bicep.LanguageServer.Compilation
         private readonly IEnvironment environment;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileExplorer fileExplorer;
-        private readonly IArtifactReferenceResolver referenceResolver;
+        private readonly RedirectingArtifactResolver referenceResolver;
         private readonly IArtifactRestorer restorer;
         private readonly ISourceFileFactory sourceFileFactory;
         private readonly CompilerVersionCheckOptions compilerVersionCheckOptions;
@@ -34,7 +35,7 @@ namespace Bicep.LanguageServer.Compilation
             IEnvironment environment,
             INamespaceProvider namespaceProvider,
             IFileExplorer fileExplorer,
-            IArtifactReferenceResolver referenceResolver,
+            RedirectingArtifactResolver referenceResolver,
             IArtifactRestorer restorer,
             IBicepAnalyzer bicepAnalyzer,
             ISourceFileFactory sourceFileFactory,

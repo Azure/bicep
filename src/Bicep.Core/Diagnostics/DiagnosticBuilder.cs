@@ -1004,20 +1004,12 @@ namespace Bicep.Core.Diagnostics
                 "BCP188",
                 $"The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template.");
 
-            public Diagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes)
-            {
-                string FormatSchemes() => ToQuotedString(allowedSchemes.Where(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local) && scheme != ArtifactReferenceSchemes.OciMocked));
-
-                return CoreError(
-                    "BCP189",
-                    (allowedSchemes.Contains(ArtifactReferenceSchemes.Local, StringComparer.Ordinal), allowedSchemes.Any(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local, StringComparison.Ordinal))) switch
-                    {
-                        (false, false) => "Module references are not supported in this context.",
-                        (false, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a module reference using one of the following schemes: {FormatSchemes()}",
-                        (true, false) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file.",
-                        (true, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: {FormatSchemes()}",
-                    });
-            }
+            /// <param name="allowedSchemes">The supported schemes of remote artifacts. Local paths are always supported.</param>
+            public Diagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes) => CoreError(
+                "BCP189",
+                allowedSchemes.IsEmpty
+                    ? $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file."
+                    : $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}");
 
             // TODO: This error is context sensitive:
             // - In CLI, it's permanent and only likely to occur with bicep build --no-restore.

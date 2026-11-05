@@ -19,13 +19,11 @@ namespace Bicep.Core.Registry
             ILogger<OciArtifactRegistry>? logger = null)
             : base(new IArtifactRegistry[]
                 {
-                    new LocalModuleRegistry(),
                     new OciArtifactRegistry(
                         registryConfiguration,
                         transportFactory,
                         publicModuleMetadataProvider,
                         logger ?? NullLogger<OciArtifactRegistry>.Instance),
-                    new OciArtifactMockedRegistry(),
                     new TemplateSpecModuleRegistry(templateSpecRepositoryFactory),
                 })
         {

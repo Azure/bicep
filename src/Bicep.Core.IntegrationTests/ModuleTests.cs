@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -193,7 +194,7 @@ module main 'main.bicep' = {
             var fileExplorerMock = StrictMock.Of<IFileExplorer>();
             fileExplorerMock.Setup(x => x.GetFile(fileUri)).Returns(fileHandleMock.Object);
 
-            var mockResolver = StrictMock.Of<IArtifactReferenceResolver>().Object;
+            var mockResolver = new RedirectingArtifactResolver(StrictMock.Of<IArtifactReferenceResolver>().Object, new ArtifactRedirectTable([]));
             var mockRestorer = StrictMock.Of<IArtifactRestorer>().Object;
 
             Action buildAction = () => SourceFileGroupingBuilder.Build(fileExplorerMock.Object, mockResolver, mockRestorer, new ActiveSourceFileSet(), BicepTestConstants.SourceFileFactory, fileUri);

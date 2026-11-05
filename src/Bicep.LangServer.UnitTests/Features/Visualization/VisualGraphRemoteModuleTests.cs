@@ -377,7 +377,7 @@ public class VisualGraphRemoteModuleTests
 
         var provider = services.Build();
         var resolver = provider.Construct<IArtifactReferenceResolver>();
-        var storageReference = resolver.TryResolve(BicepTestConstants.DummyBicepFile, ArtifactType.Module, $"br:{Registry}/test/storage:v1").Unwrap();
+        var storageReference = resolver.TryResolve(BicepTestConstants.DummyBicepFile.FileHandle.Uri, ArtifactType.Module, $"br:{Registry}/test/storage:v1").Unwrap();
         await provider.Construct<IArtifactPublisher>().PublishAsync(
             storageReference,
             new ModulePackage(

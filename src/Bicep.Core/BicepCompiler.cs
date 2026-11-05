@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -35,7 +36,7 @@ public class BicepCompiler
     private readonly INamespaceProvider namespaceProvider;
     private readonly IBicepAnalyzer bicepAnalyzer;
     private readonly IFileExplorer fileExplorer;
-    private readonly IArtifactReferenceResolver referenceResolver;
+    private readonly RedirectingArtifactResolver referenceResolver;
     private readonly IArtifactRestorer restorer;
     private readonly CompilerVersionCheckOptions compilerVersionCheckOptions;
 
@@ -44,7 +45,7 @@ public class BicepCompiler
         INamespaceProvider namespaceProvider,
         IBicepAnalyzer bicepAnalyzer,
         IFileExplorer fileExplorer,
-        IArtifactReferenceResolver referenceResolver,
+        RedirectingArtifactResolver referenceResolver,
         IArtifactRestorer restorer,
         ISourceFileFactory sourceFileFactory,
         CompilerVersionCheckOptions compilerVersionCheckOptions)

@@ -224,11 +224,9 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                 TryGetDescription(result, module)
             };
 
-            if (module.Context.SourceFileLookup.TryGetArtifactReference(module.DeclaringModule) is { } moduleReference)
+            switch (module.Context.SourceFileLookup.TryGetArtifactReference(module.DeclaringModule))
             {
-                var registry = moduleRegistryProvider.TryGetRegistry(moduleReference.Scheme);
-                if (registry is not null)
-                {
+                case ExternalArtifactReference moduleReference when moduleRegistryProvider.TryGetRegistry(moduleReference) is { } registry:
                     try
                     {
                         descriptionLines.Add(await registry.TryGetModuleDescription(module, moduleReference));
@@ -249,7 +247,11 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                     {
                         // ignore
                     }
-                }
+
+                    break;
+                case LocalArtifactReference when module.TryGetSemanticModel().TryUnwrap() is { } model:
+                    descriptionLines.Add(DescriptionHelper.TryGetFromSemanticModel(model));
+                    break;
             }
 
             var descriptions = MarkdownHelper.JoinWithBlankLine(descriptionLines);

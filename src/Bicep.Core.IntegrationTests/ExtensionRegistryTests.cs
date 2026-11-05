@@ -15,6 +15,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;
 using Bicep.Testing.Assertions;
 using Bicep.Testing.IO;
+using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -142,6 +143,37 @@ public class ExtensionRegistryTests : TestBase
         }
 
         result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public async Task Filesystem_extensions_can_be_compiled_without_restore()
+    {
+        // Local extension packages are unpacked into the cache on first use, so no restore is needed.
+        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+        var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory));
+
+        var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+        Directory.CreateDirectory(tempDirectory);
+
+        var bicepPath = Path.Combine(tempDirectory, "main.bicep");
+        await File.WriteAllTextAsync(bicepPath, """
+            extension './extension.tgz'
+
+            resource fooRes 'fooType@v1' = {
+              identifier: 'foo'
+              properties: {
+                required: 'bar'
+              }
+            }
+            """);
+        await File.WriteAllBytesAsync(
+            Path.Combine(tempDirectory, "extension.tgz"),
+            (await ExtensionV1Archive.Build(new(ExtensionResourceTypeHelper.GetTestTypesTgz(), false, []))).ToArray());
+
+        var compilation = services.Build().GetCompiler().CreateCompilationWithoutRestore(PathHelper.FilePathToFileUrl(bicepPath).ToIOUri());
+
+        CompilationHelper.GetCompilationResult(compilation).Should().NotHaveAnyDiagnostics();
+        cacheDirectory.GetDirectory("local/").EnumerateDirectories().Count().Should().Be(1);
     }
 
     [TestMethod]

@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.Registry;
-using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.Redirects;
@@ -23,12 +24,14 @@ public sealed class RedirectingArtifactResolver
         this.redirectTable = redirectTable;
     }
 
-    public RedirectingArtifactResolver(IArtifactReferenceResolver resolver, IFileExplorer fileExplorer)
-        : this(resolver, ArtifactRedirectTable.Create(fileExplorer))
-    {
-    }
+    public static RedirectingArtifactResolver Create(
+        IArtifactReferenceResolver resolver,
+        IFileExplorer fileExplorer,
+        IBicepConfigurationManager configurationManager,
+        IFeatureProviderFactory featureProviderFactory) =>
+        new(resolver, ArtifactRedirectTable.Create(fileExplorer, configurationManager, featureProviderFactory));
 
-    public ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(BicepSourceFile referencingFile, ArtifactType artifactType, string referenceText) =>
-        this.redirectTable.TryRedirect(referencingFile, artifactType, ArtifactAddress.Parse(referenceText)) ??
-        this.resolver.TryResolve(referencingFile, artifactType, referenceText);
+    public ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(IOUri referencingUri, ArtifactType artifactType, string referenceText) =>
+        this.redirectTable.TryRedirect(referencingUri, artifactType, ArtifactAddress.Parse(referenceText)) ??
+        this.resolver.TryResolve(referencingUri, artifactType, referenceText);
 }

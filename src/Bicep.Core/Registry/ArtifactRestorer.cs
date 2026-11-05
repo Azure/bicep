@@ -18,7 +18,7 @@ public class ArtifactRestorer : IArtifactRestorer
         this.registryProvider = registryProvider;
     }
 
-    public ArtifactRestoreState GetRestoreState(ArtifactReference reference)
+    public ArtifactRestoreState GetRestoreState(ExternalArtifactReference reference)
     {
         if (this.failureCache.TryGetFailure(reference, out var error))
         {
@@ -33,7 +33,7 @@ public class ArtifactRestorer : IArtifactRestorer
         return new ArtifactRestoreState.Restored();
     }
 
-    public ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPoint(ArtifactReference reference)
+    public ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPoint(ExternalArtifactReference reference)
     {
         if (this.failureCache.TryGetFailure(reference, out var error))
         {
@@ -43,7 +43,7 @@ public class ArtifactRestorer : IArtifactRestorer
         return reference.TryGetEntryPointFileHandle();
     }
 
-    public async Task<bool> RestoreAsync(IEnumerable<ArtifactReference> references, RestoreMode mode)
+    public async Task<bool> RestoreAsync(IEnumerable<ExternalArtifactReference> references, RestoreMode mode)
     {
         try
         {
@@ -55,7 +55,7 @@ public class ArtifactRestorer : IArtifactRestorer
         }
     }
 
-    private async Task<bool> RestoreCoreAsync(IEnumerable<ArtifactReference> references, RestoreMode mode)
+    private async Task<bool> RestoreCoreAsync(IEnumerable<ExternalArtifactReference> references, RestoreMode mode)
     {
         var force = mode == RestoreMode.Force;
 
@@ -128,5 +128,5 @@ public class ArtifactRestorer : IArtifactRestorer
         return true;
     }
 
-    private IArtifactRegistry GetRegistry(ArtifactReference reference) => this.registryProvider.GetRegistry(reference.Scheme);
+    private IArtifactRegistry GetRegistry(ExternalArtifactReference reference) => this.registryProvider.GetRegistry(reference);
 }
