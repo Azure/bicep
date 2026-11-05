@@ -904,6 +904,41 @@ namespace Bicep.LangServer.UnitTests.Completions
             secondItemReturned.Should().BeFalse();
         }
 
+        [TestMethod]
+        [DataRow(false, false)]
+        [DataRow(false, true)]
+        [DataRow(true, false)]
+        [DataRow(true, true)]
+        public async Task CompletionsAndResolutionUseConfiguredRegistryTransport(bool useOrasSdk, bool versionCompletion)
+        {
+            var config = $$"""
+                {
+                  "experimentalFeaturesEnabled": {
+                    "ociEnabled": {{useOrasSdk.ToString().ToLowerInvariant()}}
+                  }
+                }
+                """;
+            var input = versionCompletion ? "module test 'br:example.azurecr.io/modules/foo:|'" : "module test 'br:example.azurecr.io/modules/|'";
+            var (context, sourceFile) = GetBicepCompletionContext(input, config);
+            var provider = RegistryCatalogMocks.MockPrivateMetadataProvider(
+                "example.azurecr.io",
+                [("modules/foo", "description", "https://example.com/docs", [new("v1", "version description", "https://example.com/v1")])]);
+            var catalog = StrictMock.Of<IRegistryModuleCatalog>();
+            catalog.Setup(x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), "example.azurecr.io", useOrasSdk))
+                .Returns(provider.Object);
+            catalog.Setup(x => x.TryGetCachedRegistry("example.azurecr.io", useOrasSdk)).Returns(provider.Object);
+            var completionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider, catalog.Object, settingsProvider, BicepTestConstants.TestRegistryConfiguration);
+
+            var completions = (await GetAndResolveCompletionItems(sourceFile, context, completionProvider)).ToArray();
+
+            completions.Should().ContainSingle();
+            completions[0].Detail.Should().Be(versionCompletion ? "version description" : "description");
+            catalog.Verify(x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), "example.azurecr.io", useOrasSdk), Times.Once);
+            catalog.Verify(x => x.TryGetCachedRegistry("example.azurecr.io", useOrasSdk), Times.Once);
+            catalog.Verify(x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), !useOrasSdk), Times.Never);
+        }
+
         private (BicepCompletionContext, BicepSourceFile) GetBicepCompletionContext(
             string inputWithCursors,
             string? bicepConfigFileContents = null,
@@ -951,7 +986,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             // Assert: no module-path completions returned, catalog never contacted
             completions.Should().BeEmpty();
             catalogMock.Verify(
-                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
+                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), It.IsAny<bool>()),
                 Times.Never);
         }
 
@@ -1000,7 +1035,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             // Assert
             completions.Should().BeEmpty();
             catalogMock.Verify(
-                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
+                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), It.IsAny<bool>()),
                 Times.Never);
         }
 
@@ -1037,7 +1072,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             // Assert: trust check applies after alias resolution
             completions.Should().BeEmpty();
             catalogMock.Verify(
-                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
+                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), It.IsAny<bool>()),
                 Times.Never);
         }
 

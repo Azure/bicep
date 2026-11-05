@@ -10,7 +10,7 @@ public interface IOciRegistryTransportFactory
 {
     IOciRegistryTransport GetTransport(OciArtifactReference reference);
 
-    IOciRegistryTransport GetTransport(string registry);
+    IOciRegistryTransport GetTransport(string registry, bool useOrasSdk);
 
     IRegistrySession CreateSession(OciArtifactReference reference, IBicepCloudConfiguration cloud);
 }

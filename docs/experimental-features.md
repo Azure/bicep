@@ -51,7 +51,7 @@ includes enhancements for Deployment stacks extensibility integration. This feat
 
 ### `ociEnabled`
 
-Enables publishing and restoring Bicep modules and extensions to and from non-Azure OCI-compliant registries (e.g. GitHub Container Registry, Docker Hub, self-hosted registries) using the ORAS transport. For more information, see [Using OCI Registries](./experimental/oci-registries.md).
+Switches all OCI registry operations to the ORAS transport, including Azure Container Registry (ACR), and enables Docker-based authentication for non-Azure registries (e.g. GitHub Container Registry, Docker Hub, self-hosted registries). When disabled (the default), Bicep continues to use the ACR SDK. For more information, see [Using OCI Registries](./experimental/oci-registries.md).
 
 ### `patch`
 
