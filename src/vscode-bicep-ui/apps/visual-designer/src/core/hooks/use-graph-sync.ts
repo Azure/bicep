@@ -26,7 +26,13 @@ import {
   targetScopeAtom,
   undoHistoryAtom,
 } from "../atoms";
-import { centerGraphLayout, getLayoutCenters, getSubgraph, graphChangeMayAffectLayout } from "../graph-layout";
+import {
+  centerGraphLayout,
+  getLayoutCenters,
+  getSubgraph,
+  graphChangeMayAffectLayout,
+  keepFocusedNodeInPlace,
+} from "../graph-layout";
 import {
   clientGraphsRenderEqually,
   getModulesWithNewChildren,
@@ -368,9 +374,11 @@ export function useGraphSync(
 
       // The descendants of collapsed modules move with them, so they are in place when one opens.
       const positionsBefore = getNodePositions(store);
+      const layoutCenters = getLayoutCenters(topLeftCorners, measuredGraph);
       const positionsAfter = moveNodes(
         positionsBefore,
-        getLayoutCenters(topLeftCorners, measuredGraph),
+        // A reset keeps the camera, so it keeps the node the user is looking at in place too.
+        isReset ? keepFocusedNodeInPlace(layoutCenters, positionsBefore, getViewportCenter()) : layoutCenters,
         store.get(sourceGraphAtom),
         store.get(collapsedModuleIdsAtom),
       );

@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import type { GetGraphResult } from "../api";
 import type { GraphActions } from "../context/GraphActionsContext";
 
-import { useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
+import { useGetPanZoomDimensions, useGetPanZoomTransform } from "@vscode-bicep-ui/components";
 import { useNotification } from "@vscode-bicep-ui/messaging";
 import { useCallback, useMemo, useState } from "react";
 import { useFitViewToBounds } from "@/lib/graph";
@@ -29,10 +29,13 @@ import { useUndoRedoShortcuts } from "../hooks/use-undo-redo-shortcuts";
  */
 export function GraphActionsProvider({ children }: { children: ReactNode }) {
   const getPanZoomDimensions = useGetPanZoomDimensions();
+  const getPanZoomTransform = useGetPanZoomTransform();
+  // The graph point at the middle of what the user sees, through the current pan and zoom.
   const getViewportCenter = useCallback(() => {
     const { width, height } = getPanZoomDimensions();
-    return { x: width / 2, y: height / 2 };
-  }, [getPanZoomDimensions]);
+    const { x, y, scale } = getPanZoomTransform();
+    return { x: (width / 2 - x) / scale, y: (height / 2 - y) / scale };
+  }, [getPanZoomDimensions, getPanZoomTransform]);
   const fitViewToBounds = useFitViewToBounds();
   const [coordinator] = useState(() => new GraphUpdateCoordinator<GetGraphResult>());
 

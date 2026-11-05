@@ -178,7 +178,10 @@ After an invalidating change, the webview renders and measures the graph. It req
 topology or dimensions differ from the last successful layout input.
 
 - Automatic layout may skip unchanged input and fits the viewport after success.
-- **Reset Graph Layout** bypasses the unchanged-input check and preserves the viewport.
+- **Reset Graph Layout** bypasses the unchanged-input check and preserves the viewport. It also keeps the
+  node nearest the middle of the view where it is and moves the new layout around it, rather than
+  centering the layout's box, which would shift every node when opening or closing a container has
+  changed the graph's size.
 - A **subgraph** layout places only pending subgraphs, such as the children of a module that just
   opened (see below), and leaves every other node and the camera where they are. A pending automatic
   layout or reset replaces it, since either places those subgraphs too.
