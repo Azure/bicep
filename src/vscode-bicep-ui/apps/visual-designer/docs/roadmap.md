@@ -66,7 +66,7 @@ the camera or unaffected nodes, and keeps the positions of hidden nodes, which s
 stage 7 also need; they still need layout that keeps placed nodes fixed, which stage 2 does not
 provide. A collapsed module also gives module drops (stages 7 and 8) a compact initial form that
 avoids a large reflow (a module can be marked collapsed before its node arrives), and lets rename
-(stage 6) preserve collapsed state from the start. Stage 4 is gated on containment design rather than code; the editing stages do not
+(stage 6) preserve collapsed state from the start. Stage 4 is implemented and awaits review; the editing stages do not
 wait for it.
 
 Resource placeholders in stage 7 depend only on the stage 0 mutation and layout rules, so they can
@@ -79,7 +79,7 @@ proceed alongside stages 5 and 6; module references also build on stage 2. The o
 | 1. Low-risk discovery (complete)      | Optional VS Code theme matching; Featured/All and then Recent palette views    | —          | Theme and palette changes do not create source edits or surprise existing viewers                 |
 | 2. Module presentation (complete)     | Distinct collapsed-module styling and manual collapse/expand                   | 0          | Local modules toggle without source edits or loss of graph context                                |
 | 3. Remote-module expansion (complete) | Linked-source remote modules with child resources                              | 2          | Remote children and source links work; unavailable source is explicit                             |
-| 4. Resource containers                | Source-defined RG/MG/VNet/subnet containers                                    | Design     | Agreed containment rules yield readable nested containers in themes and exports                   |
+| 4. Resource containers                | Source-defined RG/MG/VNet/subnet containers                                    | 2          | Agreed containment rules yield readable nested containers in themes and exports                   |
 | 5. Interaction model                  | Experimental Select/Hand, selection state, contextual toolbar and context menu | 0          | Gestures and shortcuts are predictable without changing the default viewer mode                   |
 | 6. Focused source edits               | LSP-backed rename, then Convert to existing                                    | 5          | Edits preview/validate correctly, preserve graph context, and undo/redo in the editor             |
 | 7. Drag-first creation                | Placeholder-first resources; references to existing local modules              | 0, 2       | Cancel does not edit or lay out the graph; commit honors the placement/layout contract            |
@@ -112,8 +112,9 @@ theme, including changes between two themes of the same kind. The canvas is the 
 so the designer matches the editor beside it, and text and accents take the closest workbench
 colors. Nodes and floating bars are a lighter shade of the editor background with the same hue and
 most of its tint, in light and dark themes alike (lighter cream on Solarized Light, lighter navy on
-Ayu Dark), with a firmer border where a near-white
-background leaves little room to lighten; edges and the dot grid keep the curated separation.
+Ayu Dark). Nodes take the theme's `editorWidget.border` as is, the outline VS Code draws around the Find
+widget and hovers, or the curated border when a theme leaves it out or sets it too faint; edges and
+the dot grid keep the curated separation.
 Secondary text, such as resource types, is the theme's text color faded toward the node surface rather
 than VS Code's default gray description color. Each text and accent
 color is checked for contrast (WCAG AA, and higher in high-contrast themes) against what it is
@@ -135,9 +136,11 @@ Favorites, waits on the same user-wide versus workspace decision.
 ### Stage 2: module presentation and controls (complete)
 
 **Collapsed appearance.** A collapsed module is laid out like a resource node: the colored
-folder icon, the symbolic name, and a `MODULE` type label. The expanded container's header keeps
-only the smaller folder icon and the name, since its frame already shows it is a module. A trailing
-toggle uses VS Code's `unfold` (expand) and `fold` (collapse) codicons, the same vocabulary as
+folder icon, the symbolic name, and a `MODULE` type label. The expanded container's header shows
+the smaller folder icon, the name, and the same `MODULE` label inline, the pattern every container
+header follows (see [stage 4](#stage-4-resource-containers-implemented-pending-review)). An expanded frame is a region rather
+than an object, so it casts no shadow: only nodes and collapsed containers stand above the canvas.
+A trailing toggle uses VS Code's `unfold` (expand) and `fold` (collapse) codicons, the same vocabulary as
 editor folding. The toggle appears while the module is hovered or selected, or when it has keyboard focus, so
 graphs with many modules stay uncluttered. The same focus, error, collection, theme, and export
 treatment applies in either state, and exports omit the toggle.
@@ -174,16 +177,118 @@ cannot be read, the toggle shows the error color and the message, and expanding 
 module has no Bicep source to show (it was published without it, or it is a template spec), the toggle
 is disabled and its tooltip says the source is unavailable.
 
-### Stage 4: resource containers
+A remote module, from a registry or a template spec, has a cloud pressed into the front of its folder
+icon, collapsed or expanded, so it can be told from a local module at a glance. The graph marks it
+with `isRemote`. The cloud is drawn in a darker gold from the folder itself, like the folder's tab, so
+it reads as one icon in every theme rather than as a badge added on top.
 
-Render container resources such as resource groups (RGs), management groups (MGs), virtual
-networks (VNets), and subnets as container nodes with their contained resources inside. Base
-containment on source-defined scope, parent, or network relationships, not arbitrary dependency
-edges or visual proximity. The supported resource types, containment rules, and visual treatment
-need design; a dashed border is a candidate, not a committed style. Keep resource containers
-distinguishable from module containers while preserving resource identity, source navigation,
-theme contrast, and export readability. Visual containment must not silently change deployment
-scope, module membership, or network configuration.
+### Stage 4: resource containers (implemented, pending review)
+
+Draw a resource as a container around the declarations the source places inside it, such as a
+resource group (RG) around its modules or a virtual network (VNet) around its subnets. Containment
+comes from relationships that define the contained resource's identity or deployment scope, never
+from type lists, dependency edges, or visual proximity, so every container is one ARM would also
+recognize. The stage is viewer-only: it makes no source edits and does not depend on the editing
+setting. Visual containment must not change deployment scope, module membership, or network
+configuration.
+
+**Containment rules.** Within one Bicep file, a node's container is, in order of precedence:
+
+1. **Its parent resource:** the resource it is nested in or the one its `parent` property names
+   (the compiler's resource ancestors). This covers VNet -> subnet, storage account -> blob
+   service -> container, SQL server -> database, and every other child type without a type list.
+2. **The resource its `scope` property names**, when that is a declared
+   `Microsoft.Resources/resourceGroups` or `Microsoft.Management/managementGroups` resource
+   (`scope: rg`). Modules and `existing` resources deployed into an RG or management group (MG)
+   declared in the file appear inside it. The compiler already resolves these two types as scopes.
+
+The first version deliberately excludes these; each keeps its dependency edge, if any:
+
+- A scope that only computes a matching name, such as `resourceGroup(rg.name)`: the name can
+  resolve to a resource group in another subscription, so it is a reference, not identity.
+- An extension resource scoped to another resource (a role assignment, lock, or diagnostic
+  setting with `scope: storageAccount`). These attach to many resources and would turn most of
+  them into containers.
+- Network membership expressed through property references, such as a NIC's
+  `subnet: { id: subnet.id }`. Such references have type-specific meaning, and a NIC can join
+  several subnets, so they cannot define a single container.
+- A container that is a collection (`parent: vnets[i]`, `scope: rgs[i]`): one node stands for
+  many instances, and the index need not map children one-to-one. Nested declarations cannot
+  occur under a looped parent (`BCP160`), so only `parent` and `scope` references are affected.
+- The file's own target scope, which is not a declared resource; the scope indicator shows it.
+  Subscriptions are therefore never containers.
+
+Containment never crosses a file: a module's contents stay inside the module, and the module
+itself can sit inside an RG declared in its parent file. Published registry-module source
+(stage 3) follows the same rules. A reference that does not resolve, because of an error,
+produces no containment.
+
+**Graph contract.** A contained node's `parentId` is its container, but its ID does not change:
+it stays the enclosing module path plus its symbolic name. Adding or removing `parent` then
+reparents a node without losing its position, collapse state, or undo history, and module paths
+stay parseable for registry restore. No code may derive containment from IDs; the devtools
+fakes name a resource container explicitly, and only use a sample's ID as shorthand for its module. A resource is a container only while it has children in the
+graph: `kind: "resource"` with `hasChildren: true`. A resource with nothing contained, such as a
+VM that declares no `extensions` children, stays an ordinary resource node, as a module without
+children is a leaf. Adding its first child or removing its last one changes whether it is drawn
+around children, which already invalidates layout. The revision already hashes `parentId`, and
+a node changing container already invalidates layout.
+
+A dependency from a node on its own container or any other ancestor is implied by the
+containment and is dropped, since it would join a node to the frame around it. Every other
+dependency stays, which introduces the first edges that **cross container boundaries**, such as
+a top-level NIC that depends on a subnet inside a VNet. They are the main implementation cost:
+
+- **Layout.** The MSAGL engine lays out each container's children on their own and assumes that
+  every edge joins siblings. A crossing edge instead takes part in layering at the scope that
+  contains both ends, between the two ancestors that are siblings there (NIC -> VNet), as the
+  collapse projection already lifts edges. It is still drawn to its real endpoints.
+- **Paint order.** `lib/graph` paints an edge among the children of its endpoints' shared
+  parent. A crossing edge is painted just above the frame of the deeper endpoint's container,
+  so it stays visible inside that container and below the node it joins. Outside the container
+  it may pass over siblings drawn below the container, another compromise of the single
+  stacking context.
+- **Collapse.** `projectGraph` already terminates crossing edges at the outermost collapsed
+  ancestor at any depth, so no change is needed.
+
+**Collapse.** A resource container collapses and expands with the module toggle, animation, and
+undo step. `isCollapsible` becomes "has children" rather than "is a module with children", and
+the collapsed set holds node IDs rather than module IDs. Collapsed, a resource container is
+simply its resource node. Resource containers start expanded; only remote modules that gain
+children are added to the collapsed set automatically.
+
+**Appearance.** Resource and module containers are one family of frames and differ only in their
+headers, so the distinction holds in every theme, in high contrast, and in grayscale exports:
+
+- **Header:** every container header shows an icon, the symbolic name, and an inline type label,
+  at the same height and padding and with the toggle in the same place. A resource container
+  shows its resource type icon and type label (`vnet VIRTUAL NETWORKS`), matching the node it
+  collapses to; a module shows the folder icon and `MODULE`.
+- **Frame:** both use the module fill (`compoundBackground`), so frames sit a step below the nodes
+  inside them, and the ordinary node border. In the curated palettes that border is opaque, so it
+  looks the same on the canvas and inside a frame. Expanded frames cast no shadow; nodes and
+  collapsed containers keep theirs, so nodes always read as the raised layer. Containers are
+  not told apart by border style, tint, or accent: those fight the theme and vanish in high
+  contrast.
+- **Collapsed:** a collapsed resource container is its resource node. Like a collapsed module, it
+  reveals the expand toggle on hover, selection, or keyboard focus rather than always.
+- **Shared treatment:** focus, error, collection, theme matching, and export behave as for
+  modules, and exports omit the toggle.
+
+**Rollout.** Resource containers ship as a generally available viewer feature, with no setting.
+They reshape some existing graphs (a subscription-scope file with an RG and its modules becomes
+one large frame), so each step below must be complete enough to release on its own: containers
+are never shown without their own appearance or with crossing edges hidden or misplaced.
+
+**Delivered together:** parent and RG/MG scope containment, crossing-edge layout and paint order,
+the container appearance, and collapse of resource containers, so no step ships without the
+others. The dev playground has resource container, resource group, and nested container samples.
+
+**Tests.** Language-server builder tests cover each rule and exclusion, unchanged IDs when a node
+is reparented, and dropped ancestor edges; layout engine tests cover crossing edges. Vitest
+covers crossing-edge paint order, projection and collapse of resource containers, and layout
+invalidation on reparenting. Playwright or manual checks cover nesting depth, both
+high-contrast themes, theme matching, and exports.
 
 ### Stage 5: navigation and selection
 
@@ -317,10 +422,11 @@ refactoring.
   preserve boundary dependencies, camera context, and unaffected node positions.
 - **Remote modules (stage 3):** linked remote source supplies child resources with working source links
   and the same collapse/expand controls as local modules. Unavailable source is explained explicitly,
-  and graph refreshes respect the user's collapsed state.
-- **Resource containers (stage 4):** containers reflect the agreed containment rules, including nested
-  containers, remain distinct from modules, and stay legible in themes and exports with editing
-  disabled.
+  graph refreshes respect the user's collapsed state, and remote modules carry the cloud emblem.
+- **Resource containers (stage 4):** containers follow the agreed containment rules, including nested
+  containers, and remain distinct from modules. Node IDs survive reparenting, edges that cross a
+  container boundary stay visible and lay out sensibly, and containers stay legible in themes and
+  exports with editing disabled. A resource without children stays a resource node.
 
 Use focused language-server and extension tests for source edits and gates; Vitest for graph
 metadata, layout, and history; and Playwright for viewer compatibility, pointer/keyboard
@@ -335,5 +441,6 @@ interactions, theme/export, and source/visual undo scenarios.
    explicit Tidy Layout prompt?
 4. Should Recent persist beyond the designer session, and if Favorites are added, are both
    user-wide or workspace-specific?
-5. Which resource types and source relationships define containment, and how should resource
-   containers look? Evaluate dashed borders without committing to them before design review.
+5. Resource containers (stage 4): are the proposed parent and RG/MG scope rules and their
+   exclusions right? Should extension resources scoped to a resource (role assignments, locks,
+   diagnostic settings) ever be contained?

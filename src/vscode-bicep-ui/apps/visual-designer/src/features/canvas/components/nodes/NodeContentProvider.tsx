@@ -8,7 +8,7 @@ import type { NodeContentRenderProps, NodeKind } from "@/lib/graph";
 import { useStore } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
 import { nodeConfigAtom } from "@/lib/graph";
-import { ModuleNode } from "./ModuleNode";
+import { ContainerNode } from "./ContainerNode";
 import { ResourceNode } from "./ResourceNode";
 
 /** Extra headroom above a compound node's children, so the module label has room to sit. */
@@ -18,8 +18,9 @@ function renderNodeContent(kind: NodeKind, { id, data }: NodeContentRenderProps)
   // Core shows every node with `CanvasNodeData`.
   const nodeData = data as CanvasNodeData;
 
-  return nodeData.nodeKind === "module" ? (
-    <ModuleNode id={id} kind={kind} data={nodeData} />
+  // A resource with children is a container like a module, so it shares the module's frame and toggle.
+  return nodeData.nodeKind === "module" || nodeData.canCollapse ? (
+    <ContainerNode id={id} kind={kind} data={nodeData} />
   ) : (
     <ResourceNode id={id} data={nodeData} />
   );

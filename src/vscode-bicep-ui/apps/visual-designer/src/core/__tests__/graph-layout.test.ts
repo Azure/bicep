@@ -19,6 +19,7 @@ function node(overrides: Partial<GraphNode> = {}): GraphNode {
     hasError: false,
     sourceStatus: null,
     sourceError: null,
+    isRemote: false,
     ...overrides,
   };
 }

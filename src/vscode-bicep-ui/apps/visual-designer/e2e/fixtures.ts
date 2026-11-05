@@ -16,6 +16,12 @@ export const SAMPLE_GRAPHS = {
   error: { slug: "dev-graph-error-graph", label: "Error graph", nodeId: "brokenStorage" },
   complex: { slug: "dev-graph-complex-graph", label: "Complex graph", nodeId: "hubrg" },
   remote: { slug: "dev-graph-remote-module-graph", label: "Remote module graph", nodeId: "network" },
+  resourceContainers: { slug: "dev-graph-resource-containers", label: "Resource containers", nodeId: "nic" },
+  nestedResourceContainers: {
+    slug: "dev-graph-nested-resource-containers",
+    label: "Nested resource containers",
+    nodeId: "worker",
+  },
   empty: { slug: "dev-graph-empty-null", label: "Empty (null)", nodeId: null },
 } as const;
 

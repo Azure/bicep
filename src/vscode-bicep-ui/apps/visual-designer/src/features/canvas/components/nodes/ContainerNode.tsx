@@ -1,21 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { DefaultTheme } from "styled-components";
 import type { CanvasNodeData } from "@/core";
 import type { NodeKind } from "@/lib/graph";
 
 import { AzureIcon, Codicon } from "@vscode-bicep-ui/components";
 import { animate } from "motion";
-import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useLayoutEffect, useRef } from "react";
+import { motion } from "motion/react";
+import { useCallback, useId, useLayoutEffect, useRef } from "react";
 import { keyframes, styled, useTheme } from "styled-components";
 import { useGraphActions, useIsMotionReduced } from "@/core";
 import { graphInteractiveProps, NODE_MORPH_TRANSITION } from "@/lib/graph";
 import { ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
+import { camelCaseToWords } from "@/utils";
 import { useIsModuleRestoring } from "../../hooks/use-is-module-restoring";
 import { useIsNodeFocused } from "../../hooks/use-is-node-focused";
 
-/** Matches `ResourceNode`, so a collapsed module reads as one more node on the graph. */
+/** Matches `ResourceNode`, so a collapsed container reads as one more node on the graph. */
 const ATOMIC_HEIGHT = 76;
 const ATOMIC_ICON_SIZE = 36;
 /** The header must fit above a compound node's children, inside its top padding. */
@@ -25,12 +27,11 @@ const HEADER_ICON_SIZE = 24;
 const TYPE_LABEL_LINE_HEIGHT = 16;
 
 const LABEL_SHOWN = { height: TYPE_LABEL_LINE_HEIGHT, marginTop: 2, opacity: 1 } as const;
-const LABEL_HIDDEN = { height: 0, marginTop: 0, opacity: 0 } as const;
 const NO_TRANSITION = { duration: 0 } as const;
 
-export interface ModuleNodeProps {
+export interface ContainerNodeProps {
   id: string;
-  /** `compound` frames the module's children; `atomic` stands in for them when they are hidden. */
+  /** `compound` frames the container's children; `atomic` stands in for them when they are hidden. */
   kind: NodeKind;
   data: CanvasNodeData;
 }
@@ -41,6 +42,39 @@ type FrameProps = {
   $isFocused?: boolean;
   $kind: NodeKind;
 };
+
+/** Every container frame, module or resource, sits a step below the nodes inside it; collapsed, it is a node. */
+function getFrameBackground(kind: NodeKind, theme: DefaultTheme) {
+  return kind === "atomic" ? theme.node.background : theme.node.compoundBackground;
+}
+
+/**
+ * An expanded frame is a region rather than an object, so only nodes cast shadows and stand above the frames around
+ * them. High-contrast themes cast none and mark hover with a ring, which frames keep.
+ */
+function isFlat(kind: NodeKind, theme: DefaultTheme) {
+  return kind !== "atomic" && theme.node.shadow !== "none";
+}
+
+function getRestingShadow({ $kind, $isFocused, $hasError, theme }: FrameProps & { theme: DefaultTheme }) {
+  if ($isFocused) {
+    return $hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow;
+  }
+
+  return $kind === "atomic" ? theme.node.shadow : "none";
+}
+
+function getHoverShadow({ $kind, $isFocused, $hasError, theme }: FrameProps & { theme: DefaultTheme }) {
+  if ($isFocused) {
+    return $hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow;
+  }
+
+  if (isFlat($kind, theme)) {
+    return "none";
+  }
+
+  return $hasError ? theme.node.hoverErrorShadow : theme.node.hoverShadow;
+}
 
 const $Frame = styled.div<FrameProps>`
   position: relative;
@@ -56,9 +90,8 @@ const $Frame = styled.div<FrameProps>`
     ${({ $hasError, $isFocused, theme }) =>
       $hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
   border-radius: 8px;
-  background-color: ${({ $kind, theme }) => ($kind === "atomic" ? theme.node.background : theme.node.compoundBackground)};
-  box-shadow: ${({ $isFocused, $hasError, theme }) =>
-    $isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
+  background-color: ${({ $kind, theme }) => getFrameBackground($kind, theme)};
+  box-shadow: ${getRestingShadow};
   transition:
     border-color 180ms ease,
     box-shadow 180ms ease;
@@ -66,10 +99,7 @@ const $Frame = styled.div<FrameProps>`
   &:hover {
     border-color: ${({ $hasError, $isFocused, theme }) =>
       $hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.hoverBorder};
-    box-shadow: ${({ $isFocused, $hasError, theme }) => {
-      if ($isFocused) return $hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow;
-      return $hasError ? theme.node.hoverErrorShadow : theme.node.hoverShadow;
-    }};
+    box-shadow: ${getHoverShadow};
   }
 
   ${({ $isCollection, $hasError, $isFocused, $kind, theme }) => {
@@ -87,9 +117,9 @@ const $Frame = styled.div<FrameProps>`
       bottom: -${offset}px;
       border: ${$hasError ? theme.node.errorBorderWidth : theme.node.borderWidth} solid ${$hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
       border-radius: 10px;
-      background-color: ${$kind === "atomic" ? theme.node.background : theme.node.compoundBackground};
+      background-color: ${getFrameBackground($kind, theme)};
       z-index: -1;
-      box-shadow: ${$isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
+      box-shadow: ${getRestingShadow({ $kind, $isFocused, $hasError, theme })};
       transition: border-color 180ms ease, box-shadow 180ms ease;
     }
     &:hover::before {
@@ -109,16 +139,55 @@ const $Row = styled(motion.div)`
 `;
 
 const $Icon = styled.div`
+  position: relative;
   display: flex;
   flex: 0 0 auto;
   transform-origin: left center;
 `;
 
-const $Text = styled.div`
+/**
+ * The module folder with a cloud pressed into its front panel, marking a module from a registry or template spec. It is
+ * the Azure folder icon with one more shape in the folder's own gold, so it reads as one icon in every theme.
+ */
+function RemoteFolderIcon({ size }: { size: number }) {
+  // Each icon needs its own gradient id: an export clones the canvas, and ids must stay unique within a document.
+  const gradientId = useId();
+
+  return (
+    <svg width={size} height={size} viewBox="0 0 18 18" role="img" data-testid="remote-module-icon">
+      <title>Remote module</title>
+      <defs>
+        <linearGradient id={gradientId} x1="9.252" y1="0.485" x2="8.842" y2="16.966" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#ffd400" />
+          <stop offset="0.415" stopColor="#ffd000" />
+          <stop offset="0.845" stopColor="#ffc301" />
+          <stop offset="1" stopColor="#ffbd02" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M17.579,3.283H9.727a.419.419,0,0,1-.233-.07L7.251,1.721a.42.42,0,0,0-.233-.071H.421A.42.42,0,0,0,0,2.07V15.93a.42.42,0,0,0,.421.42H17.579A.42.42,0,0,0,18,15.93V3.7A.42.42,0,0,0,17.579,3.283Z"
+        fill="#dfa500"
+      />
+      <rect x="1.636" y="2.455" width="4.091" height="0.818" rx="0.172" fill="#fff" />
+      <path
+        d="M17.579,3.263H8.956a.421.421,0,0,0-.3.123L7.272,4.773a.42.42,0,0,1-.3.123H.421A.42.42,0,0,0,0,5.316V15.91a.42.42,0,0,0,.421.419H17.579A.42.42,0,0,0,18,15.91V3.683A.42.42,0,0,0,17.579,3.263Z"
+        fill={`url(#${gradientId})`}
+      />
+      <path
+        d="M6.1 13.4 H12.1 A1.9 1.9 0 0 0 12.3 9.6 A2.7 2.7 0 0 0 7.2 8.8 A2.3 2.3 0 0 0 6.1 13.4 Z"
+        fill="#c98f00"
+      />
+    </svg>
+  );
+}
+
+const $Text = styled.div<{ $isInline?: boolean }>`
   display: flex;
   flex: 1 1 auto;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: ${({ $isInline }) => ($isInline ? "row" : "column")};
+  align-items: ${({ $isInline }) => ($isInline ? "baseline" : "stretch")};
+  gap: ${({ $isInline }) => ($isInline ? "8px" : "0")};
+  justify-content: ${({ $isInline }) => ($isInline ? "flex-start" : "center")};
   min-width: 0;
   margin: 0 8px 0 12px;
   overflow: hidden;
@@ -204,6 +273,8 @@ type Toggle = {
  * the toggle is disabled and says so.
  */
 function getToggle(data: CanvasNodeData, isRestoring: boolean): Toggle | null {
+  const noun = data.nodeKind === "module" ? "module" : "resource";
+
   // A restore lasts until the module has opened, so it wins even once the module has children.
   if (isRestoring) {
     return { action: "Expand", title: "Restoring module...", isDisabled: true };
@@ -211,8 +282,8 @@ function getToggle(data: CanvasNodeData, isRestoring: boolean): Toggle | null {
 
   if (data.canCollapse) {
     return data.isCollapsed
-      ? { action: "Expand", title: "Expand module" }
-      : { action: "Collapse", title: "Collapse module" };
+      ? { action: "Expand", title: `Expand ${noun}` }
+      : { action: "Collapse", title: `Collapse ${noun}` };
   }
 
   switch (data.sourceStatus) {
@@ -236,8 +307,24 @@ function getRowHeight(kind: NodeKind, borderWidth: string) {
   return kind === "atomic" ? ATOMIC_HEIGHT - 2 * parseFloat(borderWidth) : HEADER_HEIGHT;
 }
 
-export function ModuleNode({ id, kind, data }: ModuleNodeProps) {
-  const { symbolicName, isCollection, hasError, isCollapsed, canCollapse, sourceStatus } = data;
+/**
+ * A node that can be drawn around its children: a module, or a resource with child resources or declarations scoped to it.
+ * Both kinds share one frame and differ only in the header's icon and type label.
+ */
+export function ContainerNode({ id, kind, data }: ContainerNodeProps) {
+  const {
+    symbolicName,
+    isCollection,
+    hasError,
+    isCollapsed,
+    canCollapse,
+    sourceStatus,
+    nodeKind,
+    resourceType,
+    isRemote,
+  } = data;
+  const isResource = nodeKind === "resource";
+  const typeLabel = isResource ? camelCaseToWords(resourceType.split("/").pop()) : "Module";
   const theme = useTheme();
   const frameRef = useRef<HTMLDivElement>(null);
   const iconRef = useRef<HTMLDivElement>(null);
@@ -265,8 +352,7 @@ export function ModuleNode({ id, kind, data }: ModuleNodeProps) {
       return;
     }
 
-    const background = (nodeKind: NodeKind) =>
-      nodeKind === "atomic" ? theme.node.background : theme.node.compoundBackground;
+    const background = (nodeKind: NodeKind) => getFrameBackground(nodeKind, theme);
     const otherIconSize = isAtomic ? HEADER_ICON_SIZE : ATOMIC_ICON_SIZE;
     const iconControls = animate(icon, { scale: [otherIconSize / iconSize, 1] }, NODE_MORPH_TRANSITION);
     const backgroundControls = animate(
@@ -312,30 +398,28 @@ export function ModuleNode({ id, kind, data }: ModuleNodeProps) {
     >
       <$Row initial={false} animate={{ height: rowHeight }} transition={transition}>
         <$Icon ref={iconRef}>
-          <AzureIcon resourceType="folder" size={iconSize} />
+          {isRemote && !isResource ? (
+            <RemoteFolderIcon size={iconSize} />
+          ) : (
+            <AzureIcon resourceType={isResource ? resourceType : "folder"} size={iconSize} />
+          )}
         </$Icon>
-        <$Text>
+        <$Text $isInline={!isAtomic}>
           <$SymbolicName>{symbolicName}</$SymbolicName>
-          {/* Only the atomic node names its type: a compound node's frame already says it is a module. */}
-          <AnimatePresence initial={false}>
-            {isAtomic && (
-              <$TypeLabel
-                key="type"
-                initial={LABEL_HIDDEN}
-                animate={LABEL_SHOWN}
-                exit={LABEL_HIDDEN}
-                transition={transition}
-              >
-                Module
-              </$TypeLabel>
-            )}
-          </AnimatePresence>
+          {/* Every header names the kind of node, collapsed or not: a resource type, or "Module". */}
+          <$TypeLabel
+            initial={false}
+            animate={isAtomic ? LABEL_SHOWN : { ...LABEL_SHOWN, marginTop: 0 }}
+            transition={transition}
+          >
+            {typeLabel}
+          </$TypeLabel>
         </$Text>
         {toggle && (
           <$ToggleButton
             {...graphInteractiveProps}
             type="button"
-            aria-label={`${toggle.action} module ${symbolicName}`}
+            aria-label={`${toggle.action} ${isResource ? "resource" : "module"} ${symbolicName}`}
             aria-expanded={toggle.action === "Collapse"}
             aria-busy={isRestoring}
             aria-disabled={isToggleDisabled}

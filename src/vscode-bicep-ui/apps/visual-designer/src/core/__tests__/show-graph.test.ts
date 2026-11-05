@@ -23,6 +23,7 @@ function node(id: string, parentId: string | null, overrides: Partial<GraphNode>
     hasError: false,
     sourceStatus: null,
     sourceError: null,
+    isRemote: false,
     ...overrides,
   };
 }

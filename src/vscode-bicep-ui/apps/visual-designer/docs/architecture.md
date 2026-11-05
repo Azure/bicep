@@ -68,11 +68,24 @@ what to mount and whether layout is stale. Only accepted coordinator updates pub
 state; superseded responses and responses overlapping mutations cannot overwrite it. Scope-only
 changes do not invalidate graph layout or adjust zoom.
 
-The webview also holds a session-local set of collapsed module IDs: the user's choice, kept through
-graph refreshes even while a module is missing or empty, so a module that comes back is still
-collapsed. It projects the authoritative graph before rendering: descendants of a collapsed module
-that has children are omitted, dependencies wholly inside it are omitted, and dependencies crossing
-its boundary terminate at the collapsed module. The source graph is unchanged.
+A node's `parentId` is its container: the module it is declared in, or a resource drawn around it.
+Within one file, a resource is inside its parent resource (the one it is nested in or its `parent`
+property names), and a resource or module is otherwise inside the resource group or management group
+its `scope` property names when that group is declared in the same file. A collection is never a
+container, and a scope that only computes a name, such as `resourceGroup(rg.name)`, is not
+containment. A container is a resource with `hasChildren`; a resource with nothing inside it is an
+ordinary node. Containment does not change IDs, which are the path of module and symbol names, so
+nothing may read containment from an ID. A dependency between a node and a container around it is
+implied and omitted; other dependencies can join nodes in different containers, such as a network
+interface's dependency on a subnet inside a virtual network. A module carries `isRemote` when it comes
+from a registry or a template spec, and its folder icon has a cloud pressed into it.
+
+The webview also holds a session-local set of collapsed container IDs: the user's choice, kept through
+graph refreshes even while a container is missing or empty, so a container that comes back is still
+collapsed. Any node with children can collapse. The webview projects the authoritative graph before
+rendering: descendants of a collapsed container that has children are omitted, dependencies wholly
+inside it are omitted, and dependencies crossing its boundary terminate at the collapsed container.
+The source graph is unchanged.
 
 The passive scope indicator is outside the export canvas subtree, like the palette and controls.
 It uses Azure resource-group, subscription-alias, and management-group icons; tenant uses the neutral
@@ -125,7 +138,9 @@ collapsed module. Positions are not sent to the server. The request also carries
 `graph/get` returned with the graph it was rendered from: a hash of the graph's topology (node IDs,
 kinds, and parents, and edge IDs and endpoints) that ignores metadata such as errors. The language
 server rebuilds the live graph and answers `graphChanged` when its revision differs; otherwise it lays
-out the measured graph exactly as sent. It knows nothing about collapsed modules. An `ok` response
+out the measured graph exactly as sent. It knows nothing about collapsed modules. Each container's
+children are laid out on their own; an edge whose ends are in different containers is layered in the
+innermost scope around both, between the nodes that hold its ends there. An `ok` response
 carries the positions of the nodes the engine laid out and the bounds of the measured graph. A
 measured graph that is not well formed (a duplicate ID, or a parent or edge endpoint that is not in
 the graph) yields `layoutFailed`.
@@ -202,7 +217,10 @@ has measured itself, so the centers it computes use real sizes.
 
 Nodes and edges are stacked as nested elements would be: a parent, then the edges between its
 children, then each child with its descendants. Edges are therefore below every node in their parent
-and above the parent's frame; top-level edges are below every node. Bicep edges always join siblings.
+and above the parent's frame; top-level edges are below every node. An edge whose ends have different
+parents, because it crosses a container's frame, is stacked among the children of the parent painted
+last: above every frame it crosses into and below the nodes inside. Edges end at node borders, so an
+endpoint painted below the edge is never covered by it.
 Among siblings, raised nodes are painted above the others, along with each of their ancestors, and stacked
 as windows are: the most recently raised on top. Focusing, dragging, or opening a node raises it; dragging
 raises a node without focusing it, and opening a module brings it in front of the neighbors it grows over.
@@ -222,8 +240,8 @@ Later stages extend these boundaries rather than move them:
 
 - Remote modules (stage 3) were more containers from the server, with no change to `lib/graph`. They
   added the `subgraph` layout, which places a module's new children around it; keeping placed
-  nodes fixed in a whole-graph layout is still open. Resource containers (stage 4) can follow suit;
-  which containers can collapse is a predicate in `projectGraph`.
+  nodes fixed in a whole-graph layout is still open. Resource containers (stage 4) followed suit: they
+  render through the same `ContainerNode` as modules, and `isCollapsible` is "has children".
 - Selection (stage 5) is view state beside focus. The canvas raises it through `Graph`, and dragging a
   selection moves several nodes through the same position rules.
 - Rename (stage 6) remaps IDs in the view state, the positions map, and the undo history.

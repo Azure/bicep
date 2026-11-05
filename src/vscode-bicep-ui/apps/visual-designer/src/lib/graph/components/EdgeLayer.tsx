@@ -17,7 +17,7 @@ export interface EdgeLayerProps {
 }
 
 /**
- * Draws every edge, stacked among the children of its endpoints' parent (see `getEdgeZIndex`). An edge that is
+ * Draws every edge, stacked among the children of its endpoints' parents (see `getEdgeZIndex`). An edge that is
  * fading out with its nodes is stacked by the nearest ancestor still shown, such as a container that closed.
  */
 export function EdgeLayer({ exitingNodes, exitingEdges, enteringNodeIds }: EdgeLayerProps) {
@@ -47,8 +47,10 @@ export function EdgeLayer({ exitingNodes, exitingEdges, enteringNodeIds }: EdgeL
         return [];
       }
 
-      // Edges join siblings, so both endpoints share a parent.
-      const stacking: EdgeStacking = { parentId: getShownParentId(from), endpointIds: [from.id, to.id] };
+      const stacking: EdgeStacking = {
+        parentIds: [getShownParentId(from), getShownParentId(to)],
+        endpointIds: [from.id, to.id],
+      };
       const isEntering = enteringNodeIds.has(edge.fromId) || enteringNodeIds.has(edge.toId);
 
       return [

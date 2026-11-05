@@ -51,6 +51,13 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
     /// Metadata, not topology.
     /// </param>
     /// <param name="SourceError">The error, when <paramref name="SourceStatus"/> is <see cref="GraphNodeSourceStatus.Error"/>.</param>
+    /// <param name="IsRemote">
+    /// A module from a registry or a template spec rather than a local file. Metadata, not topology.
+    /// </param>
+    /// <param name="ParentId">
+    /// The node's container: the module it is declared in, or the resource it is drawn inside. The id does not change
+    /// with the container; it is the path of module and symbol names to the node.
+    /// </param>
     public record GraphNode(
         string Id,
         string Kind,
@@ -61,7 +68,8 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
         bool HasChildren,
         bool HasError,
         string? SourceStatus = null,
-        string? SourceError = null);
+        string? SourceError = null,
+        bool IsRemote = false);
 
     /// <summary>
     /// The source location of a node, resolved on demand from the live compilation so that volatile
@@ -74,7 +82,8 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
 
     /// <summary>
     /// A directed dependency edge in the server's canonical visual graph. Containment (parent/child)
-    /// is expressed via <see cref="GraphNode.ParentId"/>, not edges, so edges carry no kind today.
+    /// is expressed via <see cref="GraphNode.ParentId"/>, not edges, so edges carry no kind today. Its endpoints need not
+    /// be siblings: a node can depend on a node inside a resource container.
     /// </summary>
     public record GraphEdge(
         string Id,

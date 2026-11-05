@@ -93,13 +93,34 @@ describe("createColorTheme", () => {
     );
   });
 
-  it("keeps a pure white editor background on the canvas and firms up the node border instead", () => {
+  it("keeps a pure white editor background on the canvas, where the widget border outlines the nodes", () => {
     const theme = createColorTheme(lightTheme, tokensOf(lightV2));
-    const darkerBackground = createColorTheme(lightTheme, { ...tokensOf(lightV2), "editor-background": "#f0f0f0" });
 
     expect(theme.viewport.background).toBe("#ffffff");
     expect(theme.node.background).toBe("#ffffff");
-    expect(color(theme.node.border).a).toBeGreaterThan(color(darkerBackground.node.border).a);
+    expect(theme.node.border).toBe("#c8c8c8");
+  });
+
+  it.each(BUILT_IN_THEMES.filter(([, kind]) => kind === "light" || kind === "dark"))(
+    "outlines nodes with the widget border of %s, and firms it on hover",
+    (_, kind, variables) => {
+      const theme = createColorTheme(getThemeByName(kind), tokensOf(variables));
+      const widgetBorder = new Map(variables).get("--vscode-editorWidget-border");
+
+      expect(theme.node.border).toBe(widgetBorder);
+      expect(contrast(theme.node.hoverBorder, theme.node.background)).toBeGreaterThan(
+        contrast(theme.node.border, theme.node.background),
+      );
+    },
+  );
+
+  it("uses the curated border when the theme sets no widget border, or one too faint to see", () => {
+    const tokens = tokensOf(darkV2);
+    const missing = createColorTheme(darkTheme, { ...tokens, "editorWidget-border": undefined });
+    const faint = createColorTheme(darkTheme, { ...tokens, "editorWidget-border": "#2c2c2c" });
+
+    expect(missing.node.border).toBe(darkTheme.node.border);
+    expect(faint.node.border).toBe(darkTheme.node.border);
   });
 
   it("keeps Solarized Light's cream on the canvas and puts lighter cream on nodes and floating chrome", () => {

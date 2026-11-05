@@ -51,7 +51,11 @@ describe("computePaintOrder", () => {
   });
 
   it("does not parse IDs and treats a node with an absent parent as a root", () => {
-    const paintOrder = computePaintOrder([node("m::child", null, null), node("orphan", "missing", null)], [], ["orphan"]);
+    const paintOrder = computePaintOrder(
+      [node("m::child", null, null), node("orphan", "missing", null)],
+      [],
+      ["orphan"],
+    );
 
     expect([...paintOrder.nodeZIndices.keys()]).toEqual(["m::child", "orphan"]);
   });
@@ -134,7 +138,7 @@ describe("computePaintOrder", () => {
     it("is lifted above it when an edge joins it to the node on top, so that edge is below both", () => {
       const edges = [{ fromId: "c", toId: "s" }];
       const paintOrder = computePaintOrder(onModule, edges, raised);
-      const edgeZIndex = getEdgeZIndex(paintOrder, { parentId: null, endpointIds: ["c", "s"] });
+      const edgeZIndex = getEdgeZIndex(paintOrder, { parentIds: [null], endpointIds: ["c", "s"] });
 
       expect(order(raised, onModule, edges)).toEqual(["m", "m1", "d", "c", "e", "s"]);
       expect(edgeZIndex).toBeGreaterThan(getNodeZIndex(paintOrder, "m1")!);
@@ -148,7 +152,7 @@ describe("getEdgeZIndex", () => {
 
   it("paints an edge below every node, whatever the order of its endpoints", () => {
     const paintOrder = computePaintOrder(nodes, [], []);
-    const zIndex = getEdgeZIndex(paintOrder, { parentId: null, endpointIds: ["a", "b"] });
+    const zIndex = getEdgeZIndex(paintOrder, { parentIds: [null], endpointIds: ["a", "b"] });
 
     for (const id of ["a", "m", "x", "n", "y", "z", "b"]) {
       expect(zIndex).toBeLessThan(z(paintOrder, id));
@@ -157,7 +161,7 @@ describe("getEdgeZIndex", () => {
 
   it("paints an edge between children above their parent and below every child", () => {
     const paintOrder = computePaintOrder(nodes, [], []);
-    const zIndex = getEdgeZIndex(paintOrder, { parentId: "m", endpointIds: ["x", "n"] });
+    const zIndex = getEdgeZIndex(paintOrder, { parentIds: ["m"], endpointIds: ["x", "n"] });
 
     expect(zIndex).toBeGreaterThan(z(paintOrder, "m"));
     for (const id of ["x", "n", "y", "z"]) {
@@ -168,7 +172,7 @@ describe("getEdgeZIndex", () => {
   it("paints the edges of a node sitting on a compound node above it, and below every other node", () => {
     const moved = nodes.map((each) => (each.id === "b" ? node("b", null, box(120, 50)) : each));
     const paintOrder = computePaintOrder(moved, [], ["b"]);
-    const onModule = getEdgeZIndex(paintOrder, { parentId: null, endpointIds: ["a", "b"] });
+    const onModule = getEdgeZIndex(paintOrder, { parentIds: [null], endpointIds: ["a", "b"] });
 
     expect(paintOrder.nodesOnCompounds).toEqual(new Set(["b"]));
     for (const id of ["m", "x", "n", "y", "z"]) {
@@ -184,14 +188,36 @@ describe("getEdgeZIndex", () => {
     );
     const paintOrder = computePaintOrder(withC, [], []);
 
-    expect(getEdgeZIndex(paintOrder, { parentId: null, endpointIds: ["a", "c"] })).toBeLessThan(z(paintOrder, "m"));
+    expect(getEdgeZIndex(paintOrder, { parentIds: [null], endpointIds: ["a", "c"] })).toBeLessThan(z(paintOrder, "m"));
   });
 
   it("paints an edge whose parent has no children just above the parent, and one with no parent at the bottom", () => {
     const collapsed = [node("m", null, box(0, 0)), node("a", null, box(100, 0))];
     const paintOrder = computePaintOrder(collapsed, [], []);
 
-    expect(getEdgeZIndex(paintOrder, { parentId: "m", endpointIds: ["m::x", "m::y"] })).toBe(z(paintOrder, "m") + 1);
-    expect(getEdgeZIndex(paintOrder, { parentId: "missing", endpointIds: [] })).toBe(0);
+    expect(getEdgeZIndex(paintOrder, { parentIds: ["m"], endpointIds: ["m::x", "m::y"] })).toBe(z(paintOrder, "m") + 1);
+    expect(getEdgeZIndex(paintOrder, { parentIds: ["missing"], endpointIds: [] })).toBe(0);
+  });
+
+  it("paints an edge into a container above the frames it crosses and below the node it joins", () => {
+    const paintOrder = computePaintOrder(nodes, [], []);
+    const zIndex = getEdgeZIndex(paintOrder, { parentIds: [null, "n"], endpointIds: ["a", "y"] });
+
+    for (const id of ["m", "n"]) {
+      expect(zIndex).toBeGreaterThan(z(paintOrder, id));
+    }
+    // An edge ends at the borders of its nodes, so it never needs to be below the endpoint outside the container.
+    for (const id of ["y", "z"]) {
+      expect(zIndex).toBeLessThan(z(paintOrder, id));
+    }
+  });
+
+  it("paints an edge between two containers above the frame painted last", () => {
+    const twoContainers = [...nodes, node("k", null, box(500, 0, 100, 100), true), node("w", "k", box(510, 10))];
+    const paintOrder = computePaintOrder(twoContainers, [], []);
+    const zIndex = getEdgeZIndex(paintOrder, { parentIds: ["n", "k"], endpointIds: ["y", "w"] });
+
+    expect(zIndex).toBeGreaterThan(z(paintOrder, "k"));
+    expect(zIndex).toBeLessThan(z(paintOrder, "w"));
   });
 });
