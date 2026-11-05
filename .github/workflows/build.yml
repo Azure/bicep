@@ -618,6 +618,9 @@ jobs:
       - name: Check npm version
         run: npm -v
 
+      - name: Build Bicep CLI for grammar tests
+        run: dotnet build ./src/Bicep.Cli/Bicep.Cli.csproj
+
       - name: TextMate Grammar
         run: |
           npm ci
