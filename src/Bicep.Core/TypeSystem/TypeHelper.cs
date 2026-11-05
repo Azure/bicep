@@ -617,6 +617,43 @@ namespace Bicep.Core.TypeSystem
         }
 
         /// <summary>
+        /// Determines whether a string, int or bool type (or a union containing them) would be assignable if it had
+        /// the <see cref="TypeSymbolValidationFlags.AllowLooseAssignment"/> flag, meaning its value might be one of
+        /// the literal values the expected type allows. A null member of the candidate is tolerated, as it is for the
+        /// nullability warning.
+        /// </summary>
+        public static bool WouldBeAssignableIfLoose(TypeSymbol candidateType, TypeSymbol expectedType, [NotNullWhen(true)] out TypeSymbol? looseCandidateType)
+        {
+            var loose = MakeLoose(TryRemoveNullability(candidateType) ?? candidateType);
+            if (TypeValidator.AreTypesAssignable(loose, expectedType))
+            {
+                looseCandidateType = loose;
+                return true;
+            }
+
+            looseCandidateType = null;
+            return false;
+        }
+
+        private static TypeSymbol MakeLoose(TypeSymbol type)
+        {
+            if (type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment))
+            {
+                return type;
+            }
+
+            var looseFlags = type.ValidationFlags | TypeSymbolValidationFlags.AllowLooseAssignment;
+            return type switch
+            {
+                StringType @string => TypeFactory.CreateStringType(@string.MinLength, @string.MaxLength, @string.Pattern, looseFlags),
+                IntegerType integer => TypeFactory.CreateIntegerType(integer.MinValue, integer.MaxValue, looseFlags),
+                BooleanType => TypeFactory.CreateBooleanType(looseFlags),
+                UnionType union => CreateTypeUnion(union.Members.Select(member => MakeLoose(member.Type))),
+                _ => type,
+            };
+        }
+
+        /// <summary>
         /// Determines the possible range of lengths a supplied IntegerType will have when stringified under the invariant culture.
         /// </summary>
         public static (long minLength, long maxLength) GetMinAndMaxLengthOfStringified(IntegerType integer)
