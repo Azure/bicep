@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry;
 
@@ -15,7 +16,8 @@ public abstract record ArtifactRestoreState
     /// <summary>
     /// The artifact is available in the local cache.
     /// </summary>
-    public sealed record Restored : ArtifactRestoreState;
+    /// <param name="EntryPoint">The file in the local cache that the compiler loads for the artifact.</param>
+    public sealed record Restored(IFileHandle EntryPoint) : ArtifactRestoreState;
 
     /// <summary>
     /// The artifact is not in the local cache and no recent restore has failed.

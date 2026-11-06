@@ -3,9 +3,7 @@
 
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Uri;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceGraph.Artifacts;
@@ -25,14 +23,14 @@ namespace Bicep.Core.Modules
 
         private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private TemplateSpecModuleReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
-            : base(featureProvider, configuration, ArtifactReferenceSchemes.TemplateSpecs, ArtifactType.Module)
+        private TemplateSpecModuleReference(TemplateSpecArtifactContext context, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
+            : base(context, ArtifactReferenceSchemes.TemplateSpecs, ArtifactType.Module)
         {
             this.SubscriptionId = subscriptionId;
             this.ResourceGroupName = resourceGroupName;
             this.TemplateSpecName = templateSpecName;
             this.Version = version;
-            this.templateSpecModuleArtifact = new(() => new(subscriptionId, resourceGroupName, templateSpecName, version, featureProvider.CacheRootDirectory));
+            this.templateSpecModuleArtifact = new(() => new(subscriptionId, resourceGroupName, templateSpecName, version, context.CacheRootDirectory));
         }
 
         public override string UnqualifiedReference => $"{this.SubscriptionId}/{this.ResourceGroupName}/{this.TemplateSpecName}:{this.Version}";
@@ -54,7 +52,8 @@ namespace Bicep.Core.Modules
             StringComparer.OrdinalIgnoreCase.Equals(this.SubscriptionId, other.SubscriptionId) &&
             StringComparer.OrdinalIgnoreCase.Equals(this.ResourceGroupName, other.ResourceGroupName) &&
             StringComparer.OrdinalIgnoreCase.Equals(this.TemplateSpecName, other.TemplateSpecName) &&
-            StringComparer.OrdinalIgnoreCase.Equals(this.Version, other.Version);
+            StringComparer.OrdinalIgnoreCase.Equals(this.Version, other.Version) &&
+            this.Context.Equals(other.Context);
 
         public override int GetHashCode()
         {
@@ -64,6 +63,7 @@ namespace Bicep.Core.Modules
             hash.Add(this.ResourceGroupName, StringComparer.OrdinalIgnoreCase);
             hash.Add(this.TemplateSpecName, StringComparer.OrdinalIgnoreCase);
             hash.Add(this.Version, StringComparer.OrdinalIgnoreCase);
+            hash.Add(this.Context);
 
             return hash.ToHashCode();
         }
@@ -72,7 +72,7 @@ namespace Bicep.Core.Modules
         /// Parses a fully qualified Template Spec reference body without the scheme, e.g. <c>&lt;subscription&gt;/&lt;resource group&gt;/&lt;name&gt;:&lt;version&gt;</c>.
         /// </summary>
         /// <param name="aliasName">The scheme-qualified alias the body was expanded from, if any. Only used in diagnostics.</param>
-        public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(IFeatureProvider featureProvider, IBicepConfiguration configuration, string? aliasName, string referenceValue)
+        public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(TemplateSpecArtifactContext context, string? aliasName, string referenceValue)
         {
             if (TemplateSpecUriTemplate.GetTemplateMatch(referenceValue) is not { } match)
             {
@@ -125,10 +125,8 @@ namespace Bicep.Core.Modules
                 return new(x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, version, FullyQualify(referenceValue)));
             }
 
-            return new(new TemplateSpecModuleReference(featureProvider, configuration, subscriptionId, resourceGroupName, templateSpecName, version));
+            return new(new TemplateSpecModuleReference(context, subscriptionId, resourceGroupName, templateSpecName, version));
         }
-
-        public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => new(this.MainTemplateSpecFile);
 
         private static string FullyQualify(string referenceValue) => $"{ArtifactReferenceSchemes.TemplateSpecs}:{referenceValue}";
 

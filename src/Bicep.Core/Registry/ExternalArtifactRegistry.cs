@@ -145,9 +145,9 @@ namespace Bicep.Core.Registry
         }
 
         // base implementation for cache invalidation that should fit all external registries
-        protected async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCacheInternal(IEnumerable<TArtifactReference> references)
+        protected async Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCacheInternal(IEnumerable<TArtifactReference> references)
         {
-            var failures = new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
+            var failures = new Dictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
 
             foreach (var reference in references)
             {

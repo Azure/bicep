@@ -3,7 +3,6 @@
 
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Registry;
@@ -17,7 +16,7 @@ public sealed class RestoreFailureCache
     // Absolute rather than sliding expiration, so that a failed restore is eventually retried.
     private static readonly TimeSpan ExpirationInterval = TimeSpan.FromMinutes(30);
 
-    private readonly ConcurrentDictionary<(CloudConfiguration Cloud, ArtifactReference Reference), Entry> failures = new();
+    private readonly ConcurrentDictionary<ExternalArtifactReference, Entry> failures = new();
 
     private readonly TimeProvider timeProvider;
 
@@ -26,9 +25,10 @@ public sealed class RestoreFailureCache
         this.timeProvider = timeProvider ?? TimeProvider.System;
     }
 
-    public bool TryGetFailure(ArtifactReference reference, [NotNullWhen(true)] out DiagnosticBuilder.DiagnosticBuilderDelegate? error)
+    // A reference includes its external artifact context, so the same artifact can fail in one cloud and succeed in another.
+    public bool TryGetFailure(ExternalArtifactReference reference, [NotNullWhen(true)] out DiagnosticBuilder.DiagnosticBuilderDelegate? error)
     {
-        if (this.failures.TryGetValue(GetKey(reference), out var entry) && !this.IsExpired(entry))
+        if (this.failures.TryGetValue(reference, out var entry) && !this.IsExpired(entry))
         {
             error = entry.Error;
             return true;
@@ -38,10 +38,10 @@ public sealed class RestoreFailureCache
         return false;
     }
 
-    public void Add(ArtifactReference reference, DiagnosticBuilder.DiagnosticBuilderDelegate error) =>
-        this.failures.TryAdd(GetKey(reference), new(error, this.timeProvider.GetUtcNow().Add(ExpirationInterval)));
+    public void Add(ExternalArtifactReference reference, DiagnosticBuilder.DiagnosticBuilderDelegate error) =>
+        this.failures.TryAdd(reference, new(error, this.timeProvider.GetUtcNow().Add(ExpirationInterval)));
 
-    public void Remove(ArtifactReference reference) => this.failures.TryRemove(GetKey(reference), out _);
+    public void Remove(ExternalArtifactReference reference) => this.failures.TryRemove(reference, out _);
 
     public void RemoveExpired()
     {
@@ -56,10 +56,6 @@ public sealed class RestoreFailureCache
     }
 
     private bool IsExpired(Entry entry) => this.timeProvider.GetUtcNow() >= entry.Expiration;
-
-    // Restore depends on the cloud (for authentication and the registry endpoint), so the same reference can
-    // fail in one cloud and succeed in another.
-    private static (CloudConfiguration, ArtifactReference) GetKey(ArtifactReference reference) => ((CloudConfiguration)reference.Configuration.Cloud, reference);
 
     private sealed record Entry(DiagnosticBuilder.DiagnosticBuilderDelegate Error, DateTimeOffset Expiration);
 }

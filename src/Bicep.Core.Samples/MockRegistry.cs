@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
+using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Baselines;
@@ -86,7 +87,7 @@ public static class MockRegistry
             referenceStr = referenceStr[3..];
         }
 
-        if (!TemplateSpecModuleReference.TryParse(BicepTestConstants.DummyBicepFile.LoadFeatures(), BicepTestConstants.DummyBicepFile.LoadConfiguration(), null, referenceStr).IsSuccess(out var specReference, out var errorBuilder))
+        if (!TemplateSpecModuleReference.TryParse(TemplateSpecArtifactContext.Create(BicepTestConstants.DummyBicepFile.LoadConfiguration(), BicepTestConstants.DummyBicepFile.LoadFeatures()), null, referenceStr).IsSuccess(out var specReference, out var errorBuilder))
         {
             diagnostic = errorBuilder(DiagnosticBuilder.ForDocumentStart());
 

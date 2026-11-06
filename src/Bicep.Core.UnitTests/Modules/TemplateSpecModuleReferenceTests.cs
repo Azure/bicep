@@ -65,7 +65,7 @@ namespace Bicep.Core.UnitTests.Modules
         [TestMethod]
         public void TryParse_InvalidReference_ReturnsFalseAndSetsFailureBuilder(string rawValue)
         {
-            TemplateSpecModuleReference.TryParse(DummyReferencingFile.LoadFeatures(), DummyReferencingFile.LoadConfiguration(), null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeFalse();
+            TemplateSpecModuleReference.TryParse(TemplateSpecArtifactContext.Create(DummyReferencingFile.LoadConfiguration(), DummyReferencingFile.LoadFeatures()), null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeFalse();
 
             parsed.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
@@ -134,7 +134,7 @@ namespace Bicep.Core.UnitTests.Modules
                 return new(errorBuilder);
             }
 
-            return TemplateSpecModuleReference.TryParse(bicepFile.LoadFeatures(), bicepFile.LoadConfiguration(), aliasName, expanded);
+            return TemplateSpecModuleReference.TryParse(TemplateSpecArtifactContext.Create(bicepFile.LoadConfiguration(), bicepFile.LoadFeatures()), aliasName, expanded);
         }
 
         private static IEnumerable<object[]> GetEqualData()
@@ -236,7 +236,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static TemplateSpecModuleReference Parse(string rawValue)
         {
-            TemplateSpecModuleReference.TryParse(DummyReferencingFile.LoadFeatures(), DummyReferencingFile.LoadConfiguration(), null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
+            TemplateSpecModuleReference.TryParse(TemplateSpecArtifactContext.Create(DummyReferencingFile.LoadConfiguration(), DummyReferencingFile.LoadFeatures()), null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
 
             parsed.Should().NotBeNull();
             failureBuilder!.Should().BeNull();

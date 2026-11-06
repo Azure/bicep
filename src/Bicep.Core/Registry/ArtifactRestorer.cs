@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
-using Bicep.Core.Diagnostics;
-using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry;
 
@@ -25,22 +23,13 @@ public class ArtifactRestorer : IArtifactRestorer
             return new ArtifactRestoreState.RestoreFailed(error);
         }
 
-        if (this.GetRegistry(reference).IsArtifactRestoreRequired(reference))
+        var registry = this.GetRegistry(reference);
+        if (registry.IsArtifactRestoreRequired(reference))
         {
             return new ArtifactRestoreState.NotRestored();
         }
 
-        return new ArtifactRestoreState.Restored();
-    }
-
-    public ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPoint(ExternalArtifactReference reference)
-    {
-        if (this.failureCache.TryGetFailure(reference, out var error))
-        {
-            return new(error);
-        }
-
-        return reference.TryGetEntryPointFileHandle();
+        return new ArtifactRestoreState.Restored(registry.GetEntryPoint(reference));
     }
 
     public async Task<bool> RestoreAsync(IEnumerable<ExternalArtifactReference> references, RestoreMode mode)

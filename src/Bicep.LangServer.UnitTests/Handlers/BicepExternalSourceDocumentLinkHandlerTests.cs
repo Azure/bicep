@@ -75,14 +75,14 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 ;
         }
 
-        private (IArtifactRestorer, ISourceFileFactory) CreateRestorer(IContainerRegistryClientFactory clientFactory)
+        private (IArtifactRestorer, IExternalArtifactContextFactory) CreateRestorer(IContainerRegistryClientFactory clientFactory)
         {
             var services = GetServices(clientFactory).Build();
 
-            return (services.Construct<IArtifactRestorer>(), services.Construct<ISourceFileFactory>());
+            return (services.Construct<IArtifactRestorer>(), services.Construct<IExternalArtifactContextFactory>());
         }
 
-        private async Task<(string? message, DocumentLink<ExternalSourceDocumentLinkData>[] links)> GetAndResolveLinksForDisplayedDocument(IArtifactRestorer restorer, ISourceFileFactory sourceFileFactory, TextDocumentIdentifier documentId)
+        private async Task<(string? message, DocumentLink<ExternalSourceDocumentLinkData>[] links)> GetAndResolveLinksForDisplayedDocument(IArtifactRestorer restorer, IExternalArtifactContextFactory externalArtifactContextFactory, TextDocumentIdentifier documentId)
         {
             var server = new LanguageServerMock();
             string? message = null;
@@ -93,7 +93,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 });
 
             var links = BicepExternalSourceDocumentLinkHandler.GetDocumentLinks(
-                sourceFileFactory,
+                externalArtifactContextFactory,
                 new DocumentLinkParams() { TextDocument = documentId },
                 CancellationToken.None)
             .ToArray();
@@ -104,7 +104,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var resolvedLinks = new List<DocumentLink<ExternalSourceDocumentLinkData>>();
             foreach (var link in links)
             {
-                var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(link, restorer, sourceFileFactory, server.Mock.Object);
+                var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(link, restorer, externalArtifactContextFactory, server.Mock.Object);
                 resolvedLinks.Add(resolvedLink);
             }
 
@@ -174,10 +174,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 MockFileSystem, [
                     new("br:mockregistry.io/test/module1:v1", "metadata m = ''", WithSource: true)
                 ]);
-            var (restorer, sourceFileFactory) = CreateRestorer(clientFactory);
+            var (restorer, externalArtifactContextFactory) = CreateRestorer(clientFactory);
             await RestoreModuleViaLocalCode(clientFactory, "module1", "v1");
 
-            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, sourceFileFactory, new TextDocumentIdentifier("file:///main.bicep"));
+            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, externalArtifactContextFactory, new TextDocumentIdentifier("file:///main.bicep"));
 
             links.Should().HaveCount(0);
             msg.Should().BeNull();
@@ -203,14 +203,14 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     ]);
 
             // Compile some code to force restoration of module2 (which should always be the case if we're displaying its source)
-            var (restorer, sourceFileFactory) = CreateRestorer(clientFactory);
+            var (restorer, externalArtifactContextFactory) = CreateRestorer(clientFactory);
             await RestoreModuleViaLocalCode(clientFactory, "module2", "v2");
 
             // Get a URI for displaying module2's source
             var module2Uri = GetDocumentIdForExternalModuleSource("mockregistry.io/test/module2:v2");
 
             // ACT: Get all links inside module2's source display
-            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, sourceFileFactory, module2Uri);
+            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, externalArtifactContextFactory, module2Uri);
 
             msg.Should().BeNull();
             var link = links.Should().HaveCount(1).And.Subject.First();
@@ -219,7 +219,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var target = new ExternalSourceReference(link.Target!);
             target.FullTitle.Should().Be("br:mockregistry.io/test/module1:v1 -> main.bicep");
             target.RequestedFile.Should().Be("main.bicep");
-            target.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
+            target.ToArtifactReference(BicepTestConstants.OciArtifactContext).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
         }
 
         [TestMethod]
@@ -254,14 +254,14 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     ]);
 
             // Compile some code to force restoration of module1:v3 (which should always be the case if we're displaying its source)
-            var (restorer, sourceFileFactory) = CreateRestorer(clientFactory);
+            var (restorer, externalArtifactContextFactory) = CreateRestorer(clientFactory);
             await RestoreModuleViaLocalCode(clientFactory, "module1", "v3");
 
             // Get a URI for displaying module1:v3's source
             var module2Uri = GetDocumentIdForExternalModuleSource("mockregistry.io/test/module1:v3");
 
             // ACT: Get all nested links (one for m1:v1 and one for m1:v2)
-            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, sourceFileFactory, module2Uri);
+            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, externalArtifactContextFactory, module2Uri);
 
             msg.Should().BeNull();
             var link1 = links.Should().HaveCount(2).And.Subject.First();
@@ -270,7 +270,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var target1 = new ExternalSourceReference(link1.Target!);
             target1.FullTitle.Should().Be("br:mockregistry.io/test/module1:v1 -> main.bicep");
             target1.RequestedFile.Should().Be("main.bicep");
-            target1.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
+            target1.ToArtifactReference(BicepTestConstants.OciArtifactContext).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
 
             var link2 = links.Skip(1).First();
             link2.Range.Should().HaveRange((6, 12), (6, 48));
@@ -278,16 +278,16 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var target2 = new ExternalSourceReference(link2.Target!);
             target2.FullTitle.Should().Be("br:mockregistry.io/test/module1:v2 -> main.bicep");
             target2.RequestedFile.Should().Be("main.bicep");
-            target2.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v2");
+            target2.ToArtifactReference(BicepTestConstants.OciArtifactContext).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v2");
 
             // ACT: Follow that link and get all nested links inside module1:v2
-            var (msg3, links3) = await GetAndResolveLinksForDisplayedDocument(restorer, sourceFileFactory, new TextDocumentIdentifier(target2.ToUri()));
+            var (msg3, links3) = await GetAndResolveLinksForDisplayedDocument(restorer, externalArtifactContextFactory, new TextDocumentIdentifier(target2.ToUri()));
 
             msg3.Should().BeNull();
             var link3 = links3.Should().HaveCount(1).And.Subject.First();
             link3.Target.Should().NotBeNull();
             var target3 = new ExternalSourceReference(link3.Target!);
-            target3.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
+            target3.ToArtifactReference(BicepTestConstants.OciArtifactContext).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
 
             // Should have restored module1:v1
             GetCachedModules().Should().BeEquivalentTo([
@@ -324,13 +324,13 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             // Do *not* force restoration of module1:v3 before showing its source (shouldn't normally happen)
 
-            var (restorer, sourceFileFactory) = CreateRestorer(clientFactory);
+            var (restorer, externalArtifactContextFactory) = CreateRestorer(clientFactory);
 
             // Get a URI for displaying module1:v3's source
             var module2Uri = GetDocumentIdForExternalModuleSource("mockregistry.io/test/module1:v3");
 
             // ACT: Get all nested links
-            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, sourceFileFactory, module2Uri);
+            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, externalArtifactContextFactory, module2Uri);
             msg.Should().BeNull();
             links.Should().BeEmpty("Getting links for an unrestored module should just return empty (not a normal scenario)");
         }
@@ -349,7 +349,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ResetModuleCache();
 
             // Compile some code to force restoration of module1:v3 (which should always be the case if we're displaying its source)
-            var (restorer, sourceFileFactory) = CreateRestorer(clientFactory);
+            var (restorer, externalArtifactContextFactory) = CreateRestorer(clientFactory);
             await RestoreModuleViaLocalCode(clientFactory, "module1", "v3");
 
             GetCachedModules().Should().BeEquivalentTo([
@@ -360,13 +360,13 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var module2Uri = GetDocumentIdForExternalModuleSource("mockregistry.io/test/module1:v3");
 
             // ACT: Get all nested links for module1:v3 - this should force a restoration of module1:v2 and hence should succeed
-            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, sourceFileFactory, module2Uri);
+            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, externalArtifactContextFactory, module2Uri);
 
             msg.Should().BeNull();
             var link = links.Should().HaveCount(1).And.Subject.First();
             link.Target.Should().NotBeNull();
             var target1 = new ExternalSourceReference(link.Target!);
-            target1.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v2");
+            target1.ToArtifactReference(BicepTestConstants.OciArtifactContext).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v2");
 
             // Should have restored module1:v2
             GetCachedModules().Should().BeEquivalentTo([
@@ -393,11 +393,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
             clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor("mockregistry.io", "test/module1", ["tag"]));
 
             // Compile some code to force restoration of module1:v3 (which should always be the case if we're displaying its source)
-            var (restorer, sourceFileFactory) = CreateRestorer(clientFactory);
+            var (restorer, externalArtifactContextFactory) = CreateRestorer(clientFactory);
             await RestoreModuleViaLocalCode(clientFactory, "module1", "v3");
 
             // ACT: Get all nested links for module1:v3 - this should force a restoration of module1:v2
-            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, sourceFileFactory, module3Uri);
+            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, externalArtifactContextFactory, module3Uri);
 
             msg.Should().Be("Unable to restore module br:mockregistry.io/test/module1:v2: Unable to restore the artifact with reference \"br:mockregistry.io/test/module1:v2\": The artifact does not exist in the registry.");
 
@@ -405,7 +405,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             links.Should().HaveCount(1);
             var target = new ExternalSourceReference(links[0].Target!);
             target.RequestedFile.Should().Be("<cache>/br/mockregistry.io/test$module1/v2$/main.json");
-            target.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v3");
+            target.ToArtifactReference(BicepTestConstants.OciArtifactContext).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v3");
         }
 
         [TestMethod]
@@ -429,8 +429,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
             await RestoreModuleViaLocalCode(clientFactory, "module1", "v3");
 
             // ACT: Get all nested links for module1:v3 - this should force a restoration of module1:v2
-            var (restorer, sourceFileFactory) = CreateRestorer(clientFactory);
-            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, sourceFileFactory, module3Uri);
+            var (restorer, externalArtifactContextFactory) = CreateRestorer(clientFactory);
+            var (msg, links) = await GetAndResolveLinksForDisplayedDocument(restorer, externalArtifactContextFactory, module3Uri);
 
             msg.Should().Be("Unable to retrieve source code for module br:mockregistry.io/test/module1:v2. No source code is available for this module");
 
@@ -438,7 +438,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             links.Should().HaveCount(1);
             var target = new ExternalSourceReference(links[0].Target!);
             target.RequestedFile.Should().Be("<cache>/br/mockregistry.io/test$module1/v2$/main.json");
-            target.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v3");
+            target.ToArtifactReference(BicepTestConstants.OciArtifactContext).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v3");
         }
     }
 }

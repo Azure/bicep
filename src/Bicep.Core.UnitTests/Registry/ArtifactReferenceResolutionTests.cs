@@ -71,7 +71,7 @@ public class ArtifactReferenceResolutionTests
         registryProvider.SetupGet(x => x.SupportedSchemes).Returns([]);
         registryProvider.Setup(x => x.TryGetRegistry(It.IsAny<string>())).Returns((IArtifactRegistry?)null);
         var resolver = new RedirectingArtifactResolver(
-            new ArtifactReferenceResolver(registryProvider.Object, services.GetRequiredService<IFileExplorer>(), services.GetRequiredService<IBicepConfigurationManager>(), services.GetRequiredService<IFeatureProviderFactory>()),
+            new ArtifactReferenceResolver(registryProvider.Object, services.GetRequiredService<IFileExplorer>(), services.GetRequiredService<IBicepConfigurationManager>(), services.GetRequiredService<IFeatureProviderFactory>(), services.GetRequiredService<IExternalArtifactContextFactory>()),
             new ArtifactRedirectTable([]));
 
         Describe(ResolveDeclaration(resolver, entryPoint, module)).Should().Be(expected);
@@ -267,8 +267,54 @@ public class ArtifactReferenceResolutionTests
         var firstReference = resolver.TryResolve(first.FileHandle.Uri, ArtifactType.Module, "mod.bicep").Unwrap();
         var secondReference = resolver.TryResolve(second.FileHandle.Uri, ArtifactType.Module, "mod.bicep").Unwrap();
 
-        firstReference.TryGetEntryPointFileHandle().Unwrap().Uri.Path.Should().Be("/repo/a/mod.bicep");
-        secondReference.TryGetEntryPointFileHandle().Unwrap().Uri.Path.Should().Be("/repo/b/mod.bicep");
+        firstReference.Should().BeOfType<LocalArtifactReference>().Which.File.Uri.Path.Should().Be("/repo/a/mod.bicep");
+        secondReference.Should().BeOfType<LocalArtifactReference>().Which.File.Uri.Path.Should().Be("/repo/b/mod.bicep");
         firstReference.Should().NotBe(secondReference);
+    }
+
+    [TestMethod]
+    [DataRow("br:contoso.azurecr.io/bicep/modules/foo:v1")]
+    [DataRow("ts:00000000-0000-0000-0000-000000000000/specs-rg/foo:v1")]
+    public void Remote_references_to_the_same_artifact_are_equal_only_if_restored_with_the_same_cloud(string referenceText)
+    {
+        // The external artifact context comes from each referencing file's configuration, so an artifact reached from folders with
+        // different clouds is restored once per cloud.
+        var (first, _, resolver, services) = Setup("/repo/a/main.bicep");
+        var fileExplorer = services.GetRequiredService<IFileExplorer>();
+        fileExplorer.GetFile(CreateUri("/repo/china/bicepconfig.json")).WriteAllText("""{ "cloud": { "currentProfile": "AzureChinaCloud" } }""");
+
+        var sameCloudReference = resolver.TryResolve(CreateUri("/repo/b/main.bicep"), ArtifactType.Module, referenceText).Unwrap();
+        var otherCloudReference = resolver.TryResolve(CreateUri("/repo/china/main.bicep"), ArtifactType.Module, referenceText).Unwrap();
+        var reference = resolver.TryResolve(first.FileHandle.Uri, ArtifactType.Module, referenceText).Unwrap();
+
+        reference.Should().Be(sameCloudReference);
+        reference.GetHashCode().Should().Be(sameCloudReference.GetHashCode());
+        reference.Should().NotBe(otherCloudReference);
+        reference.FullyQualifiedReference.Should().Be(otherCloudReference.FullyQualifiedReference);
+        ((ExternalArtifactReference)otherCloudReference).Context.Cloud.ResourceManagerEndpointUri.Should().Be(new Uri("https://management.chinacloudapi.cn"));
+    }
+
+    [TestMethod]
+    public void Only_OCI_references_depend_on_the_ORAS_setting()
+    {
+        // The ORAS setting only changes how OCI registries are reached, so it is part of the identity of OCI references only.
+        var (entryPoint, _, resolver, services) = Setup("/repo/a/main.bicep");
+        services.GetRequiredService<IFileExplorer>().GetFile(CreateUri("/repo/oras/bicepconfig.json")).WriteAllText("""{ "experimentalFeaturesEnabled": { "ociEnabled": true } }""");
+        var orasUri = CreateUri("/repo/oras/main.bicep");
+
+        const string OciText = "br:contoso.azurecr.io/bicep/modules/foo:v1";
+        var ociReference = resolver.TryResolve(entryPoint.FileHandle.Uri, ArtifactType.Module, OciText).Unwrap().Should().BeOfType<OciArtifactReference>().Subject;
+        var orasOciReference = resolver.TryResolve(orasUri, ArtifactType.Module, OciText).Unwrap().Should().BeOfType<OciArtifactReference>().Subject;
+
+        ociReference.UseOrasSdk.Should().BeFalse();
+        orasOciReference.UseOrasSdk.Should().BeTrue();
+        ociReference.Should().NotBe(orasOciReference);
+
+        const string TemplateSpecText = "ts:00000000-0000-0000-0000-000000000000/specs-rg/foo:v1";
+        var templateSpecReference = resolver.TryResolve(entryPoint.FileHandle.Uri, ArtifactType.Module, TemplateSpecText).Unwrap();
+        var orasTemplateSpecReference = resolver.TryResolve(orasUri, ArtifactType.Module, TemplateSpecText).Unwrap();
+
+        templateSpecReference.Should().Be(orasTemplateSpecReference);
+        templateSpecReference.GetHashCode().Should().Be(orasTemplateSpecReference.GetHashCode());
     }
 }

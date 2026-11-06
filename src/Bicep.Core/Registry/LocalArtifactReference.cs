@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.SourceGraph.ArtifactReferences;
@@ -23,12 +21,15 @@ namespace Bicep.Core.Registry;
 public sealed class LocalArtifactReference : ArtifactReference, IExtensionArtifactReference
 {
     private readonly string displayReference;
+    private readonly IDirectoryHandle cacheRootDirectory;
     private readonly Lazy<ResultWithDiagnosticBuilder<LocalExtensionArtifact>> lazyExtensionArtifact;
 
+    /// <param name="cacheRootDirectory">The root of the local artifact cache, which extension packages are unpacked into.</param>
     /// <param name="displayReference">How the reference is shown to the user, for example in diagnostics.</param>
-    public LocalArtifactReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, ArtifactType type, IFileHandle file, string displayReference)
-        : base(featureProvider, configuration, ArtifactReferenceSchemes.Local, type)
+    public LocalArtifactReference(IDirectoryHandle cacheRootDirectory, ArtifactType type, IFileHandle file, string displayReference)
+        : base(ArtifactReferenceSchemes.Local, type)
     {
+        this.cacheRootDirectory = cacheRootDirectory;
         this.File = file;
         this.displayReference = displayReference;
         this.lazyExtensionArtifact = new(this.TryUnpackExtension);
@@ -40,7 +41,7 @@ public sealed class LocalArtifactReference : ArtifactReference, IExtensionArtifa
 
     public override string UnqualifiedReference => this.displayReference;
 
-    public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => this.Type switch
+    public ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => this.Type switch
     {
         ArtifactType.Module => new(this.File),
         // An extension package is unpacked into the cache on first use. Its entry point is the unpacked types.tgz.
@@ -67,7 +68,7 @@ public sealed class LocalArtifactReference : ArtifactReference, IExtensionArtifa
         }
 
         // The cache is content-addressed, so a package that has already been unpacked is reused.
-        var artifact = new LocalExtensionArtifact(binaryData, this.FeatureProvider.CacheRootDirectory);
+        var artifact = new LocalExtensionArtifact(binaryData, this.cacheRootDirectory);
         if (artifact.IsUnpacked)
         {
             return new(artifact);

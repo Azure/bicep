@@ -50,11 +50,13 @@ namespace Bicep.Core.UnitTests.Registry
         public void TryGetArtifactReference_ShouldSucceedForNonAzureRegistry()
         {
             var referencingFile = BicepTestConstants.CreateDummyBicepFile(featureOverrides: new FeatureProviderOverrides(OciEnabled: false));
+            var featureProviderFactory = IFeatureProviderFactory.WithStaticFeatureProvider(referencingFile.LoadFeatures());
             var resolver = new ArtifactReferenceResolver(
                 BicepTestConstants.CreateRegistryProvider(BicepTestConstants.EmptyServiceProvider),
                 BicepTestConstants.FileExplorer,
                 BicepTestConstants.BuiltInOnlyConfigurationManager,
-                IFeatureProviderFactory.WithStaticFeatureProvider(referencingFile.LoadFeatures()));
+                featureProviderFactory,
+                new ExternalArtifactContextFactory(BicepTestConstants.BuiltInOnlyConfigurationManager, featureProviderFactory));
 
             var result = resolver.TryResolve(referencingFile.FileHandle.Uri, ArtifactType.Module, "br:ghcr.io/contoso/app:v1");
 
@@ -750,7 +752,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         private OciArtifactReference CreateModuleReference(BicepSourceFile referencingFile, string registry, string repository, string? tag, string? digest)
         {
-            OciArtifactReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactType.Module, null, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(OciArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), ArtifactType.Module, null, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 

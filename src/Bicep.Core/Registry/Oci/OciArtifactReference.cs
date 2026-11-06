@@ -5,9 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
 using System.Web;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceGraph.ArtifactReferences;
 using Bicep.Core.SourceGraph.Artifacts;
@@ -22,16 +20,17 @@ namespace Bicep.Core.Registry.Oci
         private readonly Lazy<BicepRegistryModuleArtifact> lazyBicepRegistryModuleArtifact;
         private readonly Lazy<BicepRegistryExtensionArtifact> lazyBicepRegistryExtensionArtifact;
 
-        public OciArtifactReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, ArtifactType type, IOciArtifactAddressComponents artifactIdParts) :
-            base(featureProvider, configuration, OciArtifactReferenceFacts.Scheme, type)
+        public OciArtifactReference(OciArtifactContext context, ArtifactType type, IOciArtifactAddressComponents artifactIdParts) :
+            base(context, OciArtifactReferenceFacts.Scheme, type)
         {
+            OciContext = context;
             AddressComponents = artifactIdParts;
-            lazyBicepRegistryModuleArtifact = new(() => new(this.AddressComponents, this.FeatureProvider.CacheRootDirectory));
-            lazyBicepRegistryExtensionArtifact = new(() => new(this.AddressComponents, this.FeatureProvider.CacheRootDirectory));
+            lazyBicepRegistryModuleArtifact = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
+            lazyBicepRegistryExtensionArtifact = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
         }
 
-        public OciArtifactReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, ArtifactType type, string registry, string repository, string? tag, string? digest) :
-            base(featureProvider, configuration, OciArtifactReferenceFacts.Scheme, type)
+        public OciArtifactReference(OciArtifactContext context, ArtifactType type, string registry, string repository, string? tag, string? digest) :
+            base(context, OciArtifactReferenceFacts.Scheme, type)
         {
             switch (tag, digest)
             {
@@ -41,10 +40,21 @@ namespace Bicep.Core.Registry.Oci
                     throw new ArgumentException($"Both {nameof(tag)} and {nameof(digest)} cannot be non-null.");
             }
 
+            OciContext = context;
             AddressComponents = new OciArtifactAddressComponents(registry, repository, tag, digest);
-            lazyBicepRegistryModuleArtifact = new(() => new(this.AddressComponents, this.FeatureProvider.CacheRootDirectory));
-            lazyBicepRegistryExtensionArtifact = new(() => new(this.AddressComponents, this.FeatureProvider.CacheRootDirectory));
+            lazyBicepRegistryModuleArtifact = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
+            lazyBicepRegistryExtensionArtifact = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
         }
+
+        /// <summary>
+        /// Gets the OCI-specific settings used to reach the artifact. It is the same object as <see cref="ExternalArtifactReference.Context"/>.
+        /// </summary>
+        public OciArtifactContext OciContext { get; }
+
+        /// <summary>
+        /// Gets whether the registry is reached with the ORAS SDK instead of the Azure SDK.
+        /// </summary>
+        public bool UseOrasSdk => OciContext.UseOrasSdk;
 
         public IOciArtifactAddressComponents AddressComponents { get; }
 
@@ -81,22 +91,15 @@ namespace Bicep.Core.Registry.Oci
 
         public IFileHandle ExtensionTypesTgzFile => this.lazyBicepRegistryExtensionArtifact.Value.TypesTgzFile;
 
-        public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => this.Type switch
-        {
-            ArtifactType.Module => new(this.ModuleMainTemplateFile),
-            ArtifactType.Extension => new(this.ExtensionTypesTgzFile),
-            _ => throw new UnreachableException(),
-        };
-
         /// <summary>
         /// Parses a fully qualified OCI reference body without the scheme, e.g. <c>example.azurecr.invalid/foo/bar:v3</c>.
         /// </summary>
         /// <param name="aliasContext">The scheme-qualified alias the body was expanded from, if any. Only used in diagnostics.</param>
-        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(IFeatureProvider features, IBicepConfiguration configuration, ArtifactType type, string? aliasContext, string unqualifiedReference)
+        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(OciArtifactContext context, ArtifactType type, string? aliasContext, string unqualifiedReference)
         {
             if (OciArtifactAddressComponents.TryParse(unqualifiedReference, aliasContext).IsSuccess(out var components, out var errorBuilder))
             {
-                return new(new OciArtifactReference(features, configuration, type, components.Registry, components.Repository, components.Tag, components.Digest));
+                return new(new OciArtifactReference(context, type, components.Registry, components.Repository, components.Tag, components.Digest));
             }
             else
             {
@@ -118,7 +121,8 @@ namespace Bicep.Core.Registry.Oci
 
             return
                 Type == other.Type &&
-                AddressComponents.Equals(other.AddressComponents);
+                AddressComponents.Equals(other.AddressComponents) &&
+                Context.Equals(other.Context);
         }
 
         public override int GetHashCode()
@@ -126,6 +130,7 @@ namespace Bicep.Core.Registry.Oci
             var hash = new HashCode();
             hash.Add(Type);
             hash.Add(AddressComponents);
+            hash.Add(Context);
 
             return hash.ToHashCode();
         }

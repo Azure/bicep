@@ -8,7 +8,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Azure;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -90,6 +89,13 @@ namespace Bicep.Core.Registry
                 !this.GetArtifactFile(reference, ArtifactFileType.Manifest).Exists() ||
                 !this.GetArtifactFile(reference, ArtifactFileType.Metadata).Exists();
         }
+
+        public override IFileHandle GetEntryPoint(OciArtifactReference reference) => reference.Type switch
+        {
+            ArtifactType.Module => reference.ModuleMainTemplateFile,
+            ArtifactType.Extension => reference.ExtensionTypesTgzFile,
+            _ => throw new UnreachableException(),
+        };
 
         public override async Task<bool> CheckArtifactExists(ArtifactType artifactType, OciArtifactReference reference)
         {
@@ -235,9 +241,9 @@ namespace Bicep.Core.Registry
             await publicModuleMetadataProvider.TryAwaitCache(forceRestore);
         }
 
-        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
+        public override async Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
         {
-            var failures = new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
+            var failures = new Dictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
 
             var referencesEvaluated = references.ToArray();
 
@@ -254,7 +260,7 @@ namespace Bicep.Core.Registry
                 }
 
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference).Uri.GetFilePath()}");
-                var (result, errorMessage) = await this.TryRestoreArtifactAsync(reference.Configuration, reference);
+                var (result, errorMessage) = await this.TryRestoreArtifactAsync(reference);
 
                 if (result is null)
                 {
@@ -274,7 +280,7 @@ namespace Bicep.Core.Registry
             return failures;
         }
 
-        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<OciArtifactReference> references)
+        public override async Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<OciArtifactReference> references)
         {
             return await base.InvalidateArtifactsCacheInternal(references);
         }
@@ -499,12 +505,12 @@ namespace Bicep.Core.Registry
                 throw new InvalidOperationException("Module reference is missing both tag and digest.");
             }
 
-            return reference.FeatureProvider.CacheRootDirectory.GetDirectory($"{ArtifactReferenceSchemes.Oci}/{registry}/{repository}/{tagOrDigest}");
+            return reference.Context.CacheRootDirectory.GetDirectory($"{ArtifactReferenceSchemes.Oci}/{registry}/{repository}/{tagOrDigest}");
         }
 
         protected override IFileHandle GetArtifactLockFile(OciArtifactReference reference) => this.GetArtifactFile(reference, ArtifactFileType.Lock);
 
-        private async Task<(OciArtifactResult?, string? errorMessage)> TryRestoreArtifactAsync(IBicepConfiguration configuration, OciArtifactReference reference)
+        private async Task<(OciArtifactResult?, string? errorMessage)> TryRestoreArtifactAsync(OciArtifactReference reference)
         {
             await using var session = CreateSession(reference);
 
@@ -551,7 +557,7 @@ namespace Bicep.Core.Registry
                     $"Set the {BicepEnvironmentVariables.TrustedRegistries} environment variable (comma-separated hostnames, e.g. \"contoso.example.com,*.contoso.io\") to allow it.");
             }
 
-            return transportFactory.CreateSession(reference, (CloudConfiguration)reference.Configuration.Cloud);
+            return transportFactory.CreateSession(reference);
         }
 
         private static bool IsNotFoundException(Exception? exception) =>

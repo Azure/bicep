@@ -50,6 +50,7 @@ public static class BicepCoreServiceCollectionExtensions
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
         services.TryAddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
         services.TryAddSingleton<IArmClientProvider, ArmClientProvider>();
+        services.TryAddSingleton<IExternalArtifactContextFactory, ExternalArtifactContextFactory>();
         services.TryAddSingleton<IArtifactReferenceResolver, ArtifactReferenceResolver>();
         services.TryAddSingleton(sp => RedirectingArtifactResolver.Create(
             sp.GetRequiredService<IArtifactReferenceResolver>(),

@@ -24,7 +24,7 @@ public class CloudTrustGateTests
         var credentialFactory = StrictMock.Of<ITokenCredentialFactory>();
         var provider = new ArmClientProvider(credentialFactory.Object, BuiltInOnlyTrustPolicy);
 
-        FluentActions.Invoking(() => provider.CreateArmClient(CreateUntrustedConfiguration(), defaultSubscriptionId: null))
+        FluentActions.Invoking(() => provider.CreateArmClient(CreateUntrustedConfiguration().Cloud, defaultSubscriptionId: null))
             .Should().Throw<InvalidOperationException>()
             .WithMessage($"*{BicepEnvironmentVariables.TrustedClouds}*");
 
