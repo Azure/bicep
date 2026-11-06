@@ -228,6 +228,14 @@ namespace Bicep.Core.TypeSystem
         // e.g. `unrelatedFlag ? input + 1 : 0` also returns true. A precise check requires flow-sensitive typing
         // (tracked by https://github.com/Azure/bicep/issues/12121).
         private bool IsInsideTernaryBranch(SyntaxBase syntax)
+            => GetEnclosingTernaryBranches(syntax).Any();
+
+        private bool IsInDeadTernaryBranch(SyntaxBase syntax)
+            => GetEnclosingTernaryBranches(syntax).Any(pair =>
+                typeManager.GetTypeInfo(pair.ternary.ConditionExpression) is BooleanLiteralType condition &&
+                ReferenceEquals(pair.branch, condition.Value ? pair.ternary.FalseExpression : pair.ternary.TrueExpression));
+
+        private IEnumerable<(TernaryOperationSyntax ternary, SyntaxBase branch)> GetEnclosingTernaryBranches(SyntaxBase syntax)
         {
             var current = syntax;
             while (binder.GetParent(current) is { } parent)
@@ -235,11 +243,23 @@ namespace Bicep.Core.TypeSystem
                 if (parent is TernaryOperationSyntax ternary &&
                     (ReferenceEquals(current, ternary.TrueExpression) || ReferenceEquals(current, ternary.FalseExpression)))
                 {
-                    return true;
+                    yield return (ternary, current);
                 }
                 current = parent;
             }
-            return false;
+        }
+
+        private bool ShouldWarnForDeadBranchPropertyAccess(AccessExpressionSyntax syntax)
+        {
+            if (!IsInDeadTernaryBranch(syntax))
+            {
+                return false;
+            }
+
+            var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
+            baseType = TypeHelper.TryRemoveNullability(baseType) ?? baseType;
+
+            return baseType is not ResourceType and not ModuleType and not NamespaceType;
         }
 
         public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
@@ -1924,7 +1944,8 @@ namespace Bicep.Core.TypeSystem
                                     syntax.IndexExpression,
                                     literalIndex.RawStringValue,
                                     syntax.IsSafeAccess,
-                                    shouldWarn: syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(baseObject),
+                                    shouldWarn: syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(baseObject) ||
+                                        ShouldWarnForDeadBranchPropertyAccess(syntax),
                                     diagnostics);
                             }
 
@@ -2087,14 +2108,16 @@ namespace Bicep.Core.TypeSystem
                     syntax.PropertyName,
                     syntax.PropertyName.IdentifierName,
                     syntax.IsSafeAccess,
-                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType),
+                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType) ||
+                        ShouldWarnForDeadBranchPropertyAccess(syntax),
                     diagnostics),
 
                 UnionType unionType when syntax.PropertyName.IsValid => TypeHelper.GetNamedPropertyType(unionType,
                     syntax.PropertyName,
                     syntax.PropertyName.IdentifierName,
                     syntax.IsSafeAccess,
-                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(unionType),
+                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(unionType) ||
+                        ShouldWarnForDeadBranchPropertyAccess(syntax),
                     diagnostics),
 
                 // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
