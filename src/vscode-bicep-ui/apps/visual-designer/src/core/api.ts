@@ -226,6 +226,8 @@ export interface GraphNode {
   sourceStatus: GraphNodeSourceStatus | null;
   /** What went wrong, when `sourceStatus` is `error`. */
   sourceError: string | null;
+  /** A module whose source comes from a registry (`br:`) or template spec (`ts:`) rather than a local file. */
+  isRemote: boolean;
 }
 
 /**

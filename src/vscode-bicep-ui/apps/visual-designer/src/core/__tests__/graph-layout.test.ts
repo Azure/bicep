@@ -4,7 +4,13 @@
 import type { GraphEdge, GraphNode } from "../api";
 
 import { describe, expect, it } from "vitest";
-import { centerGraphLayout, getLayoutCenters, getSubgraph, graphChangeMayAffectLayout } from "../graph-layout";
+import {
+  centerGraphLayout,
+  getLayoutCenters,
+  getSubgraph,
+  graphChangeMayAffectLayout,
+  keepFocusedNodeInPlace,
+} from "../graph-layout";
 import { indexGraph } from "../graph-model";
 
 function node(overrides: Partial<GraphNode> = {}): GraphNode {
@@ -19,6 +25,7 @@ function node(overrides: Partial<GraphNode> = {}): GraphNode {
     hasError: false,
     sourceStatus: null,
     sourceError: null,
+    isRemote: false,
     ...overrides,
   };
 }
@@ -208,5 +215,36 @@ describe("getLayoutCenters", () => {
         ["collapsed", { x: 410, y: 42 }],
       ]),
     );
+  });
+});
+
+describe("keepFocusedNodeInPlace", () => {
+  const layout = new Map([
+    ["a", { x: 0, y: 0 }],
+    ["b", { x: 100, y: 0 }],
+  ]);
+
+  it("moves the whole layout so the node nearest the focus stays where it is", () => {
+    const current = new Map([
+      ["a", { x: 500, y: 500 }],
+      ["b", { x: 900, y: 520 }],
+    ]);
+
+    expect(keepFocusedNodeInPlace(layout, current, { x: 880, y: 500 })).toEqual(
+      new Map([
+        ["a", { x: 800, y: 520 }],
+        ["b", { x: 900, y: 520 }],
+      ]),
+    );
+  });
+
+  it("anchors on a node in both layouts, and keeps the layout when there is none", () => {
+    const hiddenNearFocus = new Map([
+      ["hidden", { x: 0, y: 0 }],
+      ["a", { x: 300, y: 300 }],
+    ]);
+
+    expect(keepFocusedNodeInPlace(layout, hiddenNearFocus, { x: 0, y: 0 }).get("a")).toEqual({ x: 300, y: 300 });
+    expect(keepFocusedNodeInPlace(layout, new Map(), { x: 0, y: 0 })).toEqual(layout);
   });
 });

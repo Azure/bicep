@@ -28,6 +28,7 @@ function node(overrides: Partial<GraphNode> = {}): GraphNode {
     hasError: false,
     sourceStatus: null,
     sourceError: null,
+    isRemote: false,
     ...overrides,
   };
 }
@@ -111,6 +112,23 @@ describe("projectGraph", () => {
 
     expect(projectGraph(graph, new Set())).toBe(graph);
     expect(projectGraph(graph, new Set(["missing"]))).toBe(graph);
+  });
+
+  it("collapses a resource drawn around its children, ending the edges that cross into it at the resource", () => {
+    const vnet = node({ id: "vnet", type: "Microsoft.Network/virtualNetworks", hasChildren: true });
+    const subnet = node({ id: "subnet", parentId: "vnet", type: "Microsoft.Network/virtualNetworks/subnets" });
+    const nic = node({ id: "nic", type: "Microsoft.Network/networkInterfaces" });
+    const vm = node({ id: "vm", type: "Microsoft.Compute/virtualMachines" });
+    const projected = projectGraph(
+      makeClientGraph([vnet, subnet, nic, vm], [{ id: "nic->subnet", sourceId: "nic", targetId: "subnet" }]),
+      new Set(["vnet", "vm"]),
+    );
+
+    expect([...projected.nodes.keys()]).toEqual(["vnet", "nic", "vm"]);
+    expect(projected.nodes.get("vnet")).toMatchObject({ isCollapsed: true });
+    // A resource with nothing inside it cannot be collapsed.
+    expect(projected.nodes.get("vm")).toEqual(vm);
+    expect([...projected.edges.values()]).toEqual([{ id: "nic->vnet", sourceId: "nic", targetId: "vnet" }]);
   });
 
   it("keeps the module, hides descendants, and marks it collapsed", () => {

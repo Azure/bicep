@@ -28,6 +28,8 @@ export interface CanvasNodeData {
   sourceStatus: GraphNodeSourceStatus | null;
   /** What went wrong, when `sourceStatus` is `error`. */
   sourceError: string | null;
+  /** A module from a registry or template spec rather than a local file. */
+  isRemote: boolean;
   /** The node replaces the placeholder shown where it was dropped, so it grows from the placeholder's size. */
   replacesPlaceholder: boolean;
 }
@@ -43,6 +45,7 @@ function toCanvasNodeData(node: ClientGraphNode, replacesPlaceholder: boolean): 
     canCollapse: isCollapsible(node),
     sourceStatus: node.sourceStatus,
     sourceError: node.sourceError,
+    isRemote: node.isRemote,
     replacesPlaceholder,
   };
 }

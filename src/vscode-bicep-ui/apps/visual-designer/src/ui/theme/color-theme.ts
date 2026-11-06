@@ -32,6 +32,7 @@ export const COLOR_THEME_TOKENS = [
   "textLink-foreground",
   "contrastBorder",
   "contrastActiveBorder",
+  "editorWidget-border",
   "charts-purple",
   "charts-green",
   "editorError-foreground",
@@ -102,11 +103,6 @@ export function createColorTheme(base: DefaultTheme, tokens: ColorThemeTokens): 
   const viewport = opaque(token("editor-background"), curatedViewport);
   const nodeBackground = isHighContrast ? viewport : lightenKeepingTint(viewport, nodeSeparation);
   const compoundBackground = isHighContrast ? viewport : mix(viewport, nodeBackground, 0.5);
-  // A light background near white leaves nodes little room to get lighter without losing their tint
-  // (pure white leaves none), so a firmer border makes up the separation they lack.
-  const missingSeparation = clampUnit(
-    1 - (contrastRatio(nodeBackground, viewport) - 1) / Math.max(nodeSeparation - 1, Number.EPSILON),
-  );
 
   const backgrounds = [nodeBackground, viewport];
   // Names need room above the secondary labels, so text the theme sets near the minimum (Solarized)
@@ -162,8 +158,22 @@ export function createColorTheme(base: DefaultTheme, tokens: ColorThemeTokens): 
 
   const iconColor = pickContrasting([nodeBackground], min.graphic, [token("icon-foreground")], textPrimary);
 
-  const nodeBorder = isHighContrast ? contrastBorder : withAlpha(textPrimary, 0.12 + 0.08 * missingSeparation);
-  const hoverBorder = isHighContrast ? contrastActiveBorder : withAlpha(textPrimary, 0.22 + 0.08 * missingSeparation);
+  // Nodes are surfaces on the editor, as the Find widget and hovers are, so they take the theme's widget border as is.
+  // A theme that leaves it out, or sets it too faint to see on a node, gets the curated border instead.
+  const borderSeparation = (border: Color) => contrastRatio(opaque(border, nodeBackground), nodeBackground);
+  const widgetBorder = token("editorWidget-border");
+  const nodeBorder = isHighContrast
+    ? contrastBorder
+    : widgetBorder && borderSeparation(widgetBorder) >= MIN_BORDER_SEPARATION
+      ? opaque(widgetBorder, nodeBackground)
+      : curated(base.node.border);
+  // Themes define no hover border, so hovering firms the border to the curated one, unless the theme's is firmer.
+  const curatedHoverBorder = curated(base.node.hoverBorder);
+  const hoverBorder = isHighContrast
+    ? contrastActiveBorder
+    : borderSeparation(curatedHoverBorder) > borderSeparation(nodeBorder)
+      ? curatedHoverBorder
+      : nodeBorder;
   const ringWidth = isHighContrast ? 2 : 1.5;
   const towardText = (target: string) =>
     formatColor(reachContrast(viewport, textPrimary, viewport, curatedSeparation(target)));
@@ -322,10 +332,6 @@ function lightenKeepingTint(background: Color, target: number): Color {
 /** How much of the background's chroma a lighter node shade must keep to still read as the same tint. */
 const TINT_RETENTION = 0.75;
 
-function clampUnit(value: number): number {
-  return Math.min(1, Math.max(0, value));
-}
-
 /**
  * The first candidate that reaches `minimum` contrast against every background, made opaque against
  * the first background. A candidate that falls slightly short is darkened (on light surfaces) or
@@ -351,6 +357,9 @@ function pickContrasting(
 
   return nearestPassingMix(opaque(fallback, surface), extreme, passes);
 }
+
+/** The least contrast a theme's widget border needs against a node to outline it; fainter ones are not used. */
+const MIN_BORDER_SEPARATION = 1.2;
 
 /** How far toward black or white a theme color may be pushed to become legible before it is given up. */
 const MAX_NUDGE = 0.3;

@@ -43,9 +43,9 @@ export function isDescendant(graph: ClientGraph, nodeId: string, ancestorId: str
   return false;
 }
 
-/** Whether `node` is a module with children to hide: the one rule for what can be collapsed. */
+/** Whether `node` is a module or resource with children to hide: the one rule for what can be collapsed. */
 export function isCollapsible(node: GraphNode | undefined): boolean {
-  return node?.kind === "module" && node.hasChildren;
+  return node?.hasChildren === true;
 }
 
 /** Whether expanding `node` restores its registry module: it is not restored yet, or restoring it failed. */
@@ -188,6 +188,7 @@ export function clientGraphsRenderEqually(left: ClientGraph, right: ClientGraph)
       leftNode.hasError !== rightNode.hasError ||
       leftNode.sourceStatus !== rightNode.sourceStatus ||
       leftNode.sourceError !== rightNode.sourceError ||
+      leftNode.isRemote !== rightNode.isRemote ||
       leftNode.isCollapsed !== rightNode.isCollapsed
     ) {
       return false;

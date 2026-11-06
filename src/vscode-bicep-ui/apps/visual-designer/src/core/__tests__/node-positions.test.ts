@@ -25,6 +25,7 @@ function node(id: string, parentId: string | null, kind: GraphNode["kind"] = "re
     hasError: false,
     sourceStatus: null,
     sourceError: null,
+    isRemote: false,
   };
 }
 

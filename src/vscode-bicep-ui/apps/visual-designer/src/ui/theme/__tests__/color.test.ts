@@ -2,17 +2,7 @@
 // Licensed under the MIT License.
 
 import { describe, expect, it } from "vitest";
-import {
-  composite,
-  contrastRatio,
-  formatColor,
-  fromOklch,
-  mix,
-  parseColor,
-  quantize,
-  toOklch,
-  WHITE,
-} from "../color";
+import { composite, contrastRatio, formatColor, fromOklch, mix, parseColor, quantize, toOklch, WHITE } from "../color";
 
 describe("parseColor", () => {
   it.each([

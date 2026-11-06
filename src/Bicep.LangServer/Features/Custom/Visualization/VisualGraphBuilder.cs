@@ -11,10 +11,12 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.IO.InMemory;
 using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
@@ -40,6 +42,11 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     /// and a registry module from the source it was published with, read from the local module cache. Any other remote
     /// module is a leaf whose <see cref="GraphNode.SourceStatus"/> says why.
     /// </para>
+    /// <para>
+    /// A resource with child resources, or a resource group or management group that declarations are scoped to, is a
+    /// container around them (see <see cref="GetContainers"/>). Dependencies on a container are implied and omitted; other
+    /// dependencies of a contained node can cross a container's boundary.
+    /// </para>
     /// </summary>
     public sealed class VisualGraphBuilder(BicepCompiler compiler, IArtifactRestorer restorer)
     {
@@ -60,6 +67,9 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         /// </summary>
         private abstract record ModuleExpansion
         {
+            /// <summary>The module comes from a registry or a template spec rather than a local file.</summary>
+            public bool IsRemote { get; init; }
+
             /// <summary>The module's file declares resources or modules, which become its children.</summary>
             public sealed record Children(PendingFile File) : ModuleExpansion;
 
@@ -108,9 +118,15 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                     ? semanticModel.GetAllDiagnostics().Where(x => x.IsError()).ToList()
                     : [];
 
+                string GetId(DeclaredSymbol symbol) => parentId is null ? symbol.Name : $"{parentId}::{symbol.Name}";
+
+                var containers = GetContainers(semanticModel, dependenciesBySymbol.Keys.ToHashSet());
+
                 foreach (var symbol in dependenciesBySymbol.Keys)
                 {
-                    var id = parentId is null ? symbol.Name : $"{parentId}::{symbol.Name}";
+                    var id = GetId(symbol);
+                    // A contained node keeps its id, the path of symbol names, and only changes its parent.
+                    var nodeParentId = containers.TryGetValue(symbol, out var container) ? GetId(container) : parentId;
 
                     if (symbol is ResourceSymbol resourceSymbol)
                     {
@@ -122,11 +138,11 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                         nodesBySymbol[symbol] = new GraphNode(
                             Id: id,
                             Kind: GraphNodeKind.Resource,
-                            ParentId: parentId,
+                            ParentId: nodeParentId,
                             Type: resourceType,
                             SymbolName: symbol.Name,
                             IsCollection: resourceSymbol.IsCollection,
-                            HasChildren: false,
+                            HasChildren: containers.ContainsValue(resourceSymbol),
                             HasError: hasError);
                         sources[id] = new NodeSource(documentUri, range);
                     }
@@ -153,7 +169,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                         nodesBySymbol[symbol] = new GraphNode(
                             Id: id,
                             Kind: GraphNodeKind.Module,
-                            ParentId: parentId,
+                            ParentId: nodeParentId,
                             Type: "<module>",
                             SymbolName: symbol.Name,
                             // A module whose path does not resolve has no type to say it is a loop, as in published source.
@@ -161,7 +177,8 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                             HasChildren: expansion is ModuleExpansion.Children,
                             HasError: hasError,
                             SourceStatus: sourceStatus,
-                            SourceError: sourceError);
+                            SourceError: sourceError,
+                            IsRemote: expansion.IsRemote);
                         sources[id] = new NodeSource(documentUri, range);
                     }
                 }
@@ -177,7 +194,10 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
                     foreach (var dependency in dependencies)
                     {
-                        if (!nodesBySymbol.TryGetValue(dependency.Resource, out var target))
+                        // A dependency between a node and a container around it is implied by the containment.
+                        if (!nodesBySymbol.TryGetValue(dependency.Resource, out var target) ||
+                            IsContainedBy(symbol, dependency.Resource, containers) ||
+                            IsContainedBy(dependency.Resource, symbol, containers))
                         {
                             continue;
                         }
@@ -255,8 +275,8 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             {
                 return reference switch
                 {
-                    OciArtifactReference registryReference => this.GetRegistryModuleExpansion(registryReference, nodeId, file),
-                    TemplateSpecModuleReference => new ModuleExpansion.Unavailable(),
+                    OciArtifactReference registryReference => this.GetRegistryModuleExpansion(registryReference, nodeId, file) with { IsRemote = true },
+                    TemplateSpecModuleReference => new ModuleExpansion.Unavailable { IsRemote = true },
                     _ when module.TryGetSemanticModel().IsSuccess(out var model, out _) && model is SemanticModel bicepModel =>
                         ExpandInto(new(bicepModel, nodeId, Archive: null, file.EnclosingRegistryModules)),
                     _ => new ModuleExpansion.Leaf(),
@@ -282,10 +302,10 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             {
                 var registryReference = new OciArtifactReference(OciArtifactContext.Create(entryFile.LoadConfiguration(), entryFile.LoadFeatures()), ArtifactType.Module, address);
 
-                return this.GetRegistryModuleExpansion(registryReference, nodeId, file);
+                return this.GetRegistryModuleExpansion(registryReference, nodeId, file) with { IsRemote = true };
             }
 
-            return reference is TemplateSpecModuleReference ? new ModuleExpansion.Unavailable() : new ModuleExpansion.Leaf();
+            return reference is TemplateSpecModuleReference ? new ModuleExpansion.Unavailable { IsRemote = true } : new ModuleExpansion.Leaf();
         }
 
         private ModuleExpansion GetRegistryModuleExpansion(OciArtifactReference registryReference, string nodeId, PendingFile file)
@@ -341,6 +361,78 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             var link = file.Archive.FindDocumentLinks(file.Path).FirstOrDefault(link => link.Range.Start == start);
 
             return link is null ? null : file.Archive.FindSourceFile(link.Target);
+        }
+
+        /// <summary>
+        /// The resource each declaration is drawn inside, keyed by declaration; a declaration drawn directly in its file has
+        /// no entry. A resource is inside its parent resource, the one it is nested in or its <c>parent</c> property names.
+        /// Otherwise a resource or module is inside the resource group or management group its <c>scope</c> property names,
+        /// when that is a resource declared in the same file. A collection is never a container, since one node stands for
+        /// many instances, and a scope that only computes a name, such as <c>resourceGroup(rg.name)</c>, is not containment.
+        /// </summary>
+        private static Dictionary<DeclaredSymbol, ResourceSymbol> GetContainers(SemanticModel model, IReadOnlySet<DeclaredSymbol> symbols)
+        {
+            var containers = new Dictionary<DeclaredSymbol, ResourceSymbol>();
+
+            foreach (var symbol in symbols)
+            {
+                if (TryGetContainer(model, symbol) is { IsCollection: false } container && symbols.Contains(container))
+                {
+                    containers[symbol] = container;
+                }
+            }
+
+            // Only invalid source, such as two management groups scoped to each other, can make a cycle; drop it.
+            foreach (var symbol in containers.Keys.ToArray())
+            {
+                if (IsContainedBy(symbol, symbol, containers))
+                {
+                    containers.Remove(symbol);
+                }
+            }
+
+            return containers;
+        }
+
+        private static ResourceSymbol? TryGetContainer(SemanticModel model, DeclaredSymbol symbol)
+        {
+            if (symbol is ResourceSymbol resource &&
+                model.ResourceMetadata.TryLookup(resource.DeclaringSyntax) is DeclaredResourceMetadata metadata &&
+                !model.ResourceAncestors.GetAncestors(metadata).IsEmpty)
+            {
+                return model.ResourceAncestors.GetAncestors(metadata)[^1].Resource.Symbol;
+            }
+
+            var body = symbol switch
+            {
+                ResourceSymbol { DeclaringResource: var declaration } => declaration.TryGetBody(),
+                ModuleSymbol { DeclaringModule: var declaration } => declaration.TryGetBody(),
+                _ => null,
+            };
+
+            return body?.TryGetPropertyByName(LanguageConstants.ResourceScopePropertyName)?.Value is VariableAccessSyntax scope &&
+                model.GetSymbolInfo(scope) is ResourceSymbol target &&
+                target.TryGetResourceTypeReference()?.FormatType() is { } type &&
+                (StringComparer.OrdinalIgnoreCase.Equals(type, AzResourceTypeProvider.ResourceTypeResourceGroup) ||
+                    StringComparer.OrdinalIgnoreCase.Equals(type, AzResourceTypeProvider.ResourceTypeManagementGroup))
+                ? target
+                : null;
+        }
+
+        /// <summary>Whether <paramref name="ancestor"/> is a container around <paramref name="symbol"/>, at any depth.</summary>
+        private static bool IsContainedBy(DeclaredSymbol symbol, DeclaredSymbol ancestor, IReadOnlyDictionary<DeclaredSymbol, ResourceSymbol> containers)
+        {
+            var visited = new HashSet<DeclaredSymbol>();
+
+            for (var current = symbol; containers.TryGetValue(current, out var container) && visited.Add(container); current = container)
+            {
+                if (container == ancestor)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>A module expands into its file's resources and modules; one whose file declares none is a leaf.</summary>

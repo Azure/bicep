@@ -55,7 +55,7 @@ public class VisualGraphRemoteModuleTests
         var (graph, sources) = builder.Build(context);
         var nodes = graph.Nodes.ToDictionary(node => node.Id);
 
-        nodes["storage"].Should().Match<GraphNode>(node => node.HasChildren && node.SourceStatus == null);
+        nodes["storage"].Should().Match<GraphNode>(node => node.HasChildren && node.SourceStatus == null && node.IsRemote);
         nodes["storage::nsg"].Should().Match<GraphNode>(node =>
             node.Kind == GraphNodeKind.Resource &&
             node.ParentId == "storage" &&
@@ -63,6 +63,8 @@ public class VisualGraphRemoteModuleTests
             !node.HasError);
         nodes["storage::copies"].IsCollection.Should().BeTrue();
         nodes["storage::inner"].Should().Match<GraphNode>(node => node.Kind == GraphNodeKind.Module && node.HasChildren && node.IsCollection);
+        // A local module in the published source is a file of that source, not a module from somewhere else.
+        nodes["storage::inner"].IsRemote.Should().BeFalse();
         nodes["storage::inner::child"].ParentId.Should().Be("storage::inner");
         graph.Edges.Select(edge => edge.Id).Should().Contain("storage::inner->storage::nsg");
 
@@ -73,7 +75,7 @@ public class VisualGraphRemoteModuleTests
         sources["storage::inner::child"].Range.Start.Line.Should().Be(1);
 
         // The nested registry module is not cached. Building the graph does not restore it; expanding it can.
-        nodes["storage::leaf"].Should().Match<GraphNode>(node => !node.HasChildren && node.SourceStatus == GraphNodeSourceStatus.Unrestored);
+        nodes["storage::leaf"].Should().Match<GraphNode>(node => !node.HasChildren && node.SourceStatus == GraphNodeSourceStatus.Unrestored && node.IsRemote);
         var restorableReferences = GetRestorableReferences(builder, context, graph);
         restorableReferences.Should().ContainSingle().Which.Should().Match<KeyValuePair<string, OciArtifactReference>>(pair =>
             pair.Key == "storage::leaf" && pair.Value.FullyQualifiedReference == $"br:{Registry}/test/leaf:v1");
@@ -196,7 +198,7 @@ public class VisualGraphRemoteModuleTests
         var graph = builder.Build(context).Graph;
 
         graph.Nodes.Should().ContainSingle().Which.Should().Match<GraphNode>(node =>
-            !node.HasChildren && node.SourceStatus == GraphNodeSourceStatus.Unavailable);
+            !node.HasChildren && node.SourceStatus == GraphNodeSourceStatus.Unavailable && node.IsRemote);
         GetRestorableReferences(builder, context, graph).Should().BeEmpty();
     }
 

@@ -33,6 +33,9 @@ test.describe("Remote modules", () => {
     await expect(page.locator('[data-node-id="storage::account"]')).toBeVisible();
     await expect(page.locator('[data-node-id="storage::blobs::container"]')).toBeVisible();
     await waitForStableNodePosition(page, "storage::account");
+    // A registry module's folder carries the cloud emblem; a local module in its source does not.
+    await expect(page.locator('[data-node-id="storage"] [data-testid="remote-module-icon"]')).toBeVisible();
+    await expect(page.locator('[data-node-id="storage::blobs"] [data-testid="remote-module-icon"]')).toHaveCount(0);
 
     await page.getByRole("button", { name: "Collapse module storage" }).click();
 

@@ -24,7 +24,7 @@ function toGraphNode(node: SampleGraphNode): GraphNode {
   return {
     id: node.id,
     kind: node.type === "<module>" ? "module" : "resource",
-    parentId: getParentId(node.id),
+    parentId: node.parentId !== undefined ? node.parentId : getParentId(node.id),
     type: node.type,
     symbolName: node.id.split("::").pop() ?? node.id,
     isCollection: node.isCollection,
@@ -32,6 +32,7 @@ function toGraphNode(node: SampleGraphNode): GraphNode {
     hasError: node.hasError,
     sourceStatus: node.sourceStatus ?? null,
     sourceError: node.sourceError ?? null,
+    isRemote: node.isRemote ?? false,
   };
 }
 
@@ -111,5 +112,19 @@ export function layoutGraph(
     return { status: "graphChanged", positions: [], bounds: null };
   }
 
-  return { status: "ok", ...buildFakeLayout(measured.nodes) };
+  const layout = buildFakeLayout(measured.nodes);
+  const fixed = new Map((sample?.nodes ?? []).flatMap((node) => (node.position ? [[node.id, node.position]] : [])));
+  if (fixed.size === 0) {
+    return { status: "ok", ...layout };
+  }
+
+  const positions = layout.positions.map((position) => {
+    const override = fixed.get(position.nodeId);
+    return override ? { nodeId: position.nodeId, ...override } : position;
+  });
+  const sizes = new Map(measured.nodes.map((node) => [node.id, node]));
+  const width = Math.max(...positions.map(({ nodeId, x }) => x + (sizes.get(nodeId)?.width ?? 0)));
+  const height = Math.max(...positions.map(({ nodeId, y }) => y + (sizes.get(nodeId)?.height ?? 0)));
+
+  return { status: "ok", positions, bounds: { width, height } };
 }

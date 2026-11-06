@@ -37,9 +37,12 @@ export interface PaintOrder {
   readonly nodesOnCompounds: ReadonlySet<string>;
 }
 
-/** An edge, stacked among the children of `parentId` (the root when null). Edges join siblings. */
+/**
+ * An edge, stacked among the children of its endpoints' parents (the root when null). Siblings share a parent; an edge
+ * that crosses a container's frame, such as one to a subnet inside a virtual network, has two.
+ */
 export interface EdgeStacking {
-  parentId: string | null;
+  parentIds: readonly (string | null)[];
   endpointIds: readonly string[];
 }
 
@@ -161,7 +164,7 @@ export function computePaintOrder(
 
     // What stays below the occupied compound nodes: each sibling drawn below one of them that overlaps it.
     const sunk = new Set(occupied);
-    for (let changed = true; changed; ) {
+    for (let changed = true; changed;) {
       changed = false;
       for (const id of siblings) {
         if (sunk.has(id) || lifted.has(id)) {
@@ -206,9 +209,14 @@ export function getNodeZIndex(paintOrder: PaintOrder, nodeId: string): number | 
 /**
  * The z-index of an edge among the children of its parent: below all of them, unless an endpoint sits on a sibling
  * compound node. An edge whose parent has no children left, such as one fading out of a container that closed, is
- * painted just above that parent.
+ * painted just above that parent. An edge whose endpoints have different parents is stacked among the children of the
+ * parent painted last, so it is drawn above every frame it crosses into and still below the nodes in it.
  */
-export function getEdgeZIndex(paintOrder: PaintOrder, { parentId, endpointIds }: EdgeStacking): number {
+export function getEdgeZIndex(paintOrder: PaintOrder, { parentIds, endpointIds }: EdgeStacking): number {
+  return Math.max(...parentIds.map((parentId) => getEdgeZIndexAmong(paintOrder, parentId, endpointIds)));
+}
+
+function getEdgeZIndexAmong(paintOrder: PaintOrder, parentId: string | null, endpointIds: readonly string[]): number {
   const layers = paintOrder.edgeLayers.get(parentId);
 
   if (layers) {
