@@ -15,26 +15,29 @@ namespace Bicep.Core.UnitTests;
 public class BicepCoreServiceCollectionExtensionsTests : TestBase
 {
     [TestMethod]
+    public void Registries_are_registered_once_and_share_their_concrete_instances()
+    {
+        using var services = new ServiceCollection().AddBicepCore().AddBicepCore().BuildServiceProvider();
+        var registries = services.GetServices<IArtifactRegistry>().ToArray();
+
+        registries.Should().HaveCount(2);
+        registries.Should().ContainSingle(registry => ReferenceEquals(registry, services.GetRequiredService<OciArtifactRegistry>()));
+        registries.Should().ContainSingle(registry => ReferenceEquals(registry, services.GetRequiredService<TemplateSpecModuleRegistry>()));
+    }
+
+    [TestMethod]
     public void Artifact_services_can_be_overridden_independently()
     {
         var resolver = StrictMock.Of<IArtifactReferenceResolver>().Object;
         var restorer = StrictMock.Of<IArtifactRestorer>().Object;
-        var publisher = StrictMock.Of<IArtifactPublisher>().Object;
 
         using var resolverServices = new ServiceCollection().AddSingleton(resolver).AddBicepCore().BuildServiceProvider();
         resolverServices.GetRequiredService<IArtifactReferenceResolver>().Should().BeSameAs(resolver);
         resolverServices.GetRequiredService<IArtifactRestorer>().Should().BeOfType<ArtifactRestorer>();
-        resolverServices.GetRequiredService<IArtifactPublisher>().Should().BeOfType<ArtifactPublisher>();
 
         using var restorerServices = new ServiceCollection().AddSingleton(restorer).AddBicepCore().BuildServiceProvider();
         restorerServices.GetRequiredService<IArtifactRestorer>().Should().BeSameAs(restorer);
         restorerServices.GetRequiredService<IArtifactReferenceResolver>().Should().BeOfType<ArtifactReferenceResolver>();
-        restorerServices.GetRequiredService<IArtifactPublisher>().Should().BeOfType<ArtifactPublisher>();
-
-        using var publisherServices = new ServiceCollection().AddSingleton(publisher).AddBicepCore().BuildServiceProvider();
-        publisherServices.GetRequiredService<IArtifactPublisher>().Should().BeSameAs(publisher);
-        publisherServices.GetRequiredService<IArtifactReferenceResolver>().Should().BeOfType<ArtifactReferenceResolver>();
-        publisherServices.GetRequiredService<IArtifactRestorer>().Should().BeOfType<ArtifactRestorer>();
     }
 
     [TestMethod]

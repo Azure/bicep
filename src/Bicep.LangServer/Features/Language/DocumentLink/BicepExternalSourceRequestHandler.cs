@@ -95,10 +95,11 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
             // No sources available, or specifically requesting the compiled main.json (requestedSourceFile=null).
             // Return the compiled JSON (main.json).
-            if (!ociModuleReference.ModuleMainTemplateFile.TryReadAllText().IsSuccess(out var contents, out var failureBuilder))
+            var mainTemplateFile = ociModuleReference.ModuleCacheEntry.MainTemplateFile;
+            if (!mainTemplateFile.TryReadAllText().IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
-                return Task.FromResult(new BicepExternalSourceResponse(null, $"Unable to read file '{ociModuleReference.ModuleMainTemplateFile.Uri}'. {message}"));
+                return Task.FromResult(new BicepExternalSourceResponse(null, $"Unable to read file '{mainTemplateFile.Uri}'. {message}"));
             }
 
             return Task.FromResult(new BicepExternalSourceResponse(contents));

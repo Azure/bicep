@@ -6,14 +6,6 @@ using Bicep.Core.Registry.Oci;
 
 namespace Bicep.Core.Registry;
 
-public record ExtensionBinary(
-    SupportedArchitecture Architecture,
-    BinaryData Data);
+public record ExtensionBinary(SupportedArchitecture Architecture, BinaryData Data);
 
-public sealed record ExtensionPackage(
-    BinaryData Types,
-    bool LocalDeployEnabled,
-    ImmutableArray<ExtensionBinary> Binaries) : ArtifactPackage
-{
-    public override ArtifactType Type => ArtifactType.Extension;
-}
+public sealed record ExtensionPackage(BinaryData Types, bool LocalDeployEnabled, ImmutableArray<ExtensionBinary> Binaries);

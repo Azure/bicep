@@ -379,8 +379,9 @@ public class VisualGraphRemoteModuleTests
 
         var provider = services.Build();
         var resolver = provider.Construct<IArtifactReferenceResolver>();
-        var storageReference = resolver.TryResolve(BicepTestConstants.DummyBicepFile.FileHandle.Uri, ArtifactType.Module, $"br:{Registry}/test/storage:v1").Unwrap();
-        await provider.Construct<IArtifactPublisher>().PublishAsync(
+        var storageReference = resolver.TryResolve(BicepTestConstants.DummyBicepFile.FileHandle.Uri, ArtifactType.Module, $"br:{Registry}/test/storage:v1").Unwrap() as OciArtifactReference
+            ?? throw new InvalidOperationException("The storage module must have an OCI publish target.");
+        await provider.Construct<OciArtifactRegistry>().PublishModule(
             storageReference,
             new ModulePackage(
                 BinaryData.FromString(storage.Template!.ToString()),

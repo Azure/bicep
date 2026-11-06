@@ -20,7 +20,7 @@ namespace Bicep.Core.Artifacts.LegacyModuleAliasMocks;
 /// (an architecture test enforces this). To delete it, remove:
 /// <list type="bullet">
 ///   <item>the <c>LegacyModuleAliasMocks</c> folders in product code and tests;</item>
-///   <item>the rule registration in <see cref="ArtifactRedirectTable"/>;</item>
+///   <item>the rule registration in <see cref="RedirectingArtifactResolver"/>;</item>
 ///   <item>the call in the CLI <c>publish</c> command, which keeps rejecting mocked aliases as publish targets;</item>
 ///   <item>the <c>ModuleAliasesMock</c> configuration property, its bind/<c>With</c>/<c>WriteTo</c> code and its declaring-URI registration;</item>
 ///   <item>the <c>moduleAliasesMock</c> placeholder in the built-in <c>bicepconfig.json</c> and in the schema;</item>

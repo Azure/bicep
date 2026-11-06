@@ -1,29 +1,52 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Bicep.Core.Extensions;
 using Bicep.Core.Registry.Oci;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.SourceGraph.Artifacts
 {
+    /// <summary>
+    /// The cache entry of an OCI artifact: <c>br/&lt;registry&gt;/&lt;repository&gt;/&lt;tag or digest&gt;/</c> under the cache root.
+    /// </summary>
     public abstract class BicepRegistryArtifact : ExternalArtifact
     {
-
         public BicepRegistryArtifact(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
             : base(ResolveCacheDirectory(address, rootCacheDirectory))
         {
         }
 
-        public IFileHandle LockFile => this.GetFile("lock");
-
         public IFileHandle ManifestFile => this.GetFile("manifest");
 
         public IFileHandle MetadataFile => this.GetFile("metadata");
+
+        // The manifest and the metadata are written first and last, so all three files exist only once the entry is complete.
+        public override bool IsComplete => this.EntryPoint.Exists() && this.ManifestFile.Exists() && this.MetadataFile.Exists();
+
+        /// <summary>
+        /// Writes a pulled artifact into the cache, unless another compilation already has.
+        /// </summary>
+        /// <param name="artifactReference">The reference, for error messages.</param>
+        public Task WriteAsync(OciArtifactResult result, string artifactReference) => this.WriteAsync(() =>
+        {
+            // Write the original manifest bytes rather than a serialized manifest object, so that the manifest hash matches.
+            this.ManifestFile.Write(result.ManifestData);
+
+            this.WriteLayers(result, artifactReference);
+
+            var metadata = new ModuleMetadata(result.ManifestDigest);
+            using var metadataStream = new MemoryStream();
+            OciSerialization.Serialize(metadataStream, metadata);
+            metadataStream.Position = 0;
+
+            this.MetadataFile.Write(metadataStream);
+        });
+
+        // CONSIDER: Write all layers as separate binary files instead of the files we know about (main.json, source.tgz, ...),
+        // so that every version can restore every layer, even optional layers added later. The manifest says what each layer is.
+        // (https://github.com/Azure/bicep/issues/11900)
+        protected abstract void WriteLayers(OciArtifactResult result, string artifactReference);
 
         private static IDirectoryHandle ResolveCacheDirectory(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
         {
@@ -45,13 +68,17 @@ namespace Bicep.Core.SourceGraph.Artifacts
 
             var tagOrDigest = (address.Tag, address.Digest) switch
             {
+                // tags are case-sensitive with length up to 128
                 (not null, null) => TagEncoder.Encode(address.Tag),
+                // digests are strings like "sha256:e207a69d02b3de40d48ede9fd208d80441a9e590a83a0bc915d46244c03310d4"
+                // and are already guaranteed to be lowercase
+                // the only problematic character is the : which we will replace with a #
+                // however the encoding we choose must not be ambiguous with the tag encoding
                 (null, not null) => address.Digest.Replace(':', '#'),
                 _ => throw new InvalidOperationException("Either tag or digest must be set."),
             };
 
             return rootCacheDirectory.GetDirectory($"{OciArtifactReferenceFacts.Scheme}/{registry}/{repository}/{tagOrDigest}");
         }
-
     }
 }

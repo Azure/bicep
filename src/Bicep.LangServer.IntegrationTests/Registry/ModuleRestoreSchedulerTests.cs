@@ -10,6 +10,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
@@ -80,9 +81,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
         public async Task RestoreShouldBeScheduledAsRequested()
         {
             var mockRegistry = new MockRegistry();
-            var provider = new MockArtifactRegistryProvider(mockRegistry.AsEnumerable());
-
-            var restorer = new ArtifactRestorer(provider);
+            var restorer = new ArtifactRestorer([mockRegistry], Mock.Of<IPublicModuleMetadataProvider>());
 
             var firstUri = DocumentUri.From("foo://one");
             var firstSource = new TaskCompletionSource<bool>();
@@ -164,36 +163,13 @@ namespace Bicep.LangServer.IntegrationTests.Registry
 
             public bool CanHandle(ExternalArtifactReference reference) => reference is MockArtifactRef;
 
-            public RegistryCapabilities GetCapabilities(ArtifactType artifactType, ExternalArtifactReference _) => throw new NotImplementedException();
+            public IFileHandle? TryGetEntryPoint(ExternalArtifactReference _) => null;
 
-            public bool IsArtifactRestoreRequired(ExternalArtifactReference _) => true;
-
-            public IFileHandle GetEntryPoint(ExternalArtifactReference _) => DummyFileHandle.Default;
-
-            public Task PublishModule(ExternalArtifactReference _, BinaryData __, BinaryData? ___, string? ____, string? _____)
-                => throw new NotImplementedException();
-
-            public Task PublishExtension(ExternalArtifactReference _, ExtensionPackage __)
-                => throw new NotImplementedException();
-
-            public Task<bool> CheckArtifactExists(ArtifactType artifactType, ExternalArtifactReference reference) => throw new NotImplementedException();
-
-            public Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ExternalArtifactReference> _)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ExternalArtifactReference> references)
+            public Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreAsync(IEnumerable<ExternalArtifactReference> references, RestoreMode mode)
             {
                 this.ModuleRestores.Push(references);
                 return Task.FromResult<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>>(new Dictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>());
             }
-
-            public string? GetDocumentationUri(ExternalArtifactReference _) => null;
-
-            public Task<string?> TryGetModuleDescription(ModuleSymbol module, ExternalArtifactReference _) => Task.FromResult<string?>(null);
-
-            public Task OnRestoreArtifacts(bool forceRestore) => Task.CompletedTask;
         }
 
         private class MockArtifactRef : ExternalArtifactReference
@@ -209,8 +185,5 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public override string UnqualifiedReference => this.Value;
         }
 
-        private class MockArtifactRegistryProvider(IEnumerable<IArtifactRegistry> registries) : ArtifactRegistryProvider(registries)
-        {
-        }
     }
 }

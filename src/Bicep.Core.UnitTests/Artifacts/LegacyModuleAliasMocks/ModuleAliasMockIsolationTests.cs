@@ -21,8 +21,8 @@ public class ModuleAliasMockIsolationTests
     [
         // The mock implementation.
         "Bicep.Core/Artifacts/LegacyModuleAliasMocks/",
-        // The single registration, as a rule in the compiler-only redirect table.
-        "Bicep.Core/Artifacts/Redirects/ArtifactRedirectTable.cs",
+        // The single registration, as a rule in the compiler-only redirecting resolver.
+        "Bicep.Core/Artifacts/Redirects/RedirectingArtifactResolver.cs",
         // Module publish targets keep rejecting mocked aliases.
         "Bicep.Cli/Commands/PublishCommand.cs",
         // Configuration binding and the declaring-URI annotation.

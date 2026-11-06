@@ -6,6 +6,7 @@ using Bicep.Core;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
@@ -26,18 +27,18 @@ namespace Bicep.LanguageServer.Features.Language.Hover
 {
     public class BicepHoverHandler : HoverHandlerBase
     {
-        private readonly IArtifactRegistryProvider moduleRegistryProvider;
+        private readonly OciArtifactRegistry ociRegistry;
         private readonly ISymbolResolver symbolResolver;
         private readonly ICompilationManager compilationManager;
         private readonly DocumentSelectorFactory documentSelectorFactory;
 
         public BicepHoverHandler(
-            IArtifactRegistryProvider moduleRegistryProvider,
+            OciArtifactRegistry ociRegistry,
             ISymbolResolver symbolResolver,
             ICompilationManager compilationManager,
             DocumentSelectorFactory documentSelectorFactory)
         {
-            this.moduleRegistryProvider = moduleRegistryProvider;
+            this.ociRegistry = ociRegistry;
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
             this.documentSelectorFactory = documentSelectorFactory;
@@ -53,7 +54,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                 return null;
             }
 
-            var markdown = await GetMarkdown(request, result, this.moduleRegistryProvider);
+            var markdown = await GetMarkdown(request, result, this.ociRegistry);
             if (markdown == null)
             {
                 return null;
@@ -109,7 +110,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
         private static async Task<MarkedStringsOrMarkupContent?> GetMarkdown(
             HoverParams request,
             SymbolResolutionResult result,
-            IArtifactRegistryProvider moduleRegistryProvider)
+            OciArtifactRegistry ociRegistry)
         {
             // all of the generated markdown includes the language id to avoid VS code rendering
             // with multiple borders
@@ -157,7 +158,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                         descriptionWithDocs));
 
                 case ModuleSymbol module:
-                    return await GetModuleMarkdown(request, result, moduleRegistryProvider, module);
+                    return await GetModuleMarkdown(request, result, ociRegistry, module);
 
                 case TestSymbol test:
                     return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"test {test.Name}", TryGetDescription(result, test)));
@@ -215,7 +216,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
         private static async Task<MarkedStringsOrMarkupContent> GetModuleMarkdown(
             HoverParams request,
             SymbolResolutionResult result,
-            IArtifactRegistryProvider moduleRegistryProvider,
+            OciArtifactRegistry ociRegistry,
             ModuleSymbol module)
         {
             var filePath = module.DeclaringModule.TryGetPath()?.TryGetLiteralValue() is string modulePath ? modulePath : string.Empty;
@@ -226,10 +227,10 @@ namespace Bicep.LanguageServer.Features.Language.Hover
 
             switch (module.Context.SourceFileLookup.TryGetArtifactReference(module.DeclaringModule))
             {
-                case ExternalArtifactReference moduleReference when moduleRegistryProvider.TryGetRegistry(moduleReference) is { } registry:
+                case OciArtifactReference moduleReference:
                     try
                     {
-                        descriptionLines.Add(await registry.TryGetModuleDescription(module, moduleReference));
+                        descriptionLines.Add(await ociRegistry.TryGetModuleDescription(module, moduleReference));
                     }
                     catch
                     {
@@ -238,7 +239,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
 
                     try
                     {
-                        if (registry.GetDocumentationUri(moduleReference) is string documentationUri && !string.IsNullOrEmpty(documentationUri))
+                        if (ociRegistry.TryGetDocumentationUri(moduleReference) is string documentationUri && !string.IsNullOrEmpty(documentationUri))
                         {
                             descriptionLines.Add(MarkdownHelper.GetDocumentationLink(documentationUri));
                         }
@@ -249,7 +250,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                     }
 
                     break;
-                case LocalArtifactReference when module.TryGetSemanticModel().TryUnwrap() is { } model:
+                case ArtifactReference when module.TryGetSemanticModel().TryUnwrap() is { } model:
                     descriptionLines.Add(DescriptionHelper.TryGetFromSemanticModel(model));
                     break;
             }

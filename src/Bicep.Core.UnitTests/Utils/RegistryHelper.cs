@@ -150,10 +150,10 @@ public static class RegistryHelper
 
         var services = serviceBuilder.Build();
         var resolver = services.Construct<IArtifactReferenceResolver>();
-        var publisher = services.Construct<IArtifactPublisher>();
+        var ociRegistry = services.Construct<OciArtifactRegistry>();
         var referencingUri = PathHelper.FilePathToFileUrl(fileSystem.Path.GetFullPath("main.bicep")).ToIOUri();
 
-        var targetReference = resolver.TryResolve(referencingUri, ArtifactType.Module, module.PublishTarget).IsSuccess(out var @ref) ? @ref
+        var targetReference = resolver.TryResolve(referencingUri, ArtifactType.Module, module.PublishTarget).IsSuccess(out var @ref) && @ref is OciArtifactReference ociReference ? ociReference
             : throw new InvalidOperationException($"Module '{module.ModuleName}' has an invalid target reference '{module.PublishTarget}'. Specify a reference to an OCI artifact.");
 
         var result = await CompilationHelper.RestoreAndCompile(serviceBuilder, module.BicepSource);
@@ -163,7 +163,7 @@ public static class RegistryHelper
         }
 
         BinaryData? sourcesStream = module.WithSource ? SourceArchive.CreateFrom(result.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
-        await publisher.PublishAsync(targetReference, new ModulePackage(BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri));
+        await ociRegistry.PublishModule(targetReference, new ModulePackage(BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri));
     }
 
     // Creates a new registry client factory and publishes the specified modules to the registry.
@@ -262,12 +262,12 @@ public static class RegistryHelper
         => await PublishExtensionToRegistryAsync(services, target, new ExtensionPackage(tgzData, false, []), bicepFileUri);
 
     public static Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, ExtensionPackage package, Uri? bicepFileUri = null)
-        => PublishExtensionToRegistryAsync(services.Construct<IArtifactReferenceResolver>(), services.Construct<IArtifactPublisher>(), target, package, bicepFileUri);
+        => PublishExtensionToRegistryAsync(services.Construct<IArtifactReferenceResolver>(), services.Construct<OciArtifactRegistry>(), target, package, bicepFileUri);
 
     public static Task PublishExtensionToRegistryAsync(IServiceProvider services, string target, ExtensionPackage package, Uri? bicepFileUri = null)
-        => PublishExtensionToRegistryAsync(services.GetRequiredService<IArtifactReferenceResolver>(), services.GetRequiredService<IArtifactPublisher>(), target, package, bicepFileUri);
+        => PublishExtensionToRegistryAsync(services.GetRequiredService<IArtifactReferenceResolver>(), services.GetRequiredService<OciArtifactRegistry>(), target, package, bicepFileUri);
 
-    private static async Task PublishExtensionToRegistryAsync(IArtifactReferenceResolver resolver, IArtifactPublisher publisher, string target, ExtensionPackage package, Uri? bicepFileUri = null)
+    private static async Task PublishExtensionToRegistryAsync(IArtifactReferenceResolver resolver, OciArtifactRegistry ociRegistry, string target, ExtensionPackage package, Uri? bicepFileUri = null)
     {
         if (!target.StartsWith("br:"))
         {
@@ -283,7 +283,17 @@ public static class RegistryHelper
             throw new InvalidOperationException($"Failed to get reference '{errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}'.");
         }
 
-        await publisher.PublishAsync(targetReference, package);
+        switch (targetReference)
+        {
+            case OciArtifactReference ociReference:
+                await ociRegistry.PublishExtension(ociReference, package);
+                break;
+            case LocalArtifactReference local:
+                local.File.Write(await ExtensionV1Archive.Build(package));
+                break;
+            default:
+                throw new InvalidOperationException($"Extension target '{target}' must be an OCI reference or a local file.");
+        }
     }
 
     private static List<RepoTagDescriptor> ToTagDescriptors(IEnumerable<string> tags)

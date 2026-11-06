@@ -9,6 +9,6 @@ namespace Bicep.Core.SourceLink
     public static class OciModuleReferenceExtensions
     {
         public static ResultWithException<SourceArchive> TryLoadSourceArchive(this OciArtifactReference moduleReference) =>
-            SourceArchive.TryUnpackFromFile(moduleReference.ModuleSourceTgzFile);
+            SourceArchive.TryUnpackFromFile(moduleReference.ModuleCacheEntry.SourceTgzFile);
     }
 }
