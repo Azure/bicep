@@ -6,8 +6,6 @@ using System.Text.Json.Serialization;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry.Oci;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Semver;
-using Semver.Comparers;
 
 namespace Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 
@@ -20,19 +18,12 @@ public record PublicModuleIndexEntry(
     [property: JsonPropertyName("properties")] ImmutableDictionary<string, PublicModuleIndexProperties> PropertiesByTag // Module properties per tag
 )
 {
-    private static readonly SemVersion DefaultVersion = new(0);
-
     public ImmutableArray<string> Versions
     {
         get
         {
-            {
-                var parsedVersions = Tags.Select(x =>
-                    (@string: x, version: SemVersion.TryParse(x, SemVersionStyles.AllowV, out var version) ? version : DefaultVersion))
-                    .ToArray();
-                // Sort by ascending version number here, the completion provider will reverse it to show the most recent version first
-                return [.. parsedVersions.OrderByAscending(x => x.version, SemVersion.SortOrderComparer).Select(x => x.@string)];
-            }
+            // Sort by ascending version number here, the completion provider will reverse it to show the most recent version first
+            return [.. Tags.OrderBySemanticVersion(x => x)];
         }
     }
 
