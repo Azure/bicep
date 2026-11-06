@@ -8,14 +8,12 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
-using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Features.Language.DocumentLink;
 using Bicep.Testing;
 using Bicep.Testing.Dummies;
@@ -38,7 +36,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public async Task InvalidModuleReference_ShouldFail()
         {
             const string ModuleRefStr = "br:hello";
-            var handler = new BicepExternalSourceRequestHandler(StrictMock.Of<IArtifactRestorer>().Object, BicepTestConstants.SourceFileFactory);
+            var handler = new BicepExternalSourceRequestHandler(StrictMock.Of<IArtifactRestorer>().Object, ExternalArtifactContextFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
@@ -55,7 +53,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             const string ModuleRefStr = "./hello.bicep";
 
-            var handler = new BicepExternalSourceRequestHandler(StrictMock.Of<IArtifactRestorer>().Object, BicepTestConstants.SourceFileFactory);
+            var handler = new BicepExternalSourceRequestHandler(StrictMock.Of<IArtifactRestorer>().Object, ExternalArtifactContextFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
@@ -73,10 +71,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var restorer = StrictMock.Of<IArtifactRestorer>();
             const string ModuleRefStr = "br:example.azurecr.invalid/foo/bar:v3";
 
-            var moduleReference = ParseModuleReference(BicepTestConstants.DummyBicepFile, ModuleRefStr);
-            restorer.Setup(m => m.TryGetEntryPoint(moduleReference!)).Returns(ResultHelper.Create(null as IFileHandle, x => x.ArtifactRestoreFailed("blah")));
+            var moduleReference = ParseModuleReference(ExternalArtifactContextFactory, ModuleRefStr);
+            restorer.Setup(m => m.GetRestoreState(moduleReference)).Returns(new ArtifactRestoreState.RestoreFailed(x => x.ArtifactRestoreFailed("blah")));
 
-            var handler = new BicepExternalSourceRequestHandler(restorer.Object, BicepTestConstants.SourceFileFactory);
+            var handler = new BicepExternalSourceRequestHandler(restorer.Object, ExternalArtifactContextFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
@@ -94,10 +92,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var restorer = StrictMock.Of<IArtifactRestorer>();
             const string ModuleRefStr = "br:example.azurecr.invalid/foo/bar:v3";
 
-            var (moduleReference, sourceFileFactory) = CreateMockModuleReferenceAndSourceFactory(ModuleRefStr);
-            restorer.Setup(m => m.TryGetEntryPoint(moduleReference!)).Returns(ResultHelper.Create(DummyFileHandle.Default as IFileHandle, null));
+            var (moduleReference, externalArtifactContextFactory) = CreateMockModuleReferenceAndExternalArtifactContextFactory(ModuleRefStr);
+            restorer.Setup(m => m.GetRestoreState(moduleReference)).Returns(new ArtifactRestoreState.Restored(DummyFileHandle.Default));
 
-            var handler = new BicepExternalSourceRequestHandler(restorer.Object, sourceFileFactory);
+            var handler = new BicepExternalSourceRequestHandler(restorer.Object, externalArtifactContextFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
@@ -113,11 +111,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             string? compiledJsonContents = "mock main.json contents";
             const string ModuleRefStr = "br:example.azurecr.invalid/foo/bar:v3";
-            var (moduleReference, sourceFileFactory) = CreateMockModuleReferenceAndSourceFactory(ModuleRefStr, null, compiledJsonContents);
+            var (moduleReference, externalArtifactContextFactory) = CreateMockModuleReferenceAndExternalArtifactContextFactory(ModuleRefStr, null, compiledJsonContents);
             var restorer = StrictMock.Of<IArtifactRestorer>();
-            restorer.Setup(m => m.TryGetEntryPoint(moduleReference!)).Returns(ResultHelper.Create(DummyFileHandle.Default as IFileHandle, null));
+            restorer.Setup(m => m.GetRestoreState(moduleReference)).Returns(new ArtifactRestoreState.Restored(DummyFileHandle.Default));
 
-            var handler = new BicepExternalSourceRequestHandler(restorer.Object, sourceFileFactory);
+            var handler = new BicepExternalSourceRequestHandler(restorer.Object, externalArtifactContextFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
@@ -137,11 +135,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var sourceArchive = DummySourceArchive.Create("main.bicep", bicepSource);
 
-            var (moduleReference, sourceFileFactory) = CreateMockModuleReferenceAndSourceFactory(ModuleRefStr, sourceArchive, compiledJsonContents);
+            var (moduleReference, externalArtifactContextFactory) = CreateMockModuleReferenceAndExternalArtifactContextFactory(ModuleRefStr, sourceArchive, compiledJsonContents);
             var restorer = StrictMock.Of<IArtifactRestorer>();
-            restorer.Setup(m => m.TryGetEntryPoint(moduleReference!)).Returns(ResultHelper.Create(DummyFileHandle.Default as IFileHandle, null));
+            restorer.Setup(m => m.GetRestoreState(moduleReference)).Returns(new ArtifactRestoreState.Restored(DummyFileHandle.Default));
 
-            var handler = new BicepExternalSourceRequestHandler(restorer.Object, sourceFileFactory);
+            var handler = new BicepExternalSourceRequestHandler(restorer.Object, externalArtifactContextFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr, "main.bicep");
@@ -160,11 +158,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var sourceArchive = DummySourceArchive.Create("main.bicep", bicepSource);
 
-            var (moduleReference, sourceFileFactory) = CreateMockModuleReferenceAndSourceFactory(ModuleRefStr, sourceArchive, compiledJsonContents);
+            var (moduleReference, externalArtifactContextFactory) = CreateMockModuleReferenceAndExternalArtifactContextFactory(ModuleRefStr, sourceArchive, compiledJsonContents);
             var restorer = StrictMock.Of<IArtifactRestorer>();
-            restorer.Setup(m => m.TryGetEntryPoint(moduleReference!)).Returns(ResultHelper.Create(DummyFileHandle.Default as IFileHandle, null));
+            restorer.Setup(m => m.GetRestoreState(moduleReference)).Returns(new ArtifactRestoreState.Restored(DummyFileHandle.Default));
 
-            var handler = new BicepExternalSourceRequestHandler(restorer.Object, sourceFileFactory);
+            var handler = new BicepExternalSourceRequestHandler(restorer.Object, externalArtifactContextFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
@@ -301,7 +299,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var referencingFile = BicepTestConstants.DummyBicepFile;
 
             TemplateSpecModuleReference
-                .TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), null, referenceValue)
+                .TryParse(TemplateSpecArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), null, referenceValue)
                 .IsSuccess(out var reference, out var errorBuilder)
                 .Should()
                 .BeTrue();
@@ -315,8 +313,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             Uri? entrypointUri = testData.SourceEntrypoint is { } ? PathHelper.FilePathToFileUrl(testData.SourceEntrypoint) : null;
             OciArtifactReference reference = new(
-                BicepTestConstants.DummyBicepFile.LoadFeatures(),
-                BicepTestConstants.DummyBicepFile.LoadConfiguration(),
+                OciArtifactContext.Create(BicepTestConstants.DummyBicepFile.LoadConfiguration(), BicepTestConstants.DummyBicepFile.LoadFeatures()),
                 ArtifactType.Module,
                 testData.Registry,
                 testData.Repository,
@@ -406,7 +403,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         #endregion
 
-        private static (OciArtifactReference, SourceFileFactory) CreateMockModuleReferenceAndSourceFactory(string referenceValue, SourceArchive? sourceArchive = null, string? mainJson = null)
+        private static readonly IExternalArtifactContextFactory ExternalArtifactContextFactory = new ExternalArtifactContextFactory(BicepTestConstants.ConfigurationManager, BicepTestConstants.FeatureProviderFactory);
+
+        private static (OciArtifactReference, IExternalArtifactContextFactory) CreateMockModuleReferenceAndExternalArtifactContextFactory(string referenceValue, SourceArchive? sourceArchive = null, string? mainJson = null)
         {
             var sourceTgzFileMock = StrictMock.Of<IFileHandle>();
             sourceTgzFileMock.Setup(x => x.Exists()).Returns(sourceArchive is not null);
@@ -442,25 +441,24 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var featureProviderMock = StrictMock.Of<IFeatureProvider>();
             featureProviderMock.Setup(x => x.CacheRootDirectory).Returns(cacheRootDirectoryMock.Object);
+            featureProviderMock.Setup(x => x.OciEnabled).Returns(false);
 
             var featureProviderFactoryMock = StrictMock.Of<IFeatureProviderFactory>();
             featureProviderFactoryMock.Setup(x => x.GetFeatureProvider(It.IsAny<IOUri>())).Returns(featureProviderMock.Object);
 
-            var sourceFileFactory = new SourceFileFactory(BicepTestConstants.ConfigurationManager, featureProviderFactoryMock.Object, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer);
+            var externalArtifactContextFactory = new ExternalArtifactContextFactory(BicepTestConstants.ConfigurationManager, featureProviderFactoryMock.Object);
 
-            var referencingFile = sourceFileFactory.CreateDummyArtifactReferencingFile();
-
-            return (ParseModuleReference(referencingFile, referenceValue), sourceFileFactory);
+            return (ParseModuleReference(externalArtifactContextFactory, referenceValue), externalArtifactContextFactory);
         }
 
-        private static OciArtifactReference ParseModuleReference(BicepFile referencingFile, string fullyQualifiedReference, string? aliasName = null)
+        private static OciArtifactReference ParseModuleReference(IExternalArtifactContextFactory externalArtifactContextFactory, string fullyQualifiedReference, string? aliasName = null)
         {
             if (!fullyQualifiedReference.StartsWith("br:"))
             {
                 throw new ArgumentException("Module reference is not fully qualified.");
             }
 
-            return OciArtifactReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactType.Module, aliasName, fullyQualifiedReference[3..]).Unwrap();
+            return OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(externalArtifactContextFactory), ArtifactType.Module, aliasName, fullyQualifiedReference[3..]).Unwrap();
         }
     }
 }

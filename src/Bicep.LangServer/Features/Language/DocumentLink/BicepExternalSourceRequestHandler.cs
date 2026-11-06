@@ -7,10 +7,8 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.IO.Abstraction;
-using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Features.Language.Definition;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
@@ -34,14 +32,14 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
         public const string BicepExternalSourceLspMethodName = "textDocument/bicepExternalSource";
 
         private readonly IArtifactRestorer restorer;
-        private readonly ISourceFileFactory sourceFileFactory;
+        private readonly IExternalArtifactContextFactory externalArtifactContextFactory;
 
         public BicepExternalSourceRequestHandler(
             IArtifactRestorer restorer,
-            ISourceFileFactory sourceFileFactory)
+            IExternalArtifactContextFactory externalArtifactContextFactory)
         {
             this.restorer = restorer;
-            this.sourceFileFactory = sourceFileFactory;
+            this.externalArtifactContextFactory = externalArtifactContextFactory;
         }
 
         public Task<BicepExternalSourceResponse> Handle(BicepExternalSourceParams request, CancellationToken cancellationToken)
@@ -59,9 +57,8 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                     $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests."));
             }
 
-            var dummyReferencingFile = this.sourceFileFactory.CreateDummyArtifactReferencingFile();
             if (address is not ArtifactAddress.SchemeQualified { Scheme: OciArtifactReferenceFacts.Scheme, Body: var body } ||
-                !OciArtifactReference.TryParse(dummyReferencingFile.LoadFeatures(), dummyReferencingFile.LoadConfiguration(), ArtifactType.Module, aliasContext: null, body).IsSuccess(out var ociModuleReference))
+                !OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(this.externalArtifactContextFactory), ArtifactType.Module, aliasContext: null, body).IsSuccess(out var ociModuleReference))
             {
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"The client specified an invalid module reference '{request.Target}'."));
@@ -69,7 +66,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
             var moduleReference = ociModuleReference;
 
-            if (!restorer.TryGetEntryPoint(moduleReference).IsSuccess())
+            if (restorer.GetRestoreState(moduleReference) is ArtifactRestoreState.RestoreFailed)
             {
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'."));

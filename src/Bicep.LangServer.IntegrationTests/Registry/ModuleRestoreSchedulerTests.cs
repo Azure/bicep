@@ -168,6 +168,8 @@ namespace Bicep.LangServer.IntegrationTests.Registry
 
             public bool IsArtifactRestoreRequired(ExternalArtifactReference _) => true;
 
+            public IFileHandle GetEntryPoint(ExternalArtifactReference _) => DummyFileHandle.Default;
+
             public Task PublishModule(ExternalArtifactReference _, BinaryData __, BinaryData? ___, string? ____, string? _____)
                 => throw new NotImplementedException();
 
@@ -176,15 +178,15 @@ namespace Bicep.LangServer.IntegrationTests.Registry
 
             public Task<bool> CheckArtifactExists(ArtifactType artifactType, ExternalArtifactReference reference) => throw new NotImplementedException();
 
-            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ExternalArtifactReference> _)
+            public Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ExternalArtifactReference> _)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ExternalArtifactReference> references)
+            public Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ExternalArtifactReference> references)
             {
                 this.ModuleRestores.Push(references);
-                return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>>(new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>());
+                return Task.FromResult<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>>(new Dictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>());
             }
 
             public string? GetDocumentationUri(ExternalArtifactReference _) => null;
@@ -197,7 +199,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
         private class MockArtifactRef : ExternalArtifactReference
         {
             public MockArtifactRef(BicepSourceFile referencingFile, string value)
-                : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), "mock", ArtifactType.Module)
+                : base(TemplateSpecArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), "mock", ArtifactType.Module)
             {
                 this.Value = value;
             }
@@ -205,8 +207,6 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public string Value { get; }
 
             public override string UnqualifiedReference => this.Value;
-
-            public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => new(DummyFileHandle.Default);
         }
 
         private class MockArtifactRegistryProvider(IEnumerable<IArtifactRegistry> registries) : ArtifactRegistryProvider(registries)

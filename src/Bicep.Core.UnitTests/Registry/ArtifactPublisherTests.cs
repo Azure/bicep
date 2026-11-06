@@ -1,12 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.IO.Abstraction;
-using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -96,7 +93,7 @@ namespace Bicep.Core.UnitTests.Registry
         private class MockArtifactReference : ExternalArtifactReference
         {
             public MockArtifactReference(BicepSourceFile referencingFile, string reference, ArtifactType type = ArtifactType.Module)
-                : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), "mock", type)
+                : base(TemplateSpecArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), "mock", type)
             {
                 this.Reference = reference;
             }
@@ -109,7 +106,6 @@ namespace Bicep.Core.UnitTests.Registry
 
             public override int GetHashCode() => this.Reference.GetHashCode();
 
-            public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => new(DummyFileHandle.Default);
         }
 
         private class MockArtifactRegistryProvider(IEnumerable<IArtifactRegistry> registries) : ArtifactRegistryProvider(registries)

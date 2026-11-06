@@ -14,6 +14,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Bicep.Testing;
 using FluentAssertions;
@@ -237,9 +238,9 @@ namespace Bicep.Core.IntegrationTests
                 restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.NotRestored>();
             }
 
-            restorer.TryGetEntryPoint(moduleReferences[0]).IsSuccess(out var moduleFile).Should().BeTrue();
+            var moduleFile = GetEntryPoint(services, moduleReferences[0]);
 
-            var moduleDirectory = moduleFile!.GetParent().EnsureExists();
+            var moduleDirectory = moduleFile.GetParent().EnsureExists();
             var lockFile = moduleDirectory.GetFile("lock");
 
             var @lock = lockFile.TryLock();
@@ -301,9 +302,9 @@ namespace Bicep.Core.IntegrationTests
                 restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.NotRestored>();
             }
 
-            restorer.TryGetEntryPoint(moduleReferences[0]).IsSuccess(out var moduleFile).Should().BeTrue();
+            var moduleFile = GetEntryPoint(services, moduleReferences[0]);
 
-            var moduleDirectory = moduleFile!.GetParent().EnsureExists();
+            var moduleDirectory = moduleFile.GetParent().EnsureExists();
             var lockFile = moduleDirectory.GetFile("lock");
 
             var @lock = lockFile.TryLock();
@@ -373,9 +374,7 @@ namespace Bicep.Core.IntegrationTests
                 restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.NotRestored>();
             }
 
-            restorer.TryGetEntryPoint(moduleReferences[0]).IsSuccess(out var moduleFile).Should().BeTrue();
-
-            moduleFile!.GetParent().EnsureExists();
+            GetEntryPoint(services, moduleReferences[0]).GetParent().EnsureExists();
 
             (await restorer.RestoreAsync(moduleReferences, RestoreMode.Force)).Should().BeTrue();
 
@@ -400,6 +399,9 @@ namespace Bicep.Core.IntegrationTests
 
             return sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
         }
+
+        private static IFileHandle GetEntryPoint(IDependencyHelper dependencyHelper, ExternalArtifactReference reference) =>
+            dependencyHelper.Construct<IArtifactRegistryProvider>().GetRegistry(reference).GetEntryPoint(reference);
 
         private static ResultWithDiagnosticBuilder<ExternalArtifactReference> TryGetModuleReference(IArtifactReferenceResolver resolver, BicepSourceFile referencingFile, string reference) =>
             resolver.TryResolve(referencingFile.FileHandle.Uri, ArtifactType.Module, reference).Transform(x => (ExternalArtifactReference)x);

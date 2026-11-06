@@ -171,16 +171,16 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddMockArmClient(this IServiceCollection services, MockableResourcesArmClient armClient)
         => AddMockArmClient(services, _ => armClient);
 
-    public static IServiceCollection AddMockArmClient(this IServiceCollection services, Func<IBicepConfiguration, MockableResourcesArmClient> armClient)
+    public static IServiceCollection AddMockArmClient(this IServiceCollection services, Func<IBicepCloudConfiguration, MockableResourcesArmClient> armClient)
     {
         var clientProvider = StrictMock.Of<IArmClientProvider>();
-        clientProvider.Setup(x => x.CreateArmClient(It.IsAny<IBicepConfiguration>(), It.IsAny<string?>()))
-            .Returns<IBicepConfiguration, string?>((config, _) =>
+        clientProvider.Setup(x => x.CreateArmClient(It.IsAny<IBicepCloudConfiguration>(), It.IsAny<string?>()))
+            .Returns<IBicepCloudConfiguration, string?>((cloud, _) =>
             {
                 var clientMock = StrictMock.Of<ArmClient>();
 
                 clientMock.Setup(x => x.GetCachedClient(It.IsAny<Func<ArmClient, MockableResourcesArmClient>>()))
-                    .Returns(armClient(config));
+                    .Returns(armClient(cloud));
 
                 return clientMock.Object;
             });

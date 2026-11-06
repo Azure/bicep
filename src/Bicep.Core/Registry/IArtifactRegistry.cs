@@ -6,6 +6,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry
 {
@@ -37,6 +38,12 @@ namespace Bicep.Core.Registry
         bool IsArtifactRestoreRequired(ExternalArtifactReference reference);
 
         /// <summary>
+        /// Gets the file in the local cache that the compiler loads for the artifact. It only exists once the artifact is restored.
+        /// </summary>
+        /// <param name="reference">The reference to the artifact.</param>
+        IFileHandle GetEntryPoint(ExternalArtifactReference reference);
+
+        /// <summary>
         /// Returns true if the specified module exists in the registry.
         /// </summary>
         /// <param name="reference">The reference to the module.</param>
@@ -47,7 +54,7 @@ namespace Bicep.Core.Registry
         /// Returns a mapping of module references to error builders for modules that failed to be downloaded.
         /// </summary>
         /// <param name="references">module references</param>
-        Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ExternalArtifactReference> references);
+        Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ExternalArtifactReference> references);
 
         /// <summary>
         /// Called when time to restore artifacts, even if all artifacts are already restored.  Allows the registry provider
@@ -60,7 +67,7 @@ namespace Bicep.Core.Registry
         /// Returns a mapping of module references to error builders for modules that failed to be invalidated.
         /// </summary>
         /// <param name="references">module references</param>
-        Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ExternalArtifactReference> references);
+        Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ExternalArtifactReference> references);
 
         /// <summary>
         /// Publishes the module at the specified path to the registry.

@@ -33,17 +33,20 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
     private readonly IFileExplorer fileExplorer;
     private readonly IBicepConfigurationManager configurationManager;
     private readonly IFeatureProviderFactory featureProviderFactory;
+    private readonly IExternalArtifactContextFactory externalArtifactContextFactory;
 
     public ArtifactReferenceResolver(
         IArtifactRegistryProvider registryProvider,
         IFileExplorer fileExplorer,
         IBicepConfigurationManager configurationManager,
-        IFeatureProviderFactory featureProviderFactory)
+        IFeatureProviderFactory featureProviderFactory,
+        IExternalArtifactContextFactory externalArtifactContextFactory)
     {
         this.registryProvider = registryProvider;
         this.fileExplorer = fileExplorer;
         this.configurationManager = configurationManager;
         this.featureProviderFactory = featureProviderFactory;
+        this.externalArtifactContextFactory = externalArtifactContextFactory;
     }
 
     public ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(IOUri referencingUri, ArtifactType artifactType, string referenceText) =>
@@ -111,7 +114,10 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
             return new(failureBuilder);
         }
 
-        return new(new LocalArtifactReference(this.GetFeatures(referencingUri), this.GetConfiguration(referencingUri), artifactType, file, path));
+        // A local extension package is unpacked into the artifact cache.
+        var cacheRootDirectory = this.featureProviderFactory.GetFeatureProvider(referencingUri).CacheRootDirectory;
+
+        return new(new LocalArtifactReference(cacheRootDirectory, artifactType, file, path));
     }
 
     private ResultWithDiagnosticBuilder<ArtifactReference> TryResolveSchemeAndAliasQualified(IOUri referencingUri, ArtifactType artifactType, ArtifactAddress.SchemeAndAliasQualified address)
@@ -145,22 +151,20 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
         switch (scheme)
         {
             case ArtifactReferenceSchemes.Oci:
-                return OciArtifactReference.TryParse(this.GetFeatures(referencingUri), this.GetConfiguration(referencingUri), artifactType, aliasContext, body).Transform(x => (ArtifactReference)x);
+                return OciArtifactReference.TryParse(this.externalArtifactContextFactory.GetOciArtifactContext(referencingUri), artifactType, aliasContext, body).Transform(x => (ArtifactReference)x);
             case ArtifactReferenceSchemes.TemplateSpecs:
                 if (artifactType != ArtifactType.Module)
                 {
                     return new(x => x.UnsupportedArtifactType(artifactType));
                 }
 
-                return TemplateSpecModuleReference.TryParse(this.GetFeatures(referencingUri), this.GetConfiguration(referencingUri), aliasContext, body).Transform(x => (ArtifactReference)x);
+                return TemplateSpecModuleReference.TryParse(this.externalArtifactContextFactory.GetTemplateSpecArtifactContext(referencingUri), aliasContext, body).Transform(x => (ArtifactReference)x);
             default:
                 return new(x => x.UnknownModuleReferenceScheme(scheme, this.registryProvider.SupportedSchemes));
         }
     }
 
     private IBicepConfiguration GetConfiguration(IOUri referencingUri) => this.configurationManager.GetEffectiveConfiguration(referencingUri);
-
-    private IFeatureProvider GetFeatures(IOUri referencingUri) => this.featureProviderFactory.GetFeatureProvider(referencingUri);
 
     private bool IsSupportedScheme(string scheme) => this.registryProvider.TryGetRegistry(scheme) is not null;
 

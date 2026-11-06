@@ -6,7 +6,6 @@ using System.Net;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.AzureApi;
-using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Oci;
@@ -77,7 +76,7 @@ public class OciRegistryTransportFactoryTests
     {
         var (factory, _, _) = CreateFactory();
         var reference = CreateReference(registry, useOrasSdk);
-        await using var session = factory.CreateSession(reference, BicepTestConstants.BuiltInConfiguration.Cloud);
+        await using var session = factory.CreateSession(reference);
         session.Should().BeOfType(useOrasSdk ? typeof(OrasRegistrySession) : typeof(AcrRegistrySession));
     }
 
@@ -101,7 +100,7 @@ public class OciRegistryTransportFactoryTests
         sdk.Setup(x => x.CreateAuthenticatedBlobClient(cloud, new Uri("https://example.azurecr.io"), "modules/foo")).Returns(blob.Object);
         var (_, oras, _) = CreateFactory();
         var factory = new OciRegistryTransportFactory(oras, new AzureContainerRegistryManager(sdk.Object));
-        await using var session = factory.CreateSession(reference, cloud);
+        await using var session = factory.CreateSession(reference);
 
         var action = () => session.PullAsync(reference, CancellationToken.None);
 
@@ -123,7 +122,7 @@ public class OciRegistryTransportFactoryTests
             StrictMock.Of<ITokenCredentialFactory>().Object, clients.Object);
         var factory = new OciRegistryTransportFactory(oras, new AzureContainerRegistryManager(sdk.Object));
         var reference = CreateReference("example.azurecr.io", true);
-        await using var session = factory.CreateSession(reference, BicepTestConstants.BuiltInConfiguration.Cloud);
+        await using var session = factory.CreateSession(reference);
 
         var action = () => session.PullAsync(reference, CancellationToken.None);
 
@@ -133,10 +132,8 @@ public class OciRegistryTransportFactoryTests
 
     private static OciArtifactReference CreateReference(string registry, bool useOrasSdk)
     {
-        var reference = OciRegistryHelper.CreateModuleReference(registry, "modules/foo", "v1", null);
-        var features = StrictMock.Of<IFeatureProvider>();
-        features.Setup(x => x.OciEnabled).Returns(useOrasSdk);
-        return new OciArtifactReference(features.Object, reference.Configuration, reference.Type, reference.AddressComponents);
+        var context = new OciArtifactContext(BicepTestConstants.BuiltInConfiguration.Cloud, BicepTestConstants.Features.CacheRootDirectory, useOrasSdk);
+        return new OciArtifactReference(context, ArtifactType.Module, registry, "modules/foo", "v1", digest: null);
     }
 
     private static (OciRegistryTransportFactory Factory, OrasOciRegistryTransport Transport, AzureContainerRegistryManager Azure) CreateFactory()

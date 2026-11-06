@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Immutable;
-using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Oci.Oras;
 using Bicep.Core.Registry.Sessions;
@@ -31,7 +30,7 @@ public class OciRegistryTransportFactory : IOciRegistryTransportFactory
     }
 
     public IOciRegistryTransport GetTransport(OciArtifactReference reference) =>
-        GetTransport(reference.Registry, reference.FeatureProvider.OciEnabled);
+        GetTransport(reference.Registry, reference.UseOrasSdk);
 
     public IOciRegistryTransport GetTransport(string registry, bool useOrasSdk)
     {
@@ -39,12 +38,12 @@ public class OciRegistryTransportFactory : IOciRegistryTransportFactory
         return useOrasSdk ? transport : azureManager;
     }
 
-    public IRegistrySession CreateSession(OciArtifactReference reference, IBicepCloudConfiguration cloud)
+    public IRegistrySession CreateSession(OciArtifactReference reference)
     {
         ArgumentNullException.ThrowIfNull(reference);
-        ArgumentNullException.ThrowIfNull(cloud);
+        var cloud = reference.Context.Cloud;
 
-        return reference.FeatureProvider.OciEnabled
+        return reference.UseOrasSdk
             ? transport.CreateSession(cloud, reference.Registry, reference.Repository)
             : new AcrRegistrySession(azureManager, cloud);
     }

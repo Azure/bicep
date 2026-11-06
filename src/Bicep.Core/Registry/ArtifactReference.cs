@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
-using Bicep.Core.SourceGraph;
-using Bicep.IO.Abstraction;
-
 namespace Bicep.Core.Registry
 {
     /// <summary>
@@ -14,12 +8,10 @@ namespace Bicep.Core.Registry
     /// </summary>
     public abstract class ArtifactReference
     {
-        protected ArtifactReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, string scheme, ArtifactType type)
+        protected ArtifactReference(string scheme, ArtifactType type)
         {
             Scheme = scheme;
             Type = type;
-            FeatureProvider = featureProvider;
-            Configuration = configuration;
         }
 
         public string Scheme { get; }
@@ -28,10 +20,6 @@ namespace Bicep.Core.Registry
         /// Gets the type of the referenced artifact.
         /// </summary>
         public ArtifactType Type { get; }
-
-        public IFeatureProvider FeatureProvider { get; }
-
-        public IBicepConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the fully qualified artifact reference, which includes the scheme.
@@ -42,8 +30,6 @@ namespace Bicep.Core.Registry
         /// Gets the unqualified artifact reference, which does not include the scheme.
         /// </summary>
         public abstract string UnqualifiedReference { get; }
-
-        public abstract ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle();
 
         public override string ToString() => FullyQualifiedReference;
     }

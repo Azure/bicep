@@ -34,7 +34,7 @@ namespace Bicep.LangServer.IntegrationTests
             return clientMock.Object;
         }
 
-        public ArmClient CreateArmClient(IBicepConfiguration configuration, string? defaultSubscriptionId)
+        public ArmClient CreateArmClient(IBicepCloudConfiguration cloud, string? defaultSubscriptionId)
             => throw new NotImplementedException();
     }
 

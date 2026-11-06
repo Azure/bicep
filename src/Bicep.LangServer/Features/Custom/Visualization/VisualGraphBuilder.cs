@@ -280,7 +280,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             if (address is not null)
             {
-                var registryReference = new OciArtifactReference(entryFile.LoadFeatures(), entryFile.LoadConfiguration(), ArtifactType.Module, address);
+                var registryReference = new OciArtifactReference(OciArtifactContext.Create(entryFile.LoadConfiguration(), entryFile.LoadFeatures()), ArtifactType.Module, address);
 
                 return this.GetRegistryModuleExpansion(registryReference, nodeId, file);
             }

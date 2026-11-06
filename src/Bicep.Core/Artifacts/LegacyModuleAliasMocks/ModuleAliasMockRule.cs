@@ -76,8 +76,8 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
         // config is resolved from that base config's directory, not the leaf's.
         var resolveBaseUri = mockAlias.DeclaringConfigUri ?? configFileUri;
 
-        var features = this.featureProviderFactory.GetFeatureProvider(referencingUri);
-        if (!TryCreateReference(features, configuration, mockAlias.MapToFilePath, resolveBaseUri, unqualifiedReference, this.fileExplorer, aliasName).IsSuccess(out var mockedReference, out var failureBuilder))
+        var cacheRootDirectory = this.featureProviderFactory.GetFeatureProvider(referencingUri).CacheRootDirectory;
+        if (!TryCreateReference(cacheRootDirectory, mockAlias.MapToFilePath, resolveBaseUri, unqualifiedReference, this.fileExplorer, aliasName).IsSuccess(out var mockedReference, out var failureBuilder))
         {
             return new(failureBuilder);
         }
@@ -110,8 +110,7 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
     /// <paramref name="mapToFilePath"/> is resolved against <paramref name="configFileUri"/>.
     /// </summary>
     public static ResultWithDiagnosticBuilder<LocalArtifactReference> TryCreateReference(
-        IFeatureProvider features,
-        IBicepConfiguration configuration,
+        IDirectoryHandle cacheRootDirectory,
         string mapToFilePath,
         IOUri configFileUri,
         string unqualifiedReference,
@@ -158,6 +157,6 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
         var moduleFileUri = baseUri.Resolve(modulePath + ".bicep");
 
         // Diagnostics show the module path as an OCI reference without a registry, tag or digest.
-        return new(new LocalArtifactReference(features, configuration, ArtifactType.Module, fileExplorer.GetFile(moduleFileUri), $"{OciArtifactReferenceFacts.Scheme}:{modulePath}"));
+        return new(new LocalArtifactReference(cacheRootDirectory, ArtifactType.Module, fileExplorer.GetFile(moduleFileUri), $"{OciArtifactReferenceFacts.Scheme}:{modulePath}"));
     }
 }

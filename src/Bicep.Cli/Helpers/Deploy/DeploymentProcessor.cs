@@ -179,7 +179,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
     {
         try
         {
-            var armClient = armClientProvider.CreateArmClient(bicepConfig, null);
+            var armClient = armClientProvider.CreateArmClient(bicepConfig.Cloud, null);
 
             var (template, parameters, usingConfig) = config;
             var deploymentName = usingConfig.Name ?? "main";
@@ -275,7 +275,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
 
     public async Task<DeploymentWhatIfResponseDefinition> WhatIf(IBicepConfiguration bicepConfig, DeployCommandsConfig config, CancellationToken cancellationToken)
     {
-        var armClient = armClientProvider.CreateArmClient(bicepConfig, null);
+        var armClient = armClientProvider.CreateArmClient(bicepConfig.Cloud, null);
 
         var (template, parameters, usingConfig) = config;
         var deploymentName = usingConfig.Name ?? "main";
@@ -303,7 +303,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
     {
         try
         {
-            var armClient = armClientProvider.CreateArmClient(bicepConfig, null);
+            var armClient = armClientProvider.CreateArmClient(bicepConfig.Cloud, null);
 
             var (template, parameters, usingConfig) = config;
             var deploymentName = usingConfig.Name ?? "main";

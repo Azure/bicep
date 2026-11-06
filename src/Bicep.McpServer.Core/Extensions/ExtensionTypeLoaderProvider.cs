@@ -86,19 +86,19 @@ public class ExtensionTypeLoaderProvider
         }
 
         var reference = new OciArtifactReference(
-            featureProvider, BicepConfiguration.BuiltIn, ArtifactType.Extension,
+            OciArtifactContext.Create(BicepConfiguration.BuiltIn, featureProvider), ArtifactType.Extension,
             extension.Registry, extension.Repository, tag, digest: null);
 
         // RestoreAsync is a no-op if already cached on disk
         await restorer.RestoreAsync([reference], RestoreMode.IfMissing);
 
-        if (!restorer.TryGetEntryPoint(reference)
-            .IsSuccess(out var fileHandle, out var errorBuilder))
+        var fileHandle = restorer.GetRestoreState(reference) switch
         {
-            var diagnostic = errorBuilder(DiagnosticBuilder.ForDocumentStart());
-            throw new InvalidOperationException(
-                $"Failed to load extension '{extension.Name}:{tag}': {diagnostic.Message}");
-        }
+            ArtifactRestoreState.Restored restored => restored.EntryPoint,
+            ArtifactRestoreState.RestoreFailed failed => throw new InvalidOperationException(
+                $"Failed to load extension '{extension.Name}:{tag}': {failed.Error(DiagnosticBuilder.ForDocumentStart()).Message}"),
+            _ => throw new InvalidOperationException($"Failed to load extension '{extension.Name}:{tag}': the extension was not restored."),
+        };
 
         var typeLoader = ArchivedTypeLoader.FromFileHandle(fileHandle);
         loaderCache.TryAdd(cacheKey, typeLoader);

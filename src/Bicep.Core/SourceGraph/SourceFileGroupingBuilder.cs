@@ -281,32 +281,14 @@ namespace Bicep.Core.SourceGraph
             _ => throw new InvalidOperationException($"Unexpected artifact reference type '{artifactReference.GetType().Name}'."),
         };
 
-        private (ResultWithDiagnosticBuilder<IFileHandle> result, bool requiresRestore) GetExternalArtifactRestoreResult(ExternalArtifactReference artifactReference)
-        {
-            if (!restorer.TryGetEntryPoint(artifactReference).IsSuccess(out var artifactFileHandle, out var artifactGetPathFailureBuilder))
+        private (ResultWithDiagnosticBuilder<IFileHandle> result, bool requiresRestore) GetExternalArtifactRestoreResult(ExternalArtifactReference artifactReference) =>
+            restorer.GetRestoreState(artifactReference) switch
             {
-                // invalid artifact reference - exit early to show the user the diagnostic
-                return (new(artifactGetPathFailureBuilder), requiresRestore: false);
-            }
-
-            if (forceRestore)
-            {
-                return (new(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference)), requiresRestore: true);
-            }
-
-            switch (restorer.GetRestoreState(artifactReference))
-            {
-                case ArtifactRestoreState.NotRestored:
-                    // we have not yet attempted to restore the module, so let's do it
-                    return (new(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference)), requiresRestore: true);
-                case ArtifactRestoreState.RestoreFailed failed:
-                    return (new(failed.Error), requiresRestore: false);
-                default:
-                    break;
-            }
-
-            return (new(artifactFileHandle), requiresRestore: false);
-        }
+                // A recent restore failed. Report it rather than retrying, even when a restore is forced.
+                ArtifactRestoreState.RestoreFailed failed => (new(failed.Error), requiresRestore: false),
+                ArtifactRestoreState.Restored restored when !forceRestore => (new(restored.EntryPoint), requiresRestore: false),
+                _ => (new(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference)), requiresRestore: true),
+            };
 
         private ILookup<ISourceFile, ISourceFile> ReportFailuresForCycles()
         {

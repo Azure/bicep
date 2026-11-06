@@ -81,6 +81,8 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration, FileExplorer), FeatureOverrides);
 
+        public static readonly OciArtifactContext OciArtifactContext = OciArtifactContext.Create(BuiltInConfiguration, Features);
+
         public static readonly INamespaceProvider NamespaceProvider = new NamespaceProvider(ResourceTypeProviderFactory);
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;

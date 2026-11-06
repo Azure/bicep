@@ -7,6 +7,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry
 {
@@ -21,6 +22,8 @@ namespace Bicep.Core.Registry
 
         public abstract bool IsArtifactRestoreRequired(T reference);
 
+        public abstract IFileHandle GetEntryPoint(T reference);
+
         public abstract Task<bool> CheckArtifactExists(ArtifactType artifactType, T reference);
 
         public abstract Task PublishModule(T reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description);
@@ -32,15 +35,17 @@ namespace Bicep.Core.Registry
             return Task.CompletedTask;
         }
 
-        public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<T> references);
+        public abstract Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<T> references);
 
-        public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<T> references);
+        public abstract Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<T> references);
 
         public abstract string? TryGetDocumentationUri(T reference);
 
         public abstract Task<string?> TryGetModuleDescription(ModuleSymbol module, T reference);
 
         public bool IsArtifactRestoreRequired(ExternalArtifactReference reference) => this.IsArtifactRestoreRequired(ConvertReference(reference));
+
+        public IFileHandle GetEntryPoint(ExternalArtifactReference reference) => this.GetEntryPoint(ConvertReference(reference));
 
         public Task<bool> CheckArtifactExists(ArtifactType artifactType, ExternalArtifactReference reference)
             => this.CheckArtifactExists(artifactType, ConvertReference(reference));
@@ -51,10 +56,10 @@ namespace Bicep.Core.Registry
         public Task PublishExtension(ExternalArtifactReference reference, ExtensionPackage package)
             => this.PublishExtension(ConvertReference(reference), package);
 
-        public Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ExternalArtifactReference> references) =>
+        public Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ExternalArtifactReference> references) =>
             this.RestoreArtifacts(references.Select(ConvertReference));
 
-        public Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ExternalArtifactReference> references) =>
+        public Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ExternalArtifactReference> references) =>
              this.InvalidateArtifactsCache(references.Select(ConvertReference));
 
         public string? GetDocumentationUri(ExternalArtifactReference reference) => this.TryGetDocumentationUri(ConvertReference(reference));
