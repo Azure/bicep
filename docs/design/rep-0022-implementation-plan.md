@@ -263,10 +263,12 @@ Deliberately not done:
 
 There are two top-level folders, with a one-way dependency between them:
 
-- **`Bicep.Core/Artifacts/`** holds the Bicep artifact model and its services: naming, resolving, restoring, publishing, storing and loading artifacts.
-- **`Bicep.Core/Registry/`** holds the code that talks to remote registries: transports, sessions, clients, OCI wire types, the Template Spec repository and the module catalog. It contains no Bicep artifact model.
+- **`Bicep.Core/Artifacts/`** holds the Bicep artifact model and its services: naming, resolving, restoring, publishing, storing, loading and discovering artifacts.
+- **`Bicep.Core/RegistryClients/`** holds the clients that talk to remote registries: the OCI distribution protocol (wire types, sessions and the Azure SDK and ORAS transports) and the Template Spec client. It knows nothing about Bicep artifacts.
 
-`Artifacts` depends on `Registry`, never the other way around. Today there is one exception: `IOciRegistryTransportFactory.CreateSession(OciArtifactReference)`. 0.9a changes it to take the address plus the cloud and ORAS settings.
+The names state the relationship: an artifact registry (`OciArtifactRegistry`, a Bicep service) uses a registry client (`RegistryClients.Oci`) to reach the wire. 0.8b replaced the former `Bicep.Core.Registry`, whose name clashed with `Artifacts.Registries`, and moved the module catalog to `Artifacts/Catalog`: it lists published Bicep modules (the public MCR index and private ACRs) for completion, the linter and the MCP server.
+
+`Artifacts` depends on `RegistryClients`, never the other way around. Exceptions remain where client code still uses artifact types: `IOciRegistryTransportFactory.CreateSession(OciArtifactReference)` (0.9a takes the address plus the cloud and ORAS settings instead); `OciDescriptor` and `OciArtifactAddressComponents`, which use the address grammar and comparers in `OciArtifactReferenceFacts` (those wire-level facts should move to `RegistryClients/Oci`, leaving the `br` scheme in `Artifacts`); the result classes that 0.9a deletes, `BicepMediaTypes` (Bicep encoding knowledge, which belongs with the codecs), and the exceptions the clients throw (`TemplateSpecException : ArtifactException`, and `OciArtifactRegistryException`/`InvalidArtifactException` from the transports), which need client-level exception types. Once they're gone, a test can enforce the direction.
 
 Annotations: `<-` gives where a file came from (moved in 0.8b unless marked); `(0.9x)` marks a new file. Namespaces follow the folders (`Bicep.Core.Artifacts.References` and so on).
 
@@ -331,35 +333,29 @@ Bicep.Core/
       ExtensionArtifactCacheFiles.cs           (0.9b) the one writer of types.tgz and extension.bin
       ModuleMetadata.cs                        <- Registry/Oci/ (the cache's "metadata" file)
       TagEncoder.cs                            <- Registry/Oci/ (the cache directory name of a tag)
-  Registry/
-    AzureContainerRegistryManager.cs           unchanged (Azure SDK transport)
-    ContainerRegistryClientFactory.cs          unchanged
-    IContainerRegistryClientFactory.cs         unchanged
-    RegistryConfiguration.cs                   unchanged (trusted registries)
-    ITemplateSpecRepository.cs                 unchanged
-    TemplateSpecRepository.cs                  unchanged
-    ITemplateSpecRepositoryFactory.cs          unchanged
-    TemplateSpecRepositoryFactory.cs           unchanged
-    TemplateSpecException.cs                   unchanged
-    TemplateSpecEntity.cs                      <- Registry/TemplateSpecModuleRegistry.cs (now in its own file)
-    Azure/                                     unchanged: AcrRegistrySession
-    Catalog/                                   unchanged: module catalog for completion and the linter
+    Catalog/                                   <- Registry/Catalog/ (subfolders unchanged): published modules for completion, the linter and MCP
+  RegistryClients/
     Oci/
       OciArtifactPayload.cs                    (0.9a) a manifest and its blobs, pushed or pulled
-      BicepMediaTypes.cs                       unchanged
-      OciAnnotationKeys.cs                     unchanged
-      OciDescriptor.cs                         unchanged (0.9a: Data removed)
-      OciManifest.cs                           unchanged
-      OciManifestAnnotationsBuilder.cs         unchanged
-      OciSerialization.cs                      unchanged
-      IOciArtifactAddressComponents.cs         unchanged (the wire address: registry, repository, tag or digest)
-      OciArtifactAddressComponents.cs          unchanged
-      IOciArtifactReference.cs                 unchanged
-      IOciRegistryTransport.cs                 unchanged
-      IOciRegistryTransportFactory.cs          unchanged (0.9a: no OciArtifactReference parameter)
-      OciRegistryTransportFactory.cs           unchanged
-      Oras/                                    unchanged
-    Sessions/                                  unchanged: IRegistrySession (0.9a: pushes and pulls OciArtifactPayload)
+      BicepMediaTypes.cs                       <- Registry/Oci/
+      OciAnnotationKeys.cs                     <- Registry/Oci/
+      OciDescriptor.cs                         <- Registry/Oci/ (0.9a: Data removed)
+      OciManifest.cs                           <- Registry/Oci/
+      OciManifestAnnotationsBuilder.cs         <- Registry/Oci/
+      OciSerialization.cs                      <- Registry/Oci/
+      IOciArtifactAddressComponents.cs         <- Registry/Oci/ (the wire address: registry, repository, tag or digest)
+      OciArtifactAddressComponents.cs          <- Registry/Oci/
+      IOciArtifactReference.cs                 <- Registry/Oci/
+      IRegistrySession.cs                      <- Registry/Sessions/ (0.9a: pushes and pulls OciArtifactPayload)
+      IOciRegistryTransport.cs                 <- Registry/Oci/
+      IOciRegistryTransportFactory.cs          <- Registry/Oci/ (0.9a: no OciArtifactReference parameter)
+      OciRegistryTransportFactory.cs           <- Registry/Oci/
+      RegistryConfiguration.cs                 <- Registry/ (trusted registries)
+      AzureSdk/                                <- Registry/AzureContainerRegistryManager.cs, (I)ContainerRegistryClientFactory.cs, Azure/AcrRegistrySession.cs
+      Oras/                                    <- Registry/Oci/Oras/
+    TemplateSpecs/                             <- Registry/: (I)TemplateSpecClient(Factory) (was (I)TemplateSpecRepository(Factory)),
+                                                  TemplateSpecVersion (was TemplateSpecEntity, split out of TemplateSpecModuleRegistry.cs),
+                                                  TemplateSpecException
   Configuration/
     LegacyModuleAliasMocks/                    <- Configuration/IBicepModuleAliasesMockConfiguration.cs, ModuleAliasesMockConfiguration.cs
   SourceGraph/
@@ -371,14 +367,15 @@ Files and folders that disappear:
 | Removed | When | Where it goes |
 |---|---|---|
 | `Modules/` (the whole folder) | 0.8b + 0.9a | Moved to `Artifacts/`; `OciModuleArtifactResult.cs` deleted in 0.9a |
+| `Registry/` (the whole folder) | 0.8b | Split between `Artifacts/` and `RegistryClients/` (above) |
 | `Registry/Providers/` | 0.8b | Both archives move to `Artifacts/Codecs/` |
 | `Registry/ArtifactHelper.cs` | 0.8b | Its one method became the `GetRemoteArtifactReferences()` extension method in `Artifacts/Restore/RestoreExtensions.cs` |
-| `Registry/Oci/OciArtifactResult.cs`, `OciExtensionArtifactResult.cs`, `OciArtifactResultFactory.cs` | 0.9a | `OciArtifactPayload` and the codecs |
+| `RegistryClients/Oci/OciArtifactResult.cs`, `OciExtensionArtifactResult.cs`, `OciArtifactResultFactory.cs` | 0.9a | `OciArtifactPayload` and the codecs |
 | `SourceGraph/Artifacts/IExtensionArtifact.cs` | 0.9c | `ExtensionArtifact` (after 0.8b it is the only file left in that folder) |
 | `SourceGraph/ArtifactReferences/` | 0.9c | `IExtensionArtifactReference` replaced by `NamespaceType.ExtensionArtifact` |
 | `SourceLink/OciModuleReferenceExtensions.cs` | 0.9c | `ModuleArtifact.TryGetSources()` |
 
-Tests mirror the product folders under `Bicep.Core.UnitTests/Artifacts/` (`References`, `Resolution`, `Restore`, `Registries`, `Codecs`, `Cache`, `LegacyModuleAliasMocks`). `ArtifactCacheLayoutTests` stays an integration test.
+Tests mirror the product folders under `Bicep.Core.UnitTests/Artifacts/` (`References`, `Resolution`, `Restore`, `Registries`, `Codecs`, `Cache`, `Catalog`, `LegacyModuleAliasMocks`) and `Bicep.Core.UnitTests/RegistryClients/`; catalog mocks are in `Mock/Artifacts/Catalog`. `ArtifactCacheLayoutTests` stays an integration test.
 
 ### 3.5 Permanent and deletable reference formats
 
@@ -469,8 +466,8 @@ Every Phase 0 PR leaves all baselines unchanged and changes no diagnostic text. 
   - Cache entries own every cache path, the completeness check, writes, deletes and the single lock loop. `ArtifactCacheLayoutTests` pins the layout; it passed before and after the move.
   - The one on-disk difference: a pulled artifact of the wrong type no longer leaves a directory containing only its manifest.
 - **0.8b: vocabulary and folders** (renames and moves only).
-  - The artifact model and services moved to `Artifacts/{References,Resolution,Restore,Registries,Packages,Codecs,Cache}` (section 3.4), with namespaces that follow the folders. The mock configuration types moved to `Configuration/LegacyModuleAliasMocks/`, and `TemplateSpecEntity` got its own file. Unit tests moved to the matching `Bicep.Core.UnitTests/Artifacts/` folders.
-  - Types that survive 0.9 took the section 2 names: the cache entries (`ArtifactCacheEntry`, `Oci*ArtifactCacheEntry`, `TemplateSpecArtifactCacheEntry`, `LocalExtensionArtifactCacheEntry`), `*ArtifactPackage`, `ExtensionArtifactArchiveCodec` (`Encode`/`Decode`), `TemplateSpecArtifact{Reference,Registry}`, `RemoteArtifact{Reference,Context,ContextFactory}`, `(I)RemoteArtifactRegistry`, `(I)RemoteArtifactRestorer`, `RemoteArtifactRestoreState`, `ArtifactException` and `ArtifactSchemes`. `ArtifactHelper` became `RestoreExtensions.GetRemoteArtifactReferences()`.
+  - The artifact model and services moved to `Artifacts/{References,Resolution,Restore,Registries,Packages,Codecs,Cache}` (section 3.4), with namespaces that follow the folders. The rest of `Bicep.Core.Registry` became `Bicep.Core.RegistryClients` (`Oci`, `Oci/AzureSdk`, `Oci/Oras`, `TemplateSpecs`), and the module catalog moved to `Artifacts/Catalog`, so that "registry" no longer names two layers. The mock configuration types moved to `Configuration/LegacyModuleAliasMocks/`, and `TemplateSpecEntity` got its own file. Unit tests moved to the matching `Bicep.Core.UnitTests/Artifacts/` and `RegistryClients/` folders.
+  - Types that survive 0.9 took the section 2 names: the cache entries (`ArtifactCacheEntry`, `Oci*ArtifactCacheEntry`, `TemplateSpecArtifactCacheEntry`, `LocalExtensionArtifactCacheEntry`), `*ArtifactPackage`, `ExtensionArtifactArchiveCodec` (`Encode`/`Decode`), `TemplateSpecArtifact{Reference,Registry}`, `RemoteArtifact{Reference,Context,ContextFactory}`, `(I)RemoteArtifactRegistry`, `(I)RemoteArtifactRestorer`, `RemoteArtifactRestoreState`, `ArtifactException` and `ArtifactSchemes`. The Template Spec repository, which wraps one ARM call, became a client: `(I)TemplateSpecClient(Factory)`, `TemplateSpecVersion` and `GetTemplateSpecVersionAsync`. `ArtifactHelper` became `RestoreExtensions.GetRemoteArtifactReferences()`.
   - The types that 0.9 deletes kept their names and folders. No naming architecture test was added (see section 2).
   - Two commits (moves, then renames), so that git shows both as renames.
 
