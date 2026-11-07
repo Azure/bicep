@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Artifacts.Codecs;
+
 namespace Bicep.Core.Registry.Oci
 {
     public static class BicepMediaTypes

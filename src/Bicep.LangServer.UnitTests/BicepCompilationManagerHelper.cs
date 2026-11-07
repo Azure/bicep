@@ -4,6 +4,7 @@
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;

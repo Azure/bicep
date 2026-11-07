@@ -9,6 +9,8 @@ using System.Threading;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Azure.Identity;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Registries;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Modules;

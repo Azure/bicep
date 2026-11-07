@@ -8,6 +8,7 @@ using Azure;
 using Azure.Containers.ContainerRegistry;
 using Azure.Core;
 using Azure.Core.Pipeline;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Tracing;
 using OrasProject.Oras.Registry.Remote.Auth;
 

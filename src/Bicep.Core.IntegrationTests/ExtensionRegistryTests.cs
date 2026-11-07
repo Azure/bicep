@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions.TestingHelpers;
+using Bicep.Core.Artifacts.Codecs;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Registry.Extensions;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;

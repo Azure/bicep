@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Artifacts;
+
 namespace Bicep.Core.Registry.Oci
 {
     public class OciExtensionArtifactResult : OciArtifactResult

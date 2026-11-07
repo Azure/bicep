@@ -5,11 +5,12 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Text.Json;
 using Azure.Bicep.Types;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.TypeSystem;
 using Bicep.IO.Abstraction;
 

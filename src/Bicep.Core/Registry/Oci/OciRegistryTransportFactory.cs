@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Immutable;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Oci.Oras;
 using Bicep.Core.Registry.Sessions;

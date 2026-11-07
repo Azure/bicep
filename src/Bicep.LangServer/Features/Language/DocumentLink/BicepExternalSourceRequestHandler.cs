@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Resolution;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceLink;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Features.Language.Definition;

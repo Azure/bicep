@@ -4,7 +4,7 @@
 using System.Net;
 using System.Net.Http;
 using Azure.Core;
-using Bicep.Core.Registry;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Registry.Oci.Oras;
 using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;

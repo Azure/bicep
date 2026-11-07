@@ -3,7 +3,8 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics;
-using Bicep.Core.Registry;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.Compilation;
 using OmniSharp.Extensions.LanguageServer.Protocol;

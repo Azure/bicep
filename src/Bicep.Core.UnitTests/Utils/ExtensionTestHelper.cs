@@ -3,8 +3,9 @@
 
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Packages;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.UnitTests.Features;
 using Bicep.IO.Abstraction;
 using Bicep.Testing.Mocks;

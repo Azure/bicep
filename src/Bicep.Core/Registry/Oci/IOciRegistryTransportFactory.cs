@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Registry.Sessions;
 
 namespace Bicep.Core.Registry.Oci;

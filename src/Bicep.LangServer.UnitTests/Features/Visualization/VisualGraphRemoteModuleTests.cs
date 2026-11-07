@@ -2,10 +2,15 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions.TestingHelpers;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Packages;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Registries;
+using Bicep.Core.Artifacts.Resolution;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceLink;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;

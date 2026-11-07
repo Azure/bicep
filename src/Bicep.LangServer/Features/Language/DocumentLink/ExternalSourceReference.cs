@@ -3,9 +3,11 @@
 
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
-using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;

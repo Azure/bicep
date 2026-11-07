@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Navigation;
-using Bicep.Core.Registry;
 
 namespace Bicep.Core.SourceGraph;
 

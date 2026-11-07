@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Registry;
 using Bicep.LanguageServer.Compilation;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;

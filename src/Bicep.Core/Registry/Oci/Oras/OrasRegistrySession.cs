@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Text.Json;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Sessions;
 using OrasProject.Oras.Exceptions;

@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
 using Azure.Identity;
+using Bicep.Core.Artifacts;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Microsoft.Extensions.Caching.Memory;

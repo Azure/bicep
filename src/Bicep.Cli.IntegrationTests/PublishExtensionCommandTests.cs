@@ -4,6 +4,7 @@
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Cli.UnitTests.Assertions;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Registry;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;

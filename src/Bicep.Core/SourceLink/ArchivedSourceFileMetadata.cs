@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text.Json.Serialization;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Registry.Oci;
 
 namespace Bicep.Core.SourceLink

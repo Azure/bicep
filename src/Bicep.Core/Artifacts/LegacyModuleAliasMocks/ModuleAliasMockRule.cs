@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Artifacts.Redirects;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.LegacyModuleAliasMocks;

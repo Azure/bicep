@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
+using Bicep.Core.Artifacts.References;
 
 namespace Bicep.Core.Registry.Oci
 {

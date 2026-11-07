@@ -3,6 +3,7 @@
 
 using System.Text;
 using System.Web;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Registry.Oci

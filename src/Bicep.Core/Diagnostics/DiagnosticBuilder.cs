@@ -3,11 +3,11 @@
 
 using System.Collections.Immutable;
 using System.Text;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -2051,7 +2051,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ModuleReferenceSchemeBrFsNotSupported() => CoreError(
                 "BCP449",
-                $"The '{Registry.Oci.OciArtifactReferenceFacts.MockedScheme}' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'mapToFilePath' alias instead.");
+                $"The '{OciArtifactReferenceFacts.MockedScheme}' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'mapToFilePath' alias instead.");
 
             public Diagnostic ConfigurationFileNotFound(string featureName) => CoreError(
                 "BCP450",

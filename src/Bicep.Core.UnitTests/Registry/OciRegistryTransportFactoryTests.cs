@@ -5,6 +5,8 @@ using System.Net.Http;
 using System.Net;
 using Azure;
 using Azure.Containers.ContainerRegistry;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Azure;

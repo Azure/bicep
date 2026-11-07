@@ -4,10 +4,11 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Artifacts.Redirects;
+using Bicep.Core.Artifacts.Resolution;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;

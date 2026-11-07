@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Registry.Oci;
 
 namespace Bicep.McpServer.Core.Extensions;

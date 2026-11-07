@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Registry;
+using Bicep.Core.Artifacts.Registries;
 using Bicep.Core.Registry.Catalog;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;

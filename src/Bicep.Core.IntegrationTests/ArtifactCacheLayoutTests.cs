@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Security.Cryptography;
+using Bicep.Core.Artifacts.Codecs;
+using Bicep.Core.Artifacts.Packages;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Samples;
 using Bicep.IO.Abstraction;
 using Bicep.Testing;

@@ -3,10 +3,8 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Features;
