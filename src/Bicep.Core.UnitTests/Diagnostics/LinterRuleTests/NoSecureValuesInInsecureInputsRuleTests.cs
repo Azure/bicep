@@ -16,6 +16,71 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTestsBase
 {
     [TestMethod]
+    [DataRow(8)]
+    [DataRow(22)]
+    [Timeout(60_000)]
+    public void Repeated_variable_reads_do_not_expand_a_diamond_exponentially(int depth)
+        => AssertDiamondAnalysisCompletesPromptly(depth, secureInput: false);
+
+    [TestMethod]
+    public void Cached_variable_findings_keep_each_destination_path_and_target_type()
+        => AssertFlow("""
+            @secure()
+            param secret string
+            var shared = { value: secret }
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                settings: {
+                  protected: shared
+                  first: shared
+                  second: shared
+                }
+              }
+            }
+            """, """
+            type plain = { value: string }
+            param settings {
+              protected: {
+                @secure()
+                value: string
+              }
+              first: plain
+              second: plain
+            }
+            """, [], [
+                LeakWarning("settings.first.value", "secret"),
+                LeakWarning("settings.second.value", "secret"),
+            ]);
+
+    [TestMethod]
+    public void Cached_variable_findings_point_to_each_reference()
+    {
+        var parent = """
+            @secure()
+            param secret string
+            var shared = { value: secret }
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                settings: [shared, shared]
+              }
+            }
+            """;
+        var result = CompileModule(parent, "param settings { value: string }[]");
+        result.Diagnostics.Where(diagnostic => diagnostic.Level == DiagnosticLevel.Error).Should().BeEmpty();
+        var warnings = result.Diagnostics.Where(diagnostic => diagnostic.Code == NoSecureValuesInInsecureInputsRule.Code).ToArray();
+
+        warnings.Select(warning => warning.Message).Should().Equal(
+            LeakWarning("settings[0].value", "secret"),
+            LeakWarning("settings[1].value", "secret"));
+        var firstRead = parent.IndexOf("[shared", StringComparison.Ordinal) + 1;
+        var secondRead = parent.LastIndexOf("shared", StringComparison.Ordinal);
+        warnings.Select(warning => warning.Span.Position).Should().Equal(firstRead, secondRead);
+        warnings.Select(warning => warning.Span.Length).Should().OnlyContain(length => length == "shared".Length);
+    }
+
+    [TestMethod]
     [DataRow("{ value: secret }", "secret")]
     [DataRow("alias", "alias")]
     [DataRow("union({ value: secret }, {})", "secret")]

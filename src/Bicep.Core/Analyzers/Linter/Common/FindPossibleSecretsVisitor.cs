@@ -17,6 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         private readonly SemanticModel semanticModel;
         private readonly List<PossibleSecret> possibleSecrets = new();
+        private readonly Dictionary<SyntaxBase, PossibleSecret[]> analyzedSyntax = new();
         private uint trailingAccessExpressions = 0;
 
         /// <summary>
@@ -54,7 +55,9 @@ namespace Bicep.Core.Analyzers.Linter.Common
                 semanticModel.GetSymbolInfo(syntax) is VariableSymbol variable &&
                 semanticModel.Binder.TryGetCycle(variable) is null)
             {
-                VisitForwarded(variable.DeclaringVariable.Value, syntax.Name);
+                // Cache even empty results; public diamonds otherwise repeat all their initializer reads.
+                possibleSecrets.AddRange(Analyze(variable.DeclaringVariable.Value)
+                    .Select(secret => secret with { Syntax = syntax.Name }));
             }
 
             base.VisitVariableAccessSyntax(syntax);
@@ -109,14 +112,22 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         private void VisitForwarded(SyntaxBase syntax, SyntaxBase anchor)
         {
-            var firstForwardedSecret = possibleSecrets.Count;
-            Visit(syntax);
-
             // Keep the secret's name, but report it on this read rather than in a shared variable declaration.
-            for (var index = firstForwardedSecret; index < possibleSecrets.Count; index++)
+            possibleSecrets.AddRange(Analyze(syntax).Select(secret => secret with { Syntax = anchor }));
+        }
+
+        private PossibleSecret[] Analyze(SyntaxBase syntax)
+        {
+            if (!analyzedSyntax.TryGetValue(syntax, out var secrets))
             {
-                possibleSecrets[index] = possibleSecrets[index] with { Syntax = anchor };
+                var firstSecret = possibleSecrets.Count;
+                Visit(syntax);
+                secrets = possibleSecrets.Skip(firstSecret).ToArray();
+                possibleSecrets.RemoveRange(firstSecret, possibleSecrets.Count - firstSecret);
+                analyzedSyntax.Add(syntax, secrets);
             }
+
+            return secrets;
         }
 
         internal static string PossibleSecretMessage(string possibleSecretName) => string.Format(CoreResources.PossibleSecretMessageSecureParam, possibleSecretName);

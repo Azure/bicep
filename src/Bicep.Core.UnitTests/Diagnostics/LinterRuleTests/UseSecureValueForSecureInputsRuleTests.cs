@@ -13,6 +13,42 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 public class UseSecureValueForSecureInputsRuleTests : ModuleParameterSecurityTestsBase
 {
     [TestMethod]
+    [DataRow(8)]
+    [DataRow(22)]
+    [Timeout(60_000)]
+    public void Repeated_variable_reads_do_not_expand_a_diamond_exponentially(int depth)
+        => AssertDiamondAnalysisCompletesPromptly(depth, secureInput: true);
+
+    [TestMethod]
+    public void Cached_variable_findings_keep_each_destination_path_and_target_type()
+        => AssertFlow("""
+            var shared = { value: 'public' }
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                settings: {
+                  public: shared
+                  first: shared
+                  second: shared
+                }
+              }
+            }
+            """, """
+            type protected = {
+              @secure()
+              value: string
+            }
+            param settings {
+              public: { value: string }
+              first: protected
+              second: protected
+            }
+            """, [
+                InputWarning("settings.first.value"),
+                InputWarning("settings.second.value"),
+            ], []);
+
+    [TestMethod]
     [DataRow("{ value: source }", "source")]
     [DataRow("alias", "alias")]
     public void Module_warnings_point_to_the_leaf_or_module_variable_reference(string expression, string anchor)
