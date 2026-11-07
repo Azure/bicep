@@ -585,6 +585,16 @@
                     }
                   ]
                 },
+                "no-secure-values-in-insecure-inputs": {
+                  "allOf": [
+                    {
+                      "description": "Secure values should only be assigned to secure module parameters. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-secure-values-in-insecure-inputs"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "no-unused-existing-resources": {
                   "allOf": [
                     {
@@ -884,7 +894,7 @@
                 "use-secure-value-for-secure-inputs": {
                   "allOf": [
                     {
-                      "description": "Resource properties expecting secure input should be assigned secure values. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-secure-value-for-secure-inputs"
+                      "description": "Resource properties and module parameters expecting secure input should be assigned secure values. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-secure-value-for-secure-inputs"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"

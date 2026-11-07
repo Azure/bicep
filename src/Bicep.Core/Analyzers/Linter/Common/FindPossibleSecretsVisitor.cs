@@ -17,6 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         private readonly SemanticModel semanticModel;
         private readonly List<PossibleSecret> possibleSecrets = new();
+        private readonly Dictionary<SyntaxBase, PossibleSecret[]> analyzedSyntax = new();
         private uint trailingAccessExpressions = 0;
 
         /// <summary>
@@ -37,6 +38,8 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
+            var secretCount = possibleSecrets.Count;
+
             // Look for references of secure values, e.g.:
             //
             //   @secure()
@@ -45,14 +48,24 @@ namespace Bicep.Core.Analyzers.Linter.Common
             possibleSecrets.AddRange(FindPathsToSecureTypeComponents(semanticModel.GetTypeInfo(syntax))
                 .Select(pathToSecureComponent => new PossibleSecret(syntax.Name, PossibleSecretMessage(syntax.Name.IdentifierName + pathToSecureComponent))));
 
+            // A copied member of a secure object may have a plain type (for example secureObject.number).
+            // Follow its initializer only when the type hasn't already told us where the secret is.
+            if (possibleSecrets.Count == secretCount &&
+                trailingAccessExpressions == 0 &&
+                semanticModel.GetSymbolInfo(syntax) is VariableSymbol variable &&
+                semanticModel.Binder.TryGetCycle(variable) is null)
+            {
+                // Cache even empty results; public diamonds otherwise repeat all their initializer reads.
+                possibleSecrets.AddRange(Analyze(variable.DeclaringVariable.Value)
+                    .Select(secret => secret with { Syntax = syntax.Name }));
+            }
+
             base.VisitVariableAccessSyntax(syntax);
         }
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            possibleSecrets.AddRange(FindPathsToSecureTypeComponents(semanticModel.GetTypeInfo(syntax))
-                .Select(pathToSecureComponent => new PossibleSecret(syntax.PropertyName, PossibleSecretMessage(syntax.ToString() + pathToSecureComponent))));
-
+            CheckAccessExpression(syntax);
             trailingAccessExpressions++;
             base.VisitPropertyAccessSyntax(syntax);
             trailingAccessExpressions--;
@@ -60,21 +73,75 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            possibleSecrets.AddRange(FindPathsToSecureTypeComponents(semanticModel.GetTypeInfo(syntax))
-                .Select(pathToSecureComponent => new PossibleSecret(syntax.IndexExpression, PossibleSecretMessage(syntax.ToString() + pathToSecureComponent))));
-
+            CheckAccessExpression(syntax);
             trailingAccessExpressions++;
             base.VisitArrayAccessSyntax(syntax);
             trailingAccessExpressions--;
         }
 
-        private static string PossibleSecretMessage(string possibleSecretName) => string.Format(CoreResources.PossibleSecretMessageSecureParam, possibleSecretName);
+        private void CheckAccessExpression(AccessExpressionSyntax syntax)
+        {
+            var secretCount = possibleSecrets.Count;
+            possibleSecrets.AddRange(FindPathsToSecureTypeComponents(semanticModel.GetTypeInfo(syntax))
+                .Select(pathToSecureComponent => new PossibleSecret(syntax.IndexExpression, PossibleSecretMessage(syntax.ToString() + pathToSecureComponent))));
+
+            if (possibleSecrets.Count == secretCount &&
+                trailingAccessExpressions == 0 &&
+                syntax.TryGetPropertyName() is { } propertyName &&
+                TryGetObjectPropertyValue(syntax.BaseExpression, propertyName) is { } propertyValue)
+            {
+                VisitForwarded(propertyValue, syntax.IndexExpression);
+            }
+        }
+
+        private SyntaxBase? TryGetObjectPropertyValue(SyntaxBase syntax, string propertyName)
+            // Follow only the selected property, not its siblings. Spreads may replace that property,
+            // and cyclic variables already have a compiler diagnostic, so neither is followed here.
+            => syntax switch
+            {
+                ObjectSyntax obj when !obj.Children.OfType<SpreadExpressionSyntax>().Any()
+                    => obj.TryGetPropertyByName(propertyName)?.Value,
+                VariableAccessSyntax access when semanticModel.GetSymbolInfo(access) is VariableSymbol variable &&
+                    semanticModel.Binder.TryGetCycle(variable) is null
+                    => TryGetObjectPropertyValue(variable.DeclaringVariable.Value, propertyName),
+                AccessExpressionSyntax access when access.TryGetPropertyName() is { } selectedProperty &&
+                    TryGetObjectPropertyValue(access.BaseExpression, selectedProperty) is { } selectedValue
+                    => TryGetObjectPropertyValue(selectedValue, propertyName),
+                _ => null,
+            };
+
+        private void VisitForwarded(SyntaxBase syntax, SyntaxBase anchor)
+        {
+            // Keep the secret's name, but report it on this read rather than in a shared variable declaration.
+            possibleSecrets.AddRange(Analyze(syntax).Select(secret => secret with { Syntax = anchor }));
+        }
+
+        private PossibleSecret[] Analyze(SyntaxBase syntax)
+        {
+            if (!analyzedSyntax.TryGetValue(syntax, out var secrets))
+            {
+                var firstSecret = possibleSecrets.Count;
+                Visit(syntax);
+                secrets = possibleSecrets.Skip(firstSecret).ToArray();
+                possibleSecrets.RemoveRange(firstSecret, possibleSecrets.Count - firstSecret);
+                analyzedSyntax.Add(syntax, secrets);
+            }
+
+            return secrets;
+        }
+
+        internal static string PossibleSecretMessage(string possibleSecretName) => string.Format(CoreResources.PossibleSecretMessageSecureParam, possibleSecretName);
 
         private IEnumerable<string> FindPathsToSecureTypeComponents(TypeSymbol type)
             => TypeHelper.FindPathsToSecureTypeComponents(type, trailingAccessExpressions > 0);
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
+            if (DoesNotRevealSecrets(syntax))
+            {
+                return;
+            }
+
             // Look for usage of list*() stand-alone function, e.g.:
             //
             //   output badResult object = listKeys(resourceId('Microsoft.Storage/storageAccounts', 'storageName'), '2021-02-01')
@@ -92,6 +159,12 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
+            if (DoesNotRevealSecrets(syntax))
+            {
+                // Some functions return a result that doesn't reveal their arguments' values.
+                return;
+            }
+
             if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
             {
                 bool found = false;
@@ -121,6 +194,36 @@ namespace Bicep.Core.Analyzers.Linter.Common
             }
 
             base.VisitInstanceFunctionCallSyntax(syntax);
+        }
+
+        private bool DoesNotRevealSecrets(FunctionCallSyntaxBase syntax)
+            // nameof() never reads its argument's value; the other allow-listed functions don't reveal it.
+            => semanticModel.GetSymbolInfo(syntax) is FunctionSymbol function &&
+                (function.FunctionFlags & (FunctionFlags.DoesNotRevealSecrets | FunctionFlags.IsArgumentValueIndependent)) != 0;
+
+        public override void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
+        {
+            // Comparisons and logical operators produce booleans, which this analysis treats as non-secret.
+            if (syntax.Operator is BinaryOperator.Equals or BinaryOperator.NotEquals or
+                BinaryOperator.EqualsInsensitive or BinaryOperator.NotEqualsInsensitive or
+                BinaryOperator.LessThan or BinaryOperator.LessThanOrEqual or
+                BinaryOperator.GreaterThan or BinaryOperator.GreaterThanOrEqual or
+                BinaryOperator.LogicalAnd or BinaryOperator.LogicalOr)
+            {
+                return;
+            }
+
+            base.VisitBinaryOperationSyntax(syntax);
+        }
+
+        public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
+        {
+            if (syntax.Operator is UnaryOperator.Not)
+            {
+                return;
+            }
+
+            base.VisitUnaryOperationSyntax(syntax);
         }
     }
 }

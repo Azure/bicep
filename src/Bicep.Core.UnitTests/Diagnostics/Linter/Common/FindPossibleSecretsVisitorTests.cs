@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Testing;
 using FluentAssertions;
@@ -15,6 +17,128 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
     [TestClass]
     public class FindPossibleSecretsVisitorTests
     {
+        [TestMethod]
+        [DataRow(8)]
+        [DataRow(24)]
+        [Timeout(60_000)]
+        public void Repeated_variable_reads_do_not_expand_a_diamond_exponentially(int depth)
+        {
+            var declarations = string.Join("\n", Enumerable.Range(1, depth)
+                .Select(level => $"var v{level} = '${{v{level - 1}}}${{v{level - 1}}}'"));
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore($"""
+                param p string
+                var v0 = p
+                {declarations}
+                output result string = v{depth}
+                """);
+            var model = result.Compilation.GetEntrypointSemanticModel();
+            var output = model.SourceFile.ProgramSyntax.Children.OfType<OutputDeclarationSyntax>().Single();
+            model.GetTypeInfo(output.Value).Should().NotBeOfType<ErrorType>();
+
+            // Time analysis, not template emission: each level doubles the number of expanded reads.
+            var stopwatch = Stopwatch.StartNew();
+            var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, output.Value).ToArray();
+            stopwatch.Stop();
+
+            secrets.Should().BeEmpty();
+            stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(5),
+                "repeated reads of the same public initializer should reuse its analysis");
+        }
+
+        [TestMethod]
+        [DataRow(24)]
+        [Timeout(60_000)]
+        public void Repeated_property_reads_do_not_expand_a_diamond_exponentially(int depth)
+        {
+            var declarations = string.Join("\n", Enumerable.Range(1, depth)
+                .Select(level => "var v" + level + " = { a: '${v" + (level - 1) + ".a}${v" + (level - 1) + ".a}' }"));
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore($$"""
+                param p string
+                var v0 = { a: p }
+                {{declarations}}
+                output result string = v{{depth}}.a
+                """);
+            var model = result.Compilation.GetEntrypointSemanticModel();
+            var output = model.SourceFile.ProgramSyntax.Children.OfType<OutputDeclarationSyntax>().Single();
+            model.GetTypeInfo(output.Value).Should().NotBeOfType<ErrorType>();
+
+            var stopwatch = Stopwatch.StartNew();
+            var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, output.Value).ToArray();
+            stopwatch.Stop();
+
+            secrets.Should().BeEmpty();
+            stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(5),
+                "repeated reads of the same public property initializer should reuse its analysis");
+        }
+
+        [TestMethod]
+        [DataRow(24)]
+        [Timeout(60_000)]
+        public void Mixed_variable_and_property_reads_do_not_expand_a_diamond_exponentially(int depth)
+        {
+            var declarations = string.Join("\n", Enumerable.Range(1, depth)
+                .Select(level => level % 2 == 1
+                    ? $"var v{level} = '${{v{level - 1}.a}}${{v{level - 1}.a}}'"
+                    : $"var v{level} = {{ a: '${{v{level - 1}}}${{v{level - 1}}}' }}"));
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore($$"""
+                param p string
+                var v0 = { a: p }
+                {{declarations}}
+                output result string = v{{depth}}.a
+                """);
+            var model = result.Compilation.GetEntrypointSemanticModel();
+            var output = model.SourceFile.ProgramSyntax.Children.OfType<OutputDeclarationSyntax>().Single();
+            model.GetTypeInfo(output.Value).Should().NotBeOfType<ErrorType>();
+
+            var stopwatch = Stopwatch.StartNew();
+            var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, output.Value).ToArray();
+            stopwatch.Stop();
+
+            secrets.Should().BeEmpty();
+            stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(5),
+                "mixed variable and property reads should reuse cached initializer analysis");
+        }
+
+        [TestMethod]
+        public void Cached_property_findings_are_anchored_on_each_read()
+        {
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore("""
+                @secure()
+                param secret { number: int }
+                var original = { value: secret.number }
+                output result = [original.value, original.value]
+                """);
+            var model = result.Compilation.GetEntrypointSemanticModel();
+            var output = model.SourceFile.ProgramSyntax.Children.OfType<OutputDeclarationSyntax>().Single();
+            var array = (ArraySyntax)output.Value;
+            var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, output.Value).ToArray();
+
+            secrets.Should().HaveCount(2);
+            secrets.Select(secret => secret.Syntax.Span).Should().Equal(
+                array.Items.Select(item => ((AccessExpressionSyntax)item.Value).IndexExpression.Span));
+        }
+
+        [TestMethod]
+        public void Cached_variable_findings_are_anchored_on_each_read()
+        {
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore("""
+                @secure()
+                param secret { number: int }
+                var copied = secret.number
+                var alias = copied
+                output result = [alias, alias]
+                """);
+            var model = result.Compilation.GetEntrypointSemanticModel();
+            var output = model.SourceFile.ProgramSyntax.Children.OfType<OutputDeclarationSyntax>().Single();
+            var array = (ArraySyntax)output.Value;
+            var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, output.Value).ToArray();
+
+            secrets.Should().HaveCount(2);
+            secrets.Select(secret => secret.FoundMessage).Should().OnlyContain(message => message == "secure value 'secret'");
+            secrets.Select(secret => secret.Syntax.Span).Should().Equal(
+                array.Items.Select(item => ((VariableAccessSyntax)item.Value).Name.Span));
+        }
+
         private void CompileAndTest(string bicepText, string[] expectedFoundMessages)
         {
             using (var scope = new AssertionScope())
@@ -31,6 +155,32 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
 
                 var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(semanticModel, output.Value);
                 secrets.Select(s => s.FoundMessage).Should().BeEquivalentTo(expectedFoundMessages);
+            }
+        }
+
+        [TestMethod]
+        [DataRow("alias.number")]
+        [DataRow("alias['number']")]
+        [DataRow("alias.interpolated")]
+        [DataRow("alias")]
+        public void Followed_findings_point_to_the_read_not_the_variable_declaration(string expression)
+        {
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore($$"""
+                @secure()
+                param secureObj { number: int }
+                var original = { number: secureObj.number, interpolated: '${secureObj.number}' }
+                var alias = original
+                output result = {{expression}}
+                """);
+            var output = ((BicepFile)result.EntryPointFile).ProgramSyntax.Children.OfType<OutputDeclarationSyntax>().Single();
+            var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(result.Compilation.GetEntrypointSemanticModel(), output.Value).ToArray();
+            secrets.Should().NotBeEmpty();
+            foreach (var secret in secrets)
+            {
+                secret.FoundMessage.Should().Be("secure value 'secureObj'");
+                secret.Syntax.Span.Position.Should().BeGreaterThanOrEqualTo(output.Value.Span.Position);
+                (secret.Syntax.Span.Position + secret.Syntax.Span.Length).Should()
+                    .BeLessThanOrEqualTo(output.Value.Span.Position + output.Value.Span.Length);
             }
         }
 
@@ -156,6 +306,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
                 output badResult object = az.listAnything(resourceId('Microsoft.Storage/storageAccounts', 'storageName'), '2021-02-01')
             ",
             "function 'listAnything'"
+        )]
+        [DataRow(@"
+                @secure()
+                param secret string
+
+                var cyclic = {
+                  value: cyclic.value
+                }
+
+                output test string = cyclic.value
+            "
         )]
         [TestMethod]
         public void Test(string text, params string[] expectedMessages)

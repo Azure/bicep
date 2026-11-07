@@ -348,6 +348,9 @@ namespace Bicep.Core.TypeSystem
                 StringType declaredString => GetModifiedString(declaredString, syntax, validationFlags),
                 BooleanType declaredBoolean => TypeFactory.CreateBooleanType(validationFlags),
                 ObjectType declaredObject => GetModifiedObject(declaredObject, syntax, validationFlags),
+                DiscriminatedObjectType declaredDiscriminated => declaredDiscriminated.ValidationFlags == validationFlags
+                    ? declaredDiscriminated
+                    : new DiscriminatedObjectType(declaredDiscriminated.Name, validationFlags, declaredDiscriminated.DiscriminatorKey, declaredDiscriminated.UnionMembersByKey.Values),
                 _ => declaredType,
             };
         }

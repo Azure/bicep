@@ -97,12 +97,28 @@ public class ResourceDerivedTypeResolver
                 return unresolved.FallbackType;
             }
 
-            return unresolved.Variant switch
+            current = unresolved.Variant switch
             {
                 ResourceDerivedTypeVariant.Input => TypeHelper.RemovePropertyFlagsRecursively(current, TypePropertyFlags.WriteOnly),
                 ResourceDerivedTypeVariant.Output => TypeHelper.RemovePropertyFlagsRecursively(current, TypePropertyFlags.ReadOnly),
                 _ => current,
             };
+
+            // The resource schema refines the shape, but must not remove an explicit secureString/secureObject boundary.
+            var fallback = TypeHelper.TryRemoveNullability(unresolved.FallbackType) ?? unresolved.FallbackType;
+            if (fallback.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+            {
+                var flags = current.ValidationFlags | TypeSymbolValidationFlags.IsSecure;
+                current = current switch
+                {
+                    StringType text => TypeFactory.CreateStringType(text.MinLength, text.MaxLength, text.Pattern, flags),
+                    ObjectType obj => obj.With(validationFlags: flags),
+                    DiscriminatedObjectType discriminated => new DiscriminatedObjectType(discriminated.Name, flags, discriminated.DiscriminatorKey, discriminated.UnionMembersByKey.Values),
+                    _ => current,
+                };
+            }
+
+            return current;
         }
 
         return unresolved.FallbackType;

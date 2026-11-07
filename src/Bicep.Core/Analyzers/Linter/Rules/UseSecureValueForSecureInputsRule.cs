@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
@@ -59,6 +60,15 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
 
     public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
     {
+        foreach (var assignment in ModuleParameterSecurity.EnumerateAssignments(model))
+        {
+            foreach (var mismatch in ModuleParameterSecurity.EnumerateMismatches(model, assignment, secureInput: true))
+            {
+                yield return CreateDiagnostic(mismatch.Syntax.Span,
+                    string.Format(CoreResources.UseSecureValueForSecureInputsRule_ModuleParameterMessageFormat, mismatch.Path)) with { Level = diagnosticLevel };
+            }
+        }
+
         var resourceTypeResolver = ResourceTypeResolver.Create(model);
         foreach (var property in GetSecureObjectPropertiesFromTypeInformation(model))
         {

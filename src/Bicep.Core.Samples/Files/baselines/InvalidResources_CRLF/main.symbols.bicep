@@ -649,10 +649,10 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
 }
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
-//@[004:043) Variable discriminatorKeyValueMissingCompletions. Type: any. Declaration start char: 0, length: 76
+//@[004:043) Variable discriminatorKeyValueMissingCompletions. Type: error. Declaration start char: 0, length: 76
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2 = discriminatorKeyValueMissing.
-//@[004:044) Variable discriminatorKeyValueMissingCompletions2. Type: any. Declaration start char: 0, length: 76
+//@[004:044) Variable discriminatorKeyValueMissingCompletions2. Type: error. Declaration start char: 0, length: 76
 
 // #completionTest(76) -> missingDiscriminatorPropertyIndexPlusSymbols
 var discriminatorKeyValueMissingCompletions3 = discriminatorKeyValueMissing[]
@@ -669,10 +669,10 @@ resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@
 }
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_if = discriminatorKeyValueMissing_if.p
-//@[004:046) Variable discriminatorKeyValueMissingCompletions_if. Type: any. Declaration start char: 0, length: 82
+//@[004:046) Variable discriminatorKeyValueMissingCompletions_if. Type: error. Declaration start char: 0, length: 82
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2_if = discriminatorKeyValueMissing_if.
-//@[004:047) Variable discriminatorKeyValueMissingCompletions2_if. Type: any. Declaration start char: 0, length: 82
+//@[004:047) Variable discriminatorKeyValueMissingCompletions2_if. Type: error. Declaration start char: 0, length: 82
 
 // #completionTest(82) -> missingDiscriminatorPropertyIndexPlusSymbols_if
 var discriminatorKeyValueMissingCompletions3_if = discriminatorKeyValueMissing_if[]
@@ -695,10 +695,10 @@ var resourceListIsNotSingleResource = discriminatorKeyValueMissing_for.kind
 
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_for = discriminatorKeyValueMissing_for[0].p
-//@[004:047) Variable discriminatorKeyValueMissingCompletions_for. Type: any. Declaration start char: 0, length: 87
+//@[004:047) Variable discriminatorKeyValueMissingCompletions_for. Type: error. Declaration start char: 0, length: 87
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2_for = discriminatorKeyValueMissing_for[0].
-//@[004:048) Variable discriminatorKeyValueMissingCompletions2_for. Type: any. Declaration start char: 0, length: 87
+//@[004:048) Variable discriminatorKeyValueMissingCompletions2_for. Type: error. Declaration start char: 0, length: 87
 
 // #completionTest(87) -> missingDiscriminatorPropertyIndexPlusSymbols_for
 var discriminatorKeyValueMissingCompletions3_for = discriminatorKeyValueMissing_for[0][]
@@ -721,10 +721,10 @@ var resourceListIsNotSingleResource_if = discriminatorKeyValueMissing_for_if.kin
 
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_for_if = discriminatorKeyValueMissing_for_if[0].p
-//@[004:050) Variable discriminatorKeyValueMissingCompletions_for_if. Type: any. Declaration start char: 0, length: 93
+//@[004:050) Variable discriminatorKeyValueMissingCompletions_for_if. Type: error. Declaration start char: 0, length: 93
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2_for_if = discriminatorKeyValueMissing_for_if[0].
-//@[004:051) Variable discriminatorKeyValueMissingCompletions2_for_if. Type: any. Declaration start char: 0, length: 93
+//@[004:051) Variable discriminatorKeyValueMissingCompletions2_for_if. Type: error. Declaration start char: 0, length: 93
 
 // #completionTest(93) -> missingDiscriminatorPropertyIndexPlusSymbols_for_if
 var discriminatorKeyValueMissingCompletions3_for_if = discriminatorKeyValueMissing_for_if[0][]
