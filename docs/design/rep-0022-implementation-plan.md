@@ -20,9 +20,9 @@ The work has two parts:
 | 0.5 | Artifact service APIs cleaned up; compiler-only redirect layer | #20518 | Merged |
 | 0.6 | One `LocalArtifactReference`; local references are never restored | #20519 | Merged |
 | 0.7 | External artifact context on remote references | #20523 | Merged |
-| 0.8a | Registry, publish and cache cuts (includes the former 0.8c) | branch `shenglol/rep-0022-phase-0.8a` | Committed, PR pending |
-| 0.8b | Vocabulary and folders: renames and moves only | – | Next |
-| 0.9a | OCI payload and codecs | – | Planned |
+| 0.8a | Registry, publish and cache cuts (includes the former 0.8c) | #20528 | Merged |
+| 0.8b | Vocabulary and folders: renames and moves only | branch `shenglol/rep-0022-phase-0.8b` | Committed, PR pending |
+| 0.9a | OCI payload and codecs | – | Next |
 | 0.9b | Cache entries store packages | – | Planned |
 | 0.9c | The compiler gets artifacts, not files | – | Planned |
 | 1–10 | REP 0022 features (section 5) | – | Planned |
@@ -46,7 +46,7 @@ Restructuring the source file grouping (`ArtifactResolutionInfo`) is a separate 
 | **Remote artifact registry** | Restores remote artifacts; the OCI registry also publishes | `IRemoteArtifactRegistry`, `RemoteArtifactRegistry<TReference>`, `OciArtifactRegistry`, `TemplateSpecArtifactRegistry` |
 | **Remote artifact restorer** | Restores remote artifacts across registries and remembers recent failures | `IRemoteArtifactRestorer`, `RemoteArtifactRestorer`, `RemoteArtifactRestoreState` |
 
-An architecture test enforces the rule. Every type whose name contains `Artifact` must be one of `Artifact`, `ModuleArtifact` or `ExtensionArtifact`, or must end with an approved role suffix: `Reference`, `Package`, `Payload`, `Codec`, `CacheEntry`, `Registry`, `Restorer`, `RestoreState`, `ResolutionInfo`, `Context`, `Type` or `Exception`. The test lands in 0.8b with an allowlist of the types that 0.9 deletes, and 0.9c empties that allowlist.
+The rule is a review convention, not an architecture test: a test strict enough to catch a new `FooArtifact` would also reject legitimate names such as `ArtifactAddress`, `RedirectingArtifactResolver` and `RemoteArtifactContextFactory`. 0.8b applied it to the types that survive 0.9; the types 0.9 deletes keep their names until then.
 
 The user-facing term "artifact" stays: it appears in diagnostics (BCP190–BCP192 and others), in the docs, and in REP 0022 itself (`artifacts`, `artifact-redirect`). A Bicep module stored in OCI is also an OCI artifact (`artifactType` = `application/vnd.ms.bicep.module.artifact`), so the two meanings agree.
 
@@ -268,7 +268,7 @@ There are two top-level folders, with a one-way dependency between them:
 
 `Artifacts` depends on `Registry`, never the other way around. Today there is one exception: `IOciRegistryTransportFactory.CreateSession(OciArtifactReference)`. 0.9a changes it to take the address plus the cloud and ORAS settings.
 
-Annotations: `<-` gives where a file comes from (in 0.8b unless marked); `(0.9x)` marks a new file.
+Annotations: `<-` gives where a file came from (moved in 0.8b unless marked); `(0.9x)` marks a new file. Namespaces follow the folders (`Bicep.Core.Artifacts.References` and so on).
 
 ```
 Bicep.Core/
@@ -305,6 +305,7 @@ Bicep.Core/
       RemoteArtifactRestoreState.cs            <- Registry/ArtifactRestoreState.cs
       RestoreMode.cs                           <- Registry/
       RestoreFailureCache.cs                   <- Registry/
+      RestoreExtensions.cs                     <- Registry/ArtifactHelper.cs (GetRemoteArtifactReferences)
     Registries/
       IRemoteArtifactRegistry.cs               <- Registry/IArtifactRegistry.cs
       RemoteArtifactRegistry.cs                <- Registry/ArtifactRegistry.cs   RemoteArtifactRegistry<TReference>
@@ -371,7 +372,7 @@ Files and folders that disappear:
 |---|---|---|
 | `Modules/` (the whole folder) | 0.8b + 0.9a | Moved to `Artifacts/`; `OciModuleArtifactResult.cs` deleted in 0.9a |
 | `Registry/Providers/` | 0.8b | Both archives move to `Artifacts/Codecs/` |
-| `Registry/ArtifactHelper.cs` | 0.8b | Its one method becomes an extension method in `Artifacts/Restore/` (`ArtifactHelper` would fail the naming rule) |
+| `Registry/ArtifactHelper.cs` | 0.8b | Its one method became the `GetRemoteArtifactReferences()` extension method in `Artifacts/Restore/RestoreExtensions.cs` |
 | `Registry/Oci/OciArtifactResult.cs`, `OciExtensionArtifactResult.cs`, `OciArtifactResultFactory.cs` | 0.9a | `OciArtifactPayload` and the codecs |
 | `SourceGraph/Artifacts/IExtensionArtifact.cs` | 0.9c | `ExtensionArtifact` (after 0.8b it is the only file left in that folder) |
 | `SourceGraph/ArtifactReferences/` | 0.9c | `IExtensionArtifactReference` replaced by `NamespaceType.ExtensionArtifact` |
@@ -407,7 +408,7 @@ The resolver has two separate lookups and never falls back from one to the other
 - the CLI `publish` command
 - the configuration binding and its declaring-URI annotation
 
-0.8b moves the mock configuration types to `Configuration/LegacyModuleAliasMocks/`.
+Since 0.8b, the mock configuration types live in `Configuration/LegacyModuleAliasMocks/`.
 
 To delete the mock (this checklist is also in a comment on `ModuleAliasMockRule`), remove:
 
@@ -467,15 +468,19 @@ Every Phase 0 PR leaves all baselines unchanged and changes no diagnostic text. 
   - Cache invalidation is part of a forced `RestoreAsync`.
   - Cache entries own every cache path, the completeness check, writes, deletes and the single lock loop. `ArtifactCacheLayoutTests` pins the layout; it passed before and after the move.
   - The one on-disk difference: a pulled artifact of the wrong type no longer leaves a directory containing only its manifest.
+- **0.8b: vocabulary and folders** (renames and moves only).
+  - The artifact model and services moved to `Artifacts/{References,Resolution,Restore,Registries,Packages,Codecs,Cache}` (section 3.4), with namespaces that follow the folders. The mock configuration types moved to `Configuration/LegacyModuleAliasMocks/`, and `TemplateSpecEntity` got its own file. Unit tests moved to the matching `Bicep.Core.UnitTests/Artifacts/` folders.
+  - Types that survive 0.9 took the section 2 names: the cache entries (`ArtifactCacheEntry`, `Oci*ArtifactCacheEntry`, `TemplateSpecArtifactCacheEntry`, `LocalExtensionArtifactCacheEntry`), `*ArtifactPackage`, `ExtensionArtifactArchiveCodec` (`Encode`/`Decode`), `TemplateSpecArtifact{Reference,Registry}`, `RemoteArtifact{Reference,Context,ContextFactory}`, `(I)RemoteArtifactRegistry`, `(I)RemoteArtifactRestorer`, `RemoteArtifactRestoreState`, `ArtifactException` and `ArtifactSchemes`. `ArtifactHelper` became `RestoreExtensions.GetRemoteArtifactReferences()`.
+  - The types that 0.9 deletes kept their names and folders. No naming architecture test was added (see section 2).
+  - Two commits (moves, then renames), so that git shows both as renames.
 
 ### 4.2 Remaining phases
 
 | # | Phase | Details | Verification |
 |---|---|---|---|
-| 0.8b | **Vocabulary and folders** (mechanical) | Move to the folders in 3.4 and apply the naming in section 2 to the types that **survive** 0.9: the cache entry classes (`ExternalArtifact` becomes `ArtifactCacheEntry`, `BicepRegistry*Artifact` becomes `Oci*ArtifactCacheEntry`, and so on), `ModulePackage`/`ExtensionPackage` (to `*ArtifactPackage`), `ExtensionV1Archive` (to `ExtensionArtifactArchiveCodec`, with `Encode`/`Decode` instead of `Build`/`Read`), `TemplateSpecModuleReference` and `TemplateSpecModuleRegistry` (to `TemplateSpecArtifact*`), `ExternalArtifactReference`, `ExternalArtifactContext` and `(I)ExternalArtifactContextFactory` (to `RemoteArtifact*`: a local file outside the workspace is also "external", but it's never restored), `IArtifactRegistry`/`ArtifactRegistry<T>`, `IArtifactRestorer`/`ArtifactRestorer` and `ArtifactRestoreState` (to `IRemoteArtifactRegistry`/`RemoteArtifactRegistry<T>`, `IRemoteArtifactRestorer`/`RemoteArtifactRestorer` and `RemoteArtifactRestoreState`: they never handle local artifacts), `ExternalArtifactException` (to `ArtifactException`: it's also thrown for cache I/O on local extensions, so "remote" would be wrong), `ArtifactReferenceSchemes` (to `ArtifactSchemes`, in its own file), `ArtifactHelper` (folded into `Artifacts/Restore/`), `TemplateSpecEntity` (to its own file), and the mock configuration types (to `Configuration/LegacyModuleAliasMocks/`). Types that 0.9 deletes are **not** moved or renamed: `OciArtifactResult` and its subclasses, `OciArtifactResultFactory`, `OciArtifactLayer`, `IExtensionArtifact`, `IExtensionArtifactReference`, `OciModuleReferenceExtensions`. Add the naming architecture test (section 2), with exactly those types in its allowlist. Two commits, one for moves and one for type renames, so that git shows them as renames. Moved out of 0.8b: the language server completion split and `IArtifactAliasCatalog` go to PR 4 and PR 9; `CancellationToken` plumbing is deferred. | Build and full tests; no logic changes; baselines unchanged. |
 | 0.9a | **OCI payload and codecs** | `OciArtifactPayload` replaces `OciArtifactResult` and its subclasses, `OciArtifactResultFactory`, `OciArtifactLayer` and `OciDescriptor.Data`. `IRegistrySession` pushes and pulls payloads in both transports (Azure SDK and ORAS), with no Bicep media types. `OciModuleArtifactCodec` and `OciExtensionArtifactCodec` take over the encoding for push (from `OciArtifactRegistry`) and the pull validation (from the result classes), keeping error messages verbatim. `ModuleArtifactPackage` gains `Description` and `FromTemplate`; `ExtensionArtifactPackage` drops `LocalDeployEnabled`. `PrivateAcrModuleMetadataProvider` reads the payload's manifest. | A round-trip test per codec, with and without sources, documentation and binaries; publish, restore and BCP192 message tests unchanged. |
-| 0.9b | **Cache entries store packages** | OCI cache entries `WriteAsync(package, payload)`; `ExtensionArtifactCacheFiles` is the one writer of extension files; local extensions are decoded, written and opened through the same path (`LocalExtensionArtifact.Unpack` becomes the cache entry's `Write(package)`). Unpacking moves out of `LocalArtifactReference` into `LocalArtifactLoader`; references stop exposing cache entries, and registries create entries from references. `LocalArtifactReference` loses its cache root, so `ArtifactReferenceResolver` and `ModuleAliasMockRule` no longer need `IFeatureProviderFactory`; `IArtifactReferenceResolver` itself is unchanged. | `ArtifactCacheLayoutTests` unchanged; local-extension and concurrent-extraction tests. |
-| 0.9c | **The compiler gets artifacts** | Add `Artifact`, `ModuleArtifact` and `ExtensionArtifact`. `IRemoteArtifactRegistry.TryGetEntryPoint` becomes `TryOpen`; `RemoteArtifactRestoreState.Restored(Artifact)`; `ArtifactResolutionInfo.Result` becomes `ResultWithDiagnosticBuilder<Artifact>`. The source graph uses `ModuleArtifact.Kind`; `NamespaceProvider` uses `ExtensionArtifact.Types`; `NamespaceType` carries `ExtensionArtifact` for local deploy; the language server uses `ModuleArtifact.TryGetSources()`. Delete `IExtensionArtifact`, `IExtensionArtifactReference`, `ResolveExtensionArtifact` and `TryLoadSourceArchive`. The naming test's allowlist becomes empty. | Baselines unchanged; language server ext-src, visualizer and code-lens tests; local deploy tests. |
+| 0.9b | **Cache entries store packages** | OCI cache entries `WriteAsync(package, payload)`; `ExtensionArtifactCacheFiles` is the one writer of extension files; local extensions are decoded, written and opened through the same path (`LocalExtensionArtifactCacheEntry.Unpack` becomes the cache entry's `Write(package)`). Unpacking moves out of `LocalArtifactReference` into `LocalArtifactLoader`; references stop exposing cache entries, and registries create entries from references. `LocalArtifactReference` loses its cache root, so `ArtifactReferenceResolver` and `ModuleAliasMockRule` no longer need `IFeatureProviderFactory`; `IArtifactReferenceResolver` itself is unchanged. | `ArtifactCacheLayoutTests` unchanged; local-extension and concurrent-extraction tests. |
+| 0.9c | **The compiler gets artifacts** | Add `Artifact`, `ModuleArtifact` and `ExtensionArtifact`. `IRemoteArtifactRegistry.TryGetEntryPoint` becomes `TryOpen`; `RemoteArtifactRestoreState.Restored(Artifact)`; `ArtifactResolutionInfo.Result` becomes `ResultWithDiagnosticBuilder<Artifact>`. The source graph uses `ModuleArtifact.Kind`; `NamespaceProvider` uses `ExtensionArtifact.Types`; `NamespaceType` carries `ExtensionArtifact` for local deploy; the language server uses `ModuleArtifact.TryGetSources()`. Delete `IExtensionArtifact`, `IExtensionArtifactReference`, `ResolveExtensionArtifact` and `TryLoadSourceArchive`. | Baselines unchanged; language server ext-src, visualizer and code-lens tests; local deploy tests. |
 
 Phase 0 ends with 0.9c.
 
@@ -488,10 +493,10 @@ Phase 0 ends with 0.9c.
 
 ### 4.4 Validation notes
 
-- **Last full run (0.8a):** `dotnet build Bicep.slnx --no-restore` with 0 warnings; `dotnet test --solution Bicep.slnx --no-build` with 16,108 passed and 1 skipped; no baseline changes. Each earlier phase ran the full suite; its results are in the PR description.
+- **Last full run (0.8b):** `dotnet build Bicep.slnx --no-restore` with 0 warnings; `dotnet test --solution Bicep.slnx --no-build` with 16,108 passed and 1 skipped; no baseline changes. Each earlier phase ran the full suite; its results are in the PR description.
 - **Test runner flags:** these test runners use Microsoft.Testing.Platform and don't accept `--blame-hang-timeout` or `--output Minimal`. A run with either flag executes zero tests.
 - **Wasm DI:** `AddBicepDecompiler` calls `AddBicepCore` again, so Wasm removes the default registries after both calls.
-- **Mock test case:** `ArtifactRestorerTests`' mock reference includes its context in equality, as real references do.
+- **Mock test case:** `RemoteArtifactRestorerTests`' mock reference includes its context in equality, as real references do.
 
 ---
 
