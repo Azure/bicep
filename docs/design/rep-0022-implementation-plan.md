@@ -21,7 +21,7 @@ The work has two parts:
 | 0.6 | One `LocalArtifactReference`; local references are never restored | #20519 | Merged |
 | 0.7 | External artifact context on remote references | #20523 | Merged |
 | 0.8a | Registry, publish and cache cuts (includes the former 0.8c) | #20528 | Merged |
-| 0.8b | Vocabulary and folders: renames and moves only | branch `shenglol/rep-0022-phase-0.8b` | Committed, PR pending |
+| 0.8b | Vocabulary and folders: renames and moves only | #20530 | In review |
 | 0.9a | OCI payload and codecs | – | Next |
 | 0.9b | Cache entries store packages | – | Planned |
 | 0.9c | The compiler gets artifacts, not files | – | Planned |
