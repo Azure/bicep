@@ -85,11 +85,20 @@ namespace Bicep.Core.Registry.Oci
 
         public override string UnqualifiedReference => ArtifactId;
 
-        public IFileHandle ModuleMainTemplateFile => this.lazyBicepRegistryModuleArtifact.Value.MainTemplateFile;
+        /// <summary>
+        /// Gets the cache entry of the artifact if it is a module. Its layout is owned by the entry.
+        /// </summary>
+        public BicepRegistryModuleArtifact ModuleCacheEntry => this.lazyBicepRegistryModuleArtifact.Value;
 
-        public IFileHandle ModuleSourceTgzFile => this.lazyBicepRegistryModuleArtifact.Value.SourceTgzFile;
-
-        public IFileHandle ExtensionTypesTgzFile => this.lazyBicepRegistryExtensionArtifact.Value.TypesTgzFile;
+        /// <summary>
+        /// Gets the cache entry of the artifact for its <see cref="ArtifactReference.Type"/>.
+        /// </summary>
+        public BicepRegistryArtifact CacheEntry => this.Type switch
+        {
+            ArtifactType.Module => this.lazyBicepRegistryModuleArtifact.Value,
+            ArtifactType.Extension => this.lazyBicepRegistryExtensionArtifact.Value,
+            _ => throw new InvalidOperationException($"Unexpected artifact type '{this.Type}'."),
+        };
 
         /// <summary>
         /// Parses a fully qualified OCI reference body without the scheme, e.g. <c>example.azurecr.invalid/foo/bar:v3</c>.

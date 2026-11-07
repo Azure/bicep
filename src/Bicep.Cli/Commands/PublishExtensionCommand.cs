@@ -30,7 +30,7 @@ namespace Bicep.Cli.Commands
 {
     public class PublishExtensionCommand(
         IArtifactReferenceResolver referenceResolver,
-        IArtifactPublisher publisher,
+        OciArtifactRegistry ociRegistry,
         IFileExplorer fileExplorer,
         InputOutputArgumentsResolver inputOutputArgumentsResolver,
         ILocalExtensionFactory localExtensionFactory,
@@ -61,10 +61,30 @@ namespace Bicep.Cli.Commands
             {
                 throw new CommandLineException("The target extension was not specified.");
             }
-            var reference = ValidateReference(args.TargetExtensionReference);
+            OciArtifactReference? reference = null;
+            IFileHandle? fileTarget = null;
+            if (args.TargetExtensionReference.StartsWith("br:") || args.TargetExtensionReference.StartsWith("ts:"))
+            {
+                reference = ValidateReference(args.TargetExtensionReference, GetCurrentDirectoryReferencingFileUri());
+            }
+            else
+            {
+                fileTarget = fileExplorer.GetFile(inputOutputArgumentsResolver.PathToUri(args.TargetExtensionReference));
+                var fileName = fileTarget.Uri.GetFileName();
+                if (ArtifactAddress.Parse(fileName) is not ArtifactAddress.Path)
+                {
+                    // Preserve diagnostics for malformed paths whose file name is parsed as a scheme.
+                    reference = ValidateReference(fileName, fileTarget.Uri);
+                    fileTarget = null;
+                }
+                else if (!RelativePath.TryCreate(fileName).IsSuccess(out _, out var failureBuilder))
+                {
+                    throw new BicepException(failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message);
+                }
+            }
             var overwriteIfExists = args.Force;
 
-            Trace.WriteLine($"Preparing to publish extension \"{reference.FullyQualifiedReference}\" (force={overwriteIfExists}, indexFile={args.IndexFile ?? "<none>"}, binariesSpecified={args.Binaries.Count}).");
+            Trace.WriteLine($"Preparing to publish extension \"{reference?.FullyQualifiedReference ?? fileTarget?.Uri.GetFileName()}\" (force={overwriteIfExists}, indexFile={args.IndexFile ?? "<none>"}, binariesSpecified={args.Binaries.Count}).");
 
             var binaries = SupportedArchitectures.All.Select(TryGetBinary).WhereNotNull().ToImmutableArray();
             var tarPayload = await GetTypesTarPayload(args, binaries, cancellationToken);
@@ -74,7 +94,18 @@ namespace Bicep.Cli.Commands
                 LocalDeployEnabled: binaries.Any(),
                 Binaries: binaries);
 
-            await this.PublishExtensionAsync(reference, package, overwriteIfExists);
+            if (reference is not null)
+            {
+                await this.PublishExtensionAsync(reference, package, overwriteIfExists);
+            }
+            else if (fileTarget is not null)
+            {
+                fileTarget.Write(await ExtensionV1Archive.Build(package));
+            }
+            else
+            {
+                throw new UnreachableException("A publish target must be a file or an OCI reference.");
+            }
             return 0;
         }
 
@@ -110,17 +141,17 @@ namespace Bicep.Cli.Commands
             return await CreateTypesTar(indexHandle);
         }
 
-        private async Task PublishExtensionAsync(ArtifactReference target, ExtensionPackage package, bool overwriteIfExists)
+        private async Task PublishExtensionAsync(OciArtifactReference target, ExtensionPackage package, bool overwriteIfExists)
         {
             try
             {
                 // If we don't want to overwrite, ensure extension doesn't exist
-                if (!overwriteIfExists && await publisher.ExistsAsync(target))
+                if (!overwriteIfExists && await ociRegistry.CheckArtifactExists(target))
                 {
                     throw new BicepException($"The extension \"{target.FullyQualifiedReference}\" already exists. Use --force to overwrite the existing extension.");
                 }
                 Trace.WriteLine($"Publishing extension package to \"{target.FullyQualifiedReference}\".");
-                await publisher.PublishAsync(target, package);
+                await ociRegistry.PublishExtension(target, package);
                 Trace.WriteLine($"Successfully published extension package to \"{target.FullyQualifiedReference}\".");
             }
             catch (ExternalArtifactException exception)
@@ -129,36 +160,27 @@ namespace Bicep.Cli.Commands
             }
         }
 
-        private ArtifactReference ValidateReference(string targetReference)
+        private IOUri GetCurrentDirectoryReferencingFileUri()
         {
-            IOUri dummyReferencingFileUri;
+            // Configuration discovery starts in a file's containing directory. This file is never read.
+            return IOUri.FromFilePath(Path.Join(environment.CurrentDirectory, "dummy"));
+        }
 
-            if (!targetReference.StartsWith("br:") && !targetReference.StartsWith("ts:"))
-            {
-                // A file path target is resolved as a reference relative to itself, because absolute paths are not
-                // valid artifact references.
-                dummyReferencingFileUri = inputOutputArgumentsResolver.PathToUri(targetReference);
-                targetReference = dummyReferencingFileUri.GetFileName();
-            }
-            else
-            {
-                // A placeholder in the current directory, so that configuration is loaded from there.
-                dummyReferencingFileUri = IOUri.FromFilePath(Path.Join(environment.CurrentDirectory, "dummy"));
-            }
-
-            if (!referenceResolver.TryResolve(dummyReferencingFileUri, ArtifactType.Extension, targetReference).IsSuccess(out var extensionReference, out var failureBuilder))
+        private OciArtifactReference ValidateReference(string targetReference, IOUri referencingFileUri)
+        {
+            if (!referenceResolver.TryResolve(referencingFileUri, ArtifactType.Extension, targetReference).IsSuccess(out var extensionReference, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
 
                 throw new BicepException(message);
             }
 
-            if (!publisher.CanPublish(extensionReference))
+            if (extensionReference is not OciArtifactReference { Tag: not null } ociReference)
             {
                 throw new BicepException($"The specified extension target \"{targetReference}\" is not supported.");
             }
 
-            return extensionReference;
+            return ociReference;
         }
 
         private static void ValidateExtension(BinaryData extension)

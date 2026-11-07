@@ -1,77 +1,88 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Reflection;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Semantics;
-using Bicep.Core.SourceGraph;
-using Bicep.Core.SourceLink;
-using Bicep.Core.Utils;
+using Bicep.Core.SourceGraph.Artifacts;
+using Bicep.Core.Tracing;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry
 {
-    public abstract class ArtifactRegistry<T> : IArtifactRegistry where T : ExternalArtifactReference
+    /// <summary>
+    /// Restores one kind of remote artifact into the local cache. Where an artifact is cached is up to its cache entry.
+    /// </summary>
+    public abstract class ArtifactRegistry<TArtifactReference> : IArtifactRegistry
+        where TArtifactReference : ExternalArtifactReference
     {
         public abstract string Scheme { get; }
 
-        public bool CanHandle(ExternalArtifactReference reference) => reference is T;
+        public bool CanHandle(ExternalArtifactReference reference) => reference is TArtifactReference;
 
-        public RegistryCapabilities GetCapabilities(ArtifactType artifactType, ExternalArtifactReference reference)
-            => this.GetCapabilities(artifactType, ConvertReference(reference));
+        public IFileHandle? TryGetEntryPoint(ExternalArtifactReference reference) => this.TryGetEntryPoint(ConvertReference(reference));
 
-        public abstract bool IsArtifactRestoreRequired(T reference);
-
-        public abstract IFileHandle GetEntryPoint(T reference);
-
-        public abstract Task<bool> CheckArtifactExists(ArtifactType artifactType, T reference);
-
-        public abstract Task PublishModule(T reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description);
-
-        public abstract Task PublishExtension(T reference, ExtensionPackage package);
-
-        public virtual Task OnRestoreArtifacts(bool forceRestore)
+        public async Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreAsync(IEnumerable<ExternalArtifactReference> references, RestoreMode mode)
         {
-            return Task.CompletedTask;
+            var typedReferences = references.Select(ConvertReference).ToArray();
+
+            if (mode != RestoreMode.Force)
+            {
+                return await this.RestoreArtifacts(typedReferences);
+            }
+
+            var failures = new Dictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>(await this.InvalidateArtifactsCache(typedReferences));
+
+            foreach (var (reference, error) in await this.RestoreArtifacts(typedReferences))
+            {
+                // A failure to delete the cached copy is reported instead of the restore failure that follows it.
+                failures.TryAdd(reference, error);
+            }
+
+            return failures;
         }
 
-        public abstract Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<T> references);
+        protected abstract ExternalArtifact GetCacheEntry(TArtifactReference reference);
 
-        public abstract Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<T> references);
+        protected virtual IFileHandle? TryGetEntryPoint(TArtifactReference reference) =>
+            this.GetCacheEntry(reference) is { IsComplete: true } cacheEntry ? cacheEntry.EntryPoint : null;
 
-        public abstract string? TryGetDocumentationUri(T reference);
+        protected abstract Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<TArtifactReference> references);
 
-        public abstract Task<string?> TryGetModuleDescription(ModuleSymbol module, T reference);
-
-        public bool IsArtifactRestoreRequired(ExternalArtifactReference reference) => this.IsArtifactRestoreRequired(ConvertReference(reference));
-
-        public IFileHandle GetEntryPoint(ExternalArtifactReference reference) => this.GetEntryPoint(ConvertReference(reference));
-
-        public Task<bool> CheckArtifactExists(ArtifactType artifactType, ExternalArtifactReference reference)
-            => this.CheckArtifactExists(artifactType, ConvertReference(reference));
-
-        public Task PublishModule(ExternalArtifactReference artifactReference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
-            => this.PublishModule(ConvertReference(artifactReference), compiled, bicepSources, documentationUri, description);
-
-        public Task PublishExtension(ExternalArtifactReference reference, ExtensionPackage package)
-            => this.PublishExtension(ConvertReference(reference), package);
-
-        public Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ExternalArtifactReference> references) =>
-            this.RestoreArtifacts(references.Select(ConvertReference));
-
-        public Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ExternalArtifactReference> references) =>
-             this.InvalidateArtifactsCache(references.Select(ConvertReference));
-
-        public string? GetDocumentationUri(ExternalArtifactReference reference) => this.TryGetDocumentationUri(ConvertReference(reference));
-
-        public async Task<string?> TryGetModuleDescription(ModuleSymbol module, ExternalArtifactReference reference) =>
-            await this.TryGetModuleDescription(module, ConvertReference(reference));
-
-        public abstract RegistryCapabilities GetCapabilities(ArtifactType artifactType, T reference);
-
-        private static T ConvertReference(ExternalArtifactReference reference) => reference switch
+        private async Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<TArtifactReference> references)
         {
-            T typed => typed,
+            var failures = new Dictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
+
+            foreach (var reference in references)
+            {
+                using var timer = new ExecutionTimer($"Delete artifact {reference.FullyQualifiedReference} from cache");
+                try
+                {
+                    var cacheEntry = this.GetCacheEntry(reference);
+                    if (cacheEntry.CacheDirectory.Exists())
+                    {
+                        await cacheEntry.DeleteAsync();
+                    }
+                }
+                catch (Exception exception)
+                {
+                    if (exception.Message is { } message)
+                    {
+                        failures.Add(reference, x => x.ArtifactDeleteFailedWithMessage(reference.FullyQualifiedReference, message));
+                        timer.OnFail($"Unexpected exception {exception}: {message}");
+
+                        return failures;
+                    }
+
+                    failures.Add(reference, x => x.ArtifactDeleteFailed(reference.FullyQualifiedReference));
+                    timer.OnFail($"Unexpected exception {exception}.");
+                }
+            }
+
+            return failures;
+        }
+
+        private static TArtifactReference ConvertReference(ExternalArtifactReference reference) => reference switch
+        {
+            TArtifactReference typed => typed,
             _ => throw new ArgumentException($"Reference type '{reference.GetType().Name}' is not supported."),
         };
     }

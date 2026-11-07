@@ -67,12 +67,9 @@ public class ArtifactReferenceResolutionTests
         // Local files do not go through registries, so they resolve even when no registries are configured.
         var (entryPoint, _, _, services) = Setup(entryContents: $"module foo '{referenceText}' = {{}}");
         var module = entryPoint.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
-        var registryProvider = StrictMock.Of<IArtifactRegistryProvider>();
-        registryProvider.SetupGet(x => x.SupportedSchemes).Returns([]);
-        registryProvider.Setup(x => x.TryGetRegistry(It.IsAny<string>())).Returns((IArtifactRegistry?)null);
         var resolver = new RedirectingArtifactResolver(
-            new ArtifactReferenceResolver(registryProvider.Object, services.GetRequiredService<IFileExplorer>(), services.GetRequiredService<IBicepConfigurationManager>(), services.GetRequiredService<IFeatureProviderFactory>(), services.GetRequiredService<IExternalArtifactContextFactory>()),
-            new ArtifactRedirectTable([]));
+            new ArtifactReferenceResolver([], services.GetRequiredService<IFileExplorer>(), services.GetRequiredService<IBicepConfigurationManager>(), services.GetRequiredService<IFeatureProviderFactory>(), services.GetRequiredService<IExternalArtifactContextFactory>()),
+            []);
 
         Describe(ResolveDeclaration(resolver, entryPoint, module)).Should().Be(expected);
     }

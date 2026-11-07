@@ -4,11 +4,13 @@
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Cli.UnitTests.Assertions;
+using Bicep.Core.Registry;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Utils;
@@ -101,8 +103,14 @@ public class PublishExtensionCommandTests : TestBase
         fs.Directory.CreateDirectory("/target");
         var targetPath = "/target/extension.tgz";
 
-        var publishResult = await Bicep(services => services.WithFileSystem(fs), ["publish-extension", indexPath, "--target", targetPath]);
+        var resolver = StrictMock.Of<IArtifactReferenceResolver>();
+        var publishResult = await Bicep(services => services.WithFileSystem(fs).WithArtifactReferenceResolver(resolver.Object), ["publish-extension", indexPath, "--target", targetPath]);
         publishResult.Should().Succeed().And.NotHaveStdout();
+
+        // Local targets are overwritten even without --force, and never go through artifact resolution.
+        var overwriteResult = await Bicep(services => services.WithFileSystem(fs).WithArtifactReferenceResolver(resolver.Object), ["publish-extension", indexPath, "--target", targetPath]);
+        overwriteResult.Should().Succeed().And.NotHaveStdout();
+        resolver.VerifyNoOtherCalls();
 
         var services = new ServiceBuilder().WithFileSystem(fs);
         var compileResult = await CompilationHelper.RestoreAndCompile(services, """
@@ -127,6 +135,14 @@ resource fooRes 'fooType@v1' = {
 
         var result = await Bicep(InvocationSettings.Default, "publish-extension", indexPath, "--target", $"asdf:123");
         result.Should().Fail().And.HaveStderrMatch("*The specified module reference scheme \"asdf\" is not recognized.*");
+    }
+
+    [TestMethod]
+    public async Task Publish_extension_should_fail_for_digest_target()
+    {
+        const string target = "br:example.com/test/extension@sha256:80f63ced0b80b63874c808a321f472755a3c9e93987d1fa0a51e13c65e4a52b9";
+        var result = await Bicep(InvocationSettings.Default, "publish-extension", "index.json", "--target", target);
+        result.Should().Fail().And.HaveStderrMatch($"*The specified extension target \"{target}\" is not supported.*");
     }
 
     [TestMethod]

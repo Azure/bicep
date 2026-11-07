@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
+using Bicep.Core.Artifacts.LegacyModuleAliasMocks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
@@ -16,12 +18,12 @@ namespace Bicep.Core.Artifacts.Redirects;
 public sealed class RedirectingArtifactResolver
 {
     private readonly IArtifactReferenceResolver resolver;
-    private readonly ArtifactRedirectTable redirectTable;
+    private readonly ImmutableArray<ArtifactRedirectRule> rules;
 
-    public RedirectingArtifactResolver(IArtifactReferenceResolver resolver, ArtifactRedirectTable redirectTable)
+    public RedirectingArtifactResolver(IArtifactReferenceResolver resolver, IEnumerable<ArtifactRedirectRule> rules)
     {
         this.resolver = resolver;
-        this.redirectTable = redirectTable;
+        this.rules = [.. rules];
     }
 
     public static RedirectingArtifactResolver Create(
@@ -29,9 +31,19 @@ public sealed class RedirectingArtifactResolver
         IFileExplorer fileExplorer,
         IBicepConfigurationManager configurationManager,
         IFeatureProviderFactory featureProviderFactory) =>
-        new(resolver, ArtifactRedirectTable.Create(fileExplorer, configurationManager, featureProviderFactory));
+        new(resolver, [new ModuleAliasMockRule(fileExplorer, configurationManager, featureProviderFactory)]);
 
-    public ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(IOUri referencingUri, ArtifactType artifactType, string referenceText) =>
-        this.redirectTable.TryRedirect(referencingUri, artifactType, ArtifactAddress.Parse(referenceText)) ??
-        this.resolver.TryResolve(referencingUri, artifactType, referenceText);
+    public ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(IOUri referencingUri, ArtifactType artifactType, string referenceText)
+    {
+        var address = ArtifactAddress.Parse(referenceText);
+        foreach (var rule in this.rules)
+        {
+            if (rule.TryRedirect(referencingUri, artifactType, address) is { } result)
+            {
+                return result;
+            }
+        }
+
+        return this.resolver.TryResolve(referencingUri, artifactType, referenceText);
+    }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Diagnostics;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -29,20 +30,20 @@ namespace Bicep.Core.Registry;
 /// </remarks>
 public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
 {
-    private readonly IArtifactRegistryProvider registryProvider;
+    private readonly ImmutableArray<string> supportedSchemes;
     private readonly IFileExplorer fileExplorer;
     private readonly IBicepConfigurationManager configurationManager;
     private readonly IFeatureProviderFactory featureProviderFactory;
     private readonly IExternalArtifactContextFactory externalArtifactContextFactory;
 
     public ArtifactReferenceResolver(
-        IArtifactRegistryProvider registryProvider,
+        IEnumerable<IArtifactRegistry> registries,
         IFileExplorer fileExplorer,
         IBicepConfigurationManager configurationManager,
         IFeatureProviderFactory featureProviderFactory,
         IExternalArtifactContextFactory externalArtifactContextFactory)
     {
-        this.registryProvider = registryProvider;
+        this.supportedSchemes = [.. registries.Select(registry => registry.Scheme).Distinct().OrderBy(scheme => scheme)];
         this.fileExplorer = fileExplorer;
         this.configurationManager = configurationManager;
         this.featureProviderFactory = featureProviderFactory;
@@ -145,7 +146,7 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
 
         if (!this.IsSupportedScheme(scheme))
         {
-            return new(x => x.UnknownModuleReferenceScheme(scheme, this.registryProvider.SupportedSchemes));
+            return new(x => x.UnknownModuleReferenceScheme(scheme, this.supportedSchemes));
         }
 
         switch (scheme)
@@ -160,13 +161,13 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
 
                 return TemplateSpecModuleReference.TryParse(this.externalArtifactContextFactory.GetTemplateSpecArtifactContext(referencingUri), aliasContext, body).Transform(x => (ArtifactReference)x);
             default:
-                return new(x => x.UnknownModuleReferenceScheme(scheme, this.registryProvider.SupportedSchemes));
+                return new(x => x.UnknownModuleReferenceScheme(scheme, this.supportedSchemes));
         }
     }
 
     private IBicepConfiguration GetConfiguration(IOUri referencingUri) => this.configurationManager.GetEffectiveConfiguration(referencingUri);
 
-    private bool IsSupportedScheme(string scheme) => this.registryProvider.TryGetRegistry(scheme) is not null;
+    private bool IsSupportedScheme(string scheme) => this.supportedSchemes.Contains(scheme);
 
     private static bool SupportsSchemeQualifiedAliases(string scheme) =>
         scheme is ArtifactReferenceSchemes.Oci or ArtifactReferenceSchemes.TemplateSpecs;

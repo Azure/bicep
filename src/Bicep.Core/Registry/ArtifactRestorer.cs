@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Diagnostics;
+using Bicep.Core.Registry.Catalog;
 
 namespace Bicep.Core.Registry;
 
@@ -9,11 +11,14 @@ public class ArtifactRestorer : IArtifactRestorer
 {
     private readonly RestoreFailureCache failureCache = new();
 
-    private readonly IArtifactRegistryProvider registryProvider;
+    private readonly ImmutableArray<IArtifactRegistry> registries;
 
-    public ArtifactRestorer(IArtifactRegistryProvider registryProvider)
+    private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
+
+    public ArtifactRestorer(IEnumerable<IArtifactRegistry> registries, IPublicModuleMetadataProvider publicModuleMetadataProvider)
     {
-        this.registryProvider = registryProvider;
+        this.registries = [.. registries];
+        this.publicModuleMetadataProvider = publicModuleMetadataProvider;
     }
 
     public ArtifactRestoreState GetRestoreState(ExternalArtifactReference reference)
@@ -23,13 +28,9 @@ public class ArtifactRestorer : IArtifactRestorer
             return new ArtifactRestoreState.RestoreFailed(error);
         }
 
-        var registry = this.GetRegistry(reference);
-        if (registry.IsArtifactRestoreRequired(reference))
-        {
-            return new ArtifactRestoreState.NotRestored();
-        }
-
-        return new ArtifactRestoreState.Restored(registry.GetEntryPoint(reference));
+        return this.GetRegistry(reference).TryGetEntryPoint(reference) is { } entryPoint
+            ? new ArtifactRestoreState.Restored(entryPoint)
+            : new ArtifactRestoreState.NotRestored();
     }
 
     public async Task<bool> RestoreAsync(IEnumerable<ExternalArtifactReference> references, RestoreMode mode)
@@ -61,21 +62,7 @@ public class ArtifactRestorer : IArtifactRestorer
             }
         }
 
-        // Call OnRestoreArtifacts on each registry. Can (currently at least) be done in parallel to restore.
-        var onRestoreArtifactsTasks = new List<Task>();
-        foreach (var scheme in this.registryProvider.SupportedSchemes)
-        {
-            var registry = this.registryProvider.GetRegistry(scheme);
-
-            try
-            {
-                onRestoreArtifactsTasks.Add(registry.OnRestoreArtifacts(force));
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine($"{nameof(IArtifactRegistry.OnRestoreArtifacts)} failed: {ex.Message}");
-            }
-        }
+        var publicModuleMetadataTask = this.StartPublicModuleMetadataDownload(force);
 
         if (!force && uniqueReferences.All(reference => this.GetRestoreState(reference) is ArtifactRestoreState.Restored))
         {
@@ -83,39 +70,44 @@ public class ArtifactRestorer : IArtifactRestorer
             return false;
         }
 
-        var referencesByRegistry = uniqueReferences.ToLookup(this.GetRegistry);
-
-        foreach (var registry in referencesByRegistry.Select(byRegistry => byRegistry.Key))
+        foreach (var referencesForRegistry in uniqueReferences.GroupBy(this.GetRegistry))
         {
-            if (force)
-            {
-                var invalidateFailures = await registry.InvalidateArtifactsCache(referencesByRegistry[registry]);
-
-                foreach (var (failedReference, failureBuilder) in invalidateFailures)
-                {
-                    this.failureCache.Add(failedReference, failureBuilder);
-                }
-            }
-
-            var restoreFailures = await registry.RestoreArtifacts(referencesByRegistry[registry]);
-
-            foreach (var (failedReference, failureBuilder) in restoreFailures)
+            foreach (var (failedReference, failureBuilder) in await referencesForRegistry.Key.RestoreAsync(referencesForRegistry, mode))
             {
                 this.failureCache.Add(failedReference, failureBuilder);
             }
+        }
 
-            try
-            {
-                await Task.WhenAll(onRestoreArtifactsTasks);
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine($"{nameof(IArtifactRegistry.OnRestoreArtifacts)} failed: {ex.Message}");
-            }
+        try
+        {
+            await publicModuleMetadataTask;
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"Downloading the public module metadata failed: {ex.Message}");
         }
 
         return true;
     }
 
-    private IArtifactRegistry GetRegistry(ExternalArtifactReference reference) => this.registryProvider.GetRegistry(reference);
+    /// <summary>
+    /// Downloads the public module metadata alongside the restore, so that linter rules can read it from the cache
+    /// instead of downloading anything during analysis. Nothing is downloaded when restore is skipped (<c>--no-restore</c>).
+    /// </summary>
+    private Task StartPublicModuleMetadataDownload(bool force)
+    {
+        try
+        {
+            return this.publicModuleMetadataProvider.TryAwaitCache(force);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"Downloading the public module metadata failed: {ex.Message}");
+            return Task.CompletedTask;
+        }
+    }
+
+    private IArtifactRegistry GetRegistry(ExternalArtifactReference reference) =>
+        this.registries.FirstOrDefault(registry => registry.CanHandle(reference)) ??
+        throw new ArgumentException($"No artifact registry is configured for references of type '{reference.GetType().Name}'.");
 }

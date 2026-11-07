@@ -90,7 +90,6 @@ namespace Bicep.Core.UnitTests.Utils
             var registry = new OciArtifactRegistry(
                 BicepTestConstants.TestRegistryConfiguration,
                 transportFactory,
-                StrictMock.Of<IPublicModuleMetadataProvider>().Object,
                 NullLogger<OciArtifactRegistry>.Instance);
 
             return (registry, blobClient);

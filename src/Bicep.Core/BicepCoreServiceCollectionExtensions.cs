@@ -27,6 +27,8 @@ using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Environment = Bicep.Core.Utils.Environment;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -58,7 +60,6 @@ public static class BicepCoreServiceCollectionExtensions
             sp.GetRequiredService<IBicepConfigurationManager>(),
             sp.GetRequiredService<IFeatureProviderFactory>()));
         services.TryAddSingleton<IArtifactRestorer, ArtifactRestorer>();
-        services.TryAddSingleton<IArtifactPublisher, ArtifactPublisher>();
         services.TryAddSingleton<RegistryConfiguration>(serviceProvider =>
         {
             var environment = serviceProvider.GetRequiredService<IEnvironment>();
@@ -70,7 +71,13 @@ public static class BicepCoreServiceCollectionExtensions
             var environment = serviceProvider.GetRequiredService<IEnvironment>();
             return CloudConfigurationTrustPolicy.FromEnvironmentValue(environment.GetVariable(BicepEnvironmentVariables.TrustedClouds));
         });
-        services.TryAddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>();
+        services.TryAddSingleton(sp => new OciArtifactRegistry(
+            sp.GetRequiredService<RegistryConfiguration>(),
+            sp.GetRequiredService<IOciRegistryTransportFactory>(),
+            sp.GetService<ILogger<OciArtifactRegistry>>() ?? NullLogger<OciArtifactRegistry>.Instance));
+        services.TryAddSingleton<TemplateSpecModuleRegistry>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IArtifactRegistry, OciArtifactRegistry>(sp => sp.GetRequiredService<OciArtifactRegistry>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IArtifactRegistry, TemplateSpecModuleRegistry>(sp => sp.GetRequiredService<TemplateSpecModuleRegistry>()));
         services.TryAddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
         services.TryAddSingleton<IEnvironment, Environment>();
         services.AddBicepFileSystem();

@@ -20,6 +20,14 @@ namespace Bicep.Wasm.UnitTests;
 public class InteropTests
 {
     [TestMethod]
+    public void Wasm_registers_only_the_OCI_registry()
+    {
+        using var services = new ServiceCollection().AddBicepWasm().BuildServiceProvider();
+        services.GetServices<IArtifactRegistry>().Should().ContainSingle()
+            .Which.Should().BeSameAs(services.GetRequiredService<OciArtifactRegistry>());
+    }
+
+    [TestMethod]
     public async Task CompileAndEmitDiagnostics_WithQuickstartModules_LoadsModulesRecursively()
     {
         var quickstartFiles = new Dictionary<string, string>
@@ -322,17 +330,14 @@ public class InteropTests
     {
         var services = new ServiceCollection();
 
-        services.AddSingleton(fileExplorer);
-        services.AddSingleton<IArtifactRegistryProvider, WasmModuleRegistryProvider>();
-        services.AddSingleton<IPublicModuleMetadataProvider, WasmPublicModuleMetadataProvider>();
 
         if (clientFactory is not null)
         {
             services.AddSingleton(clientFactory);
         }
 
-        services.AddBicepCore();
-        services.AddBicepDecompiler();
+        services.AddBicepWasm();
+        services.AddSingleton(fileExplorer);
 
         return services.BuildServiceProvider();
     }

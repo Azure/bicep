@@ -2,10 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Semantics;
-using Bicep.Core.SourceGraph;
-using Bicep.Core.SourceLink;
-using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry
@@ -26,72 +22,15 @@ namespace Bicep.Core.Registry
         bool CanHandle(ExternalArtifactReference reference);
 
         /// <summary>
-        /// Gets the capabilities of this registry for the specified artifact reference.
+        /// Gets the file in the local cache that the compiler loads for the artifact, or <c>null</c> if the artifact
+        /// has not been restored (or cannot be, for example because its registry is not trusted).
         /// </summary>
-        /// <param name="reference">The module reference</param>
-        RegistryCapabilities GetCapabilities(ArtifactType artifactType, ExternalArtifactReference reference);
+        IFileHandle? TryGetEntryPoint(ExternalArtifactReference reference);
 
         /// <summary>
-        /// Returns true if the specified artifact is already cached in the local cache.
+        /// Downloads the specified artifacts from the registry and caches them locally. A forced restore deletes the
+        /// cached copies first. Returns the errors for the artifacts that could not be deleted or downloaded.
         /// </summary>
-        /// <param name="reference">The reference to the artifact.</param>
-        bool IsArtifactRestoreRequired(ExternalArtifactReference reference);
-
-        /// <summary>
-        /// Gets the file in the local cache that the compiler loads for the artifact. It only exists once the artifact is restored.
-        /// </summary>
-        /// <param name="reference">The reference to the artifact.</param>
-        IFileHandle GetEntryPoint(ExternalArtifactReference reference);
-
-        /// <summary>
-        /// Returns true if the specified module exists in the registry.
-        /// </summary>
-        /// <param name="reference">The reference to the module.</param>
-        Task<bool> CheckArtifactExists(ArtifactType artifactType, ExternalArtifactReference reference);
-
-        /// <summary>
-        /// Downloads the specified modules from the registry and caches them locally.
-        /// Returns a mapping of module references to error builders for modules that failed to be downloaded.
-        /// </summary>
-        /// <param name="references">module references</param>
-        Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ExternalArtifactReference> references);
-
-        /// <summary>
-        /// Called when time to restore artifacts, even if all artifacts are already restored.  Allows the registry provider
-        /// an opportunity to deal with registry tasks that are not specific to a specific artifact or version.
-        /// </summary>
-        Task OnRestoreArtifacts(bool forceRestore);
-
-        /// <summary>
-        /// Invalidate the specified cached modules from the registry.
-        /// Returns a mapping of module references to error builders for modules that failed to be invalidated.
-        /// </summary>
-        /// <param name="references">module references</param>
-        Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ExternalArtifactReference> references);
-
-        /// <summary>
-        /// Publishes the module at the specified path to the registry.
-        /// </summary>
-        /// <param name="reference">The module reference</param>
-        /// <param name="compiled">The compiled module</param>
-        /// <param name="bicepSources">The source archive</param>
-        Task PublishModule(ExternalArtifactReference reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description);
-
-        /// <summary>
-        /// Publishes an extension types package to the registry.
-        /// </summary>
-        /// <param name="reference">The extension reference</param>
-        Task PublishExtension(ExternalArtifactReference reference, ExtensionPackage package);
-
-        /// <summary>
-        /// Returns documentationUri for the module.
-        /// </summary>
-        /// <param name="reference">The module reference</param>
-        string? GetDocumentationUri(ExternalArtifactReference reference);
-
-        /// <summary>
-        /// Returns description for a module.
-        /// </summary>
-        Task<string?> TryGetModuleDescription(ModuleSymbol module, ExternalArtifactReference reference);
+        Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreAsync(IEnumerable<ExternalArtifactReference> references, RestoreMode mode);
     }
 }

@@ -17,6 +17,7 @@ using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.IO.Abstraction;
@@ -30,7 +31,7 @@ namespace Bicep.Cli.Commands
         private readonly DiagnosticLogger diagnosticLogger;
         private readonly BicepCompiler compiler;
         private readonly IArtifactReferenceResolver referenceResolver;
-        private readonly IArtifactPublisher publisher;
+        private readonly OciArtifactRegistry ociRegistry;
         private readonly IFileExplorer fileExplorer;
         private readonly IBicepConfigurationManager configurationManager;
         private readonly IFeatureProviderFactory featureProviderFactory;
@@ -42,7 +43,7 @@ namespace Bicep.Cli.Commands
             BicepCompiler compiler,
             IOContext ioContext,
             IArtifactReferenceResolver referenceResolver,
-            IArtifactPublisher publisher,
+            OciArtifactRegistry ociRegistry,
             IBicepConfigurationManager configurationManager,
             IFeatureProviderFactory featureProviderFactory,
             IFileExplorer fileExplorer,
@@ -51,7 +52,7 @@ namespace Bicep.Cli.Commands
             this.diagnosticLogger = diagnosticLogger;
             this.compiler = compiler;
             this.referenceResolver = referenceResolver;
-            this.publisher = publisher;
+            this.ociRegistry = ociRegistry;
             this.fileExplorer = fileExplorer;
             this.configurationManager = configurationManager;
             this.featureProviderFactory = featureProviderFactory;
@@ -112,16 +113,16 @@ namespace Bicep.Cli.Commands
             return 0;
         }
 
-        private async Task PublishModuleAsync(ArtifactReference target, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, bool overwriteIfExists)
+        private async Task PublishModuleAsync(OciArtifactReference target, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, bool overwriteIfExists)
         {
             try
             {
                 // If we don't want to overwrite, ensure module doesn't exist
-                if (!overwriteIfExists && await this.publisher.ExistsAsync(target))
+                if (!overwriteIfExists && await this.ociRegistry.CheckArtifactExists(target))
                 {
                     throw new BicepException($"The module \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing module.");
                 }
-                await this.publisher.PublishAsync(target, new ModulePackage(compiledArmTemplate, bicepSources, documentationUri));
+                await this.ociRegistry.PublishModule(target, new ModulePackage(compiledArmTemplate, bicepSources, documentationUri));
             }
             catch (ExternalArtifactException exception)
             {
@@ -129,7 +130,7 @@ namespace Bicep.Cli.Commands
             }
         }
 
-        private ArtifactReference ValidateReference(string targetModuleReference, IOUri targetModuleUri)
+        private OciArtifactReference ValidateReference(string targetModuleReference, IOUri targetModuleUri)
         {
             // A moduleAliasesMock alias is resolved to a local file, which cannot be published.
             var result = new ModuleAliasMockRule(this.fileExplorer, this.configurationManager, this.featureProviderFactory).TryRedirect(targetModuleUri, ArtifactType.Module, ArtifactAddress.Parse(targetModuleReference)) ??
@@ -142,12 +143,12 @@ namespace Bicep.Cli.Commands
                 throw new BicepException(message);
             }
 
-            if (!this.publisher.CanPublish(moduleReference))
+            if (moduleReference is not OciArtifactReference { Tag: not null } ociReference)
             {
                 throw new BicepException($"The specified module target \"{targetModuleReference}\" is not supported.");
             }
 
-            return moduleReference;
+            return ociReference;
         }
 
         internal static Command CreateCommand(CommandLineBuilderContext context)

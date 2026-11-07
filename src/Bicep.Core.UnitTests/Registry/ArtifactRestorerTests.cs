@@ -4,10 +4,12 @@
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,14 +27,10 @@ namespace Bicep.Core.UnitTests.Registry
             var fail = StrictMock.Of<IArtifactRegistry>();
             fail.Setup(m => m.Scheme).Returns("fail");
             fail.Setup(m => m.CanHandle(It.IsAny<ExternalArtifactReference>())).Returns(false);
-            fail.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>()))
-                .Returns(Task.CompletedTask);
 
             var mock = StrictMock.Of<IArtifactRegistry>();
             mock.Setup(m => m.Scheme).Returns("mock");
             mock.Setup(m => m.CanHandle(It.IsAny<ExternalArtifactReference>())).Returns(true);
-            mock.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>()))
-                .Returns(Task.CompletedTask);
 
             var validFile = BicepTestConstants.CreateDummyBicepFile();
             ExternalArtifactReference validRef = new MockModuleReference(validFile, "validRef");
@@ -43,12 +41,11 @@ namespace Bicep.Core.UnitTests.Registry
             var validFile3 = BicepTestConstants.CreateDummyBicepFile();
             ExternalArtifactReference validRef3 = new MockModuleReference(validFile3, "validRef3");
 
-            mock.Setup(m => m.IsArtifactRestoreRequired(validRef)).Returns(true);
-            mock.Setup(m => m.IsArtifactRestoreRequired(validRef2)).Returns(false);
-            mock.Setup(m => m.IsArtifactRestoreRequired(validRef3)).Returns(true);
-            mock.Setup(m => m.GetEntryPoint(validRef2)).Returns(DummyFileHandle.Default);
+            mock.Setup(m => m.TryGetEntryPoint(validRef)).Returns((IFileHandle?)null);
+            mock.Setup(m => m.TryGetEntryPoint(validRef2)).Returns(DummyFileHandle.Default);
+            mock.Setup(m => m.TryGetEntryPoint(validRef3)).Returns((IFileHandle?)null);
 
-            mock.Setup(m => m.RestoreArtifacts(It.IsAny<IEnumerable<ExternalArtifactReference>>()))
+            mock.Setup(m => m.RestoreAsync(It.IsAny<IEnumerable<ExternalArtifactReference>>(), It.IsAny<RestoreMode>()))
                 .ReturnsAsync(new Dictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>
                 {
                     [validRef3] = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Compiler, "RegFail", "Failed to restore module")
@@ -77,15 +74,13 @@ namespace Bicep.Core.UnitTests.Registry
             var registryMock = StrictMock.Of<IArtifactRegistry>();
             registryMock.SetupGet(x => x.Scheme).Returns("mock");
             registryMock.Setup(x => x.CanHandle(It.IsAny<ExternalArtifactReference>())).Returns(true);
-            registryMock.Setup(x => x.RestoreArtifacts(It.IsAny<IEnumerable<ExternalArtifactReference>>()))
+            registryMock.Setup(x => x.RestoreAsync(It.IsAny<IEnumerable<ExternalArtifactReference>>(), It.IsAny<RestoreMode>()))
                 .ReturnsAsync(new Dictionary<ExternalArtifactReference, DiagnosticBuilderDelegate>
                 {
                     [badReference] = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Compiler, "RestoreFailure", "Failed to restore module.")
                 });
-            registryMock.Setup(x => x.IsArtifactRestoreRequired(It.IsAny<ExternalArtifactReference>()))
-                .Returns(true);
-            registryMock.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>()))
-                .Returns(Task.CompletedTask);
+            registryMock.Setup(x => x.TryGetEntryPoint(It.IsAny<ExternalArtifactReference>()))
+                .Returns((IFileHandle?)null);
 
             var restorer = CreateRestorer(registryMock.Object);
 
@@ -159,7 +154,7 @@ namespace Bicep.Core.UnitTests.Registry
             var registryMock = StrictMock.Of<IArtifactRegistry>();
             registryMock.SetupGet(x => x.Scheme).Returns("mock");
             registryMock.Setup(x => x.CanHandle(It.IsAny<ExternalArtifactReference>())).Returns(true);
-            registryMock.SetupSequence(x => x.RestoreArtifacts(It.IsAny<IEnumerable<ExternalArtifactReference>>()))
+            registryMock.SetupSequence(x => x.RestoreAsync(It.IsAny<IEnumerable<ExternalArtifactReference>>(), It.IsAny<RestoreMode>()))
                 .ReturnsAsync(new Dictionary<ExternalArtifactReference, DiagnosticBuilderDelegate>
                 {
                     [reference] = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Compiler, "RestoreFailure", "Failed to restore module.")
@@ -169,11 +164,7 @@ namespace Bicep.Core.UnitTests.Registry
                     isRestored = true;
                     return new Dictionary<ExternalArtifactReference, DiagnosticBuilderDelegate>();
                 });
-            registryMock.Setup(x => x.InvalidateArtifactsCache(It.IsAny<IEnumerable<ExternalArtifactReference>>()))
-                .ReturnsAsync(new Dictionary<ExternalArtifactReference, DiagnosticBuilderDelegate>());
-            registryMock.Setup(x => x.IsArtifactRestoreRequired(reference)).Returns(() => !isRestored);
-            registryMock.Setup(x => x.GetEntryPoint(reference)).Returns(DummyFileHandle.Default);
-            registryMock.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>())).Returns(Task.CompletedTask);
+            registryMock.Setup(x => x.TryGetEntryPoint(reference)).Returns(() => isRestored ? DummyFileHandle.Default : null);
             var restorer = CreateRestorer(registryMock.Object);
 
             await restorer.RestoreAsync([reference], RestoreMode.IfMissing);
@@ -196,10 +187,9 @@ namespace Bicep.Core.UnitTests.Registry
             var registryMock = StrictMock.Of<IArtifactRegistry>();
             registryMock.SetupGet(x => x.Scheme).Returns("mock");
             registryMock.Setup(x => x.CanHandle(It.IsAny<ExternalArtifactReference>())).Returns(true);
-            registryMock.Setup(x => x.IsArtifactRestoreRequired(It.IsAny<ExternalArtifactReference>())).Returns(true);
-            registryMock.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>())).Returns(Task.CompletedTask);
-            registryMock.Setup(x => x.RestoreArtifacts(It.IsAny<IEnumerable<ExternalArtifactReference>>()))
-                .ReturnsAsync((IEnumerable<ExternalArtifactReference> references) =>
+            registryMock.Setup(x => x.TryGetEntryPoint(It.IsAny<ExternalArtifactReference>())).Returns((IFileHandle?)null);
+            registryMock.Setup(x => x.RestoreAsync(It.IsAny<IEnumerable<ExternalArtifactReference>>(), It.IsAny<RestoreMode>()))
+                .ReturnsAsync((IEnumerable<ExternalArtifactReference> references, RestoreMode _) =>
                 {
                     restored.AddRange(references);
                     return new Dictionary<ExternalArtifactReference, DiagnosticBuilderDelegate>
@@ -220,7 +210,35 @@ namespace Bicep.Core.UnitTests.Registry
             restorer.GetRestoreState(defaultCloudReference).Should().BeOfType<ArtifactRestoreState.NotRestored>();
         }
 
-        private static IArtifactRestorer CreateRestorer(params IArtifactRegistry[] registries) => new ArtifactRestorer(new MockArtifactRegistryProvider(registries));
+        [TestMethod]
+        [DataRow(RestoreMode.IfMissing, false)]
+        [DataRow(RestoreMode.Force, true)]
+        public async Task RestoreAsync_PassesTheModeToTheRegistryAndDownloadsThePublicModuleMetadata(RestoreMode mode, bool forceMetadataUpdate)
+        {
+            var reference = new MockModuleReference(BicepTestConstants.CreateDummyBicepFile(BicepTestConstants.CreateMockConfiguration()), "module");
+
+            var registryMock = StrictMock.Of<IArtifactRegistry>();
+            registryMock.Setup(x => x.CanHandle(It.IsAny<ExternalArtifactReference>())).Returns(true);
+            registryMock.Setup(x => x.TryGetEntryPoint(reference)).Returns((IFileHandle?)null);
+            registryMock.Setup(x => x.RestoreAsync(It.IsAny<IEnumerable<ExternalArtifactReference>>(), mode))
+                .ReturnsAsync(new Dictionary<ExternalArtifactReference, DiagnosticBuilderDelegate>());
+            var metadataProvider = CreatePublicModuleMetadataProvider();
+            var restorer = new ArtifactRestorer([registryMock.Object], metadataProvider.Object);
+
+            (await restorer.RestoreAsync([reference], mode)).Should().BeTrue();
+
+            registryMock.Verify(x => x.RestoreAsync(It.Is<IEnumerable<ExternalArtifactReference>>(refs => refs.Single() == reference), mode), Times.Once);
+            metadataProvider.Verify(x => x.TryAwaitCache(forceMetadataUpdate), Times.Once);
+        }
+
+        private static IArtifactRestorer CreateRestorer(params IArtifactRegistry[] registries) => new ArtifactRestorer(registries, CreatePublicModuleMetadataProvider().Object);
+
+        private static Mock<IPublicModuleMetadataProvider> CreatePublicModuleMetadataProvider()
+        {
+            var provider = StrictMock.Of<IPublicModuleMetadataProvider>();
+            provider.Setup(x => x.TryAwaitCache(It.IsAny<bool>())).Returns(Task.CompletedTask);
+            return provider;
+        }
 
         private class MockModuleReference : ExternalArtifactReference
         {
@@ -239,8 +257,5 @@ namespace Bicep.Core.UnitTests.Registry
             public override int GetHashCode() => HashCode.Combine(this.Reference, this.Context);
         }
 
-        private class MockArtifactRegistryProvider(IEnumerable<IArtifactRegistry> registries) : ArtifactRegistryProvider(registries)
-        {
-        }
     }
 }

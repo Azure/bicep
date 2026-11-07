@@ -85,9 +85,6 @@ namespace Bicep.LangServer.IntegrationTests
             restorer.Setup(x => x.RestoreAsync(It.IsAny<ImmutableArray<ExternalArtifactReference>>(), It.IsAny<RestoreMode>())).
                 ReturnsAsync(true);
 
-            MockRepository repository = new(MockBehavior.Strict);
-            var provider = repository.Create<IArtifactRegistryProvider>();
-
             var defaultServer = new SharedLanguageHelperManager();
             defaultServer.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(

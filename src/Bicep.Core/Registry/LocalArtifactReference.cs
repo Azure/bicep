@@ -69,7 +69,7 @@ public sealed class LocalArtifactReference : ArtifactReference, IExtensionArtifa
 
         // The cache is content-addressed, so a package that has already been unpacked is reused.
         var artifact = new LocalExtensionArtifact(binaryData, this.cacheRootDirectory);
-        if (artifact.IsUnpacked)
+        if (artifact.IsComplete)
         {
             return new(artifact);
         }

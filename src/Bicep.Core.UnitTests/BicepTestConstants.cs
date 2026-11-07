@@ -33,6 +33,7 @@ using Bicep.IO.InMemory;
 using Bicep.Testing;
 using Bicep.Testing.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
 using OnDiskFileSystem = System.IO.Abstractions.FileSystem;
@@ -87,14 +88,15 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
-        public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services)
+        public static IArtifactRegistry[] CreateRegistries()
         {
             var transportFactory = new ServiceBuilder()
                 .WithContainerRegistryClientFactory(ClientFactory)
                 .Build().Construct<IOciRegistryTransportFactory>();
-            var publicMetadataProvider = (services.GetService(typeof(IPublicModuleMetadataProvider)) as IPublicModuleMetadataProvider)
-                ?? StrictMock.Of<IPublicModuleMetadataProvider>().Object;
-            return new DefaultArtifactRegistryProvider(TestRegistryConfiguration, transportFactory, publicMetadataProvider, TemplateSpecRepositoryFactory);
+            return [
+                new OciArtifactRegistry(TestRegistryConfiguration, transportFactory, NullLogger<OciArtifactRegistry>.Instance),
+                new TemplateSpecModuleRegistry(TemplateSpecRepositoryFactory),
+            ];
         }
 
         public static readonly RegistryConfiguration TestRegistryConfiguration = new(PermitUntrustedRegistries: true);

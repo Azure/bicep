@@ -6,7 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
@@ -401,7 +403,13 @@ namespace Bicep.Core.IntegrationTests
         }
 
         private static IFileHandle GetEntryPoint(IDependencyHelper dependencyHelper, ExternalArtifactReference reference) =>
-            dependencyHelper.Construct<IArtifactRegistryProvider>().GetRegistry(reference).GetEntryPoint(reference);
+            // The entry point's path, whether or not the artifact is restored yet.
+            reference switch
+            {
+                OciArtifactReference oci => oci.CacheEntry.EntryPoint,
+                TemplateSpecModuleReference templateSpec => templateSpec.CacheEntry.EntryPoint,
+                _ => throw new InvalidOperationException($"Unexpected reference type '{reference.GetType().Name}'."),
+            };
 
         private static ResultWithDiagnosticBuilder<ExternalArtifactReference> TryGetModuleReference(IArtifactReferenceResolver resolver, BicepSourceFile referencingFile, string reference) =>
             resolver.TryResolve(referencingFile.FileHandle.Uri, ArtifactType.Module, reference).Transform(x => (ExternalArtifactReference)x);

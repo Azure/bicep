@@ -45,7 +45,10 @@ namespace Bicep.Core.Modules
 
         public string TemplateSpecResourceId => $"/subscriptions/{this.SubscriptionId}/resourceGroups/{this.ResourceGroupName}/providers/Microsoft.Resources/templateSpecs/{this.TemplateSpecName}/versions/{this.Version}";
 
-        public IFileHandle MainTemplateSpecFile => this.templateSpecModuleArtifact.Value.MainTemplateSpecFile;
+        /// <summary>
+        /// Gets the cache entry of the Template Spec. Its layout is owned by the entry.
+        /// </summary>
+        public TemplateSpecModuleArtifact CacheEntry => this.templateSpecModuleArtifact.Value;
 
         public override bool Equals(object? obj) =>
             obj is TemplateSpecModuleReference other &&
