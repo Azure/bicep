@@ -61,5 +61,15 @@ namespace Bicep.Core.UnitTests.Syntax
             var paramTypeToken = nodes.OfType<Token>().Single(t => t.Type == TokenType.Identifier && string.Equals(t.Text, "string"));
             hierarchy.GetParent(paramTypeToken).Should().BeSameAs(paramTypeIdSyntax);
         }
+
+        [TestMethod]
+        public void IsDescendant_UnindexedNode_ShouldReturnFalse()
+        {
+            var program = ParserHelper.Parse("param foo string");
+            var otherProgram = ParserHelper.Parse("param bar string");
+            var hierarchy = SyntaxHierarchy.Build(program);
+
+            hierarchy.IsDescendant(otherProgram, program).Should().BeFalse();
+        }
     }
 }
