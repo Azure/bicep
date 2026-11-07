@@ -289,7 +289,7 @@ public class OrasOciRegistryTransportTests
         await using var session = transport.CreateSession(Cloud, Registry, Repository);
 
         var action = () => session.ResolveAsync(OciRegistryHelper.CreateModuleReference(Registry, Repository, "v1", null), default);
-        var exception = (await action.Should().ThrowAsync<ExternalArtifactException>()).Which;
+        var exception = (await action.Should().ThrowAsync<ArtifactException>()).Which;
 
         exception.InnerException.Should().BeOfType<OrasProject.Oras.Exceptions.NotFoundException>();
     }
@@ -302,7 +302,7 @@ public class OrasOciRegistryTransportTests
 
         var action = () => transport.GetRepositoryNamesAsync(Cloud, "untrusted.example", 10);
 
-        await action.Should().ThrowAsync<ExternalArtifactException>().WithMessage("*not in the list of trusted registries*");
+        await action.Should().ThrowAsync<ArtifactException>().WithMessage("*not in the list of trusted registries*");
     }
 
     [TestMethod]
@@ -405,7 +405,7 @@ public class OrasOciRegistryTransportTests
         }
         else
         {
-            await action.Should().ThrowAsync<ExternalArtifactException>().WithMessage("*Missing username or password*");
+            await action.Should().ThrowAsync<ArtifactException>().WithMessage("*Missing username or password*");
         }
     }
 

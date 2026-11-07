@@ -10,14 +10,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Artifacts.Codecs
 {
     [TestClass]
-    public class ExtensionV1ArchiveTests
+    public class ExtensionArtifactArchiveCodecTests
     {
         [TestMethod]
         public void Read_NonArchiveContent_ThrowsInvalidDataException()
         {
             var binaryData = BinaryData.FromString("this is not a valid tgz archive");
 
-            Action fail = () => ExtensionV1Archive.Read(binaryData);
+            Action fail = () => ExtensionArtifactArchiveCodec.Decode(binaryData);
 
             // The tiered exception handling in LocalModuleRegistry.RestoreArtifacts relies on
             // non-archive content surfacing as InvalidDataException (see https://github.com/Azure/bicep/issues/19165).
@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Codecs
         {
             var binaryData = BuildGzippedTar(("not-types.txt", BinaryData.FromString("hello")));
 
-            Action fail = () => ExtensionV1Archive.Read(binaryData);
+            Action fail = () => ExtensionArtifactArchiveCodec.Decode(binaryData);
 
             fail.Should().Throw<InvalidOperationException>()
                 .WithMessage("The extension package does not contain a 'types.tgz' entry.");

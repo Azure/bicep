@@ -11,7 +11,7 @@ namespace Bicep.Core.Artifacts.References;
 /// The settings used to reach a Template Spec.
 /// </summary>
 public sealed record TemplateSpecArtifactContext(IBicepCloudConfiguration Cloud, IDirectoryHandle CacheRootDirectory)
-    : ExternalArtifactContext(Cloud, CacheRootDirectory)
+    : RemoteArtifactContext(Cloud, CacheRootDirectory)
 {
     public static TemplateSpecArtifactContext Create(IBicepConfiguration configuration, IFeatureProvider features) =>
         new(configuration.Cloud, features.CacheRootDirectory);

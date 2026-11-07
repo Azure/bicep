@@ -190,6 +190,6 @@ public class VisualGraphBuilderTests
     {
         services ??= new ServiceBuilder().Build();
 
-        return new(services.GetCompiler(), services.Construct<IArtifactRestorer>());
+        return new(services.GetCompiler(), services.Construct<IRemoteArtifactRestorer>());
     }
 }

@@ -113,7 +113,7 @@ public class OrasOciRegistryTransport(
     {
         if (!registryConfiguration.IsRegistryTrusted(registry))
         {
-            throw new ExternalArtifactException($"Cannot connect to registry \"{registry}\" because it is not in the list of trusted registries.");
+            throw new ArtifactException($"Cannot connect to registry \"{registry}\" because it is not in the list of trusted registries.");
         }
 
         var isAzure = OciRegistryTransportFactory.IsAzureRegistry(registry);
@@ -183,11 +183,11 @@ public class OrasOciRegistryTransport(
         }
         catch (NotFoundException exception)
         {
-            throw new ExternalArtifactException("The artifact does not exist in the registry.", exception);
+            throw new ArtifactException("The artifact does not exist in the registry.", exception);
         }
         catch (Exception exception) when (exception is HttpRequestException or IOException or AuthenticationFailedException or AuthenticationException)
         {
-            throw new ExternalArtifactException(exception.Message, exception);
+            throw new ArtifactException(exception.Message, exception);
         }
     }
 

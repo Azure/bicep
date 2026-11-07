@@ -10,7 +10,7 @@ namespace Bicep.Core.Artifacts.Resolution;
 /// Gets the context for external artifact references written in the file at a location.
 /// A URI that is not a file, such as an in-memory document, gets the context of the built-in configuration.
 /// </summary>
-public interface IExternalArtifactContextFactory
+public interface IRemoteArtifactContextFactory
 {
     OciArtifactContext GetOciArtifactContext(IOUri referencingUri);
 

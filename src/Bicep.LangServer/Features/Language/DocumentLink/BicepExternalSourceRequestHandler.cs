@@ -32,15 +32,15 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
     {
         public const string BicepExternalSourceLspMethodName = "textDocument/bicepExternalSource";
 
-        private readonly IArtifactRestorer restorer;
-        private readonly IExternalArtifactContextFactory externalArtifactContextFactory;
+        private readonly IRemoteArtifactRestorer restorer;
+        private readonly IRemoteArtifactContextFactory remoteArtifactContextFactory;
 
         public BicepExternalSourceRequestHandler(
-            IArtifactRestorer restorer,
-            IExternalArtifactContextFactory externalArtifactContextFactory)
+            IRemoteArtifactRestorer restorer,
+            IRemoteArtifactContextFactory remoteArtifactContextFactory)
         {
             this.restorer = restorer;
-            this.externalArtifactContextFactory = externalArtifactContextFactory;
+            this.remoteArtifactContextFactory = remoteArtifactContextFactory;
         }
 
         public Task<BicepExternalSourceResponse> Handle(BicepExternalSourceParams request, CancellationToken cancellationToken)
@@ -59,7 +59,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             }
 
             if (address is not ArtifactAddress.SchemeQualified { Scheme: OciArtifactReferenceFacts.Scheme, Body: var body } ||
-                !OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(this.externalArtifactContextFactory), ArtifactType.Module, aliasContext: null, body).IsSuccess(out var ociModuleReference))
+                !OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(this.remoteArtifactContextFactory), ArtifactType.Module, aliasContext: null, body).IsSuccess(out var ociModuleReference))
             {
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"The client specified an invalid module reference '{request.Target}'."));
@@ -67,7 +67,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
             var moduleReference = ociModuleReference;
 
-            if (restorer.GetRestoreState(moduleReference) is ArtifactRestoreState.RestoreFailed)
+            if (restorer.GetRestoreState(moduleReference) is RemoteArtifactRestoreState.RestoreFailed)
             {
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'."));
@@ -118,7 +118,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             return new ExternalSourceReference(reference, sourceArchive).ToUri();
         }
 
-        public static Uri GetTemplateSpecSourceLinkUri(TemplateSpecModuleReference reference)
+        public static Uri GetTemplateSpecSourceLinkUri(TemplateSpecArtifactReference reference)
         {
             var uriBuilder = new UriBuilder($"{LangServerConstants.ExternalSourceFileScheme}:{Uri.EscapeDataString(reference.FullyQualifiedReference)}")
             {

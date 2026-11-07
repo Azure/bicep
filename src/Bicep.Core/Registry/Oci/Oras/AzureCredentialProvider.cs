@@ -56,13 +56,13 @@ internal sealed class AzureCredentialProvider(
             }
             catch (Exception exception) when (exception is JsonException or InvalidOperationException)
             {
-                throw new ExternalArtifactException($"Registry \"{registry}\" returned an invalid Azure token exchange response.", exception);
+                throw new ArtifactException($"Registry \"{registry}\" returned an invalid Azure token exchange response.", exception);
             }
 
             var refreshToken = response.Value?.RefreshToken;
             if (string.IsNullOrWhiteSpace(refreshToken))
             {
-                throw new ExternalArtifactException($"Registry \"{registry}\" returned an invalid Azure token exchange response.");
+                throw new ArtifactException($"Registry \"{registry}\" returned an invalid Azure token exchange response.");
             }
 
             cachedCredential = new Credential(RefreshToken: refreshToken);

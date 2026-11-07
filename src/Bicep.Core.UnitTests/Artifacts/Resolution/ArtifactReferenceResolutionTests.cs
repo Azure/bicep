@@ -69,7 +69,7 @@ public class ArtifactReferenceResolutionTests
         var (entryPoint, _, _, services) = Setup(entryContents: $"module foo '{referenceText}' = {{}}");
         var module = entryPoint.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
         var resolver = new RedirectingArtifactResolver(
-            new ArtifactReferenceResolver([], services.GetRequiredService<IFileExplorer>(), services.GetRequiredService<IBicepConfigurationManager>(), services.GetRequiredService<IFeatureProviderFactory>(), services.GetRequiredService<IExternalArtifactContextFactory>()),
+            new ArtifactReferenceResolver([], services.GetRequiredService<IFileExplorer>(), services.GetRequiredService<IBicepConfigurationManager>(), services.GetRequiredService<IFeatureProviderFactory>(), services.GetRequiredService<IRemoteArtifactContextFactory>()),
             []);
 
         Describe(ResolveDeclaration(resolver, entryPoint, module)).Should().Be(expected);
@@ -168,8 +168,8 @@ public class ArtifactReferenceResolutionTests
     [DataRow("br/mocked:Network:1.0.0", "BCP195: The OCI artifact reference \"Network:1.0.0\" after resolving alias \"mocked\" is not valid. The artifact path segment \"Network\" is not valid. Each artifact name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".")]
     [DataRow("br-mock:network/vnet:1.0.0", "BCP449: The 'br-mock' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'mapToFilePath' alias instead.")]
     // Template Specs
-    [DataRow("ts:00000000-0000-0000-0000-000000000000/specs-rg/webapp:v1", "TemplateSpecModuleReference ts:00000000-0000-0000-0000-000000000000/specs-rg/webapp:v1")]
-    [DataRow("ts/specs:webapp:v1", "TemplateSpecModuleReference ts:00000000-0000-0000-0000-000000000000/specs-rg/webapp:v1")]
+    [DataRow("ts:00000000-0000-0000-0000-000000000000/specs-rg/webapp:v1", "TemplateSpecArtifactReference ts:00000000-0000-0000-0000-000000000000/specs-rg/webapp:v1")]
+    [DataRow("ts/specs:webapp:v1", "TemplateSpecArtifactReference ts:00000000-0000-0000-0000-000000000000/specs-rg/webapp:v1")]
     [DataRow("ts/missing:webapp:v1", "BCP212: The Template Spec module alias name \"missing\" does not exist in the Bicep configuration \"<bicepconfig>\".")]
     [DataRow("ts/noSubscription:webapp:v1", "BCP214: The Template Spec module alias \"noSubscription\" in the Bicep configuration \"<bicepconfig>\" is in valid. The \"subscription\" property cannot be null or undefined.")]
     [DataRow("ts:not-a-guid/specs-rg/webapp:v1", "BCP217: The specified Template Spec reference \"ts:not-a-guid/specs-rg/webapp:v1\" is not valid. The subscription ID \"not-a-guid\" in is not a GUID.")]
@@ -289,7 +289,7 @@ public class ArtifactReferenceResolutionTests
         reference.GetHashCode().Should().Be(sameCloudReference.GetHashCode());
         reference.Should().NotBe(otherCloudReference);
         reference.FullyQualifiedReference.Should().Be(otherCloudReference.FullyQualifiedReference);
-        ((ExternalArtifactReference)otherCloudReference).Context.Cloud.ResourceManagerEndpointUri.Should().Be(new Uri("https://management.chinacloudapi.cn"));
+        ((RemoteArtifactReference)otherCloudReference).Context.Cloud.ResourceManagerEndpointUri.Should().Be(new Uri("https://management.chinacloudapi.cn"));
     }
 
     [TestMethod]

@@ -7,4 +7,4 @@ namespace Bicep.Core.Artifacts.Packages;
 /// <summary>
 /// A compiled module to publish, optionally with its Bicep sources.
 /// </summary>
-public sealed record ModulePackage(BinaryData Template, BinaryData? Sources, string? DocumentationUri);
+public sealed record ModuleArtifactPackage(BinaryData Template, BinaryData? Sources, string? DocumentationUri);

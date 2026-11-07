@@ -164,8 +164,8 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
         /// Gets the context for the module references stored in external source URIs, which are always OCI references.
         /// External source documents are not files, so they use the built-in configuration.
         /// </summary>
-        public static OciArtifactContext GetOciArtifactContext(IExternalArtifactContextFactory externalArtifactContextFactory) =>
-            externalArtifactContextFactory.GetOciArtifactContext(new IOUri(new IOUriScheme(LangServerConstants.ExternalSourceFileScheme), null, ""));
+        public static OciArtifactContext GetOciArtifactContext(IRemoteArtifactContextFactory remoteArtifactContextFactory) =>
+            remoteArtifactContextFactory.GetOciArtifactContext(new IOUri(new IOUriScheme(LangServerConstants.ExternalSourceFileScheme), null, ""));
 
         private string GetVersion()
         {

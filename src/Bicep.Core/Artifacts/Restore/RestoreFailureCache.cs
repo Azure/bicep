@@ -17,7 +17,7 @@ public sealed class RestoreFailureCache
     // Absolute rather than sliding expiration, so that a failed restore is eventually retried.
     private static readonly TimeSpan ExpirationInterval = TimeSpan.FromMinutes(30);
 
-    private readonly ConcurrentDictionary<ExternalArtifactReference, Entry> failures = new();
+    private readonly ConcurrentDictionary<RemoteArtifactReference, Entry> failures = new();
 
     private readonly TimeProvider timeProvider;
 
@@ -27,7 +27,7 @@ public sealed class RestoreFailureCache
     }
 
     // A reference includes its external artifact context, so the same artifact can fail in one cloud and succeed in another.
-    public bool TryGetFailure(ExternalArtifactReference reference, [NotNullWhen(true)] out DiagnosticBuilder.DiagnosticBuilderDelegate? error)
+    public bool TryGetFailure(RemoteArtifactReference reference, [NotNullWhen(true)] out DiagnosticBuilder.DiagnosticBuilderDelegate? error)
     {
         if (this.failures.TryGetValue(reference, out var entry) && !this.IsExpired(entry))
         {
@@ -39,10 +39,10 @@ public sealed class RestoreFailureCache
         return false;
     }
 
-    public void Add(ExternalArtifactReference reference, DiagnosticBuilder.DiagnosticBuilderDelegate error) =>
+    public void Add(RemoteArtifactReference reference, DiagnosticBuilder.DiagnosticBuilderDelegate error) =>
         this.failures.TryAdd(reference, new(error, this.timeProvider.GetUtcNow().Add(ExpirationInterval)));
 
-    public void Remove(ExternalArtifactReference reference) => this.failures.TryRemove(reference, out _);
+    public void Remove(RemoteArtifactReference reference) => this.failures.TryRemove(reference, out _);
 
     public void RemoveExpired()
     {

@@ -14,9 +14,9 @@ namespace Bicep.Core.Artifacts.Cache
     /// <summary>
     /// The cache entry of a local extension package, unpacked under <c>local/sha256_&lt;digest of the package&gt;/</c>.
     /// </summary>
-    internal class LocalExtensionArtifact : ExternalArtifact, IExtensionArtifact
+    internal class LocalExtensionArtifactCacheEntry : ArtifactCacheEntry, IExtensionArtifact
     {
-        public LocalExtensionArtifact(BinaryData extensionBinaryData, IDirectoryHandle rootCacheDirectory)
+        public LocalExtensionArtifactCacheEntry(BinaryData extensionBinaryData, IDirectoryHandle rootCacheDirectory)
             : base(ResolveCacheDirectory(extensionBinaryData, rootCacheDirectory))
         {
         }
@@ -32,11 +32,11 @@ namespace Bicep.Core.Artifacts.Cache
         /// <summary>
         /// Unpacks the extension package into the cache, unless another compilation (possibly in another process) already has.
         /// </summary>
-        /// <exception cref="ExternalArtifactException">The cache directory could not be created or locked.</exception>
+        /// <exception cref="ArtifactException">The cache directory could not be created or locked.</exception>
         /// <exception cref="InvalidOperationException">The extension does not support the current OS or architecture.</exception>
-        public void Unpack(ExtensionPackage package, string extensionReference) => this.Write(() => this.WriteContent(package, extensionReference));
+        public void Unpack(ExtensionArtifactPackage package, string extensionReference) => this.Write(() => this.WriteContent(package, extensionReference));
 
-        private void WriteContent(ExtensionPackage package, string extensionReference)
+        private void WriteContent(ExtensionArtifactPackage package, string extensionReference)
         {
             if (package.LocalDeployEnabled)
             {

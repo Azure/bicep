@@ -24,13 +24,13 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
         private readonly VisualGraphBuilder graphBuilder;
 
-        private readonly IArtifactRestorer restorer;
+        private readonly IRemoteArtifactRestorer restorer;
 
         public VisualGraphRestoreModuleHandler(
             ILogger<VisualGraphRestoreModuleHandler> logger,
             ICompilationManager compilationManager,
             VisualGraphBuilder graphBuilder,
-            IArtifactRestorer restorer)
+            IRemoteArtifactRestorer restorer)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
@@ -49,12 +49,12 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             // A module that is not restored yet is restored as the editor would. Anything else is the user retrying after an
             // error, which forces the restore: it retries a recent failure, and replaces a cached archive that cannot be read.
-            var isRetry = this.restorer.GetRestoreState(registryReference) is not ArtifactRestoreState.NotRestored;
+            var isRetry = this.restorer.GetRestoreState(registryReference) is not RemoteArtifactRestoreState.NotRestored;
             await this.restorer.RestoreAsync([registryReference], isRetry ? RestoreMode.Force : RestoreMode.IfMissing);
 
             var state = this.restorer.GetRestoreState(registryReference);
 
-            if (state is not ArtifactRestoreState.Restored)
+            if (state is not RemoteArtifactRestoreState.Restored)
             {
                 this.logger.LogWarning(
                     "Could not restore module {Module} for the visualizer: {Message}",
@@ -62,12 +62,12 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                     GetErrorMessage(registryReference, state));
             }
 
-            return new(Restored: state is ArtifactRestoreState.Restored);
+            return new(Restored: state is RemoteArtifactRestoreState.Restored);
         }
 
-        private static string GetErrorMessage(ArtifactReference reference, ArtifactRestoreState state)
+        private static string GetErrorMessage(ArtifactReference reference, RemoteArtifactRestoreState state)
         {
-            DiagnosticBuilder.DiagnosticBuilderDelegate error = state is ArtifactRestoreState.RestoreFailed failed
+            DiagnosticBuilder.DiagnosticBuilderDelegate error = state is RemoteArtifactRestoreState.RestoreFailed failed
                 ? failed.Error
                 : x => x.ArtifactRequiresRestore(reference.FullyQualifiedReference);
 

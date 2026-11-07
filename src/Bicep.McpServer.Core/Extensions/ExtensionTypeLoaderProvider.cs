@@ -18,14 +18,14 @@ namespace Bicep.McpServer.Core.Extensions;
 
 public class ExtensionTypeLoaderProvider
 {
-    private readonly IArtifactRestorer restorer;
+    private readonly IRemoteArtifactRestorer restorer;
     private readonly IFeatureProvider featureProvider;
 
     private readonly ConcurrentDictionary<string, ITypeLoader> loaderCache = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, IReadOnlyList<string>> tagCache = new(StringComparer.OrdinalIgnoreCase);
 
     public ExtensionTypeLoaderProvider(
-        IArtifactRestorer restorer,
+        IRemoteArtifactRestorer restorer,
         IFeatureProviderFactory featureProviderFactory)
     {
         this.restorer = restorer;
@@ -72,7 +72,7 @@ public class ExtensionTypeLoaderProvider
 
     /// <summary>
     /// Gets an <see cref="ITypeLoader"/> for a specific extension and tag.
-    /// Uses <see cref="IArtifactRestorer"/> to restore the artifact from MCR (with caching handled by the compiler's OCI registry).
+    /// Uses <see cref="IRemoteArtifactRestorer"/> to restore the artifact from MCR (with caching handled by the compiler's OCI registry).
     /// Results are also cached in-memory for fast repeated access.
     /// </summary>
     /// <param name="extension">The well-known extension to load.</param>
@@ -95,8 +95,8 @@ public class ExtensionTypeLoaderProvider
 
         var fileHandle = restorer.GetRestoreState(reference) switch
         {
-            ArtifactRestoreState.Restored restored => restored.EntryPoint,
-            ArtifactRestoreState.RestoreFailed failed => throw new InvalidOperationException(
+            RemoteArtifactRestoreState.Restored restored => restored.EntryPoint,
+            RemoteArtifactRestoreState.RestoreFailed failed => throw new InvalidOperationException(
                 $"Failed to load extension '{extension.Name}:{tag}': {failed.Error(DiagnosticBuilder.ForDocumentStart()).Message}"),
             _ => throw new InvalidOperationException($"Failed to load extension '{extension.Name}:{tag}': the extension was not restored."),
         };

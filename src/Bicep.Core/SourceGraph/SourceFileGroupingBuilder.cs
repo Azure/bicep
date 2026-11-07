@@ -25,7 +25,7 @@ namespace Bicep.Core.SourceGraph
     {
         private readonly IFileExplorer fileExplorer;
         private readonly RedirectingArtifactResolver referenceResolver;
-        private readonly IArtifactRestorer restorer;
+        private readonly IRemoteArtifactRestorer restorer;
         private readonly IActiveSourceFileLookup workspace;
         private readonly ISourceFileFactory sourceFileFactory;
 
@@ -37,7 +37,7 @@ namespace Bicep.Core.SourceGraph
         private SourceFileGroupingBuilder(
             IFileExplorer fileExplorer,
             RedirectingArtifactResolver referenceResolver,
-            IArtifactRestorer restorer,
+            IRemoteArtifactRestorer restorer,
             IActiveSourceFileLookup workspace,
             ISourceFileFactory sourceFileFactory,
             bool forceModulesRestore = false)
@@ -56,7 +56,7 @@ namespace Bicep.Core.SourceGraph
         private SourceFileGroupingBuilder(
             IFileExplorer fileExplorer,
             RedirectingArtifactResolver referenceResolver,
-            IArtifactRestorer restorer,
+            IRemoteArtifactRestorer restorer,
             IActiveSourceFileLookup workspace,
             ISourceFileFactory sourceFileFactory,
             SourceFileGrouping current,
@@ -73,14 +73,14 @@ namespace Bicep.Core.SourceGraph
             this.forceRestore = forceArtifactRestore;
         }
 
-        public static SourceFileGrouping Build(IFileExplorer fileExplorer, RedirectingArtifactResolver referenceResolver, IArtifactRestorer restorer, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, IOUri entryFileUri, bool forceModulesRestore = false)
+        public static SourceFileGrouping Build(IFileExplorer fileExplorer, RedirectingArtifactResolver referenceResolver, IRemoteArtifactRestorer restorer, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, IOUri entryFileUri, bool forceModulesRestore = false)
         {
             var builder = new SourceFileGroupingBuilder(fileExplorer, referenceResolver, restorer, workspace, sourceFileFactory, forceModulesRestore);
 
             return builder.Build(entryFileUri);
         }
 
-        public static SourceFileGrouping Rebuild(IFileExplorer fileExplorer, RedirectingArtifactResolver referenceResolver, IArtifactRestorer restorer, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, SourceFileGrouping current)
+        public static SourceFileGrouping Rebuild(IFileExplorer fileExplorer, RedirectingArtifactResolver referenceResolver, IRemoteArtifactRestorer restorer, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, SourceFileGrouping current)
         {
             var builder = new SourceFileGroupingBuilder(fileExplorer, referenceResolver, restorer, workspace, sourceFileFactory, current);
 
@@ -148,7 +148,7 @@ namespace Bicep.Core.SourceGraph
             }
 
 
-            sourceFile = moduleReference is TemplateSpecModuleReference
+            sourceFile = moduleReference is TemplateSpecArtifactReference
                 ? this.sourceFileFactory.CreateTemplateSpecFile(fileUri, fileContents)
                 : this.sourceFileFactory.CreateSourceFile(fileUri, fileContents);
 
@@ -278,16 +278,16 @@ namespace Bicep.Core.SourceGraph
         {
             // Local files are loaded directly; they are never restored.
             LocalArtifactReference local => (local.TryGetEntryPointFileHandle(), requiresRestore: false),
-            ExternalArtifactReference external => this.GetExternalArtifactRestoreResult(external),
+            RemoteArtifactReference external => this.GetRemoteArtifactRestoreResult(external),
             _ => throw new InvalidOperationException($"Unexpected artifact reference type '{artifactReference.GetType().Name}'."),
         };
 
-        private (ResultWithDiagnosticBuilder<IFileHandle> result, bool requiresRestore) GetExternalArtifactRestoreResult(ExternalArtifactReference artifactReference) =>
+        private (ResultWithDiagnosticBuilder<IFileHandle> result, bool requiresRestore) GetRemoteArtifactRestoreResult(RemoteArtifactReference artifactReference) =>
             restorer.GetRestoreState(artifactReference) switch
             {
                 // A recent restore failed. Report it rather than retrying, even when a restore is forced.
-                ArtifactRestoreState.RestoreFailed failed => (new(failed.Error), requiresRestore: false),
-                ArtifactRestoreState.Restored restored when !forceRestore => (new(restored.EntryPoint), requiresRestore: false),
+                RemoteArtifactRestoreState.RestoreFailed failed => (new(failed.Error), requiresRestore: false),
+                RemoteArtifactRestoreState.Restored restored when !forceRestore => (new(restored.EntryPoint), requiresRestore: false),
                 _ => (new(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference)), requiresRestore: true),
             };
 

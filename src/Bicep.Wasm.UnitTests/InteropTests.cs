@@ -24,7 +24,7 @@ public class InteropTests
     public void Wasm_registers_only_the_OCI_registry()
     {
         using var services = new ServiceCollection().AddBicepWasm().BuildServiceProvider();
-        services.GetServices<IArtifactRegistry>().Should().ContainSingle()
+        services.GetServices<IRemoteArtifactRegistry>().Should().ContainSingle()
             .Which.Should().BeSameAs(services.GetRequiredService<OciArtifactRegistry>());
     }
 

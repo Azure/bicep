@@ -8,9 +8,9 @@ using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Artifacts.Codecs;
 
-public static class ExtensionV1Archive
+public static class ExtensionArtifactArchiveCodec
 {
-    public static async Task<BinaryData> Build(ExtensionPackage package)
+    public static async Task<BinaryData> Encode(ExtensionArtifactPackage package)
     {
         using var stream = new MemoryStream();
 
@@ -31,7 +31,7 @@ public static class ExtensionV1Archive
         return await BinaryData.FromStreamAsync(stream);
     }
 
-    public static ExtensionPackage Read(BinaryData binaryData)
+    public static ExtensionArtifactPackage Decode(BinaryData binaryData)
     {
         using var gzipStream = new GZipStream(binaryData.ToStream(), CompressionMode.Decompress);
         using var tarReader = new TarReader(gzipStream);

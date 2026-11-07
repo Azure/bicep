@@ -13,4 +13,4 @@ namespace Bicep.Core.Artifacts.References;
 /// </summary>
 /// <param name="Cloud">The cloud used to authenticate to the registry.</param>
 /// <param name="CacheRootDirectory">The root of the local artifact cache.</param>
-public abstract record ExternalArtifactContext(IBicepCloudConfiguration Cloud, IDirectoryHandle CacheRootDirectory);
+public abstract record RemoteArtifactContext(IBicepCloudConfiguration Cloud, IDirectoryHandle CacheRootDirectory);

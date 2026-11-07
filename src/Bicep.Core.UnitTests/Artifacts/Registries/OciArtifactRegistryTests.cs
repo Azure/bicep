@@ -61,7 +61,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Registries
                 BicepTestConstants.FileExplorer,
                 BicepTestConstants.BuiltInOnlyConfigurationManager,
                 featureProviderFactory,
-                new ExternalArtifactContextFactory(BicepTestConstants.BuiltInOnlyConfigurationManager, featureProviderFactory));
+                new RemoteArtifactContextFactory(BicepTestConstants.BuiltInOnlyConfigurationManager, featureProviderFactory));
 
             var result = resolver.TryResolve(referencingFile.FileHandle.Uri, ArtifactType.Module, "br:ghcr.io/contoso/app:v1");
 
@@ -617,7 +617,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Registries
             var template = BinaryData.FromString(jsonContentsV1);
             var sources = publishSource ? BinaryData.FromString("This is a test. This is only a test. If this were a real source archive, it would have been binary.") : null;
 
-            await ociRegistry.PublishModule(moduleReference, new ModulePackage(template, sources, "http://documentation"));
+            await ociRegistry.PublishModule(moduleReference, new ModuleArtifactPackage(template, sources, "http://documentation"));
 
             if (publishSource)
             {
@@ -651,11 +651,11 @@ namespace Bicep.Core.UnitTests.Artifacts.Registries
 
             var templateV1 = BinaryData.FromString(jsonContentsV1);
             var sourcesV1 = sourceContentsV1 == null ? null : BinaryData.FromString(sourceContentsV1);
-            await ociRegistry.PublishModule(moduleReferenceV1, new ModulePackage(templateV1, sourcesV1, "http://documentation"));
+            await ociRegistry.PublishModule(moduleReferenceV1, new ModuleArtifactPackage(templateV1, sourcesV1, "http://documentation"));
 
             var templateV2 = BinaryData.FromString(jsonContentsV2);
             var sourcesV2 = sourceContentsV2 == null ? null : BinaryData.FromString(sourceContentsV2);
-            await ociRegistry.PublishModule(moduleReferenceV2, new ModulePackage(templateV2, sourcesV2, "http://documentation"));
+            await ociRegistry.PublishModule(moduleReferenceV2, new ModuleArtifactPackage(templateV2, sourcesV2, "http://documentation"));
 
             if (sourcesV1 != null)
             {
@@ -704,7 +704,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Registries
             }
 
             var sourceArchiveData = sourceArchive?.PackIntoBinaryData();
-            await ociRegistry.PublishModule(moduleReference, new ModulePackage(template, sourceArchiveData, "http://documentation"));
+            await ociRegistry.PublishModule(moduleReference, new ModuleArtifactPackage(template, sourceArchiveData, "http://documentation"));
 
             if (publishSource)
             {

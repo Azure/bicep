@@ -10,9 +10,9 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.References
 {
-    public class TemplateSpecModuleReference : ExternalArtifactReference
+    public class TemplateSpecArtifactReference : RemoteArtifactReference
     {
-        private readonly Lazy<TemplateSpecModuleArtifact> templateSpecModuleArtifact;
+        private readonly Lazy<TemplateSpecArtifactCacheEntry> templateSpecArtifactCacheEntry;
 
         private const int ResourceNameMaximumLength = 90;
 
@@ -22,14 +22,14 @@ namespace Bicep.Core.Artifacts.References
 
         private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private TemplateSpecModuleReference(TemplateSpecArtifactContext context, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
-            : base(context, ArtifactReferenceSchemes.TemplateSpecs, ArtifactType.Module)
+        private TemplateSpecArtifactReference(TemplateSpecArtifactContext context, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
+            : base(context, ArtifactSchemes.TemplateSpecs, ArtifactType.Module)
         {
             this.SubscriptionId = subscriptionId;
             this.ResourceGroupName = resourceGroupName;
             this.TemplateSpecName = templateSpecName;
             this.Version = version;
-            this.templateSpecModuleArtifact = new(() => new(subscriptionId, resourceGroupName, templateSpecName, version, context.CacheRootDirectory));
+            this.templateSpecArtifactCacheEntry = new(() => new(subscriptionId, resourceGroupName, templateSpecName, version, context.CacheRootDirectory));
         }
 
         public override string UnqualifiedReference => $"{this.SubscriptionId}/{this.ResourceGroupName}/{this.TemplateSpecName}:{this.Version}";
@@ -47,10 +47,10 @@ namespace Bicep.Core.Artifacts.References
         /// <summary>
         /// Gets the cache entry of the Template Spec. Its layout is owned by the entry.
         /// </summary>
-        public TemplateSpecModuleArtifact CacheEntry => this.templateSpecModuleArtifact.Value;
+        public TemplateSpecArtifactCacheEntry CacheEntry => this.templateSpecArtifactCacheEntry.Value;
 
         public override bool Equals(object? obj) =>
-            obj is TemplateSpecModuleReference other &&
+            obj is TemplateSpecArtifactReference other &&
             StringComparer.OrdinalIgnoreCase.Equals(this.SubscriptionId, other.SubscriptionId) &&
             StringComparer.OrdinalIgnoreCase.Equals(this.ResourceGroupName, other.ResourceGroupName) &&
             StringComparer.OrdinalIgnoreCase.Equals(this.TemplateSpecName, other.TemplateSpecName) &&
@@ -74,7 +74,7 @@ namespace Bicep.Core.Artifacts.References
         /// Parses a fully qualified Template Spec reference body without the scheme, e.g. <c>&lt;subscription&gt;/&lt;resource group&gt;/&lt;name&gt;:&lt;version&gt;</c>.
         /// </summary>
         /// <param name="aliasName">The scheme-qualified alias the body was expanded from, if any. Only used in diagnostics.</param>
-        public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(TemplateSpecArtifactContext context, string? aliasName, string referenceValue)
+        public static ResultWithDiagnosticBuilder<TemplateSpecArtifactReference> TryParse(TemplateSpecArtifactContext context, string? aliasName, string referenceValue)
         {
             if (TemplateSpecUriTemplate.GetTemplateMatch(referenceValue) is not { } match)
             {
@@ -127,10 +127,10 @@ namespace Bicep.Core.Artifacts.References
                 return new(x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, version, FullyQualify(referenceValue)));
             }
 
-            return new(new TemplateSpecModuleReference(context, subscriptionId, resourceGroupName, templateSpecName, version));
+            return new(new TemplateSpecArtifactReference(context, subscriptionId, resourceGroupName, templateSpecName, version));
         }
 
-        private static string FullyQualify(string referenceValue) => $"{ArtifactReferenceSchemes.TemplateSpecs}:{referenceValue}";
+        private static string FullyQualify(string referenceValue) => $"{ArtifactSchemes.TemplateSpecs}:{referenceValue}";
 
         private static string GetBoundVariable(UriTemplateMatch match, string variableName) =>
             match.BoundVariables[variableName] ?? throw new InvalidOperationException($"Could not get bound variable \"{variableName}\".");

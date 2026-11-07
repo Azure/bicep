@@ -84,8 +84,8 @@ public class VisualGraphRemoteModuleTests
         var restorableReferences = GetRestorableReferences(builder, context, graph);
         restorableReferences.Should().ContainSingle().Which.Should().Match<KeyValuePair<string, OciArtifactReference>>(pair =>
             pair.Key == "storage::leaf" && pair.Value.FullyQualifiedReference == $"br:{Registry}/test/leaf:v1");
-        services.Build().Construct<IArtifactRestorer>().GetRestoreState(restorableReferences["storage::leaf"])
-            .Should().BeOfType<ArtifactRestoreState.NotRestored>();
+        services.Build().Construct<IRemoteArtifactRestorer>().GetRestoreState(restorableReferences["storage::leaf"])
+            .Should().BeOfType<RemoteArtifactRestoreState.NotRestored>();
     }
 
     [TestMethod]
@@ -295,7 +295,7 @@ public class VisualGraphRemoteModuleTests
             NullLogger<VisualGraphRestoreModuleHandler>.Instance,
             CreateCompilationManager(context),
             builder,
-            provider.Construct<IArtifactRestorer>());
+            provider.Construct<IRemoteArtifactRestorer>());
 
         return handler.Handle(new(new() { Uri = GetDocumentUri(context) }, nodeId), CancellationToken.None);
     }
@@ -388,7 +388,7 @@ public class VisualGraphRemoteModuleTests
             ?? throw new InvalidOperationException("The storage module must have an OCI publish target.");
         await provider.Construct<OciArtifactRegistry>().PublishModule(
             storageReference,
-            new ModulePackage(
+            new ModuleArtifactPackage(
                 BinaryData.FromString(storage.Template!.ToString()),
                 SourceArchive.CreateFrom(storage.Compilation.SourceFileGrouping).PackIntoBinaryData(),
                 DocumentationUri: null));

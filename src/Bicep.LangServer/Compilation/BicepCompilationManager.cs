@@ -354,7 +354,7 @@ namespace Bicep.LanguageServer.Compilation
                         }
 
                         // this completes immediately
-                        var artifactsToRestore = ArtifactHelper.GetValidArtifactReferences(context.Compilation.SourceFileGrouping.GetArtifactsToRestore());
+                        var artifactsToRestore = context.Compilation.SourceFileGrouping.GetArtifactsToRestore().GetRemoteArtifactReferences();
                         this.scheduler.RequestModuleRestore(this, documentUri, artifactsToRestore);
 
                         var sourceFiles = context.Compilation.SourceFileGrouping.SourceFiles;

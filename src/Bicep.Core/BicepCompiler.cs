@@ -37,7 +37,7 @@ public class BicepCompiler
     private readonly IBicepAnalyzer bicepAnalyzer;
     private readonly IFileExplorer fileExplorer;
     private readonly RedirectingArtifactResolver referenceResolver;
-    private readonly IArtifactRestorer restorer;
+    private readonly IRemoteArtifactRestorer restorer;
     private readonly CompilerVersionCheckOptions compilerVersionCheckOptions;
 
     public BicepCompiler(
@@ -46,7 +46,7 @@ public class BicepCompiler
         IBicepAnalyzer bicepAnalyzer,
         IFileExplorer fileExplorer,
         RedirectingArtifactResolver referenceResolver,
-        IArtifactRestorer restorer,
+        IRemoteArtifactRestorer restorer,
         ISourceFileFactory sourceFileFactory,
         CompilerVersionCheckOptions compilerVersionCheckOptions)
     {
@@ -87,7 +87,7 @@ public class BicepCompiler
         // (the diagnostics will be collected during compilation)
         var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(forceRestore);
 
-        if (await restorer.RestoreAsync(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore ? RestoreMode.Force : RestoreMode.IfMissing))
+        if (await restorer.RestoreAsync(artifactsToRestore.GetRemoteArtifactReferences(), forceRestore ? RestoreMode.Force : RestoreMode.IfMissing))
         {
             // modules had to be restored - recompile
             sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, referenceResolver, restorer, workspace, this.SourceFileFactory, sourceFileGrouping);
@@ -101,7 +101,7 @@ public class BicepCompiler
         var sourceFileGrouping = compilation.SourceFileGrouping;
         var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(forceRestore);
 
-        if (await restorer.RestoreAsync(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore ? RestoreMode.Force : RestoreMode.IfMissing))
+        if (await restorer.RestoreAsync(artifactsToRestore.GetRemoteArtifactReferences(), forceRestore ? RestoreMode.Force : RestoreMode.IfMissing))
         {
             // artifacts had to be restored - recompile
             sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, referenceResolver, restorer, workspace, this.SourceFileFactory, sourceFileGrouping);

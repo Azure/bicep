@@ -8,4 +8,4 @@ namespace Bicep.Core.Artifacts.Packages;
 
 public record ExtensionBinary(SupportedArchitecture Architecture, BinaryData Data);
 
-public sealed record ExtensionPackage(BinaryData Types, bool LocalDeployEnabled, ImmutableArray<ExtensionBinary> Binaries);
+public sealed record ExtensionArtifactPackage(BinaryData Types, bool LocalDeployEnabled, ImmutableArray<ExtensionBinary> Binaries);

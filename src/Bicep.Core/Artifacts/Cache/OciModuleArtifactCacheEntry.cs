@@ -7,9 +7,9 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.Cache
 {
-    public sealed class BicepRegistryModuleArtifact : BicepRegistryArtifact
+    public sealed class OciModuleArtifactCacheEntry : OciArtifactCacheEntry
     {
-        public BicepRegistryModuleArtifact(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
+        public OciModuleArtifactCacheEntry(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
             : base(address, rootCacheDirectory)
         {
         }

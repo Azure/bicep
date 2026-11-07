@@ -125,9 +125,9 @@ namespace Bicep.Cli.Commands
                 {
                     throw new BicepException($"The module \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing module.");
                 }
-                await this.ociRegistry.PublishModule(target, new ModulePackage(compiledArmTemplate, bicepSources, documentationUri));
+                await this.ociRegistry.PublishModule(target, new ModuleArtifactPackage(compiledArmTemplate, bicepSources, documentationUri));
             }
-            catch (ExternalArtifactException exception)
+            catch (ArtifactException exception)
             {
                 throw new BicepException($"Unable to publish module \"{target.FullyQualifiedReference}\": {exception.Message}");
             }

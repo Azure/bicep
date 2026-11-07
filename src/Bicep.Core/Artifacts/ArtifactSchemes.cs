@@ -5,7 +5,7 @@ using Bicep.Core.Artifacts.References;
 
 namespace Bicep.Core.Artifacts
 {
-    public static class ArtifactReferenceSchemes
+    public static class ArtifactSchemes
     {
         public const string Local = "";
 

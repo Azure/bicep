@@ -27,7 +27,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
             {
                 if (reference.ReferencingFile != model.SourceFile ||
                     syntax is not ModuleDeclarationSyntax ||
-                    reference.Reference is null or ExternalArtifactReference)
+                    reference.Reference is null or RemoteArtifactReference)
                 {
                     continue;
                 }

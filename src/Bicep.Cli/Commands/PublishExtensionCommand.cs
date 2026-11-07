@@ -92,7 +92,7 @@ namespace Bicep.Cli.Commands
             var binaries = SupportedArchitectures.All.Select(TryGetBinary).WhereNotNull().ToImmutableArray();
             var tarPayload = await GetTypesTarPayload(args, binaries, cancellationToken);
 
-            var package = new ExtensionPackage(
+            var package = new ExtensionArtifactPackage(
                 Types: tarPayload,
                 LocalDeployEnabled: binaries.Any(),
                 Binaries: binaries);
@@ -103,7 +103,7 @@ namespace Bicep.Cli.Commands
             }
             else if (fileTarget is not null)
             {
-                fileTarget.Write(await ExtensionV1Archive.Build(package));
+                fileTarget.Write(await ExtensionArtifactArchiveCodec.Encode(package));
             }
             else
             {
@@ -144,7 +144,7 @@ namespace Bicep.Cli.Commands
             return await CreateTypesTar(indexHandle);
         }
 
-        private async Task PublishExtensionAsync(OciArtifactReference target, ExtensionPackage package, bool overwriteIfExists)
+        private async Task PublishExtensionAsync(OciArtifactReference target, ExtensionArtifactPackage package, bool overwriteIfExists)
         {
             try
             {
@@ -157,7 +157,7 @@ namespace Bicep.Cli.Commands
                 await ociRegistry.PublishExtension(target, package);
                 Trace.WriteLine($"Successfully published extension package to \"{target.FullyQualifiedReference}\".");
             }
-            catch (ExternalArtifactException exception)
+            catch (ArtifactException exception)
             {
                 throw new BicepException($"Unable to publish extension \"{target.FullyQualifiedReference}\": {exception.Message}");
             }

@@ -31,12 +31,12 @@ public static class ExtensionTestHelper
     }
 
     public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(BinaryData tgzData, FeatureProviderOverrides features, IFileSystem? fileSystem = null, string? artifactTarget = null)
-        => GetServiceBuilderWithPublishedExtension(new ExtensionPackage(tgzData, false, []), artifactTarget ?? "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
+        => GetServiceBuilderWithPublishedExtension(new ExtensionArtifactPackage(tgzData, false, []), artifactTarget ?? "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
 
-    public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionPackage package, FeatureProviderOverrides features, IFileSystem? fileSystem = null, string? artifactTarget = null)
+    public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionArtifactPackage package, FeatureProviderOverrides features, IFileSystem? fileSystem = null, string? artifactTarget = null)
         => GetServiceBuilderWithPublishedExtension(package, artifactTarget ?? "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
 
-    public static async Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionPackage package, string target, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
+    public static async Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionArtifactPackage package, string target, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
     {
         var reference = OciArtifactReference.TryParse(OciArtifactContext.Create(BicepTestConstants.DummyBicepFile.LoadConfiguration(), BicepTestConstants.DummyBicepFile.LoadFeatures()), ArtifactType.Module, null, target).Unwrap();
 

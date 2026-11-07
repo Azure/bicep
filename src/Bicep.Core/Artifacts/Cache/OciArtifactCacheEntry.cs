@@ -11,9 +11,9 @@ namespace Bicep.Core.Artifacts.Cache
     /// <summary>
     /// The cache entry of an OCI artifact: <c>br/&lt;registry&gt;/&lt;repository&gt;/&lt;tag or digest&gt;/</c> under the cache root.
     /// </summary>
-    public abstract class BicepRegistryArtifact : ExternalArtifact
+    public abstract class OciArtifactCacheEntry : ArtifactCacheEntry
     {
-        public BicepRegistryArtifact(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
+        public OciArtifactCacheEntry(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
             : base(ResolveCacheDirectory(address, rootCacheDirectory))
         {
         }

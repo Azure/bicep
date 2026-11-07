@@ -20,25 +20,25 @@ public class BicepCoreServiceCollectionExtensionsTests : TestBase
     public void Registries_are_registered_once_and_share_their_concrete_instances()
     {
         using var services = new ServiceCollection().AddBicepCore().AddBicepCore().BuildServiceProvider();
-        var registries = services.GetServices<IArtifactRegistry>().ToArray();
+        var registries = services.GetServices<IRemoteArtifactRegistry>().ToArray();
 
         registries.Should().HaveCount(2);
         registries.Should().ContainSingle(registry => ReferenceEquals(registry, services.GetRequiredService<OciArtifactRegistry>()));
-        registries.Should().ContainSingle(registry => ReferenceEquals(registry, services.GetRequiredService<TemplateSpecModuleRegistry>()));
+        registries.Should().ContainSingle(registry => ReferenceEquals(registry, services.GetRequiredService<TemplateSpecArtifactRegistry>()));
     }
 
     [TestMethod]
     public void Artifact_services_can_be_overridden_independently()
     {
         var resolver = StrictMock.Of<IArtifactReferenceResolver>().Object;
-        var restorer = StrictMock.Of<IArtifactRestorer>().Object;
+        var restorer = StrictMock.Of<IRemoteArtifactRestorer>().Object;
 
         using var resolverServices = new ServiceCollection().AddSingleton(resolver).AddBicepCore().BuildServiceProvider();
         resolverServices.GetRequiredService<IArtifactReferenceResolver>().Should().BeSameAs(resolver);
-        resolverServices.GetRequiredService<IArtifactRestorer>().Should().BeOfType<ArtifactRestorer>();
+        resolverServices.GetRequiredService<IRemoteArtifactRestorer>().Should().BeOfType<RemoteArtifactRestorer>();
 
         using var restorerServices = new ServiceCollection().AddSingleton(restorer).AddBicepCore().BuildServiceProvider();
-        restorerServices.GetRequiredService<IArtifactRestorer>().Should().BeSameAs(restorer);
+        restorerServices.GetRequiredService<IRemoteArtifactRestorer>().Should().BeSameAs(restorer);
         restorerServices.GetRequiredService<IArtifactReferenceResolver>().Should().BeOfType<ArtifactReferenceResolver>();
     }
 

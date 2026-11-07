@@ -8,12 +8,12 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.Resolution;
 
-public sealed class ExternalArtifactContextFactory : IExternalArtifactContextFactory
+public sealed class RemoteArtifactContextFactory : IRemoteArtifactContextFactory
 {
     private readonly IBicepConfigurationManager configurationManager;
     private readonly IFeatureProviderFactory featureProviderFactory;
 
-    public ExternalArtifactContextFactory(IBicepConfigurationManager configurationManager, IFeatureProviderFactory featureProviderFactory)
+    public RemoteArtifactContextFactory(IBicepConfigurationManager configurationManager, IFeatureProviderFactory featureProviderFactory)
     {
         this.configurationManager = configurationManager;
         this.featureProviderFactory = featureProviderFactory;

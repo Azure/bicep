@@ -86,7 +86,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithArtifactReferenceResolver(this IServiceCollection services, IArtifactReferenceResolver referenceResolver)
         => Register(services, referenceResolver);
 
-    public static IServiceCollection WithArtifactRestorer(this IServiceCollection services, IArtifactRestorer restorer)
+    public static IServiceCollection WithRemoteArtifactRestorer(this IServiceCollection services, IRemoteArtifactRestorer restorer)
         => Register(services, restorer);
 
     public static IServiceCollection WithCompilationManager(this IServiceCollection services, ICompilationManager compilationManager)

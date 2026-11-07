@@ -15,12 +15,12 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
     // Provides code lenses for a range in a Bicep document
     public class BicepCodeLensHandler : CodeLensHandlerBase
     {
-        private readonly IExternalArtifactContextFactory externalArtifactContextFactory;
+        private readonly IRemoteArtifactContextFactory remoteArtifactContextFactory;
         private readonly DocumentSelectorFactory documentSelectorFactory;
 
-        public BicepCodeLensHandler(IExternalArtifactContextFactory externalArtifactContextFactory, DocumentSelectorFactory documentSelectorFactory)
+        public BicepCodeLensHandler(IRemoteArtifactContextFactory remoteArtifactContextFactory, DocumentSelectorFactory documentSelectorFactory)
         {
-            this.externalArtifactContextFactory = externalArtifactContextFactory;
+            this.remoteArtifactContextFactory = remoteArtifactContextFactory;
             this.documentSelectorFactory = documentSelectorFactory;
         }
 
@@ -28,7 +28,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var lenses = ExternalSourceCodeLensProvider.GetCodeLenses(externalArtifactContextFactory, request, cancellationToken);
+            var lenses = ExternalSourceCodeLensProvider.GetCodeLenses(remoteArtifactContextFactory, request, cancellationToken);
 
             return Task.FromResult<CodeLensContainer?>(new CodeLensContainer(lenses));
         }

@@ -263,7 +263,7 @@ namespace Bicep.Core.UnitTests.Artifacts.References
             var bicepFile = BicepTestConstants.CreateDummyBicepFile(configuration);
             if (aliasName is not null)
             {
-                if (!ArtifactReferenceResolver.TryExpandSchemeQualifiedAlias(bicepFile.LoadConfiguration(), ArtifactType.Module, ArtifactReferenceSchemes.Oci, aliasName, value).IsSuccess(out var expanded, out var errorBuilder))
+                if (!ArtifactReferenceResolver.TryExpandSchemeQualifiedAlias(bicepFile.LoadConfiguration(), ArtifactType.Module, ArtifactSchemes.Oci, aliasName, value).IsSuccess(out var expanded, out var errorBuilder))
                 {
                     return new(errorBuilder);
                 }

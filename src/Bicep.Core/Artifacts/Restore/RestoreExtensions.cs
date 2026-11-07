@@ -8,13 +8,13 @@ using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.Artifacts.Restore;
 
-public static class ArtifactHelper
+public static class RestoreExtensions
 {
     /// <summary>
     /// Gets the distinct remote artifacts to restore. Local artifacts are never restored.
     /// </summary>
-    public static ImmutableHashSet<ExternalArtifactReference> GetValidArtifactReferences(IEnumerable<ArtifactResolutionInfo> artifacts)
+    public static ImmutableHashSet<RemoteArtifactReference> GetRemoteArtifactReferences(this IEnumerable<ArtifactResolutionInfo> artifacts)
         => [.. artifacts
             .Select(t => t.Reference)
-            .OfType<ExternalArtifactReference>()];
+            .OfType<RemoteArtifactReference>()];
 }

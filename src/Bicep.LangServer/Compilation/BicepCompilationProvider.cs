@@ -27,7 +27,7 @@ namespace Bicep.LanguageServer.Compilation
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileExplorer fileExplorer;
         private readonly RedirectingArtifactResolver referenceResolver;
-        private readonly IArtifactRestorer restorer;
+        private readonly IRemoteArtifactRestorer restorer;
         private readonly ISourceFileFactory sourceFileFactory;
         private readonly CompilerVersionCheckOptions compilerVersionCheckOptions;
 
@@ -36,7 +36,7 @@ namespace Bicep.LanguageServer.Compilation
             INamespaceProvider namespaceProvider,
             IFileExplorer fileExplorer,
             RedirectingArtifactResolver referenceResolver,
-            IArtifactRestorer restorer,
+            IRemoteArtifactRestorer restorer,
             IBicepAnalyzer bicepAnalyzer,
             ISourceFileFactory sourceFileFactory,
             CompilerVersionCheckOptions compilerVersionCheckOptions)

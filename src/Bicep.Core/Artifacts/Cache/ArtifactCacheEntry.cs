@@ -14,14 +14,14 @@ namespace Bicep.Core.Artifacts.Cache
     /// Entries are never updated in place: they are written once under a lock and only deleted as a whole, so a complete
     /// entry can be read without locking.
     /// </remarks>
-    public abstract class ExternalArtifact
+    public abstract class ArtifactCacheEntry
     {
         // If another process holds the lock on the cache directory, retry until this timeout is reached.
         private static readonly TimeSpan LockContentionTimeout = TimeSpan.FromSeconds(30);
 
         private static readonly TimeSpan LockContentionRetryInterval = TimeSpan.FromMilliseconds(300);
 
-        protected ExternalArtifact(IDirectoryHandle cacheDirectory)
+        protected ArtifactCacheEntry(IDirectoryHandle cacheDirectory)
         {
             this.CacheDirectory = cacheDirectory;
         }
@@ -43,7 +43,7 @@ namespace Bicep.Core.Artifacts.Cache
         /// <summary>
         /// Deletes the entry, waiting for another process that is writing it to finish.
         /// </summary>
-        /// <exception cref="ExternalArtifactException">The entry could not be deleted.</exception>
+        /// <exception cref="ArtifactException">The entry could not be deleted.</exception>
         public async Task DeleteAsync()
         {
             var stopwatch = Stopwatch.StartNew();
@@ -58,7 +58,7 @@ namespace Bicep.Core.Artifacts.Cache
                     }
                     catch (Exception exception)
                     {
-                        throw new ExternalArtifactException($"Unable to delete the local artifact directory \"{this.CacheDirectory.Uri}\". {exception.Message}", exception);
+                        throw new ArtifactException($"Unable to delete the local artifact directory \"{this.CacheDirectory.Uri}\". {exception.Message}", exception);
                     }
 
                     return;
@@ -78,7 +78,7 @@ namespace Bicep.Core.Artifacts.Cache
                 await Task.Delay(LockContentionRetryInterval);
             }
 
-            throw new ExternalArtifactException($"Exceeded the timeout of \"{LockContentionTimeout}\" for the lock on file \"{this.LockFile.Uri}\" to be released.");
+            throw new ArtifactException($"Exceeded the timeout of \"{LockContentionTimeout}\" for the lock on file \"{this.LockFile.Uri}\" to be released.");
         }
 
         protected IFileHandle GetFile(string fileName) => this.CacheDirectory.GetFile(fileName);
@@ -86,7 +86,7 @@ namespace Bicep.Core.Artifacts.Cache
         /// <summary>
         /// Writes the entry under the cache lock, unless another compilation, possibly in another process, already completed it.
         /// </summary>
-        /// <exception cref="ExternalArtifactException">The cache directory could not be created or locked.</exception>
+        /// <exception cref="ArtifactException">The cache directory could not be created or locked.</exception>
         protected async Task WriteAsync(Action writeContent)
         {
             this.EnsureCacheDirectoryExists();
@@ -135,7 +135,7 @@ namespace Bicep.Core.Artifacts.Cache
             }
             catch (Exception exception)
             {
-                throw new ExternalArtifactException($"Unable to create the local artifact directory \"{this.CacheDirectory.Uri}\". {exception.Message}", exception);
+                throw new ArtifactException($"Unable to create the local artifact directory \"{this.CacheDirectory.Uri}\". {exception.Message}", exception);
             }
         }
 
@@ -158,7 +158,7 @@ namespace Bicep.Core.Artifacts.Cache
             return true;
         }
 
-        private ExternalArtifactException CreateLockTimeoutException() =>
+        private ArtifactException CreateLockTimeoutException() =>
             new($"Exceeded the timeout of \"{LockContentionTimeout}\" to acquire the lock on file \"{this.LockFile.Uri}\".");
     }
 }

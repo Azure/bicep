@@ -90,14 +90,14 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
-        public static IArtifactRegistry[] CreateRegistries()
+        public static IRemoteArtifactRegistry[] CreateRegistries()
         {
             var transportFactory = new ServiceBuilder()
                 .WithContainerRegistryClientFactory(ClientFactory)
                 .Build().Construct<IOciRegistryTransportFactory>();
             return [
                 new OciArtifactRegistry(TestRegistryConfiguration, transportFactory, NullLogger<OciArtifactRegistry>.Instance),
-                new TemplateSpecModuleRegistry(TemplateSpecRepositoryFactory),
+                new TemplateSpecArtifactRegistry(TemplateSpecRepositoryFactory),
             ];
         }
 

@@ -18,8 +18,8 @@ public static class WasmServiceProvider
             .AddSingleton<IPublicModuleMetadataProvider, WasmPublicModuleMetadataProvider>()
             .AddBicepCore()
             .AddBicepDecompiler()
-            .RemoveAll<IArtifactRegistry>()
-            .AddSingleton<IArtifactRegistry>(sp => sp.GetRequiredService<OciArtifactRegistry>());
+            .RemoveAll<IRemoteArtifactRegistry>()
+            .AddSingleton<IRemoteArtifactRegistry>(sp => sp.GetRequiredService<OciArtifactRegistry>());
 
     public static IServiceProvider Create() =>
         new ServiceCollection()

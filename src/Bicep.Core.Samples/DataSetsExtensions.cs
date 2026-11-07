@@ -120,7 +120,7 @@ namespace Bicep.Core.Samples
 
             foreach (var (moduleName, templateSpecInfo) in templateSpecs)
             {
-                if (!resolver.TryResolve(referencingUri, ArtifactType.Module, templateSpecInfo.Metadata.Target).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
+                if (!resolver.TryResolve(referencingUri, ArtifactType.Module, templateSpecInfo.Metadata.Target).IsSuccess(out var @ref) || @ref is not TemplateSpecArtifactReference reference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }

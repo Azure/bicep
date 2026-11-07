@@ -25,7 +25,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
     {
         private readonly IFileExplorer fileExplorer;
         private readonly RedirectingArtifactResolver referenceResolver;
-        private readonly IArtifactRestorer restorer;
+        private readonly IRemoteArtifactRestorer restorer;
         private readonly ICompilationManager compilationManager;
         private readonly IActiveSourceFileSet workspace;
         private readonly ISourceFileFactory sourceFileFactory;
@@ -34,7 +34,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
             ISerializer serializer,
             IFileExplorer fileExplorer,
             RedirectingArtifactResolver referenceResolver,
-            IArtifactRestorer restorer,
+            IRemoteArtifactRestorer restorer,
             ICompilationManager compilationManager,
             IActiveSourceFileSet workspace,
             ISourceFileFactory sourceFileFactory)
@@ -69,7 +69,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
             var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(force: true);
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in outputs and logging
-            var artifactReferencesToRestore = ArtifactHelper.GetValidArtifactReferences(artifactsToRestore)
+            var artifactReferencesToRestore = artifactsToRestore.GetRemoteArtifactReferences()
                 .OrderBy(key => key.FullyQualifiedReference)
                 .ToArray();
 
@@ -87,8 +87,8 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
             {
                 var restoreStatus = this.restorer.GetRestoreState(module) switch
                 {
-                    ArtifactRestoreState.Restored => "Succeeded",
-                    ArtifactRestoreState.RestoreFailed => "Failed",
+                    RemoteArtifactRestoreState.Restored => "Succeeded",
+                    RemoteArtifactRestoreState.RestoreFailed => "Failed",
                     _ => "Unknown",
                 };
                 sbRestoreSummary.Append($"{System.Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");

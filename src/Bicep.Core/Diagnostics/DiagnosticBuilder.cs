@@ -1030,11 +1030,11 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic InvalidOciArtifactReference(string? aliasName, string badRef) => CoreError(
                 "BCP193",
-                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactReferenceSchemes.Oci}:<artifact-uri>:<tag>\", or \"{ArtifactReferenceSchemes.Oci}/<module-alias>:<module-name-or-path>:<tag>\".");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactSchemes.Oci}:<artifact-uri>:<tag>\", or \"{ArtifactSchemes.Oci}/<module-alias>:<module-name-or-path>:<tag>\".");
 
             public Diagnostic InvalidTemplateSpecReference(string? aliasName, string badRef) => CoreError(
                 "BCP194",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactReferenceSchemes.TemplateSpecs}:<subscription-ID>/<resource-group-name>/<template-spec-name>:<version>\", or \"{ArtifactReferenceSchemes.TemplateSpecs}/<module-alias>:<template-spec-name>:<version>\".");
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactSchemes.TemplateSpecs}:<subscription-ID>/<resource-group-name>/<template-spec-name>:<version>\", or \"{ArtifactSchemes.TemplateSpecs}/<module-alias>:<template-spec-name>:<version>\".");
 
             public Diagnostic InvalidOciArtifactReferenceInvalidPathSegment(string? aliasName, string badRef, string badSegment) => CoreError(
                 "BCP195",

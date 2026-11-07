@@ -4,14 +4,14 @@
 
 namespace Bicep.Core.Artifacts
 {
-    public class ExternalArtifactException : Exception
+    public class ArtifactException : Exception
     {
-        public ExternalArtifactException(string message)
+        public ArtifactException(string message)
             : base(message)
         {
         }
 
-        public ExternalArtifactException(string message, Exception innerException)
+        public ArtifactException(string message, Exception innerException)
             : base(message, innerException)
         {
         }

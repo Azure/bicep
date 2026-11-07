@@ -48,7 +48,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     /// dependencies of a contained node can cross a container's boundary.
     /// </para>
     /// </summary>
-    public sealed class VisualGraphBuilder(BicepCompiler compiler, IArtifactRestorer restorer)
+    public sealed class VisualGraphBuilder(BicepCompiler compiler, IRemoteArtifactRestorer restorer)
     {
         /// <summary>A Bicep file whose declarations become nodes under <paramref name="ParentId"/>.</summary>
         /// <param name="Archive">Where the file is in a registry module's published source; null for a file in the compilation.</param>
@@ -276,7 +276,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 return reference switch
                 {
                     OciArtifactReference registryReference => this.GetRegistryModuleExpansion(registryReference, nodeId, file) with { IsRemote = true },
-                    TemplateSpecModuleReference => new ModuleExpansion.Unavailable { IsRemote = true },
+                    TemplateSpecArtifactReference => new ModuleExpansion.Unavailable { IsRemote = true },
                     _ when module.TryGetSemanticModel().IsSuccess(out var model, out _) && model is SemanticModel bicepModel =>
                         ExpandInto(new(bicepModel, nodeId, Archive: null, file.EnclosingRegistryModules)),
                     _ => new ModuleExpansion.Leaf(),
@@ -305,7 +305,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 return this.GetRegistryModuleExpansion(registryReference, nodeId, file) with { IsRemote = true };
             }
 
-            return reference is TemplateSpecModuleReference ? new ModuleExpansion.Unavailable { IsRemote = true } : new ModuleExpansion.Leaf();
+            return reference is TemplateSpecArtifactReference ? new ModuleExpansion.Unavailable { IsRemote = true } : new ModuleExpansion.Leaf();
         }
 
         private ModuleExpansion GetRegistryModuleExpansion(OciArtifactReference registryReference, string nodeId, PendingFile file)
@@ -320,10 +320,10 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             switch (restorer.GetRestoreState(registryReference))
             {
-                case ArtifactRestoreState.NotRestored:
+                case RemoteArtifactRestoreState.NotRestored:
                     return new ModuleExpansion.Unrestored(registryReference);
 
-                case ArtifactRestoreState.RestoreFailed failed:
+                case RemoteArtifactRestoreState.RestoreFailed failed:
                     return new ModuleExpansion.Failed(registryReference, failed.Error(DiagnosticBuilder.ForDocumentStart()).Message);
             }
 

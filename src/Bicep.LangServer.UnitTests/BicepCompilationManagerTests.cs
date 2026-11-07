@@ -522,7 +522,7 @@ module moduleB './moduleB.bicep' = {
                 TestTypeHelper.CreateEmptyNamespaceProvider(),
                 fileExplorer,
                 services.Construct<RedirectingArtifactResolver>(),
-                services.Construct<IArtifactRestorer>(),
+                services.Construct<IRemoteArtifactRestorer>(),
                 BicepTestConstants.LinterAnalyzer,
                 BicepTestConstants.SourceFileFactory,
                 CompilerVersionCheckOptions.Default);

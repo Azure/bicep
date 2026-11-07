@@ -169,7 +169,7 @@ namespace Bicep.Core.IntegrationTests
                 .WithTestArtifactManager(artifactManager)
                 .Build();
 
-            var restorer = services.Construct<IArtifactRestorer>();
+            var restorer = services.Construct<IRemoteArtifactRestorer>();
             var resolver = services.Construct<IArtifactReferenceResolver>();
             var dummyFile = CreateDummyReferencingFile(services);
             var moduleReferences = dataSet.RegistryModules.Values
@@ -182,7 +182,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty.
             foreach (var moduleReference in moduleReferences)
             {
-                restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.NotRestored>();
+                restorer.GetRestoreState(moduleReference).Should().BeOfType<RemoteArtifactRestoreState.NotRestored>();
             }
 
             const int ConcurrentTasks = 10;
@@ -199,9 +199,9 @@ namespace Bicep.Core.IntegrationTests
             foreach (var moduleReference in moduleReferences)
             {
                 var restoreState = restorer.GetRestoreState(moduleReference);
-                var error = (restoreState as ArtifactRestoreState.RestoreFailed)?.Error(DiagnosticBuilder.ForDocumentStart());
+                var error = (restoreState as RemoteArtifactRestoreState.RestoreFailed)?.Error(DiagnosticBuilder.ForDocumentStart());
 
-                restoreState.Should().BeOfType<ArtifactRestoreState.Restored>($"code: {error?.Code}, message: {error?.Message}");
+                restoreState.Should().BeOfType<RemoteArtifactRestoreState.Restored>($"code: {error?.Code}, message: {error?.Message}");
             }
         }
 
@@ -224,7 +224,7 @@ namespace Bicep.Core.IntegrationTests
                 .WithTestArtifactManager(artifactManager)
                 .Build();
 
-            var restorer = services.Construct<IArtifactRestorer>();
+            var restorer = services.Construct<IRemoteArtifactRestorer>();
             var resolver = services.Construct<IArtifactReferenceResolver>();
             var dummyFile = CreateDummyReferencingFile(services);
 
@@ -238,7 +238,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.NotRestored>();
+                restorer.GetRestoreState(moduleReference).Should().BeOfType<RemoteArtifactRestoreState.NotRestored>();
             }
 
             var moduleFile = GetEntryPoint(services, moduleReferences[0]);
@@ -256,7 +256,7 @@ namespace Bicep.Core.IntegrationTests
             }
 
             // the first module should have failed due to a timeout
-            var failureBuilder = restorer.GetRestoreState(moduleReferences[0]).Should().BeOfType<ArtifactRestoreState.RestoreFailed>().Subject.Error;
+            var failureBuilder = restorer.GetRestoreState(moduleReferences[0]).Should().BeOfType<RemoteArtifactRestoreState.RestoreFailed>().Subject.Error;
             using (new AssertionScope())
             {
                 failureBuilder!.Should().HaveCode("BCP192");
@@ -266,7 +266,7 @@ namespace Bicep.Core.IntegrationTests
             // all other modules should have succeeded
             foreach (var moduleReference in moduleReferences.Skip(1))
             {
-                restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.Restored>();
+                restorer.GetRestoreState(moduleReference).Should().BeOfType<RemoteArtifactRestoreState.Restored>();
             }
         }
 
@@ -288,7 +288,7 @@ namespace Bicep.Core.IntegrationTests
                 .WithTestArtifactManager(artifactManager)
                 .Build();
 
-            var restorer = services.Construct<IArtifactRestorer>();
+            var restorer = services.Construct<IRemoteArtifactRestorer>();
             var resolver = services.Construct<IArtifactReferenceResolver>();
             var dummyFile = CreateDummyReferencingFile(services);
 
@@ -302,7 +302,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.NotRestored>();
+                restorer.GetRestoreState(moduleReference).Should().BeOfType<RemoteArtifactRestoreState.NotRestored>();
             }
 
             var moduleFile = GetEntryPoint(services, moduleReferences[0]);
@@ -324,18 +324,18 @@ namespace Bicep.Core.IntegrationTests
             using (new AssertionScope())
             {
 #if WINDOWS_BUILD
-                var failureBuilder = restorer.GetRestoreState(moduleReferences[0]).Should().BeOfType<ArtifactRestoreState.RestoreFailed>().Subject.Error;
+                var failureBuilder = restorer.GetRestoreState(moduleReferences[0]).Should().BeOfType<RemoteArtifactRestoreState.RestoreFailed>().Subject.Error;
 
                 failureBuilder!.Should().HaveCode("BCP233");
                 failureBuilder!.Should().HaveMessageStartWith($"Unable to delete the module with reference \"{moduleReferences[0].FullyQualifiedReference}\" from cache: Exceeded the timeout of \"00:00:30\" for the lock on file \"{lockFile.Uri}\" to be released.");
 #else
-                restorer.GetRestoreState(moduleReferences[0]).Should().BeOfType<ArtifactRestoreState.Restored>();
+                restorer.GetRestoreState(moduleReferences[0]).Should().BeOfType<RemoteArtifactRestoreState.Restored>();
 #endif
 
                 // all other modules should have succeeded
                 foreach (var moduleReference in moduleReferences.Skip(1))
                 {
-                    restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.Restored>();
+                    restorer.GetRestoreState(moduleReference).Should().BeOfType<RemoteArtifactRestoreState.Restored>();
                 }
             }
 
@@ -360,7 +360,7 @@ namespace Bicep.Core.IntegrationTests
                 .WithTestArtifactManager(artifactManager)
                 .Build();
 
-            var restorer = services.Construct<IArtifactRestorer>();
+            var restorer = services.Construct<IRemoteArtifactRestorer>();
             var resolver = services.Construct<IArtifactReferenceResolver>();
             var dummyFile = CreateDummyReferencingFile(services);
 
@@ -374,7 +374,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.NotRestored>();
+                restorer.GetRestoreState(moduleReference).Should().BeOfType<RemoteArtifactRestoreState.NotRestored>();
             }
 
             GetEntryPoint(services, moduleReferences[0]).GetParent().EnsureExists();
@@ -384,7 +384,7 @@ namespace Bicep.Core.IntegrationTests
             // all other modules should have succeeded
             foreach (var moduleReference in moduleReferences)
             {
-                restorer.GetRestoreState(moduleReference).Should().BeOfType<ArtifactRestoreState.Restored>();
+                restorer.GetRestoreState(moduleReference).Should().BeOfType<RemoteArtifactRestoreState.Restored>();
             }
         }
 
@@ -403,16 +403,16 @@ namespace Bicep.Core.IntegrationTests
             return sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
         }
 
-        private static IFileHandle GetEntryPoint(IDependencyHelper dependencyHelper, ExternalArtifactReference reference) =>
+        private static IFileHandle GetEntryPoint(IDependencyHelper dependencyHelper, RemoteArtifactReference reference) =>
             // The entry point's path, whether or not the artifact is restored yet.
             reference switch
             {
                 OciArtifactReference oci => oci.CacheEntry.EntryPoint,
-                TemplateSpecModuleReference templateSpec => templateSpec.CacheEntry.EntryPoint,
+                TemplateSpecArtifactReference templateSpec => templateSpec.CacheEntry.EntryPoint,
                 _ => throw new InvalidOperationException($"Unexpected reference type '{reference.GetType().Name}'."),
             };
 
-        private static ResultWithDiagnosticBuilder<ExternalArtifactReference> TryGetModuleReference(IArtifactReferenceResolver resolver, BicepSourceFile referencingFile, string reference) =>
-            resolver.TryResolve(referencingFile.FileHandle.Uri, ArtifactType.Module, reference).Transform(x => (ExternalArtifactReference)x);
+        private static ResultWithDiagnosticBuilder<RemoteArtifactReference> TryGetModuleReference(IArtifactReferenceResolver resolver, BicepSourceFile referencingFile, string reference) =>
+            resolver.TryResolve(referencingFile.FileHandle.Uri, ArtifactType.Module, reference).Transform(x => (RemoteArtifactReference)x);
     }
 }

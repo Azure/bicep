@@ -34,20 +34,20 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
     private readonly IFileExplorer fileExplorer;
     private readonly IBicepConfigurationManager configurationManager;
     private readonly IFeatureProviderFactory featureProviderFactory;
-    private readonly IExternalArtifactContextFactory externalArtifactContextFactory;
+    private readonly IRemoteArtifactContextFactory remoteArtifactContextFactory;
 
     public ArtifactReferenceResolver(
-        IEnumerable<IArtifactRegistry> registries,
+        IEnumerable<IRemoteArtifactRegistry> registries,
         IFileExplorer fileExplorer,
         IBicepConfigurationManager configurationManager,
         IFeatureProviderFactory featureProviderFactory,
-        IExternalArtifactContextFactory externalArtifactContextFactory)
+        IRemoteArtifactContextFactory remoteArtifactContextFactory)
     {
         this.supportedSchemes = [.. registries.Select(registry => registry.Scheme).Distinct().OrderBy(scheme => scheme)];
         this.fileExplorer = fileExplorer;
         this.configurationManager = configurationManager;
         this.featureProviderFactory = featureProviderFactory;
-        this.externalArtifactContextFactory = externalArtifactContextFactory;
+        this.remoteArtifactContextFactory = remoteArtifactContextFactory;
     }
 
     public ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(IOUri referencingUri, ArtifactType artifactType, string referenceText) =>
@@ -73,14 +73,14 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
 
         switch (scheme)
         {
-            case ArtifactReferenceSchemes.Oci:
+            case ArtifactSchemes.Oci:
                 if (!configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var ociAlias, out var ociFailureBuilder))
                 {
                     return new(ociFailureBuilder);
                 }
 
                 return new($"{ociAlias}/{body}");
-            case ArtifactReferenceSchemes.TemplateSpecs:
+            case ArtifactSchemes.TemplateSpecs:
                 if (!configuration.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName).IsSuccess(out var templateSpecAlias, out var templateSpecFailureBuilder))
                 {
                     return new(templateSpecFailureBuilder);
@@ -151,15 +151,15 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
 
         switch (scheme)
         {
-            case ArtifactReferenceSchemes.Oci:
-                return OciArtifactReference.TryParse(this.externalArtifactContextFactory.GetOciArtifactContext(referencingUri), artifactType, aliasContext, body).Transform(x => (ArtifactReference)x);
-            case ArtifactReferenceSchemes.TemplateSpecs:
+            case ArtifactSchemes.Oci:
+                return OciArtifactReference.TryParse(this.remoteArtifactContextFactory.GetOciArtifactContext(referencingUri), artifactType, aliasContext, body).Transform(x => (ArtifactReference)x);
+            case ArtifactSchemes.TemplateSpecs:
                 if (artifactType != ArtifactType.Module)
                 {
                     return new(x => x.UnsupportedArtifactType(artifactType));
                 }
 
-                return TemplateSpecModuleReference.TryParse(this.externalArtifactContextFactory.GetTemplateSpecArtifactContext(referencingUri), aliasContext, body).Transform(x => (ArtifactReference)x);
+                return TemplateSpecArtifactReference.TryParse(this.remoteArtifactContextFactory.GetTemplateSpecArtifactContext(referencingUri), aliasContext, body).Transform(x => (ArtifactReference)x);
             default:
                 return new(x => x.UnknownModuleReferenceScheme(scheme, this.supportedSchemes));
         }
@@ -170,5 +170,5 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
     private bool IsSupportedScheme(string scheme) => this.supportedSchemes.Contains(scheme);
 
     private static bool SupportsSchemeQualifiedAliases(string scheme) =>
-        scheme is ArtifactReferenceSchemes.Oci or ArtifactReferenceSchemes.TemplateSpecs;
+        scheme is ArtifactSchemes.Oci or ArtifactSchemes.TemplateSpecs;
 }

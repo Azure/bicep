@@ -23,12 +23,12 @@ public sealed class LocalArtifactReference : ArtifactReference, IExtensionArtifa
 {
     private readonly string displayReference;
     private readonly IDirectoryHandle cacheRootDirectory;
-    private readonly Lazy<ResultWithDiagnosticBuilder<LocalExtensionArtifact>> lazyExtensionArtifact;
+    private readonly Lazy<ResultWithDiagnosticBuilder<LocalExtensionArtifactCacheEntry>> lazyExtensionArtifact;
 
     /// <param name="cacheRootDirectory">The root of the local artifact cache, which extension packages are unpacked into.</param>
     /// <param name="displayReference">How the reference is shown to the user, for example in diagnostics.</param>
     public LocalArtifactReference(IDirectoryHandle cacheRootDirectory, ArtifactType type, IFileHandle file, string displayReference)
-        : base(ArtifactReferenceSchemes.Local, type)
+        : base(ArtifactSchemes.Local, type)
     {
         this.cacheRootDirectory = cacheRootDirectory;
         this.File = file;
@@ -61,7 +61,7 @@ public sealed class LocalArtifactReference : ArtifactReference, IExtensionArtifa
 
     public override int GetHashCode() => HashCode.Combine(this.Type, this.File.Uri);
 
-    private ResultWithDiagnosticBuilder<LocalExtensionArtifact> TryUnpackExtension()
+    private ResultWithDiagnosticBuilder<LocalExtensionArtifactCacheEntry> TryUnpackExtension()
     {
         if (!this.File.TryReadBinaryData().IsSuccess(out var binaryData, out var readErrorBuilder))
         {
@@ -69,16 +69,16 @@ public sealed class LocalArtifactReference : ArtifactReference, IExtensionArtifa
         }
 
         // The cache is content-addressed, so a package that has already been unpacked is reused.
-        var artifact = new LocalExtensionArtifact(binaryData, this.cacheRootDirectory);
+        var artifact = new LocalExtensionArtifactCacheEntry(binaryData, this.cacheRootDirectory);
         if (artifact.IsComplete)
         {
             return new(artifact);
         }
 
-        ExtensionPackage package;
+        ExtensionArtifactPackage package;
         try
         {
-            package = ExtensionV1Archive.Read(binaryData);
+            package = ExtensionArtifactArchiveCodec.Decode(binaryData);
         }
         catch (InvalidDataException exception)
         {
@@ -99,7 +99,7 @@ public sealed class LocalArtifactReference : ArtifactReference, IExtensionArtifa
         {
             artifact.Unpack(package, this.FullyQualifiedReference);
         }
-        catch (Exception exception) when (exception is ExternalArtifactException or InvalidOperationException or IOException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is ArtifactException or InvalidOperationException or IOException or UnauthorizedAccessException)
         {
             return new(x => x.ArtifactRestoreFailedWithMessage(this.FullyQualifiedReference, exception.Message));
         }

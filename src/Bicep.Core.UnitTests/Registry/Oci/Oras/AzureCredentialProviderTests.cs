@@ -93,7 +93,7 @@ public class AzureCredentialProviderTests
         var provider = new AzureCredentialProvider("example.azurecr.io", credential.Object, "https://management.azure.com", client);
 
         var action = () => provider.ResolveCredentialAsync("example.azurecr.io", default);
-        await action.Should().ThrowAsync<ExternalArtifactException>().WithMessage("*invalid Azure token exchange response*");
+        await action.Should().ThrowAsync<ArtifactException>().WithMessage("*invalid Azure token exchange response*");
     }
 
     [TestMethod]

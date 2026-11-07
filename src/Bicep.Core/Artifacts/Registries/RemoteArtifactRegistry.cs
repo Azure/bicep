@@ -13,16 +13,16 @@ namespace Bicep.Core.Artifacts.Registries
     /// <summary>
     /// Restores one kind of remote artifact into the local cache. Where an artifact is cached is up to its cache entry.
     /// </summary>
-    public abstract class ArtifactRegistry<TArtifactReference> : IArtifactRegistry
-        where TArtifactReference : ExternalArtifactReference
+    public abstract class RemoteArtifactRegistry<TArtifactReference> : IRemoteArtifactRegistry
+        where TArtifactReference : RemoteArtifactReference
     {
         public abstract string Scheme { get; }
 
-        public bool CanHandle(ExternalArtifactReference reference) => reference is TArtifactReference;
+        public bool CanHandle(RemoteArtifactReference reference) => reference is TArtifactReference;
 
-        public IFileHandle? TryGetEntryPoint(ExternalArtifactReference reference) => this.TryGetEntryPoint(ConvertReference(reference));
+        public IFileHandle? TryGetEntryPoint(RemoteArtifactReference reference) => this.TryGetEntryPoint(ConvertReference(reference));
 
-        public async Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreAsync(IEnumerable<ExternalArtifactReference> references, RestoreMode mode)
+        public async Task<IDictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreAsync(IEnumerable<RemoteArtifactReference> references, RestoreMode mode)
         {
             var typedReferences = references.Select(ConvertReference).ToArray();
 
@@ -31,7 +31,7 @@ namespace Bicep.Core.Artifacts.Registries
                 return await this.RestoreArtifacts(typedReferences);
             }
 
-            var failures = new Dictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>(await this.InvalidateArtifactsCache(typedReferences));
+            var failures = new Dictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>(await this.InvalidateArtifactsCache(typedReferences));
 
             foreach (var (reference, error) in await this.RestoreArtifacts(typedReferences))
             {
@@ -42,16 +42,16 @@ namespace Bicep.Core.Artifacts.Registries
             return failures;
         }
 
-        protected abstract ExternalArtifact GetCacheEntry(TArtifactReference reference);
+        protected abstract ArtifactCacheEntry GetCacheEntry(TArtifactReference reference);
 
         protected virtual IFileHandle? TryGetEntryPoint(TArtifactReference reference) =>
             this.GetCacheEntry(reference) is { IsComplete: true } cacheEntry ? cacheEntry.EntryPoint : null;
 
-        protected abstract Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<TArtifactReference> references);
+        protected abstract Task<IDictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<TArtifactReference> references);
 
-        private async Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<TArtifactReference> references)
+        private async Task<IDictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<TArtifactReference> references)
         {
-            var failures = new Dictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
+            var failures = new Dictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
 
             foreach (var reference in references)
             {
@@ -82,7 +82,7 @@ namespace Bicep.Core.Artifacts.Registries
             return failures;
         }
 
-        private static TArtifactReference ConvertReference(ExternalArtifactReference reference) => reference switch
+        private static TArtifactReference ConvertReference(RemoteArtifactReference reference) => reference switch
         {
             TArtifactReference typed => typed,
             _ => throw new ArgumentException($"Reference type '{reference.GetType().Name}' is not supported."),

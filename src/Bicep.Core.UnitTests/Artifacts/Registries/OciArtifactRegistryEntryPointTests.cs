@@ -26,7 +26,7 @@ public class OciArtifactRegistryEntryPointTests
     public void A_cached_artifact_is_only_loaded_from_a_trusted_registry(string registry, bool expectRestored)
     {
         var reference = CreateCachedModuleReference(registry);
-        IArtifactRegistry ociRegistry = new OciArtifactRegistry(
+        IRemoteArtifactRegistry ociRegistry = new OciArtifactRegistry(
             new RegistryConfiguration(PermitUntrustedRegistries: false),
             StrictMock.Of<IOciRegistryTransportFactory>().Object,
             NullLogger<OciArtifactRegistry>.Instance);
@@ -50,7 +50,7 @@ public class OciArtifactRegistryEntryPointTests
     {
         var reference = CreateCachedModuleReference("contoso.azurecr.io");
         reference.ModuleCacheEntry.MetadataFile.Delete();
-        IArtifactRegistry ociRegistry = new OciArtifactRegistry(
+        IRemoteArtifactRegistry ociRegistry = new OciArtifactRegistry(
             new RegistryConfiguration(PermitUntrustedRegistries: false),
             StrictMock.Of<IOciRegistryTransportFactory>().Object,
             NullLogger<OciArtifactRegistry>.Instance);

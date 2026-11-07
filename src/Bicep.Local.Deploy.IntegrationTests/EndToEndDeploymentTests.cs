@@ -27,7 +27,7 @@ namespace Bicep.Local.Deploy.IntegrationTests;
 [TestClass]
 public class EndToEndDeploymentTests : TestBase
 {
-    private static ExtensionPackage GetMockLocalDeployPackage(BinaryData? tgzData = null)
+    private static ExtensionArtifactPackage GetMockLocalDeployPackage(BinaryData? tgzData = null)
     {
         tgzData ??= ExtensionResourceTypeHelper.GetHttpExtensionTypesTgz();
 
@@ -35,7 +35,7 @@ public class EndToEndDeploymentTests : TestBase
 
         // this doesn't need to contain a real binary, because this test emulates the local binary connection
         ExtensionBinary binary = new(architecture, BinaryData.FromBytes([]));
-        return new ExtensionPackage(tgzData, true, [binary]);
+        return new ExtensionArtifactPackage(tgzData, true, [binary]);
     }
 
     [TestMethod]

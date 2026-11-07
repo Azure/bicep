@@ -4,7 +4,7 @@
 
 namespace Bicep.Core.Artifacts.Registries
 {
-    public class OciArtifactRegistryException : ExternalArtifactException
+    public class OciArtifactRegistryException : ArtifactException
     {
         public OciArtifactRegistryException(string message) : base(message)
         {

@@ -17,18 +17,18 @@ using Bicep.IO.Utils;
 
 namespace Bicep.Core.Artifacts.References
 {
-    public class OciArtifactReference : ExternalArtifactReference, IOciArtifactReference, IExtensionArtifactReference
+    public class OciArtifactReference : RemoteArtifactReference, IOciArtifactReference, IExtensionArtifactReference
     {
-        private readonly Lazy<BicepRegistryModuleArtifact> lazyBicepRegistryModuleArtifact;
-        private readonly Lazy<BicepRegistryExtensionArtifact> lazyBicepRegistryExtensionArtifact;
+        private readonly Lazy<OciModuleArtifactCacheEntry> lazyOciModuleArtifactCacheEntry;
+        private readonly Lazy<OciExtensionArtifactCacheEntry> lazyOciExtensionArtifactCacheEntry;
 
         public OciArtifactReference(OciArtifactContext context, ArtifactType type, IOciArtifactAddressComponents artifactIdParts) :
             base(context, OciArtifactReferenceFacts.Scheme, type)
         {
             OciContext = context;
             AddressComponents = artifactIdParts;
-            lazyBicepRegistryModuleArtifact = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
-            lazyBicepRegistryExtensionArtifact = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
+            lazyOciModuleArtifactCacheEntry = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
+            lazyOciExtensionArtifactCacheEntry = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
         }
 
         public OciArtifactReference(OciArtifactContext context, ArtifactType type, string registry, string repository, string? tag, string? digest) :
@@ -44,12 +44,12 @@ namespace Bicep.Core.Artifacts.References
 
             OciContext = context;
             AddressComponents = new OciArtifactAddressComponents(registry, repository, tag, digest);
-            lazyBicepRegistryModuleArtifact = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
-            lazyBicepRegistryExtensionArtifact = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
+            lazyOciModuleArtifactCacheEntry = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
+            lazyOciExtensionArtifactCacheEntry = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
         }
 
         /// <summary>
-        /// Gets the OCI-specific settings used to reach the artifact. It is the same object as <see cref="ExternalArtifactReference.Context"/>.
+        /// Gets the OCI-specific settings used to reach the artifact. It is the same object as <see cref="RemoteArtifactReference.Context"/>.
         /// </summary>
         public OciArtifactContext OciContext { get; }
 
@@ -90,15 +90,15 @@ namespace Bicep.Core.Artifacts.References
         /// <summary>
         /// Gets the cache entry of the artifact if it is a module. Its layout is owned by the entry.
         /// </summary>
-        public BicepRegistryModuleArtifact ModuleCacheEntry => this.lazyBicepRegistryModuleArtifact.Value;
+        public OciModuleArtifactCacheEntry ModuleCacheEntry => this.lazyOciModuleArtifactCacheEntry.Value;
 
         /// <summary>
         /// Gets the cache entry of the artifact for its <see cref="ArtifactReference.Type"/>.
         /// </summary>
-        public BicepRegistryArtifact CacheEntry => this.Type switch
+        public OciArtifactCacheEntry CacheEntry => this.Type switch
         {
-            ArtifactType.Module => this.lazyBicepRegistryModuleArtifact.Value,
-            ArtifactType.Extension => this.lazyBicepRegistryExtensionArtifact.Value,
+            ArtifactType.Module => this.lazyOciModuleArtifactCacheEntry.Value,
+            ArtifactType.Extension => this.lazyOciExtensionArtifactCacheEntry.Value,
             _ => throw new InvalidOperationException($"Unexpected artifact type '{this.Type}'."),
         };
 
@@ -120,7 +120,7 @@ namespace Bicep.Core.Artifacts.References
 
         public IExtensionArtifact ResolveExtensionArtifact() =>
             this.Type == ArtifactType.Extension
-                ? this.lazyBicepRegistryExtensionArtifact.Value
+                ? this.lazyOciExtensionArtifactCacheEntry.Value
                 : throw new InvalidOperationException($"Cannot resolve extension artifact for type {this.Type}.");
 
         public override bool Equals(object? obj)

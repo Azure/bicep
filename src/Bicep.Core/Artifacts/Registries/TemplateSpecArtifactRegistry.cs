@@ -11,22 +11,22 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.Registries
 {
-    public class TemplateSpecModuleRegistry : ArtifactRegistry<TemplateSpecModuleReference>
+    public class TemplateSpecArtifactRegistry : RemoteArtifactRegistry<TemplateSpecArtifactReference>
     {
         private readonly ITemplateSpecRepositoryFactory repositoryFactory;
 
-        public TemplateSpecModuleRegistry(ITemplateSpecRepositoryFactory repositoryFactory)
+        public TemplateSpecArtifactRegistry(ITemplateSpecRepositoryFactory repositoryFactory)
         {
             this.repositoryFactory = repositoryFactory;
         }
 
-        public override string Scheme => ArtifactReferenceSchemes.TemplateSpecs;
+        public override string Scheme => ArtifactSchemes.TemplateSpecs;
 
-        protected override ExternalArtifact GetCacheEntry(TemplateSpecModuleReference reference) => reference.CacheEntry;
+        protected override ArtifactCacheEntry GetCacheEntry(TemplateSpecArtifactReference reference) => reference.CacheEntry;
 
-        protected override async Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<TemplateSpecModuleReference> references)
+        protected override async Task<IDictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<TemplateSpecArtifactReference> references)
         {
-            var statuses = new Dictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
+            var statuses = new Dictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
 
             foreach (var reference in references)
             {
@@ -38,7 +38,7 @@ namespace Bicep.Core.Artifacts.Registries
 
                     await reference.CacheEntry.WriteAsync(templateSpecEntity.Content);
                 }
-                catch (ExternalArtifactException templateSpecException)
+                catch (ArtifactException templateSpecException)
                 {
                     statuses.Add(reference, x => x.ArtifactRestoreFailedWithMessage(reference.FullyQualifiedReference, templateSpecException.Message));
                     timer.OnFail(templateSpecException.Message);

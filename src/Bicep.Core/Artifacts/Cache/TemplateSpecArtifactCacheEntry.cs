@@ -10,10 +10,10 @@ namespace Bicep.Core.Artifacts.Cache
     /// The cache entry of a Template Spec: <c>ts/&lt;subscription&gt;/&lt;resource group&gt;/&lt;name&gt;/&lt;version&gt;/</c> under
     /// the cache root, in lower case.
     /// </summary>
-    public class TemplateSpecModuleArtifact : ExternalArtifact
+    public class TemplateSpecArtifactCacheEntry : ArtifactCacheEntry
     {
-        public TemplateSpecModuleArtifact(string subscriptionId, string resourceGroupName, string templateSpecName, string version, IDirectoryHandle rootCacheDirectory)
-            : base(rootCacheDirectory.GetDirectory($"{ArtifactReferenceSchemes.TemplateSpecs}/{subscriptionId}/{resourceGroupName}/{templateSpecName}/{version}".ToLowerInvariant()))
+        public TemplateSpecArtifactCacheEntry(string subscriptionId, string resourceGroupName, string templateSpecName, string version, IDirectoryHandle rootCacheDirectory)
+            : base(rootCacheDirectory.GetDirectory($"{ArtifactSchemes.TemplateSpecs}/{subscriptionId}/{resourceGroupName}/{templateSpecName}/{version}".ToLowerInvariant()))
         {
         }
 

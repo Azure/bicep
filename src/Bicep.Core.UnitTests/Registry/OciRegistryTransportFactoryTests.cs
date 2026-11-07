@@ -128,7 +128,7 @@ public class OciRegistryTransportFactoryTests
 
         var action = () => session.PullAsync(reference, CancellationToken.None);
 
-        await action.Should().ThrowAsync<ExternalArtifactException>().WithMessage("*does not exist*");
+        await action.Should().ThrowAsync<ArtifactException>().WithMessage("*does not exist*");
         sdk.VerifyNoOtherCalls();
     }
 

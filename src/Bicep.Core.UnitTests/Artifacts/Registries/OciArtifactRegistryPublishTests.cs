@@ -57,7 +57,7 @@ public class OciArtifactRegistryPublishTests
                 })
             .Returns(Task.CompletedTask);
 
-        await CreateRegistry(reference, session.Object).PublishModule(reference, new ModulePackage(template, sources, "https://docs"));
+        await CreateRegistry(reference, session.Object).PublishModule(reference, new ModuleArtifactPackage(template, sources, "https://docs"));
 
         session.VerifyAll();
     }
@@ -66,7 +66,7 @@ public class OciArtifactRegistryPublishTests
     public async Task PublishExtension_PassesThePackageToTheRegistry()
     {
         var reference = CreateReference(ArtifactType.Extension);
-        var package = new ExtensionPackage(BinaryData.FromString("types"), LocalDeployEnabled: false, []);
+        var package = new ExtensionArtifactPackage(BinaryData.FromString("types"), LocalDeployEnabled: false, []);
         var session = CreateSession();
         session.Setup(x => x.PushAsync(
                 reference, BicepMediaTypes.OciImageManifest, BicepMediaTypes.BicepExtensionArtifactType,
@@ -95,8 +95,8 @@ public class OciArtifactRegistryPublishTests
         var registry = CreateRegistry(reference, session.Object);
 
         Func<Task> publish = targetType == ArtifactType.Module
-            ? () => registry.PublishExtension(reference, new ExtensionPackage(BinaryData.FromString("types"), LocalDeployEnabled: false, []))
-            : () => registry.PublishModule(reference, new ModulePackage(BinaryData.FromString("{}"), null, null));
+            ? () => registry.PublishExtension(reference, new ExtensionArtifactPackage(BinaryData.FromString("types"), LocalDeployEnabled: false, []))
+            : () => registry.PublishModule(reference, new ModuleArtifactPackage(BinaryData.FromString("{}"), null, null));
 
         await publish.Should().ThrowAsync<ArgumentException>().WithParameterName("reference");
         session.Verify(x => x.PushAsync(

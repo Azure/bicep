@@ -5,7 +5,7 @@ using Bicep.Core.Artifacts;
 
 namespace Bicep.Core.Registry
 {
-    public class TemplateSpecException : ExternalArtifactException
+    public class TemplateSpecException : ArtifactException
     {
         public TemplateSpecException(string message)
             : base(message)

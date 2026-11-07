@@ -55,14 +55,14 @@ public static class BicepCoreServiceCollectionExtensions
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
         services.TryAddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
         services.TryAddSingleton<IArmClientProvider, ArmClientProvider>();
-        services.TryAddSingleton<IExternalArtifactContextFactory, ExternalArtifactContextFactory>();
+        services.TryAddSingleton<IRemoteArtifactContextFactory, RemoteArtifactContextFactory>();
         services.TryAddSingleton<IArtifactReferenceResolver, ArtifactReferenceResolver>();
         services.TryAddSingleton(sp => RedirectingArtifactResolver.Create(
             sp.GetRequiredService<IArtifactReferenceResolver>(),
             sp.GetRequiredService<IFileExplorer>(),
             sp.GetRequiredService<IBicepConfigurationManager>(),
             sp.GetRequiredService<IFeatureProviderFactory>()));
-        services.TryAddSingleton<IArtifactRestorer, ArtifactRestorer>();
+        services.TryAddSingleton<IRemoteArtifactRestorer, RemoteArtifactRestorer>();
         services.TryAddSingleton<RegistryConfiguration>(serviceProvider =>
         {
             var environment = serviceProvider.GetRequiredService<IEnvironment>();
@@ -78,9 +78,9 @@ public static class BicepCoreServiceCollectionExtensions
             sp.GetRequiredService<RegistryConfiguration>(),
             sp.GetRequiredService<IOciRegistryTransportFactory>(),
             sp.GetService<ILogger<OciArtifactRegistry>>() ?? NullLogger<OciArtifactRegistry>.Instance));
-        services.TryAddSingleton<TemplateSpecModuleRegistry>();
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IArtifactRegistry, OciArtifactRegistry>(sp => sp.GetRequiredService<OciArtifactRegistry>()));
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IArtifactRegistry, TemplateSpecModuleRegistry>(sp => sp.GetRequiredService<TemplateSpecModuleRegistry>()));
+        services.TryAddSingleton<TemplateSpecArtifactRegistry>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IRemoteArtifactRegistry, OciArtifactRegistry>(sp => sp.GetRequiredService<OciArtifactRegistry>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IRemoteArtifactRegistry, TemplateSpecArtifactRegistry>(sp => sp.GetRequiredService<TemplateSpecArtifactRegistry>()));
         services.TryAddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
         services.TryAddSingleton<IEnvironment, Environment>();
         services.AddBicepFileSystem();

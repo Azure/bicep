@@ -74,7 +74,7 @@ public static class MockRegistry
 
     public static bool TryParseTemplateSpecReference(
         string referenceStr,
-        [NotNullWhen(true)] out TemplateSpecModuleReference? reference,
+        [NotNullWhen(true)] out TemplateSpecArtifactReference? reference,
         [NotNullWhen(false)] out IDiagnostic? diagnostic)
     {
         reference = null;
@@ -85,7 +85,7 @@ public static class MockRegistry
             referenceStr = referenceStr[3..];
         }
 
-        if (!TemplateSpecModuleReference.TryParse(TemplateSpecArtifactContext.Create(BicepTestConstants.DummyBicepFile.LoadConfiguration(), BicepTestConstants.DummyBicepFile.LoadFeatures()), null, referenceStr).IsSuccess(out var specReference, out var errorBuilder))
+        if (!TemplateSpecArtifactReference.TryParse(TemplateSpecArtifactContext.Create(BicepTestConstants.DummyBicepFile.LoadConfiguration(), BicepTestConstants.DummyBicepFile.LoadFeatures()), null, referenceStr).IsSuccess(out var specReference, out var errorBuilder))
         {
             diagnostic = errorBuilder(DiagnosticBuilder.ForDocumentStart());
 

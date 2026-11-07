@@ -30,7 +30,7 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Bicep.Core.Artifacts.Registries
 {
-    public sealed class OciArtifactRegistry : ArtifactRegistry<OciArtifactReference>
+    public sealed class OciArtifactRegistry : RemoteArtifactRegistry<OciArtifactReference>
     {
         private readonly RegistryConfiguration registryConfiguration;
 
@@ -48,9 +48,9 @@ namespace Bicep.Core.Artifacts.Registries
             this.logger = logger;
         }
 
-        public override string Scheme => ArtifactReferenceSchemes.Oci;
+        public override string Scheme => ArtifactSchemes.Oci;
 
-        protected override BicepRegistryArtifact GetCacheEntry(OciArtifactReference reference) => reference.CacheEntry;
+        protected override OciArtifactCacheEntry GetCacheEntry(OciArtifactReference reference) => reference.CacheEntry;
 
         protected override IFileHandle? TryGetEntryPoint(OciArtifactReference reference) =>
             // Security-first: an artifact from an untrusted registry is never loaded, even if it is cached. It counts as
@@ -74,7 +74,7 @@ namespace Bicep.Core.Artifacts.Registries
             {
                 return false;
             }
-            catch (ExternalArtifactException exception) when (IsNotFoundException(exception.InnerException))
+            catch (ArtifactException exception) when (IsNotFoundException(exception.InnerException))
             {
                 return false;
             }
@@ -82,23 +82,23 @@ namespace Bicep.Core.Artifacts.Registries
                 exception.Kind == InvalidArtifactExceptionKind.WrongArtifactType ||
                 exception.Kind == InvalidArtifactExceptionKind.UnknownLayerMediaType)
             {
-                throw new ExternalArtifactException($"The artifact referenced by {reference.FullyQualifiedReference} was not downloaded from the registry because it is invalid.", exception);
+                throw new ArtifactException($"The artifact referenced by {reference.FullyQualifiedReference} was not downloaded from the registry because it is invalid.", exception);
             }
             catch (InvalidArtifactException exception)
             {
-                throw new ExternalArtifactException($"The artifact referenced by {reference.FullyQualifiedReference} was not downloaded from the registry because it is invalid.", exception);
+                throw new ArtifactException($"The artifact referenced by {reference.FullyQualifiedReference} was not downloaded from the registry because it is invalid.", exception);
             }
             catch (RequestFailedException exception)
             {
-                throw new ExternalArtifactException(exception.Message, exception);
+                throw new ArtifactException(exception.Message, exception);
             }
-            catch (ExternalArtifactException)
+            catch (ArtifactException)
             {
                 throw;
             }
             catch (Exception exception)
             {
-                throw new ExternalArtifactException(exception.Message, exception);
+                throw new ArtifactException(exception.Message, exception);
             }
         }
 
@@ -152,7 +152,7 @@ namespace Bicep.Core.Artifacts.Registries
             }
             catch (Exception ex)
             {
-                throw new ExternalArtifactException($"Could not retrieve artifact manifest from \"{manifestFile.Uri}\"", ex);
+                throw new ArtifactException($"Could not retrieve artifact manifest from \"{manifestFile.Uri}\"", ex);
             }
         }
 
@@ -188,9 +188,9 @@ namespace Bicep.Core.Artifacts.Registries
             }
         }
 
-        protected override async Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
+        protected override async Task<IDictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
         {
-            var failures = new Dictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
+            var failures = new Dictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
 
             var referencesEvaluated = references.ToArray();
 
@@ -227,7 +227,7 @@ namespace Bicep.Core.Artifacts.Registries
             return failures;
         }
 
-        public async Task PublishModule(OciArtifactReference reference, ModulePackage package)
+        public async Task PublishModule(OciArtifactReference reference, ModuleArtifactPackage package)
         {
             EnsureArtifactType(reference, ArtifactType.Module);
 
@@ -267,15 +267,15 @@ namespace Bicep.Core.Artifacts.Registries
             }
             catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
             {
-                throw new ExternalArtifactException(exception.Message, exception);
+                throw new ArtifactException(exception.Message, exception);
             }
             catch (RequestFailedException exception)
             {
-                throw new ExternalArtifactException(exception.Message, exception);
+                throw new ArtifactException(exception.Message, exception);
             }
         }
 
-        public async Task PublishExtension(OciArtifactReference reference, ExtensionPackage package)
+        public async Task PublishExtension(OciArtifactReference reference, ExtensionArtifactPackage package)
         {
             EnsureArtifactType(reference, ArtifactType.Extension);
 
@@ -321,11 +321,11 @@ namespace Bicep.Core.Artifacts.Registries
             }
             catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
             {
-                throw new ExternalArtifactException(exception.Message, exception);
+                throw new ArtifactException(exception.Message, exception);
             }
             catch (RequestFailedException exception)
             {
-                throw new ExternalArtifactException(exception.Message, exception);
+                throw new ArtifactException(exception.Message, exception);
             }
         }
 
@@ -362,7 +362,7 @@ namespace Bicep.Core.Artifacts.Registries
             {
                 return (null, exception.Message);
             }
-            catch (ExternalArtifactException exception)
+            catch (ArtifactException exception)
             {
                 return (null, exception.Message);
             }
@@ -396,7 +396,7 @@ namespace Bicep.Core.Artifacts.Registries
             // preventing credentials/tokens from being sent to an attacker-controlled registry host.
             if (!registryConfiguration.IsRegistryTrusted(reference.Registry))
             {
-                throw new ExternalArtifactException(
+                throw new ArtifactException(
                     $"Cannot connect to registry \"{reference.Registry}\" because it is not in the list of trusted registries. " +
                     $"Set the {BicepEnvironmentVariables.TrustedRegistries} environment variable (comma-separated hostnames, e.g. \"contoso.example.com,*.contoso.io\") to allow it.");
             }

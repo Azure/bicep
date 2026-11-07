@@ -17,28 +17,28 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Artifacts.References
 {
     [TestClass]
-    public class TemplateSpecModuleReferenceTests
+    public class TemplateSpecArtifactReferenceTests
     {
         private static readonly BicepFile DummyReferencingFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
 
         [TestMethod]
         [DynamicData(nameof(GetEqualData))]
-        public void Equals_SameReferences_ReturnsTrue(TemplateSpecModuleReference first, TemplateSpecModuleReference second) =>
+        public void Equals_SameReferences_ReturnsTrue(TemplateSpecArtifactReference first, TemplateSpecArtifactReference second) =>
             first.Equals(second).Should().BeTrue();
 
         [TestMethod]
         [DynamicData(nameof(GetNotEqualData))]
-        public void Equals_DifferentReferences_ReturnsFalse(TemplateSpecModuleReference first, TemplateSpecModuleReference second) =>
+        public void Equals_DifferentReferences_ReturnsFalse(TemplateSpecArtifactReference first, TemplateSpecArtifactReference second) =>
             first.Equals(second).Should().BeFalse();
 
         [TestMethod]
         [DynamicData(nameof(GetEqualData))]
-        public void GetHashCode_SameReferences_ReturnsEqualHashCode(TemplateSpecModuleReference first, TemplateSpecModuleReference second) =>
+        public void GetHashCode_SameReferences_ReturnsEqualHashCode(TemplateSpecArtifactReference first, TemplateSpecArtifactReference second) =>
             first.GetHashCode().Should().Be(second.GetHashCode());
 
         [TestMethod]
         [DynamicData(nameof(GetNotEqualData))]
-        public void GetHashCode_DifferentReferences_ReturnsEqualHashCode(TemplateSpecModuleReference first, TemplateSpecModuleReference second) =>
+        public void GetHashCode_DifferentReferences_ReturnsEqualHashCode(TemplateSpecArtifactReference first, TemplateSpecArtifactReference second) =>
             first.GetHashCode().Should().NotBe(second.GetHashCode());
 
         [DataRow("D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v123")]
@@ -66,7 +66,7 @@ namespace Bicep.Core.UnitTests.Artifacts.References
         [TestMethod]
         public void TryParse_InvalidReference_ReturnsFalseAndSetsFailureBuilder(string rawValue)
         {
-            TemplateSpecModuleReference.TryParse(TemplateSpecArtifactContext.Create(DummyReferencingFile.LoadConfiguration(), DummyReferencingFile.LoadFeatures()), null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeFalse();
+            TemplateSpecArtifactReference.TryParse(TemplateSpecArtifactContext.Create(DummyReferencingFile.LoadConfiguration(), DummyReferencingFile.LoadFeatures()), null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeFalse();
 
             parsed.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
@@ -128,14 +128,14 @@ namespace Bicep.Core.UnitTests.Artifacts.References
             reference!.FullyQualifiedReference.Should().Be(fullyQualifiedReferenceValue);
         }
 
-        private static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParseWithAlias(BicepSourceFile bicepFile, string aliasName, string referenceValue)
+        private static ResultWithDiagnosticBuilder<TemplateSpecArtifactReference> TryParseWithAlias(BicepSourceFile bicepFile, string aliasName, string referenceValue)
         {
-            if (!ArtifactReferenceResolver.TryExpandSchemeQualifiedAlias(bicepFile.LoadConfiguration(), ArtifactType.Module, ArtifactReferenceSchemes.TemplateSpecs, aliasName, referenceValue).IsSuccess(out var expanded, out var errorBuilder))
+            if (!ArtifactReferenceResolver.TryExpandSchemeQualifiedAlias(bicepFile.LoadConfiguration(), ArtifactType.Module, ArtifactSchemes.TemplateSpecs, aliasName, referenceValue).IsSuccess(out var expanded, out var errorBuilder))
             {
                 return new(errorBuilder);
             }
 
-            return TemplateSpecModuleReference.TryParse(TemplateSpecArtifactContext.Create(bicepFile.LoadConfiguration(), bicepFile.LoadFeatures()), aliasName, expanded);
+            return TemplateSpecArtifactReference.TryParse(TemplateSpecArtifactContext.Create(bicepFile.LoadConfiguration(), bicepFile.LoadFeatures()), aliasName, expanded);
         }
 
         private static IEnumerable<object[]> GetEqualData()
@@ -235,9 +235,9 @@ namespace Bicep.Core.UnitTests.Artifacts.References
             };
         }
 
-        private static TemplateSpecModuleReference Parse(string rawValue)
+        private static TemplateSpecArtifactReference Parse(string rawValue)
         {
-            TemplateSpecModuleReference.TryParse(TemplateSpecArtifactContext.Create(DummyReferencingFile.LoadConfiguration(), DummyReferencingFile.LoadFeatures()), null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
+            TemplateSpecArtifactReference.TryParse(TemplateSpecArtifactContext.Create(DummyReferencingFile.LoadConfiguration(), DummyReferencingFile.LoadFeatures()), null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
 
             parsed.Should().NotBeNull();
             failureBuilder!.Should().BeNull();

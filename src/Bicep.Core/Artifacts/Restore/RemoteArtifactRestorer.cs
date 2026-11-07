@@ -9,33 +9,33 @@ using Bicep.Core.Registry.Catalog;
 
 namespace Bicep.Core.Artifacts.Restore;
 
-public class ArtifactRestorer : IArtifactRestorer
+public class RemoteArtifactRestorer : IRemoteArtifactRestorer
 {
     private readonly RestoreFailureCache failureCache = new();
 
-    private readonly ImmutableArray<IArtifactRegistry> registries;
+    private readonly ImmutableArray<IRemoteArtifactRegistry> registries;
 
     private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
 
-    public ArtifactRestorer(IEnumerable<IArtifactRegistry> registries, IPublicModuleMetadataProvider publicModuleMetadataProvider)
+    public RemoteArtifactRestorer(IEnumerable<IRemoteArtifactRegistry> registries, IPublicModuleMetadataProvider publicModuleMetadataProvider)
     {
         this.registries = [.. registries];
         this.publicModuleMetadataProvider = publicModuleMetadataProvider;
     }
 
-    public ArtifactRestoreState GetRestoreState(ExternalArtifactReference reference)
+    public RemoteArtifactRestoreState GetRestoreState(RemoteArtifactReference reference)
     {
         if (this.failureCache.TryGetFailure(reference, out var error))
         {
-            return new ArtifactRestoreState.RestoreFailed(error);
+            return new RemoteArtifactRestoreState.RestoreFailed(error);
         }
 
         return this.GetRegistry(reference).TryGetEntryPoint(reference) is { } entryPoint
-            ? new ArtifactRestoreState.Restored(entryPoint)
-            : new ArtifactRestoreState.NotRestored();
+            ? new RemoteArtifactRestoreState.Restored(entryPoint)
+            : new RemoteArtifactRestoreState.NotRestored();
     }
 
-    public async Task<bool> RestoreAsync(IEnumerable<ExternalArtifactReference> references, RestoreMode mode)
+    public async Task<bool> RestoreAsync(IEnumerable<RemoteArtifactReference> references, RestoreMode mode)
     {
         try
         {
@@ -47,7 +47,7 @@ public class ArtifactRestorer : IArtifactRestorer
         }
     }
 
-    private async Task<bool> RestoreCoreAsync(IEnumerable<ExternalArtifactReference> references, RestoreMode mode)
+    private async Task<bool> RestoreCoreAsync(IEnumerable<RemoteArtifactReference> references, RestoreMode mode)
     {
         var force = mode == RestoreMode.Force;
 
@@ -66,7 +66,7 @@ public class ArtifactRestorer : IArtifactRestorer
 
         var publicModuleMetadataTask = this.StartPublicModuleMetadataDownload(force);
 
-        if (!force && uniqueReferences.All(reference => this.GetRestoreState(reference) is ArtifactRestoreState.Restored))
+        if (!force && uniqueReferences.All(reference => this.GetRestoreState(reference) is RemoteArtifactRestoreState.Restored))
         {
             // All the artifacts have already been restored - no need to do anything.
             return false;
@@ -109,7 +109,7 @@ public class ArtifactRestorer : IArtifactRestorer
         }
     }
 
-    private IArtifactRegistry GetRegistry(ExternalArtifactReference reference) =>
+    private IRemoteArtifactRegistry GetRegistry(RemoteArtifactReference reference) =>
         this.registries.FirstOrDefault(registry => registry.CanHandle(reference)) ??
         throw new ArgumentException($"No artifact registry is configured for references of type '{reference.GetType().Name}'.");
 }

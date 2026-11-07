@@ -11,9 +11,9 @@ using Bicep.IO.Utils;
 
 namespace Bicep.Core.Artifacts.Cache
 {
-    public sealed class BicepRegistryExtensionArtifact : BicepRegistryArtifact, IExtensionArtifact
+    public sealed class OciExtensionArtifactCacheEntry : OciArtifactCacheEntry, IExtensionArtifact
     {
-        public BicepRegistryExtensionArtifact(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
+        public OciExtensionArtifactCacheEntry(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
             : base(address, rootCacheDirectory)
         {
         }

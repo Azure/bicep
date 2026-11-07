@@ -45,7 +45,7 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
     /// </summary>
     public override ResultWithDiagnosticBuilder<ArtifactReference>? TryRedirect(IOUri referencingUri, ArtifactType artifactType, ArtifactAddress address)
     {
-        if (address is not ArtifactAddress.SchemeAndAliasQualified { Scheme: ArtifactReferenceSchemes.Oci, Alias: var aliasName, Body: var unqualifiedReference })
+        if (address is not ArtifactAddress.SchemeAndAliasQualified { Scheme: ArtifactSchemes.Oci, Alias: var aliasName, Body: var unqualifiedReference })
         {
             return null;
         }
