@@ -47,6 +47,8 @@ public static class ModuleParameterSecurity
         }
 
         var resolver = secureInput ? ResourceTypeResolver.Create(model) : null;
+        // A variable can satisfy one target and violate another. Keep this cache local to the assignment and rule.
+        var variableMismatches = new Dictionary<(VariableSymbol, TypeSymbol), Mismatch[]>();
         // Overlapping union alternatives can report the same mismatch more than once.
         return CheckExpression(assignment.Value, parameterType, parameterName, reference: null).Distinct();
 
@@ -77,7 +79,7 @@ public static class ModuleParameterSecurity
                 NonNullAssertionSyntax nonNull =>
                     CheckExpression(nonNull.BaseExpression, target, path, reference),
                 VariableAccessSyntax access when model.GetSymbolInfo(access) is VariableSymbol variable =>
-                    CheckExpression(variable.DeclaringVariable.Value, target, path, reference ?? access),
+                    CheckVariable(variable, target, path, reference ?? access),
                 TernaryOperationSyntax ternary =>
                     CheckExpression(ternary.TrueExpression, target, path, reference)
                         .Concat(CheckExpression(ternary.FalseExpression, target, path, reference)),
@@ -137,6 +139,19 @@ public static class ModuleParameterSecurity
             {
                 yield return new(mismatchPath, syntax, foundMessage);
             }
+        }
+
+        IEnumerable<Mismatch> CheckVariable(VariableSymbol variable, TypeSymbol target, string path, SyntaxBase reference)
+        {
+            var key = (variable, target);
+            if (!variableMismatches.TryGetValue(key, out var mismatches))
+            {
+                // Cache relative paths and declaration-local anchors, not the first caller's destination.
+                mismatches = CheckExpression(variable.DeclaringVariable.Value, target, "", reference: null).ToArray();
+                variableMismatches.Add(key, mismatches);
+            }
+
+            return mismatches.Select(mismatch => mismatch with { Path = path + mismatch.Path, Syntax = reference });
         }
 
         bool IsDeployTimeConstant(SyntaxBase value, ResourceTypeResolver resourceTypeResolver)

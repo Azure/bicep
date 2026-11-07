@@ -1,9 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using static Bicep.Core.UnitTests.Utils.CompilationHelper;
 
@@ -13,6 +17,38 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 // compilation, so a test for one rule also shows what the other rule reports for the same module.
 public abstract class ModuleParameterSecurityTestsBase : LinterRuleTestsBase
 {
+    protected static void AssertDiamondAnalysisCompletesPromptly(int depth, bool secureInput)
+    {
+        var declarations = string.Join("\n", Enumerable.Range(1, depth)
+            .Select(level => $"var v{level} = {{ a: v{level - 1}, b: v{level - 1} }}"));
+        var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(
+            ("main.bicep", $$"""
+                param p string
+                var v0 = p
+                {{declarations}}
+                module child 'child.bicep' = {
+                  name: 'child'
+                  params: {
+                    settings: v{{depth}}
+                  }
+                }
+                """),
+            ("child.bicep", "param settings object"));
+        var model = result.Compilation.GetEntrypointSemanticModel();
+        var assignment = ModuleParameterSecurity.EnumerateAssignments(model).Single();
+        model.GetTypeInfo(assignment.Value).Should().NotBeOfType<ErrorType>();
+        model.GetDeclaredType(assignment).Should().NotBeNull();
+
+        // Avoid emission and unrelated rules; the source graph grows by one initializer per level.
+        var stopwatch = Stopwatch.StartNew();
+        var mismatches = ModuleParameterSecurity.EnumerateMismatches(model, assignment, secureInput).ToArray();
+        stopwatch.Stop();
+
+        mismatches.Should().BeEmpty();
+        stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(5),
+            "repeated reads of a variable against the same target should reuse its analysis");
+    }
+
     // sql/server forwards the administrator password into a key vault secrets export. The real expression has a
     // second conditional element for a plain connection string, which is left out so the password stands alone.
     // Used by both rules' tests, so the `SECURE` marker is left for the caller.
