@@ -3,7 +3,7 @@
 
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.RegistryClients.Oci;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.Cache

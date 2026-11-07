@@ -5,7 +5,7 @@ using Bicep.Core.Artifacts.Cache;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry;
+using Bicep.Core.RegistryClients.TemplateSpecs;
 using Bicep.Core.Tracing;
 using Bicep.IO.Abstraction;
 

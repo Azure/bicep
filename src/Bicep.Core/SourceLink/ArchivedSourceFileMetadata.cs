@@ -3,7 +3,7 @@
 
 using System.Text.Json.Serialization;
 using Bicep.Core.Artifacts.References;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.RegistryClients.Oci;
 
 namespace Bicep.Core.SourceLink
 {

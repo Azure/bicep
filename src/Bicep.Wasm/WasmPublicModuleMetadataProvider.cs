@@ -3,8 +3,8 @@
 
 using System.Collections.Immutable;
 using Bicep.Core;
-using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Registry.Catalog.Implementation;
+using Bicep.Core.Artifacts.Catalog;
+using Bicep.Core.Artifacts.Catalog.Implementation;
 
 namespace Bicep.Wasm
 {

@@ -4,7 +4,7 @@
 using System.Collections.Immutable;
 using Bicep.Core;
 using Bicep.Core.Artifacts.References;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.RegistryClients.Oci;
 
 namespace Bicep.McpServer.Core.Extensions;
 

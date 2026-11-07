@@ -82,6 +82,6 @@ namespace Bicep.Testing.Fakes.ContainerRegistry
             return manifestEntry;
         }
 
-        private static string ComputeDigest(BinaryData data) => Core.Registry.Oci.OciDescriptor.ComputeDigest(Core.Registry.Oci.OciDescriptor.AlgorithmIdentifierSha256, data);
+        private static string ComputeDigest(BinaryData data) => Core.RegistryClients.Oci.OciDescriptor.ComputeDigest(Core.RegistryClients.Oci.OciDescriptor.AlgorithmIdentifierSha256, data);
     }
 }

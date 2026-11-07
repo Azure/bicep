@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Catalog;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Registries;
 using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Registry.Catalog;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;

@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Mock.Registry;
-using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.Mock.Artifacts.Catalog;
+using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;
 using FluentAssertions;

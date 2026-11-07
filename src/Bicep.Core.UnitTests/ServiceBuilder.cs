@@ -6,7 +6,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests.Mock.Registry;
+using Bicep.Core.UnitTests.Mock.Artifacts.Catalog;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry;
+using Bicep.Core.RegistryClients.TemplateSpecs;
 
 namespace Bicep.Testing.Fakes.TemplateSpec
 {

@@ -6,7 +6,7 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry;
+using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;

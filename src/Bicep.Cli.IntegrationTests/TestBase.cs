@@ -3,11 +3,12 @@
 
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
+using Bicep.Core.Artifacts.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Catalog.Implementation;
-using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
+using Bicep.Core.RegistryClients.Oci;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
+using Bicep.Core.RegistryClients.TemplateSpecs;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;

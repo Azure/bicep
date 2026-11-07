@@ -1,0 +1,17 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System.Collections.Immutable;
+using Bicep.Core.Configuration;
+using Bicep.Core.RegistryClients.Oci;
+using Microsoft.Win32;
+
+namespace Bicep.Core.Artifacts.Catalog.Implementation.PrivateRegistries;
+
+/// <summary>
+/// Creates IRegistryModuleMetadataProvider instances
+/// </summary>
+public interface IPrivateAcrModuleMetadataProviderFactory
+{
+    public IRegistryModuleMetadataProvider Create(IBicepCloudConfiguration cloud, string registry, IOciRegistryTransportFactory transportFactory, bool useOrasSdk);
+}

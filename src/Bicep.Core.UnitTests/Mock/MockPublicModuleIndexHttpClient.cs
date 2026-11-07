@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
+using Bicep.Core.Artifacts.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;

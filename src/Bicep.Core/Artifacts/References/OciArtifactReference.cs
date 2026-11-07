@@ -7,7 +7,7 @@ using System.Text;
 using System.Web;
 using Bicep.Core.Artifacts.Cache;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceGraph.ArtifactReferences;
 using Bicep.Core.SourceGraph.Artifacts;

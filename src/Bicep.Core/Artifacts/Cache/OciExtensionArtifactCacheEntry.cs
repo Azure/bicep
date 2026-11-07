@@ -4,7 +4,7 @@
 using System.Text.Json;
 using Bicep.Core.Artifacts.Codecs;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.SourceGraph.Artifacts;
 using Bicep.IO.Abstraction;
 using Bicep.IO.Utils;

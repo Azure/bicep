@@ -4,10 +4,10 @@
 using System.Numerics;
 using Azure.Deployments.Core.Definitions.Schema;
 using Bicep.Core;
+using Bicep.Core.Artifacts.Catalog;
+using Bicep.Core.Artifacts.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;

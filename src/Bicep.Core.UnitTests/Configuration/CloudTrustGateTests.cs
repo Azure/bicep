@@ -3,7 +3,6 @@
 
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry;
 using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

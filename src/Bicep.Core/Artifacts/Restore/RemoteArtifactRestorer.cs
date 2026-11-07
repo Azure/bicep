@@ -3,9 +3,9 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics;
+using Bicep.Core.Artifacts.Catalog;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Registries;
-using Bicep.Core.Registry.Catalog;
 
 namespace Bicep.Core.Artifacts.Restore;
 

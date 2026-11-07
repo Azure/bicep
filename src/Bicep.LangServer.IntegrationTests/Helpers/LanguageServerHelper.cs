@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System.IO.Pipelines;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry;
+using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.Tracing;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;

@@ -15,7 +15,7 @@ using Bicep.Core.Artifacts.Codecs;
 using Bicep.Core.Artifacts.Packages;
 using Bicep.Core.Configuration;
 using Bicep.Core.Json;
-using Bicep.Core.Registry;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;

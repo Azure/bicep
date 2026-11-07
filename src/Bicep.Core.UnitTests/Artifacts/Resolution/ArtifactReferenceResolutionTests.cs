@@ -12,7 +12,6 @@ using Bicep.Core.Navigation;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Registry;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using FluentAssertions;
