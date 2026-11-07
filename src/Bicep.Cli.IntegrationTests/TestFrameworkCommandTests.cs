@@ -32,7 +32,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Test_NonBicepFiles_ShouldFail_WithExpectedErrorMessage()
         {
-            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecClientFactory);
 
             var (output, error, result) = await Bicep(settings, "test", "/dev/zero");
 
@@ -49,7 +49,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Test_CompilationErrors_ShouldFail_WithoutReportingOverallSuccess()
         {
-            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecClientFactory);
             var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
             Directory.CreateDirectory(outputFileDir);
 
@@ -73,7 +73,7 @@ test missing 'missing.bicep' = {}", outputFileDir);
         public async Task Test_commandNoParams_ShouldSucceed()
         {
             // Test should succeed when there are no required params
-            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecClientFactory);
 
             var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
             Directory.CreateDirectory(outputFileDir);
@@ -96,7 +96,7 @@ test missing 'missing.bicep' = {}", outputFileDir);
         public async Task Test_commandWithRequiredParam_ShouldSucceed()
         {
             // Test should succeed when passing a required parameter
-            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecClientFactory);
 
             var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
             Directory.CreateDirectory(outputFileDir);
@@ -117,7 +117,7 @@ test missing 'missing.bicep' = {}", outputFileDir);
         public async Task Test_commandAllAssertionsPassed_ShouldSucceed()
         {
             // Test should succeed when all Assertions pass
-            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecClientFactory);
 
             var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
             Directory.CreateDirectory(outputFileDir);
@@ -143,7 +143,7 @@ test missing 'missing.bicep' = {}", outputFileDir);
         public async Task Test_command_ShouldFail()
         {
             // Test should fail when not passing a required parameter
-            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecClientFactory);
 
             var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
             Directory.CreateDirectory(outputFileDir);
@@ -168,7 +168,7 @@ test missing 'missing.bicep' = {}", outputFileDir);
         public async Task Test_commandNotPassingAllRequiredParams_ShouldFail()
         {
             // Test should fail when not passing a required parameter
-            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecClientFactory);
 
             var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
             Directory.CreateDirectory(outputFileDir);
@@ -193,7 +193,7 @@ test missing 'missing.bicep' = {}", outputFileDir);
         public async Task Test_commandAssertionFails_ShouldFail()
         {
             // Test should fail when at least one assertion fails
-            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecClientFactory);
 
             var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
             Directory.CreateDirectory(outputFileDir);

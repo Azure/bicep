@@ -8,23 +8,23 @@ using Azure.ResourceManager.Resources;
 
 namespace Bicep.Core.RegistryClients.TemplateSpecs
 {
-    public class TemplateSpecRepository : ITemplateSpecRepository
+    public class TemplateSpecClient : ITemplateSpecClient
     {
         public readonly ArmClient client;
 
-        public TemplateSpecRepository(ArmClient client)
+        public TemplateSpecClient(ArmClient client)
         {
             this.client = client;
         }
 
-        public async Task<TemplateSpecEntity> FindTemplateSpecByIdAsync(string templateSpecId, CancellationToken cancellationToken = default)
+        public async Task<TemplateSpecVersion> GetTemplateSpecVersionAsync(string templateSpecId, CancellationToken cancellationToken = default)
         {
             try
             {
                 var resourceIdentifier = new ResourceIdentifier(templateSpecId);
                 var response = await this.client.GetTemplateSpecVersionResource(resourceIdentifier).GetAsync(cancellationToken);
                 var content = response.GetRawResponse().Content.ToString();
-                return new TemplateSpecEntity(content);
+                return new TemplateSpecVersion(content);
             }
             catch (RequestFailedException exception)
             {

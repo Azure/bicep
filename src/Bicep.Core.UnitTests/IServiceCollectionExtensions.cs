@@ -52,7 +52,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithContainerRegistryClientFactory(this IServiceCollection services, IContainerRegistryClientFactory containerRegistryClientFactory)
         => Register(services, containerRegistryClientFactory);
 
-    public static IServiceCollection WithTemplateSpecRepositoryFactory(this IServiceCollection services, ITemplateSpecRepositoryFactory factory)
+    public static IServiceCollection WithTemplateSpecClientFactory(this IServiceCollection services, ITemplateSpecClientFactory factory)
         => Register(services, factory);
 
     public static IServiceCollection WithWorkspace(this IServiceCollection services, IActiveSourceFileSet workspace)

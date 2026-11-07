@@ -5,8 +5,8 @@ using Bicep.Core.Configuration;
 
 namespace Bicep.Core.RegistryClients.TemplateSpecs
 {
-    public interface ITemplateSpecRepositoryFactory
+    public interface ITemplateSpecClientFactory
     {
-        ITemplateSpecRepository CreateRepository(IBicepCloudConfiguration cloud, string subscriptionId);
+        ITemplateSpecClient CreateClient(IBicepCloudConfiguration cloud, string subscriptionId);
     }
 }

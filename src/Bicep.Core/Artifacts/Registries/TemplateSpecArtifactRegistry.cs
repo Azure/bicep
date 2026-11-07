@@ -13,11 +13,11 @@ namespace Bicep.Core.Artifacts.Registries
 {
     public class TemplateSpecArtifactRegistry : RemoteArtifactRegistry<TemplateSpecArtifactReference>
     {
-        private readonly ITemplateSpecRepositoryFactory repositoryFactory;
+        private readonly ITemplateSpecClientFactory clientFactory;
 
-        public TemplateSpecArtifactRegistry(ITemplateSpecRepositoryFactory repositoryFactory)
+        public TemplateSpecArtifactRegistry(ITemplateSpecClientFactory clientFactory)
         {
-            this.repositoryFactory = repositoryFactory;
+            this.clientFactory = clientFactory;
         }
 
         public override string Scheme => ArtifactSchemes.TemplateSpecs;
@@ -33,10 +33,10 @@ namespace Bicep.Core.Artifacts.Registries
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {reference.CacheEntry.CacheDirectory.Uri.GetFilePath()}");
                 try
                 {
-                    var repository = this.repositoryFactory.CreateRepository(reference.Context.Cloud, reference.SubscriptionId);
-                    var templateSpecEntity = await repository.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId);
+                    var client = this.clientFactory.CreateClient(reference.Context.Cloud, reference.SubscriptionId);
+                    var templateSpecVersion = await client.GetTemplateSpecVersionAsync(reference.TemplateSpecResourceId);
 
-                    await reference.CacheEntry.WriteAsync(templateSpecEntity.Content);
+                    await reference.CacheEntry.WriteAsync(templateSpecVersion.Content);
                 }
                 catch (ArtifactException templateSpecException)
                 {

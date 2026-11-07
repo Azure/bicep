@@ -54,7 +54,7 @@ public static class BicepCoreServiceCollectionExtensions
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { MaxAutomaticRedirections = 10 });
         services.AddHttpClient(OrasOciRegistryTransport.AuthenticationHttpClient)
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
-        services.TryAddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
+        services.TryAddSingleton<ITemplateSpecClientFactory, TemplateSpecClientFactory>();
         services.TryAddSingleton<IArmClientProvider, ArmClientProvider>();
         services.TryAddSingleton<IRemoteArtifactContextFactory, RemoteArtifactContextFactory>();
         services.TryAddSingleton<IArtifactReferenceResolver, ArtifactReferenceResolver>();

@@ -74,7 +74,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 .WithFeatureProviderFactory(
                     BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(CacheRootDirectory: CacheRootDirectory))
                 )
-                .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
+                .WithTemplateSpecClientFactory(BicepTestConstants.TemplateSpecClientFactory)
                 ;
         }
 

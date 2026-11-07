@@ -329,7 +329,7 @@ public class VisualGraphRemoteModuleTests
             .WithContainerRegistryClientFactory(clientFactory)
             .WithFileSystem(this.fileSystem)
             .WithFeatureProviderFactory(BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(CacheRootDirectory: this.cacheRootDirectory)))
-            .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory);
+            .WithTemplateSpecClientFactory(BicepTestConstants.TemplateSpecClientFactory);
 
     /// <summary>
     /// Publishes <c>storage</c> with source (a resource, a looped resource, a looped local module, and a nested registry

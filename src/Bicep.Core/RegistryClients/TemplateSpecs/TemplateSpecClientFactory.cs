@@ -8,13 +8,13 @@ using Bicep.Core.Tracing;
 
 namespace Bicep.Core.RegistryClients.TemplateSpecs
 {
-    public class TemplateSpecRepositoryFactory(IArmClientProvider armClientProvider) : ITemplateSpecRepositoryFactory
+    public class TemplateSpecClientFactory(IArmClientProvider armClientProvider) : ITemplateSpecClientFactory
     {
-        public ITemplateSpecRepository CreateRepository(IBicepCloudConfiguration cloud, string subscriptionId)
+        public ITemplateSpecClient CreateClient(IBicepCloudConfiguration cloud, string subscriptionId)
         {
             var armClient = armClientProvider.CreateArmClient(cloud, subscriptionId);
 
-            return new TemplateSpecRepository(armClient);
+            return new TemplateSpecClient(armClient);
         }
     }
 }

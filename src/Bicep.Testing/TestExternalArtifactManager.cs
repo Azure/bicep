@@ -23,13 +23,13 @@ namespace Bicep.Testing
         public record RegistryModulePublishArguments(string ModuleArtifactId, string ModuleContent, bool WithSource = false, string? DocumentationUri = null);
 
         private readonly FakeContainerRegistryClientFactory containerRegistryClientFactory;
-        private readonly FakeTemplateSpecRepository templateSpecRepository;
+        private readonly FakeTemplateSpecClient templateSpecClient;
         private readonly TestCompiler compiler;
 
         public TestExternalArtifactManager(TestCompiler? compiler = null)
         {
             this.containerRegistryClientFactory = new();
-            this.templateSpecRepository = new();
+            this.templateSpecClient = new();
             this.compiler = (compiler ?? TestCompiler.ForMockFileSystemCompilation()).ConfigureServices(services => services.AddExternalArtifactManager(this));
         }
 
@@ -62,7 +62,7 @@ namespace Bicep.Testing
 
         public void UpsertTemplateSpec(string templateSpecId, string templateSpecContent)
         {
-            this.templateSpecRepository.UpsertTemplateSpec(templateSpecId, new(templateSpecContent));
+            this.templateSpecClient.UpsertTemplateSpec(templateSpecId, new(templateSpecContent));
         }
 
         public void UpsertTemplateSpec(MockTemplateSpecData templateSpec) => UpsertTemplateSpec(templateSpec.Id, templateSpec.Content);
@@ -101,11 +101,11 @@ namespace Bicep.Testing
         public void Register(TestServices services)
         {
             services.AddContainerRegistryClientFactory(this.containerRegistryClientFactory);
-            services.AddTemplateSpecRepositoryFactory(new FakeTemplateSpecRepositoryFactory(this.templateSpecRepository));
+            services.AddTemplateSpecClientFactory(new FakeTemplateSpecClientFactory(this.templateSpecClient));
         }
 
         public IContainerRegistryClientFactory ContainerRegistryClientFactory => this.containerRegistryClientFactory;
 
-        public ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory => new FakeTemplateSpecRepositoryFactory(this.templateSpecRepository);
+        public ITemplateSpecClientFactory TemplateSpecClientFactory => new FakeTemplateSpecClientFactory(this.templateSpecClient);
     }
 }

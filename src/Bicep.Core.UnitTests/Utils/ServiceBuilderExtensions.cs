@@ -45,14 +45,14 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithContainerRegistryClientFactory(this ServiceBuilder serviceBuilder, IContainerRegistryClientFactory containerRegistryClientFactory)
         => serviceBuilder.WithRegistration(x => x.WithContainerRegistryClientFactory(containerRegistryClientFactory));
 
-    public static ServiceBuilder WithTemplateSpecRepositoryFactory(this ServiceBuilder serviceBuilder, ITemplateSpecRepositoryFactory factory)
-        => serviceBuilder.WithRegistration(x => x.WithTemplateSpecRepositoryFactory(factory));
+    public static ServiceBuilder WithTemplateSpecClientFactory(this ServiceBuilder serviceBuilder, ITemplateSpecClientFactory factory)
+        => serviceBuilder.WithRegistration(x => x.WithTemplateSpecClientFactory(factory));
 
     public static ServiceBuilder WithTestArtifactManager(this ServiceBuilder serviceBuilder, TestExternalArtifactManager manager)
         => serviceBuilder
             .WithFeaturesOverridden(f => f with { RegistryEnabled = true })
             .WithContainerRegistryClientFactory(manager.ContainerRegistryClientFactory)
-            .WithTemplateSpecRepositoryFactory(manager.TemplateSpecRepositoryFactory);
+            .WithTemplateSpecClientFactory(manager.TemplateSpecClientFactory);
 
     public static ServiceBuilder WithFeatureProviderFactory(this ServiceBuilder serviceBuilder, IFeatureProviderFactory featureProviderFactory)
         => serviceBuilder.WithRegistration(x => x.WithFeatureProviderFactory(featureProviderFactory));

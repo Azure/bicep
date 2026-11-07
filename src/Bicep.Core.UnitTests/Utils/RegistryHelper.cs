@@ -146,7 +146,7 @@ public static class RegistryHelper
             .WithDisabledAnalyzersConfiguration()
             .WithContainerRegistryClientFactory(clientFactory)
             .WithFileSystem(fileSystem)
-            .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
+            .WithTemplateSpecClientFactory(BicepTestConstants.TemplateSpecClientFactory)
             .WithFeatureProviderFactory(featureProviderFactory);
 
         var services = serviceBuilder.Build();

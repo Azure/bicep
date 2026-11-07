@@ -4,5 +4,5 @@
 
 namespace Bicep.Core.RegistryClients.TemplateSpecs
 {
-    public readonly record struct TemplateSpecEntity(string Content);
+    public readonly record struct TemplateSpecVersion(string Content);
 }

@@ -79,7 +79,7 @@ namespace Bicep.Core.Samples
         {
             var services = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory));
+                .AddSingleton(BicepTestConstants.TemplateSpecClientFactory));
 
             var resolver = services.Construct<IArtifactReferenceResolver>();
             var sourceFileFactory = services.Construct<ISourceFileFactory>();
@@ -102,22 +102,22 @@ namespace Bicep.Core.Samples
             return RegistryHelper.CreateMockRegistryClient([.. clients, .. additionalClients]);
         }
 
-        public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory()
-            => CreateMockTemplateSpecRepositoryFactory([]);
+        public static ITemplateSpecClientFactory CreateEmptyTemplateSpecClientFactory()
+            => CreateMockTemplateSpecClientFactory([]);
 
-        public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(this DataSet dataSet, TestContext _)
-            => CreateMockTemplateSpecRepositoryFactory(dataSet.TemplateSpecs);
+        public static ITemplateSpecClientFactory CreateMockTemplateSpecClientFactory(this DataSet dataSet, TestContext _)
+            => CreateMockTemplateSpecClientFactory(dataSet.TemplateSpecs);
 
-        public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo> templateSpecs)
+        public static ITemplateSpecClientFactory CreateMockTemplateSpecClientFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo> templateSpecs)
         {
             var services = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory));
+                .AddSingleton(BicepTestConstants.TemplateSpecClientFactory));
 
             var resolver = services.Construct<IArtifactReferenceResolver>();
             var sourceFileFactory = services.Construct<ISourceFileFactory>();
             var referencingUri = BicepTestConstants.DummyBicepFile.FileHandle.Uri;
-            var repositoryMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecRepository>>();
+            var clientMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecClient>>();
 
             foreach (var (moduleName, templateSpecInfo) in templateSpecs)
             {
@@ -126,21 +126,21 @@ namespace Bicep.Core.Samples
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
 
-                repositoryMocksBySubscription.TryAdd(reference.SubscriptionId, StrictMock.Of<ITemplateSpecRepository>());
-                repositoryMocksBySubscription[reference.SubscriptionId]
-                    .Setup(x => x.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId, It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(new TemplateSpecEntity(templateSpecInfo.ModuleSource));
+                clientMocksBySubscription.TryAdd(reference.SubscriptionId, StrictMock.Of<ITemplateSpecClient>());
+                clientMocksBySubscription[reference.SubscriptionId]
+                    .Setup(x => x.GetTemplateSpecVersionAsync(reference.TemplateSpecResourceId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new TemplateSpecVersion(templateSpecInfo.ModuleSource));
             }
 
-            var repositoryFactoryMock = StrictMock.Of<ITemplateSpecRepositoryFactory>();
-            repositoryFactoryMock
-                .Setup(x => x.CreateRepository(It.IsAny<IBicepCloudConfiguration>(), It.IsAny<string>()))
+            var clientFactoryMock = StrictMock.Of<ITemplateSpecClientFactory>();
+            clientFactoryMock
+                .Setup(x => x.CreateClient(It.IsAny<IBicepCloudConfiguration>(), It.IsAny<string>()))
                 .Returns<IBicepCloudConfiguration, string>((_, subscriptionId) =>
-                    repositoryMocksBySubscription.TryGetValue(subscriptionId, out var repository)
-                        ? repository.Object
+                    clientMocksBySubscription.TryGetValue(subscriptionId, out var client)
+                        ? client.Object
                         : throw new InvalidOperationException($"No mock client was registered for subscription '{subscriptionId}'."));
 
-            return repositoryFactoryMock.Object;
+            return clientFactoryMock.Object;
         }
 
         public static async Task PublishModulesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory, bool publishSource = true)

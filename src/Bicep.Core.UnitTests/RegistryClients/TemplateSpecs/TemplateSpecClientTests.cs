@@ -17,7 +17,7 @@ using static FluentAssertions.FluentActions;
 namespace Bicep.Core.UnitTests.RegistryClients.TemplateSpecs
 {
     [TestClass]
-    public class TemplateSpecRepositoryTests
+    public class TemplateSpecClientTests
     {
         private static readonly string TestTemplateSpecId = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/testRG/providers/Microsoft.Resources/templateSpecs/testSpec/versions/v1";
 
@@ -31,9 +31,9 @@ namespace Bicep.Core.UnitTests.RegistryClients.TemplateSpecs
 
             var clientMock = CreateMockClient(templateSpecVersionResourceMock);
 
-            var repository = new TemplateSpecRepository(clientMock);
+            var templateSpecClient = new TemplateSpecClient(clientMock);
 
-            await Invoking(async () => await repository.FindTemplateSpecByIdAsync(TestTemplateSpecId))
+            await Invoking(async () => await templateSpecClient.GetTemplateSpecVersionAsync(TestTemplateSpecId))
                 .Should()
                 .ThrowAsync<TemplateSpecException>()
                 .WithMessage("The referenced template spec does not exist. Not Found.");
@@ -48,9 +48,9 @@ namespace Bicep.Core.UnitTests.RegistryClients.TemplateSpecs
 
             var clientMock = CreateMockClient(templateSpecVersionResourceMock);
 
-            var repository = new TemplateSpecRepository(clientMock);
+            var templateSpecClient = new TemplateSpecClient(clientMock);
 
-            await Invoking(async () => await repository.FindTemplateSpecByIdAsync(TestTemplateSpecId))
+            await Invoking(async () => await templateSpecClient.GetTemplateSpecVersionAsync(TestTemplateSpecId))
                 .Should()
                 .ThrowAsync<TemplateSpecException>()
                 .WithMessage("Unexpected error.");
@@ -69,9 +69,9 @@ namespace Bicep.Core.UnitTests.RegistryClients.TemplateSpecs
 
             var clientMock = CreateMockClient(templateSpecVersionResourceMock);
 
-            var repository = new TemplateSpecRepository(clientMock);
+            var templateSpecClient = new TemplateSpecClient(clientMock);
 
-            var templateSpec = await repository.FindTemplateSpecByIdAsync(TestTemplateSpecId);
+            var templateSpec = await templateSpecClient.GetTemplateSpecVersionAsync(TestTemplateSpecId);
 
             templateSpec.Content.ReplaceLineEndings().Should().Be(@"{
   ""Location"": {

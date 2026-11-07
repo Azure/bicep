@@ -71,7 +71,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
-        public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
+        public static readonly ITemplateSpecClientFactory TemplateSpecClientFactory = StrictMock.Of<ITemplateSpecClientFactory>().Object;
 
         // Rules that are currently skipped due to configuration for ProgramsShouldProduceExpectedDiagnostics
         public static readonly string[] TestAnalyzersToSkip = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedLocationRule.Code, ExplicitValuesForLocationParamsRule.Code, NoLocationExprOutsideParamsRule.Code, NoModuleNameRule.Code, NoHardcodedOutputsRule.Code, UseDescriptionParametersRule.Code, UseDescriptionVarsRule.Code, UseDescriptionOutputRule.Code, UseDescriptionTypeRule.Code, UseDescriptionTypePropertyRule.Code];
@@ -95,7 +95,7 @@ namespace Bicep.Core.UnitTests
                 .Build().Construct<IOciRegistryTransportFactory>();
             return [
                 new OciArtifactRegistry(TestRegistryConfiguration, transportFactory, NullLogger<OciArtifactRegistry>.Instance),
-                new TemplateSpecArtifactRegistry(TemplateSpecRepositoryFactory),
+                new TemplateSpecArtifactRegistry(TemplateSpecClientFactory),
             ];
         }
 

@@ -83,7 +83,7 @@ namespace Bicep.Testing
 
         public TestServices AddContainerRegistryClientFactory(IContainerRegistryClientFactory containerRegistryClientFactory) => this.AddSingleton(containerRegistryClientFactory);
 
-        public TestServices AddTemplateSpecRepositoryFactory(ITemplateSpecRepositoryFactory templateSpecRepositoryFactory) => this.AddSingleton(templateSpecRepositoryFactory);
+        public TestServices AddTemplateSpecClientFactory(ITemplateSpecClientFactory templateSpecClientFactory) => this.AddSingleton(templateSpecClientFactory);
 
         public TestServices AddExternalArtifactManager(TestExternalArtifactManager artifactManager)
         {
