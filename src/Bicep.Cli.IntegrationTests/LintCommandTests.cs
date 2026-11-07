@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Mock.Registry;
-using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.Mock.Artifacts.Catalog;
+using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;
 using FluentAssertions;
@@ -90,7 +90,7 @@ public class LintCommandTests : TestBase
         var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
         clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);
 
-        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecClientFactory);
 
         var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         Directory.CreateDirectory(tempDirectory);
@@ -136,7 +136,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
     {
         var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
         var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-        var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecRepositoryFactory, InvocationSettings.Default.ModuleMetadataClient);
+        var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecClientFactory, InvocationSettings.Default.ModuleMetadataClient);
 
         var (output, error, result) = await Bicep("lint", bicepFilePath);
 

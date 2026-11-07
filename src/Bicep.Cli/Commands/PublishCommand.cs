@@ -10,14 +10,17 @@ using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Core;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.LegacyModuleAliasMocks;
+using Bicep.Core.Artifacts.Packages;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Registries;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.IO.Abstraction;
@@ -122,9 +125,9 @@ namespace Bicep.Cli.Commands
                 {
                     throw new BicepException($"The module \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing module.");
                 }
-                await this.ociRegistry.PublishModule(target, new ModulePackage(compiledArmTemplate, bicepSources, documentationUri));
+                await this.ociRegistry.PublishModule(target, new ModuleArtifactPackage(compiledArmTemplate, bicepSources, documentationUri));
             }
-            catch (ExternalArtifactException exception)
+            catch (ArtifactException exception)
             {
                 throw new BicepException($"Unable to publish module \"{target.FullyQualifiedReference}\": {exception.Message}");
             }

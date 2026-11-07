@@ -3,7 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
+using Bicep.Core.Artifacts.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;

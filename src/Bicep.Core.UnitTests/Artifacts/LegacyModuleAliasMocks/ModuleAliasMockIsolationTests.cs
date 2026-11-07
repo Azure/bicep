@@ -30,8 +30,7 @@ public class ModuleAliasMockIsolationTests
         "Bicep.Core/Configuration/BicepConfigurationExtensions.cs",
         "Bicep.Core/Configuration/BicepConfigurationManager.cs",
         "Bicep.Core/Configuration/IBicepConfiguration.cs",
-        "Bicep.Core/Configuration/IBicepModuleAliasesMockConfiguration.cs",
-        "Bicep.Core/Configuration/ModuleAliasesMockConfiguration.cs",
+        "Bicep.Core/Configuration/LegacyModuleAliasMocks/",
     ];
 
     [TestMethod]

@@ -5,7 +5,6 @@ using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.RpcClient.Helpers;
 using FluentAssertions;

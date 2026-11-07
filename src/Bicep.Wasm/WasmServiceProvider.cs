@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Catalog;
+using Bicep.Core.Artifacts.Catalog;
+using Bicep.Core.Artifacts.Registries;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,8 +18,8 @@ public static class WasmServiceProvider
             .AddSingleton<IPublicModuleMetadataProvider, WasmPublicModuleMetadataProvider>()
             .AddBicepCore()
             .AddBicepDecompiler()
-            .RemoveAll<IArtifactRegistry>()
-            .AddSingleton<IArtifactRegistry>(sp => sp.GetRequiredService<OciArtifactRegistry>());
+            .RemoveAll<IRemoteArtifactRegistry>()
+            .AddSingleton<IRemoteArtifactRegistry>(sp => sp.GetRequiredService<OciArtifactRegistry>());
 
     public static IServiceProvider Create() =>
         new ServiceCollection()

@@ -3,7 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.SourceLink;
-using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.Artifacts.Cache;
 using FluentAssertions;
 using FluentAssertions.Primitives;
 

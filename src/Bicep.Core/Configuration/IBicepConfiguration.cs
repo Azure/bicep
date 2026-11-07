@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Configuration.LegacyModuleAliasMocks;
 using Bicep.Core.Diagnostics;
 using Bicep.IO.Abstraction;
 

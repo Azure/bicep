@@ -2,15 +2,21 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions.TestingHelpers;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Packages;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Registries;
+using Bicep.Core.Artifacts.Resolution;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.SourceLink;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Artifacts.Cache;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
@@ -79,8 +85,8 @@ public class VisualGraphRemoteModuleTests
         var restorableReferences = GetRestorableReferences(builder, context, graph);
         restorableReferences.Should().ContainSingle().Which.Should().Match<KeyValuePair<string, OciArtifactReference>>(pair =>
             pair.Key == "storage::leaf" && pair.Value.FullyQualifiedReference == $"br:{Registry}/test/leaf:v1");
-        services.Build().Construct<IArtifactRestorer>().GetRestoreState(restorableReferences["storage::leaf"])
-            .Should().BeOfType<ArtifactRestoreState.NotRestored>();
+        services.Build().Construct<IRemoteArtifactRestorer>().GetRestoreState(restorableReferences["storage::leaf"])
+            .Should().BeOfType<RemoteArtifactRestoreState.NotRestored>();
     }
 
     [TestMethod]
@@ -290,7 +296,7 @@ public class VisualGraphRemoteModuleTests
             NullLogger<VisualGraphRestoreModuleHandler>.Instance,
             CreateCompilationManager(context),
             builder,
-            provider.Construct<IArtifactRestorer>());
+            provider.Construct<IRemoteArtifactRestorer>());
 
         return handler.Handle(new(new() { Uri = GetDocumentUri(context) }, nodeId), CancellationToken.None);
     }
@@ -323,7 +329,7 @@ public class VisualGraphRemoteModuleTests
             .WithContainerRegistryClientFactory(clientFactory)
             .WithFileSystem(this.fileSystem)
             .WithFeatureProviderFactory(BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(CacheRootDirectory: this.cacheRootDirectory)))
-            .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory);
+            .WithTemplateSpecClientFactory(BicepTestConstants.TemplateSpecClientFactory);
 
     /// <summary>
     /// Publishes <c>storage</c> with source (a resource, a looped resource, a looped local module, and a nested registry
@@ -383,7 +389,7 @@ public class VisualGraphRemoteModuleTests
             ?? throw new InvalidOperationException("The storage module must have an OCI publish target.");
         await provider.Construct<OciArtifactRegistry>().PublishModule(
             storageReference,
-            new ModulePackage(
+            new ModuleArtifactPackage(
                 BinaryData.FromString(storage.Template!.ToString()),
                 SourceArchive.CreateFrom(storage.Compilation.SourceFileGrouping).PackIntoBinaryData(),
                 DocumentationUri: null));

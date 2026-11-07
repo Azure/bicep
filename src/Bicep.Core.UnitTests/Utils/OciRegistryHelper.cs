@@ -2,18 +2,17 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions.TestingHelpers;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Registries;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Azure;
-using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Oci.Oras;
-using Bicep.Core.Registry.Sessions;
+using Bicep.Core.RegistryClients.Oci;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;

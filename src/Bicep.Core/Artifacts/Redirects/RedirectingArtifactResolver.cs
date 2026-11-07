@@ -3,10 +3,11 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Artifacts.LegacyModuleAliasMocks;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
-using Bicep.Core.Registry;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.Redirects;

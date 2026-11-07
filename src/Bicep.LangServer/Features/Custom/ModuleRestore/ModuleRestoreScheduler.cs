@@ -3,7 +3,8 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics;
-using Bicep.Core.Registry;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.Compilation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -12,11 +13,11 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
 {
     public sealed class ModuleRestoreScheduler : IModuleRestoreScheduler, IAsyncDisposable
     {
-        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ExternalArtifactReference> ModuleReferences);
+        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<RemoteArtifactReference> ModuleReferences);
 
         private record CompletionNotification(ICompilationManager CompilationManager, DocumentUri Uri);
 
-        private readonly IArtifactRestorer restorer;
+        private readonly IRemoteArtifactRestorer restorer;
 
         private readonly Queue<QueueItem> queue = new();
 
@@ -29,7 +30,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
         private bool disposed = false;
         private Task? consumerTask;
 
-        public ModuleRestoreScheduler(IArtifactRestorer restorer)
+        public ModuleRestoreScheduler(IRemoteArtifactRestorer restorer)
         {
             this.restorer = restorer;
         }
@@ -41,7 +42,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
         /// <param name="compilationManager"></param>
         /// <param name="artifacts">The artifacts</param>
         /// <param name="documentUri">The document URI that needs to be recompiled once restore completes asynchronously</param>
-        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ExternalArtifactReference> artifacts)
+        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<RemoteArtifactReference> artifacts)
         {
             this.CheckDisposed();
 

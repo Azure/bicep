@@ -4,9 +4,9 @@
 using System.Text.Json.Nodes;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Extensibility.Core.V2.Models;
+using Bicep.Core.Artifacts.Codecs;
+using Bicep.Core.Artifacts.Packages;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
@@ -27,7 +27,7 @@ namespace Bicep.Local.Deploy.IntegrationTests;
 [TestClass]
 public class EndToEndDeploymentTests : TestBase
 {
-    private static ExtensionPackage GetMockLocalDeployPackage(BinaryData? tgzData = null)
+    private static ExtensionArtifactPackage GetMockLocalDeployPackage(BinaryData? tgzData = null)
     {
         tgzData ??= ExtensionResourceTypeHelper.GetHttpExtensionTypesTgz();
 
@@ -35,7 +35,7 @@ public class EndToEndDeploymentTests : TestBase
 
         // this doesn't need to contain a real binary, because this test emulates the local binary connection
         ExtensionBinary binary = new(architecture, BinaryData.FromBytes([]));
-        return new ExtensionPackage(tgzData, true, [binary]);
+        return new ExtensionArtifactPackage(tgzData, true, [binary]);
     }
 
     [TestMethod]

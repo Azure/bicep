@@ -5,9 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Artifacts.Redirects;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
@@ -522,7 +522,7 @@ module moduleB './moduleB.bicep' = {
                 TestTypeHelper.CreateEmptyNamespaceProvider(),
                 fileExplorer,
                 services.Construct<RedirectingArtifactResolver>(),
-                services.Construct<IArtifactRestorer>(),
+                services.Construct<IRemoteArtifactRestorer>(),
                 BicepTestConstants.LinterAnalyzer,
                 BicepTestConstants.SourceFileFactory,
                 CompilerVersionCheckOptions.Default);

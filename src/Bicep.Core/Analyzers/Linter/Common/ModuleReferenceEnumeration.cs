@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Registry;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
@@ -27,7 +27,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
             {
                 if (reference.ReferencingFile != model.SourceFile ||
                     syntax is not ModuleDeclarationSyntax ||
-                    reference.Reference is null or ExternalArtifactReference)
+                    reference.Reference is null or RemoteArtifactReference)
                 {
                     continue;
                 }

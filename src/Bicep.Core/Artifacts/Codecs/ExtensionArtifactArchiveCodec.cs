@@ -1,0 +1,76 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System.Formats.Tar;
+using System.IO.Compression;
+using Bicep.Core.Artifacts.Packages;
+using Bicep.Core.Extensions;
+
+namespace Bicep.Core.Artifacts.Codecs;
+
+public static class ExtensionArtifactArchiveCodec
+{
+    public static async Task<BinaryData> Encode(ExtensionArtifactPackage package)
+    {
+        using var stream = new MemoryStream();
+
+        using (var gzStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
+        {
+            using var tarWriter = new TarWriter(gzStream, leaveOpen: true);
+
+            await AddFileToTar(tarWriter, "types.tgz", package.Types);
+
+            foreach (var binary in package.Binaries)
+            {
+                await AddFileToTar(tarWriter, $"{binary.Architecture.Name}.bin", binary.Data);
+            }
+        }
+
+        stream.Seek(0, SeekOrigin.Begin);
+
+        return await BinaryData.FromStreamAsync(stream);
+    }
+
+    public static ExtensionArtifactPackage Decode(BinaryData binaryData)
+    {
+        using var gzipStream = new GZipStream(binaryData.ToStream(), CompressionMode.Decompress);
+        using var tarReader = new TarReader(gzipStream);
+
+        var dataDict = new Dictionary<string, BinaryData>();
+
+        while (tarReader.GetNextEntry() is { } entry)
+        {
+            var stream = entry.DataStream ?? throw new InvalidOperationException($"Stream for {entry.Name} is null.");
+            dataDict[entry.Name] = BinaryData.FromStream(stream);
+        }
+
+        var binaries = new List<ExtensionBinary>();
+        foreach (var architecture in SupportedArchitectures.All)
+        {
+            if (dataDict.TryGetValue($"{architecture.Name}.bin") is { } binary)
+            {
+                binaries.Add(new(architecture, binary));
+            }
+        }
+
+        if (!dataDict.TryGetValue("types.tgz", out var types))
+        {
+            throw new InvalidOperationException("The extension package does not contain a 'types.tgz' entry.");
+        }
+
+        return new(
+            Types: types,
+            LocalDeployEnabled: binaries.Count != 0,
+            Binaries: [.. binaries]);
+    }
+
+    private static async Task AddFileToTar(TarWriter tarWriter, string archivePath, BinaryData binaryData)
+    {
+        var tarEntry = new PaxTarEntry(TarEntryType.RegularFile, archivePath)
+        {
+            DataStream = binaryData.ToStream(),
+        };
+
+        await tarWriter.WriteEntryAsync(tarEntry);
+    }
+}

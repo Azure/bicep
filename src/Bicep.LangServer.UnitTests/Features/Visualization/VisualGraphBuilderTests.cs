@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Registry;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Compilation;
@@ -190,6 +190,6 @@ public class VisualGraphBuilderTests
     {
         services ??= new ServiceBuilder().Build();
 
-        return new(services.GetCompiler(), services.Construct<IArtifactRestorer>());
+        return new(services.GetCompiler(), services.Construct<IRemoteArtifactRestorer>());
     }
 }

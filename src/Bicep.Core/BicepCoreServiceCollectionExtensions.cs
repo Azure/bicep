@@ -7,18 +7,22 @@ using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
+using Bicep.Core.Artifacts.Catalog;
+using Bicep.Core.Artifacts.Catalog.Implementation;
+using Bicep.Core.Artifacts.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Artifacts.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.Artifacts.Redirects;
+using Bicep.Core.Artifacts.Registries;
+using Bicep.Core.Artifacts.Resolution;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Documentation;
 using Bicep.Core.Features;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Registry.Catalog.Implementation;
-using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
-using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
-using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Oci.Oras;
+using Bicep.Core.RegistryClients.Oci;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
+using Bicep.Core.RegistryClients.Oci.Oras;
+using Bicep.Core.RegistryClients.TemplateSpecs;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
@@ -50,16 +54,16 @@ public static class BicepCoreServiceCollectionExtensions
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { MaxAutomaticRedirections = 10 });
         services.AddHttpClient(OrasOciRegistryTransport.AuthenticationHttpClient)
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
-        services.TryAddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
+        services.TryAddSingleton<ITemplateSpecClientFactory, TemplateSpecClientFactory>();
         services.TryAddSingleton<IArmClientProvider, ArmClientProvider>();
-        services.TryAddSingleton<IExternalArtifactContextFactory, ExternalArtifactContextFactory>();
+        services.TryAddSingleton<IRemoteArtifactContextFactory, RemoteArtifactContextFactory>();
         services.TryAddSingleton<IArtifactReferenceResolver, ArtifactReferenceResolver>();
         services.TryAddSingleton(sp => RedirectingArtifactResolver.Create(
             sp.GetRequiredService<IArtifactReferenceResolver>(),
             sp.GetRequiredService<IFileExplorer>(),
             sp.GetRequiredService<IBicepConfigurationManager>(),
             sp.GetRequiredService<IFeatureProviderFactory>()));
-        services.TryAddSingleton<IArtifactRestorer, ArtifactRestorer>();
+        services.TryAddSingleton<IRemoteArtifactRestorer, RemoteArtifactRestorer>();
         services.TryAddSingleton<RegistryConfiguration>(serviceProvider =>
         {
             var environment = serviceProvider.GetRequiredService<IEnvironment>();
@@ -75,9 +79,9 @@ public static class BicepCoreServiceCollectionExtensions
             sp.GetRequiredService<RegistryConfiguration>(),
             sp.GetRequiredService<IOciRegistryTransportFactory>(),
             sp.GetService<ILogger<OciArtifactRegistry>>() ?? NullLogger<OciArtifactRegistry>.Instance));
-        services.TryAddSingleton<TemplateSpecModuleRegistry>();
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IArtifactRegistry, OciArtifactRegistry>(sp => sp.GetRequiredService<OciArtifactRegistry>()));
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IArtifactRegistry, TemplateSpecModuleRegistry>(sp => sp.GetRequiredService<TemplateSpecModuleRegistry>()));
+        services.TryAddSingleton<TemplateSpecArtifactRegistry>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IRemoteArtifactRegistry, OciArtifactRegistry>(sp => sp.GetRequiredService<OciArtifactRegistry>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IRemoteArtifactRegistry, TemplateSpecArtifactRegistry>(sp => sp.GetRequiredService<TemplateSpecArtifactRegistry>()));
         services.TryAddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
         services.TryAddSingleton<IEnvironment, Environment>();
         services.AddBicepFileSystem();
