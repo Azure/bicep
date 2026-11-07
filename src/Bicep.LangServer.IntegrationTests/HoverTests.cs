@@ -337,6 +337,58 @@ resource test|Output string = 'str'
         }
 
         [TestMethod]
+        public async Task Hovers_show_narrowed_reference_types_without_changing_declaration_types()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors("""
+                param in|put int?
+                var val|ue = input
+                output guarded int = value != null ? val|ue : 0
+                output unguarded int? = val|ue
+                output guardedParam int = input == null ? 0 : in|put
+                func evaluate(arg int?) int => arg != null ? ar|g : 0
+                """, '|');
+            var bicepFile = new LanguageClientFile($"file:///{TestContext.TestName}/main.bicep", file);
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.Uri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Contain("param input: int | null"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain("var value: int | null"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain("var value: int\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain("var value: int | null"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain("param input: int\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain("arg: int\n"));
+        }
+
+        [TestMethod]
+        public async Task Hovers_show_non_nullable_property_paths_only_in_guarded_branches()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors("""
+                param config { val|ue: int?, nested: { name: string? } }
+                output guarded int = config.value != null ? config.val|ue : 0
+                output unguarded int? = config.val|ue
+                output nested string = config.nested.name == null ? '' : config.nested.na|me
+                output indexedGuard int = config['value'] != null ? config.val|ue : 0
+                output safe int? = config.?val|ue
+                """, '|');
+            var bicepFile = new LanguageClientFile($"file:///{TestContext.TestName}/main.bicep", file);
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.Uri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Contain("value: int | null"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain("value: int\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain("value: int | null"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain("name: string\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain("value: int\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain("value: int | null"));
+        }
+
+        [TestMethod]
         public async Task Hovers_include_type_modifications()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"

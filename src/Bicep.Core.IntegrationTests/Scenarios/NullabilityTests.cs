@@ -243,17 +243,14 @@ output out array = split(first(input), 21)
 
     // https://github.com/Azure/bicep/issues/17284
     [TestMethod]
-    public void Issue_17284_nullable_operand_in_binary_operator_raises_fixable_warning_instead_of_error()
+    public void Issue_17284_null_guarded_operand_in_binary_operator_needs_no_assertion()
     {
         var result = CompilationHelper.Compile(@"
 func hello(input int?) string? => input == null ? null : input > 60 ? 'Hello world ${input}' : 'Value is lower than 60'
 ");
 
         result.Template.Should().NotBeNull();
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""input"" is of type ""int | null""."),
-        });
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
         // ensure the emitted ARM expression is what the user actually intended (same as writing `input!` explicitly)
         result.Template.Should().HaveValueAtPath(
@@ -265,10 +262,10 @@ func hello(input int?) string? => input == null ? null : input > 60 ? 'Hello wor
     public void Nullable_operand_on_left_of_binary_comparison_raises_fixable_warning()
     {
         var templateWithNullable = @"
-func compareLeft(input int?) bool => input == null ? false : input > 60
+func compareLeft(cond bool, input int?) bool => cond ? false : input > 60
 ";
         var templateWithNonNullAssertion = @"
-func compareLeft(input int?) bool => input == null ? false : input ! > 60
+func compareLeft(cond bool, input int?) bool => cond ? false : input ! > 60
 ";
 
         var result = CompilationHelper.Compile(templateWithNullable);
@@ -286,20 +283,20 @@ func compareLeft(input int?) bool => input == null ? false : input ! > 60
         // roundtrip: applying the fix yields a template that compiles without any diagnostics
         CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        // the emitted expression preserves the null guard around the greater-than comparison
+        // The unrelated condition does not prove that input is non-null.
         result.Template.Should().HaveValueAtPath(
             "$.functions[0].members['compareLeft'].output.value",
-            "[if(equals(parameters('input'), null()), false(), greater(parameters('input'), 60))]");
+            "[if(parameters('cond'), false(), greater(parameters('input'), 60))]");
     }
 
     [TestMethod]
     public void Nullable_operand_on_right_of_binary_comparison_raises_fixable_warning()
     {
         var templateWithNullable = @"
-func compareRight(input int?) bool => input == null ? false : 60 > input
+func compareRight(cond bool, input int?) bool => cond ? false : 60 > input
 ";
         var templateWithNonNullAssertion = @"
-func compareRight(input int?) bool => input == null ? false : 60 > input!
+func compareRight(cond bool, input int?) bool => cond ? false : 60 > input!
 ";
 
         var result = CompilationHelper.Compile(templateWithNullable);
@@ -317,10 +314,10 @@ func compareRight(input int?) bool => input == null ? false : 60 > input!
         // roundtrip: applying the fix yields a template that compiles without any diagnostics
         CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        // the emitted expression preserves the null guard around the greater-than comparison
+        // The unrelated condition does not prove that input is non-null.
         result.Template.Should().HaveValueAtPath(
             "$.functions[0].members['compareRight'].output.value",
-            "[if(equals(parameters('input'), null()), false(), greater(60, parameters('input')))]");
+            "[if(parameters('cond'), false(), greater(60, parameters('input')))]");
     }
 
     [TestMethod]
@@ -347,7 +344,7 @@ func compareBoth(cond bool, a int?, b int?) bool => cond ? a > b : false
     public void Nullable_operand_in_arithmetic_operator_raises_fixable_warning()
     {
         var result = CompilationHelper.Compile(@"
-func addOne(input int?) int => input == null ? 0 : input + 1
+func addOne(cond bool, input int?) int => cond ? 0 : input + 1
 ");
 
         result.Template.Should().NotBeNull();
@@ -358,7 +355,7 @@ func addOne(input int?) int => input == null ? 0 : input + 1
 
         result.Template.Should().HaveValueAtPath(
             "$.functions[0].members['addOne'].output.value",
-            "[if(equals(parameters('input'), null()), 0, add(parameters('input'), 1))]");
+            "[if(parameters('cond'), 0, add(parameters('input'), 1))]");
     }
 
     [TestMethod]
@@ -390,10 +387,10 @@ var invalid = null + 's'
     public void Nullable_operand_in_unary_not_operator_raises_fixable_warning()
     {
         var templateWithNullable = @"
-func negate(input bool?) bool => input == null ? false : !input
+func negate(cond bool, input bool?) bool => cond ? false : !input
 ";
         var templateWithNonNullAssertion = @"
-func negate(input bool?) bool => input == null ? false : !input!
+func negate(cond bool, input bool?) bool => cond ? false : !input!
 ";
 
         var result = CompilationHelper.Compile(templateWithNullable);
@@ -411,17 +408,17 @@ func negate(input bool?) bool => input == null ? false : !input!
         // roundtrip: applying the fix yields a template that compiles without any diagnostics
         CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        // the emitted expression preserves the null guard around the negation
+        // The unrelated condition does not prove that input is non-null.
         result.Template.Should().HaveValueAtPath(
             "$.functions[0].members['negate'].output.value",
-            "[if(equals(parameters('input'), null()), false(), not(parameters('input')))]");
+            "[if(parameters('cond'), false(), not(parameters('input')))]");
     }
 
     [TestMethod]
     public void Nullable_operand_in_unary_minus_operator_raises_fixable_warning()
     {
         var result = CompilationHelper.Compile(@"
-func negate(input int?) int => input == null ? 0 : -input
+func negate(cond bool, input int?) int => cond ? 0 : -input
 ");
 
         result.Template.Should().NotBeNull();
@@ -432,7 +429,7 @@ func negate(input int?) int => input == null ? 0 : -input
 
         result.Template.Should().HaveValueAtPath(
             "$.functions[0].members['negate'].output.value",
-            "[if(equals(parameters('input'), null()), 0, sub(0, parameters('input')))]");
+            "[if(parameters('cond'), 0, sub(0, parameters('input')))]");
     }
 
     [TestMethod]
