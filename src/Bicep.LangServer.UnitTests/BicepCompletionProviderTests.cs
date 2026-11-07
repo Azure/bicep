@@ -59,6 +59,37 @@ namespace Bicep.LangServer.UnitTests
 
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
+        [DataTestMethod]
+        [DataRow("targetScope = |")]
+        [DataRow("targetScope = '|'")]
+        [DataRow("targetScope = 'management|'")]
+        [DataRow("targetScope = 'res|'")]
+        [DataRow("targetScope = 'management|Group'")]
+        [DataRow("targetScope = 'resourceGroup'|")]
+        [DataRow("targetScope = 'sub|'")]
+        [DataRow("targetScope = 'ten|'")]
+        [DataRow("targetScope = management|")]
+        [DataRow("targetScope = res|")]
+        public async Task TargetScopeValuesShouldReturnScopeCompletions(string textWithCursor)
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(textWithCursor, "|");
+            var compilation = Services.BuildCompilation(text);
+            var context = BicepCompletionContext.Create(compilation, cursor);
+
+            var completions = await CreateProvider().GetFilteredCompletions(compilation, context, CancellationToken.None);
+            var scopeCompletions = completions.Where(c => c.Kind == CompletionItemKind.EnumMember).ToArray();
+
+            scopeCompletions.Select(c => c.Label).Should().BeEquivalentTo(
+                "'managementGroup'", "'resourceGroup'", "'subscription'", "'tenant'");
+
+            foreach (var completion in scopeCompletions)
+            {
+                var edit = completion.TextEdit!.TextEdit!;
+                var completedText = text[..edit.Range.Start.Character] + edit.NewText + text[edit.Range.End.Character..];
+                completedText.Should().Be($"targetScope = {completion.Label}");
+            }
+        }
+
         [TestMethod]
         public async Task DeclarationContextShouldReturnKeywordCompletions()
         {
