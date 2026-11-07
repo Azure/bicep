@@ -1209,7 +1209,7 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
-                diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
+                diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value, isCheckedAtDeployment: true));
 
                 base.VisitOutputDeclarationSyntax(syntax);
 
@@ -2719,7 +2719,7 @@ namespace Bicep.Core.TypeSystem
         private IEnumerable<TypeSymbol> GetRecoveredArgumentTypes(IEnumerable<FunctionArgumentSyntax> argumentSyntaxes) =>
             this.GetArgumentTypes(argumentSyntaxes).Select(argumentType => argumentType.TypeKind == TypeKind.Error ? LanguageConstants.Any : argumentType);
 
-        private IEnumerable<IDiagnostic> GetDeclarationAssignmentDiagnostics(TypeSymbol declaredType, SyntaxBase value)
+        private IEnumerable<IDiagnostic> GetDeclarationAssignmentDiagnostics(TypeSymbol declaredType, SyntaxBase value, bool isCheckedAtDeployment = false)
         {
             var valueType = typeManager.GetTypeInfo(value);
 
@@ -2737,7 +2737,7 @@ namespace Bicep.Core.TypeSystem
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, value, declaredType);
+            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, value, declaredType, isCheckedAtDeployment: isCheckedAtDeployment);
 
             return diagnosticWriter.GetDiagnostics();
         }
@@ -2755,7 +2755,7 @@ namespace Bicep.Core.TypeSystem
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, defaultValueSyntax.DefaultValue, assignedType);
+            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, defaultValueSyntax.DefaultValue, assignedType, isCheckedAtDeployment: true);
 
             return diagnosticWriter.GetDiagnostics();
         }
