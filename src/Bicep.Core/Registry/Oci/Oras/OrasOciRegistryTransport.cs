@@ -9,9 +9,9 @@ using Azure.Identity;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Microsoft.Extensions.Caching.Memory;
+using OrasProject.Oras.Exceptions;
 using OrasProject.Oras.Registry.Remote;
 using OrasProject.Oras.Registry.Remote.Auth;
-using OrasProject.Oras.Exceptions;
 using OrasReference = OrasProject.Oras.Registry.Reference;
 using OrasRegistryClient = OrasProject.Oras.Registry.Remote.Registry;
 using OrasRepositoryClient = OrasProject.Oras.Registry.Remote.Repository;
@@ -81,7 +81,7 @@ public class OrasOciRegistryTransport(
         Trace.WriteLine($"Pulling artifact {artifactReference.ArtifactId} using ORAS SDK.");
         var result = await CreateSession(cloud, artifactReference.Registry, artifactReference.Repository).PullArtifactAsync(artifactReference, cancellationToken);
         Trace.WriteLine($"Pulled artifact {artifactReference.ArtifactId} using ORAS SDK.");
- 
+
         return result;
     }
 

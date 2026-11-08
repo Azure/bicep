@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Net.Http;
 using System.Net;
+using System.Net.Http;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.AzureApi;
