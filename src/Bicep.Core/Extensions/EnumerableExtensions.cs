@@ -1,11 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using Semver;
 
 namespace Bicep.Core.Extensions
 {
     public static class EnumerableExtensions
     {
+        private static readonly SemVersion DefaultVersion = new(0);
+
+        public static IOrderedEnumerable<TSource> OrderBySemanticVersion<TSource>(this IEnumerable<TSource> source, Func<TSource, string> versionSelector)
+            => source.OrderBy(
+                item => SemVersion.TryParse(versionSelector(item), SemVersionStyles.AllowV, out var version) ? version : DefaultVersion,
+                SemVersion.SortOrderComparer);
+
         public static string ConcatString(this IEnumerable<string> source, string separator) => string.Join(separator, source);
 
         public static string ConcatString(this IEnumerable<char> source, string separator) => source.Select(char.ToString).ConcatString(separator);
@@ -128,4 +136,3 @@ namespace Bicep.Core.Extensions
         }
     }
 }
-
