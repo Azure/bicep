@@ -72,6 +72,33 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
         }
 
         [TestMethod]
+        [DataRow(26)]
+        [Timeout(60_000)]
+        public void Repeated_spreads_do_not_expand_a_diamond_exponentially(int depth)
+        {
+            // None of the levels defines `x`, so finding it must skip each pair of spreads, not walk both.
+            var declarations = string.Join("\n", Enumerable.Range(1, depth)
+                .Select(level => $"var v{level} = {{ ...v{level - 1}, ...v{level - 1} }}"));
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore($$"""
+                var v0 = { a: 1 }
+                {{declarations}}
+                var defined = { ...{ x: 'public' }, ...v{{depth}} }
+                output result string = defined.x
+                """);
+            var model = result.Compilation.GetEntrypointSemanticModel();
+            var output = model.SourceFile.ProgramSyntax.Children.OfType<OutputDeclarationSyntax>().Single();
+            model.GetTypeInfo(output.Value).Should().NotBeOfType<ErrorType>();
+
+            var stopwatch = Stopwatch.StartNew();
+            var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, output.Value).ToArray();
+            stopwatch.Stop();
+
+            secrets.Should().BeEmpty();
+            stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(5),
+                "a spread whose type can't supply the property shouldn't be followed");
+        }
+
+        [TestMethod]
         [DataRow(24)]
         [Timeout(60_000)]
         public void Mixed_variable_and_property_reads_do_not_expand_a_diamond_exponentially(int depth)

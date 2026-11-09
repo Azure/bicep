@@ -18,6 +18,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
         private readonly SemanticModel semanticModel;
         private readonly List<PossibleSecret> possibleSecrets = new();
         private readonly Dictionary<SyntaxBase, PossibleSecret[]> secretsBySyntax = new();
+        private readonly Dictionary<(SyntaxBase Syntax, string PropertyName), (SyntaxBase? Value, bool IsFallback)> propertyInitializers = new();
         private uint trailingAccessExpressions = 0;
 
         /// <summary>
@@ -85,30 +86,99 @@ namespace Bicep.Core.Analyzers.Linter.Common
             possibleSecrets.AddRange(FindPathsToSecureTypeComponents(semanticModel.GetTypeInfo(syntax))
                 .Select(pathToSecureComponent => new PossibleSecret(syntax.IndexExpression, PossibleSecretMessage(syntax.ToString() + pathToSecureComponent))));
 
-            if (possibleSecrets.Count == secretCount &&
-                trailingAccessExpressions == 0 &&
-                syntax.TryGetPropertyName() is { } propertyName &&
-                TryResolvePropertyInitializer(syntax.BaseExpression, propertyName) is { } propertyValue)
+            if (possibleSecrets.Count != secretCount || trailingAccessExpressions > 0)
             {
-                AddForwardedSecrets(propertyValue, syntax.IndexExpression);
+                return;
+            }
+
+            var property = syntax.TryGetPropertyName() is { } propertyName
+                ? ResolvePropertyInitializer(syntax.BaseExpression, propertyName)
+                : default;
+            var followFallback = semanticModel.GetTypeInfo(syntax) is AnyType ||
+                !TypeHelper.IsOrContainsSecureType(semanticModel.GetTypeInfo(syntax.BaseExpression));
+
+            if (property.Value is { } propertyValue)
+            {
+                if (!property.IsFallback || propertyValue is ObjectSyntax || followFallback)
+                {
+                    AddForwardedSecrets(propertyValue, syntax.IndexExpression);
+                }
+            }
+            // Any other read, like parts[0] or cfg.password from json(secret), may select any part of the value.
+            // If its type has lost track of the secret, follow the whole initializer, just as reading it inline would.
+            else if (followFallback &&
+                TryResolveInitializer(syntax.BaseExpression) is { } initializer)
+            {
+                AddForwardedSecrets(initializer, syntax.IndexExpression);
             }
         }
 
-        private SyntaxBase? TryResolvePropertyInitializer(SyntaxBase syntax, string propertyName)
-            // Follow only the selected property, not its siblings. Spreads may replace that property,
-            // and cyclic variables already have a compiler diagnostic, so neither is followed here.
+        private SyntaxBase? TryResolveInitializer(SyntaxBase syntax)
             => syntax switch
             {
-                ObjectSyntax obj when !obj.Children.OfType<SpreadExpressionSyntax>().Any()
-                    => obj.TryGetPropertyByName(propertyName)?.Value,
                 VariableAccessSyntax access when semanticModel.GetSymbolInfo(access) is VariableSymbol variable &&
                     semanticModel.Binder.TryGetCycle(variable) is null
-                    => TryResolvePropertyInitializer(variable.DeclaringVariable.Value, propertyName),
-                AccessExpressionSyntax access when access.TryGetPropertyName() is { } selectedProperty &&
-                    TryResolvePropertyInitializer(access.BaseExpression, selectedProperty) is { } selectedValue
-                    => TryResolvePropertyInitializer(selectedValue, propertyName),
+                    => variable.DeclaringVariable.Value,
+                // If the selected property can't be pinned down, any part of what it's read from may be what is read.
+                AccessExpressionSyntax access => (access.TryGetPropertyName() is { } propertyName
+                    ? ResolvePropertyInitializer(access.BaseExpression, propertyName).Value
+                    : null) ?? TryResolveInitializer(access.BaseExpression),
                 _ => null,
             };
+
+        private (SyntaxBase? Value, bool IsFallback) ResolvePropertyInitializer(SyntaxBase syntax, string propertyName)
+        {
+            if (propertyInitializers.TryGetValue((syntax, propertyName), out var result))
+            {
+                return result;
+            }
+
+            // Null without a fallback means absent; a fallback may supply the property.
+            // Cache both so repeated spreads don't expand a diamond exponentially.
+            result = syntax switch
+            {
+                ObjectSyntax obj => ResolveObjectPropertyInitializer(obj, propertyName),
+                VariableAccessSyntax access when semanticModel.GetSymbolInfo(access) is VariableSymbol variable &&
+                    semanticModel.Binder.TryGetCycle(variable) is null
+                    => ResolvePropertyInitializer(variable.DeclaringVariable.Value, propertyName),
+                VariableAccessSyntax access when semanticModel.GetSymbolInfo(access) is VariableSymbol cyclic &&
+                    semanticModel.Binder.TryGetCycle(cyclic) is not null => default,
+                AccessExpressionSyntax access when access.TryGetPropertyName() is { } selectedProperty &&
+                    ResolvePropertyInitializer(access.BaseExpression, selectedProperty) is { Value: { } selectedValue, IsFallback: false }
+                    => ResolvePropertyInitializer(selectedValue, propertyName),
+                _ => (null, true),
+            };
+            propertyInitializers.Add((syntax, propertyName), result);
+            return result;
+        }
+
+        private (SyntaxBase? Value, bool IsFallback) ResolveObjectPropertyInitializer(ObjectSyntax obj, string propertyName)
+        {
+            // The last definition wins. Dynamic keys and unknown spreads may replace earlier properties.
+            foreach (var child in obj.Children.Reverse())
+            {
+                switch (child)
+                {
+                    case ObjectPropertySyntax property when property.HasPropertyName(propertyName):
+                        return (property.Value, false);
+                    case ObjectPropertySyntax property when property.TryGetKeyText() is null:
+                        return (obj, true);
+                    case SpreadExpressionSyntax spread:
+                        var result = ResolvePropertyInitializer(spread.Expression, propertyName);
+                        if (result.IsFallback)
+                        {
+                            return (obj, true);
+                        }
+                        if (result.Value is not null)
+                        {
+                            return result;
+                        }
+                        break;
+                }
+            }
+
+            return default;
+        }
 
         private void AddForwardedSecrets(SyntaxBase syntax, SyntaxBase anchor)
         {

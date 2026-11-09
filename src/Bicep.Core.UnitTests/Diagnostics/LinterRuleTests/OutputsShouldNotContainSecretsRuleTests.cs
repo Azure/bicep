@@ -532,5 +532,46 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 output result {{type}} = {{expression}}
                 """, OnCompileErrors.IncludeErrors,
                 Enumerable.Repeat($"{description} Found possible secret: secure value 'secureObj'", warnings).ToArray());
+
+        [TestMethod]
+        [DataRow("split(secret, ',')[0]", 1)]
+        [DataRow("parts[0]", 1)]
+        [DataRow("cfg.password", 1)]
+        [DataRow("wrapped[0].value", 1)]
+        [DataRow("merged.name", 0)]
+        [DataRow("spreadConfig.other[0]", 1)]
+        [DataRow("overwritten.password", 0)]
+        [DataRow("spreadJson.x[0]", 1)]
+        [DataRow("passwords[key]", 1)]
+        [DataRow("spreadSibling.user", 1)]
+        [DataRow("dynamicKey.user", 1)]
+        [DataRow("dynamicSpread.user", 1)]
+        [DataRow("typedSpread.user", 1)]
+        public void Reads_through_variables_whose_types_hide_secrets_are_found(string expression, int warnings)
+            => CompileAndTest($$"""
+                @secure()
+                param secret string
+                @secure()
+                param secureObj object
+                param key string
+                @sealed()
+                type Closed = { name: string }
+                var typed Closed = json(secret)
+                var passwords = { dev: secret, prod: secret }
+                var spreadSibling = { password: secret, ...json(secret) }
+                var dynamicKey = { ...{ user: 'public' }, '${key}': secret }
+                var dynamicSpread = { user: 'public', ...{ '${key}': secret } }
+                var typedSpread = { user: 'public', ...typed }
+                var parts = split(secret, ',')
+                var cfg = json(secret)
+                var wrapped = map(parts, p => { value: p })
+                var merged = union({ password: secret }, { name: 'public' })
+                var overrides = { other: split(secret, ',') }
+                var spreadConfig = { password: secureObj, ...overrides }
+                var overwritten = { password: secret, ...{ password: 'public' } }
+                var spreadJson = { ...json(secret) }
+                output result string = {{expression}}
+                """, OnCompileErrors.IncludeErrors,
+                Enumerable.Repeat($"{description} Found possible secret: secure value 'secret'", warnings).ToArray());
     }
 }
