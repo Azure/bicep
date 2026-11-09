@@ -59,6 +59,17 @@ public class ReplEnvironmentTests
     }
 
     [TestMethod]
+    public void Multiple_statements_continue_to_evaluate_only_the_last_statement()
+    {
+        var replEnvironment = CreateReplEnvironment();
+        var result = replEnvironment.EvaluateInput("var first = 1\nvar second = 2");
+
+        result.AnnotatedDiagnostics.Should().BeEmpty();
+        replEnvironment.EvaluateInput("second").Value.Should().NotBeNull();
+        replEnvironment.EvaluateInput("first").AnnotatedDiagnostics.Should().NotBeEmpty();
+    }
+
+    [TestMethod]
     public void Type_syntax_is_highlighted()
     {
         var replEnvironment = CreateReplEnvironment();

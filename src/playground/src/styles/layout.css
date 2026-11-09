@@ -1,6 +1,6 @@
 .app-shell {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   width: 100%;
   height: 100dvh;
   min-width: 320px;
@@ -43,6 +43,17 @@
   margin-left: auto;
 }
 
+.editor-actions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.editor-actions[hidden] {
+  display: none;
+}
+
 .workspace {
   position: relative;
   display: grid;
@@ -51,6 +62,39 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 8px;
   padding: 0 8px 4px;
+}
+
+.workspace-tabs {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.workspace-tabs .workspace-tab {
+  min-width: 64px;
+}
+
+.workspace-content,
+.console-workspace {
+  min-width: 0;
+  min-height: 0;
+}
+
+.editor-workspace {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.console-workspace {
+  height: 100%;
+  padding: 0 8px 4px;
+}
+
+.editor-workspace[hidden],
+.console-workspace[hidden] {
+  display: none;
 }
 
 .workspace[data-problems-open="true"] {
@@ -76,8 +120,8 @@
 
 .problems-panel {
   display: grid;
-  min-height: 140px;
-  max-height: 184px;
+  min-height: min(140px, 50dvh);
+  max-height: min(184px, 50dvh);
   grid-template-rows: auto minmax(0, 1fr);
   margin: 4px 8px;
   overflow: hidden;
@@ -91,6 +135,89 @@
   padding: 4px 0;
   overflow: auto;
   list-style: none;
+}
+
+.console-panel {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  margin: 0;
+  overflow: hidden;
+  color: var(--text);
+  background: var(--island);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.console-panel[hidden] {
+  display: none;
+}
+
+.console-panel .problems-header {
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px 8px;
+}
+
+.console-panel .pane-action {
+  width: auto;
+  padding: 0 8px;
+  font: inherit;
+  font-size: 12px;
+}
+
+.console-transcript {
+  padding: 0 12px;
+  overflow: auto;
+}
+
+.console-help {
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.console-entry pre {
+  font: 13px/1.5 Consolas, "Courier New", Courier, monospace;
+  tab-size: 4;
+}
+
+.console-entry pre {
+  margin: 4px 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.console-input-echo {
+  color: var(--muted);
+}
+
+.console-error {
+  color: var(--danger);
+}
+
+.console-warning {
+  color: var(--warning);
+}
+
+.console-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.console-input {
+  flex: 1;
+  min-width: 0;
+  height: 56px;
+  overflow: hidden;
+  color: var(--text);
+  background: var(--control);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
 }
 
 .status-bar {
@@ -148,9 +275,15 @@
   border-radius: var(--radius-md);
 }
 
+@media (max-width: 900px) {
+  .brand span {
+    display: none;
+  }
+}
+
 @media (max-width: 680px) {
-  .app-shell {
-    grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  .editor-workspace {
+    grid-template-rows: auto minmax(0, 1fr) auto;
   }
 
   .app-header {
@@ -162,6 +295,19 @@
   .header-actions {
     width: 100%;
     margin-left: 0;
+  }
+
+  .app-header[data-editor-mode="false"] .brand {
+    flex: none;
+  }
+
+  .app-header[data-editor-mode="false"] .header-actions {
+    width: auto;
+    margin-left: auto;
+  }
+
+  .editor-actions {
+    flex: 1;
   }
 
   .mobile-tabs {
@@ -198,8 +344,8 @@
   }
 
   .problems-panel {
-    min-height: 120px;
-    max-height: 150px;
+    min-height: min(120px, 50dvh);
+    max-height: min(150px, 50dvh);
   }
 
   .problem {

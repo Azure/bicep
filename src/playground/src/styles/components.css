@@ -69,6 +69,11 @@
   background: var(--select-hover);
 }
 
+.app-header .workspace-tab[aria-selected="true"] {
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
 .button:disabled,
 .sample-select:disabled,
 .pane-action:disabled {
