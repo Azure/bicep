@@ -140,7 +140,8 @@ public sealed class SecureAssignmentChecker
             yield break;
         }
 
-        if (resolver is { } resourceTypeResolver && !IsDeployTimeConstant(value, resourceTypeResolver))
+        if (resolver is { } resourceTypeResolver &&
+            !DeployTimeConstantValidator.IsDeployTimeConstant(assignment, value, model, resourceTypeResolver))
         {
             yield break;
         }
@@ -179,13 +180,6 @@ public sealed class SecureAssignmentChecker
         }
 
         return mismatches.Select(mismatch => mismatch with { Path = path + mismatch.Path, Syntax = reference });
-    }
-
-    private bool IsDeployTimeConstant(SyntaxBase value, ResourceTypeResolver resourceTypeResolver)
-    {
-        var diagnostics = ToListDiagnosticWriter.Create();
-        DeployTimeConstantValidator.CheckDeployTimeConstantViolations(assignment, value, model, diagnostics, resourceTypeResolver);
-        return diagnostics.GetDiagnostics().Count == 0;
     }
 
     private IEnumerable<string> Compare(TypeSymbol source, TypeSymbol target, string path, bool sourceSecure, bool targetSecure,

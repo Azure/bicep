@@ -96,7 +96,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     if (moduleModelFlags.TryGetValue(kvp.Key, out var flags) &&
                         flags != ParameterUsageFlags.None &&
-                        !IsDeployTimeConstant(kvp.Value, model, resourceTypeResolver))
+                        !DeployTimeConstantValidator.IsDeployTimeConstant(kvp.Value, kvp.Value.Value, model, resourceTypeResolver))
                     {
                         var target = kvp.Value.Value;
                         yield return CreateDiagnosticForSpan(diagnosticLevel, kvp.Value.Value.Span, kvp.Key, module.Name);
@@ -111,7 +111,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     foreach (var parameterWithUnknownName in parametersWithUnknownNames)
                     {
-                        if (!IsDeployTimeConstant(parameterWithUnknownName, model, resourceTypeResolver))
+                        if (!DeployTimeConstantValidator.IsDeployTimeConstant(parameterWithUnknownName, parameterWithUnknownName.Value, model, resourceTypeResolver))
                         {
                             var target = parameterWithUnknownName.Value;
                             yield return CreateDiagnosticForSpan(diagnosticLevel, parameterWithUnknownName.Value.Span, "<unknown>", module.Name);
@@ -144,14 +144,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             UsedInResourceCondition = 1 << 1,
             UsedInResourceApiVersion = 1 << 2,
             UsedInLoopInput = 1 << 3,
-        }
-
-        private static bool IsDeployTimeConstant(ObjectPropertySyntax syntax, SemanticModel model, ResourceTypeResolver resolver)
-        {
-            var diagWriter = ToListDiagnosticWriter.Create();
-            DeployTimeConstantValidator.CheckDeployTimeConstantViolations(syntax, syntax.Value, model, diagWriter, resolver);
-
-            return diagWriter.GetDiagnostics().Count == 0;
         }
 
         private static IReadOnlyDictionary<string, ParameterUsageFlags> GetModuleParameterUsageFlags(

@@ -72,7 +72,7 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
         var resourceTypeResolver = ResourceTypeResolver.Create(model);
         foreach (var property in GetSecureObjectPropertiesFromTypeInformation(model))
         {
-            if (!IsDeployTimeConstant(property, model, resourceTypeResolver))
+            if (!DeployTimeConstantValidator.IsDeployTimeConstant(property, property.Value, model, resourceTypeResolver))
             {
                 // Let's ignore the case where insecure runtime values are used - this is complicated due to lack of accurate type information.
                 // The main thing we are trying to block is hard-coded values, insecure parameters, and value calculated from these.
@@ -98,12 +98,4 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
             UnionType unionType => unionType.Members.Any(x => IsPotentiallyInsecure(x.Type)),
             _ => !type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure),
         };
-
-    private static bool IsDeployTimeConstant(ObjectPropertySyntax syntax, SemanticModel model, ResourceTypeResolver resolver)
-    {
-        var diagWriter = ToListDiagnosticWriter.Create();
-        DeployTimeConstantValidator.CheckDeployTimeConstantViolations(syntax, syntax.Value, model, diagWriter, resolver);
-
-        return diagWriter.GetDiagnostics().Count == 0;
-    }
 }
