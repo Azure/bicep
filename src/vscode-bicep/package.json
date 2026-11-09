@@ -327,7 +327,7 @@
         "command": "bicep.forceModulesRestore",
         "key": "ctrl+m r",
         "mac": "cmd+m r",
-        "when": "resourceLangId == bicep"
+        "when": "resourceLangId == bicep || resourceLangId == bicep-params"
       },
       {
         "command": "bicep.showVisualizerToSide",
@@ -390,7 +390,7 @@
         },
         {
           "command": "bicep.forceModulesRestore",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_1_edit"
         },
         {
@@ -462,7 +462,7 @@
         },
         {
           "command": "bicep.forceModulesRestore",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_1_edit"
         },
         {
@@ -529,7 +529,7 @@
         },
         {
           "command": "bicep.forceModulesRestore",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_1_edit"
         },
         {
