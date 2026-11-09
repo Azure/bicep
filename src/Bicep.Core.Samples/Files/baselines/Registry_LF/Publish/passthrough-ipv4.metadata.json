@@ -1,3 +1,3 @@
 {
-  "target": "br:127.0.0.1/passthrough/ipv4:v1"
+  "target": "br:ipv4.invalid/passthrough/ipv4:v1"
 }

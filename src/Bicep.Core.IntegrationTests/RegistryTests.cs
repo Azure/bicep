@@ -121,31 +121,31 @@ namespace Bicep.Core.IntegrationTests
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:localhost:5000/passthrough/port:v1"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:port.invalid:5000/passthrough/port:v1"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:127.0.0.1/passthrough/ipv4:v1"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:ipv4.invalid/passthrough/ipv4:v1"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:127.0.0.1:5000/passthrough/ipv4port:v1"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:ipv4-port.invalid:5000/passthrough/ipv4port:v1"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:[::1]/passthrough/ipv6:v1"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:ipv6.invalid/passthrough/ipv6:v1"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:[::1]:5000/passthrough/ipv6port:v1"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:ipv6-port.invalid:5000/passthrough/ipv6port:v1"));
                 });
         }
 
