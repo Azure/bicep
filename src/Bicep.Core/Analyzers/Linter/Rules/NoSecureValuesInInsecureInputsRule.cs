@@ -22,7 +22,7 @@ public sealed class NoSecureValuesInInsecureInputsRule : LinterRuleBase
         => string.Format(CoreResources.NoSecureValuesInInsecureInputsRule_MessageFormat, values);
 
     public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
-        => ModuleParameterSecurity.EnumerateAssignments(model).SelectMany(assignment =>
-            ModuleParameterSecurity.EnumerateMismatches(model, assignment, secureInput: false)
+        => SecureAssignmentChecker.EnumerateModuleParameterAssignments(model).SelectMany(assignment =>
+            SecureAssignmentChecker.EnumerateSecureValuesForInsecureParameters(model, assignment)
                 .Select(mismatch => CreateDiagnosticForSpan(diagnosticLevel, mismatch.Syntax.Span, mismatch.Path, mismatch.FoundMessage)));
 }

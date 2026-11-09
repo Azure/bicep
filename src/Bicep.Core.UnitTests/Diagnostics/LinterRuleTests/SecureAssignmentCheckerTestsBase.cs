@@ -5,6 +5,8 @@ using System.Diagnostics;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;
@@ -15,9 +17,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 
 // Shared by the two rules that check values passed to module parameters. Both rules run on every
 // compilation, so a test for one rule also shows what the other rule reports for the same module.
-public abstract class ModuleParameterSecurityTestsBase : LinterRuleTestsBase
+public abstract class SecureAssignmentCheckerTestsBase : LinterRuleTestsBase
 {
-    protected static void AssertDiamondAnalysisCompletesPromptly(int depth, bool secureInput)
+    protected static void AssertDiamondAnalysisCompletesPromptly(int depth,
+        Func<SemanticModel, ObjectPropertySyntax, IEnumerable<SecureAssignmentChecker.Mismatch>> enumerateMismatches)
     {
         var declarations = string.Join("\n", Enumerable.Range(1, depth)
             .Select(level => $"var v{level} = {{ a: v{level - 1}, b: v{level - 1} }}"));
@@ -35,13 +38,13 @@ public abstract class ModuleParameterSecurityTestsBase : LinterRuleTestsBase
                 """),
             ("child.bicep", "param settings object"));
         var model = result.Compilation.GetEntrypointSemanticModel();
-        var assignment = ModuleParameterSecurity.EnumerateAssignments(model).Single();
+        var assignment = SecureAssignmentChecker.EnumerateModuleParameterAssignments(model).Single();
         model.GetTypeInfo(assignment.Value).Should().NotBeOfType<ErrorType>();
         model.GetDeclaredType(assignment).Should().NotBeNull();
 
         // Avoid emission and unrelated rules; the source graph grows by one initializer per level.
         var stopwatch = Stopwatch.StartNew();
-        var mismatches = ModuleParameterSecurity.EnumerateMismatches(model, assignment, secureInput).ToArray();
+        var mismatches = enumerateMismatches(model, assignment).ToArray();
         stopwatch.Stop();
 
         mismatches.Should().BeEmpty();

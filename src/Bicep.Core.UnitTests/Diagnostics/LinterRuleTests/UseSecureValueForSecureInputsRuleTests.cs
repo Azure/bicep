@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Utils;
@@ -10,14 +11,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 
 [TestClass]
-public class UseSecureValueForSecureInputsRuleTests : ModuleParameterSecurityTestsBase
+public class UseSecureValueForSecureInputsRuleTests : SecureAssignmentCheckerTestsBase
 {
     [TestMethod]
     [DataRow(8)]
     [DataRow(22)]
     [Timeout(60_000)]
     public void Repeated_variable_reads_do_not_expand_a_diamond_exponentially(int depth)
-        => AssertDiamondAnalysisCompletesPromptly(depth, secureInput: true);
+        => AssertDiamondAnalysisCompletesPromptly(depth, SecureAssignmentChecker.EnumerateInsecureValuesForSecureParameters);
 
     [TestMethod]
     public void Cached_variable_findings_keep_each_destination_path_and_target_type()

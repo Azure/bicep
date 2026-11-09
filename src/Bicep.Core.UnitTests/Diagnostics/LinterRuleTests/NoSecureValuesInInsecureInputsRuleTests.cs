@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Utils;
@@ -13,14 +14,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 // These retain forwarding expressions, not resource setup. Tests marked "Not in AVM" are synthetic edge cases
 // around an AVM binding.
 [TestClass]
-public class NoSecureValuesInInsecureInputsRuleTests : ModuleParameterSecurityTestsBase
+public class NoSecureValuesInInsecureInputsRuleTests : SecureAssignmentCheckerTestsBase
 {
     [TestMethod]
     [DataRow(8)]
     [DataRow(22)]
     [Timeout(60_000)]
     public void Repeated_variable_reads_do_not_expand_a_diamond_exponentially(int depth)
-        => AssertDiamondAnalysisCompletesPromptly(depth, secureInput: false);
+        => AssertDiamondAnalysisCompletesPromptly(depth, SecureAssignmentChecker.EnumerateSecureValuesForInsecureParameters);
 
     [TestMethod]
     public void Cached_variable_findings_keep_each_destination_path_and_target_type()

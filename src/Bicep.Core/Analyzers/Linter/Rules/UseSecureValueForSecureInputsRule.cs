@@ -60,9 +60,9 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
 
     public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
     {
-        foreach (var assignment in ModuleParameterSecurity.EnumerateAssignments(model))
+        foreach (var assignment in SecureAssignmentChecker.EnumerateModuleParameterAssignments(model))
         {
-            foreach (var mismatch in ModuleParameterSecurity.EnumerateMismatches(model, assignment, secureInput: true))
+            foreach (var mismatch in SecureAssignmentChecker.EnumerateInsecureValuesForSecureParameters(model, assignment))
             {
                 yield return CreateDiagnostic(mismatch.Syntax.Span,
                     string.Format(CoreResources.UseSecureValueForSecureInputsRule_ModuleParameterMessageFormat, mismatch.Path)) with { Level = diagnosticLevel };

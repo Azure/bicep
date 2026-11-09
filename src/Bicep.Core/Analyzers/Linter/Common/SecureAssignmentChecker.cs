@@ -13,31 +13,33 @@ using Bicep.Core.TypeSystem.Types;
 namespace Bicep.Core.Analyzers.Linter.Common;
 
 /// <summary>
-/// Compares module parameter assignments with their declared types for the two secure-input rules.
+/// Compares a value with the declared type it's assigned to, in one of two directions: a secure input given a
+/// value that may not be secure, or an input that isn't secure given a secure value. Only
+/// <see cref="EnumerateModuleParameterAssignments"/> is specific to modules.
 /// </summary>
-public sealed class ModuleParameterSecurity
+public sealed class SecureAssignmentChecker
 {
     private readonly SemanticModel model;
     private readonly ObjectPropertySyntax assignment;
-    private readonly bool secureInput;
+    private readonly bool findLeaks;
     private readonly ResourceTypeResolver? resolver;
     // A variable can satisfy one target and violate another. Keep this cache local to the assignment and rule.
     private readonly Dictionary<(VariableSymbol, TypeSymbol), Mismatch[]> variableMismatches = [];
 
     // The checks below recurse through iterators. They're methods rather than local functions because CA1851
     // takes tens of seconds to analyze recursive local iterators that capture state.
-    private ModuleParameterSecurity(SemanticModel model, ObjectPropertySyntax assignment, bool secureInput)
+    private SecureAssignmentChecker(SemanticModel model, ObjectPropertySyntax assignment, bool findLeaks)
     {
         this.model = model;
         this.assignment = assignment;
-        this.secureInput = secureInput;
-        resolver = secureInput ? ResourceTypeResolver.Create(model) : null;
+        this.findLeaks = findLeaks;
+        resolver = findLeaks ? null : ResourceTypeResolver.Create(model);
     }
 
     /// <summary>
     /// Enumerates the values assigned to module parameters in this file.
     /// </summary>
-    public static IEnumerable<ObjectPropertySyntax> EnumerateAssignments(SemanticModel model)
+    public static IEnumerable<ObjectPropertySyntax> EnumerateModuleParameterAssignments(SemanticModel model)
         => model.Root.ModuleDeclarations
             .SelectMany(module => module.DeclaringModule.TryGetBody()
                 ?.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName)?.Value is ObjectSyntax parameters
@@ -53,9 +55,18 @@ public sealed class ModuleParameterSecurity
     public record Mismatch(string Path, SyntaxBase Syntax, string FoundMessage);
 
     /// <summary>
-    /// Finds mismatches between module parameter assignments and their declared types.
+    /// Finds parts of a secure parameter that may be given a value that isn't secure.
     /// </summary>
-    public static IEnumerable<Mismatch> EnumerateMismatches(SemanticModel model, ObjectPropertySyntax assignment, bool secureInput)
+    public static IEnumerable<Mismatch> EnumerateInsecureValuesForSecureParameters(SemanticModel model, ObjectPropertySyntax assignment)
+        => EnumerateMismatches(model, assignment, findLeaks: false);
+
+    /// <summary>
+    /// Finds parts of a parameter that isn't secure that may be given a secure value.
+    /// </summary>
+    public static IEnumerable<Mismatch> EnumerateSecureValuesForInsecureParameters(SemanticModel model, ObjectPropertySyntax assignment)
+        => EnumerateMismatches(model, assignment, findLeaks: true);
+
+    private static IEnumerable<Mismatch> EnumerateMismatches(SemanticModel model, ObjectPropertySyntax assignment, bool findLeaks)
     {
         if (model.GetDeclaredType(assignment) is not { } parameterType ||
             assignment.TryGetKeyText() is not { } parameterName)
@@ -64,7 +75,7 @@ public sealed class ModuleParameterSecurity
         }
 
         // Overlapping union alternatives can report the same mismatch more than once.
-        return new ModuleParameterSecurity(model, assignment, secureInput)
+        return new SecureAssignmentChecker(model, assignment, findLeaks)
             .CheckExpression(assignment.Value, parameterType, parameterName, reference: null).Distinct();
     }
 
@@ -102,20 +113,20 @@ public sealed class ModuleParameterSecurity
             BinaryOperationSyntax { Operator: BinaryOperator.Coalesce } coalesce =>
                 CheckExpression(coalesce.LeftExpression, target, path, reference)
                     .Concat(CheckExpression(coalesce.RightExpression, target, path, reference)),
-            ObjectSyntax obj when Variants(target) is { } variants =>
-                variants.Where(variant => MayMatch(model.GetTypeInfo(obj), variant))
-                    .SelectMany(variant => CheckExpression(obj, variant, path, reference)),
+            ObjectSyntax obj when TryEnumerateUnionMemberTypes(target) is { } members =>
+                members.Where(member => MayMatch(model.GetTypeInfo(obj), member))
+                    .SelectMany(member => CheckExpression(obj, member, path, reference)),
             ObjectSyntax obj when !obj.Children.OfType<SpreadExpressionSyntax>().Any() =>
                 obj.Properties.SelectMany(property =>
                 {
                     var name = property.TryGetKeyText();
-                    return CheckExpression(property.Value, Member(target, name), $"{path}.{name ?? "*"}", reference);
+                    return CheckExpression(property.Value, GetMemberType(target, name), $"{path}.{name ?? "*"}", reference);
                 }),
             ArraySyntax array when !array.Children.OfType<SpreadExpressionSyntax>().Any() =>
                 array.Items.SelectMany((item, index) =>
-                    CheckExpression(item.Value, Item(target, index), $"{path}[{index}]", reference)),
+                    CheckExpression(item.Value, GetItemType(target, index), $"{path}[{index}]", reference)),
             ForSyntax loop =>
-                CheckExpression(loop.Body, Item(target), $"{path}[*]", reference),
+                CheckExpression(loop.Body, GetItemType(target), $"{path}[*]", reference),
             _ => null,
         };
 
@@ -197,7 +208,7 @@ public sealed class ModuleParameterSecurity
             sourceSecure |= source.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
             targetSecure |= target.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
 
-            if (Variants(source) is { } sources)
+            if (TryEnumerateUnionMemberTypes(source) is { } sources)
             {
                 // Every source alternative may be passed.
                 foreach (var mismatch in sources.SelectMany(member => Compare(member, target, path, sourceSecure, targetSecure, visiting)))
@@ -205,7 +216,7 @@ public sealed class ModuleParameterSecurity
                     yield return mismatch;
                 }
             }
-            else if (Variants(target) is { } targets)
+            else if (TryEnumerateUnionMemberTypes(target) is { } targets)
             {
                 // Only target alternatives the source could match.
                 foreach (var mismatch in targets.Where(member => MayMatch(source, member))
@@ -217,12 +228,12 @@ public sealed class ModuleParameterSecurity
             else if (sourceSecure)
             {
                 // A secure source satisfies a secure input, and leaks into an insecure one.
-                if (!secureInput && !targetSecure)
+                if (findLeaks && !targetSecure)
                 {
                     yield return path;
                 }
             }
-            else if (!secureInput && targetSecure)
+            else if (findLeaks && targetSecure)
             {
                 // A secure target protects its contents from the leak rule.
                 yield break;
@@ -230,14 +241,14 @@ public sealed class ModuleParameterSecurity
             else if (source is TupleType tuple)
             {
                 foreach (var mismatch in tuple.Items.SelectMany((item, index) =>
-                    Compare(item.Type, Item(target, index), $"{path}[{index}]", sourceSecure, targetSecure, visiting)))
+                    Compare(item.Type, GetItemType(target, index), $"{path}[{index}]", sourceSecure, targetSecure, visiting)))
                 {
                     yield return mismatch;
                 }
             }
             else if (source is ArrayType sourceArray)
             {
-                foreach (var mismatch in Compare(sourceArray.Item.Type, Item(target), $"{path}[*]",
+                foreach (var mismatch in Compare(sourceArray.Item.Type, GetItemType(target), $"{path}[*]",
                     sourceSecure, targetSecure, visiting))
                 {
                     yield return mismatch;
@@ -256,7 +267,7 @@ public sealed class ModuleParameterSecurity
                 IEnumerable<string> targetProperties = (target as ObjectType)?.Properties.Keys ?? [];
                 foreach (var property in sourceProperties.Union(targetProperties))
                 {
-                    foreach (var mismatch in Compare(Member(source, property), Member(target, property), $"{path}.{property}",
+                    foreach (var mismatch in Compare(GetMemberType(source, property), GetMemberType(target, property), $"{path}.{property}",
                         sourceSecure, targetSecure, visiting))
                     {
                         yield return mismatch;
@@ -266,18 +277,18 @@ public sealed class ModuleParameterSecurity
                 if (source is ObjectType { HasExplicitAdditionalPropertiesType: true, AdditionalProperties: { } additional })
                 {
                     foreach (var mismatch in Compare(additional.TypeReference.Type,
-                        Member(target, null), $"{path}.*", sourceSecure, targetSecure, visiting))
+                        GetMemberType(target, null), $"{path}.*", sourceSecure, targetSecure, visiting))
                     {
                         yield return mismatch;
                     }
                 }
-                else if (source is not ObjectType && secureInput && targetSecure)
+                else if (source is not ObjectType && !findLeaks && targetSecure)
                 {
                     // A value with no known properties, such as any, given to a secure object.
                     yield return path;
                 }
             }
-            else if (secureInput && targetSecure)
+            else if (!findLeaks && targetSecure)
             {
                 yield return path;
             }
@@ -288,7 +299,7 @@ public sealed class ModuleParameterSecurity
         }
     }
 
-    private static IEnumerable<TypeSymbol>? Variants(TypeSymbol type) => type switch
+    private static IEnumerable<TypeSymbol>? TryEnumerateUnionMemberTypes(TypeSymbol type) => type switch
     {
         UnionType union => union.Members.Select(member => member.Type),
         DiscriminatedObjectType discriminated => discriminated.UnionMembersByKey.Values,
@@ -303,12 +314,12 @@ public sealed class ModuleParameterSecurity
                     !sourceObject.Properties.TryGetValue(property.Name, out var supplied) ||
                     TypeValidator.AreTypesAssignable(supplied.TypeReference.Type, property.TypeReference.Type)));
 
-    private static TypeSymbol Member(TypeSymbol type, string? name) => type switch
+    private static TypeSymbol GetMemberType(TypeSymbol type, string? name) => type switch
     {
         // A secure container makes each value read from it secure.
         _ when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) => type,
-        UnionType union => TypeHelper.CreateTypeUnion(union.Members.Where(member => member.Type is not NullType).Select(member => Member(member.Type, name))),
-        DiscriminatedObjectType discriminated => TypeHelper.CreateTypeUnion(discriminated.UnionMembersByKey.Values.Select(member => Member(member, name))),
+        UnionType union => TypeHelper.CreateTypeUnion(union.Members.Where(member => member.Type is not NullType).Select(member => GetMemberType(member.Type, name))),
+        DiscriminatedObjectType discriminated => TypeHelper.CreateTypeUnion(discriminated.UnionMembersByKey.Values.Select(member => GetMemberType(member, name))),
         ObjectType obj when name is not null && obj.Properties.TryGetValue(name, out var property) => property.TypeReference.Type,
         ObjectType { HasExplicitAdditionalPropertiesType: true, AdditionalProperties: { } additional } => additional.TypeReference.Type,
         // A missing property is impossible on a closed object; an unknown source shape is still possible.
@@ -316,7 +327,7 @@ public sealed class ModuleParameterSecurity
         _ => LanguageConstants.Any,
     };
 
-    private static TypeSymbol Item(TypeSymbol type, int? index = null) => type switch
+    private static TypeSymbol GetItemType(TypeSymbol type, int? index = null) => type switch
     {
         // A secure container makes each value read from it secure.
         _ when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) => type,
