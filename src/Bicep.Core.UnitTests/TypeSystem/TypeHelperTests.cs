@@ -63,7 +63,27 @@ public class TypeHelperTests
         TypeHelper.MergeObjectTypes([nested, addition]).Should().BeOfType<ObjectType>().Subject
             .Properties["config"].TypeReference.Type.Should().BeOfType<ObjectType>().Subject.Properties.Keys
             .Should().BeEquivalentTo(["name", "password"]);
-        TypeHelper.MergeObjectTypes([first, LanguageConstants.Object]).Should().BeSameAs(LanguageConstants.Object);
+        // The fallback can't keep the secure member on its own, so the whole result is secure.
+        TypeHelper.MergeObjectTypes([first, LanguageConstants.Object]).Should().BeSameAs(LanguageConstants.SecureObject);
+        TypeHelper.MergeObjectTypes([second, LanguageConstants.Object]).Should().BeSameAs(LanguageConstants.Object);
+    }
+
+    [TestMethod]
+    public void Object_merge_does_not_trust_earlier_properties_an_open_input_may_replace()
+    {
+        ObjectType defaults = new("defaults", default, [new("sku", TypeFactory.CreateStringLiteralType("Free"), TypePropertyFlags.Required)]);
+        ObjectType open = new("open", default, [new("name", LanguageConstants.String, TypePropertyFlags.Required)],
+            new TypeProperty(LanguageConstants.Any, TypePropertyFlags.FallbackProperty));
+        TypeHelper.MergeObjectTypes([defaults, open]).Should().BeSameAs(LanguageConstants.Object);
+
+        // An open input that lists every earlier property replaces them with its own known types.
+        ObjectType openWithSku = new("openWithSku", default, [new("sku", LanguageConstants.String, TypePropertyFlags.Required)],
+            new TypeProperty(LanguageConstants.Any, TypePropertyFlags.FallbackProperty));
+        TypeHelper.MergeObjectTypes([defaults, openWithSku]).Should().BeOfType<ObjectType>().Subject
+            .Properties["sku"].TypeReference.Type.Should().BeSameAs(LanguageConstants.String);
+
+        ObjectType secureDefaults = new("secureDefaults", default, [new("password", LanguageConstants.SecureString, TypePropertyFlags.Required)]);
+        TypeHelper.MergeObjectTypes([secureDefaults, open]).Should().BeSameAs(LanguageConstants.SecureObject);
     }
 
     [TestMethod]

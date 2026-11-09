@@ -140,6 +140,30 @@ public class NoSecureValuesInInsecureInputsRuleTests : SecureAssignmentCheckerTe
                 LeakWarning("interpolated", "chainedAlias.interpolated"),
             ]);
 
+    // A declared object type may hold properties it doesn't list, so union() can't tell which earlier properties
+    // it replaces. The result falls back to an object, as before union() was typed, and stays secure if a secure
+    // value went in.
+    [TestMethod]
+    public void Union_with_an_open_object_does_not_keep_properties_it_may_replace()
+        => AssertFlow("""
+            @secure()
+            param secret string
+            param overrides {
+              name: string
+            }
+            var effective = union({ sku: 'Free' }, overrides)
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                tier: effective.sku
+                config: union({ password: secret }, overrides)
+              }
+            }
+            """, """
+            param tier 'Basic' | 'Premium' | 'Standard'
+            param config object
+            """, [], [LeakWarning("config", "secret")]);
+
     [TestMethod]
     [DataRow("chained.number", "int")]
     [DataRow("chained['number']", "int")]

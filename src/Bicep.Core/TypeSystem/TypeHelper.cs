@@ -84,16 +84,17 @@ namespace Bicep.Core.TypeSystem
 
         /// <summary>
         /// Merges object types while tracking visited pairs to avoid recursion cycles.
-        /// Falls back to 'object' for unknown property sets or recursive pairs, keeping @secure if any input has it.
+        /// Falls back to 'object' for unknown property sets or recursive pairs, or 'secureObject' if any input
+        /// contains a secure type.
         /// </summary>
         private static TypeSymbol MergeObjectTypes(IEnumerable<TypeSymbol> types, HashSet<(TypeSymbol, TypeSymbol)> visiting)
         {
             var inputs = types.ToArray();
+            TypeSymbol Fallback() => inputs.Any(IsOrContainsSecureType) ? LanguageConstants.SecureObject : LanguageConstants.Object;
 
             // The result holds every input's members, so it's secure if any input, or any alternative of one, is
             // secure as a whole. Secure properties stay secure on their own, so they don't make the whole result secure.
             var isSecure = inputs.Any(input => FindPathsToSecureTypeComponents(input, hasTrailingAccessExpressions: true).Any());
-            var fallback = isSecure ? LanguageConstants.SecureObject : LanguageConstants.Object;
 
             Dictionary<string, NamedTypeProperty> properties = new(LanguageConstants.IdentifierComparer);
             TypeProperty? additionalProperties = null;
@@ -103,10 +104,16 @@ namespace Bicep.Core.TypeSystem
                 // keys, so we can't list the merged properties.
                 if (TryCollapseTypes([input]) is not ObjectType obj || obj.HasExplicitAdditionalPropertiesType)
                 {
-                    return fallback;
+                    return Fallback();
                 }
 
-                // An open object, such as a declared object type, may hold properties it doesn't list.
+                // An open object, such as a declared object type, may hold properties it doesn't list. Those could
+                // replace earlier properties with values we know nothing about.
+                if (obj.AdditionalProperties is not null && properties.Keys.Any(name => !obj.Properties.ContainsKey(name)))
+                {
+                    return Fallback();
+                }
+
                 additionalProperties ??= obj.AdditionalProperties;
                 foreach (var property in obj.Properties.Values)
                 {
@@ -118,7 +125,7 @@ namespace Bicep.Core.TypeSystem
                             var pair = (previousObject, nextObject);
                             if (!visiting.Add(pair))
                             {
-                                return fallback;
+                                return Fallback();
                             }
 
                             mergedType = MergeObjectTypes([previousObject, nextObject], visiting);
