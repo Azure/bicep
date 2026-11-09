@@ -332,6 +332,6 @@ public sealed class SecureAssignmentChecker
         // A secure container makes each value read from it secure.
         _ when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) => type,
         TupleType tuple when index is { } i && i < tuple.Items.Length => tuple.Items[i].Type,
-        _ => TypeHelper.GetArrayItemType(type),
+        _ => TypeHelper.GetArrayItemTypeOrAny(type),
     };
 }

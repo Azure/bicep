@@ -68,10 +68,10 @@ namespace Bicep.Core.TypeSystem
         /// Gets the item type of an array or union of arrays, ignoring null union members.
         /// Returns 'any' for other types.
         /// </summary>
-        public static TypeSymbol GetArrayItemType(TypeSymbol type) => type switch
+        public static TypeSymbol GetArrayItemTypeOrAny(TypeSymbol type) => type switch
         {
             ArrayType array => array.Item.Type,
-            UnionType union => CreateTypeUnion(union.Members.Where(member => member.Type is not NullType).Select(member => GetArrayItemType(member.Type))),
+            UnionType union => CreateTypeUnion(union.Members.Where(member => member.Type is not NullType).Select(member => GetArrayItemTypeOrAny(member.Type))),
             _ => LanguageConstants.Any,
         };
 

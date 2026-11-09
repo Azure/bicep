@@ -89,7 +89,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             {
                                 // Nullable or union array arguments may not be represented as ArrayType.
                                 // Keep their item type when known, but fall back to an untyped array for `any`.
-                                var itemType = TypeHelper.GetArrayItemType(argumentTypes[i]);
+                                var itemType = TypeHelper.GetArrayItemTypeOrAny(argumentTypes[i]);
                                 if (itemType is AnyType)
                                 {
                                     return new(LanguageConstants.Array);
@@ -682,7 +682,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new FunctionOverloadBuilder("union")
                     .WithReturnResultBuilder(TryDeriveLiteralReturnType("union", (_, _, _, argumentTypes) =>
-                        new(TypeFactory.CreateArrayType(TypeHelper.CreateTypeUnion(argumentTypes.Select(TypeHelper.GetArrayItemType))))), LanguageConstants.Array)
+                        new(TypeFactory.CreateArrayType(TypeHelper.CreateTypeUnion(argumentTypes.Select(TypeHelper.GetArrayItemTypeOrAny))))), LanguageConstants.Array)
                     .WithGenericDescription(UnionDescription)
                     .WithDescription("Returns a single array with all elements from the parameters. Duplicate values are only included once.")
                     .WithVariableParameter("object", LanguageConstants.Array, minimumCount: 2, "The first array to use for joining elements.")
@@ -1409,7 +1409,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 return null;
             }
 
-            return lambdaBuilder(TypeHelper.GetArrayItemType(argumentType));
+            return lambdaBuilder(TypeHelper.GetArrayItemTypeOrAny(argumentType));
         }
 
         private static TypeSymbol CalculateIndexTypeOfArray(TypeSymbol arrayType) => TypeFactory.CreateIntegerType(

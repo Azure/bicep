@@ -21,11 +21,11 @@ public class TypeHelperTests
     [TestMethod]
     public void Array_item_types_preserve_union_members_and_ignore_empty_tuples()
     {
-        TypeHelper.GetArrayItemType(TypeHelper.CreateTypeUnion(
+        TypeHelper.GetArrayItemTypeOrAny(TypeHelper.CreateTypeUnion(
             new TypedArrayType(LanguageConstants.SecureString, default), new TupleType([], default)))
             .Should().BeSameAs(LanguageConstants.SecureString);
 
-        TypeHelper.GetArrayItemType(TypeHelper.CreateTypeUnion(
+        TypeHelper.GetArrayItemTypeOrAny(TypeHelper.CreateTypeUnion(
             new TypedArrayType(LanguageConstants.SecureString, default),
             new TypedArrayType(LanguageConstants.String, default)))
             .Should().BeOfType<UnionType>().Subject.Members.Select(member => member.Type)
