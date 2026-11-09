@@ -59,6 +59,8 @@ public static class IServiceCollectionExtensions
             .AddSingleton<LintCommand>()
             .AddSingleton<JsonRpcCommand>()
             .AddSingleton<LocalDeployCommand>()
+            .AddSingleton<OrchestrateCommand>()
+            .AddSingleton<ArmDeploymentProviderFactory>()
             .AddSingleton<SnapshotCommand>()
             .AddSingleton<DeployCommand>()
             .AddSingleton<WhatIfCommand>()

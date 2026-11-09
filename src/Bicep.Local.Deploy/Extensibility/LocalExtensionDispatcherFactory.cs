@@ -32,9 +32,9 @@ public class LocalExtensionDispatcherFactory(
     ILocalExtensionFactory localExtensionFactory,
     IArmDeploymentProvider armDeploymentProvider)
 {
-    public LocalExtensionDispatcher Create()
+    public LocalExtensionDispatcher Create(IArmDeploymentProvider? deploymentProvider = null)
         => new(
             configurationManager,
             localExtensionFactory,
-            armDeploymentProvider);
+            deploymentProvider ?? armDeploymentProvider);
 }

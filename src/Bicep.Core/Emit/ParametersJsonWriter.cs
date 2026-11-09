@@ -88,7 +88,7 @@ public class ParametersJsonWriter
                     {
                         // The backend is always expecting an expression string, so we must always ensure we emit
                         // a top-level expression, even if we could simplify by emitting a top-level object.
-                        emitter.EmitProperty("expression", () => emitter.EmitLanguageExpression(expression));
+                        emitter.EmitPropertyWithTransform("expression", expression, RewriteExternalInputReferences);
                     }
                     else
                     {
@@ -220,9 +220,9 @@ public class ParametersJsonWriter
                 return exp;
             }
 
-            var serialized = ExpressionsEngine.SerializeExpression(function);
+            var serialized = ExpressionsEngine.SerializeExpression(new FunctionExpression(function.Function, function.Parameters, []));
             return !this.Context.SemanticModel.ExternalInputReferences.InfoBySerializedExpression.TryGetValue(serialized, out var info)
                 ? exp
-                : new FunctionExpression(LanguageConstants.ExternalInputsArmFunctionName, [new JTokenExpression(info.DefinitionKey)], []);
+                : new FunctionExpression(LanguageConstants.ExternalInputsArmFunctionName, [new JTokenExpression(info.DefinitionKey)], function.Properties);
         });
 }

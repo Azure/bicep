@@ -27,6 +27,54 @@ namespace Bicep.Local.Deploy.Azure;
 public class ArmDeploymentProvider(
     IArmClientProvider armClientProvider) : IArmDeploymentProvider
 {
+    public async Task<IReadOnlyList<DeploymentWhatIfResourceChangeDefinition>> WhatIf(IBicepConfiguration configuration, DeploymentLocator locator, string location, string templateString, string parametersString, StacksConfig stacksConfig, CancellationToken cancellationToken)
+    {
+        var armClient = armClientProvider.CreateArmClient(configuration.Cloud, null);
+        var scope = GetScope(locator);
+        var deployment = armClient.GetArmDeploymentResource(new ResourceIdentifier($"{scope}/providers/Microsoft.Resources/deployments/{locator.DeploymentName}"));
+        var parameters = parametersString.FromJson<DeploymentParametersDefinition>();
+        var content = new ArmDeploymentWhatIfContent(new ArmDeploymentWhatIfProperties(ArmDeploymentMode.Incremental)
+        {
+            Template = BinaryData.FromString(templateString),
+            Parameters = BinaryData.FromString(parameters.Parameters.ToJson()),
+        });
+        var response = await deployment.WhatIfAsync(WaitUntil.Completed, content, cancellationToken);
+        return response.GetRawResponse().Content.ToString().FromJson<DeploymentWhatIfResponseDefinition>().Properties.Changes;
+    }
+
+    public async Task TeardownStack(IBicepConfiguration configuration, DeploymentLocator locator, StacksConfig stacksConfig, CancellationToken cancellationToken)
+    {
+        var armClient = armClientProvider.CreateArmClient(configuration.Cloud, null);
+        var stack = armClient.GetDeploymentStackResource(new ResourceIdentifier($"{GetScope(locator)}/providers/Microsoft.Resources/deploymentStacks/{locator.DeploymentName}"));
+        await stack.DeleteAsync(WaitUntil.Completed,
+            unmanageActionResources: stacksConfig.ActionOnUnmanage?.Resources switch
+            {
+                { } value when value.Equals(DeploymentStacksDeleteDetachEnum.Delete) => UnmanageActionResourceMode.Delete,
+                { } value when value.Equals(DeploymentStacksDeleteDetachEnum.Detach) => UnmanageActionResourceMode.Detach,
+                _ => (UnmanageActionResourceMode?)null,
+            },
+            unmanageActionResourceGroups: stacksConfig.ActionOnUnmanage?.ResourceGroups switch
+            {
+                { } value when value.Equals(DeploymentStacksDeleteDetachEnum.Delete) => UnmanageActionResourceGroupMode.Delete,
+                { } value when value.Equals(DeploymentStacksDeleteDetachEnum.Detach) => UnmanageActionResourceGroupMode.Detach,
+                _ => (UnmanageActionResourceGroupMode?)null,
+            },
+            unmanageActionManagementGroups: stacksConfig.ActionOnUnmanage?.ManagementGroups switch
+            {
+                { } value when value.Equals(DeploymentStacksDeleteDetachEnum.Delete) => UnmanageActionManagementGroupMode.Delete,
+                { } value when value.Equals(DeploymentStacksDeleteDetachEnum.Detach) => UnmanageActionManagementGroupMode.Detach,
+                _ => (UnmanageActionManagementGroupMode?)null,
+            },
+            cancellationToken: cancellationToken);
+    }
+
+    private static string GetScope(DeploymentLocator locator) => locator switch
+    {
+        { SubscriptionId: { } subscription, ResourceGroupName: { } group } => $"/subscriptions/{subscription}/resourceGroups/{group}",
+        { SubscriptionId: { } subscription, ResourceGroupName: null } => $"/subscriptions/{subscription}",
+        _ => throw new NotImplementedException("Above-subscription scope is not supported yet."),
+    };
+
     private ArmDeploymentCollection GetDeploymentsClient(IBicepConfiguration configuration, DeploymentLocator deploymentLocator)
     {
         var armClient = armClientProvider.CreateArmClient(configuration.Cloud, deploymentLocator.SubscriptionId);

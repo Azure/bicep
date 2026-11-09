@@ -411,14 +411,12 @@ namespace Bicep.Core
 
         public static TypeSymbol CreateStackType(string typeName)
         {
-            // List<NamedTypeProperty> properties =
-            // [
-            //     // TODO add properties
-            // ];
+            var labels = new ObjectType("labels", TypeSymbolValidationFlags.Default, [],
+                new TypeProperty(String, TypePropertyFlags.None));
 
-            // return new ObjectType(typeName, TypeSymbolValidationFlags.Default, properties, null);
-
-            return Object;
+            return new ObjectType(typeName, TypeSymbolValidationFlags.Default,
+                [new("labels", labels, TypePropertyFlags.None, "String-valued labels used to select stacks for orchestration.")],
+                new TypeProperty(Any, TypePropertyFlags.None));
         }
 
         public static TypeSymbol CreateRuleType(string typeName)

@@ -41,6 +41,7 @@ public class LocalExtensionDispatcher : IAsyncDisposable
     private readonly ILocalExtensionFactory localExtensionFactory;
     private readonly WorkerJobDispatcherClient jobDispatcher;
     private readonly LocalDeploymentEngine localDeploymentEngine;
+    private readonly IArmDeploymentProvider armDeploymentProvider;
 
     public LocalExtensionDispatcher(
         IBicepConfigurationManager configurationManager,
@@ -52,6 +53,7 @@ public class LocalExtensionDispatcher : IAsyncDisposable
             .BuildServiceProvider();
 
         this.localExtensionFactory = localExtensionFactory;
+        this.armDeploymentProvider = armDeploymentProvider;
         this.localDeploymentEngine = services.GetRequiredService<LocalDeploymentEngine>();
         this.jobDispatcher = services.GetRequiredService<WorkerJobDispatcherClient>();
         // Built in extension for handling nested deployments
@@ -197,6 +199,10 @@ public class LocalExtensionDispatcher : IAsyncDisposable
 
     public async Task InitializeExtensions(Compilation compilation)
     {
+        if (!armDeploymentProvider.SupportsExternalExtensions)
+        {
+            return;
+        }
         var binaryExtensions = GetBinaryExtensions(compilation).DistinctBy(x => x.binaryUri);
 
         foreach (var (namespaceType, binaryUri) in binaryExtensions)

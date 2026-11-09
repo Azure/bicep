@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [main,orchestrator]
+    branches: [main,ant/orchestrator_demo]
   pull_request:
-    branches: [main,orchestrator]
+    branches: [main,ant/orchestrator_demo]
   workflow_dispatch:
 
 permissions:

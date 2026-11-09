@@ -12,6 +12,10 @@ var prefix = '${config.global.infraPrefix}-${config.global.environment}'
 
 stack cluster './cluster/main.bicepparam' = [for (region, i) in config.regions: {
   region: region
+  labels: {
+    region: region
+    kind: 'cluster'
+  }
   deploy: 'onChange'
   inputs: {
     subscriptionId: lookupSubscription(region)
@@ -26,6 +30,10 @@ stack cluster './cluster/main.bicepparam' = [for (region, i) in config.regions: 
 
 stack clusterApp './clusterApp/main.bicepparam' = [for (region, i) in config.regions: {
   region: region
+  labels: {
+    region: region
+    kind: 'app'
+  }
   deploy: 'always'
   inputs: {
     subscriptionId: lookupSubscription(region)
@@ -42,6 +50,10 @@ stack clusterApp './clusterApp/main.bicepparam' = [for (region, i) in config.reg
 
 stack global './global/main.bicepparam' = {
   region: config.global.infraRegion
+  labels: {
+    region: config.global.infraRegion
+    kind: 'global'
+  }
   deploy: 'onChange'
   inputs: {
     subscriptionId: lookupSubscription('global')
@@ -65,7 +77,7 @@ rule stages 'Batching' = {
   groups: [for (mapping, i) in config.stageMappings: {
     order: i
     name: mapping.name
-    selector: (stack) => contains(mapping.regions, stack.region)
+    selector: (stack) => contains(mapping.regions, stack.labels.region)
   }]
   minimumWaitTimeBetweenBatches: mode == 'hotfix' ? 'PT1H' : 'PT24H'
 }

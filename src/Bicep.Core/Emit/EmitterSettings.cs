@@ -21,6 +21,8 @@ namespace Bicep.Core.Emit
                 UseExperimentalTemplateLanguageVersion ||
                 // symbolic name codegen has been explicitly enabled
                 model.Features.SymbolicNameCodegenEnabled ||
+                // orchestration stacks are emitted as symbolic resources
+                model.Root.StackDeclarations.Any() ||
                 // use of extensions or extensible resources
                 model.Root.ExtensionDeclarations.Any() ||
                 model.DeclaredResources.Any(x => !x.IsAzResource) ||

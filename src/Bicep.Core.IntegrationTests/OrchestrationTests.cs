@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
@@ -21,6 +22,36 @@ public class OrchestrationTests
 
     [NotNull]
     public TestContext? TestContext { get; set; }
+
+    [TestMethod]
+    [DataRow("{ region: 'westus' }", true)]
+    [DataRow("{ region: 1 }", false)]
+    [DataRow("{ region: true }", false)]
+    [DataRow("{ region: ['westus'] }", false)]
+    [DataRow("{ region: { name: 'westus' } }", false)]
+    [DataRow("{ region: null }", false)]
+    [DataRow("'westus'", false)]
+    public void Stack_labels_require_string_values(string labels, bool valid)
+    {
+        var result = CompilationHelper.Compile(Services,
+            ("main.bicep", $$"""
+                targetScope = 'orchestrator'
+                stack example './stack.bicepparam' = {
+                  labels: {{labels}}
+                  inputs: {}
+                }
+                """),
+            ("stack.bicepparam", "using './stack.bicep'"),
+            ("stack.bicep", "output value string = 'example'"));
+        if (valid)
+        {
+            result.Should().NotHaveAnyDiagnostics();
+        }
+        else
+        {
+            result.Diagnostics.Should().Contain(diagnostic => diagnostic.Level == DiagnosticLevel.Error);
+        }
+    }
 
     [TestMethod]
     [EmbeddedFilesTestData(@"orchestration_samples/basic/main\.bicepparam")]

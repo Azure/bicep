@@ -6,8 +6,6 @@ using System.CommandLine;
 using Azure.Core;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Entities;
-using Azure.ResourceManager.Resources;
-using Azure.ResourceManager.Resources.Models;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
@@ -15,13 +13,10 @@ using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Cli.Logging;
 using Bicep.Core;
-using Bicep.Core.AzureApi;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Utils;
-using Bicep.Core.Utils.Snapshots;
 using Bicep.Local.Deploy.Extensibility;
 using Json.More;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,8 +29,7 @@ namespace Bicep.Cli.Commands;
 public class OrchestrateCommand(
     IOContext io,
     DeploymentRenderer deploymentRenderer,
-    IDeploymentProcessor deploymentProcessor,
-    IArmClientProvider armClientProvider,
+    ArmDeploymentProviderFactory deploymentProviderFactory,
     ILogger logger,
     DiagnosticLogger diagnosticLogger,
     BicepCompiler compiler,
@@ -46,25 +40,29 @@ public class OrchestrateCommand(
         string InputFile,
         bool NoRestore,
         ImmutableDictionary<string, string> AdditionalArguments,
-        DeploymentOutputFormat? OutputFormat) : IInputArguments;
+        DeploymentOutputFormat? OutputFormat,
+        ImmutableDictionary<string, ImmutableHashSet<string>> Labels) : IInputArguments;
 
     private record DeployArguments(
         string InputFile,
         bool NoRestore,
         ImmutableDictionary<string, string> AdditionalArguments,
-        DeploymentOutputFormat? OutputFormat) : OrchestrateArguments(InputFile, NoRestore, AdditionalArguments, OutputFormat);
+        DeploymentOutputFormat? OutputFormat,
+        ImmutableDictionary<string, ImmutableHashSet<string>> Labels) : OrchestrateArguments(InputFile, NoRestore, AdditionalArguments, OutputFormat, Labels);
 
     private record WhatIfArguments(
         string InputFile,
         bool NoRestore,
         ImmutableDictionary<string, string> AdditionalArguments,
-        DeploymentOutputFormat? OutputFormat) : OrchestrateArguments(InputFile, NoRestore, AdditionalArguments, OutputFormat);
+        DeploymentOutputFormat? OutputFormat,
+        ImmutableDictionary<string, ImmutableHashSet<string>> Labels) : OrchestrateArguments(InputFile, NoRestore, AdditionalArguments, OutputFormat, Labels);
 
     private record TeardownArguments(
         string InputFile,
         bool NoRestore,
         ImmutableDictionary<string, string> AdditionalArguments,
-        DeploymentOutputFormat? OutputFormat) : OrchestrateArguments(InputFile, NoRestore, AdditionalArguments, OutputFormat);
+        DeploymentOutputFormat? OutputFormat,
+        ImmutableDictionary<string, ImmutableHashSet<string>> Labels) : OrchestrateArguments(InputFile, NoRestore, AdditionalArguments, OutputFormat, Labels);
 
     private async Task<Compilation> GetCompilation(OrchestrateArguments args)
     {
@@ -73,6 +71,10 @@ public class OrchestrateCommand(
 
         var compilation = await compiler.CreateCompilation(paramsFileUri, skipRestore: args.NoRestore);
         var model = compilation.GetEntrypointSemanticModel();
+        if (diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation).HasErrors)
+        {
+            throw new CommandLineException("Orchestration compilation failed. Fix the reported diagnostics before retrying.");
+        }
 
         if (model.TargetScope != ResourceScope.Orchestrator)
         {
@@ -105,10 +107,17 @@ public class OrchestrateCommand(
         {
             Description = "Output format for deployment results (Default, Json).",
         };
+        var labelOption = new Option<string[]>("--label")
+        {
+            Description = "Select stacks by label (key=value1,value2). Repeat for multiple labels. Deploy and what-if include prerequisites; teardown rejects surviving dependents.",
+            Arity = ArgumentArity.OneOrMore,
+            AllowMultipleArgumentsPerToken = false,
+        };
 
         deployCommand.Add(inputFileArgument);
         deployCommand.Add(noRestoreOption);
         deployCommand.Add(formatOption);
+        deployCommand.Add(labelOption);
         deployCommand.SetAction((result, ct) => context.RunCommandAsync(async () =>
         {
             var additionalArguments = CommandLineBuilderContext.ParseAdditionalArguments(result.UnmatchedTokens);
@@ -116,7 +125,8 @@ public class OrchestrateCommand(
                 result.GetRequiredValue(inputFileArgument),
                 result.GetValue(noRestoreOption),
                 additionalArguments,
-                result.GetValue(formatOption));
+                result.GetValue(formatOption),
+                OrchestrationSelection.ParseLabels(result.GetValue(labelOption) ?? []));
 
             return await context.GetCommand<OrchestrateCommand>().Deploy(args, ct);
         }));
@@ -124,6 +134,7 @@ public class OrchestrateCommand(
         whatIfCommand.Add(inputFileArgument);
         whatIfCommand.Add(noRestoreOption);
         whatIfCommand.Add(formatOption);
+        whatIfCommand.Add(labelOption);
         whatIfCommand.SetAction((result, ct) => context.RunCommandAsync(async () =>
         {
             var additionalArguments = CommandLineBuilderContext.ParseAdditionalArguments(result.UnmatchedTokens);
@@ -131,7 +142,8 @@ public class OrchestrateCommand(
                 result.GetRequiredValue(inputFileArgument),
                 result.GetValue(noRestoreOption),
                 additionalArguments,
-                result.GetValue(formatOption));
+                result.GetValue(formatOption),
+                OrchestrationSelection.ParseLabels(result.GetValue(labelOption) ?? []));
 
             return await context.GetCommand<OrchestrateCommand>().WhatIf(args, ct);
         }));
@@ -139,6 +151,7 @@ public class OrchestrateCommand(
         teardownCommand.Add(inputFileArgument);
         teardownCommand.Add(noRestoreOption);
         teardownCommand.Add(formatOption);
+        teardownCommand.Add(labelOption);
         teardownCommand.SetAction((result, ct) => context.RunCommandAsync(async () =>
         {
             var additionalArguments = CommandLineBuilderContext.ParseAdditionalArguments(result.UnmatchedTokens);
@@ -146,7 +159,8 @@ public class OrchestrateCommand(
                 result.GetRequiredValue(inputFileArgument),
                 result.GetValue(noRestoreOption),
                 additionalArguments,
-                result.GetValue(formatOption));
+                result.GetValue(formatOption),
+                OrchestrationSelection.ParseLabels(result.GetValue(labelOption) ?? []));
 
             return await context.GetCommand<OrchestrateCommand>().Teardown(args, ct);
         }));        
@@ -156,6 +170,7 @@ public class OrchestrateCommand(
 
     private async Task<int> Deploy(DeployArguments args, CancellationToken cancellationToken)
     {
+        await using var session = deploymentProviderFactory.Create();
         var compilation = await GetCompilation(args);
         var parameters = compilation.Emitter.Parameters();
 
@@ -165,14 +180,24 @@ public class OrchestrateCommand(
             return 1;
         }
 
+        if (args.Labels.Count > 0)
+        {
+            var selection = await OrchestrationSelection.Create(templateContent, parametersContent, args.Labels, teardown: false, cancellationToken);
+            logger.LogInformation("Selected stacks (including prerequisites): {Stacks}", string.Join(", ", selection.Selected.Order(StringComparer.Ordinal)));
+            templateContent = selection.Template;
+        }
+
         async Task ProcessLocal(Action<DeploymentWrapperView> onUpdate)
         {
             try
             {
-                await using var dispatcher = dispatcherFactory.Create();
-
+                await using var dispatcher = dispatcherFactory.Create(session.Provider);
                 await dispatcher.InitializeExtensions(compilation);
-                await dispatcher.Deploy(templateContent, parametersContent, result => onUpdate(new(DeploymentProcessor.GetDeploymentView(result), null)), cancellationToken);
+                var result = await dispatcher.Deploy(templateContent, parametersContent, result => onUpdate(new(DeploymentProcessor.GetDeploymentView(result), null)), cancellationToken);
+                if (result.Deployment.Properties.ProvisioningState != ProvisioningState.Succeeded)
+                {
+                    logger.LogError("Deployment failed: {Error}", result.Deployment.Properties.Error?.ToJson());
+                }
             }
             catch (Exception exception)
             {
@@ -191,6 +216,7 @@ public class OrchestrateCommand(
 
     private async Task<int> WhatIf(WhatIfArguments args, CancellationToken cancellationToken)
     {
+        await using var session = deploymentProviderFactory.Create();
         var compilation = await GetCompilation(args);
         var model = compilation.GetEntrypointSemanticModel();
 
@@ -202,24 +228,11 @@ public class OrchestrateCommand(
             return 1;
         }
 
-        var snapshot = await SnapshotHelper.GetSnapshot(
-            targetScope: model.TargetScope,
-            templateContent: templateContent,
-            parametersContent: parametersContent,
-            tenantId: null,
-            managementGroupId: null,
-            subscriptionId: null,
-            resourceGroup: null,
-            location: null,
-            deploymentName: null,
-            cancellationToken: cancellationToken,
-            includeSymbolicNames: true,
-            externalInputs: []);
+        var selection = await OrchestrationSelection.Create(templateContent, parametersContent, args.Labels, teardown: false, cancellationToken);
+        var stackResources = selection.GetTeardownBatches().Reverse().SelectMany(batch => batch)
+            .Select(name => selection.Resources.Single(resource => resource.GetProperty("symbolicName").GetString() == name));
 
-        var armClient = armClientProvider.CreateArmClient(model.Configuration.Cloud, null);
-
-        var hasFailures = false;
-        foreach (var stackResource in snapshot.PredictedResources)
+        foreach (var stackResource in stackResources)
         {
             var symbolicName = stackResource.GetPropertyByPath("symbolicName").GetString()!;
             var stackParameters = stackResource.GetPropertyByPath("properties.parameters").GetString()!;
@@ -232,41 +245,24 @@ public class OrchestrateCommand(
             var paramsResult = await NestedDeploymentExtension.ProcessParameters(stackParameters, inputs.ToJsonString().FromJson<JObject>());
             var deploymentName = paramsResult.UsingConfig.Name ?? "main";
 
-            var stackCompilation = await compiler.CreateCompilation(sourceUri);
-            var stackSummary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, stackCompilation);
-
-            if (stackSummary.HasErrors ||
-                stackCompilation.Emitter.Parameters() is not { } stackResult ||
-                stackResult.Template?.Template is not { } stackTemplateContent ||
-                stackResult.Parameters is not { } stackParametersContent)
-            {
-                hasFailures = true;
-                continue;
-            }
-
-            var deploymentResource = armClient.GetArmDeploymentResource(new ResourceIdentifier($"{paramsResult.UsingConfig.Scope}/providers/Microsoft.Resources/deployments/{deploymentName}"));
-            var paramsDefinition = paramsResult.Parameters.FromJson<DeploymentParametersDefinition>();
-            var deploymentProperties = new ArmDeploymentWhatIfProperties(ArmDeploymentMode.Incremental)
-            {
-                Template = BinaryData.FromString(stackTemplateContent),
-                Parameters = BinaryData.FromString(paramsDefinition.Parameters.ToJson()),
-            };
-            var armDeploymentContent = new ArmDeploymentWhatIfContent(deploymentProperties);
-
-            var response = await deploymentResource.WhatIfAsync(Azure.WaitUntil.Completed, armDeploymentContent, cancellationToken);
-
-            var definition = response.GetRawResponse().Content.ToString().FromJson<DeploymentWhatIfResponseDefinition>();
-            var changes = definition.Properties.Changes.Where(x => x.ChangeType != DeploymentWhatIfChangeType.Ignore);
+            var template = stackResource.GetPropertyByPath("properties.template").GetString()
+                ?? throw new CommandLineException($"Stack '{symbolicName}' has no template.");
+            var changes = await session.Provider.WhatIf(model.Configuration,
+                GetLocator(paramsResult.UsingConfig.Scope, deploymentName),
+                region, template, paramsResult.Parameters,
+                paramsResult.UsingConfig.StacksConfig ?? throw new CommandLineException($"Stack '{symbolicName}' has no stacks configuration."),
+                cancellationToken);
 
             logger.LogInformation($"WhatIf results for Stack {symbolicName} - {sourceUri}:");
-            await io.Output.Writer.WriteAsync(WhatIfOperationResultFormatter.Format([.. changes]));
+            await io.Output.Writer.WriteAsync(WhatIfOperationResultFormatter.Format([.. changes.Where(change => change.ChangeType != DeploymentWhatIfChangeType.Ignore)]));
         }
 
-        return hasFailures ? 1 : 0;
+        return 0;
     }
 
     private async Task<int> Teardown(TeardownArguments args, CancellationToken cancellationToken)
     {
+        await using var session = deploymentProviderFactory.Create();
         var compilation = await GetCompilation(args);
         var model = compilation.GetEntrypointSemanticModel();
 
@@ -278,81 +274,67 @@ public class OrchestrateCommand(
             return 1;
         }
 
-        var snapshot = await SnapshotHelper.GetSnapshot(
-            targetScope: model.TargetScope,
-            templateContent: templateContent,
-            parametersContent: parametersContent,
-            tenantId: null,
-            managementGroupId: null,
-            subscriptionId: null,
-            resourceGroup: null,
-            location: null,
-            deploymentName: null,
-            includeSymbolicNames: true,
-            cancellationToken: cancellationToken,
-            externalInputs: []);
-
-        var stacksConfigs = new List<DeployCommandsConfig>();
-        var hasFailures = false;
-        foreach (var stackResource in snapshot.PredictedResources)
+        var selection = await OrchestrationSelection.Create(templateContent, parametersContent, args.Labels, teardown: true, cancellationToken);
+        var stacksConfigs = new Dictionary<string, (DeploymentLocator Locator, NestedDeploymentExtension.StacksConfig Config)>(StringComparer.Ordinal);
+        foreach (var stackResource in selection.Resources)
         {
             var symbolicName = stackResource.GetPropertyByPath("symbolicName").GetString()!;
             var stackParameters = stackResource.GetPropertyByPath("properties.parameters").GetString()!;
-            var sourceUriString = stackResource.GetPropertyByPath("properties.sourceUri").GetString()!;
-            var region = stackResource.GetPropertyByPath("properties.body.region").GetString()!;
             var inputs = stackResource.GetPropertyByPath("properties.body.inputs");
-
-            var sourceUri = new Uri(sourceUriString).ToIOUri();
 
             var paramsResult = await NestedDeploymentExtension.ProcessParameters(stackParameters, inputs.ToJsonString().FromJson<JObject>());
             var deploymentName = paramsResult.UsingConfig.Name ?? "main";
 
-            var stackCompilation = await compiler.CreateCompilation(sourceUri);
-            var stackSummary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, stackCompilation);
-
-            if (stackSummary.HasErrors ||
-                stackCompilation.Emitter.Parameters() is not { } stackResult ||
-                stackResult.Template?.Template is not { } stackTemplateContent ||
-                stackResult.Parameters is not { } stackParametersContent)
-            {
-                hasFailures = true;
-                continue;
-            }
-
-            stacksConfigs.Add(new(stackTemplateContent, stackParametersContent, new(
-                paramsResult.UsingConfig.Name,
-                paramsResult.UsingConfig.Scope,
-                region,
-                stackCompilation.GetEntrypointSemanticModel().TargetScope,
-                paramsResult.UsingConfig.StacksConfig is { } stacksConfig ? new(
-                    stacksConfig.Description,
-                    stacksConfig.ActionOnUnmanage,
-                    stacksConfig.DenySettings) : null)));
+            stacksConfigs.Add(symbolicName, (
+                GetLocator(paramsResult.UsingConfig.Scope, deploymentName),
+                paramsResult.UsingConfig.StacksConfig ?? throw new CommandLineException($"Stack '{symbolicName}' has no stacks configuration.")));
         }
 
-        if (hasFailures)
-        {
-            return 1;
-        }
-
-        var armClient = armClientProvider.CreateArmClient(model.Configuration.Cloud, null);
+        var batches = selection.GetTeardownBatches();
 
         var success = await deploymentRenderer.RenderOperation(
             DeploymentRenderer.RefreshInterval,
             async (onUpdate) =>
             {
-                var hasFailures = false;
+                var failures = 0;
                 onUpdate(new("Teardown", "Running", null));
 
-                await Task.WhenAll(stacksConfigs.Select(async config =>
+                foreach (var batch in batches)
                 {
-                    await deploymentProcessor.Teardown(model.Configuration, config, _ => { }, cancellationToken);
-                }));
+                    await Task.WhenAll(batch.Select(async name =>
+                    {
+                        try
+                        {
+                            var (locator, config) = stacksConfigs[name];
+                            await session.Provider.TeardownStack(model.Configuration, locator, config, cancellationToken);
+                        }
+                        catch (Exception exception) when (exception is not OperationCanceledException)
+                        {
+                            Interlocked.Increment(ref failures);
+                            logger.LogError("Teardown failed for stack {Stack}: {Error}", name, exception.Message);
+                        }
+                    }));
+                    if (failures > 0)
+                    {
+                        break;
+                    }
+                }
 
-                onUpdate(new("Teardown", hasFailures ? "Failed" : "Succeeded", null));
+                onUpdate(new("Teardown", failures > 0 ? "Failed" : "Succeeded",
+                    failures > 0 ? "One or more stacks failed to tear down. Remaining prerequisites were not deleted." : null));
             },
             cancellationToken);
 
         return success ? 0 : 1;
+    }
+
+    private static DeploymentLocator GetLocator(string scope, string name)
+    {
+        var id = new ResourceIdentifier(scope);
+        if (id.SubscriptionId is null)
+        {
+            throw new CommandLineException("Above-subscription orchestration scopes are not supported.");
+        }
+        return new("", null, id.SubscriptionId, id.ResourceGroupName, name);
     }
 }
