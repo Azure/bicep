@@ -17,7 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         private readonly SemanticModel semanticModel;
         private readonly List<PossibleSecret> possibleSecrets = new();
-        private readonly Dictionary<SyntaxBase, PossibleSecret[]> analyzedSyntax = new();
+        private readonly Dictionary<SyntaxBase, PossibleSecret[]> secretsBySyntax = new();
         private uint trailingAccessExpressions = 0;
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
                 semanticModel.Binder.TryGetCycle(variable) is null)
             {
                 // Cache even empty results; public diamonds otherwise repeat all their initializer reads.
-                possibleSecrets.AddRange(Analyze(variable.DeclaringVariable.Value)
+                possibleSecrets.AddRange(GetSecretsIn(variable.DeclaringVariable.Value)
                     .Select(secret => secret with { Syntax = syntax.Name }));
             }
 
@@ -88,13 +88,13 @@ namespace Bicep.Core.Analyzers.Linter.Common
             if (possibleSecrets.Count == secretCount &&
                 trailingAccessExpressions == 0 &&
                 syntax.TryGetPropertyName() is { } propertyName &&
-                TryGetObjectPropertyValue(syntax.BaseExpression, propertyName) is { } propertyValue)
+                TryResolvePropertyInitializer(syntax.BaseExpression, propertyName) is { } propertyValue)
             {
-                VisitForwarded(propertyValue, syntax.IndexExpression);
+                AddForwardedSecrets(propertyValue, syntax.IndexExpression);
             }
         }
 
-        private SyntaxBase? TryGetObjectPropertyValue(SyntaxBase syntax, string propertyName)
+        private SyntaxBase? TryResolvePropertyInitializer(SyntaxBase syntax, string propertyName)
             // Follow only the selected property, not its siblings. Spreads may replace that property,
             // and cyclic variables already have a compiler diagnostic, so neither is followed here.
             => syntax switch
@@ -103,28 +103,28 @@ namespace Bicep.Core.Analyzers.Linter.Common
                     => obj.TryGetPropertyByName(propertyName)?.Value,
                 VariableAccessSyntax access when semanticModel.GetSymbolInfo(access) is VariableSymbol variable &&
                     semanticModel.Binder.TryGetCycle(variable) is null
-                    => TryGetObjectPropertyValue(variable.DeclaringVariable.Value, propertyName),
+                    => TryResolvePropertyInitializer(variable.DeclaringVariable.Value, propertyName),
                 AccessExpressionSyntax access when access.TryGetPropertyName() is { } selectedProperty &&
-                    TryGetObjectPropertyValue(access.BaseExpression, selectedProperty) is { } selectedValue
-                    => TryGetObjectPropertyValue(selectedValue, propertyName),
+                    TryResolvePropertyInitializer(access.BaseExpression, selectedProperty) is { } selectedValue
+                    => TryResolvePropertyInitializer(selectedValue, propertyName),
                 _ => null,
             };
 
-        private void VisitForwarded(SyntaxBase syntax, SyntaxBase anchor)
+        private void AddForwardedSecrets(SyntaxBase syntax, SyntaxBase anchor)
         {
             // Keep the secret's name, but report it on this read rather than in a shared variable declaration.
-            possibleSecrets.AddRange(Analyze(syntax).Select(secret => secret with { Syntax = anchor }));
+            possibleSecrets.AddRange(GetSecretsIn(syntax).Select(secret => secret with { Syntax = anchor }));
         }
 
-        private PossibleSecret[] Analyze(SyntaxBase syntax)
+        private PossibleSecret[] GetSecretsIn(SyntaxBase syntax)
         {
-            if (!analyzedSyntax.TryGetValue(syntax, out var secrets))
+            if (!secretsBySyntax.TryGetValue(syntax, out var secrets))
             {
                 var firstSecret = possibleSecrets.Count;
                 Visit(syntax);
                 secrets = possibleSecrets.Skip(firstSecret).ToArray();
                 possibleSecrets.RemoveRange(firstSecret, possibleSecrets.Count - firstSecret);
-                analyzedSyntax.Add(syntax, secrets);
+                secretsBySyntax.Add(syntax, secrets);
             }
 
             return secrets;
