@@ -22,7 +22,7 @@ public sealed class SecureAssignmentChecker
     private readonly SemanticModel model;
     private readonly ObjectPropertySyntax assignment;
     private readonly bool findLeaks;
-    private readonly ResourceTypeResolver? resolver;
+    private ResourceTypeResolver? resolver;
     // A variable can satisfy one target and violate another. Keep this cache local to the assignment and rule.
     private readonly Dictionary<(VariableSymbol, TypeSymbol), Mismatch[]> variableMismatches = [];
 
@@ -33,7 +33,6 @@ public sealed class SecureAssignmentChecker
         this.model = model;
         this.assignment = assignment;
         this.findLeaks = findLeaks;
-        resolver = findLeaks ? null : ResourceTypeResolver.Create(model);
     }
 
     /// <summary>
@@ -140,12 +139,6 @@ public sealed class SecureAssignmentChecker
             yield break;
         }
 
-        if (resolver is { } resourceTypeResolver &&
-            !DeployTimeConstantValidator.IsDeployTimeConstant(assignment, value, model, resourceTypeResolver))
-        {
-            yield break;
-        }
-
         // Let the visitor inspect interpolated values instead of using the string's secure flag.
         // It excludes getSecret(), whose use inside interpolation already produces BCP180.
         var source = value is StringSyntax { Expressions.Length: > 0 } ? LanguageConstants.String : model.GetTypeInfo(value);
@@ -163,7 +156,17 @@ public sealed class SecureAssignmentChecker
         var secret = value is AccessExpressionSyntax or VariableAccessSyntax ? null : secrets.FirstOrDefault();
         var syntax = reference ?? secret?.Syntax ?? value;
         var foundMessage = secret?.FoundMessage ?? FindPossibleSecretsVisitor.PossibleSecretMessage(value.ToString().Trim());
-        foreach (var mismatchPath in Compare(source, target, path, sourceSecure, false, []))
+        var mismatchPaths = Compare(source, target, path, sourceSecure, false, []).ToList();
+
+        // Like the property rule, skip runtime values given to secure inputs, since their types aren't accurate.
+        // This walks every variable the value reads, so only do it when there's a mismatch to report.
+        if (!findLeaks && mismatchPaths.Count > 0 &&
+            !DeployTimeConstantValidator.IsDeployTimeConstant(assignment, value, model, resolver ??= ResourceTypeResolver.Create(model)))
+        {
+            yield break;
+        }
+
+        foreach (var mismatchPath in mismatchPaths)
         {
             yield return new(mismatchPath, syntax, foundMessage);
         }

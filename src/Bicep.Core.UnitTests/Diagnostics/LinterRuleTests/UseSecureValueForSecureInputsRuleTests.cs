@@ -20,6 +20,15 @@ public class UseSecureValueForSecureInputsRuleTests : SecureAssignmentCheckerTes
     public void Repeated_variable_reads_do_not_expand_a_diamond_exponentially(int depth)
         => AssertDiamondAnalysisCompletesPromptly(depth, SecureAssignmentChecker.EnumerateInsecureValuesForSecureParameters);
 
+    // The deploy-time constant check walks every variable an interpolated value reads. A target that isn't
+    // secure has nothing to report, so the check shouldn't run at all.
+    [TestMethod]
+    [DataRow("param settings string", 0)]
+    [Timeout(60_000)]
+    public void Repeated_variable_reads_in_an_interpolated_diamond_do_not_expand_exponentially(string child, int expectedMismatches)
+        => AssertDiamondAnalysisCompletesPromptly(24, SecureAssignmentChecker.EnumerateInsecureValuesForSecureParameters,
+            interpolated: true, child, expectedMismatches);
+
     [TestMethod]
     public void Cached_variable_findings_keep_each_destination_path_and_target_type()
         => AssertFlow("""

@@ -19,11 +19,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 // compilation, so a test for one rule also shows what the other rule reports for the same module.
 public abstract class SecureAssignmentCheckerTestsBase : LinterRuleTestsBase
 {
+    // Each level reads the previous one twice, so following every read takes 2^depth steps. An object diamond
+    // is walked by the checker itself; an interpolated one is a single leaf, which other checks have to walk.
     protected static void AssertDiamondAnalysisCompletesPromptly(int depth,
-        Func<SemanticModel, ObjectPropertySyntax, IEnumerable<SecureAssignmentChecker.Mismatch>> enumerateMismatches)
+        Func<SemanticModel, ObjectPropertySyntax, IEnumerable<SecureAssignmentChecker.Mismatch>> enumerateMismatches,
+        bool interpolated = false, string child = "param settings object", int expectedMismatches = 0)
     {
-        var declarations = string.Join("\n", Enumerable.Range(1, depth)
-            .Select(level => $"var v{level} = {{ a: v{level - 1}, b: v{level - 1} }}"));
+        var declarations = string.Join("\n", Enumerable.Range(1, depth).Select(level => interpolated
+            ? $"var v{level} = '${{v{level - 1}}}${{v{level - 1}}}'"
+            : $"var v{level} = {{ a: v{level - 1}, b: v{level - 1} }}"));
         var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(
             ("main.bicep", $$"""
                 param p string
@@ -36,7 +40,7 @@ public abstract class SecureAssignmentCheckerTestsBase : LinterRuleTestsBase
                   }
                 }
                 """),
-            ("child.bicep", "param settings object"));
+            ("child.bicep", child));
         var model = result.Compilation.GetEntrypointSemanticModel();
         var assignment = SecureAssignmentChecker.EnumerateModuleParameterAssignments(model).Single();
         model.GetTypeInfo(assignment.Value).Should().NotBeOfType<ErrorType>();
@@ -47,7 +51,7 @@ public abstract class SecureAssignmentCheckerTestsBase : LinterRuleTestsBase
         var mismatches = enumerateMismatches(model, assignment).ToArray();
         stopwatch.Stop();
 
-        mismatches.Should().BeEmpty();
+        mismatches.Should().HaveCount(expectedMismatches);
         stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(5),
             "repeated reads of a variable against the same target should reuse its analysis");
     }
