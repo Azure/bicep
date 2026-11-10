@@ -3,7 +3,6 @@
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.IO.Abstractions;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;

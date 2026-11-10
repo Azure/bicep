@@ -30,7 +30,7 @@ export function PendingResourceLayer() {
           <div data-testid="pending-resource-node">
             <ResourceNodePreview
               fullyQualifiedType={pending.resourceType.fullyQualifiedType}
-              testId="pending-resource-card"
+              testId="pending-resource-preview"
             />
           </div>
         </$PendingPosition>

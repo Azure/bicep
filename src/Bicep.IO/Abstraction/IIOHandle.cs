@@ -14,5 +14,11 @@ namespace Bicep.IO.Abstraction
         IOUri Uri { get; }
 
         bool Exists();
+
+        /// <summary>
+        /// Returns true if the handle refers to a symbolic link, junction, or other reparse point.
+        /// Returns false if the entry does not exist.
+        /// </summary>
+        bool IsReparsePoint();
     }
 }

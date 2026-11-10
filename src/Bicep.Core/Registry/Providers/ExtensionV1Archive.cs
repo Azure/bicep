@@ -12,6 +12,12 @@ public static class ExtensionV1Archive
 {
     public static async Task<BinaryData> Build(ExtensionPackage package)
     {
+        // The archive has no binary layer version, so Read would treat V2 binaries as V1 (gRPC) binaries.
+        if (package.BinaryLayerVersion != ExtensionBinaryLayerVersion.V1 && package.Binaries.Any())
+        {
+            throw new ArgumentException($"Only {ExtensionBinaryLayerVersion.V1} extension binaries can be written to a local extension archive.", nameof(package));
+        }
+
         using var stream = new MemoryStream();
 
         using (var gzStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))

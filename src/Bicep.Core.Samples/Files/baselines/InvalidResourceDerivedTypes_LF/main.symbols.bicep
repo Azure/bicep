@@ -26,7 +26,7 @@ type invalid12 = resourceInput<resourceGroup()>
 //@[5:14) TypeAlias invalid12. Type: error. Declaration start char: 0, length: 47
 
 type thisIsWeird = resourceInput</*
-//@[5:16) TypeAlias thisIsWeird. Type: Type<Astronomer.Astro/organizations>. Declaration start char: 0, length: 98
+//@[5:16) TypeAlias thisIsWeird. Type: Type<Astronomer.Astro/organizations@2023-08-01-preview>. Declaration start char: 0, length: 98
 */'Astronomer.Astro/organizations@2023-08-01-preview'
 ///  >
 >
@@ -103,7 +103,7 @@ type sealableUserDefinedObject = {
 }
 
 type hello = {
-//@[5:10) TypeAlias hello. Type: Type<{ bar: Astronomer.Astro/organizations }>. Declaration start char: 0, length: 113
+//@[5:10) TypeAlias hello. Type: Type<{ bar: Astronomer.Astro/organizations@2023-08-01-preview }>. Declaration start char: 0, length: 113
   @discriminator('hi')
   bar: resourceInput<'Astronomer.Astro/organizations@2023-08-01-preview'>
 }

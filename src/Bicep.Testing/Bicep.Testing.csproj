@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
-
-    <!-- Workaround for https://github.com/microsoft/testfx/issues/4945 -->
-    <TestingPlatformDotnetTestSupport>false</TestingPlatformDotnetTestSupport>
   </PropertyGroup>
 
   <ItemGroup>

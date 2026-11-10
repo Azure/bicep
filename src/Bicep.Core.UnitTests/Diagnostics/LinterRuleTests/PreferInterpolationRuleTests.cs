@@ -51,7 +51,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "'vnet-${suffix}'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void VariableValue_HasFix(string text, string expectedFix)
         {
             ExpectDiagnosticWithFix(text, expectedFix);
@@ -66,7 +66,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "'vnet-${suffix}'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void ParameterValue_HasFix(string text, string expectedFix)
         {
             ExpectDiagnosticWithFix(text, expectedFix);
@@ -81,7 +81,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "'vnet-${suffix}'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void ResourceProperty_HasFix(string text, string expectedFix)
         {
             ExpectDiagnosticWithFix(text, expectedFix);
@@ -100,7 +100,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "'${p1}${p2}'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void ResourceDeepProperty_HasFix(string text, string expectedFix)
         {
             ExpectDiagnosticWithFix(text, expectedFix);
@@ -123,7 +123,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "'${projectName}main'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void ConcatDeepInExpression_HasFix(string text, params string[] expectedFixes)
         {
             ExpectDiagnosticWithFix(text, expectedFixes);
@@ -139,7 +139,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "'abcdefghi'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void JustLiterals_HasFix(string text, string expectedFix)
         {
             ExpectDiagnosticWithFix(text, expectedFix);
@@ -180,7 +180,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "'a${v1}b${v2}'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void MixedLiteralsAndExpressions_HasFix(string text, string expectedFix)
         {
             ExpectDiagnosticWithFix(text, expectedFix);
@@ -224,7 +224,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "'${a}${b}${uniqueString('${a}')}'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void StringFolding_HasFix(string text, string expectedFix)
         {
             ExpectDiagnosticWithFix(text, expectedFix);
@@ -333,7 +333,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 var b = concat(a1, a2, a3, a4) // arrays - no interpolate recommended
             "
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void ArgsNotStrings_DoNotSuggestFix(string text, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             ExpectPass(text, onCompileErrors);
@@ -378,7 +378,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "'ab'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void HandlesSyntaxErrors(string text, string? expectedFix)
         {
             if (expectedFix == null)
@@ -400,7 +400,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 var b = concat(a) // by definition concat must have multiple arguments before we recommend interpolation
             "
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void SingleArgs_DontSuggestFix(string text)
         {
             ExpectPass(text);

@@ -14,7 +14,7 @@ interaction.
 
 The webview message contracts are defined by feature:
 
-- [Core API](../src/core/api.ts): settings, graph, layout, source navigation, resource creation, and undo
+- [Core API](../src/core/api.ts): settings, graph, layout, source navigation, module restore, resource creation, and undo
 - [Palette API](../src/features/palette/api.ts): resource type catalog and API versions
 
 ## Graph synchronization
@@ -31,15 +31,15 @@ sequenceDiagram
     Ext-->>UI: document/didChange
     UI->>Ext: graph/get
     Ext->>LS: textDocument/visualGraph
-    LS-->>Ext: graph + targetScope
-    Ext-->>UI: graph + targetScope
+    LS-->>Ext: graph + revision + targetScope
+    Ext-->>UI: graph + revision + targetScope
     UI->>UI: Compare with the previous graph and update the canvas
 
     opt layout required
         UI->>UI: Render and measure nodes
-        UI->>Ext: graph/layout(measured graph)
+        UI->>Ext: graph/layout(rendered measured graph, revision)
         Ext->>LS: textDocument/visualGraphLayout
-        alt graph still matches
+        alt revision still current
             LS-->>Ext: ok + positions + bounds
             Ext-->>UI: ok + positions + bounds
             UI->>UI: Center and apply positions
@@ -59,7 +59,8 @@ sequenceDiagram
 
 `graph/get` returns the whole graph (`nodes`, `edges`) built from the live compilation, the document's
 `targetScope: "resourceGroup" | "subscription" | "managementGroup" | "tenant" | null`, and the
-document's `errorCount`, which includes errors that belong to no node. The graph
+document's `errorCount`, which includes errors that belong to no node, and the graph's topology
+`revision` (see [Layout contract](#layout-contract)). The graph
 is null when no compiled model is available, and the webview then keeps what it shows. A whole graph
 rather than a delta means no response depends on what the webview showed before, so the host keeps no
 state and responses need no ordering. The webview compares each graph with the previous one to decide
@@ -67,23 +68,82 @@ what to mount and whether layout is stale. Only accepted coordinator updates pub
 state; superseded responses and responses overlapping mutations cannot overwrite it. Scope-only
 changes do not invalidate graph layout or adjust zoom.
 
-The webview also holds a session-local set of collapsed module IDs. It projects the authoritative
-graph before rendering: descendants of a collapsed module are omitted, dependencies wholly inside it
-are omitted, and dependencies crossing its boundary terminate at the collapsed module card. The source
-graph is unchanged. Collapse state survives graph refreshes while the same module ID and available
-children remain.
+A node's `parentId` is its container: the module it is declared in, or a resource drawn around it.
+Within one file, a resource is inside its parent resource (the one it is nested in or its `parent`
+property names), and a resource or module is otherwise inside the resource group or management group
+its `scope` property names when that group is declared in the same file. A collection is never a
+container, and a scope that only computes a name, such as `resourceGroup(rg.name)`, is not
+containment. A container is a resource with `hasChildren`; a resource with nothing inside it is an
+ordinary node. Containment does not change IDs, which are the path of module and symbol names, so
+nothing may read containment from an ID. A dependency between a node and a container around it is
+implied and omitted; other dependencies can join nodes in different containers, such as a network
+interface's dependency on a subnet inside a virtual network. A module carries `isRemote` when it comes
+from a registry or a template spec, and its folder icon has a cloud pressed into it.
+
+The webview also holds a session-local set of collapsed container IDs: the user's choice, kept through
+graph refreshes even while a container is missing or empty, so a container that comes back is still
+collapsed. Any node with children can collapse. The webview projects the authoritative graph before
+rendering: descendants of a collapsed container that has children are omitted, dependencies wholly
+inside it are omitted, and dependencies crossing its boundary terminate at the collapsed container.
+The source graph is unchanged.
 
 The passive scope indicator is outside the export canvas subtree, like the palette and controls.
 It uses Azure resource-group, subscription-alias, and management-group icons; tenant uses the neutral
 organization Codicon. It stays visible when resource creation is disabled.
 
+### Remote modules
+
+The language server expands a module whose Bicep source it can read:
+
+- A local module expands into the declarations of its file in the compilation.
+- A registry (`br:`) module expands into the source it was published with, read from the local module
+  cache once the module dispatcher reports it restored. Each published file is compiled on its own,
+  as Go to Definition does for imported symbols, and cached by its text. Its module paths do not
+  resolve on their own, so the source archive's links (the same ones the editor follows in a
+  `bicep-extsrc:` document) say which published file or registry module each one names. Registry
+  modules named in published source are resolved with the user's configuration. Published source is
+  not the user's to fix, so its nodes never report errors.
+- Any other remote module is a leaf whose `sourceStatus` says why it shows no children:
+
+  | `sourceStatus` | Meaning                                                              | Module toggle                   |
+  | -------------- | -------------------------------------------------------------------- | ------------------------------- |
+  | `unrestored`   | A registry module not in the cache yet                               | Expand: restores, then opens    |
+  | `error`        | Its restore failed, or its archive cannot be read; see `sourceError` | Error color; expand tries again |
+  | `unavailable`  | Published without source, or a template spec                         | Disabled; tooltip says why      |
+
+  `sourceError` holds the registry's or the archive's message. A registry module that contains itself
+  through a republished tag is shown once more as a module with no children and no status.
+
+Both fields are metadata, not topology, and the webview owns their wording. Building the graph never
+restores anything, and nothing in the designer restores a module in the background. Expanding an
+`unrestored` or `error` module sends `module/restore`, and the language server restores that one module
+(`textDocument/visualGraphRestoreModule`), as resolving a link in published source does in the editor. A
+retry after an error forces the restore, so it does not report the failure the module dispatcher
+remembers; a forced restore now clears that memory. The restore does not recompile the document, whose
+compilation does not depend on the module. When it settles the webview fetches the graph, and opens the
+module if its children arrived; otherwise the toggle shows the new status. Until the module has opened
+(its children laid out) or shows its new status, its toggle shows a progress ring and is disabled; the
+restoring modules are core view state, so a restore already running is not started again.
+
+Children can also arrive without the user asking: the language server restores the registry modules a
+document references when it compiles it. Whenever a remote module that showed no children gains some,
+the webview adds it to the collapsed set before showing the graph. Its node keeps its size, so nothing
+is laid out and nothing moves; the user opens it when they want to see inside.
+
 ### Layout contract
 
-`graph/layout` submits a `MeasuredGraph`: node identity and containment, measured node dimensions,
-and edges, plus the module IDs collapsed in that projection. Positions are not sent to the server.
-The language server applies the same projection to the live graph before validating topology and
-laying it out. An `ok` response carries the positions of the visible nodes the engine laid out and
-the bounds of the projected graph.
+`graph/layout` submits a `MeasuredGraph`, the graph the webview renders: node identity and containment,
+measured node dimensions, and edges. It may omit nodes the webview hides, such as the children of a
+collapsed module. Positions are not sent to the server. The request also carries the `revision` that
+`graph/get` returned with the graph it was rendered from: a hash of the graph's topology (node IDs,
+kinds, and parents, and edge IDs and endpoints) that ignores metadata such as errors. The language
+server rebuilds the live graph and answers `graphChanged` when its revision differs; otherwise it lays
+out the measured graph exactly as sent. It knows nothing about collapsed modules. Each container's
+children are laid out on their own; an edge whose ends are in different containers is layered in the
+innermost scope around both, between the nodes that hold its ends there. An `ok` response
+carries the positions of the nodes the engine laid out and the bounds of the measured graph. A
+measured graph that is not well formed (a duplicate ID, or a parent or edge endpoint that is not in
+the graph) yields `layoutFailed`.
 
 The response status controls the next step:
 
@@ -94,7 +154,8 @@ The response status controls the next step:
 | `layoutFailed` | Reveal the graph at its current positions     |
 
 Source locations are resolved on demand through `document/revealNode` and are not stored in graph
-metadata.
+metadata. The language server answers with the declaring document's URI: a file, or a read-only
+`bicep-extsrc:` view of a registry module's published source.
 
 ### Layout invalidation
 
@@ -102,7 +163,10 @@ Layout may be stale when, compared with the previous graph:
 
 - A node or edge was added or removed
 - A node changed kind or container
-- A node's `type`, `isCollection`, or `hasChildren` changed
+- A node's `type` or `isCollection` changed, or it started or stopped being drawn around its children
+
+An atomic module is the same size whether or not it has children, so children arriving while
+it is collapsed, or `sourceStatus` and `sourceError` changing, do not invalidate layout.
 
 A correlated resource node with an explicit placement does not invalidate layout by itself.
 Undo of an independent top-level resource creation likewise removes only that node;
@@ -114,33 +178,99 @@ After an invalidating change, the webview renders and measures the graph. It req
 topology or dimensions differ from the last successful layout input.
 
 - Automatic layout may skip unchanged input and fits the viewport after success.
-- **Reset Graph Layout** bypasses the unchanged-input check and preserves the viewport.
+- **Reset Graph Layout** bypasses the unchanged-input check and preserves the viewport. It also keeps the
+  node nearest the middle of the view where it is and moves the new layout around it, rather than
+  centering the layout's box, which would shift every node when opening or closing a container has
+  changed the graph's size.
+- A **subgraph** layout places only pending subgraphs, such as the children of a module that just
+  opened (see below), and leaves every other node and the camera where they are. A pending automatic
+  layout or reset replaces it, since either places those subgraphs too.
 
-Collapsing a module does not run layout. Its contents and their edges fade out, then the container
-shrinks toward its center into a resource-style card. The card writes its own box on each animation
-tick, because node size measurement lags a frame, so it stays centered and edges follow it. Expanding
-reverses this: the frame grows from the card back around the restored contents, which fade in.
-Descendant positions are cached on collapse and restored on expand; if the card moved while
-collapsed, the restored subtree receives the same translation. The camera and unrelated nodes stay
-fixed. Under reduced motion the frame snaps instead of morphing. Collapse/expand is visual session
-state and is not an undo step.
+Collapsing a module does not run layout. The collapsed module is centered where its frame was, and the
+graph morphs the module's node from the frame's box to its collapsed size while its descendants and their
+edges fade out. Expanding reverses this: the frame grows from the collapsed module around the descendants,
+which fade in, and the module comes to the front (see the paint order below). The node and its element are
+kept throughout, so the content animates its own header in
+step. Hidden descendants keep their positions in the one positions map, and they move with the module
+however it moves (a drag, a layout, or undo), so they are in place when the module opens. Children that
+were never shown, because they arrived while the module was collapsed or the module was just restored,
+are laid out before the module opens: they render hidden and unplaced, so they are measured, while the
+module stays drawn as it was (`lib/graph` draws a node as a container only once one of its children has a
+position). A subgraph layout then places them: the webview sends the language server the module and its
+descendants alone, as a graph of their own with the same revision, and centers the resulting box where
+the module was. The module then opens around them with the same single morph and fade as any other
+module. If that layout fails they are placed at the module's center rather than left hidden. The opened
+module may overlap its neighbors until the user runs Reset Layout.
+The camera and unrelated nodes stay fixed. Under reduced motion the frame snaps and nothing fades.
+Collapsing or expanding is an undo step that replays as the toggle does, so a step is always undone in the
+collapse state it was recorded in. Like a drag, the toggle is ignored while a source edit or Reset Layout is
+in flight.
+
+### Positions and drawing
+
+Core owns one map of node **centers**, including those of nodes hidden in a collapsed module.
+Containers have none: they enclose their children. Layout, drags, and undo write the map, each saying
+whether nodes animate there or move at once; the server's top-left layout positions are converted to
+centers with the measured sizes. `lib/graph` derives each node's target box from its center and the
+size it measured, and owns where each node is drawn: a node springs toward its target, a container
+encloses where its children are drawn, and a node that becomes a container or stops being one morphs
+from the box it was drawn at. Only the drawn boxes move during an animation, so the positions core
+saves, sends, and records are always where nodes are going. Layout waits until every shown node
+has measured itself, so the centers it computes use real sizes.
+
+Nodes and edges are stacked as nested elements would be: a parent, then the edges between its
+children, then each child with its descendants. Edges are therefore below every node in their parent
+and above the parent's frame; top-level edges are below every node. An edge whose ends have different
+parents, because it crosses a container's frame, is stacked among the children of the parent painted
+last: above every frame it crosses into and below the nodes inside. Edges end at node borders, so an
+endpoint painted below the edge is never covered by it.
+Among siblings, raised nodes are painted above the others, along with each of their ancestors, and stacked
+as windows are: the most recently raised on top. Focusing, dragging, or opening a node raises it; dragging
+raises a node without focusing it, and opening a module brings it in front of the neighbors it grows over.
+
+The one exception is a node that sits on a sibling module: their target boxes overlap, and the node
+is drawn above the module, because it was raised more recently, or neither was raised and it is atomic
+or later in sibling order. Its edges should cross the module rather than vanish under it, yet stay
+below the nodes they join. All nodes share one stacking context, so the edges of the nodes sitting on
+a module are painted just above it, with those nodes and the siblings joined to them by an edge lifted
+above it. Every other sibling stays where it was drawn: one that the module covers stays below it, as
+does anything drawn below that sibling where they overlap. The paint order reads target boxes and
+edges, so it follows a node as it is dragged on and off a module. An edge of a node sitting on one
+module is drawn above every module that something sits on in that parent, and above the siblings
+those modules cover, the compromises of a single stacking context.
+
+Later stages extend these boundaries rather than move them:
+
+- Remote modules (stage 3) were more containers from the server, with no change to `lib/graph`. They
+  added the `subgraph` layout, which places a module's new children around it; keeping placed
+  nodes fixed in a whole-graph layout is still open. Resource containers (stage 4) followed suit: they
+  render through the same `ContainerNode` as modules, and `isCollapsible` is "has children".
+- Selection (stage 5) is view state beside focus. The canvas raises it through `Graph`, and dragging a
+  selection moves several nodes through the same position rules.
+- Rename (stage 6) remaps IDs in the view state, the positions map, and the undo history.
+- Placeholders (stage 7) stay outside the graph; a committed drop becomes a position. A module dropped
+  collapsed is added to the collapsed set before its node arrives. Keeping placed nodes fixed while
+  others are laid out is a layout request option, not a client concern.
 
 ### Undo history
 
-A node drag records its atomic node position at the first actual movement and commits one history
-step at the end of the gesture. Dragging a module records the positions of all its descendants in
-one step. A successful Reset Layout records one step from the positions the nodes are settling at (the
-targets of any animation it interrupts) to the server's layout; a failed or unchanged layout adds none. **Undo** and **Redo** are buttons in their own panel below the control bar;
+A node drag records the positions at the first actual movement and commits one history step at the end
+of the gesture: the nodes whose positions changed, including the hidden descendants of a dragged
+collapsed module. Dragging a module moves everything inside it in one step. Collapsing or expanding a
+module is one step. A successful Reset Layout
+records one step from the positions to the server's layout; a failed or unchanged layout adds none.
+Positions are where nodes are going, so a reset or drag that interrupts an animation records its target. **Undo** and **Redo** are buttons in their own panel below the control bar;
 the focused designer also accepts Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z, and Ctrl+Y (Windows/Linux). Both
 traverse one session-local timeline of layout steps **and** designer-created resource
 declarations. Layout replay uses the same spring as automatic layout
 without requesting server layout, changing the camera, or editing Bicep source. A subsequent
-layout action retargets an in-progress animation; a drag or successful source replay cancels it.
+layout action retargets an in-progress animation, and a drag moves the dragged nodes at once. Replay
+also restores the positions of nodes hidden in a collapsed module.
 Under the effective VS Code or system reduced-motion preference, positions snap to their target.
 
 Pan, zoom, focus, and graph reconciliation are not history steps. Reconciliation keeps layout
-history for surviving atomic node IDs and discards entries for removed IDs, including when a
-symbolic rename changes an ID. A node removed by _undo of its creation_ keeps its redo
+history for nodes still in the graph, shown or hidden, and discards entries for removed IDs,
+including when a symbolic rename changes an ID. A node removed by _undo of its creation_ keeps its redo
 snapshots; other removed nodes cannot inherit stale position history. History is local to the
 visualizer session, not persisted in the Bicep file.
 
@@ -156,19 +286,20 @@ Text fields and the source editor retain their native undo behavior. See the
 
 ### Client implementation
 
-| Module                                                                      | Responsibility                                                        |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [graph-model.ts](../src/core/graph-model.ts)                                | Indexed client graph, measured projection, and render comparison      |
-| [graph-layout.ts](../src/core/graph-layout.ts)                              | Layout invalidation and centering                                     |
-| [undo-history.ts](../src/core/undo-history.ts)                              | Pure undo/redo stacks of layout and source steps                      |
-| [node-positions.ts](../src/core/node-positions.ts)                          | Capture and restore atomic node positions                             |
-| [graph-update-coordinator.ts](../src/core/graph-update-coordinator.ts)      | Update/layout ordering, coalescing, and mutation serialization        |
-| [use-graph-sync.ts](../src/core/hooks/use-graph-sync.ts)                    | Graph updates, layout, and node-drag and Reset Layout history         |
-| [GraphActionsProvider.tsx](../src/core/components/GraphActionsProvider.tsx) | Mounts graph sync and Undo/Redo shortcuts; provides `useGraphActions` |
-| [use-resource-creation.ts](../src/core/hooks/use-resource-creation.ts)      | Placeholder, extension insertion, and creation history step           |
-| [use-undo-redo.ts](../src/core/hooks/use-undo-redo.ts)                      | Undo/redo of layout and resource-creation steps                       |
-| [use-apply-graph.ts](../src/core/hooks/use-apply-graph.ts)                  | Node and edge reconciliation                                          |
-| [use-apply-graph-layout.ts](../src/core/hooks/use-apply-graph-layout.ts)    | Graph reveal and position animation                                   |
+| Module                                                                      | Responsibility                                                         |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| [graph-model.ts](../src/core/graph-model.ts)                                | Indexed client graph, collapse projection, measurement, and comparison |
+| [graph-layout.ts](../src/core/graph-layout.ts)                              | Layout invalidation, centering, and layout centers                     |
+| [node-positions.ts](../src/core/node-positions.ts)                          | The positions map and the pure rules for changing it                   |
+| [show-graph.ts](../src/core/show-graph.ts)                                  | Hands the shown graph and node data to `lib/graph`                     |
+| [undo-history.ts](../src/core/undo-history.ts)                              | Pure undo/redo stacks of layout and source steps                       |
+| [graph-update-coordinator.ts](../src/core/graph-update-coordinator.ts)      | Update/layout ordering, coalescing, and mutation serialization         |
+| [GraphActionsProvider.tsx](../src/core/components/GraphActionsProvider.tsx) | Composes the hooks below and provides `useGraphActions`                |
+| [use-graph-sync.ts](../src/core/hooks/use-graph-sync.ts)                    | Graph updates, layout, and Reset Layout                                |
+| [use-node-drag.ts](../src/core/hooks/use-node-drag.ts)                      | Moving dragged nodes and their drag history                            |
+| [use-module-collapse.ts](../src/core/hooks/use-module-collapse.ts)          | Collapse, expand, and restoring a remote module the user expands       |
+| [use-resource-creation.ts](../src/core/hooks/use-resource-creation.ts)      | Placeholder, extension insertion, and creation history step            |
+| [use-undo-redo.ts](../src/core/hooks/use-undo-redo.ts)                      | Undo/redo of layout and resource-creation steps                        |
 
 The coordinator tracks pending update and layout work independently:
 
@@ -181,7 +312,8 @@ The coordinator tracks pending update and layout work independently:
 - Request promises settle after all currently pending work completes.
 
 The language server is stateless between requests. It rebuilds the authoritative graph from the live
-compilation and validates measured layout input before computing positions.
+compilation and validates measured layout input before computing positions. Building the graph keeps
+only a cache of compiled published source, keyed by file text, so it cannot go stale.
 
 ## Resource creation
 
@@ -294,7 +426,7 @@ sequenceDiagram
     participant Doc as Bicep document
 
     User->>Canvas: Place resource type
-    Canvas->>Canvas: Add pending card
+    Canvas->>Canvas: Add pending node
     Canvas->>Coordinator: Queue mutation
     Coordinator->>Ext: resources/create
     Ext->>LS: prepareVisualResourceCreation(version, type)
@@ -306,7 +438,7 @@ sequenceDiagram
     Ext->>LS: visualGraph
     LS-->>Ext: graph with expectedNodeId
     Ext-->>Coordinator: graph with expectedNodeId
-    Coordinator->>Canvas: Mount node and remove pending card
+    Coordinator->>Canvas: Mount node and remove pending node
 ```
 
 ### Source generation
@@ -364,24 +496,24 @@ CSS variable on `<html>`. [atoms.ts](../src/ui/theme/atoms.ts) observes both and
   error colors, and toolbar and scrollbar colors. Translucent colors are composited into solid
   surfaces. `descriptionForeground` is not used: nearly every theme leaves it at the workbench's
   default gray.
-- The canvas is the editor background, so the designer matches the editor beside it. Cards and
+- The canvas is the editor background, so the designer matches the editor beside it. Nodes and
   floating chrome are a lighter shade of it in OKLCH with the same hue, aiming for the curated
-  card-to-canvas contrast. Near white the sRGB gamut narrows, so a tinted background lightens only
-  while its shade keeps 75% of its chroma: Solarized Light's `#fdf6e3` gets `#fffaec` cards, still
+  node-to-canvas contrast. Near white the sRGB gamut narrows, so a tinted background lightens only
+  while its shade keeps 75% of its chroma: Solarized Light's `#fdf6e3` gets `#fffaec` nodes, still
   cream rather than white. Neutral backgrounds lighten all the way to white, and a pure white
-  background (Light Modern) leaves white cards on a white canvas. The card border becomes firmer in
-  proportion to the separation cards could not reach. Dark themes lighten the same way, which keeps
-  cards navy on Ayu Dark and teal on Solarized Dark rather than tinting them toward a gray text color.
+  background (Light Modern) leaves white nodes on a white canvas. The node border becomes firmer in
+  proportion to the separation nodes could not reach. Dark themes lighten the same way, which keeps
+  nodes navy on Ayu Dark and teal on Solarized Dark rather than tinting them toward a gray text color.
   Edges and the dot grid keep the curated separation from the canvas.
 - Each text and accent color must reach a WCAG contrast minimum (4.5:1 text and 3:1 graphics, or
-  7:1 and 4.5:1 in high contrast) against cards and canvas. A theme color that falls short is
+  7:1 and 4.5:1 in high contrast) against nodes and canvas. A theme color that falls short is
   darkened (or, on dark surfaces, lightened) just enough, keeping its hue; only one that would need
   more than a 30% push is given up for the next theme color and then the curated one. Primary text
   is strengthened along its hue to at least 7:1, as Solarized's emphasized text is, so secondary
-  text such as the resource type can fade from it toward the card (up to 40%) while keeping 4.5:1
+  text such as the resource type can fade from it toward the node surface (up to 40%) while keeping 4.5:1
   and the theme's text hue. Contrast is measured on the 8-bit colors that render. Shadows, border
   widths, and other depth tokens stay curated, and high-contrast themes use their editor background
-  for every surface and their contrast borders for cards and edges. Without an editor background
+  for every surface and their contrast borders for nodes and edges. Without an editor background
   (outside VS Code) the curated palette is used unchanged.
 - The setting reaches the webview in `settings/didChange` as `isColorThemeMatched`. `ui` cannot
   read core settings, so `AppEnvironment` copies it into the theme's `isColorThemeMatchedAtom` in a
@@ -394,6 +526,9 @@ CSS variable on `<html>`. [atoms.ts](../src/ui/theme/atoms.ts) observes both and
 | Area            | State                                                                                 |
 | --------------- | ------------------------------------------------------------------------------------- |
 | Core            | Client graph, graph facts, pending resources and removals, undo history, coordination |
+| Core view       | Focused node, collapsed modules, restoring modules, and pending subgraph layouts      |
+| Core layout     | Node positions (centers), including those of hidden nodes                             |
+| `lib/graph`     | Shown nodes and edges, measured sizes, drawn boxes, animation, and paint order        |
 | Canvas          | The rendered surface and its drop target                                              |
 | Dock            | Creation tools and palette launcher                                                   |
 | Palette         | Catalog, search, browsing view, recent types, drag state, and preview                 |
@@ -401,9 +536,9 @@ CSS variable on `<html>`. [atoms.ts](../src/ui/theme/atoms.ts) observes both and
 | Status          | User-facing graph status, derived from core graph facts                               |
 | App environment | Jotai store, message channel, theme, and mounting the core host syncs                 |
 
-Jotai stores shared observable state, including undo/redo availability. `useGraphSync` owns the
-client graph and the mutation queue; pending resources, pending removals, and the chronological
-undo history are core atoms. The extension owns the validated source insertion/inverse for each
+Jotai stores shared observable state, including undo/redo availability. The client graph, view
+choices, pending resources, pending removals, and the chronological undo history are core atoms;
+`GraphActionsProvider` owns the coordinator that orders host requests. The extension owns the validated source insertion/inverse for each
 operation ID. Features change the graph through `useGraphActions`; the palette drops resources
 through the canvas's `useCanvasDropTarget`.
 
@@ -420,6 +555,7 @@ through the canvas's `useCanvasDropTarget`.
 | Source step can no longer replay exactly    | Disable it until a graph update confirms it |
 | Workspace edit rejected                     | Remove pending state and log the failure    |
 | Required values are unresolved              | Emit empty values for later source editing  |
+| Remote module source cannot be shown        | Explain it on the module's toggle           |
 
 Graph reconciliation silently discards stale history entries when resources disappear. Failed
 designer actions are logged to the webview console, without an in-canvas notification.
@@ -457,12 +593,14 @@ Both are timing-dependent and have not been reproduced on demand.
 
 ## Validation
 
-- Language-server tests cover graph building, topology checks, layout, catalog behavior, naming,
-  source generation, insertion, and replay.
-- Extension tests cover forwarding, settings, document version checks, and edit application.
+- Language-server tests cover graph building (including registry modules expanded from published
+  source, restoring a module on request without recompiling, and each reason source is unavailable),
+  topology checks, layout, catalog behavior, naming, source generation, insertion, and replay.
+- Extension tests cover forwarding, settings, revealing published source, module restores, document
+  version checks, and edit application.
 - Vitest covers webview atoms, graph model/layout behavior, mixed undo history, export state,
   coordinator ordering, color parsing and contrast, and color-theme derivation against every
   built-in VS Code theme.
-- Playwright covers graph interaction, export, palette behavior and views, loading, search, pointer
-  placement, drop rejection, drag-only creation, flag-off viewing, color-theme matching, and local
-  layout undo/redo.
+- Playwright covers graph interaction, remote modules, export, palette behavior and views, loading,
+  search, pointer placement, drop rejection, drag-only creation, flag-off viewing, color-theme
+  matching, and local layout undo/redo.

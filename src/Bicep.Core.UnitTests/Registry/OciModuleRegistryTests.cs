@@ -47,15 +47,21 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         [TestMethod]
-        public void TryParseArtifactReference_ShouldSucceedForNonAzureRegistry()
+        public void TryGetArtifactReference_ShouldSucceedForNonAzureRegistry()
         {
-            var (registry, _) = OciRegistryHelper.CreateModuleRegistry();
             var referencingFile = BicepTestConstants.CreateDummyBicepFile(featureOverrides: new FeatureProviderOverrides(OciEnabled: false));
+            var featureProviderFactory = IFeatureProviderFactory.WithStaticFeatureProvider(referencingFile.LoadFeatures());
+            var resolver = new ArtifactReferenceResolver(
+                BicepTestConstants.CreateRegistries(),
+                BicepTestConstants.FileExplorer,
+                BicepTestConstants.BuiltInOnlyConfigurationManager,
+                featureProviderFactory,
+                new ExternalArtifactContextFactory(BicepTestConstants.BuiltInOnlyConfigurationManager, featureProviderFactory));
 
-            var result = registry.TryParseArtifactReference(referencingFile, ArtifactType.Module, aliasName: null, reference: "ghcr.io/contoso/app:v1");
+            var result = resolver.TryResolve(referencingFile.FileHandle.Uri, ArtifactType.Module, "br:ghcr.io/contoso/app:v1");
 
             result.IsSuccess(out var artifactReference, out _).Should().BeTrue();
-            artifactReference!.Should().NotBeNull();
+            artifactReference.Should().BeOfType<OciArtifactReference>();
         }
 
         #region GetDocumentationUri
@@ -63,7 +69,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow("")]
         [DataRow("    ")]
         [DataRow(null)]
-        [DataTestMethod]
+        [TestMethod]
         public void GetDocumentationUri_WithInvalidManifestContents_ShouldReturnNull(string manifestFileContents)
         {
             (OciArtifactRegistry OciArtifactRegistry, OciArtifactReference OciArtifactReference) = CreateModuleRegistryWithCachedModuleReference(
@@ -128,7 +134,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         [DataRow("")]
         [DataRow("   ")]
-        [DataTestMethod]
+        [TestMethod]
         public void GetDocumentationUri_WithAnnotationsInManifestFileAndInvalidDocumentationUri_ShouldReturnNull(string documentationUri)
         {
             var manifestFileContents = @"{
@@ -331,7 +337,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow("")]
         [DataRow("    ")]
         [DataRow(null)]
-        [DataTestMethod]
+        [TestMethod]
         public void GetDescription_WithInvalidManifestContents_ShouldReturnNull(string manifestFileContents)
         {
             (OciArtifactRegistry OciArtifactRegistry, OciArtifactReference OciArtifactReference) = CreateModuleRegistryWithCachedModuleReference(
@@ -469,7 +475,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         [DataRow("")]
         [DataRow("   ")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task GetDescription_WithAnnotationsInManifestFileAndInvalidDescription_ShouldReturnNull(string description)
         {
             var manifestFileContents = @"{
@@ -591,7 +597,7 @@ namespace Bicep.Core.UnitTests.Registry
   }
 }";
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public async Task PublishModuleWithSource_ShouldHaveSource(bool publishSource)
@@ -606,7 +612,7 @@ namespace Bicep.Core.UnitTests.Registry
             var template = BinaryData.FromString(jsonContentsV1);
             var sources = publishSource ? BinaryData.FromString("This is a test. This is only a test. If this were a real source archive, it would have been binary.") : null;
 
-            await ociRegistry.PublishModule(moduleReference, template, sources, "http://documentation", "description");
+            await ociRegistry.PublishModule(moduleReference, new ModulePackage(template, sources, "http://documentation"));
 
             if (publishSource)
             {
@@ -618,7 +624,7 @@ namespace Bicep.Core.UnitTests.Registry
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // No sources at all
         [DataRow(jsonContentsV1, null, jsonContentsV2, null)]
         // Sources for only one version
@@ -640,11 +646,11 @@ namespace Bicep.Core.UnitTests.Registry
 
             var templateV1 = BinaryData.FromString(jsonContentsV1);
             var sourcesV1 = sourceContentsV1 == null ? null : BinaryData.FromString(sourceContentsV1);
-            await ociRegistry.PublishModule(moduleReferenceV1, templateV1, sourcesV1, "http://documentation", "description");
+            await ociRegistry.PublishModule(moduleReferenceV1, new ModulePackage(templateV1, sourcesV1, "http://documentation"));
 
             var templateV2 = BinaryData.FromString(jsonContentsV2);
             var sourcesV2 = sourceContentsV2 == null ? null : BinaryData.FromString(sourceContentsV2);
-            await ociRegistry.PublishModule(moduleReferenceV2, templateV2, sourcesV2, "http://documentation", "description");
+            await ociRegistry.PublishModule(moduleReferenceV2, new ModulePackage(templateV2, sourcesV2, "http://documentation"));
 
             if (sourcesV1 != null)
             {
@@ -669,7 +675,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         #region Pull modules
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public async Task RestoreModuleWithSource_ShouldRestoreSourceToDisk(bool publishSource)
@@ -693,7 +699,7 @@ namespace Bicep.Core.UnitTests.Registry
             }
 
             var sourceArchiveData = sourceArchive?.PackIntoBinaryData();
-            await ociRegistry.PublishModule(moduleReference, template, sourceArchiveData, "http://documentation", "description");
+            await ociRegistry.PublishModule(moduleReference, new ModulePackage(template, sourceArchiveData, "http://documentation"));
 
             if (publishSource)
             {
@@ -732,7 +738,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         private async Task RestoreModule(OciArtifactRegistry ociRegistry, OciArtifactReference reference)
         {
-            var (_, failureBuilder) = (await ociRegistry.RestoreArtifacts(new[] { reference })).SingleOrDefault();
+            var (_, failureBuilder) = (await ociRegistry.RestoreAsync([reference], RestoreMode.IfMissing)).SingleOrDefault();
             if (failureBuilder is { })
             {
                 var builder = new DiagnosticBuilderInternal(new TextSpan());
@@ -746,7 +752,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         private OciArtifactReference CreateModuleReference(BicepSourceFile referencingFile, string registry, string repository, string? tag, string? digest)
         {
-            OciArtifactReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactType.Module, null, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(OciArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), ArtifactType.Module, null, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 

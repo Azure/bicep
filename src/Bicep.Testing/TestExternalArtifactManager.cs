@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.IO.InMemory;
@@ -29,10 +30,10 @@ namespace Bicep.Testing
 
         public async Task PublishRegistryModule(string moduleArtifactId, string moduleContent, bool withSource = false, string? documentationUri = null)
         {
-            var dispatcher = this.compiler.GetService<IModuleDispatcher>();
-            var sourceFileFactory = compiler.GetService<ISourceFileFactory>();
-            var dummyFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
-            var targetReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Module, moduleArtifactId).Unwrap();
+            var resolver = this.compiler.GetService<IArtifactReferenceResolver>();
+            var ociRegistry = this.compiler.GetService<OciArtifactRegistry>();
+            var targetReference = resolver.TryResolve(DummyFileHandle.Default.Uri, ArtifactType.Module, moduleArtifactId).Unwrap() as OciArtifactReference
+                ?? throw new InvalidOperationException($"Module '{moduleArtifactId}' must have an OCI publish target.");
             var compilationResult = await compiler.Compile(moduleContent);
 
             if (compilationResult.Template is null)
@@ -41,7 +42,7 @@ namespace Bicep.Testing
             }
 
             BinaryData? sourceArchiveData = withSource ? SourceArchive.CreateFrom(compilationResult.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
-            await dispatcher.PublishModule(targetReference, BinaryData.FromString(compilationResult.Template.ToString()), sourceArchiveData, documentationUri);
+            await ociRegistry.PublishModule(targetReference, new ModulePackage(BinaryData.FromString(compilationResult.Template.ToString()), sourceArchiveData, documentationUri));
         }
 
         public async Task PublishRegistryModules(IEnumerable<RegistryModulePublishArguments> modules)
@@ -73,13 +74,13 @@ namespace Bicep.Testing
 
         public async Task PublishExtension(MockExtensionData extension)
         {
-            var dispatcher = this.compiler.GetService<IModuleDispatcher>();
-            var sourceFileFactory = compiler.GetService<ISourceFileFactory>();
-            var dummyFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
-            var extensionReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Extension, extension.ExtensionRepoReference).Unwrap();
+            var resolver = this.compiler.GetService<IArtifactReferenceResolver>();
+            var ociRegistry = this.compiler.GetService<OciArtifactRegistry>();
+            var extensionReference = resolver.TryResolve(DummyFileHandle.Default.Uri, ArtifactType.Extension, extension.ExtensionRepoReference).Unwrap() as OciArtifactReference
+                ?? throw new InvalidOperationException($"Extension '{extension.ExtensionRepoReference}' must have an OCI publish target.");
             var extensionPackage = new ExtensionPackage(extension.TypesTgzData, false, []);
 
-            await dispatcher.PublishExtension(extensionReference, extensionPackage);
+            await ociRegistry.PublishExtension(extensionReference, extensionPackage);
         }
 
         public async Task PublishExtensions(IEnumerable<MockExtensionData> extensions)

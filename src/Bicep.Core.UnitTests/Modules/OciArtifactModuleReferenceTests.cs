@@ -6,6 +6,7 @@ using System.Reflection;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
@@ -58,8 +59,8 @@ namespace Bicep.Core.UnitTests.Modules
             first.GetHashCode().Should().NotBe(secondAsObject.GetHashCode());
         }
 
-        [DynamicData(nameof(ArtifactAddressComponentsTests.GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        [DataTestMethod]
+        [DynamicData(nameof(ArtifactAddressComponentsTests.GetValidCases), DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
         public void ValidReferencesShouldParseCorrectly(ArtifactAddressComponentsTests.ValidCase @case)
         {
             var parsed = Parse(@case.Value);
@@ -75,8 +76,8 @@ namespace Bicep.Core.UnitTests.Modules
             }
         }
 
-        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        [DataTestMethod]
+        [DynamicData(nameof(GetValidCases), DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
         public void ValidReferenceShouldBeEqualToItself(ArtifactAddressComponentsTests.ValidCase @case)
         {
             OciArtifactReference first = Parse(@case.Value);
@@ -84,8 +85,8 @@ namespace Bicep.Core.UnitTests.Modules
             VerifyEqual(first, second);
         }
 
-        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        [DataTestMethod]
+        [DynamicData(nameof(GetValidCases), DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
         public void ValidReferenceShouldBeEqualWithCaseChanged(ArtifactAddressComponentsTests.ValidCase @case)
         {
             OciArtifactReference first = Parse(@case.Value);
@@ -97,8 +98,8 @@ namespace Bicep.Core.UnitTests.Modules
             VerifyEqual(firstLower, firstUpper);
         }
 
-        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        [DataTestMethod]
+        [DynamicData(nameof(GetValidCases), DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
         public void CharacterChanged_ShouldNotBeEqual(ArtifactAddressComponentsTests.ValidCase @case)
         {
             string ModifyCharAt(string a, int index)
@@ -119,8 +120,8 @@ namespace Bicep.Core.UnitTests.Modules
             }
         }
 
-        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        [DataTestMethod]
+        [DynamicData(nameof(GetValidCases), DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
         public void ValidReferenceShouldBeUriParseable(ArtifactAddressComponentsTests.ValidCase @case)
         {
             var parsed = Parse(@case.Value);
@@ -152,7 +153,7 @@ namespace Bicep.Core.UnitTests.Modules
         // valid digest plus 1 char
         [DataRow("example.com/hello/there@sha256:9aeb50c4b1a84de2315e2272c03bf940fa76c7c15e95dd6c5faabdb0945e6f8f1", "BCP224", "The specified OCI artifact reference \"br:example.com/hello/there@sha256:9aeb50c4b1a84de2315e2272c03bf940fa76c7c15e95dd6c5faabdb0945e6f8f1\" is not valid. The digest \"sha256:9aeb50c4b1a84de2315e2272c03bf940fa76c7c15e95dd6c5faabdb0945e6f8f1\" is not valid. The valid format is a string \"sha256:\" followed by exactly 64 lowercase hexadecimal digits.")]
         [DataRow("example.com/hello/there@sha256:9AEB50C4B1A84DE2315E2272C03BF940FA76C7C15E95DD6C5FAABDB0945E6F8F", "BCP224", "The specified OCI artifact reference \"br:example.com/hello/there@sha256:9AEB50C4B1A84DE2315E2272C03BF940FA76C7C15E95DD6C5FAABDB0945E6F8F\" is not valid. The digest \"sha256:9AEB50C4B1A84DE2315E2272C03BF940FA76C7C15E95DD6C5FAABDB0945E6F8F\" is not valid. The valid format is a string \"sha256:\" followed by exactly 64 lowercase hexadecimal digits.")]
-        [DataTestMethod]
+        [TestMethod]
         public void InvalidReferencesShouldProduceExpectedError(string value, string expectedCode, string expectedError)
         {
             TryParseOciArtifactReference(value).IsSuccess(out var @ref, out var failureBuilder).Should().BeFalse();
@@ -168,7 +169,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataRow("TEST.azurecr.IO/foo/bar:latest", "test.azurecr.io/foo/bar:latest")]
         [DataRow("LOCALHOST:5000/test/ssss:v1", "localhost:5000/test/ssss:v1")]
-        [DataTestMethod]
+        [TestMethod]
         public void ReferencesWithRegistryCasingDifferencesShouldBeEqual(string package1, string package2)
         {
             var (first, second) = ParsePair(package1, package2);
@@ -180,7 +181,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("test.azurecr.io/foo/bar:latest", "test.azurecr.io/foo/bar:LATEST")]
         [DataRow("localhost:5000/test/ssss:version1", "localhost:5000/test/ssss:VERSION1")]
         [DataRow("one.azurecr.io/first/second:tag1", "two.azurecr.io/third/fourth:tag2")]
-        [DataTestMethod]
+        [TestMethod]
         public void MismatchedReferencesShouldNotBeEqual(string package1, string package2)
         {
             var (first, second) = ParsePair(package1, package2);
@@ -188,7 +189,7 @@ namespace Bicep.Core.UnitTests.Modules
             first.GetHashCode().Should().NotBe(second.GetHashCode());
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("")]
         [DataRow(" ")]
         [DataRow("****")]
@@ -204,7 +205,7 @@ namespace Bicep.Core.UnitTests.Modules
             errorBuilder!.Should().HaveMessage($"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("myRegistry", "path/to/module:v1", null, "BCP213", "The OCI artifact module alias name \"myRegistry\" does not exist in the built-in Bicep configuration.")]
         [DataRow("myModulePath", "myModule:v2", "/bicepconfig.json", "BCP213", "The OCI artifact module alias name \"myModulePath\" does not exist in the Bicep configuration \"/bicepconfig.json\".")]
         public void TryParse_AliasNotInConfiguration_ReturnsFalseAndSetsErrorDiagnostic(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
@@ -219,8 +220,8 @@ namespace Bicep.Core.UnitTests.Modules
             errorBuilder!.Should().HaveMessage(expectedMessage);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetInvalidAliasData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidAliasData))]
         public void TryParse_InvalidAlias_ReturnsFalseAndSetsErrorDiagnostic(string aliasName, string referenceValue, IBicepConfiguration configuration, string expectedCode, string expectedMessage)
         {
             TryParseOciArtifactReference(referenceValue, aliasName, configuration).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
@@ -231,8 +232,8 @@ namespace Bicep.Core.UnitTests.Modules
             errorBuilder!.Should().HaveMessage(expectedMessage);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidAliasData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetValidAliasData))]
         public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, IBicepConfiguration configuration)
         {
             TryParseOciArtifactReference(referenceValue, aliasName, configuration).IsSuccess(out var reference, out var errorBuilder).Should().BeTrue();
@@ -257,8 +258,21 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static (OciArtifactReference, OciArtifactReference) ParsePair(string first, string second) => (Parse(first), Parse(second));
 
-        private static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseOciArtifactReference(string value, string? aliasName = null, IBicepConfiguration? configuration = null) =>
-            OciArtifactReference.TryParse(BicepTestConstants.CreateDummyBicepFile(configuration).LoadFeatures(), BicepTestConstants.CreateDummyBicepFile(configuration).LoadConfiguration(), ArtifactType.Module, aliasName, value);
+        private static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseOciArtifactReference(string value, string? aliasName = null, IBicepConfiguration? configuration = null)
+        {
+            var bicepFile = BicepTestConstants.CreateDummyBicepFile(configuration);
+            if (aliasName is not null)
+            {
+                if (!ArtifactReferenceResolver.TryExpandSchemeQualifiedAlias(bicepFile.LoadConfiguration(), ArtifactType.Module, ArtifactReferenceSchemes.Oci, aliasName, value).IsSuccess(out var expanded, out var errorBuilder))
+                {
+                    return new(errorBuilder);
+                }
+
+                value = expanded;
+            }
+
+            return OciArtifactReference.TryParse(OciArtifactContext.Create(bicepFile.LoadConfiguration(), bicepFile.LoadFeatures()), ArtifactType.Module, aliasName, value);
+        }
 
         private static IEnumerable<object[]> GetValidCases()
         {

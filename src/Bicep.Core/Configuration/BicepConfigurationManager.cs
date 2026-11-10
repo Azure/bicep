@@ -244,12 +244,11 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         }
 
         // Annotate moduleAliasesMock aliases with the URI of the config file that declared each one.
-        // Walk rawLayers, leaf-first: the first layer that contains an alias is the declaring layer.
-        var declaringUriMap = BuildAliasDeclaringUriMap(rawLayers);
-        if (declaringUriMap.Count > 0)
+        var mockDeclaringUris = FindDeclaringUrisByKey(rawLayers, BicepConfiguration.ModuleAliasesMockKey, "br");
+        if (mockDeclaringUris.Count > 0)
         {
             var annotatedMock = ((ModuleAliasesMockConfiguration)effectiveConfig.ModuleAliasesMock)
-                .WithDeclaringUris(declaringUriMap);
+                .WithDeclaringUris(mockDeclaringUris);
             effectiveConfig = effectiveConfig.With(moduleAliasesMock: annotatedMock);
         }
 
@@ -282,34 +281,43 @@ public class BicepConfigurationManager : IBicepConfigurationManager
     }
 
     /// <summary>
-    /// Builds a map from alias name to the URI of the config file that first declared it.
+    /// For the object at <paramref name="sectionPath"/>, maps each property name to the URI of the config file that declared it.
     /// Layers are visited leaf-first so the most-derived (leaf) declaration wins.
     /// </summary>
-    private static ImmutableDictionary<string, IOUri> BuildAliasDeclaringUriMap(
-        List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
+    private static ImmutableDictionary<string, IOUri> FindDeclaringUrisByKey(
+        List<(IFileHandle FileHandle, JsonElement Element)> rawLayers,
+        params string[] sectionPath)
     {
         var map = ImmutableDictionary.CreateBuilder<string, IOUri>(StringComparer.Ordinal);
 
         foreach (var (fileHandle, element) in rawLayers) // leaf first
         {
-            if (!element.TryGetProperty(BicepConfiguration.ModuleAliasesMockKey, out var mockElement))
+            if (!TryGetSection(element, sectionPath, out var sectionElement) || sectionElement.ValueKind != JsonValueKind.Object)
             {
                 continue;
             }
 
-            if (!mockElement.TryGetProperty("br", out var brElement))
+            foreach (var property in sectionElement.EnumerateObject())
             {
-                continue;
-            }
-
-            foreach (var alias in brElement.EnumerateObject())
-            {
-                // First layer from leaf that declares this alias name is the declaring layer.
-                map.TryAdd(alias.Name, fileHandle.Uri);
+                map.TryAdd(property.Name, fileHandle.Uri);
             }
         }
 
         return map.ToImmutable();
+    }
+
+    private static bool TryGetSection(JsonElement element, string[] sectionPath, out JsonElement section)
+    {
+        section = element;
+        foreach (var key in sectionPath)
+        {
+            if (section.ValueKind != JsonValueKind.Object || !section.TryGetProperty(key, out section))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>

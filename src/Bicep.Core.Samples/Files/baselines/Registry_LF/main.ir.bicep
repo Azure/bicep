@@ -1,5 +1,5 @@
 targetScope = 'subscription'
-//@[000:2601) ProgramExpression
+//@[000:2634) ProgramExpression
 //@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -309,9 +309,9 @@ output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUr
 //@[052:0073)       └─PropertyAccessExpression { PropertyName = outputs }
 //@[052:0065)         └─ModuleReferenceExpression
 
-module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
-//@[000:0128) ├─DeclaredModuleExpression
-//@[065:0128) | ├─ObjectExpression
+module passthroughPort 'br:port.invalid:5000/passthrough/port:v1' = {
+//@[000:0131) ├─DeclaredModuleExpression
+//@[068:0131) | ├─ObjectExpression
   scope: rg
   name: 'port'
 //@[002:0014) | | └─ObjectPropertyExpression
@@ -326,9 +326,9 @@ module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
   }
 }
 
-module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
-//@[000:0112) ├─DeclaredModuleExpression
-//@[049:0112) | ├─ObjectExpression
+module ipv4 'br:ipv4.invalid/passthrough/ipv4:v1' = {
+//@[000:0115) ├─DeclaredModuleExpression
+//@[052:0115) | ├─ObjectExpression
   scope: rg
   name: 'ipv4'
 //@[002:0014) | | └─ObjectPropertyExpression
@@ -343,9 +343,9 @@ module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
   }
 }
 
-module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
-//@[000:0133) ├─DeclaredModuleExpression
-//@[062:0133) | ├─ObjectExpression
+module ipv4port 'br:ipv4-port.invalid:5000/passthrough/ipv4port:v1' = {
+//@[000:0141) ├─DeclaredModuleExpression
+//@[070:0141) | ├─ObjectExpression
   scope: rg
   name: 'ipv4port'
 //@[002:0018) | | └─ObjectPropertyExpression
@@ -360,9 +360,9 @@ module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
   }
 }
 
-module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
-//@[000:0108) ├─DeclaredModuleExpression
-//@[045:0108) | ├─ObjectExpression
+module ipv6 'br:ipv6.invalid/passthrough/ipv6:v1' = {
+//@[000:0115) ├─DeclaredModuleExpression
+//@[052:0115) | ├─ObjectExpression
   scope: rg
   name: 'ipv6'
 //@[002:0014) | | └─ObjectPropertyExpression
@@ -377,9 +377,9 @@ module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
   }
 }
 
-module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
-//@[000:0129) ├─DeclaredModuleExpression
-//@[058:0129) | ├─ObjectExpression
+module ipv6port 'br:ipv6-port.invalid:5000/passthrough/ipv6port:v1' = {
+//@[000:0141) ├─DeclaredModuleExpression
+//@[070:0141) | ├─ObjectExpression
   scope: rg
   name: 'ipv6port'
 //@[002:0018) | | └─ObjectPropertyExpression

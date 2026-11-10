@@ -33,6 +33,21 @@ namespace Bicep.IO.FileSystem
 
         public abstract bool Exists();
 
+        public bool IsReparsePoint()
+        {
+            // Trim the trailing separator of directory paths so the link itself is inspected rather than its target.
+            var path = this.FileSystem.Path.TrimEndingDirectorySeparator(this.FilePath);
+
+            try
+            {
+                return this.FileSystem.File.GetAttributes(path).HasFlag(FileAttributes.ReparsePoint);
+            }
+            catch (Exception exception) when (exception is FileNotFoundException or DirectoryNotFoundException)
+            {
+                return false;
+            }
+        }
+
         public override int GetHashCode() => HashCode.Combine(this.GetType(), Uri);
 
         public override bool Equals(object? @object) => Equals(@object as FileSystemIOHandle);

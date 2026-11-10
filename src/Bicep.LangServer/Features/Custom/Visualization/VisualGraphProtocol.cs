@@ -24,18 +24,24 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     /// which case the client keeps what it shows until the next document change.
     /// </summary>
     /// <param name="ErrorCount">The errors reported for the document, including those that belong to no node.</param>
-    public record VisualGraphResult(CanonicalGraph? Graph, string? TargetScope, int ErrorCount);
+    /// <param name="Revision">
+    /// Identifies the graph's topology (see <see cref="CanonicalGraph.GetRevision"/>). The client sends it back
+    /// with a layout request, so the server can tell whether the graph it laid out is still current.
+    /// </param>
+    public record VisualGraphResult(CanonicalGraph? Graph, string? TargetScope, int ErrorCount, string? Revision = null);
 
     /// <summary>
-    /// Request sent after the webview has rendered the graph and measured its nodes. The server checks that the
-    /// measured topology still matches the live compilation before running MSAGL.
+    /// Request sent after the webview has rendered the graph and measured its nodes. <see cref="Graph"/> is what the
+    /// webview renders, which may omit nodes it hides (such as the children of a collapsed module), and is laid out
+    /// as sent. <see cref="Revision"/> is the revision of the graph it was rendered from; when the live compilation
+    /// has a different topology the server answers <see cref="VisualGraphLayoutStatus.GraphChanged"/>.
     /// </summary>
     [Method("textDocument/visualGraphLayout", Direction.ClientToServer)]
     public record VisualGraphLayoutParams(
         TextDocumentIdentifier TextDocument,
         MeasuredGraph Graph,
         VisualGraphLayoutOptions? Options,
-        IReadOnlyList<string>? CollapsedNodeIds = null) : ITextDocumentIdentifierParams, IRequest<VisualGraphLayoutResult>;
+        string? Revision) : ITextDocumentIdentifierParams, IRequest<VisualGraphLayoutResult>;
 
     public static class VisualGraphLayoutStatus
     {
@@ -64,9 +70,27 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         string NodeId) : ITextDocumentIdentifierParams, IRequest<VisualGraphNodeSourceResult>;
 
     /// <summary>
-    /// Response to a <see cref="VisualGraphNodeSourceParams"/> request. <see cref="FilePath"/> and <see cref="Range"/>
-    /// are null when the node no longer exists in the live compilation (for example it was deleted between render
-    /// and reveal), in which case the client reveals nothing.
+    /// Response to a <see cref="VisualGraphNodeSourceParams"/> request. <see cref="Uri"/> is the document declaring the
+    /// node: a file, or a <c>bicep-extsrc:</c> view of a registry module's published source. <see cref="Uri"/> and
+    /// <see cref="Range"/> are null when the node no longer exists in the live compilation (for example it was deleted
+    /// between render and reveal), in which case the client reveals nothing.
     /// </summary>
-    public record VisualGraphNodeSourceResult(string? FilePath, Range? Range);
+    public record VisualGraphNodeSourceResult(string? Uri, Range? Range);
+
+    /// <summary>
+    /// Request to restore the registry module behind a node whose <see cref="Models.GraphNode.SourceStatus"/> is
+    /// <c>unrestored</c> or <c>error</c> into the local module cache, sent when the user expands it. It completes once the
+    /// restore has finished, successfully or not, and never edits or recompiles the document: the client then requests
+    /// the graph, which shows the module's children or its new status. Any other node is ignored.
+    /// </summary>
+    [Method("textDocument/visualGraphRestoreModule", Direction.ClientToServer)]
+    public record VisualGraphRestoreModuleParams(
+        TextDocumentIdentifier TextDocument,
+        string NodeId) : ITextDocumentIdentifierParams, IRequest<VisualGraphRestoreModuleResult>;
+
+    /// <summary>
+    /// Response to a <see cref="VisualGraphRestoreModuleParams"/> request. <see cref="Restored"/> says whether the module
+    /// is now in the local module cache; it is for logging, since the next graph says what the module shows.
+    /// </summary>
+    public record VisualGraphRestoreModuleResult(bool Restored);
 }

@@ -2,14 +2,23 @@
 // Licensed under the MIT License.
 
 import type { Box, Point } from "@/lib/math";
-import type { GraphBounds, NodePosition } from "./api";
-import type { ClientGraph } from "./graph-model";
+import type { GraphBounds, MeasuredGraph, NodePosition } from "./api";
+import type { ClientGraph, ClientGraphNode } from "./graph-model";
 
 /**
- * The node metadata fields that influence rendered size and therefore layout. Keep this consistent
- * with the measured graph comparison and the language server's layout validation.
+ * The node metadata fields that influence rendered size and therefore layout. Node content is
+ * measured, so keep this consistent with what the canvas renders. Whether a module is drawn around its children
+ * is compared separately: see {@link isShownAsCompound}.
  */
-const LAYOUT_AFFECTING_NODE_FIELDS = ["type", "isCollection", "hasChildren"] as const;
+const LAYOUT_AFFECTING_NODE_FIELDS = ["type", "symbolName", "isCollection"] as const;
+
+/**
+ * Whether a shown node is drawn around its children: it has children and is not collapsed. An atomic module is the
+ * same size whether or not it has children to show, so gaining or losing them while collapsed changes nothing.
+ */
+function isShownAsCompound(node: ClientGraphNode): boolean {
+  return node.hasChildren && node.isCollapsed !== true;
+}
 
 export interface LayoutExemptions {
   /** Nodes placed where the user dropped them. Adding one does not require a layout. */
@@ -38,10 +47,11 @@ export function graphChangeMayAffectLayout(
       return true;
     }
 
-    // A node whose kind or container changed is replaced rather than updated.
+    // A node that moved to another container, changed kind, or may render at another size needs a layout.
     if (
       nextNode.kind !== node.kind ||
       nextNode.parentId !== node.parentId ||
+      isShownAsCompound(nextNode) !== isShownAsCompound(node) ||
       LAYOUT_AFFECTING_NODE_FIELDS.some((field) => nextNode[field] !== node[field])
     ) {
       return true;
@@ -80,5 +90,80 @@ export function centerGraphLayout(
       min: { x: offsetX, y: offsetY },
       max: { x: offsetX + graphBounds.width, y: offsetY + graphBounds.height },
     },
+  };
+}
+
+/**
+ * `layoutCenters` moved as a whole so the node nearest `focus` that has a position in `currentCenters` stays where it
+ * is. A reset lays out a graph the user is looking at, perhaps after opening or closing a container changed its
+ * size; centering the new layout's box would shift every node by half that change, which reads as the camera moving.
+ * With no node in both, the layout is returned as is.
+ */
+export function keepFocusedNodeInPlace(
+  layoutCenters: ReadonlyMap<string, Point>,
+  currentCenters: ReadonlyMap<string, Point>,
+  focus: Point,
+): Map<string, Point> {
+  let anchor: { from: Point; to: Point; distance: number } | null = null;
+
+  for (const [nodeId, to] of currentCenters) {
+    const from = layoutCenters.get(nodeId);
+    const distance = Math.hypot(to.x - focus.x, to.y - focus.y);
+
+    if (from && (!anchor || distance < anchor.distance)) {
+      anchor = { from, to, distance };
+    }
+  }
+
+  if (!anchor) {
+    return new Map(layoutCenters);
+  }
+
+  const dx = anchor.to.x - anchor.from.x;
+  const dy = anchor.to.y - anchor.from.y;
+
+  return new Map([...layoutCenters].map(([nodeId, { x, y }]) => [nodeId, { x: x + dx, y: y + dy }]));
+}
+
+/**
+ * The centers of the laid-out nodes that are positioned by their own center, from the top-left corners
+ * the host returns. Containers are skipped: they are placed by their children.
+ */
+export function getLayoutCenters(topLeftCorners: ReadonlyMap<string, Point>, graph: MeasuredGraph): Map<string, Point> {
+  const containerIds = new Set(graph.nodes.flatMap((node) => (node.parentId === null ? [] : [node.parentId])));
+  const centers = new Map<string, Point>();
+
+  for (const { id, width, height } of graph.nodes) {
+    const corner = topLeftCorners.get(id);
+    if (corner && !containerIds.has(id)) {
+      centers.set(id, { x: corner.x + width / 2, y: corner.y + height / 2 });
+    }
+  }
+
+  return centers;
+}
+
+/**
+ * The subgraph rooted at `rootId`, to lay out on its own: the root as the only top-level node, with everything inside
+ * it and the dependencies between them. The host lays it out as it does a whole graph, so the bounds it returns are
+ * the root's box.
+ */
+export function getSubgraph(graph: MeasuredGraph, rootId: string): MeasuredGraph {
+  const parentById = new Map(graph.nodes.map((node) => [node.id, node.parentId]));
+  const isInRoot = (nodeId: string) => {
+    for (let id = parentById.get(nodeId) ?? null; id !== null; id = parentById.get(id) ?? null) {
+      if (id === rootId) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  return {
+    nodes: graph.nodes.flatMap((node) =>
+      node.id === rootId ? [{ ...node, parentId: null }] : isInRoot(node.id) ? [node] : [],
+    ),
+    edges: graph.edges.filter((edge) => isInRoot(edge.sourceId) && isInRoot(edge.targetId)),
   };
 }

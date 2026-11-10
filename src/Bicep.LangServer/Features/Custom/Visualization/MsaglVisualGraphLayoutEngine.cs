@@ -21,8 +21,9 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     /// Containment is handled by laying each scope out independently and composing the results: a module's
     /// children are laid out on their own, the module is then sized to that result (plus padding for its
     /// label), and the parent scope lays the module out as a single box before its children are lifted back
-    /// into place. This sidesteps MSAGL's compound-graph (cluster) layout, which is fragile here, and is exact
-    /// because the canonical graph only ever connects siblings (every dependency edge stays within one scope).
+    /// into place. This sidesteps MSAGL's compound-graph (cluster) layout, which is fragile here. An edge that crosses
+    /// a container's boundary, such as a node's dependency on a subnet inside a virtual network, takes part in the
+    /// layout of the innermost scope around both of its ends, between the nodes that hold them there.
     /// </para>
     /// <para>
     /// Only node positions are read back. Edges are added to each scope's geometry graph so they influence
@@ -105,7 +106,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             var sizeByChild = new Dictionary<string, NodeSize>(children.Count, StringComparer.Ordinal);
             var subtreeByModule = new Dictionary<string, IReadOnlyDictionary<string, NodeLayout>>(StringComparer.Ordinal);
 
-            // Lay out module contents first so each module can be sized as a single box in this scope's layout.
+            // Lay out module children first so each module can be sized as a single box in this scope's layout.
             foreach (var child in children)
             {
                 if (child.HasChildren)
@@ -257,16 +258,41 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
         private static IReadOnlyDictionary<string, IReadOnlyList<GraphEdge>> GroupEdgesByScope(CanonicalGraph graph)
         {
-            // Every edge connects two siblings, so the scope of an edge is the parent of its endpoints.
-            var scopeByNodeId = graph.Nodes.ToDictionary(node => node.Id, node => node.ParentId ?? RootScope, StringComparer.Ordinal);
+            var parentById = graph.Nodes.ToDictionary(node => node.Id, node => node.ParentId, StringComparer.Ordinal);
             var edgesByScope = new Dictionary<string, List<GraphEdge>>(StringComparer.Ordinal);
+            var laidOutPairs = new HashSet<(string, string)>();
 
             foreach (var edge in graph.Edges)
             {
-                if (!scopeByNodeId.TryGetValue(edge.SourceId, out var scope))
+                if (!parentById.ContainsKey(edge.SourceId) || !parentById.ContainsKey(edge.TargetId))
                 {
                     continue;
                 }
+
+                // The edge joins the two nodes that hold its ends in the innermost scope around both. An edge between
+                // siblings joins its own ends; one between a node and a container around it joins nothing.
+                var sourcePath = GetContainmentPath(edge.SourceId, parentById);
+                var targetPath = GetContainmentPath(edge.TargetId, parentById);
+                var depth = 0;
+
+                while (depth < sourcePath.Count && depth < targetPath.Count && sourcePath[depth] == targetPath[depth])
+                {
+                    depth++;
+                }
+
+                if (depth == sourcePath.Count || depth == targetPath.Count)
+                {
+                    continue;
+                }
+
+                var (sourceId, targetId) = (sourcePath[depth], targetPath[depth]);
+
+                if (!laidOutPairs.Add((sourceId, targetId)))
+                {
+                    continue;
+                }
+
+                var scope = depth == 0 ? RootScope : sourcePath[depth - 1];
 
                 if (!edgesByScope.TryGetValue(scope, out var edges))
                 {
@@ -274,10 +300,27 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                     edgesByScope[scope] = edges;
                 }
 
-                edges.Add(edge);
+                edges.Add(sourceId == edge.SourceId && targetId == edge.TargetId
+                    ? edge
+                    : new GraphEdge($"{sourceId}->{targetId}", sourceId, targetId));
             }
 
             return edgesByScope.ToDictionary(pair => pair.Key, pair => (IReadOnlyList<GraphEdge>)pair.Value, StringComparer.Ordinal);
+        }
+
+        /// <summary>The ids from the outermost container down to <paramref name="nodeId"/> itself.</summary>
+        private static List<string> GetContainmentPath(string nodeId, IReadOnlyDictionary<string, string?> parentById)
+        {
+            var path = new List<string>();
+
+            for (string? id = nodeId; id is not null && path.Count <= parentById.Count; id = parentById.GetValueOrDefault(id))
+            {
+                path.Add(id);
+            }
+
+            path.Reverse();
+
+            return path;
         }
 
         private static NodeSize ResolveSize(

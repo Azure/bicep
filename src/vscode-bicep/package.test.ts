@@ -18,6 +18,7 @@ type IPackage = {
     grammars?: Array<{ path: string }>;
     jsonValidation?: Array<{ url: string }>;
     keybindings?: IPackageKeyBinding[];
+    menus?: Record<string, Array<{ command: string; when?: string }>>;
     languages?: Array<{
       configuration?: string;
       icon?: { dark: string; light: string };
@@ -35,6 +36,17 @@ function getPackageJson(): IPackage {
 }
 
 describe("package.json", () => {
+  it("offers force restore for Bicep and parameter files in context menus and keyboard shortcuts", () => {
+    const contributions = getPackageJson().contributes;
+    const command = "bicep.forceModulesRestore";
+    const expectedCondition = "resourceLangId == bicep || resourceLangId == bicep-params";
+
+    expect(contributions?.keybindings?.find((binding) => binding.command === command)?.when).toBe(expectedCondition);
+    for (const menu of ["explorer/context", "editor/title/context", "editor/context"]) {
+      expect(contributions?.menus?.[menu].find((item) => item.command === command)?.when).toBe(expectedCondition);
+    }
+  });
+
   it("provides Cmd-based Mac equivalents for Ctrl-based shortcuts", () => {
     const packageJson = getPackageJson();
     const bindings = packageJson.contributes?.keybindings ?? [];

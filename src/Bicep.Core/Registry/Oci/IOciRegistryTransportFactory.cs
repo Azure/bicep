@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Sessions;
 
 namespace Bicep.Core.Registry.Oci;
@@ -10,7 +9,10 @@ public interface IOciRegistryTransportFactory
 {
     IOciRegistryTransport GetTransport(OciArtifactReference reference);
 
-    IOciRegistryTransport GetTransport(string registry);
+    IOciRegistryTransport GetTransport(string registry, bool useOrasSdk);
 
-    IRegistrySession CreateSession(OciArtifactReference reference, IBicepCloudConfiguration cloud);
+    /// <summary>
+    /// Creates a session for the reference's registry, using the cloud and transport from its <see cref="OciArtifactContext"/>.
+    /// </summary>
+    IRegistrySession CreateSession(OciArtifactReference reference);
 }

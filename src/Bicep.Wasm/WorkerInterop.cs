@@ -18,6 +18,13 @@ public static partial class WorkerInterop
     public static string Ping(string value) => value;
 
     [JSExport]
+    public static string ResetConsole() => JsonSerialize(Interop.Value.ResetConsole());
+
+    [JSExport]
+    public static string EvaluateConsole(string input, string sessionId) =>
+        JsonSerialize(Interop.Value.EvaluateConsole(input, sessionId));
+
+    [JSExport]
     public static async Task<string> CompileAndEmitDiagnostics(string content, string? sourcePath)
     {
         var result = await Interop.Value.CompileAndEmitDiagnostics(content, sourcePath);

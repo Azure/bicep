@@ -442,7 +442,7 @@ output length int =
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("// |")]
         [DataRow("/* |")]
         [DataRow("param foo // |")]

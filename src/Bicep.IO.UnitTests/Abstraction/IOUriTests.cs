@@ -14,7 +14,7 @@ namespace Bicep.IO.UnitTests.Abstraction
     [TestClass]
     public class IOUriTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("http", "EXAMPLE.COM", "example.com")]
         [DataRow("http", "Example.Com", "example.com")]
         [DataRow("http", "example.com", "example.com")]
@@ -33,7 +33,7 @@ namespace Bicep.IO.UnitTests.Abstraction
             resourceIdentifier.Authority.Should().Be(expectedAuthority);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("/a/b/c", "/a/b/c")]
         [DataRow("/a/b/../c", "/a/c")]
         [DataRow("/a/./b/c", "/a/b/c")]
@@ -49,7 +49,7 @@ namespace Bicep.IO.UnitTests.Abstraction
             resourceIdentifier.Path.Should().Be(expectedPath);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("https", "")]
         [DataRow("https", null)]
         [DataRow("http", "")]
@@ -61,7 +61,7 @@ namespace Bicep.IO.UnitTests.Abstraction
                 .Should().Throw<ArgumentException>();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("http", "example.com", "a/b/c")]
         [DataRow("http", null, "//a/b/c")]
         [DataRow("file", null, "a/b/c")]
@@ -72,7 +72,7 @@ namespace Bicep.IO.UnitTests.Abstraction
                 .Should().Throw<ArgumentException>();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("http", "example.com", "/a/b/c", "http://example.com/a/b/c")]
         [DataRow("https", "example.com", "/a/b/c", "https://example.com/a/b/c")]
         [DataRow("inmemory", null, "a/b/c", "inmemory:a/b/c")]
@@ -136,7 +136,7 @@ namespace Bicep.IO.UnitTests.Abstraction
             identifier1.GetHashCode().Should().NotBe(identifier2.GetHashCode());
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("http", "example.com", "/a/b/c", "/a/b/", "c")]
         [DataRow("http", "example.com", "/a/b/c/", "/a/b/", "c/")]
         [DataRow("http", "example.com", "/a/b/c", "/a/b/c", "")]
@@ -186,7 +186,7 @@ namespace Bicep.IO.UnitTests.Abstraction
             act.Should().Throw<InvalidOperationException>();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("http", "example.com", "/a/b", "/a/b/c", true)]
         [DataRow("http", "example.com", "/a/b", "/a/b/c/d", true)]
         [DataRow("http", "example.com", "/a/b", "/a/b", true)]
@@ -240,7 +240,7 @@ namespace Bicep.IO.UnitTests.Abstraction
             result.Should().BeFalse();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("http", "example.com", "/a/b/c", "d/e", "http://example.com/a/b/d/e")]
         [DataRow("http", "example.com", "/a/b/c/", "d/e", "http://example.com/a/b/c/d/e")]
         [DataRow("http", "example.com", "/a/b/c", "../d/e", "http://example.com/a/d/e")]
@@ -312,7 +312,7 @@ namespace Bicep.IO.UnitTests.Abstraction
             uri.Path.Should().Be("/C:/a/b/c");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(@"\\server\share\file.txt", "server", "/share/file.txt")]
         [DataRow(@"\\myserver\documents\folder\file.bicep", "myserver", "/documents/folder/file.bicep")]
         [DataRow(@"\\SERVER\SHARE\file.txt", "server", "/SHARE/file.txt")]
@@ -328,7 +328,7 @@ namespace Bicep.IO.UnitTests.Abstraction
             uri.Path.Should().Be(expectedPath);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(@"\\server\share\file.txt")]
         [DataRow(@"\\myserver\documents\folder\file.bicep")]
         [DataRow(@"\\file-server\public\docs\readme.md")]
@@ -344,7 +344,7 @@ namespace Bicep.IO.UnitTests.Abstraction
             result.Should().Be(uncPath);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(@"\\server\share\file.txt", @"\\server\share\file.txt")]
         [DataRow(@"\\myserver\documents\folder\file.bicep", @"\\myserver\documents\folder\file.bicep")]
         [DataRow(@"\\file-server\public\docs\readme.md", @"\\file-server\public\docs\readme.md")]

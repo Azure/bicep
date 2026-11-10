@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
@@ -49,7 +50,7 @@ namespace Bicep.LangServer.UnitTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(".arm")]
         [DataRow(".json")]
         [DataRow(".jsonc")]
@@ -80,7 +81,7 @@ namespace Bicep.LangServer.UnitTests
             document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(".arm")]
         [DataRow(".json")]
         [DataRow(".jsonc")]
@@ -116,7 +117,7 @@ namespace Bicep.LangServer.UnitTests
             document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(LanguageConstants.LanguageId)]
         [DataRow(LanguageConstants.ParamsLanguageId)]
         public void UpsertCompilation_BicepFile_ShouldUpsertSuccessfully(string languageId)
@@ -520,7 +521,8 @@ module moduleB './moduleB.bicep' = {
                 BicepTestConstants.EmptyEnvironment,
                 TestTypeHelper.CreateEmptyNamespaceProvider(),
                 fileExplorer,
-                services.Construct<IModuleDispatcher>(),
+                services.Construct<RedirectingArtifactResolver>(),
+                services.Construct<IArtifactRestorer>(),
                 BicepTestConstants.LinterAnalyzer,
                 BicepTestConstants.SourceFileFactory,
                 CompilerVersionCheckOptions.Default);

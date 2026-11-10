@@ -191,7 +191,7 @@ var foo = 'i am just a |normal string!'
               @description('')
               value: string }
             """)]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Type_member_decorator_actions_target_the_innermost_decorable_syntax(string fileWithCursor, string expectedText)
         {
             var (contents, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursor);

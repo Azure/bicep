@@ -13,6 +13,6 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
     {
         void Start();
 
-        void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ArtifactReference> references);
+        void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ExternalArtifactReference> references);
     }
 }

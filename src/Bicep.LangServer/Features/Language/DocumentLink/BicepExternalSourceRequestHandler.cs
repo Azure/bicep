@@ -7,10 +7,8 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.IO.Abstraction;
-using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Features.Language.Definition;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
@@ -33,15 +31,15 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
     {
         public const string BicepExternalSourceLspMethodName = "textDocument/bicepExternalSource";
 
-        private readonly IModuleDispatcher moduleDispatcher;
-        private readonly ISourceFileFactory sourceFileFactory;
+        private readonly IArtifactRestorer restorer;
+        private readonly IExternalArtifactContextFactory externalArtifactContextFactory;
 
         public BicepExternalSourceRequestHandler(
-            IModuleDispatcher moduleDispatcher,
-            ISourceFileFactory sourceFileFactory)
+            IArtifactRestorer restorer,
+            IExternalArtifactContextFactory externalArtifactContextFactory)
         {
-            this.moduleDispatcher = moduleDispatcher;
-            this.sourceFileFactory = sourceFileFactory;
+            this.restorer = restorer;
+            this.externalArtifactContextFactory = externalArtifactContextFactory;
         }
 
         public Task<BicepExternalSourceResponse> Handle(BicepExternalSourceParams request, CancellationToken cancellationToken)
@@ -49,20 +47,26 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             // If any of the following paths results in an exception being thrown (and surfaced client-side to the user),
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.
-            var dummyReferencingFile = this.sourceFileFactory.CreateDummyArtifactReferencingFile();
-            if (!moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, request.Target).IsSuccess(out var moduleReference))
-            {
-                return Task.FromResult(new BicepExternalSourceResponse(null,
-                    $"The client specified an invalid module reference '{request.Target}'."));
-            }
-
-            if (moduleReference is not OciArtifactReference ociModuleReference)
+            //
+            // The target is a stored, fully qualified "br:" reference (see ExternalSourceReference.ToUri), so it is parsed
+            // directly: aliases, relative paths and redirects never apply to it.
+            var address = ArtifactAddress.Parse(request.Target);
+            if (address is ArtifactAddress.Path)
             {
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests."));
             }
 
-            if (!moduleDispatcher.TryGetLocalArtifactEntryPointFileHandle(moduleReference).IsSuccess())
+            if (address is not ArtifactAddress.SchemeQualified { Scheme: OciArtifactReferenceFacts.Scheme, Body: var body } ||
+                !OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(this.externalArtifactContextFactory), ArtifactType.Module, aliasContext: null, body).IsSuccess(out var ociModuleReference))
+            {
+                return Task.FromResult(new BicepExternalSourceResponse(null,
+                    $"The client specified an invalid module reference '{request.Target}'."));
+            }
+
+            var moduleReference = ociModuleReference;
+
+            if (restorer.GetRestoreState(moduleReference) is ArtifactRestoreState.RestoreFailed)
             {
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'."));
@@ -91,10 +95,11 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
             // No sources available, or specifically requesting the compiled main.json (requestedSourceFile=null).
             // Return the compiled JSON (main.json).
-            if (!ociModuleReference.ModuleMainTemplateFile.TryReadAllText().IsSuccess(out var contents, out var failureBuilder))
+            var mainTemplateFile = ociModuleReference.ModuleCacheEntry.MainTemplateFile;
+            if (!mainTemplateFile.TryReadAllText().IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
-                return Task.FromResult(new BicepExternalSourceResponse(null, $"Unable to read file '{ociModuleReference.ModuleMainTemplateFile.Uri}'. {message}"));
+                return Task.FromResult(new BicepExternalSourceResponse(null, $"Unable to read file '{mainTemplateFile.Uri}'. {message}"));
             }
 
             return Task.FromResult(new BicepExternalSourceResponse(contents));

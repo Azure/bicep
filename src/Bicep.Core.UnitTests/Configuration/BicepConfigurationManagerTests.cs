@@ -64,7 +64,7 @@ namespace Bicep.Core.UnitTests.Configuration
             chain.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("AzureBleuCloud")]
         [DataRow("AzureUSGovernment")]
         public void GetConfigurationChain_CanonicalCloudProfileOverride_IsTrusted(string profileName)

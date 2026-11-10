@@ -251,24 +251,10 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
     }
 
     private static ArtifactReference GetImportReference(ImportedSymbol symbol)
-    {
-        if (symbol.TryGetArtifactReference().IsSuccess(out var moduleReference))
-        {
-            return moduleReference;
-        }
-
-        throw new InvalidOperationException("Unable to load module reference for import statement");
-    }
+        => symbol.TryGetArtifactReference() ?? throw new InvalidOperationException("Unable to load module reference for import statement");
 
     private static ArtifactReference GetImportReference(WildcardImportSymbol symbol)
-    {
-        if (symbol.TryGetArtifactReference().IsSuccess(out var moduleReference))
-        {
-            return moduleReference;
-        }
-
-        throw new InvalidOperationException("Unable to load module reference for import statement");
-    }
+        => symbol.TryGetArtifactReference() ?? throw new InvalidOperationException("Unable to load module reference for import statement");
 
     private static IEnumerable<SearchQueueItem> GetImportsFromExtendedFiles(SemanticModel model)
     {
@@ -511,8 +497,10 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
     private static string TemplateIdentifier(IOUri entryPointUri, ISemanticModel modelToIdentify, ArtifactReference reference)
         => reference switch
         {
-            // for local modules, use the path on disk relative to the entry point template
-            LocalModuleReference => GetSourceFileUri(modelToIdentify).GetPathRelativeTo(entryPointUri),
+            // For modules referenced by a relative path, use the path on disk relative to the entry point template.
+            // Other local references (moduleAliasesMock hits) keep their reference text.
+            LocalArtifactReference local when ArtifactAddress.Parse(local.FullyQualifiedReference) is ArtifactAddress.Path
+                => GetSourceFileUri(modelToIdentify).GetPathRelativeTo(entryPointUri),
             ArtifactReference otherwise => otherwise.FullyQualifiedReference,
         };
 

@@ -7,7 +7,6 @@ using Azure.Deployments.Core.Diagnostics;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
@@ -42,14 +41,14 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
     /// <summary>
     /// This handles the case where the document is a source file from an external module, and we've been asked to return nested links within it (to files local to that module or to other external modules)
     /// </summary>
-    public class BicepExternalSourceDocumentLinkHandler(IModuleDispatcher ModuleDispatcher, ILanguageServerFacade Server, ISourceFileFactory sourceFileFactory)
+    public class BicepExternalSourceDocumentLinkHandler(IArtifactRestorer restorer, ILanguageServerFacade Server, IExternalArtifactContextFactory externalArtifactContextFactory)
         : DocumentLinkHandlerBase<ExternalSourceDocumentLinkData>
     {
         protected override Task<DocumentLinkContainer<ExternalSourceDocumentLinkData>> HandleParams(DocumentLinkParams request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var links = GetDocumentLinks(sourceFileFactory, request, cancellationToken);
+            var links = GetDocumentLinks(externalArtifactContextFactory, request, cancellationToken);
             return Task.FromResult(new DocumentLinkContainer<ExternalSourceDocumentLinkData>(links));
         }
 
@@ -57,7 +56,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await ResolveDocumentLink(request, ModuleDispatcher, sourceFileFactory, Server);
+            return await ResolveDocumentLink(request, restorer, externalArtifactContextFactory, Server);
         }
 
         protected override DocumentLinkRegistrationOptions CreateRegistrationOptions(DocumentLinkCapability capability, LspClientCapabilities clientCapabilities) => new()
@@ -66,7 +65,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             ResolveProvider = true,
         };
 
-        public static IEnumerable<DocumentLink<ExternalSourceDocumentLinkData>> GetDocumentLinks(ISourceFileFactory sourceFileFactory, DocumentLinkParams request, CancellationToken cancellationToken)
+        public static IEnumerable<DocumentLink<ExternalSourceDocumentLinkData>> GetDocumentLinks(IExternalArtifactContextFactory externalArtifactContextFactory, DocumentLinkParams request, CancellationToken cancellationToken)
         {
             var currentDocument = request.TextDocument;
             if (currentDocument.Uri.Scheme == LangServerConstants.ExternalSourceFileScheme)
@@ -86,8 +85,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                 var currentDocumentRelativeFile = currentDocumentReference.RequestedFile;
                 if (currentDocumentRelativeFile is { })
                 {
-                    var dummyFile = sourceFileFactory.CreateDummyArtifactReferencingFile();
-                    if (!currentDocumentReference.ToArtifactReference(dummyFile).IsSuccess(out var currentDocumentArtifact, out var message))
+                    if (!currentDocumentReference.ToArtifactReference(ExternalSourceReference.GetOciArtifactContext(externalArtifactContextFactory)).IsSuccess(out var currentDocumentArtifact, out var message))
                     {
                         Trace.WriteLine(message);
                         yield break;
@@ -131,43 +129,42 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
         public static async Task<DocumentLink<ExternalSourceDocumentLinkData>> ResolveDocumentLink(
             DocumentLink<ExternalSourceDocumentLinkData> request,
-            IModuleDispatcher moduleDispatcher,
-            ISourceFileFactory sourceFileFactory,
+            IArtifactRestorer restorer,
+            IExternalArtifactContextFactory externalArtifactContextFactory,
             ILanguageServerFacade server)
         {
             Trace.WriteLine($"{nameof(BicepExternalSourceDocumentLinkHandler)}: Resolving external source document link: {request.Data.TargetArtifactId}");
 
             var data = request.Data;
 
-            var dummyFile = sourceFileFactory.CreateDummyArtifactReferencingFile();
-            if (!OciArtifactReference.TryParse(dummyFile.LoadFeatures(), dummyFile.LoadConfiguration(), ArtifactType.Module, null, data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
+            if (!OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(externalArtifactContextFactory), ArtifactType.Module, null, data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
             {
                 server.Window.ShowWarning($"Unable to parse the module source ID '{data.TargetArtifactId}': {error(DiagnosticBuilder.ForDocumentStart()).Message}");
                 return GetAlternateLink();
             }
 
-            var restoreStatus = moduleDispatcher.GetArtifactRestoreStatus(targetArtifactReference, out var errorBuilder);
-            var errorMessage = errorBuilder?.Invoke(ForDocumentStart()).Message;
-            Trace.WriteLineIf(errorMessage is { }, $"Restore status: {errorMessage})");
-            if (restoreStatus == ArtifactRestoreStatus.Unknown)
+            var restoreState = restorer.GetRestoreState(targetArtifactReference);
+            Trace.WriteLine($"Restore state: {restoreState.GetType().Name}");
+            if (restoreState is ArtifactRestoreState.NotRestored)
             {
                 // We haven't tried restoring this module yet. Let's try it now.
                 Trace.WriteLine($"Attempting to restore module {targetArtifactReference.FullyQualifiedReference}");
-                await moduleDispatcher.RestoreArtifacts(new[] { targetArtifactReference }, forceRestore: false);
+                await restorer.RestoreAsync(new[] { targetArtifactReference }, RestoreMode.IfMissing);
 
-                restoreStatus = moduleDispatcher.GetArtifactRestoreStatus(targetArtifactReference, out errorBuilder);
-                errorMessage = errorBuilder?.Invoke(ForDocumentStart()).Message;
-                Trace.WriteLineIf(errorMessage is { }, $"New restore status: {errorMessage})");
+                restoreState = restorer.GetRestoreState(targetArtifactReference);
+                Trace.WriteLine($"New restore state: {restoreState.GetType().Name}");
 
-                if (restoreStatus != ArtifactRestoreStatus.Succeeded)
+                if (restoreState is not ArtifactRestoreState.Restored)
                 {
-                    var diagnostic = errorBuilder?.Invoke(DiagnosticBuilder.ForDocumentStart());
-                    var restoreMessage = diagnostic?.Message ?? "Unknown error";
+                    DiagnosticBuilder.DiagnosticBuilderDelegate restoreError = restoreState is ArtifactRestoreState.RestoreFailed failed
+                        ? failed.Error
+                        : x => x.ArtifactRequiresRestore(targetArtifactReference.FullyQualifiedReference);
+                    var restoreMessage = restoreError(DiagnosticBuilder.ForDocumentStart()).Message;
                     server.Window.ShowWarning($"Unable to restore module {targetArtifactReference.FullyQualifiedReference}: {restoreMessage}");
                     return GetAlternateLink();
                 }
             }
-            else if (restoreStatus == ArtifactRestoreStatus.Failed)
+            else if (restoreState is ArtifactRestoreState.RestoreFailed)
             {
                 server.Window.ShowWarning("Restore previously failed. Force module restore or restart to try again.");
                 return GetAlternateLink();

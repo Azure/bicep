@@ -23,7 +23,7 @@
     "@vitest/coverage-v8": "^4.1.11",
     "@vscode-elements/webview-playground": "^1.8.0",
     "element-internals-polyfill": "^3.0.2",
-    "happy-dom": "^20.14.3",
+    "happy-dom": "^21.0.4",
     "vite": "^8.3.0",
     "vite-plugin-ejs": "^2.0.0",
     "vitest": "^4.1.11"

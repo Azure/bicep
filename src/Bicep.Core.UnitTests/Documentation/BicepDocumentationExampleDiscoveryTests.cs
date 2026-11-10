@@ -135,20 +135,6 @@ public class BicepDocumentationExampleDiscoveryTests
     }
 
     [TestMethod]
-    public void Discover_SkipPredicateExcludesFilesAndDirectories()
-    {
-        var fileSet = MockFileSystemTestFileSet.Create(
-            ("examples/direct.bicep", "param direct string"),
-            ("examples/skipped/main.bicep", "param nested string"));
-
-        var examples = BicepDocumentationExampleDiscovery.Discover(
-            GetModuleRoot(fileSet),
-            uri => uri.Path.Contains("direct.bicep") || uri.Path.Contains("/skipped"));
-
-        examples.Should().BeEmpty();
-    }
-
-    [TestMethod]
     public void Discover_TestsFolderOnly_DiscoversExamplesFromTestsCategory()
     {
         var fileSet = MockFileSystemTestFileSet.Create(("tests/e2e/main.test.bicep", "param foo string"));
@@ -478,6 +464,24 @@ public class BicepDocumentationExampleDiscoveryTests
     }
 
     [TestMethod]
+    [DataRow("examples/linked/main.bicep", false, "kept,linked test")]
+    [DataRow("examples/linked", true, "kept,linked test")]
+    [DataRow("tests/e2e/linked", true, "kept,linked")]
+    public void Discover_EntryIsReparsePoint_SkipsEntry(string linkPath, bool isDirectory, string expectedNames)
+    {
+        var fileSet = MockFileSystemTestFileSet.Create(
+            ("examples/kept/main.bicep", "metadata name = 'kept'"),
+            ("examples/linked/main.bicep", "metadata name = 'linked'"),
+            ("tests/e2e/linked/main.test.bicep", "metadata name = 'linked test'"));
+        var attributes = isDirectory ? FileAttributes.Directory : FileAttributes.Normal;
+        fileSet.FileSystem.File.SetAttributes(fileSet.GetUri(linkPath).GetFilePath(), attributes | FileAttributes.ReparsePoint);
+
+        var examples = BicepDocumentationExampleDiscovery.Discover(GetModuleRoot(fileSet));
+
+        examples.Select(example => example.Name).Should().BeEquivalentTo(expectedNames.Split(','));
+    }
+
+    [TestMethod]
     public void Discover_ExampleReadFailure_ThrowsActionableDocumentationException()
     {
         var moduleUri = IOUri.FromFilePath(Path.GetFullPath("module"));
@@ -493,6 +497,7 @@ public class BicepDocumentationExampleDiscoveryTests
         examplesRoot.Setup(handle => handle.EnumerateDirectories("*")).Returns([]);
         file.SetupGet(handle => handle.Uri).Returns(moduleUri.Resolve("examples/main.bicep"));
         file.Setup(handle => handle.ReadAllText()).Throws(new IOException("disk error"));
+        file.Setup(handle => handle.IsReparsePoint()).Returns(false);
         moduleRoot.Setup(handle => handle.GetDirectory("tests")).Returns(testsRoot.Object);
         testsRoot.Setup(handle => handle.Exists()).Returns(false);
 
@@ -537,6 +542,7 @@ public class BicepDocumentationExampleDiscoveryTests
         for (var index = 0; index < directories.Length; index++)
         {
             directories[index].SetupGet(handle => handle.Uri).Returns(moduleUri.Resolve($"examples/{index}/"));
+            directories[index].Setup(handle => handle.IsReparsePoint()).Returns(false);
             directories[index].Setup(handle => handle.EnumerateFiles("*")).Returns([]);
             directories[index].Setup(handle => handle.EnumerateDirectories("*"))
                 .Returns(index + 1 < directories.Length ? [directories[index + 1].Object] : []);

@@ -24,6 +24,8 @@ namespace Bicep.IO.InMemory
 
         public abstract bool Exists();
 
+        public bool IsReparsePoint() => false;
+
         public override int GetHashCode() => HashCode.Combine(this.GetType(), Uri);
 
         public override bool Equals(object? @object) => Equals(@object as InMemoryIOHandle);

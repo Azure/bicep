@@ -91,7 +91,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 name: 'newApp'
             }
             ")]
-        [DataTestMethod]
+        [TestMethod]
         public void TestRule(string text, params string[] unusedExistingResources)
         {
             CompileAndTest(text, unusedExistingResources);
@@ -101,7 +101,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(@"resource abc2 'Microsoft.Web/sites@2021-03-01' existing =", "abc2")]
         [DataRow(@"resource abc3 'Microsoft.Web/sites@2021-03-01' existing = {", "abc3")]
         [DataRow(@"resource abc4 'Microsoft.Web/sites@2021-03-01' existing = {}", "abc4")]
-        [DataTestMethod]
+        [TestMethod]
         public void SyntaxErrors(string text, params string[] unusedExistingResources)
         {
             CompileAndTest(text, OnCompileErrors.Ignore, unusedExistingResources);
@@ -110,7 +110,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(@"resource")]
         [DataRow(@"resource abc1")]
         [DataRow(@"resource abc1 existing")]
-        [DataTestMethod]
+        [TestMethod]
         public void Errors(string text)
         {
             CompileAndTest(text, OnCompileErrors.Ignore);

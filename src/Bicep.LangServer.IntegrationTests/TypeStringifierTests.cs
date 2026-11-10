@@ -36,7 +36,7 @@ public class TypeStringifierTests
 {
     private static bool debugPrintAllSyntaxNodeTypes = false;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "type testType = int",
         "type loose = int",
@@ -62,7 +62,7 @@ public class TypeStringifierTests
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "type testType = 123",
         "type loose = int",
@@ -83,7 +83,7 @@ public class TypeStringifierTests
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "type testType = 123|234",
         "type loose = int",
@@ -119,13 +119,13 @@ public class TypeStringifierTests
         // TODO: better would be: "type medium = ('fizz' | 42 | {an: 'object'} | null)[]",
         "type medium = ((object /* 'fizz' | 42 | { an: 'object' } */)?)[]",
         "type strict = ((object /* 'fizz' | 42 | { an: 'object' } */)?)[]")]
-    [DataTestMethod]
+    [TestMethod]
     public void MixedTypeArrays(string typeDeclaration, string expectedLooseSyntax, string expectedMediumStrictSyntax, string expectedStrictSyntax)
     {
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "type testType = object",
         "type loose = object",
@@ -161,7 +161,7 @@ public class TypeStringifierTests
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "type testType = 'abc' | 'def' | 'ghi'",
         "type loose = string",
@@ -192,7 +192,7 @@ public class TypeStringifierTests
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "type testType = [1, 2, 3]",
         "type loose = array",
@@ -329,13 +329,13 @@ public class TypeStringifierTests
         "type loose = (object /* 'abc' | [string] | int | string */)?",
         "type medium = (object /* 'abc' | [string] | int | string */)?",
         "type strict = (object /* 'abc' | [string] | int | string */)?")]
-    [DataTestMethod]
+    [TestMethod]
     public void OpenEnumTypes(string typeDeclaration, string expectedLooseSyntax, string expectedMediumStrictSyntax, string expectedStrictSyntax)
     {
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "type testType = string[]",
         "type loose = array",
@@ -361,7 +361,7 @@ public class TypeStringifierTests
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "type testType = array",
         "type loose = array",
@@ -372,7 +372,7 @@ public class TypeStringifierTests
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "type testType = []",
         "type loose = array",
@@ -384,7 +384,7 @@ public class TypeStringifierTests
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "type testType = {}",
         "type loose = object",
@@ -395,7 +395,7 @@ public class TypeStringifierTests
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "type testType = []",
         "type loose = array",
@@ -407,7 +407,7 @@ public class TypeStringifierTests
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "type testType = [testType?]",
         "type loose = array",
@@ -433,7 +433,7 @@ public class TypeStringifierTests
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "type testType = string?",
         "type loose = string?",
@@ -516,7 +516,7 @@ public class TypeStringifierTests
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     //
     // storage Kind property
     //
@@ -989,7 +989,7 @@ public class TypeStringifierTests
         RunTestFromResourceProperty(resourceDeclaration, resourcePropertyName, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, expectedResourceDerivedSyntax);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         """
             type t1 = { abc: int }
@@ -1031,7 +1031,7 @@ public class TypeStringifierTests
         RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, expectedResourceDerivedSyntax);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         """
             type negativeIntLiteral = -10
