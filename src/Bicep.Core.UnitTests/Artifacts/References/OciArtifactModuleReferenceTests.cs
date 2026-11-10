@@ -12,6 +12,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.RegistryClients.Oci;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

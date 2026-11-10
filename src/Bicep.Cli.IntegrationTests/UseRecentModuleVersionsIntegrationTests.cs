@@ -17,7 +17,7 @@ using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
-using Bicep.Core.UnitTests.Mock.Artifacts.Catalog;
+using Bicep.Core.UnitTests.Mock.Artifacts.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;

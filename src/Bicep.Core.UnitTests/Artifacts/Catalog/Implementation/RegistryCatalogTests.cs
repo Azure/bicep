@@ -21,7 +21,7 @@ using Microsoft.Win32;
 using Moq;
 using RichardSzalay.MockHttp;
 
-namespace Bicep.Core.UnitTests.Artifacts.Catalog
+namespace Bicep.Core.UnitTests.Artifacts.Catalog.Implementation
 {
     [TestClass]
     public class RegistryCatalogTests

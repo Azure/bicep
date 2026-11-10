@@ -31,7 +31,7 @@ using RichardSzalay.MockHttp;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
-namespace Bicep.Core.UnitTests.Artifacts.Catalog
+namespace Bicep.Core.UnitTests.Artifacts.Catalog.Implementation.PrivateRegistries
 {
     [TestClass]
     public class PrivateAcrModuleMetadataProviderTests

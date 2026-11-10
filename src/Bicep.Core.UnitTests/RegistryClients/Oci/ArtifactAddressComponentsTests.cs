@@ -14,7 +14,7 @@ using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.UnitTests.Artifacts.References
+namespace Bicep.Core.UnitTests.RegistryClients.Oci
 {
     [TestClass]
     public class ArtifactAddressComponentsTests

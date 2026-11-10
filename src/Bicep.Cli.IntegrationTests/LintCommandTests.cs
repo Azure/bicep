@@ -7,7 +7,7 @@ using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Mock.Artifacts.Catalog;
+using Bicep.Core.UnitTests.Mock.Artifacts.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;

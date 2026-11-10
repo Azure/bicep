@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 using Bicep.Core.Artifacts.Catalog.Implementation.PublicRegistries;
 using Moq;
 
-namespace Bicep.Core.UnitTests.Mock.Artifacts.Catalog;
+namespace Bicep.Core.UnitTests.Mock.Artifacts.Catalog.Implementation.PublicRegistries;
 
 public static class PublicModuleIndexHttpClientMocks
 {
