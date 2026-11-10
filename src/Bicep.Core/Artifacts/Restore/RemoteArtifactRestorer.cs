@@ -3,7 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics;
-using Bicep.Core.Artifacts.Catalog;
+using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Registries;
 
@@ -15,9 +15,9 @@ public class RemoteArtifactRestorer : IRemoteArtifactRestorer
 
     private readonly ImmutableArray<IRemoteArtifactRegistry> registries;
 
-    private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
+    private readonly IBrmMetadataProvider publicModuleMetadataProvider;
 
-    public RemoteArtifactRestorer(IEnumerable<IRemoteArtifactRegistry> registries, IPublicModuleMetadataProvider publicModuleMetadataProvider)
+    public RemoteArtifactRestorer(IEnumerable<IRemoteArtifactRegistry> registries, IBrmMetadataProvider publicModuleMetadataProvider)
     {
         this.registries = [.. registries];
         this.publicModuleMetadataProvider = publicModuleMetadataProvider;
@@ -64,7 +64,7 @@ public class RemoteArtifactRestorer : IRemoteArtifactRestorer
             }
         }
 
-        var publicModuleMetadataTask = this.StartPublicModuleMetadataDownload(force);
+        var brmMetadataTask = this.StartBrmMetadataDownload(force);
 
         if (!force && uniqueReferences.All(reference => this.GetRestoreState(reference) is RemoteArtifactRestoreState.Restored))
         {
@@ -82,7 +82,7 @@ public class RemoteArtifactRestorer : IRemoteArtifactRestorer
 
         try
         {
-            await publicModuleMetadataTask;
+            await brmMetadataTask;
         }
         catch (Exception ex)
         {
@@ -96,7 +96,7 @@ public class RemoteArtifactRestorer : IRemoteArtifactRestorer
     /// Downloads the public module metadata alongside the restore, so that linter rules can read it from the cache
     /// instead of downloading anything during analysis. Nothing is downloaded when restore is skipped (<c>--no-restore</c>).
     /// </summary>
-    private Task StartPublicModuleMetadataDownload(bool force)
+    private Task StartBrmMetadataDownload(bool force)
     {
         try
         {

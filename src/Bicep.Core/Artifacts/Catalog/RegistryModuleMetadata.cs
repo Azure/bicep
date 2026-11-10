@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using Bicep.Core.Artifacts.Catalog.Implementation;
 
 namespace Bicep.Core.Artifacts.Catalog;
 

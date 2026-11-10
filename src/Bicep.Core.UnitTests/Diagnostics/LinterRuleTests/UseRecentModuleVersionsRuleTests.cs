@@ -8,6 +8,7 @@ using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Artifacts.Catalog;
+using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Json;
@@ -35,7 +36,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string[] availableVersions, // for simplicity, mock returns these same versions for all available modules
             string? downloadError = null)
         {
-            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
+            var publicModuleMetadataProvider = StrictMock.Of<IBrmMetadataProvider>();
             publicModuleMetadataProvider.Setup(x => x.GetCachedModules())
                 .Returns([.. availableModules
                     .Select(m => new RegistryModuleMetadata(
@@ -56,7 +57,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             return TestCompiler
                 .ForInMemoryCompilation()
                 .WithConfiguration(TestConfigurationBuilder.Create().WithAllAnalyzers().Build())
-                .ConfigureServices(services => services.ReplaceSingleton<IPublicModuleMetadataProvider>(publicModuleMetadataProvider.Object))
+                .ConfigureServices(services => services.ReplaceSingleton<IBrmMetadataProvider>(publicModuleMetadataProvider.Object))
                 .CompileWithoutRestore(bicep);
         }
 

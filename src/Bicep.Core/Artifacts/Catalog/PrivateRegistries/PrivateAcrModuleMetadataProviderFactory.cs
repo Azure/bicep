@@ -7,7 +7,7 @@ using Bicep.Core.RegistryClients.Oci;
 using Microsoft.Win32;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
-namespace Bicep.Core.Artifacts.Catalog.Implementation.PrivateRegistries;
+namespace Bicep.Core.Artifacts.Catalog.PrivateRegistries;
 
 /// <summary>
 /// Creates IRegistryModuleMetadataProvider instances for private registries

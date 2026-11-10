@@ -4,9 +4,9 @@
 using System.Collections.Immutable;
 using Bicep.Core.Configuration;
 using Microsoft.Win32;
-using static Bicep.Core.Artifacts.Catalog.Implementation.IRegistryModuleMetadata;
+using static Bicep.Core.Artifacts.Catalog.IRegistryModuleMetadata;
 
-namespace Bicep.Core.Artifacts.Catalog.Implementation;
+namespace Bicep.Core.Artifacts.Catalog;
 
 public interface IRegistryModuleMetadata
 {

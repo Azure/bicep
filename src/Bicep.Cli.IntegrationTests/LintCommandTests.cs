@@ -7,7 +7,7 @@ using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Mock.Artifacts.Catalog.Implementation.PublicRegistries;
+using Bicep.Core.UnitTests.Mock.Artifacts.Catalog.Brm;
 using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;
@@ -154,7 +154,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
         var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
         var configurationPath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", string.Empty, testOutputPath);
-        var settings = new InvocationSettings() { ModuleMetadataClient = PublicModuleIndexHttpClientMocks.Create([]).Object };
+        var settings = new InvocationSettings() { ModuleMetadataClient = BrmIndexHttpClientMocks.Create([]).Object };
 
         var (output, error, result) = await Bicep(settings, "lint", inputFile);
 

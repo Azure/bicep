@@ -333,7 +333,9 @@ Bicep.Core/
       ExtensionArtifactCacheFiles.cs           (0.9b) the one writer of types.tgz and extension.bin
       ModuleMetadata.cs                        <- Registry/Oci/ (the cache's "metadata" file)
       TagEncoder.cs                            <- Registry/Oci/ (the cache directory name of a tag)
-    Catalog/                                   <- Registry/Catalog/ (subfolders unchanged): published modules for completion, the linter and MCP
+    Catalog/                                   <- Registry/Catalog/: published modules for completion, the linter and MCP
+                                                  (the Implementation level is folded in; Implementation/PublicRegistries became Brm/,
+                                                  with Brm* type names, and Implementation/PrivateRegistries became PrivateRegistries/)
   RegistryClients/
     Oci/
       OciArtifactPayload.cs                    (0.9a) a manifest and its blobs, pushed or pulled
@@ -375,7 +377,7 @@ Files and folders that disappear:
 | `SourceGraph/ArtifactReferences/` | 0.9c | `IExtensionArtifactReference` replaced by `NamespaceType.ExtensionArtifact` |
 | `SourceLink/OciModuleReferenceExtensions.cs` | 0.9c | `ModuleArtifact.TryGetSources()` |
 
-Tests mirror the product folders under `Bicep.Core.UnitTests/Artifacts/` (`References`, `Resolution`, `Restore`, `Registries`, `Codecs`, `Cache`, `Catalog`, `LegacyModuleAliasMocks`) and `Bicep.Core.UnitTests/RegistryClients/`; catalog mocks are in `Mock/Artifacts/Catalog`. `ArtifactCacheLayoutTests` stays an integration test.
+Tests mirror the product folders and namespaces under `Bicep.Core.UnitTests/Artifacts/` (`References`, `Resolution`, `Restore`, `Registries`, `Codecs`, `Cache`, `Catalog`, `LegacyModuleAliasMocks`) and `Bicep.Core.UnitTests/RegistryClients/`; catalog mocks are in `Mock/Artifacts/Catalog`. `ArtifactCacheLayoutTests` stays an integration test.
 
 ### 3.5 Permanent and deletable reference formats
 
@@ -461,12 +463,12 @@ Every Phase 0 PR leaves all baselines unchanged and changes no diagnostic text. 
   - `IArtifactPublisher`, `ArtifactPublisher` and `ArtifactPackage` were removed; the CLI calls `OciArtifactRegistry` directly, and `publish-extension` writes local archives itself.
   - Hover reads OCI metadata from `OciArtifactRegistry`.
   - `ArtifactRedirectTable` was folded into `RedirectingArtifactResolver`.
-  - `OnRestoreArtifacts` was removed: the restorer now starts the public module catalog download itself.
+  - `OnRestoreArtifacts` was removed: the restorer now starts the BRM catalog download itself.
   - Cache invalidation is part of a forced `RestoreAsync`.
   - Cache entries own every cache path, the completeness check, writes, deletes and the single lock loop. `ArtifactCacheLayoutTests` pins the layout; it passed before and after the move.
   - The one on-disk difference: a pulled artifact of the wrong type no longer leaves a directory containing only its manifest.
 - **0.8b: vocabulary and folders** (renames and moves only).
-  - The artifact model and services moved to `Artifacts/{References,Resolution,Restore,Registries,Packages,Codecs,Cache}` (section 3.4), with namespaces that follow the folders. The rest of `Bicep.Core.Registry` became `Bicep.Core.RegistryClients` (`Oci`, `Oci/AzureSdk`, `Oci/Oras`, `TemplateSpecs`), and the module catalog moved to `Artifacts/Catalog`, so that "registry" no longer names two layers. The mock configuration types moved to `Configuration/LegacyModuleAliasMocks/`, and `TemplateSpecEntity` got its own file. Unit tests moved to the matching `Bicep.Core.UnitTests/Artifacts/` and `RegistryClients/` folders.
+  - The artifact model and services moved to `Artifacts/{References,Resolution,Restore,Registries,Packages,Codecs,Cache}` (section 3.4), with namespaces that follow the folders. The rest of `Bicep.Core.Registry` became `Bicep.Core.RegistryClients` (`Oci`, `Oci/AzureSdk`, `Oci/Oras`, `TemplateSpecs`), and the module catalog moved to `Artifacts/Catalog`, so that "registry" no longer names two layers. The catalog's `Implementation` namespace level is folded into `Artifacts.Catalog`, and the public catalog became `Artifacts.Catalog.Brm` (`IBrmMetadataProvider`, `BrmMetadataProvider`, `IBrmIndexHttpClient`, `BrmIndexHttpClient`, `BrmIndexEntry`), because it lists Bicep Registry Modules rather than everything on the Microsoft Artifact Registry. The ORAS `AzureCredentialProvider` became `AcrCredentialProvider`, since it only exchanges Entra tokens for ACR refresh tokens. The mock configuration types moved to `Configuration/LegacyModuleAliasMocks/`, and `TemplateSpecEntity` got its own file. Unit tests moved to the matching `Bicep.Core.UnitTests/Artifacts/` and `RegistryClients/` folders.
   - Types that survive 0.9 took the section 2 names: the cache entries (`ArtifactCacheEntry`, `Oci*ArtifactCacheEntry`, `TemplateSpecArtifactCacheEntry`, `LocalExtensionArtifactCacheEntry`), `*ArtifactPackage`, `ExtensionArtifactArchiveCodec` (`Encode`/`Decode`), `TemplateSpecArtifact{Reference,Registry}`, `RemoteArtifact{Reference,Context,ContextFactory}`, `(I)RemoteArtifactRegistry`, `(I)RemoteArtifactRestorer`, `RemoteArtifactRestoreState`, `ArtifactException` and `ArtifactSchemes`. The Template Spec repository, which wraps one ARM call, became a client: `(I)TemplateSpecClient(Factory)`, `TemplateSpecVersion` and `GetTemplateSpecVersionAsync`. `ArtifactHelper` became `RestoreExtensions.GetRemoteArtifactReferences()`.
   - The types that 0.9 deletes kept their names and folders. No naming architecture test was added (see section 2).
   - Two commits (moves, then renames), so that git shows both as renames.

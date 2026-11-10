@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Artifacts;
-using Bicep.Core.Artifacts.Catalog;
+using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Registries;
 using Bicep.Core.Artifacts.Restore;
@@ -225,7 +225,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Restore
             registryMock.Setup(x => x.TryGetEntryPoint(reference)).Returns((IFileHandle?)null);
             registryMock.Setup(x => x.RestoreAsync(It.IsAny<IEnumerable<RemoteArtifactReference>>(), mode))
                 .ReturnsAsync(new Dictionary<RemoteArtifactReference, DiagnosticBuilderDelegate>());
-            var metadataProvider = CreatePublicModuleMetadataProvider();
+            var metadataProvider = CreateBrmMetadataProvider();
             var restorer = new RemoteArtifactRestorer([registryMock.Object], metadataProvider.Object);
 
             (await restorer.RestoreAsync([reference], mode)).Should().BeTrue();
@@ -234,11 +234,11 @@ namespace Bicep.Core.UnitTests.Artifacts.Restore
             metadataProvider.Verify(x => x.TryAwaitCache(forceMetadataUpdate), Times.Once);
         }
 
-        private static IRemoteArtifactRestorer CreateRestorer(params IRemoteArtifactRegistry[] registries) => new RemoteArtifactRestorer(registries, CreatePublicModuleMetadataProvider().Object);
+        private static IRemoteArtifactRestorer CreateRestorer(params IRemoteArtifactRegistry[] registries) => new RemoteArtifactRestorer(registries, CreateBrmMetadataProvider().Object);
 
-        private static Mock<IPublicModuleMetadataProvider> CreatePublicModuleMetadataProvider()
+        private static Mock<IBrmMetadataProvider> CreateBrmMetadataProvider()
         {
-            var provider = StrictMock.Of<IPublicModuleMetadataProvider>();
+            var provider = StrictMock.Of<IBrmMetadataProvider>();
             provider.Setup(x => x.TryAwaitCache(It.IsAny<bool>())).Returns(Task.CompletedTask);
             return provider;
         }

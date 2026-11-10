@@ -133,7 +133,7 @@ public class OrasOciRegistryTransport(
                 if (isAzure)
                 {
                     var credential = tokenCredentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
-                    credentials = new AzureCredentialProvider(registry, credential, cloud.ResourceManagerAudience, authenticationClient);
+                    credentials = new AcrCredentialProvider(registry, credential, cloud.ResourceManagerAudience, authenticationClient);
                 }
                 else if (useDockerCredentials && !isMicrosoftPublicRegistry)
                 {

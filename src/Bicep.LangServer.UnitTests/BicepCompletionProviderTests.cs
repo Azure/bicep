@@ -4,8 +4,7 @@
 using System.Numerics;
 using Azure.Deployments.Core.Definitions.Schema;
 using Bicep.Core;
-using Bicep.Core.Artifacts.Catalog;
-using Bicep.Core.Artifacts.Catalog.Implementation.PublicRegistries;
+using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Syntax;
@@ -40,7 +39,7 @@ namespace Bicep.LangServer.UnitTests
             var mockHttpMessageHandler = new MockHttpMessageHandler();
             mockHttpMessageHandler.When("*").Respond("application/json", "{}");
 
-            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
+            var publicModuleMetadataProvider = StrictMock.Of<IBrmMetadataProvider>();
 
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ILanguageServerFacade>(server)
@@ -48,7 +47,7 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
-                .AddHttpClient<IPublicModuleMetadataProvider, PublicModuleMetadataProvider>()
+                .AddHttpClient<IBrmMetadataProvider, BrmMetadataProvider>()
                     .ConfigurePrimaryHttpMessageHandler(() => mockHttpMessageHandler).Services
                 .AddSingleton<BicepCompletionProvider>()
                 .AddSingleton(publicModuleMetadataProvider.Object)

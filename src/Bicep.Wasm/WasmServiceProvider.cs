@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Artifacts.Catalog;
+using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.Artifacts.Registries;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
@@ -15,7 +15,7 @@ public static class WasmServiceProvider
     public static IServiceCollection AddBicepWasm(this IServiceCollection services) =>
         services
             .AddSingleton<IFileExplorer, InMemoryFileExplorer>()
-            .AddSingleton<IPublicModuleMetadataProvider, WasmPublicModuleMetadataProvider>()
+            .AddSingleton<IBrmMetadataProvider, WasmBrmMetadataProvider>()
             .AddBicepCore()
             .AddBicepDecompiler()
             .RemoveAll<IRemoteArtifactRegistry>()

@@ -12,19 +12,20 @@ using Bicep.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using static Bicep.Core.Artifacts.Catalog.RegistryModuleMetadata;
 
-namespace Bicep.Core.Artifacts.Catalog.Implementation.PublicRegistries;
+namespace Bicep.Core.Artifacts.Catalog.Brm;
 
 /// <summary>
-/// Provider to get modules metadata that we store at the public mcr.microsoft.com/bicep registry.
+/// Gets the metadata of Bicep Registry Modules (BRM) from the BRM module index.
+/// It only covers modules published from https://github.com/Azure/bicep-registry-modules, not every module on mcr.microsoft.com.
 /// </summary>
-public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicModuleMetadataProvider
+public class BrmMetadataProvider : BaseModuleMetadataProvider, IBrmMetadataProvider
 {
-    private readonly IPublicModuleIndexHttpClient client;
+    private readonly IBrmIndexHttpClient client;
 
-    public PublicModuleMetadataProvider(IPublicModuleIndexHttpClient publicModuleIndexClient)
+    public BrmMetadataProvider(IBrmIndexHttpClient brmIndexClient)
         : base(LanguageConstants.BicepPublicMcrRegistry)
     {
-        client = publicModuleIndexClient;
+        client = brmIndexClient;
     }
 
     protected override async Task<ImmutableArray<IRegistryModuleMetadata>> GetLiveDataCoreAsync()

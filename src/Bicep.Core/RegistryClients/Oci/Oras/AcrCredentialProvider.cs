@@ -14,7 +14,10 @@ using OrasProject.Oras.Registry.Remote.Auth;
 
 namespace Bicep.Core.RegistryClients.Oci.Oras;
 
-internal sealed class AzureCredentialProvider(
+/// <summary>
+/// Supplies ORAS with credentials for an Azure Container Registry: it exchanges a Microsoft Entra token for an ACR refresh token.
+/// </summary>
+internal sealed class AcrCredentialProvider(
     string registry,
     TokenCredential credential,
     string audience,

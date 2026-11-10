@@ -15,7 +15,7 @@ using Bicep.Core.RegistryClients.Oci;
 using Microsoft.Extensions.DependencyInjection;
 using static Bicep.Core.Artifacts.Catalog.RegistryModuleMetadata;
 
-namespace Bicep.Core.Artifacts.Catalog.Implementation.PrivateRegistries;
+namespace Bicep.Core.Artifacts.Catalog.PrivateRegistries;
 
 /// <summary>
 /// Provider to get modules metadata from a private ACR registry

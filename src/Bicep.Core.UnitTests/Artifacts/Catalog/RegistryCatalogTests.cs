@@ -6,8 +6,8 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using Bicep.Core.Artifacts.Catalog;
-using Bicep.Core.Artifacts.Catalog.Implementation;
-using Bicep.Core.Artifacts.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Artifacts.Catalog.Brm;
+using Bicep.Core.Artifacts.Catalog.PrivateRegistries;
 using Bicep.Core.Configuration;
 using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.RegistryClients.Oci.AzureSdk;
@@ -21,7 +21,7 @@ using Microsoft.Win32;
 using Moq;
 using RichardSzalay.MockHttp;
 
-namespace Bicep.Core.UnitTests.Artifacts.Catalog.Implementation
+namespace Bicep.Core.UnitTests.Artifacts.Catalog
 {
     [TestClass]
     public class RegistryCatalogTests
@@ -86,7 +86,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Catalog.Implementation
             registry.Registry.Should().Be("mcr.microsoft.com");
             registry.Should().Be(publicProvider.Object);
 
-            registry.Should().BeAssignableTo<IPublicModuleMetadataProvider>();
+            registry.Should().BeAssignableTo<IBrmMetadataProvider>();
         }
 
         [TestMethod]
@@ -104,14 +104,14 @@ namespace Bicep.Core.UnitTests.Artifacts.Catalog.Implementation
             indexer.TryGetCachedRegistry("private.contoso.io", useOrasSdk: false).Should().NotBeNull();
 
             registry.Should().BeAssignableTo<IRegistryModuleMetadataProvider>();
-            registry.Should().NotBeAssignableTo<IPublicModuleMetadataProvider>();
+            registry.Should().NotBeAssignableTo<IBrmMetadataProvider>();
         }
 
         [TestMethod]
         public void ProvidersAreCachedSeparatelyForEachTransport()
         {
             var catalog = new RegistryModuleCatalog(
-                StrictMock.Of<IPublicModuleMetadataProvider>().Object,
+                StrictMock.Of<IBrmMetadataProvider>().Object,
                 new PrivateAcrModuleMetadataProviderFactory(),
                 StrictMock.Of<IOciRegistryTransportFactory>().Object,
                 BicepTestConstants.BuiltInOnlyConfigurationManager);
@@ -153,7 +153,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Catalog.Implementation
             var factory = StrictMock.Of<IOciRegistryTransportFactory>();
             factory.Setup(x => x.GetTransport(reference.Registry, useOrasSdk)).Returns(transport.Object);
             var catalog = new RegistryModuleCatalog(
-                StrictMock.Of<IPublicModuleMetadataProvider>().Object,
+                StrictMock.Of<IBrmMetadataProvider>().Object,
                 new PrivateAcrModuleMetadataProviderFactory(), factory.Object,
                 BicepTestConstants.BuiltInOnlyConfigurationManager);
 

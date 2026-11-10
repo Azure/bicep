@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Artifacts.Catalog.Implementation;
 using Bicep.Core.Configuration;
 
 namespace Bicep.Core.Artifacts.Catalog;

@@ -9,14 +9,12 @@ using System.Text;
 using System.Text.Json;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Artifacts.Catalog;
-using Bicep.Core.Artifacts.Catalog.Implementation;
-using Bicep.Core.Artifacts.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Artifacts.Catalog.PrivateRegistries;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
@@ -31,7 +29,7 @@ using RichardSzalay.MockHttp;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
-namespace Bicep.Core.UnitTests.Artifacts.Catalog.Implementation.PrivateRegistries
+namespace Bicep.Core.UnitTests.Artifacts.Catalog.PrivateRegistries
 {
     [TestClass]
     public class PrivateAcrModuleMetadataProviderTests

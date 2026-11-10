@@ -4,22 +4,22 @@
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using Bicep.Core.Artifacts.Catalog.Implementation;
-using Bicep.Core.Artifacts.Catalog.Implementation.PublicRegistries;
+using Bicep.Core.Artifacts.Catalog;
+using Bicep.Core.Artifacts.Catalog.Brm;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RichardSzalay.MockHttp;
 
-namespace Bicep.Core.UnitTests.Artifacts.Catalog.Implementation.PublicRegistries
+namespace Bicep.Core.UnitTests.Artifacts.Catalog.Brm
 {
     [TestClass]
-    public class PublicModuleMetadataProviderTests
+    public class BrmMetadataProviderTests
     {
-        private PublicModuleMetadataHttpClient CreateTypedClient()
+        private BrmIndexHttpClient CreateTypedClient()
         {
             var httpClient = MockHttpMessageHandler.ToHttpClient();
-            return new PublicModuleMetadataHttpClient(httpClient);
+            return new BrmIndexHttpClient(httpClient);
         }
 
         private const string ModuleIndexJson = """
@@ -1115,7 +1115,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Catalog.Implementation.PublicRegistries
         [TestMethod]
         public async Task GetModules_Count_SanityCheck()
         {
-            PublicModuleMetadataProvider provider = new(CreateTypedClient());
+            BrmMetadataProvider provider = new(CreateTypedClient());
             await provider.TryAwaitCache(false);
             var modules = await provider.TryGetModulesAsync();
             modules.Should().HaveCount(50);
@@ -1124,7 +1124,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Catalog.Implementation.PublicRegistries
         [TestMethod]
         public async Task GetModules_IfOnlyLastTagHasDescription()
         {
-            PublicModuleMetadataProvider provider = new(CreateTypedClient());
+            BrmMetadataProvider provider = new(CreateTypedClient());
             await provider.TryAwaitCache(false);
             var modules = await provider.TryGetModulesAsync();
             var m = modules.Should().Contain(m => m.ModuleName == "bicep/samples/hello-world")
@@ -1137,7 +1137,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Catalog.Implementation.PublicRegistries
         [TestMethod]
         public async Task GetModules_IfMultipleTagsHaveDescriptions()
         {
-            PublicModuleMetadataProvider provider = new(CreateTypedClient());
+            BrmMetadataProvider provider = new(CreateTypedClient());
             await provider.TryAwaitCache(false);
             var modules = await provider.TryGetModulesAsync();
             var m = modules.Should().Contain(m => m.ModuleName == "bicep/lz/sub-vending")
@@ -1150,7 +1150,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Catalog.Implementation.PublicRegistries
         [TestMethod]
         public async Task GetModuleVersions_SortsBySemver()
         {
-            PublicModuleMetadataProvider provider = new(CreateTypedClient());
+            BrmMetadataProvider provider = new(CreateTypedClient());
             var versions = await (await provider.TryGetModuleAsync("bicep/samples/array-loop"))!.TryGetVersionsAsync();
 
             versions.Select(v => v.Version).Should().Equal(

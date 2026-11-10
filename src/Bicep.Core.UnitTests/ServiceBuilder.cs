@@ -6,7 +6,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests.Mock.Artifacts.Catalog.Implementation.PublicRegistries;
+using Bicep.Core.UnitTests.Mock.Artifacts.Catalog.Brm;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
@@ -42,7 +42,7 @@ public class ServiceBuilder
             .AddBicepCore()
             .AddBicepDecompiler()
             .AddSingleton(BicepTestConstants.TestRegistryConfiguration)
-            .AddMockHttpClient(PublicModuleIndexHttpClientMocks.Create([]).Object)
+            .AddMockHttpClient(BrmIndexHttpClientMocks.Create([]).Object)
             .WithWorkspace(new ActiveSourceFileSet());
     }
 

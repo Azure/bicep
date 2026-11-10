@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Artifacts.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Artifacts.Catalog.Brm;
+using Bicep.Core.Artifacts.Catalog.PrivateRegistries;
 using Bicep.Core.Configuration;
 using Bicep.Core.RegistryClients.Oci;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Artifacts.Catalog.Implementation;
+namespace Bicep.Core.Artifacts.Catalog;
 
 /// <summary>
 /// Provides a list of modules from a registry (public or private)
@@ -21,7 +22,7 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
     private readonly Dictionary<(string Registry, bool UseOrasSdk), IRegistryModuleMetadataProvider> registryProviders = new();
 
     public RegistryModuleCatalog(
-        IPublicModuleMetadataProvider publicModuleMetadataProvider,
+        IBrmMetadataProvider publicModuleMetadataProvider,
         IPrivateAcrModuleMetadataProviderFactory privateProviderFactory,
         IOciRegistryTransportFactory transportFactory,
         IBicepConfigurationManager configurationManager

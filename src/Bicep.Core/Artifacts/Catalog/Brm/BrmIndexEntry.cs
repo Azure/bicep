@@ -8,15 +8,15 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Semver;
 using Semver.Comparers;
 
-namespace Bicep.Core.Artifacts.Catalog.Implementation.PublicRegistries;
+namespace Bicep.Core.Artifacts.Catalog.Brm;
 
 /// <summary>
-/// This is the DTO for modules listed in the public bicep registry
+/// A module listed in the Bicep Registry Modules (BRM) module index.
 /// </summary>
-public record PublicModuleIndexEntry(
+public record BrmIndexEntry(
     [property: JsonPropertyName("moduleName")] string ModulePath, // e.g. "avm/app/dapr-containerapp" - the "bicep/" prefix is assumed and not included in the index we download
     ImmutableArray<string> Tags, // e.g. "1.0.0" (not guaranteed to be in semver format, although it currently is for all our public modules)
-    [property: JsonPropertyName("properties")] ImmutableDictionary<string, PublicModuleIndexProperties> PropertiesByTag // Module properties per tag
+    [property: JsonPropertyName("properties")] ImmutableDictionary<string, BrmIndexProperties> PropertiesByTag // Module properties per tag
 )
 {
     private static readonly SemVersion DefaultVersion = new(0);
@@ -39,7 +39,7 @@ public record PublicModuleIndexEntry(
 
     public string? GetDocumentationUri(string? version = null) => GetProperty(version, x => x.DocumentationUri);
 
-    private string? GetProperty(string? version, Func<PublicModuleIndexProperties, string> propertySelector)
+    private string? GetProperty(string? version, Func<BrmIndexProperties, string> propertySelector)
     {
         if (version is null)
         {

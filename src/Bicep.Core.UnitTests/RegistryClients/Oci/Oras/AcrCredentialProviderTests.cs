@@ -15,7 +15,7 @@ using RichardSzalay.MockHttp;
 namespace Bicep.Core.UnitTests.RegistryClients.Oci.Oras;
 
 [TestClass]
-public class AzureCredentialProviderTests
+public class AcrCredentialProviderTests
 {
     [TestMethod]
     [DataRow("https://management.azure.com")]
@@ -35,7 +35,7 @@ public class AzureCredentialProviderTests
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AccessToken("entra-token", DateTimeOffset.UtcNow.AddHours(1)));
         using var client = http.ToHttpClient();
-        var provider = new AzureCredentialProvider("example.azurecr.io", credential.Object, audience, client);
+        var provider = new AcrCredentialProvider("example.azurecr.io", credential.Object, audience, client);
 
         var results = await Task.WhenAll(Enumerable.Range(0, 10).Select(_ => provider.ResolveCredentialAsync("example.azurecr.io", default)));
 
@@ -56,7 +56,7 @@ public class AzureCredentialProviderTests
         credential.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequestContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AccessToken("entra-token", DateTimeOffset.UtcNow.AddMinutes(expiresInMinutes)));
         using var client = http.ToHttpClient();
-        var provider = new AzureCredentialProvider("example.azurecr.io", credential.Object, "https://management.azure.com", client);
+        var provider = new AcrCredentialProvider("example.azurecr.io", credential.Object, "https://management.azure.com", client);
 
         await provider.ResolveCredentialAsync("example.azurecr.io", default);
         await provider.ResolveCredentialAsync("example.azurecr.io", default);
@@ -68,7 +68,7 @@ public class AzureCredentialProviderTests
     public async Task RejectsCredentialsForAnotherHostBeforeAcquiringToken()
     {
         using var client = new HttpClient(new MockHttpMessageHandler());
-        var provider = new AzureCredentialProvider("example.azurecr.io", StrictMock.Of<TokenCredential>().Object, "https://management.azure.com", client);
+        var provider = new AcrCredentialProvider("example.azurecr.io", StrictMock.Of<TokenCredential>().Object, "https://management.azure.com", client);
         var action = () => provider.ResolveCredentialAsync("attacker.example", default);
         await action.Should().ThrowAsync<InvalidOperationException>();
     }
@@ -90,7 +90,7 @@ public class AzureCredentialProviderTests
         credential.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequestContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AccessToken("entra-token", DateTimeOffset.UtcNow.AddHours(1)));
         using var client = http.ToHttpClient();
-        var provider = new AzureCredentialProvider("example.azurecr.io", credential.Object, "https://management.azure.com", client);
+        var provider = new AcrCredentialProvider("example.azurecr.io", credential.Object, "https://management.azure.com", client);
 
         var action = () => provider.ResolveCredentialAsync("example.azurecr.io", default);
         await action.Should().ThrowAsync<ArtifactException>().WithMessage("*invalid Azure token exchange response*");
@@ -109,7 +109,7 @@ public class AzureCredentialProviderTests
         credential.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequestContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AccessToken("secret-entra-token", DateTimeOffset.UtcNow.AddHours(1)));
         using var client = http.ToHttpClient();
-        var provider = new AzureCredentialProvider("example.azurecr.io", credential.Object, "https://management.azure.com", client);
+        var provider = new AcrCredentialProvider("example.azurecr.io", credential.Object, "https://management.azure.com", client);
 
         var action = () => provider.ResolveCredentialAsync("example.azurecr.io", default);
         var exception = (await action.Should().ThrowAsync<HttpRequestException>()).Which;
@@ -130,7 +130,7 @@ public class AzureCredentialProviderTests
         credential.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequestContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AccessToken("entra-token", DateTimeOffset.UtcNow.AddHours(1)));
         using var client = http.ToHttpClient();
-        var provider = new AzureCredentialProvider("example.azurecr.io", credential.Object, "https://management.azure.com", client);
+        var provider = new AcrCredentialProvider("example.azurecr.io", credential.Object, "https://management.azure.com", client);
 
         var action = () => provider.ResolveCredentialAsync("example.azurecr.io", default);
         await action.Should().ThrowAsync<HttpRequestException>();
@@ -154,7 +154,7 @@ public class AzureCredentialProviderTests
         credential.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequestContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AccessToken("entra-token", DateTimeOffset.UtcNow.AddHours(1)));
         using var client = http.ToHttpClient();
-        var provider = new AzureCredentialProvider("example.azurecr.io", credential.Object, "https://management.azure.com", client);
+        var provider = new AcrCredentialProvider("example.azurecr.io", credential.Object, "https://management.azure.com", client);
 
         var action = () => provider.ResolveCredentialAsync("example.azurecr.io", default);
 
@@ -167,7 +167,7 @@ public class AzureCredentialProviderTests
     public async Task CancellationDoesNotAcquireCredentials()
     {
         using var client = new HttpClient(new MockHttpMessageHandler());
-        var provider = new AzureCredentialProvider("example.azurecr.io", StrictMock.Of<TokenCredential>().Object, "https://management.azure.com", client);
+        var provider = new AcrCredentialProvider("example.azurecr.io", StrictMock.Of<TokenCredential>().Object, "https://management.azure.com", client);
         using var cancellation = new CancellationTokenSource();
         await cancellation.CancelAsync();
 

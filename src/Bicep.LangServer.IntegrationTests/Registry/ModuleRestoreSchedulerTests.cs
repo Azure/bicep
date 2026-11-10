@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Text;
 using Bicep.Core.Artifacts;
-using Bicep.Core.Artifacts.Catalog;
+using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Registries;
 using Bicep.Core.Artifacts.Restore;
@@ -84,7 +84,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
         public async Task RestoreShouldBeScheduledAsRequested()
         {
             var mockRegistry = new MockRegistry();
-            var restorer = new RemoteArtifactRestorer([mockRegistry], Mock.Of<IPublicModuleMetadataProvider>());
+            var restorer = new RemoteArtifactRestorer([mockRegistry], Mock.Of<IBrmMetadataProvider>());
 
             var firstUri = DocumentUri.From("foo://one");
             var firstSource = new TaskCompletionSource<bool>();

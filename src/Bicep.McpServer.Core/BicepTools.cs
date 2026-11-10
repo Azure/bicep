@@ -4,7 +4,7 @@
 using System.Collections.Immutable;
 using System.ComponentModel;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
-using Bicep.Core.Artifacts.Catalog.Implementation.PublicRegistries;
+using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.McpServer.Core.Extensions;
@@ -18,7 +18,7 @@ namespace Bicep.McpServer.Core;
 [McpServerToolType]
 public sealed class BicepTools(
     AzResourceTypeLoader azResourceTypeLoader,
-    IPublicModuleIndexHttpClient publicModuleIndexHttpClient,
+    IBrmIndexHttpClient brmIndexHttpClient,
     ResourceVisitor resourceVisitor,
     ExtensionTypeLoaderProvider extensionTypeLoaderProvider)
 {
@@ -200,7 +200,7 @@ public sealed class BicepTools(
     """)]
     public async Task<AvmMetadataResult> ListAvmMetadata()
     {
-        var metadata = await publicModuleIndexHttpClient.GetModuleIndexAsync();
+        var metadata = await brmIndexHttpClient.GetModuleIndexAsync();
 
         var modules = metadata.Select(entry => new AvmModuleMetadata(
             entry.ModulePath,

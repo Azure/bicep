@@ -10,29 +10,29 @@ using System.Text.Json;
 using Bicep.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Artifacts.Catalog.Implementation.PublicRegistries;
+namespace Bicep.Core.Artifacts.Catalog.Brm;
 
 /// <summary>
-/// Typed http client to get modules metadata that we store at a public endpoint (currently https://github.com/Azure/bicep-registry-modules)
+/// Downloads the Bicep Registry Modules (BRM) module index, which is published from https://github.com/Azure/bicep-registry-modules.
 /// </summary>
-public class PublicModuleMetadataHttpClient(HttpClient httpClient) : IPublicModuleIndexHttpClient
+public class BrmIndexHttpClient(HttpClient httpClient) : IBrmIndexHttpClient
 {
     private const string LiveDataEndpoint = "https://aka.ms/br-module-index-data";
 
     private static readonly JsonSerializerOptions JsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     [SuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Relying on references to required properties of the generic type elsewhere in the codebase.")]
-    public async Task<ImmutableArray<PublicModuleIndexEntry>> GetModuleIndexAsync()
+    public async Task<ImmutableArray<BrmIndexEntry>> GetModuleIndexAsync()
     {
-        Trace.WriteLine($"{nameof(PublicModuleMetadataHttpClient)}: Retrieving list of public registry modules...");
+        Trace.WriteLine($"{nameof(BrmIndexHttpClient)}: Retrieving list of public registry modules...");
 
         try
         {
-            var metadata = await httpClient.GetFromJsonAsync<PublicModuleIndexEntry[]>(LiveDataEndpoint, JsonSerializerOptions);
+            var metadata = await httpClient.GetFromJsonAsync<BrmIndexEntry[]>(LiveDataEndpoint, JsonSerializerOptions);
 
             if (metadata is not null)
             {
-                Trace.WriteLine($"{nameof(PublicModuleMetadataHttpClient)}: Retrieved info on {metadata.Length} public registry modules.");
+                Trace.WriteLine($"{nameof(BrmIndexHttpClient)}: Retrieved info on {metadata.Length} public registry modules.");
                 return [.. metadata];
             }
             else

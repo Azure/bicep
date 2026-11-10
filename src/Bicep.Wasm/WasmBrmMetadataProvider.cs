@@ -4,11 +4,11 @@
 using System.Collections.Immutable;
 using Bicep.Core;
 using Bicep.Core.Artifacts.Catalog;
-using Bicep.Core.Artifacts.Catalog.Implementation;
+using Bicep.Core.Artifacts.Catalog.Brm;
 
 namespace Bicep.Wasm
 {
-    public sealed class WasmPublicModuleMetadataProvider : IPublicModuleMetadataProvider
+    public sealed class WasmBrmMetadataProvider : IBrmMetadataProvider
     {
         public string Registry => LanguageConstants.BicepPublicMcrRegistry;
 

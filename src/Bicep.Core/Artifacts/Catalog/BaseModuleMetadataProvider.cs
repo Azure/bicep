@@ -13,7 +13,7 @@ using Bicep.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 
-namespace Bicep.Core.Artifacts.Catalog.Implementation;
+namespace Bicep.Core.Artifacts.Catalog;
 
 
 /// <summary>

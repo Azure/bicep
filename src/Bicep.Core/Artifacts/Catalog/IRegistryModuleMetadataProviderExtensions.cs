@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 
-namespace Bicep.Core.Artifacts.Catalog.Implementation;
+namespace Bicep.Core.Artifacts.Catalog;
 
 public static class IRegistryModuleMetadataProviderExtensions
 {

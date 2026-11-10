@@ -9,8 +9,8 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Artifacts.Catalog;
-using Bicep.Core.Artifacts.Catalog.Implementation;
-using Bicep.Core.Artifacts.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Artifacts.Catalog.Brm;
+using Bicep.Core.Artifacts.Catalog.PrivateRegistries;
 using Bicep.Core.Configuration;
 using Bicep.Core.Json;
 using Bicep.Core.RegistryClients.Oci;
@@ -25,7 +25,7 @@ public static class RegistryCatalogMocks
 {
     private const string PublicRegistry = "mcr.microsoft.com";
 
-    public static Mock<IPublicModuleMetadataProvider> MockPublicMetadataProvider(
+    public static Mock<IBrmMetadataProvider> MockPublicMetadataProvider(
         IEnumerable<(string moduleName, string? description, string? documentationUri, IEnumerable<(string version, string? description, string? documentUri)> versions)> modules)
     {
         if (modules.Any())
@@ -35,7 +35,7 @@ public static class RegistryCatalogMocks
             );
         }
 
-        var publicProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
+        var publicProvider = StrictMock.Of<IBrmMetadataProvider>();
 
         publicProvider.Setup(x => x.Registry).Returns(PublicRegistry);
 
@@ -108,7 +108,7 @@ public static class RegistryCatalogMocks
     }
 
     public static IRegistryModuleCatalog CreateCatalogWithMocks(
-        Mock<IPublicModuleMetadataProvider>? publicProvider = null,
+        Mock<IBrmMetadataProvider>? publicProvider = null,
         params Mock<IRegistryModuleMetadataProvider>[] privateProviders
     )
     {

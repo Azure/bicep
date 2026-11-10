@@ -4,7 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.VisualStudio.Threading;
 
-namespace Bicep.Core.Artifacts.Catalog.Implementation;
+namespace Bicep.Core.Artifacts.Catalog;
 
 public class MightBeLazyAsync<T> where T : class
 {

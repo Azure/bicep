@@ -4,13 +4,13 @@
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using Bicep.Core.Artifacts.Catalog.Implementation;
+using Bicep.Core.Artifacts.Catalog;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RichardSzalay.MockHttp;
 
-namespace Bicep.Core.UnitTests.Artifacts.Catalog.Implementation
+namespace Bicep.Core.UnitTests.Artifacts.Catalog
 {
     [TestClass]
     public class BaseModuleMetadataProviderTests

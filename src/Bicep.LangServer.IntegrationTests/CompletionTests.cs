@@ -6,7 +6,7 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
 using System.Text;
 using Bicep.Core;
-using Bicep.Core.Artifacts.Catalog;
+using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -4740,7 +4740,7 @@ var file = " + functionName + @"(templ|)
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
                 services => services
-                    .AddSingleton<IPublicModuleMetadataProvider>(publicModuleMetadataProvider.Object)
+                    .AddSingleton<IBrmMetadataProvider>(publicModuleMetadataProvider.Object)
                     .AddSingleton(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);

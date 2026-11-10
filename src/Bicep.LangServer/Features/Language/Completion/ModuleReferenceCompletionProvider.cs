@@ -9,7 +9,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
 using Bicep.Core.Artifacts.Catalog;
-using Bicep.Core.Artifacts.Catalog.Implementation;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Configuration;
 using Bicep.Core.Parsing;

@@ -8,9 +8,8 @@ using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Artifacts.Catalog;
-using Bicep.Core.Artifacts.Catalog.Implementation;
-using Bicep.Core.Artifacts.Catalog.Implementation.PrivateRegistries;
-using Bicep.Core.Artifacts.Catalog.Implementation.PublicRegistries;
+using Bicep.Core.Artifacts.Catalog.Brm;
+using Bicep.Core.Artifacts.Catalog.PrivateRegistries;
 using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Artifacts.Registries;
 using Bicep.Core.Artifacts.Resolution;
@@ -103,14 +102,14 @@ public static class BicepCoreServiceCollectionExtensions
 
     public static IServiceCollection AddBicepRegistryCatalogServices(this IServiceCollection services)
     {
-        services.TryAddSingleton<IPublicModuleMetadataProvider, PublicModuleMetadataProvider>();
+        services.TryAddSingleton<IBrmMetadataProvider, BrmMetadataProvider>();
         services.TryAddSingleton<IRegistryModuleCatalog, RegistryModuleCatalog>();
         services.TryAddSingleton<IPrivateAcrModuleMetadataProviderFactory, PrivateAcrModuleMetadataProviderFactory>();
 
         // using type based registration for Http clients so dependencies can be injected automatically
         // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
         services
-            .AddHttpClient<IPublicModuleIndexHttpClient, PublicModuleMetadataHttpClient>()
+            .AddHttpClient<IBrmIndexHttpClient, BrmIndexHttpClient>()
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
             {
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
