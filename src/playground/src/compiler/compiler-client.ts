@@ -4,6 +4,7 @@ import { languages } from "monaco-editor/editor/editor.api";
 import { getQuickstartsLink } from "../quickstarts/quickstarts";
 import {
   CompileResult,
+  ConsoleResult,
   CompilerRequest,
   CompilerResponse,
   CompilerResult,
@@ -21,6 +22,8 @@ export class CompilerRequestSupersededError extends Error {
 }
 
 export interface DotnetInterop {
+  resetConsole(): Promise<string>;
+  evaluateConsole(content: string, sessionId: string): Promise<ConsoleResult>;
   getSemanticTokensLegend(): languages.SemanticTokensLegend;
   getSemanticTokens(
     content: string,
@@ -164,6 +167,18 @@ class CompilerWorkerClient implements DotnetInterop {
     return this.sendRequest<DecompileResult>({
       operation: "decompile",
       content,
+    });
+  }
+
+  public resetConsole() {
+    return this.sendRequest<string>({ operation: "resetConsole" });
+  }
+
+  public evaluateConsole(content: string, sessionId: string) {
+    return this.sendRequest<ConsoleResult>({
+      operation: "evaluateConsole",
+      content,
+      sessionId,
     });
   }
 

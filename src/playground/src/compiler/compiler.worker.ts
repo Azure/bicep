@@ -7,6 +7,8 @@ import {
 } from "./compiler-protocol";
 
 type WorkerMethods = {
+  ResetConsole(): string;
+  EvaluateConsole(content: string, sessionId: string): string;
   CompileAndEmitDiagnostics(
     content: string,
     sourcePath: string | null,
@@ -121,6 +123,14 @@ async function processRequest(
     let result: CompilerResult;
 
     switch (request.operation) {
+      case "resetConsole":
+        result = JSON.parse(workerMethods.ResetConsole()) as string;
+        break;
+      case "evaluateConsole":
+        result = JSON.parse(
+          workerMethods.EvaluateConsole(request.content, request.sessionId),
+        ) as CompilerResult;
+        break;
       case "compile":
         result = JSON.parse(
           await workerMethods.CompileAndEmitDiagnostics(

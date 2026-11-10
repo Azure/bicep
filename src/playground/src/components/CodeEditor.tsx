@@ -20,18 +20,32 @@ interface Props {
   initialContent: string;
   contentRevision?: number;
   onContentChange?: (model: monaco.editor.ITextModel, content: string) => void;
+  onKeyDown?: (
+    event: monaco.IKeyboardEvent,
+    editor: monaco.editor.IStandaloneCodeEditor,
+  ) => void;
 }
 
 export interface CodeEditorHandle {
+  focus(): void;
   focusAt(lineNumber: number, column: number): void;
+  setValue(content: string): void;
 }
 
 export const CodeEditor = forwardRef<CodeEditorHandle, Props>((props, ref) => {
-  const { options, initialContent, contentRevision, onContentChange } = props;
+  const {
+    options,
+    initialContent,
+    contentRevision,
+    onContentChange,
+    onKeyDown,
+  } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(undefined);
   const modelRef = useRef<monaco.editor.ITextModel>(undefined);
   const onContentChangeRef = useRef(onContentChange);
+  const onKeyDownRef = useRef(onKeyDown);
+  onKeyDownRef.current = onKeyDown;
   const initialContentRef = useRef(initialContent);
   const initialOptionsRef = useRef(options);
   const colorMode = useColorMode();
@@ -39,6 +53,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>((props, ref) => {
   useImperativeHandle(
     ref,
     () => ({
+      focus: () => editorRef.current?.focus(),
       focusAt: (lineNumber, column) => {
         const editor = editorRef.current;
         if (!editor) {
@@ -48,6 +63,16 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>((props, ref) => {
         editor.setPosition({ lineNumber, column });
         editor.revealPositionInCenter({ lineNumber, column });
         editor.focus();
+      },
+      setValue: (content) => {
+        const editor = editorRef.current;
+        const model = modelRef.current;
+        if (editor && model) {
+          model.setValue(content);
+          const position = model.getPositionAt(content.length);
+          editor.setPosition(position);
+          editor.revealPosition(position);
+        }
       },
     }),
     [],
@@ -78,6 +103,9 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>((props, ref) => {
     const contentChangeSubscription = editor.onDidChangeModelContent(() => {
       onContentChangeRef.current?.(model, model.getValue());
     });
+    const keyDownSubscription = editor.onKeyDown((event) => {
+      onKeyDownRef.current?.(event, editor);
+    });
 
     editorRef.current = editor;
     modelRef.current = model;
@@ -85,6 +113,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>((props, ref) => {
 
     return () => {
       contentChangeSubscription.dispose();
+      keyDownSubscription.dispose();
       editor.dispose();
       if (!model.isDisposed()) {
         model.dispose();
