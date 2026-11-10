@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.Configuration
     [TestClass]
     public class ImplicitExtensionsTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(new string[] { "extension1", "extension2" }, 2)]
         [DataRow(new string[] { "extension1" }, 1)]
         [DataRow(new string[] { }, 0)]

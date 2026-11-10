@@ -56,7 +56,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             return resolved;
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test |''", 14)]
         [DataRow("module test ''|", 14)]
         [DataRow("module test '|'", 14)]
@@ -224,7 +224,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             completions.Should().BeEmpty();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // CONSIDER: This doesn't actually test anything useful because the current code takes the entire string
         //   into account, and ignores where the cursor is.
         [DataRow("module test 'br/public:app/dapr-containerapp:1.0.1|")]
@@ -257,7 +257,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             completions.Should().BeEmpty();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br/|'", 17)]
         [DataRow("module test 'br/|", 16)]
         public async Task GetFilteredCompletions_WithAliasCompletionContext_ReturnsCompletionItems(string inputWithCursors, int expectedEnd)
@@ -327,7 +327,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:|'")]
         [DataRow("module test 'br:|")]
         public async Task GetFilteredCompletions_WithACRCompletionSettingSetToFalse_ReturnsACRCompletionItemsUsingBicepConfig(string inputWithCursors)
@@ -392,7 +392,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:|'")]
         [DataRow("module test 'br:|")]
         public async Task GetFilteredCompletions_WithACRCompletionsSettingSetToTrue_ReturnsACRCompletionItemsUsingResourceGraphClient(string inputWithCursors)
@@ -458,7 +458,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:|'")]
         [DataRow("module test 'br:|")]
         public async Task GetFilteredCompletions_WithACRCompletionsSettingSetToTrue_AndNoAccessibleRegistries_ReturnsNoACRCompletions(
@@ -492,7 +492,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", "bicep/app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "bicep/app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 41)]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/|", "bicep/app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "bicep/app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 40)]
         [DataRow("module test 'br/public:|'", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 24)]
@@ -551,7 +551,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:registry.contoso.io/bicep/|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
         [DataRow("module test 'br:registry.contoso.io/bicep/|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
         [DataRow("module test 'br/myRegistry:|'", "abc/foo/bar", "'br/myRegistry:abc/foo/bar:$0'")]
@@ -606,7 +606,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
         [DataRow("module test 'br:testacr1.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
         public async Task GetFilteredCompletions_IfAliasesInBicepConfig_AndRegistriesNotAvailable_GetPartialCompletionsBasedOnConfigOnly(
@@ -656,7 +656,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br/public:app/dapr-containerapp:|'", "1.0.2", "'br/public:app/dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", "0001", 46)]
         [DataRow("module test 'br/public:app/dapr-containerapp:|", "1.0.2", "'br/public:app/dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", "0001", 45)]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", "1.0.2", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'$0", "0001", 63)]
@@ -754,7 +754,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             completions.Should().BeEmpty();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
         [DataRow("module test 'br:testacr1.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
         public async Task GetFilteredCompletions_WithPublicAliasOverriddenInBicepConfigAndPathCompletionContext_ReturnsCompletionItems(
@@ -800,7 +800,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.TextEdit!.TextEdit!.Range.End.Character == endCharacter);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br/test1:|'", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 23)]
         [DataRow("module test 'br/test1:|", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 22)]
         [DataRow("module test 'br/test2:|'", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 23)]
@@ -904,6 +904,41 @@ namespace Bicep.LangServer.UnitTests.Completions
             secondItemReturned.Should().BeFalse();
         }
 
+        [TestMethod]
+        [DataRow(false, false)]
+        [DataRow(false, true)]
+        [DataRow(true, false)]
+        [DataRow(true, true)]
+        public async Task CompletionsAndResolutionUseConfiguredRegistryTransport(bool useOrasSdk, bool versionCompletion)
+        {
+            var config = $$"""
+                {
+                  "experimentalFeaturesEnabled": {
+                    "ociEnabled": {{useOrasSdk.ToString().ToLowerInvariant()}}
+                  }
+                }
+                """;
+            var input = versionCompletion ? "module test 'br:example.azurecr.io/modules/foo:|'" : "module test 'br:example.azurecr.io/modules/|'";
+            var (context, sourceFile) = GetBicepCompletionContext(input, config);
+            var provider = RegistryCatalogMocks.MockPrivateMetadataProvider(
+                "example.azurecr.io",
+                [("modules/foo", "description", "https://example.com/docs", [new("v1", "version description", "https://example.com/v1")])]);
+            var catalog = StrictMock.Of<IRegistryModuleCatalog>();
+            catalog.Setup(x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), "example.azurecr.io", useOrasSdk))
+                .Returns(provider.Object);
+            catalog.Setup(x => x.TryGetCachedRegistry("example.azurecr.io", useOrasSdk)).Returns(provider.Object);
+            var completionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider, catalog.Object, settingsProvider, BicepTestConstants.TestRegistryConfiguration);
+
+            var completions = (await GetAndResolveCompletionItems(sourceFile, context, completionProvider)).ToArray();
+
+            completions.Should().ContainSingle();
+            completions[0].Detail.Should().Be(versionCompletion ? "version description" : "description");
+            catalog.Verify(x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), "example.azurecr.io", useOrasSdk), Times.Once);
+            catalog.Verify(x => x.TryGetCachedRegistry("example.azurecr.io", useOrasSdk), Times.Once);
+            catalog.Verify(x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), !useOrasSdk), Times.Never);
+        }
+
         private (BicepCompletionContext, BicepSourceFile) GetBicepCompletionContext(
             string inputWithCursors,
             string? bicepConfigFileContents = null,
@@ -951,7 +986,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             // Assert: no module-path completions returned, catalog never contacted
             completions.Should().BeEmpty();
             catalogMock.Verify(
-                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
+                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), It.IsAny<bool>()),
                 Times.Never);
         }
 
@@ -1000,7 +1035,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             // Assert
             completions.Should().BeEmpty();
             catalogMock.Verify(
-                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
+                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), It.IsAny<bool>()),
                 Times.Never);
         }
 
@@ -1037,7 +1072,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             // Assert: trust check applies after alias resolution
             completions.Should().BeEmpty();
             catalogMock.Verify(
-                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
+                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), It.IsAny<bool>()),
                 Times.Never);
         }
 

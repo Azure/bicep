@@ -20,10 +20,6 @@
   <PropertyGroup Label="Testing">
     <EnableMSTestRunner>true</EnableMSTestRunner>
 
-    <!-- More info about dotnet test integration https://learn.microsoft.com/dotnet/core/testing/unit-testing-platform-integration-dotnet-test -->
-    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
-    <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
-
     <!-- The way CI is setup is to run dotnet test multiple times with a filter. -->
     <!-- Most projects will have zero tests from that filter, so we ignore the "zero tests ran" exit code -->
     <!-- It seems that most filter usages is using FullyQualifiedName with the intent to run a specific assembly -->

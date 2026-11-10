@@ -14,24 +14,21 @@ internal static class BicepDocumentationExampleDiscovery
 {
     private const int MaxDirectoryDepth = 100;
 
-    public static ImmutableArray<BicepDocumentationUsageExample> Discover(
-        IDirectoryHandle moduleRoot,
-        Func<IOUri, bool>? shouldSkip = null) =>
-        Discover(moduleRoot, new(), shouldSkip);
+    public static ImmutableArray<BicepDocumentationUsageExample> Discover(IDirectoryHandle moduleRoot) =>
+        Discover(moduleRoot, new());
 
     public static ImmutableArray<BicepDocumentationUsageExample> Discover(
         IDirectoryHandle moduleRoot,
-        DocumentationExamples configuration,
-        Func<IOUri, bool>? shouldSkip = null)
+        DocumentationExamples configuration)
     {
         try
         {
             var sources = configuration.Sources.IsDefault
                 ? new DocumentationExamples().Sources
                 : configuration.Sources;
-            var discovered = DiscoverLocalFiles(moduleRoot, sources, shouldSkip);
+            var discovered = DiscoverLocalFiles(moduleRoot, sources);
             ApplyParentReassignments(moduleRoot, configuration, discovered);
-            ApplyChildReassignments(moduleRoot, configuration, sources, discovered, shouldSkip);
+            ApplyChildReassignments(moduleRoot, configuration, sources, discovered);
 
             return BicepDocumentationOrdering.SortByName(
                 discovered.Values.Select(item => BuildExample(moduleRoot, item)).ToImmutableArray(),
@@ -51,8 +48,7 @@ internal static class BicepDocumentationExampleDiscovery
 
     private static Dictionary<IOUri, DiscoveredFile> DiscoverLocalFiles(
         IDirectoryHandle moduleRoot,
-        ImmutableArray<DocumentationExampleSource> sources,
-        Func<IOUri, bool>? shouldSkip)
+        ImmutableArray<DocumentationExampleSource> sources)
     {
         var discovered = new Dictionary<IOUri, DiscoveredFile>();
         foreach (var source in sources)
@@ -69,7 +65,7 @@ internal static class BicepDocumentationExampleDiscovery
             }
 
             var matcher = CreateMatcher(source.Include, source.Exclude);
-            foreach (var file in EnumerateFiles(sourceRoot, shouldSkip))
+            foreach (var file in EnumerateFiles(sourceRoot))
             {
                 var sourceRelativePath = file.Uri.GetPathRelativeTo(sourceRoot.Uri);
                 if (matcher.Match(sourceRelativePath).HasMatches)
@@ -138,8 +134,7 @@ internal static class BicepDocumentationExampleDiscovery
         IDirectoryHandle moduleRoot,
         DocumentationExamples configuration,
         ImmutableArray<DocumentationExampleSource> sources,
-        Dictionary<IOUri, DiscoveredFile> discovered,
-        Func<IOUri, bool>? shouldSkip)
+        Dictionary<IOUri, DiscoveredFile> discovered)
     {
         if (configuration.Reassignments.IsDefaultOrEmpty)
         {
@@ -160,7 +155,7 @@ internal static class BicepDocumentationExampleDiscovery
                 continue;
             }
 
-            parentFiles ??= DiscoverLocalFiles(parentRoot, sources, shouldSkip).ToImmutableDictionary();
+            parentFiles ??= DiscoverLocalFiles(parentRoot, sources).ToImmutableDictionary();
             var matcher = CreateMatcher(reassignment.From.Include, reassignment.From.Exclude);
             foreach (var item in parentFiles.Where(item => matcher.Match(item.Value.SourceRelativePath).HasMatches))
             {
@@ -207,9 +202,7 @@ internal static class BicepDocumentationExampleDiscovery
             contents.TrimEnd());
     }
 
-    private static IEnumerable<IFileHandle> EnumerateFiles(
-        IDirectoryHandle directory,
-        Func<IOUri, bool>? shouldSkip)
+    private static IEnumerable<IFileHandle> EnumerateFiles(IDirectoryHandle directory)
     {
         var pending = new Stack<(IDirectoryHandle Directory, int Depth)>();
         pending.Push((directory, 0));
@@ -224,7 +217,8 @@ internal static class BicepDocumentationExampleDiscovery
 
             foreach (var file in current.Directory.EnumerateFiles("*"))
             {
-                if (shouldSkip?.Invoke(file.Uri) != true)
+                // Skip links so discovery cannot read or traverse outside the module.
+                if (!file.IsReparsePoint())
                 {
                     yield return file;
                 }
@@ -232,7 +226,7 @@ internal static class BicepDocumentationExampleDiscovery
 
             foreach (var subdirectory in current.Directory.EnumerateDirectories("*"))
             {
-                if (shouldSkip?.Invoke(subdirectory.Uri) != true)
+                if (!subdirectory.IsReparsePoint())
                 {
                     pending.Push((subdirectory, current.Depth + 1));
                 }

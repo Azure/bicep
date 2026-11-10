@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
@@ -25,7 +26,8 @@ namespace Bicep.LanguageServer.Compilation
         private readonly IEnvironment environment;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileExplorer fileExplorer;
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly RedirectingArtifactResolver referenceResolver;
+        private readonly IArtifactRestorer restorer;
         private readonly ISourceFileFactory sourceFileFactory;
         private readonly CompilerVersionCheckOptions compilerVersionCheckOptions;
 
@@ -33,7 +35,8 @@ namespace Bicep.LanguageServer.Compilation
             IEnvironment environment,
             INamespaceProvider namespaceProvider,
             IFileExplorer fileExplorer,
-            IModuleDispatcher moduleDispatcher,
+            RedirectingArtifactResolver referenceResolver,
+            IArtifactRestorer restorer,
             IBicepAnalyzer bicepAnalyzer,
             ISourceFileFactory sourceFileFactory,
             CompilerVersionCheckOptions compilerVersionCheckOptions)
@@ -41,7 +44,8 @@ namespace Bicep.LanguageServer.Compilation
             this.environment = environment;
             this.namespaceProvider = namespaceProvider;
             this.fileExplorer = fileExplorer;
-            this.moduleDispatcher = moduleDispatcher;
+            this.referenceResolver = referenceResolver;
+            this.restorer = restorer;
             this.bicepAnalyzer = bicepAnalyzer;
             this.sourceFileFactory = sourceFileFactory;
             this.compilerVersionCheckOptions = compilerVersionCheckOptions;
@@ -54,7 +58,8 @@ namespace Bicep.LanguageServer.Compilation
         {
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 fileExplorer,
-                moduleDispatcher,
+                referenceResolver,
+                restorer,
                 workspace,
                 sourceFileFactory,
                 documentUri.ToIOUri());
@@ -68,7 +73,8 @@ namespace Bicep.LanguageServer.Compilation
         {
             var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(
                 fileExplorer,
-                moduleDispatcher,
+                referenceResolver,
+                restorer,
                 workspace,
                 sourceFileFactory,
                 current.Compilation.SourceFileGrouping);
@@ -84,7 +90,6 @@ namespace Bicep.LanguageServer.Compilation
                 namespaceProvider,
                 syntaxTreeGrouping,
                 bicepAnalyzer,
-                moduleDispatcher,
                 sourceFileFactory,
                 modelLookup,
                 compilerVersionCheckOptions);

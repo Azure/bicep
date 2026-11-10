@@ -30,7 +30,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [DataRow("")]
         [DataRow("   ")]
         [DataRow("invalid_scope")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task StartDeploymentAsync_WithInvalidScope_ReturnsDeploymentFailedMessage(string scope)
         {
             var armClient = CreateMockArmClient();
@@ -67,7 +67,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task StartDeploymentAsync_WithSubscriptionScopeAndInvalidLocation_ReturnsDeploymentFailedMessage(string location)
         {
             var armClient = CreateMockArmClient();
@@ -98,7 +98,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task StartDeploymentAsync_WithManagementGroupScopeAndInvalidLocation_ReturnsDeploymentFailedMessage(string location)
         {
             var armClient = CreateMockArmClient();
@@ -162,7 +162,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [DataRow(LanguageConstants.TargetScopeTypeManagementGroup, "eastus")]
         [DataRow(LanguageConstants.TargetScopeTypeResourceGroup, "")]
         [DataRow(LanguageConstants.TargetScopeTypeSubscription, "eastus")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task StartDeploymentAsync_WithValidScopeAndInput_ReturnsDeploymentSucceededMessage(string scope, string location)
         {
             var template = @"{
@@ -431,7 +431,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
 
         [DataRow(200)]
         [DataRow(201)]
-        [DataTestMethod]
+        [TestMethod]
         public async Task WaitForDeploymentCompletionAsync_WithStatusMessage200Or201_ReturnsDeploymentSucceededMessage(int status)
         {
             var responseMessage = "sample response";

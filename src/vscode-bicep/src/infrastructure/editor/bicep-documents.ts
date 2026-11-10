@@ -14,6 +14,7 @@ export const bicepParamLanguageId = "bicep-params";
 
 /**
  * Determines which bicep file to target for a command.
+ * Set includeBicepParam to include parameter files in active-editor, visible-editor, and workspace selection.
  * @summary
  * In all cases, if a URL is passed in, it will be targeted (this handles all scenarios except invoking through a shortcut key or the command palette, e.g.
  *   context menus will always pass in a URI).
@@ -47,7 +48,7 @@ export async function findOrCreateActiveBicepFile(
     return activeEditor.document.uri;
   }
 
-  const globPattern = includeBicepParam ? "**/*.{bicep, bicepparam}" : "**/*.bicep";
+  const globPattern = includeBicepParam ? "**/*.{bicep,bicepparam}" : "**/*.bicep";
 
   const workspaceBicepFiles = (await workspace.findFiles(globPattern, undefined)).filter((f) => !!f.fsPath);
   const visibleBicepFiles = window.visibleTextEditors // List of the active editor in each editor tab group

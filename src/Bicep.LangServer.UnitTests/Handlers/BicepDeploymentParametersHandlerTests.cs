@@ -756,7 +756,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             Assert.IsNull(DeploymentFileCompilationCache.FindAndRemoveCompilation(documentUri));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("param test string = 'test'", ParameterType.String)]
         [DataRow("param test int = 1", ParameterType.Int)]
         [DataRow("param test bool = true", ParameterType.Bool)]
@@ -789,7 +789,7 @@ param test foo", ParameterType.Array)]
             result.Should().Be(expected);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(null)]
         [DataRow("")]
         [DataRow("    ")]

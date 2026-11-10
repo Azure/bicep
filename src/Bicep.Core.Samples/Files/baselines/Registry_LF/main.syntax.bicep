@@ -1,5 +1,5 @@
 targetScope = 'subscription'
-//@[000:2601) ProgramSyntax
+//@[000:2634) ProgramSyntax
 //@[000:0028) ├─TargetScopeSyntax
 //@[000:0011) | ├─Token(Identifier) |targetScope|
 //@[012:0013) | ├─Token(Assignment) |=|
@@ -786,17 +786,17 @@ output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUr
 //@[081:0082) |   └─Token(RightSquare) |]|
 //@[082:0084) ├─Token(NewLine) |\n\n|
 
-module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
-//@[000:0128) ├─ModuleDeclarationSyntax
+module passthroughPort 'br:port.invalid:5000/passthrough/port:v1' = {
+//@[000:0131) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0022) | ├─IdentifierSyntax
 //@[007:0022) | | └─Token(Identifier) |passthroughPort|
-//@[023:0062) | ├─StringSyntax
-//@[023:0062) | | └─Token(StringComplete) |'br:localhost:5000/passthrough/port:v1'|
-//@[063:0064) | ├─Token(Assignment) |=|
-//@[065:0128) | └─ObjectSyntax
-//@[065:0066) |   ├─Token(LeftBrace) |{|
-//@[066:0067) |   ├─Token(NewLine) |\n|
+//@[023:0065) | ├─StringSyntax
+//@[023:0065) | | └─Token(StringComplete) |'br:port.invalid:5000/passthrough/port:v1'|
+//@[066:0067) | ├─Token(Assignment) |=|
+//@[068:0131) | └─ObjectSyntax
+//@[068:0069) |   ├─Token(LeftBrace) |{|
+//@[069:0070) |   ├─Token(NewLine) |\n|
   scope: rg
 //@[002:0011) |   ├─ObjectPropertySyntax
 //@[002:0007) |   | ├─IdentifierSyntax
@@ -837,17 +837,17 @@ module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
-module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
-//@[000:0112) ├─ModuleDeclarationSyntax
+module ipv4 'br:ipv4.invalid/passthrough/ipv4:v1' = {
+//@[000:0115) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0011) | ├─IdentifierSyntax
 //@[007:0011) | | └─Token(Identifier) |ipv4|
-//@[012:0046) | ├─StringSyntax
-//@[012:0046) | | └─Token(StringComplete) |'br:127.0.0.1/passthrough/ipv4:v1'|
-//@[047:0048) | ├─Token(Assignment) |=|
-//@[049:0112) | └─ObjectSyntax
-//@[049:0050) |   ├─Token(LeftBrace) |{|
-//@[050:0051) |   ├─Token(NewLine) |\n|
+//@[012:0049) | ├─StringSyntax
+//@[012:0049) | | └─Token(StringComplete) |'br:ipv4.invalid/passthrough/ipv4:v1'|
+//@[050:0051) | ├─Token(Assignment) |=|
+//@[052:0115) | └─ObjectSyntax
+//@[052:0053) |   ├─Token(LeftBrace) |{|
+//@[053:0054) |   ├─Token(NewLine) |\n|
   scope: rg
 //@[002:0011) |   ├─ObjectPropertySyntax
 //@[002:0007) |   | ├─IdentifierSyntax
@@ -888,17 +888,17 @@ module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
-module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
-//@[000:0133) ├─ModuleDeclarationSyntax
+module ipv4port 'br:ipv4-port.invalid:5000/passthrough/ipv4port:v1' = {
+//@[000:0141) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0015) | ├─IdentifierSyntax
 //@[007:0015) | | └─Token(Identifier) |ipv4port|
-//@[016:0059) | ├─StringSyntax
-//@[016:0059) | | └─Token(StringComplete) |'br:127.0.0.1:5000/passthrough/ipv4port:v1'|
-//@[060:0061) | ├─Token(Assignment) |=|
-//@[062:0133) | └─ObjectSyntax
-//@[062:0063) |   ├─Token(LeftBrace) |{|
-//@[063:0064) |   ├─Token(NewLine) |\n|
+//@[016:0067) | ├─StringSyntax
+//@[016:0067) | | └─Token(StringComplete) |'br:ipv4-port.invalid:5000/passthrough/ipv4port:v1'|
+//@[068:0069) | ├─Token(Assignment) |=|
+//@[070:0141) | └─ObjectSyntax
+//@[070:0071) |   ├─Token(LeftBrace) |{|
+//@[071:0072) |   ├─Token(NewLine) |\n|
   scope: rg
 //@[002:0011) |   ├─ObjectPropertySyntax
 //@[002:0007) |   | ├─IdentifierSyntax
@@ -939,17 +939,17 @@ module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
-module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
-//@[000:0108) ├─ModuleDeclarationSyntax
+module ipv6 'br:ipv6.invalid/passthrough/ipv6:v1' = {
+//@[000:0115) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0011) | ├─IdentifierSyntax
 //@[007:0011) | | └─Token(Identifier) |ipv6|
-//@[012:0042) | ├─StringSyntax
-//@[012:0042) | | └─Token(StringComplete) |'br:[::1]/passthrough/ipv6:v1'|
-//@[043:0044) | ├─Token(Assignment) |=|
-//@[045:0108) | └─ObjectSyntax
-//@[045:0046) |   ├─Token(LeftBrace) |{|
-//@[046:0047) |   ├─Token(NewLine) |\n|
+//@[012:0049) | ├─StringSyntax
+//@[012:0049) | | └─Token(StringComplete) |'br:ipv6.invalid/passthrough/ipv6:v1'|
+//@[050:0051) | ├─Token(Assignment) |=|
+//@[052:0115) | └─ObjectSyntax
+//@[052:0053) |   ├─Token(LeftBrace) |{|
+//@[053:0054) |   ├─Token(NewLine) |\n|
   scope: rg
 //@[002:0011) |   ├─ObjectPropertySyntax
 //@[002:0007) |   | ├─IdentifierSyntax
@@ -990,17 +990,17 @@ module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
-module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
-//@[000:0129) ├─ModuleDeclarationSyntax
+module ipv6port 'br:ipv6-port.invalid:5000/passthrough/ipv6port:v1' = {
+//@[000:0141) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0015) | ├─IdentifierSyntax
 //@[007:0015) | | └─Token(Identifier) |ipv6port|
-//@[016:0055) | ├─StringSyntax
-//@[016:0055) | | └─Token(StringComplete) |'br:[::1]:5000/passthrough/ipv6port:v1'|
-//@[056:0057) | ├─Token(Assignment) |=|
-//@[058:0129) | └─ObjectSyntax
-//@[058:0059) |   ├─Token(LeftBrace) |{|
-//@[059:0060) |   ├─Token(NewLine) |\n|
+//@[016:0067) | ├─StringSyntax
+//@[016:0067) | | └─Token(StringComplete) |'br:ipv6-port.invalid:5000/passthrough/ipv6port:v1'|
+//@[068:0069) | ├─Token(Assignment) |=|
+//@[070:0141) | └─ObjectSyntax
+//@[070:0071) |   ├─Token(LeftBrace) |{|
+//@[071:0072) |   ├─Token(NewLine) |\n|
   scope: rg
 //@[002:0011) |   ├─ObjectPropertySyntax
 //@[002:0007) |   | ├─IdentifierSyntax

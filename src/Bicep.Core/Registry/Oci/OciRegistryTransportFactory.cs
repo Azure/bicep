@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Immutable;
-using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Oci.Oras;
 using Bicep.Core.Registry.Sessions;
@@ -21,66 +20,42 @@ public class OciRegistryTransportFactory : IOciRegistryTransportFactory
         ".azurecr.gov"
     ];
 
-    // Hosts that, while not ACRs, are served by Microsoft and supported by the Azure SDK auth path.
-    private static readonly ImmutableHashSet<string> MicrosoftManagedHosts =
-        ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase, "mcr.microsoft.com");
-
+    private readonly OrasOciRegistryTransport transport;
     private readonly AzureContainerRegistryManager azureManager;
-    private readonly DockerCredentialProvider dockerCredentialProvider;
 
-    public OciRegistryTransportFactory(
-        AzureContainerRegistryManager azureManager,
-        DockerCredentialProvider dockerCredentialProvider)
+    public OciRegistryTransportFactory(OrasOciRegistryTransport transport, AzureContainerRegistryManager azureManager)
     {
+        this.transport = transport;
         this.azureManager = azureManager;
-        this.dockerCredentialProvider = dockerCredentialProvider;
     }
 
     public IOciRegistryTransport GetTransport(OciArtifactReference reference) =>
-        GetTransport(reference.Registry);
+        GetTransport(reference.Registry, reference.UseOrasSdk);
 
-    // Catalog enumeration currently always goes through the Azure SDK transport.
-    public IOciRegistryTransport GetTransport(string registry)
+    public IOciRegistryTransport GetTransport(string registry, bool useOrasSdk)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(registry);
-        return azureManager;
+        return useOrasSdk ? transport : azureManager;
     }
 
-    public IRegistrySession CreateSession(OciArtifactReference reference, IBicepCloudConfiguration cloud)
+    public IRegistrySession CreateSession(OciArtifactReference reference)
     {
         ArgumentNullException.ThrowIfNull(reference);
-        ArgumentNullException.ThrowIfNull(cloud);
+        var cloud = reference.Context.Cloud;
 
-        // ACR hosts (and Microsoft-managed hosts like mcr.microsoft.com) always go through the Azure SDK.
-        if (IsAzureSdkHost(reference.Registry))
-        {
-            return new AcrRegistrySession(azureManager, cloud);
-        }
-
-        // Any other host: when the experimental OCI feature is enabled, use ORAS with docker-config credentials.
-        // Otherwise, fall back to the Azure SDK session (preserves pre-experimental-flag behavior).
-        if (reference.FeatureProvider.OciEnabled)
-        {
-            return new OrasRegistrySession(reference.Registry, reference.Repository, dockerCredentialProvider);
-        }
-
-        return new AcrRegistrySession(azureManager, cloud);
+        return reference.UseOrasSdk
+            ? transport.CreateSession(cloud, reference.Registry, reference.Repository)
+            : new AcrRegistrySession(azureManager, cloud);
     }
 
     /// <summary>
-    /// Returns true for hosts that should be routed through the Azure SDK transport: ACR registries
-    /// and other Microsoft-managed hosts (e.g. mcr.microsoft.com) that the Azure SDK can authenticate to.
+    /// Returns true for hosts that use Azure credentials rather than Docker credentials.
     /// </summary>
-    internal static bool IsAzureSdkHost(string registry)
+    internal static bool IsAzureRegistry(string registry)
     {
         if (!TryNormalizeHost(registry, out var host))
         {
             return false;
-        }
-
-        if (MicrosoftManagedHosts.Contains(host))
-        {
-            return true;
         }
 
         foreach (var suffix in AcrHostSuffixes)

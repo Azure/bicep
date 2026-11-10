@@ -3,23 +3,19 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Azure;
-using Azure.Containers.ContainerRegistry;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
-using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Sessions;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceGraph.Artifacts;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
@@ -30,124 +26,34 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Bicep.Core.Registry
 {
-    public sealed class OciArtifactRegistry : ExternalArtifactRegistry<OciArtifactReference, OciArtifactResult>
+    public sealed class OciArtifactRegistry : ArtifactRegistry<OciArtifactReference>
     {
         private readonly RegistryConfiguration registryConfiguration;
 
         private readonly IOciRegistryTransportFactory transportFactory;
-
-        private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
-
-        private readonly IFileExplorer fileExplorer;
 
         private readonly ILogger<OciArtifactRegistry> logger;
 
         public OciArtifactRegistry(
             RegistryConfiguration registryConfiguration,
             IOciRegistryTransportFactory transportFactory,
-            IPublicModuleMetadataProvider publicModuleMetadataProvider,
-            IFileExplorer fileExplorer,
             ILogger<OciArtifactRegistry> logger)
         {
             this.registryConfiguration = registryConfiguration;
             this.transportFactory = transportFactory;
-            this.publicModuleMetadataProvider = publicModuleMetadataProvider;
-            this.fileExplorer = fileExplorer;
             this.logger = logger;
         }
 
         public override string Scheme => ArtifactReferenceSchemes.Oci;
 
-        public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, OciArtifactReference reference)
-        {
-            // cannot publish without tag
-            return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
-        }
+        protected override BicepRegistryArtifact GetCacheEntry(OciArtifactReference reference) => reference.CacheEntry;
 
-        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
-        {
-            // Check if the alias resolves to a mocked alias
-            if (aliasName is not null)
-            {
-                if (referencingFile.LoadConfiguration().ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out var _))
-                {
-                    // Mock aliases only support modules, not extensions.
-                    if (artifactType != ArtifactType.Module)
-                    {
-                        return new(x => x.OciArtifactModuleAliasMapToFilePathOnlySupportsModules(aliasName));
-                    }
+        protected override IFileHandle? TryGetEntryPoint(OciArtifactReference reference) =>
+            // Security-first: an artifact from an untrusted registry is never loaded, even if it is cached. It counts as
+            // not restored, so that restore runs and reports the untrusted registry (BCP446).
+            this.registryConfiguration.IsRegistryTrusted(reference.Registry) ? base.TryGetEntryPoint(reference) : null;
 
-                    if (referencingFile.LoadConfiguration().ConfigFileUri is not { } configFileUri)
-                    {
-                        return new(x => x.ConfigurationFileNotFound("OciModuleAliasesMock"));
-                    }
-
-                    if (mockAlias.MapToFilePath is null)
-                    {
-                        return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, configFileUri));
-                    }
-
-                    // Use the declaring config's URI so that a relative mapToFilePath inherited from a base
-                    // config is resolved from that base config's directory, not the leaf's.
-                    var resolveBaseUri = mockAlias.DeclaringConfigUri ?? configFileUri;
-
-                    if (!OciArtifactMockedReference.TryParse(
-                        referencingFile,
-                        mockAlias.MapToFilePath,
-                        resolveBaseUri,
-                        reference,
-                        this.fileExplorer,
-                        aliasName).IsSuccess(out var mockedRef, out var mockedFailureBuilder))
-                    {
-                        return new(mockedFailureBuilder!);
-                    }
-
-                    return new(mockedRef!);
-                }
-            }
-
-            if (!OciArtifactReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), artifactType, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
-            {
-                return new(failureBuilder);
-            }
-
-            return new(@ref);
-        }
-
-        public override bool IsArtifactRestoreRequired(OciArtifactReference reference)
-        {
-            /*
-             * this should be kept in sync with the WriteModuleContent() implementation
-             * but beware that it's possible older versions of Bicep and newer versions of Bicep
-             * may be sharing this cache on the same machine.
-             *
-             * when we write content to the module cache, we attempt to get a lock so that no other writes happen in the directory
-             * the code here appears to implement a lock-free read by checking existence of several files that are expected in a fully restored module
-             *
-             * this relies on the assumption that modules are never updated in-place in the cache
-             * when we need to invalidate the cache, the module directory (or even a single file) should be deleted from the cache
-             */
-
-            // Security-first: if the registry is untrusted, always mark restore as required so that
-            // RestoreArtifacts() will be called and can emit the appropriate diagnostic (BCP446).
-            if (!registryConfiguration.IsRegistryTrusted(reference.Registry))
-            {
-                return true;
-            }
-
-            var artifactFilesNotFound = reference.Type switch
-            {
-                ArtifactType.Module => !this.GetArtifactFile(reference, ArtifactFileType.ModuleMain).Exists(),
-                ArtifactType.Extension => !this.GetArtifactFile(reference, ArtifactFileType.Extension).Exists(),
-                _ => throw new UnreachableException()
-            };
-
-            return artifactFilesNotFound ||
-                !this.GetArtifactFile(reference, ArtifactFileType.Manifest).Exists() ||
-                !this.GetArtifactFile(reference, ArtifactFileType.Metadata).Exists();
-        }
-
-        public override async Task<bool> CheckArtifactExists(ArtifactType artifactType, OciArtifactReference reference)
+        public async Task<bool> CheckArtifactExists(OciArtifactReference reference)
         {
             await using var session = CreateSession(reference);
 
@@ -192,7 +98,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public override string? TryGetDocumentationUri(OciArtifactReference ociArtifactModuleReference)
+        public string? TryGetDocumentationUri(OciArtifactReference ociArtifactModuleReference)
         {
             var ociAnnotations = TryGetOciAnnotations(ociArtifactModuleReference);
             if (ociAnnotations is null ||
@@ -223,7 +129,7 @@ namespace Bicep.Core.Registry
             return $"https://github.com/Azure/bicep-registry-modules/tree/{publicModuleName}/{tag}/modules/{publicModuleName}/README.md";
         }
 
-        public override Task<string?> TryGetModuleDescription(ModuleSymbol module, OciArtifactReference ociArtifactModuleReference)
+        public Task<string?> TryGetModuleDescription(ModuleSymbol module, OciArtifactReference ociArtifactModuleReference)
         {
             var ociAnnotations = TryGetOciAnnotations(ociArtifactModuleReference);
             return Task.FromResult(DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations));
@@ -231,7 +137,7 @@ namespace Bicep.Core.Registry
 
         private OciManifest GetCachedManifest(OciArtifactReference ociArtifactModuleReference)
         {
-            var manifestFile = this.GetArtifactFile(ociArtifactModuleReference, ArtifactFileType.Manifest);
+            var manifestFile = this.GetCacheEntry(ociArtifactModuleReference).ManifestFile;
 
             try
             {
@@ -278,22 +184,9 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public override async Task OnRestoreArtifacts(bool forceRestore)
+        protected override async Task<IDictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
         {
-            // We don't want linter tests to download anything during analysis.  So we are downloading
-            //   metadata here to avoid downloading during analysis, and tests can use cached data if it
-            //   exists (e.g. IRegistryModuleMetadataProvider.GetCached* methods).
-            // If --no-restore has been specified on the command ine, we don't want to download anything at all.
-            // Therefore we do the cache download here so that lint rules can have access to the cached metadata.
-            // CONSIDER: Revisit if it's okay to download metadata during analysis?  This will be more of a problem
-            //   when we extend the linter rules to include private registry modules.
-
-            await publicModuleMetadataProvider.TryAwaitCache(forceRestore);
-        }
-
-        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
-        {
-            var failures = new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
+            var failures = new Dictionary<ExternalArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
 
             var referencesEvaluated = references.ToArray();
 
@@ -309,8 +202,8 @@ namespace Bicep.Core.Registry
                     continue;
                 }
 
-                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference).Uri.GetFilePath()}");
-                var (result, errorMessage) = await this.TryRestoreArtifactAsync(reference.Configuration, reference);
+                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {this.GetCacheEntry(reference).CacheDirectory.Uri.GetFilePath()}");
+                var (result, errorMessage) = await this.TryRestoreArtifactAsync(reference);
 
                 if (result is null)
                 {
@@ -330,21 +223,18 @@ namespace Bicep.Core.Registry
             return failures;
         }
 
-        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<OciArtifactReference> references)
+        public async Task PublishModule(OciArtifactReference reference, ModulePackage package)
         {
-            return await base.InvalidateArtifactsCacheInternal(references);
-        }
+            EnsureArtifactType(reference, ArtifactType.Module);
 
-        public override async Task PublishModule(OciArtifactReference reference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, string? description)
-        {
             var config = new Oci.OciDescriptor("{}", BicepMediaTypes.BicepModuleConfigV1);
 
             var layers = new List<Oci.OciDescriptor>
             {
-                new(compiledArmTemplate, BicepMediaTypes.BicepModuleLayerV1Json, new OciManifestAnnotationsBuilder().WithTitle("Compiled ARM template").Build())
+                new(package.Template, BicepMediaTypes.BicepModuleLayerV1Json, new OciManifestAnnotationsBuilder().WithTitle("Compiled ARM template").Build())
             };
 
-            if (bicepSources is { })
+            if (package.Sources is { } bicepSources)
             {
                 layers.Add(
                     new(
@@ -354,8 +244,8 @@ namespace Bicep.Core.Registry
             }
 
             var annotations = new OciManifestAnnotationsBuilder()
-                .WithDescription(description)
-                .WithDocumentationUri(documentationUri)
+                .WithDescription(DescriptionHelper.TryGetFromArmTemplate(package.Template))
+                .WithDocumentationUri(package.DocumentationUri)
                 .WithCreatedTime(DateTime.Now);
 
             await using var session = CreateSession(reference);
@@ -364,7 +254,7 @@ namespace Bicep.Core.Registry
             {
                 await session.PushAsync(
                     reference,
-                    ManifestMediaType.OciImageManifest.ToString(),
+                    BicepMediaTypes.OciImageManifest,
                     BicepMediaTypes.BicepModuleArtifactType,
                     config,
                     layers,
@@ -381,8 +271,10 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public override async Task PublishExtension(OciArtifactReference reference, ExtensionPackage package)
+        public async Task PublishExtension(OciArtifactReference reference, ExtensionPackage package)
         {
+            EnsureArtifactType(reference, ArtifactType.Extension);
+
             OciExtensionV1Config configData = package.LocalDeployEnabled && package.BinaryLayerVersion == ExtensionBinaryLayerVersion.V1 ? new(
                 localDeployEnabled: true,
                 supportedArchitectures: package.Binaries.Select(x => x.Architecture.Name).ToImmutableArray()) :
@@ -418,7 +310,7 @@ namespace Bicep.Core.Registry
             {
                 await session.PushAsync(
                     reference,
-                    ManifestMediaType.OciImageManifest.ToString(),
+                    BicepMediaTypes.OciImageManifest,
                     BicepMediaTypes.BicepExtensionArtifactType,
                     config,
                     layers,
@@ -438,131 +330,7 @@ namespace Bicep.Core.Registry
         // media types are case-insensitive (they are lowercase by convention only)
         public static readonly StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
 
-        protected override void WriteArtifactContentToCache(OciArtifactReference reference, OciArtifactResult result)
-        {
-            /*
-                * this should be kept in sync with the IsModuleRestoreRequired() implementation
-                * but beware that it's currently possible older versions of Bicep and newer versions of Bicep
-                * may be sharing this cache on the same machine.
-                */
-
-            // write manifest
-            // it's important to write the original stream here rather than serialize the manifest object
-            // this way we guarantee the manifest hash will match
-            this.GetArtifactFile(reference, ArtifactFileType.Manifest).Write(result.ManifestData);
-
-            // write data file
-            var mainLayer = result.GetMainLayer();
-
-            // TODO: IsArtifactRestoreRequired assumes there must be a ModuleMain file, which isn't true for extension artifacts
-            // NOTE(stephenWeatherford): That can be solved by only writing layer data files only (see below CONSIDER)
-            //   and not main.json directly (https://github.com/Azure/bicep/issues/11900)
-            var moduleFileType = (reference.Type, result) switch
-            {
-                (ArtifactType.Module, OciModuleArtifactResult) => ArtifactFileType.ModuleMain,
-                (ArtifactType.Module, OciExtensionArtifactResult) => throw new InvalidArtifactException($"Expected a module, but retrieved an extension."),
-                (ArtifactType.Extension, OciExtensionArtifactResult) => ArtifactFileType.Extension,
-                (ArtifactType.Extension, OciModuleArtifactResult) => throw new InvalidArtifactException($"Expected an extension, but retrieved a module."),
-                _ => throw new InvalidOperationException($"Unexpected artifact type \"{result.GetType().Name}\"."),
-            };
-
-            this.GetArtifactFile(reference, moduleFileType).Write(mainLayer.Data);
-
-            if (result is OciModuleArtifactResult)
-            {
-                // write source archive file
-                if (result.TryGetSingleLayerByMediaType(BicepMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
-                {
-                    // CONSIDER: Write all layers as separate binary files instead of separate files for source.tgz and extension files.
-                    // We should do this rather than writing individual files we know about,
-                    //   (e.g. "source.tgz") because this way we can restore all layers even if we don't know what they're for.
-                    //   If an optional layer is added, we don't need to version the cache because all versions have the same complete
-                    //   info on disk and can handle the layer data as they want to.
-                    // The manifest can be used to determine what's in each layer file.
-                    //  (https://github.com/Azure/bicep/issues/11900)
-                    this.GetArtifactFile(reference, ArtifactFileType.Source).Write(sourceData);
-                }
-            }
-
-            if (result is OciExtensionArtifactResult extension)
-            {
-                var config = extension.Config is { } ?
-                    JsonSerializer.Deserialize(extension.Config.Data, OciExtensionV1ConfigSerializationContext.Default.OciExtensionV1Config) :
-                    null;
-
-                // if the artifact supports local deployment, fetch the extension binary
-                if (config?.LocalDeployEnabled == true &&
-                    config?.SupportedArchitectures is { } binaryArchitectures)
-                {
-                    if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
-                    {
-                        throw new InvalidOperationException($"Failed to determine the system OS or architecture to execute extension \"{reference}\".");
-                    }
-
-                    if (!binaryArchitectures.Contains(architecture.Name) ||
-                        result.TryGetSingleLayerByMediaType(BicepMediaTypes.GetExtensionArtifactLayerV1Binary(architecture)) is not { } sourceData)
-                    {
-                        throw new InvalidOperationException($"The extension \"{reference}\" does not support architecture {architecture.Name}.");
-                    }
-
-                    var file = this.GetArtifactFile(reference, ArtifactFileType.ExtensionBinary);
-                    file.Write(sourceData);
-                    file.MakeExecutable();
-                }
-            }
-
-            // write metadata
-            var metadata = new ModuleMetadata(result.ManifestDigest);
-            using var metadataStream = new MemoryStream();
-            OciSerialization.Serialize(metadataStream, metadata);
-            metadataStream.Position = 0;
-
-            this.GetArtifactFile(reference, ArtifactFileType.Metadata).Write(metadataStream);
-        }
-
-        protected override IDirectoryHandle GetArtifactDirectory(OciArtifactReference reference)
-        {
-            // cachePath is already set to %userprofile%\.bicep\br or ~/.bicep/br by default depending on OS
-            // we need to split each component of the reference into a sub directory to fit within the max file name length limit on linux and mac
-
-            // TODO: Need to deal with IDNs (internationalized domain names)
-            // domain names can only contain alphanumeric chars, _, -, and numbers (example.azurecr.io or example.azurecr.io:443)
-            // IPV4 addresses only contain dots and numbers (127.0.0.1 or 127.0.0.1:5000)
-            // IPV6 addresses are hex digits with colons (2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF or [2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF]:5000)
-            // the only problematic character is the colon, which we will replace with $ which is not allowed in any of the possible registry values
-            // we will also normalize casing for registries since they are case-insensitive
-            var registry = reference.Registry.Replace(':', '$').ToLowerInvariant();
-
-            // modules can have mixed hierarchy depths so we will flatten a repository into a single directory name
-            // however to do this we must get rid of slashes (not a valid file system char on windows and a directory separator on linux/mac)
-            // the replacement char must one that is not valid in a repository string but is valid in common type systems
-            var repository = reference.Repository.Replace('/', '$');
-
-            string? tagOrDigest;
-            if (reference.Tag is not null)
-            {
-                // tags are case-sensitive with length up to 128
-                tagOrDigest = TagEncoder.Encode(reference.Tag);
-            }
-            else if (reference.Digest is not null)
-            {
-                // digests are strings like "sha256:e207a69d02b3de40d48ede9fd208d80441a9e590a83a0bc915d46244c03310d4"
-                // and are already guaranteed to be lowercase
-                // the only problematic character is the : which we will replace with a #
-                // however the encoding we choose must not be ambiguous with the tag encoding
-                tagOrDigest = reference.Digest.Replace(':', '#');
-            }
-            else
-            {
-                throw new InvalidOperationException("Module reference is missing both tag and digest.");
-            }
-
-            return reference.FeatureProvider.CacheRootDirectory.GetDirectory($"{ArtifactReferenceSchemes.Oci}/{registry}/{repository}/{tagOrDigest}");
-        }
-
-        protected override IFileHandle GetArtifactLockFile(OciArtifactReference reference) => this.GetArtifactFile(reference, ArtifactFileType.Lock);
-
-        private async Task<(OciArtifactResult?, string? errorMessage)> TryRestoreArtifactAsync(IBicepConfiguration configuration, OciArtifactReference reference)
+        private async Task<(OciArtifactResult?, string? errorMessage)> TryRestoreArtifactAsync(OciArtifactReference reference)
         {
             await using var session = CreateSession(reference);
 
@@ -570,7 +338,21 @@ namespace Bicep.Core.Registry
             {
                 var result = await session.PullAsync(reference, CancellationToken.None);
 
-                await WriteArtifactContentToCacheAsync(reference, result);
+                // Check the artifact type before writing anything, so that a wrong artifact leaves no partial cache entry.
+                switch (reference.Type, result)
+                {
+                    case (ArtifactType.Module, OciModuleArtifactResult):
+                    case (ArtifactType.Extension, OciExtensionArtifactResult):
+                        break;
+                    case (ArtifactType.Module, OciExtensionArtifactResult):
+                        throw new InvalidArtifactException($"Expected a module, but retrieved an extension.");
+                    case (ArtifactType.Extension, OciModuleArtifactResult):
+                        throw new InvalidArtifactException($"Expected an extension, but retrieved a module.");
+                    default:
+                        throw new InvalidOperationException($"Unexpected artifact type \"{result.GetType().Name}\".");
+                }
+
+                await this.GetCacheEntry(reference).WriteAsync(result, reference.ToString());
 
                 return (result, null);
             }
@@ -596,11 +378,19 @@ namespace Bicep.Core.Registry
             }
         }
 
+        private static void EnsureArtifactType(OciArtifactReference reference, ArtifactType expected)
+        {
+            if (reference.Type != expected)
+            {
+                throw new ArgumentException($"Cannot publish a package of type '{expected}' to a target of type '{reference.Type}'.", nameof(reference));
+            }
+        }
+
         private IRegistrySession CreateSession(OciArtifactReference reference)
         {
             // Security: never open an authenticated session to a registry that is not trusted.
             // This is the single choke point for all session-based operations (restore, publish,
-            // existence checks, hover/annotations) and covers every transport (Azure SDK and ORAS),
+            // existence checks, hover/annotations) and covers every registry,
             // preventing credentials/tokens from being sent to an attacker-controlled registry host.
             if (!registryConfiguration.IsRegistryTrusted(reference.Registry))
             {
@@ -609,7 +399,7 @@ namespace Bicep.Core.Registry
                     $"Set the {BicepEnvironmentVariables.TrustedRegistries} environment variable (comma-separated hostnames, e.g. \"contoso.example.com,*.contoso.io\") to allow it.");
             }
 
-            return transportFactory.CreateSession(reference, (CloudConfiguration)reference.Configuration.Cloud);
+            return transportFactory.CreateSession(reference);
         }
 
         private static bool IsNotFoundException(Exception? exception) =>
@@ -623,33 +413,5 @@ namespace Bicep.Core.Registry
 
         private static bool CheckAllInnerExceptionsAreRequestFailures(AggregateException exception) =>
             exception.InnerExceptions.All(inner => inner is RequestFailedException);
-
-        private IFileHandle GetArtifactFile(OciArtifactReference reference, ArtifactFileType fileType)
-        {
-            var fileName = fileType switch
-            {
-                ArtifactFileType.ModuleMain => "main.json",
-                ArtifactFileType.Lock => "lock",
-                ArtifactFileType.Manifest => "manifest",
-                ArtifactFileType.Metadata => "metadata",
-                ArtifactFileType.Extension => "types.tgz",
-                ArtifactFileType.Source => "source.tgz",
-                ArtifactFileType.ExtensionBinary => "extension.bin",
-                _ => throw new NotImplementedException($"Unexpected artifact file type '{fileType}'.")
-            };
-
-            return this.GetArtifactDirectory(reference).GetFile(fileName);
-        }
-
-        private enum ArtifactFileType
-        {
-            ModuleMain,
-            Manifest,
-            Lock,
-            Metadata,
-            Extension,
-            Source,
-            ExtensionBinary,
-        };
     }
 }

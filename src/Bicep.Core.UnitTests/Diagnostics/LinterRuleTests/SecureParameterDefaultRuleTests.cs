@@ -17,7 +17,7 @@ param o object = {
 var sum = 1 + 3
 output sub int = sum
 ")]
-        [DataTestMethod]
+        [TestMethod]
         public void NotSecureParam_TestPasses(int diagnosticCount, string text)
         {
             AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
@@ -33,7 +33,7 @@ output sub int = sum
 @secure()
 param poNoDefault object
 ")]
-        [DataTestMethod]
+        [TestMethod]
         public void NoDefault_TestPasses(int diagnosticCount, string text)
         {
             AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
@@ -43,7 +43,7 @@ param poNoDefault object
 @secure()
 param password string = ''
 ")]
-        [DataTestMethod]
+        [TestMethod]
         public void EmptyString_TestPasses(int diagnosticCount, string text)
         {
             AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
@@ -53,7 +53,7 @@ param password string = ''
 @secure()
 param poEmpty object = {}
 ")]
-        [DataTestMethod]
+        [TestMethod]
         public void EmptyObject_TestPasses(int diagnosticCount, string text)
         {
             AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
@@ -68,7 +68,7 @@ param psEmpty string
 @secure()
 param psContainsNewGuid string = concat('${psEmpty}${newGuid()})', '')
 ")]
-        [DataTestMethod]
+        [TestMethod]
         public void ExpressionContainingNewGuid_TestPasses(int diagnosticCount, string text)
         {
             AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
@@ -131,7 +131,7 @@ output sub int = sum
 @secure()
 param psExpression string = resourceGroup().location
 ")]
-        [DataTestMethod]
+        [TestMethod]
         public void InvalidNonEmptyDefault_TestFails(int diagnosticCount, string text, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount, new Options(onCompileErrors));
@@ -143,7 +143,7 @@ param poNotEmpty object = {
   abc: 1
 }
 ")]
-        [DataTestMethod]
+        [TestMethod]
         public void NonEmptySecureObject_TestFails(int diagnosticCount, string text)
         {
             AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
@@ -195,7 +195,7 @@ param param3 int
 @secure()
 output sub int = sum
 ")]
-        [DataTestMethod]
+        [TestMethod]
         public void HandlesSyntaxErrors(int diagnosticCount, string text)
         {
             AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount, new Options(OnCompileErrors.Ignore));
@@ -222,7 +222,7 @@ param param1 string = 'abc'
 @secure()
 param param2 string = param1
 ")]
-        [DataTestMethod]
+        [TestMethod]
         public void ParameterReassignment_TestPasses(int diagnosticCount, string text)
         {
             AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);

@@ -61,8 +61,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         public record DiagnosticMatcherData(DiagnosticLevel Level, string Code, string Message);
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetUnaryTestCases), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetUnaryTestCases))]
         public void Unary_operator_resolves_correct_type(UnaryOperationSyntax expression, TypeSymbol operandType, TypeSymbol expected, IEnumerable<DiagnosticMatcherData> expectedDiagnostics)
         {
             var diagnosticsWriter = ToListDiagnosticWriter.Create();
@@ -103,8 +103,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             };
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetBinaryTestCases), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetBinaryTestCases))]
         public void Binary_operator_resolves_correct_type(BinaryOperator @operator, TypeSymbol leftOperandType, TypeSymbol rightOperandType, TypeSymbol expected, IEnumerable<DiagnosticMatcherData> expectedDiagnostics)
         {
             var diagnosticsWriter = ToListDiagnosticWriter.Create();

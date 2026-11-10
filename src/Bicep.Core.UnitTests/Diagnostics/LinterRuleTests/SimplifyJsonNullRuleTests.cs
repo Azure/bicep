@@ -78,7 +78,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "null"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void Rule_ProducesDiagnosticWithFix(string text, string expectedFix)
         {
             ExpectDiagnosticWithFix(text, expectedFix);
@@ -90,7 +90,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ExpectPass("var test = 'test'");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             @"
                 var a = json(null)

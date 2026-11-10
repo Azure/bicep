@@ -20,8 +20,8 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
     [TestClass]
     public class GenerateCommandTests
     {
-        [DataTestMethod]
-        [DynamicData(nameof(GetSuccessData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetSuccessData))]
         public async Task InvokeAsync_OnSuccess_ReturnsZero(MockFileSystem fileSystemBeforeGeneration, MockFileSystem _)
         {
             var sut = CreateGenerateCommand(fileSystemBeforeGeneration);
@@ -31,8 +31,8 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
             exitCode.Should().Be(0);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetSuccessData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetSuccessData))]
         public async Task InvokeAsync_OnSuccess_ProducesExpectedFiles(MockFileSystem fileSystemBeforeGeneration, MockFileSystem fileSystemAfterGeneration)
         {
             var sut = CreateGenerateCommand(fileSystemBeforeGeneration);
@@ -42,8 +42,8 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
             fileSystemBeforeGeneration.Should().HaveSameFilesAs(fileSystemAfterGeneration);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetSuccessData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetSuccessData))]
         public async Task InvokeAsync_RepeatOnSuccess_ProducesSameFiles(MockFileSystem fileSystemBeforeGeneration, MockFileSystem fileSystemAfterGeneration)
         {
             var sut = CreateGenerateCommand(fileSystemBeforeGeneration);

@@ -9,6 +9,9 @@ namespace Bicep.Core.Registry.Oci
     {
         public const string Scheme = "br";
 
+        /// <summary>
+        /// A scheme that earlier Bicep versions used internally for <c>moduleAliasesMock</c> hits. References that use it are rejected.
+        /// </summary>
         public const string MockedScheme = "br-mock";
 
         public const string SchemeWithColon = Scheme + ":";

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
-using System.IO.Abstractions;
 using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -36,7 +36,8 @@ public class BicepCompiler
     private readonly INamespaceProvider namespaceProvider;
     private readonly IBicepAnalyzer bicepAnalyzer;
     private readonly IFileExplorer fileExplorer;
-    private readonly IModuleDispatcher moduleDispatcher;
+    private readonly RedirectingArtifactResolver referenceResolver;
+    private readonly IArtifactRestorer restorer;
     private readonly CompilerVersionCheckOptions compilerVersionCheckOptions;
 
     public BicepCompiler(
@@ -44,7 +45,8 @@ public class BicepCompiler
         INamespaceProvider namespaceProvider,
         IBicepAnalyzer bicepAnalyzer,
         IFileExplorer fileExplorer,
-        IModuleDispatcher moduleDispatcher,
+        RedirectingArtifactResolver referenceResolver,
+        IArtifactRestorer restorer,
         ISourceFileFactory sourceFileFactory,
         CompilerVersionCheckOptions compilerVersionCheckOptions)
     {
@@ -52,7 +54,8 @@ public class BicepCompiler
         this.namespaceProvider = namespaceProvider;
         this.bicepAnalyzer = bicepAnalyzer;
         this.fileExplorer = fileExplorer;
-        this.moduleDispatcher = moduleDispatcher;
+        this.referenceResolver = referenceResolver;
+        this.restorer = restorer;
         this.SourceFileFactory = sourceFileFactory;
         this.compilerVersionCheckOptions = compilerVersionCheckOptions;
     }
@@ -62,7 +65,7 @@ public class BicepCompiler
     public Compilation CreateCompilationWithoutRestore(IOUri bicepUri, IActiveSourceFileLookup? workspace = null, bool markAllForRestore = false)
     {
         workspace ??= new ActiveSourceFileSet();
-        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileExplorer, moduleDispatcher, workspace, this.SourceFileFactory, bicepUri, markAllForRestore);
+        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileExplorer, referenceResolver, restorer, workspace, this.SourceFileFactory, bicepUri, markAllForRestore);
 
         return Create(sourceFileGrouping);
     }
@@ -84,10 +87,10 @@ public class BicepCompiler
         // (the diagnostics will be collected during compilation)
         var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(forceRestore);
 
-        if (await moduleDispatcher.RestoreArtifacts(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore: forceRestore))
+        if (await restorer.RestoreAsync(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore ? RestoreMode.Force : RestoreMode.IfMissing))
         {
             // modules had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, moduleDispatcher, workspace, this.SourceFileFactory, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, referenceResolver, restorer, workspace, this.SourceFileFactory, sourceFileGrouping);
         }
         return Create(sourceFileGrouping);
     }
@@ -98,10 +101,10 @@ public class BicepCompiler
         var sourceFileGrouping = compilation.SourceFileGrouping;
         var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(forceRestore);
 
-        if (await moduleDispatcher.RestoreArtifacts(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore))
+        if (await restorer.RestoreAsync(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore ? RestoreMode.Force : RestoreMode.IfMissing))
         {
             // artifacts had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, moduleDispatcher, workspace, this.SourceFileFactory, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, referenceResolver, restorer, workspace, this.SourceFileFactory, sourceFileGrouping);
         }
 
         return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, [.. artifactsToRestore], forceRestore);
@@ -113,7 +116,6 @@ public class BicepCompiler
             namespaceProvider,
             sourceFileGrouping,
             bicepAnalyzer,
-            moduleDispatcher,
             this.SourceFileFactory,
             [],
             compilerVersionCheckOptions);

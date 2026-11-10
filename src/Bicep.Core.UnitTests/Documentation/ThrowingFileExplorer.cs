@@ -17,6 +17,8 @@ internal sealed class ThrowingFileExplorer(Exception exceptionToThrow) : IFileEx
 
         public bool Exists() => true;
 
+        public bool IsReparsePoint() => false;
+
         public string ReadAllText() => throw exceptionToThrow;
 
         public Task<string> ReadAllTextAsync(CancellationToken cancellationToken = default) => throw exceptionToThrow;

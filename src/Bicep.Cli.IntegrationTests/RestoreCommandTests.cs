@@ -47,7 +47,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetAllDataSetsWithPublishSource))]
         public async Task Restore_ShouldSucceed(string testName, DataSet dataSet, bool publishSource)
         {
             TestContext.WriteLine(testName);
@@ -159,8 +159,8 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
                 .And.AllSatisfy(m => m.Should().NotHaveSource());
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetAllDataSetsWithPublishSource))]
         public async Task Restore_ShouldSucceedWithAnonymousClient(string testName, DataSet dataSet, bool publishSource)
         {
             TestContext.WriteLine(testName);
@@ -214,7 +214,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
         //
         //
         // No errors
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(null, null, null)]
         [DataRow(null, "application/vnd.ms.bicep.module.artifact", null)]
         [DataRow("application/vnd.oci.image.manifest.v1+json", null, null)]
@@ -281,7 +281,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // *** Valid Cases ***
         [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json }, null)]
         [DataRow(new string[] { "unknown1", "unknown2", BicepMediaTypes.BicepModuleLayerV1Json }, null)]
@@ -483,7 +483,103 @@ output o1 string = '${p1}${p2}'");
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
+        public async Task Restore_With_Force_ShouldRestore_NestedRegistryModules_ReferencedByLocalModule()
+        {
+            var fileSystem = new MockFileSystem();
+            var fileExplorer = new FileSystemFileExplorer(fileSystem);
+
+            var clientFactory = RegistryHelper.CreateMockRegistryClient(
+                new RegistryHelper.RepoDescriptor("mockregistry.io", "bicepmodules/remote-module-01", ["default"]),
+                new RegistryHelper.RepoDescriptor("mockregistry.io", "bicepmodules/remote-module-02", ["default"]));
+
+            await RegistryHelper.PublishModuleToRegistryAsync(
+                new ServiceBuilder(),
+                clientFactory,
+                fileSystem,
+                new("br:mockregistry.io/bicepmodules/remote-module-01:default", "output name string = 'plan'", WithSource: false));
+
+            await RegistryHelper.PublishModuleToRegistryAsync(
+                new ServiceBuilder(),
+                clientFactory,
+                fileSystem,
+                new("br:mockregistry.io/bicepmodules/remote-module-02:default", "output name string = 'kv'", WithSource: false));
+
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            var mainContent = """
+module autoPlan 'br:mockregistry.io/bicepmodules/remote-module-01:default' = {
+  name: 'remote-module-01'
+}
+
+module app './local-module.bicep' = {
+  name: 'local-module'
+}
+""";
+
+            var localModuleContent = """
+module messaging 'br:mockregistry.io/bicepmodules/remote-module-02:default' = {
+  name: 'remote-module-02'
+}
+""";
+
+            var mainPath = $"{outputPath}/main.bicep";
+            var localModulePath = $"{outputPath}/local-module.bicep";
+
+            fileSystem.AddFile(mainPath, mainContent);
+            fileSystem.AddFile(localModulePath, localModuleContent);
+
+            var cacheRoot = fileExplorer.GetDirectory(IOUri.FromFilePath(outputPath));
+
+            var restoreResult = await Bicep(
+                services => services
+                    .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot, RegistryEnabled: true))
+                    .WithContainerRegistryClientFactory(clientFactory)
+                    .WithFileSystem(fileSystem)
+                    .WithFileExplorer(fileExplorer),
+                "restore",
+                mainPath,
+                "--force");
+
+            using (new AssertionScope())
+            {
+                restoreResult.Should().Succeed();
+                restoreResult.Stdout.Should().BeEmpty();
+                restoreResult.Stderr.Should().BeEmpty();
+
+                CachedModules
+                    .GetCachedModules(fileSystem, cacheRoot)
+                    .Should()
+                    .Contain(module =>
+                        module.Registry == "mockregistry.io" &&
+                        module.Repository == "bicepmodules/remote-module-01" &&
+                        module.Tag == "default")
+                    .And
+                    .Contain(module =>
+                        module.Registry == "mockregistry.io" &&
+                        module.Repository == "bicepmodules/remote-module-02" &&
+                        module.Tag == "default");
+            }
+
+            var buildResult = await Bicep(
+                services => services
+                    .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot, RegistryEnabled: true))
+                    .WithContainerRegistryClientFactory(clientFactory)
+                    .WithFileSystem(fileSystem)
+                    .WithFileExplorer(fileExplorer),
+                "build",
+                mainPath,
+                "--no-restore");
+
+            using (new AssertionScope())
+            {
+                buildResult.Should().Succeed();
+                buildResult.Stdout.Should().BeEmpty();
+                buildResult.Stderr.Should().BeEmpty();
+            }
+        }
+
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public async Task Restore_ByDigest_ShouldSucceed(bool publishSource)
@@ -539,8 +635,8 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithExternalModulesAndPublishSource), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSetsWithExternalModulesAndPublishSource))]
         public async Task Restore_NonExistentModules_ShouldFail(string testName, DataSet dataSet, bool publishSource)
         {
             var clientFactory = dataSet.CreateMockRegistryClients();

@@ -17,6 +17,7 @@ using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -29,7 +30,7 @@ namespace Bicep.Core.UnitTests.Utils
     public static class OciRegistryHelper
     {
         public static OciArtifactReference CreateModuleReferenceMock(BicepSourceFile referencingFile, string registry, string repository, string? digest, string? tag)
-            => new(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactType.Module, registry, repository, tag, digest);
+            => new(OciArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), ArtifactType.Module, registry, repository, tag, digest);
 
         public static OciArtifactReference ParseModuleReference(string moduleId /* with or without br: */, Uri? parentModuleUri = null)
         {
@@ -37,7 +38,7 @@ namespace Bicep.Core.UnitTests.Utils
             {
                 moduleId = moduleId[OciArtifactReferenceFacts.SchemeWithColon.Length..];
             }
-            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile.LoadFeatures(), BicepTestConstants.DummyBicepFile.LoadConfiguration(), ArtifactType.Module, null, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(OciArtifactContext.Create(BicepTestConstants.DummyBicepFile.LoadConfiguration(), BicepTestConstants.DummyBicepFile.LoadFeatures()), ArtifactType.Module, null, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 
@@ -83,14 +84,12 @@ namespace Bicep.Core.UnitTests.Utils
                 .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns(blobClient);
 
-            var azureTransport = new AzureContainerRegistryManager(clientFactory.Object);
-            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new MockFileSystem());
-            var transportFactory = new OciRegistryTransportFactory(azureTransport, dockerCredentials);
+            var transportFactory = new ServiceBuilder()
+                .WithContainerRegistryClientFactory(clientFactory.Object)
+                .Build().Construct<IOciRegistryTransportFactory>();
             var registry = new OciArtifactRegistry(
                 BicepTestConstants.TestRegistryConfiguration,
                 transportFactory,
-                StrictMock.Of<IPublicModuleMetadataProvider>().Object,
-                new FileSystemFileExplorer(new MockFileSystem()),
                 NullLogger<OciArtifactRegistry>.Instance);
 
             return (registry, blobClient);

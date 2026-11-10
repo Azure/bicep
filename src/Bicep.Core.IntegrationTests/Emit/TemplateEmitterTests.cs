@@ -75,8 +75,8 @@ namespace Bicep.Core.IntegrationTests.Emit
             return await compiler.CreateCompilation(baseline.GetData(TestContext).Parameters.OutputFileUri.ToIOUri());
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidBicep_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
@@ -101,8 +101,8 @@ namespace Bicep.Core.IntegrationTests.Emit
             UnitTests.Utils.TemplateHelper.TemplateShouldBeValid(outputFile, result.Features!);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidBicep_EmitTemplate_should_produce_expected_symbolicname_template(DataSet dataSet)
         {
@@ -127,7 +127,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             UnitTests.Utils.TemplateHelper.TemplateShouldBeValid(outputFile, result.Features!);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [EmbeddedFilesTestData(@"Files/SourceMapping/.*/main.bicep")]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Source_map_generation_should_work(EmbeddedFile file)
@@ -154,8 +154,8 @@ namespace Bicep.Core.IntegrationTests.Emit
             sourceMapFile.ShouldHaveExpectedJsonValue();
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task SourceMap_maps_json_to_bicep_lines(DataSet dataSet)
         {
@@ -203,8 +203,8 @@ namespace Bicep.Core.IntegrationTests.Emit
             bytes.Last().Should().Be(0x7D, "template should always end with a UTF-8 encoded close curly");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidBicepTextWriter_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
@@ -227,8 +227,8 @@ namespace Bicep.Core.IntegrationTests.Emit
                 actualLocation: compiledFilePath);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task InvalidBicep_TemplateEmiterShouldNotProduceAnyTemplate(DataSet dataSet)
         {
             var compilation = await GetCompilation(dataSet, new(TestContext));
@@ -240,7 +240,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             result.Status.Should().Be(EmitStatus.Failed);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Valid_bicepparam_TemplateEmiter_should_produce_expected_template(BaselineData_Bicepparam baselineData)
@@ -258,7 +258,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             data.Compiled.ShouldHaveExpectedJsonValue();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.InvalidOnly)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Invalid_bicepparam_TemplateEmiter_should_not_produce_a_template(BaselineData_Bicepparam baselineData)
@@ -273,7 +273,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             result.Status.Should().Be(EmitStatus.Failed);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("\n")]
         [DataRow("\r\n")]
         public void Multiline_strings_should_parse_correctly(string newlineSequence)

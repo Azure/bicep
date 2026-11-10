@@ -32,7 +32,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataRow("toplevel2/secondlevel2", null)]
         [DataRow("toplevel2/secondlevel2/thirdlevel", null)]
         [DataRow("toplevel2/secondlevel1/thirdlevel", "'toplevel2/secondlevel1/thirdlevel second level keyword'")]
-        [DataTestMethod]
+        [TestMethod]
         public void TryGetResourceTypeFilterText(string resourceType, string? expectedFilter)
         {
             var sut = new ResourceTypeSearchKeywords(new Dictionary<string, string[]>
@@ -124,7 +124,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             }            
             """,
             "res-automation-job-schedule Automation Job Schedule Microsoft.Automation/automationAccounts Microsoft.Automation/automationAccounts/jobSchedules")]
-        [DataTestMethod]
+        [TestMethod]
         public void TryGetSnippetFilterText(string prefix, string detail, string text, string? expectedFilter)
         {
             var sut = new ResourceTypeSearchKeywords(new Dictionary<string, string[]>

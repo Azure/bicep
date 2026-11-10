@@ -19,9 +19,10 @@ public class PooledBicepClientFactoryTests
     [TestCleanup]
     public void Cleanup()
     {
-        if (Directory.Exists(TestContext.TestResultsDirectory))
+        var testOutputRootPath = FileHelper.GetTestOutputRootPath(TestContext);
+        if (Directory.Exists(testOutputRootPath))
         {
-            Directory.Delete(TestContext.TestResultsDirectory, true);
+            Directory.Delete(testOutputRootPath, true);
         }
     }
 

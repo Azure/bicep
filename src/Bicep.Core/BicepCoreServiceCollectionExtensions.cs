@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions;
 using System.Net;
 using Azure.Bicep.Types.Az;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Documentation;
@@ -25,11 +25,11 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
-using Bicep.IO.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Environment = Bicep.Core.Utils.Environment;
-using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -46,9 +46,20 @@ public static class BicepCoreServiceCollectionExtensions
         services.TryAddSingleton<DockerCredentialProvider>();
         services.TryAddSingleton<OrasOciRegistryTransport>();
         services.TryAddSingleton<IOciRegistryTransportFactory, OciRegistryTransportFactory>();
+        services.AddHttpClient(OrasOciRegistryTransport.RegistryHttpClient)
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { MaxAutomaticRedirections = 10 });
+        services.AddHttpClient(OrasOciRegistryTransport.AuthenticationHttpClient)
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
         services.TryAddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
         services.TryAddSingleton<IArmClientProvider, ArmClientProvider>();
-        services.TryAddSingleton<IModuleDispatcher, ModuleDispatcher>();
+        services.TryAddSingleton<IExternalArtifactContextFactory, ExternalArtifactContextFactory>();
+        services.TryAddSingleton<IArtifactReferenceResolver, ArtifactReferenceResolver>();
+        services.TryAddSingleton(sp => RedirectingArtifactResolver.Create(
+            sp.GetRequiredService<IArtifactReferenceResolver>(),
+            sp.GetRequiredService<IFileExplorer>(),
+            sp.GetRequiredService<IBicepConfigurationManager>(),
+            sp.GetRequiredService<IFeatureProviderFactory>()));
+        services.TryAddSingleton<IArtifactRestorer, ArtifactRestorer>();
         services.TryAddSingleton<RegistryConfiguration>(serviceProvider =>
         {
             var environment = serviceProvider.GetRequiredService<IEnvironment>();
@@ -60,11 +71,16 @@ public static class BicepCoreServiceCollectionExtensions
             var environment = serviceProvider.GetRequiredService<IEnvironment>();
             return CloudConfigurationTrustPolicy.FromEnvironmentValue(environment.GetVariable(BicepEnvironmentVariables.TrustedClouds));
         });
-        services.TryAddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>();
+        services.TryAddSingleton(sp => new OciArtifactRegistry(
+            sp.GetRequiredService<RegistryConfiguration>(),
+            sp.GetRequiredService<IOciRegistryTransportFactory>(),
+            sp.GetService<ILogger<OciArtifactRegistry>>() ?? NullLogger<OciArtifactRegistry>.Instance));
+        services.TryAddSingleton<TemplateSpecModuleRegistry>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IArtifactRegistry, OciArtifactRegistry>(sp => sp.GetRequiredService<OciArtifactRegistry>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IArtifactRegistry, TemplateSpecModuleRegistry>(sp => sp.GetRequiredService<TemplateSpecModuleRegistry>()));
         services.TryAddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
         services.TryAddSingleton<IEnvironment, Environment>();
-        services.TryAddSingleton<IFileSystem, LocalFileSystem>();
-        services.TryAddSingleton<IFileExplorer, FileSystemFileExplorer>();
+        services.AddBicepFileSystem();
         services.TryAddSingleton<IAuxiliaryFileCache, AuxiliaryFileCache>();
         services.TryAddSingleton<ExplicitConfigurationContext>();
         services.TryAddSingleton<BicepConfigurationManager>();

@@ -27,11 +27,12 @@ export const lightTheme: DefaultTheme = {
   node: {
     background: "#ffffff",
     compoundBackground: "#f9fafb",
-    border: "rgba(0, 0, 0, 0.10)",
+    // Opaque, so a border looks the same on the canvas and on the frame of a container.
+    border: "#cdd0d6",
     borderWidth: "1px",
     errorBorderWidth: "1.5px",
     shadow: "0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04)",
-    hoverBorder: "rgba(0, 0, 0, 0.18)",
+    hoverBorder: "#a9aeb6",
     hoverShadow: "0 2px 8px rgba(0, 0, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.06)",
     hoverErrorShadow: "0 2px 8px rgba(220, 38, 38, 0.14), 0 1px 3px rgba(220, 38, 38, 0.08)",
     focusBorder: "#0078d4",
@@ -82,11 +83,11 @@ export const darkTheme: DefaultTheme = {
   node: {
     background: "#262626",
     compoundBackground: "#222222",
-    border: "rgba(255, 255, 255, 0.08)",
+    border: "#474747",
     borderWidth: "1px",
     errorBorderWidth: "1.5px",
     shadow: "0 1px 3px rgba(0, 0, 0, 0.24), 0 1px 2px rgba(0, 0, 0, 0.16)",
-    hoverBorder: "rgba(255, 255, 255, 0.16)",
+    hoverBorder: "#606060",
     hoverShadow: "0 2px 8px rgba(0, 0, 0, 0.32), 0 1px 3px rgba(0, 0, 0, 0.20)",
     hoverErrorShadow: "0 2px 8px rgba(248, 113, 113, 0.18), 0 1px 3px rgba(248, 113, 113, 0.10)",
     focusBorder: "#4da6ff",

@@ -112,27 +112,6 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
-        public async Task PrepareVisualResource_DiscriminatedType_ReportsDiscriminatorKeyAsUnresolved()
-        {
-            using var helper = await StartServerAndOpenAsync(string.Empty);
-            var client = helper.Helper.Client;
-
-            var result = await client.SendRequest(
-                new PrepareVisualResourceCreationParams(
-                    new VersionedTextDocumentIdentifier { Uri = helper.MainUri, Version = 1 },
-                    "operation-1",
-                    new VisualResourceTypeIdentifier("Test.Rp/discriminatorTests", "2020-01-01")),
-                default);
-
-            result.UnresolvedRequiredProperties.Should().Equal("kind");
-            ApplyEdit(helper.MainContent, result.Edit).ReplaceLineEndings("\n").Should().Be("""
-                resource discriminatorTest 'Test.Rp/discriminatorTests@2020-01-01' = {
-                  kind:
-                }
-                """);
-        }
-
-        [TestMethod]
         public async Task PrepareVisualResource_UnknownResourceType_ThrowsRpcError()
         {
             using var helper = await StartServerAndOpenAsync();

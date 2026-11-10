@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.RpcClient.Helpers;
 using FluentAssertions;
 
@@ -16,8 +17,12 @@ public class BicepInstallerTests
 {
     public TestContext TestContext { get; set; } = null!;
 
-    private string GetTempPath(string fileName) =>
-        Path.Combine(TestContext.TestRunDirectory!, $"{TestContext.TestName}_{fileName}");
+    private string GetTempPath(string fileName)
+    {
+        var directory = Directory.CreateDirectory(FileHelper.GetTestOutputRootPath(TestContext));
+
+        return Path.Combine(directory.FullName, $"{TestContext.TestName}_{fileName}");
+    }
 
     [TestMethod]
     public void TryAcquireFileLock_returns_a_stream_and_creates_the_lock_file_when_not_already_locked()

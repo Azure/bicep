@@ -31,7 +31,7 @@ namespace Bicep.Core.UnitTests.PrettyPrintV2
             ]
             """.ReplaceLineEndings("\n");
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(IndentKind.Space, NewlineKind.CRLF, 2, true, "var foo = {\r\n  prop1: true\r\n  prop2: false\r\n  prop3: {\r\n    nestedProp1: 1\r\n    nestedProp2: 2\r\n  }\r\n}\r\n\r\nvar bar = [\r\n  1\r\n  2\r\n  {\r\n    prop1: true\r\n    prop2: false\r\n  }\r\n]\r\n")]
         [DataRow(IndentKind.Tab, NewlineKind.LF, 0, false, "var foo = {\n\tprop1: true\n\tprop2: false\n\tprop3: {\n\t\tnestedProp1: 1\n\t\tnestedProp2: 2\n\t}\n}\n\nvar bar = [\n\t1\n\t2\n\t{\n\t\tprop1: true\n\t\tprop2: false\n\t}\n]")]
         [DataRow(IndentKind.Tab, NewlineKind.CR, 2, true, "var foo = {\r\tprop1: true\r\tprop2: false\r\tprop3: {\r\t\tnestedProp1: 1\r\t\tnestedProp2: 2\r\t}\r}\r\rvar bar = [\r\t1\r\t2\r\t{\r\t\tprop1: true\r\t\tprop2: false\r\t}\r]\r")]

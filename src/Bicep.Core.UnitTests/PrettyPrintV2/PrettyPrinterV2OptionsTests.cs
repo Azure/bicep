@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.PrettyPrintV2
     [TestClass]
     public class PrettyPrinterV2OptionsTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(-10, 0)]
         [DataRow(-1, 0)]
         [DataRow(20, 20)]
@@ -27,7 +27,7 @@ namespace Bicep.Core.UnitTests.PrettyPrintV2
             options.IndentSize.Should().Be(expectedIndentSize);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(-10, 0)]
         [DataRow(-1, 0)]
         [DataRow(0, 0)]

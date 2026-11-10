@@ -12,7 +12,7 @@ namespace Bicep.Core.UnitTests.Text;
 [TestClass]
 public class TextPositionTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(-1, 0)]
     [DataRow(0, -1)]
     public void TextPosition_NegativeLineOrCharacter_Throws(int line, int character)
@@ -20,7 +20,7 @@ public class TextPositionTests
         FluentActions.Invoking(() => new TextPosition(line, character)).Should().Throw<ArgumentOutOfRangeException>();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(10, 0)]
     [DataRow(0, 10)]
     public void TextPosition_NonNegativeLineOrCharacter_DoesNotThrow(int line, int character)

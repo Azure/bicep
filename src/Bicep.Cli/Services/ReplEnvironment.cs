@@ -27,13 +27,11 @@ public class ReplEnvironment
 {
     private readonly InMemoryFileExplorer fileExplorer = new();
     private readonly BicepCompiler compiler;
+    private readonly ReplEvaluator evaluator;
 
     // Auxiliary directory for resolving relative paths for load* functions.
     private readonly IDirectoryHandle auxiliaryDirectory;
 
-    // Persist original variable declaration text (ordered) and lookup to allow redefinition.
-    private readonly List<string> declarationLines = [];
-    private readonly Dictionary<string, string> declarationLookup = new(StringComparer.OrdinalIgnoreCase);
     private static readonly IOUri replFileUri = IOUri.FromFilePath("/session.biceprepl");
     private readonly List<string> history = [];
     private int lastHistoryIndex = -1;
@@ -45,6 +43,7 @@ public class ReplEnvironment
     {
         this.compiler = compiler;
         this.auxiliaryDirectory = auxiliaryFileExplorer.GetDirectory(IOUri.FromFilePath(auxiliaryFileSystem.Directory.GetCurrentDirectory()));
+        this.evaluator = new(CompileInternal);
     }
 
     public string HighlightInputLine(string prefix, string prevLines, IReadOnlyList<Rune> lineBuffer, int cursorOffset, bool printPrevLines, int terminalWidth = int.MaxValue, int? previousCursorOffset = null)
@@ -106,100 +105,8 @@ public class ReplEnvironment
         history.Add(input);
         lastHistoryIndex = -1;
 
-        var parser = new ReplParser(input);
-        IDiagnostic[] diagnostics = [.. parser.ParsingErrorLookup, .. parser.LexingErrorLookup];
-        var errors = diagnostics.Where(d => d.Level == DiagnosticLevel.Error).ToList();
-        if (errors.Count > 0)
-        {
-            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(errors, input, input.Length));
-        }
-
-        var finalExpression = parser.Program().Children
-            .Where(x => x is not Token { Type: TokenType.NewLine })
-            .LastOrDefault();
-
-        return finalExpression switch
-        {
-            NamedDeclarationSyntax named => EvalutateDeclaration(named),
-            { } child => EvaluateExpression(child),
-            _ => new AnnotatedReplResult(null, []),
-        };
-    }
-
-    private AnnotatedReplResult EvalutateDeclaration(NamedDeclarationSyntax declaration)
-    {
-        var declarationName = declaration.Name.IdentifierName;
-        var declarationText = declaration.ToString();
-
-        // Build a working list excluding prior declaration (to avoid duplicate diagnostic) if redefining.
-        List<string> workingLines;
-        if (declarationLookup.TryGetValue(declarationName, out var existingText))
-        {
-            workingLines = [.. declarationLines.Where(l => !string.Equals(l, existingText, StringComparison.Ordinal))];
-        }
-        else
-        {
-            workingLines = [.. declarationLines];
-        }
-
-        // Compile working lines + new declaration (without mutating persisted state yet).
-        var sb = new StringBuilder();
-        foreach (var line in workingLines)
-        {
-            sb.AppendLine(line);
-        }
-        sb.Append(declarationText);
-        var fullContent = sb.ToString();
-        var compilation = CompileInternal(fullContent);
-
-        var model = compilation.GetEntrypointSemanticModel();
-        var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
-
-        if (!diagnostics.Where(x => x.IsError()).Any())
-        {
-            // Persist only after successful evaluation.
-            declarationLines.Clear();
-            declarationLines.AddRange(workingLines);
-            declarationLines.Add(declarationText);
-            declarationLookup[declarationName] = declarationText;
-        }
-
-        return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(diagnostics, declarationText, fullContent.Length));
-    }
-
-    private AnnotatedReplResult EvaluateExpression(SyntaxBase expressionSyntax)
-    {
-        var tempVarName = $"__temp_eval_{Guid.NewGuid():N}";
-        var userExpression = expressionSyntax.ToString();
-
-        // need to write to "some" file in order to compile and get a semantic model
-        // a semantic model is needed by ExpressionConverter
-        var sb = new StringBuilder();
-        foreach (var line in declarationLines)
-        {
-            sb.AppendLine(line);
-        }
-        sb.Append("var ").Append(tempVarName).Append(" = ").Append(userExpression);
-        var fullContent = sb.ToString();
-
-        var compilation = CompileInternal(fullContent);
-
-        var model = compilation.GetEntrypointSemanticModel();
-
-        var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
-        if (diagnostics.Any(x => x.IsError()))
-        {
-            return new(null, CreateAnnotatedDiagnostics(diagnostics, userExpression, fullContent.Length));
-        }
-
-        var evaluator = new ParameterAssignmentEvaluator(model);
-
-        // find the variable we created to hold the expression and evaluate its value
-        // (it doesn't seem like we can evaluate the expression directly because we need a symbol bound to a semantic model)
-        var boundVariable = model.Root.VariableDeclarations.First(v => v.Name == tempVarName);
-
-        var expressionEvalResult = evaluator.EvaluateExpression(boundVariable.DeclaringVariable.Value);
-        return new(ParseJToken(expressionEvalResult.Value), CreateAnnotatedDiagnostics(expressionEvalResult.Diagnostics, userExpression, fullContent.Length));
+        var result = evaluator.Evaluate(input);
+        return new(ParseJToken(result.Value), CreateAnnotatedDiagnostics(result.Diagnostics, result.UserText, result.CompiledTextLength));
     }
 
     public string? TryGetHistory(bool backwards)

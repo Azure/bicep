@@ -138,7 +138,7 @@ public class PublishExtensionContractTests : TestBase
         result.Should().Fail().And.HaveStderrMatch("*Only registry (br:) targets are supported with --contract v2.*");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1")]
     [DataRow("2")]
     [DataRow("v3")]
@@ -154,7 +154,7 @@ public class PublishExtensionContractTests : TestBase
         blobClient.ManifestTags.Should().BeEmpty();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("v2", false)]
     [DataRow("v1", true)]
     public async Task Restoring_a_published_extension_should_cache_only_v1_binaries(string contract, bool expectBinary)

@@ -105,6 +105,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<VisualGraphHandler>()
                     .WithHandler<VisualGraphLayoutHandler>()
                     .WithHandler<VisualGraphNodeSourceHandler>()
+                    .WithHandler<VisualGraphRestoreModuleHandler>()
                     .WithHandler<VisualResourceTypesHandler>()
                     .WithHandler<VisualResourceTypeVersionsHandler>()
                     .WithHandler<PrepareVisualResourceCreationHandler>()

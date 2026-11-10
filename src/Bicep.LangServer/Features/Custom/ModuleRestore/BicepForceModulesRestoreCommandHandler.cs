@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text;
+using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -23,7 +24,8 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
     public class BicepForceModulesRestoreCommandHandler : ExecuteTypedResponseCommandHandlerBase<DocumentUri, string>
     {
         private readonly IFileExplorer fileExplorer;
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly RedirectingArtifactResolver referenceResolver;
+        private readonly IArtifactRestorer restorer;
         private readonly ICompilationManager compilationManager;
         private readonly IActiveSourceFileSet workspace;
         private readonly ISourceFileFactory sourceFileFactory;
@@ -31,14 +33,16 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
         public BicepForceModulesRestoreCommandHandler(
             ISerializer serializer,
             IFileExplorer fileExplorer,
-            IModuleDispatcher moduleDispatcher,
+            RedirectingArtifactResolver referenceResolver,
+            IArtifactRestorer restorer,
             ICompilationManager compilationManager,
             IActiveSourceFileSet workspace,
             ISourceFileFactory sourceFileFactory)
             : base(LangServerConstants.ForceModulesRestoreCommand, serializer)
         {
             this.fileExplorer = fileExplorer;
-            this.moduleDispatcher = moduleDispatcher;
+            this.referenceResolver = referenceResolver;
+            this.restorer = restorer;
             this.compilationManager = compilationManager;
             this.workspace = workspace;
             this.sourceFileFactory = sourceFileFactory;
@@ -55,7 +59,8 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
 
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 this.fileExplorer,
-                this.moduleDispatcher,
+                this.referenceResolver,
+                this.restorer,
                 this.workspace,
                 this.sourceFileFactory,
                 fileUri);
@@ -74,13 +79,18 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
             }
 
             // restore is supposed to only restore the module references that are syntactically valid
-            await this.moduleDispatcher.RestoreArtifacts(artifactReferencesToRestore, forceRestore: true);
+            await this.restorer.RestoreAsync(artifactReferencesToRestore, RestoreMode.Force);
 
             // if all are marked as success
             var sbRestoreSummary = new StringBuilder();
             foreach (var module in artifactReferencesToRestore)
             {
-                var restoreStatus = this.moduleDispatcher.GetArtifactRestoreStatus(module, out _);
+                var restoreStatus = this.restorer.GetRestoreState(module) switch
+                {
+                    ArtifactRestoreState.Restored => "Succeeded",
+                    ArtifactRestoreState.RestoreFailed => "Failed",
+                    _ => "Unknown",
+                };
                 sbRestoreSummary.Append($"{System.Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
             }
 

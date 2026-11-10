@@ -21,8 +21,8 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void LexerShouldRoundtrip(DataSet dataSet)
         {
             var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep), ToListDiagnosticWriter.Create());
@@ -34,8 +34,8 @@ namespace Bicep.Core.IntegrationTests
             serialized.ToString().Should().Be(dataSet.Bicep, "because the lexer should not lose information");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void LexerShouldProduceValidTokenLocations(DataSet dataSet)
         {
             var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep), ToListDiagnosticWriter.Create());
@@ -50,8 +50,8 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void LexerShouldProduceContiguousSpans(DataSet dataSet)
         {
             var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep), ToListDiagnosticWriter.Create());
@@ -90,8 +90,8 @@ namespace Bicep.Core.IntegrationTests
             visitedPosition.Should().Be(dataSet.Bicep.Length);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void LexerShouldProduceExpectedTokens(DataSet dataSet)
         {
@@ -116,7 +116,7 @@ namespace Bicep.Core.IntegrationTests
             lexer.GetTokens().Last().Type.Should().Be(TokenType.EndOfFile, "because the last token should always be EOF.");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData()]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void ParamsFile_LexerShouldProduceExpectedTokens(BaselineData_Bicepparam baselineData)
@@ -140,8 +140,8 @@ namespace Bicep.Core.IntegrationTests
             lexer.GetTokens().Last().Type.Should().Be(TokenType.EndOfFile, "because the last token should always be EOF.");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetValidData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void LexerShouldProduceValidStringLiteralTokensOnValidFiles(DataSet dataSet)
         {
             if (dataSet.Name != "Metadata_CRLF")

@@ -4,8 +4,6 @@
 import type { Graph, GraphBounds, GraphNode, LayoutGraphResult, MeasuredGraph, NodePosition } from "@/core";
 import type { SampleGraph, SampleGraphNode } from "./sample-graphs";
 
-import { indexGraph, projectGraph } from "@/core/graph-model";
-
 /**
  * Dev-only stand-ins for the language server's graph and layout requests, so the dev playground can run
  * the graph loop (`documentDidChange` → `graph/get` → `graph/layout`) without an extension or language server.
@@ -26,12 +24,15 @@ function toGraphNode(node: SampleGraphNode): GraphNode {
   return {
     id: node.id,
     kind: node.type === "<module>" ? "module" : "resource",
-    parentId: getParentId(node.id),
+    parentId: node.parentId !== undefined ? node.parentId : getParentId(node.id),
     type: node.type,
     symbolName: node.id.split("::").pop() ?? node.id,
     isCollection: node.isCollection,
     hasChildren: node.hasChildren,
     hasError: node.hasError,
+    sourceStatus: node.sourceStatus ?? null,
+    sourceError: node.sourceError ?? null,
+    isRemote: node.isRemote ?? false,
   };
 }
 
@@ -47,9 +48,19 @@ export function toGraph(sample: SampleGraph | null): Graph {
   };
 }
 
-/** Stack each scope's children vertically, sizing modules from their contents. */
-function buildFakeLayout(nodes: GraphNode[]): { positions: NodePosition[]; bounds: GraphBounds } {
-  const nodesByParent = new Map<string | null, GraphNode[]>();
+/** Like the language server's revision: identifies the topology, ignoring metadata and order. */
+export function getGraphRevision({ nodes, edges }: Graph): string {
+  return JSON.stringify([
+    nodes.map(({ id, kind, parentId }) => [id, kind, parentId]).sort(),
+    edges.map(({ id, sourceId, targetId }) => [id, sourceId, targetId]).sort(),
+  ]);
+}
+
+type LayoutNode = Pick<GraphNode, "id" | "parentId">;
+
+/** Stack each scope's children vertically, sizing containers from their children. */
+function buildFakeLayout(nodes: LayoutNode[]): { positions: NodePosition[]; bounds: GraphBounds } {
+  const nodesByParent = new Map<string | null, LayoutNode[]>();
   const positions: NodePosition[] = [];
 
   for (const node of nodes) {
@@ -73,7 +84,7 @@ function buildFakeLayout(nodes: GraphNode[]): { positions: NodePosition[]; bound
       let width = 220;
       let height = 80;
 
-      if (node.hasChildren) {
+      if (nodesByParent.has(node.id)) {
         const childBounds = layoutScope(node.id, offsetX + 40, offsetY + cursorY + 50);
         width = childBounds.width + 80;
         height = childBounds.height + 90;
@@ -91,27 +102,29 @@ function buildFakeLayout(nodes: GraphNode[]): { positions: NodePosition[]; bound
   return { positions, bounds: { width: root.width, height: root.height } };
 }
 
-/** Like the language server, refuse to lay out a measured graph whose topology is out of date. */
+/** Like the language server, refuse a stale revision and otherwise lay out the measured graph as sent. */
 export function layoutGraph(
   measured: MeasuredGraph,
+  revision: string | null,
   sample: SampleGraph | null,
-  collapsedNodeIds: ReadonlySet<string>,
 ): LayoutGraphResult {
-  const projected = projectGraph(indexGraph(toGraph(sample)), collapsedNodeIds);
-  const graph: Graph = { nodes: [...projected.nodes.values()], edges: [...projected.edges.values()] };
-  const liveNodes = new Map(graph.nodes.map((node) => [node.id, node]));
-  const liveEdgeIds = new Set(graph.edges.map((edge) => edge.id));
-  const matches =
-    measured.nodes.length === liveNodes.size &&
-    measured.edges.length === liveEdgeIds.size &&
-    measured.nodes.every(
-      (node) => liveNodes.get(node.id)?.kind === node.kind && liveNodes.get(node.id)?.parentId === node.parentId,
-    ) &&
-    measured.edges.every((edge) => liveEdgeIds.has(edge.id));
-
-  if (!matches) {
+  if (revision !== getGraphRevision(toGraph(sample))) {
     return { status: "graphChanged", positions: [], bounds: null };
   }
 
-  return { status: "ok", ...buildFakeLayout(graph.nodes) };
+  const layout = buildFakeLayout(measured.nodes);
+  const fixed = new Map((sample?.nodes ?? []).flatMap((node) => (node.position ? [[node.id, node.position]] : [])));
+  if (fixed.size === 0) {
+    return { status: "ok", ...layout };
+  }
+
+  const positions = layout.positions.map((position) => {
+    const override = fixed.get(position.nodeId);
+    return override ? { nodeId: position.nodeId, ...override } : position;
+  });
+  const sizes = new Map(measured.nodes.map((node) => [node.id, node]));
+  const width = Math.max(...positions.map(({ nodeId, x }) => x + (sizes.get(nodeId)?.width ?? 0)));
+  const height = Math.max(...positions.map(({ nodeId, y }) => y + (sizes.get(nodeId)?.height ?? 0)));
+
+  return { status: "ok", positions, bounds: { width, height } };
 }

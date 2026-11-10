@@ -4,7 +4,13 @@
 import type { GraphEdge, GraphNode } from "../api";
 
 import { describe, expect, it } from "vitest";
-import { centerGraphLayout, graphChangeMayAffectLayout } from "../graph-layout";
+import {
+  centerGraphLayout,
+  getLayoutCenters,
+  getSubgraph,
+  graphChangeMayAffectLayout,
+  keepFocusedNodeInPlace,
+} from "../graph-layout";
 import { indexGraph } from "../graph-model";
 
 function node(overrides: Partial<GraphNode> = {}): GraphNode {
@@ -17,6 +23,9 @@ function node(overrides: Partial<GraphNode> = {}): GraphNode {
     isCollection: false,
     hasChildren: false,
     hasError: false,
+    sourceStatus: null,
+    sourceError: null,
+    isRemote: false,
     ...overrides,
   };
 }
@@ -96,6 +105,59 @@ describe("graphChangeMayAffectLayout", () => {
     expect(graphChangeMayAffectLayout(previous, graphOf([{ ...a, isCollection: true }]))).toBe(true);
     expect(graphChangeMayAffectLayout(previous, graphOf([{ ...a, hasChildren: true }]))).toBe(true);
   });
+
+  it("does not reflow a module that stays shown without children", () => {
+    const module = node({ id: "m", kind: "module", type: "<module>", sourceStatus: "unrestored" });
+    const previous = graphOf([module, a]);
+
+    // Its children arrived while it is collapsed, or it explains why it has none: it keeps its size.
+    expect(
+      graphChangeMayAffectLayout(
+        previous,
+        graphOf([{ ...module, sourceStatus: null, hasChildren: true, isCollapsed: true }, a]),
+      ),
+    ).toBe(false);
+    expect(
+      graphChangeMayAffectLayout(previous, graphOf([{ ...module, sourceStatus: "error", sourceError: "Failed." }, a])),
+    ).toBe(false);
+    // Shown open, it becomes a container.
+    expect(
+      graphChangeMayAffectLayout(previous, graphOf([{ ...module, sourceStatus: null, hasChildren: true }, a])),
+    ).toBe(true);
+  });
+});
+
+describe("getSubgraph", () => {
+  const measured = (id: string, parentId: string | null) => ({
+    id,
+    kind: "resource" as const,
+    parentId,
+    width: 1,
+    height: 1,
+  });
+
+  it("keeps the module as the only top-level node, with its descendants and the dependencies between them", () => {
+    const graph = {
+      nodes: [
+        measured("m", null),
+        measured("m::a", "m"),
+        measured("m::n", "m"),
+        measured("m::n::b", "m::n"),
+        measured("x", null),
+      ],
+      edges: [edge("m::a", "m::n"), edge("x", "m::a"), edge("x", "m")],
+    };
+
+    expect(getSubgraph(graph, "m")).toEqual({
+      nodes: [measured("m", null), measured("m::a", "m"), measured("m::n", "m"), measured("m::n::b", "m::n")],
+      edges: [edge("m::a", "m::n")],
+    });
+
+    expect(getSubgraph(graph, "m::n")).toEqual({
+      nodes: [measured("m::n", null), measured("m::n::b", "m::n")],
+      edges: [],
+    });
+  });
 });
 
 describe("centerGraphLayout", () => {
@@ -126,5 +188,63 @@ describe("centerGraphLayout", () => {
 
     expect((bounds!.min.x + bounds!.max.x) / 2).toBe(640);
     expect((bounds!.min.y + bounds!.max.y) / 2).toBe(400);
+  });
+});
+
+describe("getLayoutCenters", () => {
+  it("converts the corners of nodes that are not containers to centers", () => {
+    const centers = getLayoutCenters(
+      new Map([
+        ["module", { x: 0, y: 0 }],
+        ["module::a", { x: 40, y: 50 }],
+        ["collapsed", { x: 300, y: 0 }],
+      ]),
+      {
+        nodes: [
+          { id: "module", kind: "module", parentId: null, width: 300, height: 200 },
+          { id: "module::a", kind: "resource", parentId: "module", width: 220, height: 80 },
+          { id: "collapsed", kind: "module", parentId: null, width: 220, height: 84 },
+        ],
+        edges: [],
+      },
+    );
+
+    expect(centers).toEqual(
+      new Map([
+        ["module::a", { x: 150, y: 90 }],
+        ["collapsed", { x: 410, y: 42 }],
+      ]),
+    );
+  });
+});
+
+describe("keepFocusedNodeInPlace", () => {
+  const layout = new Map([
+    ["a", { x: 0, y: 0 }],
+    ["b", { x: 100, y: 0 }],
+  ]);
+
+  it("moves the whole layout so the node nearest the focus stays where it is", () => {
+    const current = new Map([
+      ["a", { x: 500, y: 500 }],
+      ["b", { x: 900, y: 520 }],
+    ]);
+
+    expect(keepFocusedNodeInPlace(layout, current, { x: 880, y: 500 })).toEqual(
+      new Map([
+        ["a", { x: 800, y: 520 }],
+        ["b", { x: 900, y: 520 }],
+      ]),
+    );
+  });
+
+  it("anchors on a node in both layouts, and keeps the layout when there is none", () => {
+    const hiddenNearFocus = new Map([
+      ["hidden", { x: 0, y: 0 }],
+      ["a", { x: 300, y: 300 }],
+    ]);
+
+    expect(keepFocusedNodeInPlace(layout, hiddenNearFocus, { x: 0, y: 0 }).get("a")).toEqual({ x: 300, y: 300 });
+    expect(keepFocusedNodeInPlace(layout, new Map(), { x: 0, y: 0 })).toEqual(layout);
   });
 });

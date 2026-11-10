@@ -38,7 +38,7 @@ namespace Bicep.LangServer.IntegrationTests
         public TestContext? TestContext { get; set; }
 
 #if WINDOWS_BUILD
-    private const string ROOT = "c:\\";
+        private const string ROOT = "c:\\";
 #else
         private const string ROOT = "/";
 #endif
@@ -81,25 +81,21 @@ namespace Bicep.LangServer.IntegrationTests
             var cacheRootDirectoryMock = StrictMock.Of<IDirectoryHandle>();
             cacheRootDirectoryMock.Setup(x => x.GetDirectory(It.IsAny<string>())).Returns(cacheDirectoryMock.Object);
 
-            var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
-            moduleDispatcher.Setup(x => x.RestoreArtifacts(It.IsAny<ImmutableArray<ArtifactReference>>(), It.IsAny<bool>())).
+            var restorer = StrictMock.Of<IArtifactRestorer>();
+            restorer.Setup(x => x.RestoreAsync(It.IsAny<ImmutableArray<ExternalArtifactReference>>(), It.IsAny<RestoreMode>())).
                 ReturnsAsync(true);
-            moduleDispatcher.Setup(x => x.PruneRestoreStatuses());
-
-            MockRepository repository = new(MockBehavior.Strict);
-            var provider = repository.Create<IArtifactRegistryProvider>();
 
             var defaultServer = new SharedLanguageHelperManager();
             defaultServer.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     TestContext,
                     services => services
-                        .WithModuleDispatcher(moduleDispatcher.Object)
+                        .WithArtifactRestorer(restorer.Object)
                         .WithFeatureOverrides(new(cacheRootDirectoryMock.Object))));
             return defaultServer;
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow($"file://{ROOT}path/to/localfile.bicep")]
         [DataRow($"file://{ROOT}path/to/localfile.json")]
         [DataRow($"file://{ROOT}path/to/localfile.bicepparam")]

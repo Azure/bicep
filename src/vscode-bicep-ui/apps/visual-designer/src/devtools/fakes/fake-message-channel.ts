@@ -17,6 +17,8 @@ import type {
   LayoutGraphParams,
   ReplaySourceStepParams,
   ReplaySourceStepResult,
+  RestoreModuleParams,
+  RestoreModuleResult,
   Settings,
   SourceStepReference,
   TargetScope,
@@ -33,12 +35,13 @@ import {
   layoutGraph as layoutGraphRequest,
   ready,
   replaySourceStep,
+  restoreModule,
   revealNode,
   settingsDidChange,
 } from "@/core";
 import { getResourceTypeVersions, listResourceTypes } from "@/features/palette";
 import { showProblems } from "@/features/status";
-import { layoutGraph, toGraph } from "./fake-graph";
+import { getGraphRevision, layoutGraph, toGraph } from "./fake-graph";
 import { MODULE_GRAPH } from "./sample-graphs";
 import { getCatalogDelayMs, getSampleApiVersions, getSampleResourceTypes } from "./sample-resource-types";
 
@@ -54,6 +57,7 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   private readonly createdResources = new Map<string, { node: SampleGraphNode; isInSource: boolean }>();
   private catalogRevision = 0;
   private versionRequestCount = 0;
+  private restoreAttemptCount = 0;
   private targetScope: TargetScope = "resourceGroup";
   private colorThemeMatched = new URLSearchParams(window.location.search).get("matchColorTheme") === "true";
   /** Set by `skipGraphUpdateAfterUndo`: graph updates omit an undone creation until the graph changes again. */
@@ -130,8 +134,11 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
         this.servedGraph = this.currentGraph;
       }
 
+      const graph = toGraph(this.servedGraph);
+
       return Promise.resolve({
-        graph: toGraph(this.servedGraph),
+        graph,
+        revision: getGraphRevision(graph),
         targetScope: this.servedGraph ? this.targetScope : null,
         errorCount: this.servedGraph?.errorCount ?? 0,
         replayableSourceSteps: sourceSteps.filter((step) => this.canReplay(step)),
@@ -139,8 +146,14 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
     }
 
     if (requestMessage.method === layoutGraphRequest.method) {
-      const { graph, collapsedNodeIds } = requestMessage.params as LayoutGraphParams;
-      return Promise.resolve(layoutGraph(graph, this.servedGraph, new Set(collapsedNodeIds)) as T);
+      const { graph, revision } = requestMessage.params as LayoutGraphParams;
+      // Read when the host answers, so a layout held open by `layoutDelay` sees later graph changes.
+      const answer = () => layoutGraph(graph, revision, this.servedGraph) as T;
+      const delay = Number(new URLSearchParams(window.location.search).get("layoutDelay") ?? 0);
+
+      return Number.isFinite(delay) && delay > 0
+        ? new Promise<T>((resolve) => setTimeout(() => resolve(answer()), delay))
+        : Promise.resolve(answer());
     }
     if (requestMessage.method === createResource.method) {
       if (new URLSearchParams(window.location.search).get("resourceEditing") === "false") {
@@ -160,6 +173,8 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
         symbolicName = `${baseName}${suffix}`;
         suffix++;
       }
+
+      const createDelay = Number(new URLSearchParams(window.location.search).get("createDelay") ?? 300);
 
       return new Promise<T>((resolve) => {
         setTimeout(() => {
@@ -182,7 +197,7 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
             expectedNodeId: symbolicName,
             unresolvedRequiredProperties: ["name"],
           } satisfies CreateResourceResult as T);
-        }, 300);
+        }, createDelay);
       });
     }
 
@@ -211,7 +226,64 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
       } satisfies ReplaySourceStepResult as T);
     }
 
+    if (requestMessage.method === restoreModule.method) {
+      const { nodeId } = requestMessage.params as RestoreModuleParams;
+      const params = new URLSearchParams(window.location.search);
+      const delay = Number(params.get("restoreDelay") ?? 300);
+
+      // `restoreFailures` makes that many restores fail first, so a test can retry.
+      const fails = this.restoreAttemptCount++ < Number(params.get("restoreFailures") ?? 0);
+
+      return new Promise<T>((resolve) => {
+        setTimeout(() => resolve(this.restoreModule(nodeId, fails) as T), delay);
+      });
+    }
+
     return Promise.reject(new Error(`FakeMessageChannel does not support request: ${requestMessage.method}`));
+  }
+
+  /**
+   * Like the language server, fill the "module cache" without announcing a document change: the designer fetches
+   * the graph itself once the restore settles. A sample module supplies its children, or reports an error and can be
+   * restored again.
+   */
+  private restoreModule(nodeId: string, fails: boolean): RestoreModuleResult {
+    const current = this.currentGraph;
+    const module = current?.nodes.find((node) => node.id === nodeId);
+    if (!current || !module?.restoredSubgraph) {
+      return { restored: false };
+    }
+
+    const subgraph = module.restoredSubgraph;
+    this.currentGraph = fails
+      ? {
+          ...current,
+          nodes: current.nodes.map((node) =>
+            node.id === nodeId
+              ? { ...module, sourceStatus: "error", sourceError: `Unable to restore the module "${nodeId}".` }
+              : node,
+          ),
+        }
+      : {
+          ...current,
+          nodes: [
+            ...current.nodes.map((node) =>
+              node.id === nodeId
+                ? {
+                    ...module,
+                    hasChildren: true,
+                    sourceStatus: undefined,
+                    sourceError: undefined,
+                    restoredSubgraph: undefined,
+                  }
+                : node,
+            ),
+            ...subgraph.nodes,
+          ],
+          edges: [...current.edges, ...subgraph.edges],
+        };
+
+    return { restored: !fails };
   }
 
   /** The last graph pushed, so mutations can build on top of it. */
@@ -306,6 +378,17 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
     this.dispatchNotification(documentDidChange.method, {
       documentUri: FAKE_FILE_PATH,
     });
+
+    // `backgroundRestore` simulates the language server restoring the modules a document references on its own,
+    // then recompiling it, which announces a change.
+    const backgroundRestoreDelay = Number(new URLSearchParams(window.location.search).get("backgroundRestore"));
+    const restorableIds = graph?.nodes.filter((node) => node.restoredSubgraph).map((node) => node.id) ?? [];
+    if (backgroundRestoreDelay > 0 && restorableIds.length > 0) {
+      setTimeout(() => {
+        restorableIds.forEach((nodeId) => this.restoreModule(nodeId, false));
+        this.pushGraph(this.currentGraph);
+      }, backgroundRestoreDelay);
+    }
   }
 
   subscribeToNotification(method: string, callback: WebviewNotificationCallback) {

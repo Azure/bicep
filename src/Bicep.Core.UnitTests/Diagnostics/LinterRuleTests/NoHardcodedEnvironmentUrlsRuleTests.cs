@@ -76,7 +76,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
           }
         }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void Simple(int diagnosticCount, string text)
         {
             AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount, new Options(OnCompileErrors.Ignore));
@@ -97,7 +97,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         param p2 string
         var a = '${p1} azuredatalakestore.net$ {p2}'
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void InsideStringInterpolation(int diagnosticCount, string text)
         {
             AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount);
@@ -120,13 +120,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         param p2 string
         var a = concat('${p1}${'azuredatalakestore.net'}${p2}${'management.azure.com'}-${'schema.management.azure.com'}', 'foo')
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void InsideExpressions(int diagnosticCount, string text)
         {
             AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount, new Options(OnCompileErrors.Ignore));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // valid matches (i.e., linter rule fails)
         [DataRow("aschema.management.azure.com", true)]
         [DataRow("azure.aschema.management.azure.com", true)]
@@ -164,7 +164,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // valid matches (i.e. it will be excluded and there should be no linter failures)
         [DataRow("schema.management.azure.com", true)]
         [DataRow("http://schema.management.azure.com", true)]
@@ -226,7 +226,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(1, @"
         param keyVaultUri string = 'https://<keyvaultname>.vault.azure.net/keys/<keyname>/<version>'
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void ShouldSkipDescriptionAndMetadataDecorators(int diagnosticCount, string text)
         {
             AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount, new Options(OnCompileErrors.Ignore));

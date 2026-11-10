@@ -60,7 +60,7 @@ namespace Bicep.Core.IntegrationTests
                         """));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("typeA | typeB | typeC | typeD")]
         [DataRow("(typeA | typeB | typeC | typeD)")]
         [DataRow("(typeA) | typeB | typeC | typeD")]
@@ -402,7 +402,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().OnlyContainDiagnostic("BCP364", DiagnosticLevel.Error, "The property \"type\" must be a required string literal on all union member types.");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("0")]
         [DataRow("true")]
         [DataRow("'a'?")]
@@ -447,7 +447,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().OnlyContainDiagnostic("BCP365", DiagnosticLevel.Error, "The value \"'a'\" for discriminator property \"type\" is duplicated across multiple union member types. The value must be unique across all union member types.");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("string")]
         [DataRow("object")]
         [DataRow("typeA")]
@@ -472,7 +472,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().OnlyContainDiagnostic("BCP363", DiagnosticLevel.Error, "The \"discriminator\" decorator can only be applied to object-only union types with unique member types.");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("", "BCP071")]
         [DataRow("0", "BCP070")]
         public void DiscriminatedObjectUnions_Error_Discriminator_InvalidArgument(string decoratorArgument, string expectedDiagnosticCode)

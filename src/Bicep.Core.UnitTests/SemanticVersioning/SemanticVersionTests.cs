@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.SemanticVersioning;
 [TestClass]
 public class SemanticVersionTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2.3", 1, 2, 3)]
     [DataRow("0.0.0", 0, 0, 0)]
     [DataRow("0.47.12", 0, 47, 12)]
@@ -32,7 +32,7 @@ public class SemanticVersionTests
         version.Patch.Should().Be(patch);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow("   ")]
     [DataRow("whatever")]
@@ -72,7 +72,7 @@ public class SemanticVersionTests
         version.Should().BeNull();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2.3", "1.2.3", 0)]
     // Major takes precedence over minor and patch.
     [DataRow("2.0.0", "1.99.99", 1)]
@@ -99,7 +99,7 @@ public class SemanticVersionTests
         SemanticVersion.Parse("1.2.3").CompareTo(null).Should().BePositive();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2.3", "1.2.3")]
     [DataRow("1.2", "1.2.0")]
     [DataRow("1", "1.0.0")]

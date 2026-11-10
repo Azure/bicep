@@ -23,7 +23,7 @@ namespace Bicep.Core.UnitTests.Syntax
         [DataRow(1)]
         [DataRow(2)]
         [DataRow(100)]
-        [DataTestMethod]
+        [TestMethod]
         public void EmptyListMustHaveZeroSeparators(int separatorCount)
         {
             var separators = Enumerable.Repeat(TestSyntaxFactory.CreateToken(TokenType.Colon), separatorCount);
@@ -37,7 +37,7 @@ namespace Bicep.Core.UnitTests.Syntax
         [DataRow(2, 0)]
         [DataRow(4, 1)]
         [DataRow(2, 3)]
-        [DataTestMethod]
+        [TestMethod]
         public void ListMustHaveOneFewerSeparatorThanElements(int elementCount, int separatorCount)
         {
             var elements = Enumerable.Repeat(TestSyntaxFactory.CreateInt(42), elementCount);

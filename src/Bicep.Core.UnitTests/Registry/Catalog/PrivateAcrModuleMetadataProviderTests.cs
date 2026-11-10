@@ -23,6 +23,7 @@ using Bicep.Core.UnitTests.Mock.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -40,11 +41,9 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
         [NotNull] public TestContext? TestContext { get; set; }
 
         private static IOciRegistryTransportFactory CreateTransportFactory(IContainerRegistryClientFactory clientFactory)
-        {
-            var transport = new AzureContainerRegistryManager(clientFactory);
-            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new MockFileSystem());
-            return new OciRegistryTransportFactory(transport, dockerCredentials);
-        }
+            => new ServiceBuilder()
+                .WithContainerRegistryClientFactory(clientFactory)
+                .Build().Construct<IOciRegistryTransportFactory>();
 
         [TestMethod]
         public async Task TryGetModulesAsync()
@@ -62,7 +61,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
             var provider = new PrivateAcrModuleMetadataProvider(
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 "registry.contoso.io",
-                CreateTransportFactory(clientFactory));
+                CreateTransportFactory(clientFactory), useOrasSdk: false);
             var modules = await provider.TryGetModulesAsync();
 
             modules.Should().HaveCount(2);
@@ -84,7 +83,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
             var provider = new PrivateAcrModuleMetadataProvider(
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 "registry.contoso.io",
-                CreateTransportFactory(clientFactory));
+                CreateTransportFactory(clientFactory), useOrasSdk: false);
 
             provider.GetCachedModules().Should().HaveCount(0);
 
@@ -111,7 +110,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
             var provider = new PrivateAcrModuleMetadataProvider(
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 "registry.contoso.io",
-                CreateTransportFactory(clientFactory));
+                CreateTransportFactory(clientFactory), useOrasSdk: false);
 
             var modules = await provider.TryGetModulesAsync();
             modules.Should().HaveCount(2);
@@ -137,7 +136,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
             var provider = new PrivateAcrModuleMetadataProvider(
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 "registry.contoso.io",
-                CreateTransportFactory(clientFactory));
+                CreateTransportFactory(clientFactory), useOrasSdk: false);
             provider.GetCachedModules().Should().BeEmpty();
 
             var module = await provider.TryGetModuleAsync("test/module1");
@@ -175,7 +174,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
             var provider = new PrivateAcrModuleMetadataProvider(
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 "registry.contoso.io",
-                CreateTransportFactory(clientFactory));
+                CreateTransportFactory(clientFactory), useOrasSdk: false);
 
             var module = await provider.TryGetModuleAsync("test/module1");
             module.Should().NotBeNull();
@@ -212,7 +211,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
             var provider = new PrivateAcrModuleMetadataProvider(
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 "registry.contoso.io",
-                CreateTransportFactory(clientFactory));
+                CreateTransportFactory(clientFactory), useOrasSdk: false);
 
             var module = await provider.TryGetModuleAsync("test/module1");
             module.Should().NotBeNull();
@@ -242,7 +241,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
             var provider = new PrivateAcrModuleMetadataProvider(
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 "registry.contoso.io",
-                CreateTransportFactory(clientFactory));
+                CreateTransportFactory(clientFactory), useOrasSdk: false);
 
             var module = await provider.TryGetModuleAsync("test/module1");
             module.Should().NotBeNull();
@@ -278,7 +277,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
             var provider = new PrivateAcrModuleMetadataProvider(
                     BicepTestConstants.BuiltInConfiguration.Cloud,
                     "registry.contoso.io",
-                    CreateTransportFactory(clientFactory));
+                    CreateTransportFactory(clientFactory), useOrasSdk: false);
 
             var module = await provider.TryGetModuleAsync("test/repo1");
             module.Should().NotBeNull();
@@ -317,7 +316,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
             var provider = new PrivateAcrModuleMetadataProvider(
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 "registry.contoso.io",
-                CreateTransportFactory(clientFactory));
+                CreateTransportFactory(clientFactory), useOrasSdk: false);
 
             var module = await provider.TryGetModuleAsync("test/repo1");
             module.Should().NotBeNull();
@@ -343,7 +342,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
                 IBicepCloudConfiguration cloud,
                 string registry,
                 IOciRegistryTransportFactory transportFactory)
-                : base(cloud, registry, transportFactory) { }
+                : base(cloud, registry, transportFactory, useOrasSdk: false) { }
 
             protected override Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath)
             {
@@ -377,7 +376,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
             var provider2NoThrow = new PrivateAcrModuleMetadataProvider(
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 "registry.contoso.io",
-                CreateTransportFactory(clientFactory));
+                CreateTransportFactory(clientFactory), useOrasSdk: false);
             var module2 = await provider2NoThrow.TryGetModuleAsync("test/module1");
 
             module2!.GetCachedVersions().Should().BeEmpty();

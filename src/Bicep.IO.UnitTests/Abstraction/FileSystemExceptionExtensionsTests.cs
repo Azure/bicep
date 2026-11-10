@@ -10,7 +10,7 @@ namespace Bicep.IO.UnitTests.Abstraction;
 [TestClass]
 public class FileSystemExceptionExtensionsTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(typeof(IOException), true, true)]
     [DataRow(typeof(UnauthorizedAccessException), true, true)]
     [DataRow(typeof(ArgumentException), false, true)]

@@ -8,6 +8,7 @@ import { atom } from "jotai";
 import { EMPTY_UNDO_HISTORY, getSourceStepKey, isSourceStep } from "../undo-history";
 import { isGraphChangeInProgressAtom } from "./pending-changes";
 import { isResourceEditingEnabledAtom } from "./settings";
+import { activeNodeDragCountAtom } from "./view";
 
 /** The undo and redo stacks. Change them only through the pure functions in `undo-history.ts`. */
 export const undoHistoryAtom = atom<UndoHistory>(EMPTY_UNDO_HISTORY);
@@ -24,9 +25,10 @@ export const nextRedoStepAtom = atom((get) => get(undoHistoryAtom).redoStack.at(
 export const replayableSourceStepKeysAtom = atom<ReadonlySet<string>>(new Set<string>());
 
 /**
- * Whether the next step in `direction` can be replayed now. Nothing replays while a graph change is in
- * progress. A step that edits Bicep source also needs resource editing enabled and the host's confirmation,
- * with the latest graph update, that it can replay the step exactly. Layout steps always can.
+ * Whether the next step in `direction` can be replayed now. Nothing replays while a graph change or a node
+ * drag is in progress: a drag ending after a replay would record a step that clears the redo stack. A step
+ * that edits Bicep source also needs resource editing enabled and the host's confirmation, with the latest
+ * graph update, that it can replay the step exactly. Layout and module collapse steps always can.
  */
 function canReplayAtom(direction: ReplayDirection) {
   return atom((get) => {
@@ -35,6 +37,7 @@ function canReplayAtom(direction: ReplayDirection) {
     return (
       step !== null &&
       !get(isGraphChangeInProgressAtom) &&
+      get(activeNodeDragCountAtom) === 0 &&
       (!isSourceStep(step) ||
         (get(isResourceEditingEnabledAtom) &&
           get(replayableSourceStepKeysAtom).has(getSourceStepKey({ operationId: step.operationId, direction }))))
