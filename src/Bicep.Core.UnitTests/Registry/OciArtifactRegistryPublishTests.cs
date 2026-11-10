@@ -83,6 +83,38 @@ public class OciArtifactRegistryPublishTests
     }
 
     [TestMethod]
+    public async Task PublishExtension_V2Package_PushesV2BinaryLayersWithoutLocalDeployConfig()
+    {
+        var reference = CreateReference(ArtifactType.Extension);
+        var architecture = SupportedArchitectures.All[0];
+        var binary = BinaryData.FromString("binary");
+        var package = new ExtensionPackage(BinaryData.FromString("types"), LocalDeployEnabled: true, [new(architecture, binary)])
+        {
+            BinaryLayerVersion = ExtensionBinaryLayerVersion.V2,
+        };
+        var session = CreateSession();
+        session.Setup(x => x.PushAsync(
+                reference, BicepMediaTypes.OciImageManifest, BicepMediaTypes.BicepExtensionArtifactType,
+                It.IsAny<OciDescriptor>(), It.IsAny<IEnumerable<OciDescriptor>>(),
+                It.IsAny<OciManifestAnnotationsBuilder>(), CancellationToken.None))
+            .Callback<IOciArtifactReference, string?, string?, OciDescriptor, IEnumerable<OciDescriptor>, OciManifestAnnotationsBuilder, CancellationToken>(
+                (_, _, _, config, layers, _, _) =>
+                {
+                    config.MediaType.Should().Be(BicepMediaTypes.BicepExtensionConfigV1);
+                    (config.Data?.ToString()).Should().Be("{}");
+                    layers.Select(layer => layer.MediaType).Should().Equal(
+                        BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip,
+                        BicepMediaTypes.GetExtensionArtifactLayerV2Binary(architecture));
+                    layers.Last().Data.Should().BeSameAs(binary);
+                })
+            .Returns(Task.CompletedTask);
+
+        await CreateRegistry(reference, session.Object).PublishExtension(reference, package);
+
+        session.VerifyAll();
+    }
+
+    [TestMethod]
     [DataRow(ArtifactType.Module)]
     [DataRow(ArtifactType.Extension)]
     public async Task Publish_RejectsAPackageThatDoesNotMatchTheTargetType(ArtifactType targetType)

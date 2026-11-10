@@ -136,6 +136,7 @@ public class PublishExtensionContractTests : TestBase
         var result = await Bicep("publish-extension", indexPath, "--contract", "v2", "--bin-linux-x64", binaryPath, "--target", targetPath);
 
         result.Should().Fail().And.HaveStderrMatch("*Only registry (br:) targets are supported with --contract v2.*");
+        File.Exists(targetPath).Should().BeFalse();
     }
 
     [TestMethod]

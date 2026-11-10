@@ -3,7 +3,9 @@
 
 using System.Formats.Tar;
 using System.IO.Compression;
+using Bicep.Core.Registry;
 using Bicep.Core.Registry.Extensions;
+using Bicep.Core.Registry.Oci;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,6 +14,19 @@ namespace Bicep.Core.UnitTests.Registry
     [TestClass]
     public class ExtensionV1ArchiveTests
     {
+        [TestMethod]
+        public async Task Build_PackageWithV2Binaries_ThrowsArgumentException()
+        {
+            var package = new ExtensionPackage(BinaryData.FromString("types"), LocalDeployEnabled: true, [new(SupportedArchitectures.All[0], BinaryData.FromString("binary"))])
+            {
+                BinaryLayerVersion = ExtensionBinaryLayerVersion.V2,
+            };
+
+            Func<Task> build = () => ExtensionV1Archive.Build(package);
+
+            await build.Should().ThrowAsync<ArgumentException>().WithParameterName("package");
+        }
+
         [TestMethod]
         public void Read_NonArchiveContent_ThrowsInvalidDataException()
         {
