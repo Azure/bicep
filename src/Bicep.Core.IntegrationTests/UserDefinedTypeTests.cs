@@ -880,6 +880,57 @@ param myParam string
     }
 
     [TestMethod]
+    [Timeout(10_000)]
+    public void Loose_assignment_probes_do_not_expand_variable_alias_chains()
+    {
+        var aliases = string.Join('\n', Enumerable.Range(1, 24).Select(i => $"var v{i} = v{i - 1}"));
+        var result = CompilationHelper.Compile(
+            ("main.bicep", $$"""
+                param settings { value: string? }
+                var v0 = settings.?value ?? 'a'
+                {{aliases}}
+
+                module mod 'mod.bicep' = {
+                    name: 'mod'
+                    params: { value: v24 }
+                }
+                output value 'a' | 'b' = v24
+                """),
+            ("mod.bicep", "param value 'a' | 'b'"));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP036", DiagnosticLevel.Warning, "The property \"value\" expected a value of type \"'a' | 'b'\" but the provided value is of type \"'a' | string\"."),
+            ("BCP033", DiagnosticLevel.Warning, "Expected a value of type \"'a' | 'b'\" but the provided value is of type \"'a' | string\"."),
+        ]);
+        result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    [DataRow("@minLength(5)", "string", "'a' | 'b'", "string", DiagnosticLevel.Error)]
+    [DataRow("@maxLength(1)", "string", "'aa' | 'bb'", "string", DiagnosticLevel.Error)]
+    [DataRow("@minValue(5)", "int", "1", "int", DiagnosticLevel.Error)]
+    [DataRow("@maxValue(1)", "int", "5", "int", DiagnosticLevel.Error)]
+    [DataRow("", "resourceInput<'Microsoft.Storage/storageAccounts@2023-05-01'>.name", "'!!!' | '???'", "string", DiagnosticLevel.Error)]
+    [DataRow("@minLength(5)", "string", "'longer' | 'short'", "string", DiagnosticLevel.Warning)]
+    [DataRow("@minValue(5)", "int", "5", "int", DiagnosticLevel.Warning)]
+    public void Loose_assignment_probes_preserve_refinements_through_aliases(string decorator, string sourceType, string targetType, string actualType, DiagnosticLevel level)
+    {
+        var result = CompilationHelper.Compile($$"""
+            param settings {
+                {{decorator}}
+                value: {{sourceType}}
+            }
+            var first = settings.value
+            var second = first
+            output value {{targetType}} = second
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP033", level, $"Expected a value of type \"{targetType}\" but the provided value is of type \"{actualType}\"."),
+        ]);
+    }
+
+    [TestMethod]
     public void Primitive_values_keep_errors_where_the_compiler_trusts_the_literal_type()
     {
         var result = CompilationHelper.Compile(

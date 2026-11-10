@@ -35,6 +35,7 @@ namespace Bicep.Core.TypeSystem
             bool IsResourceDeclaration,
             bool IsCheckedAtDeployment,
             bool IsModuleBody,
+            bool IsLooseAssignmentProbe,
             HashSet<(SyntaxBase expression, TypeSymbol expressionType, TypeSymbol targetType)> currentlyProcessing);
 
         private TypeValidator(ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
@@ -216,6 +217,7 @@ namespace Bicep.Core.TypeSystem
                 IsResourceDeclaration: isResourceDeclaration,
                 IsCheckedAtDeployment: isCheckedAtDeployment,
                 IsModuleBody: false,
+                IsLooseAssignmentProbe: false,
                 currentlyProcessing: new());
 
             var validator = new TypeValidator(typeManager, binder, parsingErrorLookup, diagnosticWriter);
@@ -362,7 +364,8 @@ namespace Bicep.Core.TypeSystem
                 return narrowedArray;
             }
 
-            if (expression is VariableAccessSyntax variableAccess &&
+            if (!config.IsLooseAssignmentProbe &&
+                expression is VariableAccessSyntax variableAccess &&
                 NarrowVariableAccessType(config, variableAccess, targetType) is TypeSymbol narrowedVariableAccess)
             {
                 return narrowedVariableAccess;
@@ -395,7 +398,8 @@ namespace Bicep.Core.TypeSystem
             return members.Any(member =>
             {
                 var diagnostics = ToListDiagnosticWriter.Create();
-                new TypeValidator(typeManager, binder, parsingErrorLookup, diagnostics).NarrowType(config with { OnTypeMismatch = null }, expression, member, targetType);
+                // Expanding an alias would replace this member with the initializer's full type and repeat the probe.
+                new TypeValidator(typeManager, binder, parsingErrorLookup, diagnostics).NarrowType(config with { OnTypeMismatch = null, IsLooseAssignmentProbe = true }, expression, member, targetType);
 
                 return diagnostics.GetDiagnostics().Any(diagnostic => diagnostic.IsError());
             });
