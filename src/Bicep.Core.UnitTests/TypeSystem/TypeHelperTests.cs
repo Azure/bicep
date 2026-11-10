@@ -19,6 +19,104 @@ namespace Bicep.Core.UnitTests.TypeSystem;
 public class TypeHelperTests
 {
     [TestMethod]
+    public void Array_item_types_preserve_union_members_and_ignore_empty_tuples()
+    {
+        TypeHelper.GetArrayItemTypeOrAny(TypeHelper.CreateTypeUnion(
+            new TypedArrayType(LanguageConstants.SecureString, default), new TupleType([], default)))
+            .Should().BeSameAs(LanguageConstants.SecureString);
+
+        TypeHelper.GetArrayItemTypeOrAny(TypeHelper.CreateTypeUnion(
+            new TypedArrayType(LanguageConstants.SecureString, default),
+            new TypedArrayType(LanguageConstants.String, default)))
+            .Should().BeOfType<UnionType>().Subject.Members.Select(member => member.Type)
+            .Should().BeEquivalentTo([LanguageConstants.String, LanguageConstants.SecureString]);
+    }
+
+    [TestMethod]
+    public void Closed_union_variants_do_not_supply_undeclared_properties()
+    {
+        ObjectType secure = new("secure", default, [new("value", LanguageConstants.SecureString)],
+            new(LanguageConstants.Any, TypePropertyFlags.FallbackProperty));
+        ObjectType empty = new("empty", default, [], new(LanguageConstants.Any, TypePropertyFlags.FallbackProperty));
+        ObjectType open = new("open", default, [], new(LanguageConstants.String));
+
+        TypeHelper.TryCollapseTypes([secure, empty]).Should().BeOfType<ObjectType>().Subject
+            .Properties["value"].TypeReference.Type.Should().BeSameAs(LanguageConstants.SecureString);
+        TypeHelper.TryCollapseTypes([secure, open]).Should().BeOfType<ObjectType>().Subject
+            .Properties["value"].TypeReference.Type.Should().BeOfType<UnionType>().Subject.Members.Select(member => member.Type)
+            .Should().BeEquivalentTo([LanguageConstants.String, LanguageConstants.SecureString]);
+    }
+
+    [TestMethod]
+    public void Object_merge_preserves_nested_members_and_replacements()
+    {
+        ObjectType first = new("first", default, [new("password", LanguageConstants.SecureString, TypePropertyFlags.Required)]);
+        ObjectType second = new("second", default, [new("password", LanguageConstants.String, TypePropertyFlags.Required)]);
+        TypeHelper.MergeObjectTypes([first, second]).Should().BeOfType<ObjectType>().Subject
+            .Properties["password"].TypeReference.Type.Should().BeSameAs(LanguageConstants.String);
+        TypeHelper.MergeObjectTypes([second, first]).Should().BeOfType<ObjectType>().Subject
+            .Properties["password"].TypeReference.Type.Should().BeSameAs(LanguageConstants.SecureString);
+
+        ObjectType nested = new("nested", default, [new("config", first, TypePropertyFlags.Required)]);
+        ObjectType addition = new("addition", default,
+            [new("config", new ObjectType("config", default, [new("name", LanguageConstants.String, TypePropertyFlags.Required)]), TypePropertyFlags.Required)]);
+        TypeHelper.MergeObjectTypes([nested, addition]).Should().BeOfType<ObjectType>().Subject
+            .Properties["config"].TypeReference.Type.Should().BeOfType<ObjectType>().Subject.Properties.Keys
+            .Should().BeEquivalentTo(["name", "password"]);
+        // The fallback can't keep the secure member on its own, so the whole result is secure.
+        TypeHelper.MergeObjectTypes([first, LanguageConstants.Object]).Should().BeSameAs(LanguageConstants.SecureObject);
+        TypeHelper.MergeObjectTypes([second, LanguageConstants.Object]).Should().BeSameAs(LanguageConstants.Object);
+    }
+
+    [TestMethod]
+    public void Object_merge_does_not_trust_earlier_properties_an_open_input_may_replace()
+    {
+        ObjectType defaults = new("defaults", default, [new("sku", TypeFactory.CreateStringLiteralType("Free"), TypePropertyFlags.Required)]);
+        ObjectType open = new("open", default, [new("name", LanguageConstants.String, TypePropertyFlags.Required)],
+            new TypeProperty(LanguageConstants.Any, TypePropertyFlags.FallbackProperty));
+        TypeHelper.MergeObjectTypes([defaults, open]).Should().BeSameAs(LanguageConstants.Object);
+
+        // An open input that lists every earlier property replaces them with its own known types.
+        ObjectType openWithSku = new("openWithSku", default, [new("sku", LanguageConstants.String, TypePropertyFlags.Required)],
+            new TypeProperty(LanguageConstants.Any, TypePropertyFlags.FallbackProperty));
+        TypeHelper.MergeObjectTypes([defaults, openWithSku]).Should().BeOfType<ObjectType>().Subject
+            .Properties["sku"].TypeReference.Type.Should().BeSameAs(LanguageConstants.String);
+
+        ObjectType secureDefaults = new("secureDefaults", default, [new("password", LanguageConstants.SecureString, TypePropertyFlags.Required)]);
+        TypeHelper.MergeObjectTypes([secureDefaults, open]).Should().BeSameAs(LanguageConstants.SecureObject);
+    }
+
+    [TestMethod]
+    public void Object_merge_stops_at_recursive_members()
+    {
+        ObjectType? recursive = null;
+        recursive = new("recursive", default, [new("nested", new DeferredTypeReference(() => recursive!), TypePropertyFlags.Required)]);
+        var merged = TypeHelper.MergeObjectTypes([recursive, recursive]).Should().BeOfType<ObjectType>().Subject;
+        merged.Properties["nested"].TypeReference.Type.Should().BeSameAs(LanguageConstants.Object);
+    }
+
+    [TestMethod]
+    public void Object_merge_keeps_security_and_openness_of_its_inputs()
+    {
+        ObjectType plain = new("plain", default, [new("name", LanguageConstants.String, TypePropertyFlags.Required)]);
+        ObjectType secure = new("secure", TypeSymbolValidationFlags.IsSecure, [new("password", LanguageConstants.String, TypePropertyFlags.Required)]);
+        TypeHelper.MergeObjectTypes([plain, secure]).ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+
+        // A secure property stays secure on its own, without making its siblings secure.
+        ObjectType secureMember = new("secureMember", default, [new("password", LanguageConstants.SecureString, TypePropertyFlags.Required)]);
+        TypeHelper.MergeObjectTypes([plain, secureMember]).ValidationFlags.Should().NotHaveFlag(TypeSymbolValidationFlags.IsSecure);
+
+        // Inputs we can't merge still keep the fallback secure, wherever the secure input is.
+        TypeHelper.MergeObjectTypes([LanguageConstants.Object, secure]).Should().BeSameAs(LanguageConstants.SecureObject);
+        TypeHelper.MergeObjectTypes([TypeHelper.CreateTypeUnion(plain, secure), plain]).Should().BeSameAs(LanguageConstants.SecureObject);
+
+        ObjectType open = new("open", default, [], new TypeProperty(LanguageConstants.Any, TypePropertyFlags.FallbackProperty));
+        TypeHelper.MergeObjectTypes([open, plain]).Should().BeOfType<ObjectType>().Subject
+            .AdditionalProperties!.Flags.Should().HaveFlag(TypePropertyFlags.FallbackProperty);
+        TypeHelper.MergeObjectTypes([plain, plain]).Should().BeOfType<ObjectType>().Subject.AdditionalProperties.Should().BeNull();
+    }
+
+    [TestMethod]
     [DynamicData(nameof(GetPrimitiveCollapsePositiveTestCases))]
     public void Primitive_collapse_preserves_and_fuses_refinements(TypeSymbol expected, params TypeSymbol[] toCollapse)
     {

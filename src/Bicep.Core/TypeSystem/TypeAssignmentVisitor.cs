@@ -164,7 +164,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 ITypeReference GetItemType(ForSyntax @for)
-                    => GetIterationTargetType(@for)?.Item ?? LanguageConstants.Any;
+                    => TypeHelper.GetArrayItemTypeOrAny(typeManager.GetTypeInfo(@for.Expression));
 
                 long GetEnumerationTargetLength(ForSyntax @for) => GetIterationTargetType(@for)?.MaxLength switch
                 {
@@ -1381,7 +1381,10 @@ namespace Bicep.Core.TypeSystem
 
                 // normally we would also do an assignability check, but we allow "any" type in string interpolation expressions
                 // so the assignability check cannot possibly fail (we already collected type errors from the inner expressions at this point)
-                return TypeFactory.CreateStringType(maxLength: maxLength, minLength: minLength switch
+                return TypeFactory.CreateStringType(
+                    // Interpolated strings contain their embedded values, so preserve any security those values carry.
+                    validationFlags: expressionTypes.Any(TypeHelper.IsOrContainsSecureType) ? TypeSymbolValidationFlags.IsSecure : default,
+                    maxLength: maxLength, minLength: minLength switch
                 {
                     <= 0 => null,
                     _ => minLength,
@@ -2094,7 +2097,7 @@ namespace Bicep.Core.TypeSystem
 
                 // the property is not valid
                 // there's already a parse error for it, so we don't need to add a type error as well
-                ObjectType when !syntax.PropertyName.IsValid => ErrorType.Empty(),
+                ObjectLikeType when !syntax.PropertyName.IsValid => ErrorType.Empty(),
 
                 ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType,
                     syntax.PropertyName,
@@ -2112,8 +2115,12 @@ namespace Bicep.Core.TypeSystem
                         ShouldWarnForDeadBranchPropertyAccess(syntax, baseType),
                     diagnostics),
 
-                // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
-                DiscriminatedObjectType => LanguageConstants.Any,
+                DiscriminatedObjectType discriminated => TypeHelper.GetNamedPropertyType(discriminated,
+                    syntax.PropertyName,
+                    syntax.PropertyName.IdentifierName,
+                    syntax.IsSafeAccess,
+                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(discriminated),
+                    diagnostics),
 
                 // We can assign to an object, but we don't have a type for that object.
                 // The best we can do is allow it and return the 'any' type.

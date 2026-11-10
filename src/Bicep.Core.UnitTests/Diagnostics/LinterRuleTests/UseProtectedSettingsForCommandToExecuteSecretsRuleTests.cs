@@ -14,6 +14,27 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             AssertLinterRuleDiagnostics(ProtectCommandToExecuteSecretsRule.Code, text, expectedMessages);
         }
 
+        [TestMethod]
+        [DataRow("length(secret)")]
+        [DataRow("sys.length(secret)")]
+        public void Secret_length_does_not_require_protected_settings(string expression)
+            => CompileAndTest($$"""
+                @secure()
+                param secret string
+                var count = {{expression}}
+                resource extension 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+                  name: 'vm/script'
+                  location: 'westus'
+                  properties: {
+                    publisher: 'Microsoft.Compute'
+                    type: 'CustomScriptExtension'
+                    settings: {
+                      commandToExecute: 'echo ${{{expression}}} ${count}'
+                    }
+                  }
+                }
+                """, []);
+
         // Modified from https://docs.microsoft.com/en-us/azure/azure-arc/servers/manage-vm-extensions-template#template-file-for-windows-1
         // CustomScriptExtension
         [TestMethod]

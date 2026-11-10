@@ -32,6 +32,17 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
+        /// <summary>
+        /// Checks whether a value in a deploy-time constant container can be calculated at the start of the
+        /// deployment, without reporting the violations that would make it not.
+        /// </summary>
+        public static bool IsDeployTimeConstant(SyntaxBase container, SyntaxBase value, SemanticModel semanticModel, ResourceTypeResolver resourceTypeResolver)
+        {
+            var diagnostics = ToListDiagnosticWriter.Create();
+            CheckDeployTimeConstantViolations(container, value, semanticModel, diagnostics, resourceTypeResolver);
+            return diagnostics.GetDiagnostics().Count == 0;
+        }
+
         public static void CheckDeployTimeConstantViolations(SyntaxBase container, SyntaxBase childContainer, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ResourceTypeResolver resourceTypeResolver)
         {
             // Validate property accesses, array accesses, resource accesses and function calls.

@@ -17,6 +17,25 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         const string description = "Outputs should not contain secrets.";
 
+        [TestMethod]
+        [DataRow("length(secret)")]
+        [DataRow("sys.length(secret)")]
+        [DataRow("length(settings)")]
+        public void Secret_length_can_be_output_directly_or_indirectly(string expression)
+            => CompileAndTest($$"""
+                @secure()
+                @minLength(2)
+                @maxLength(20)
+                param secret string
+                @secure()
+                param settings object
+                var count = {{expression}}
+                var values = { count: count }
+                output n int = {{expression}}
+                output indirect int = values.count
+                output text string = '${count}'
+                """, OnCompileErrors.IncludeErrors, []);
+
         [DataRow(@" // This is a failing example from the docs
             @secure()
             param secureParam string
@@ -431,5 +450,128 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
         }
+
+        [TestMethod]
+        [DataRow("union(secureObj, { extra: 1 })")]
+        [DataRow("union({ extra: 1 }, typedSecureObj)")]
+        [DataRow("union(enabled ? secureObj : {}, { extra: 1 })")]
+        public void Union_with_a_secure_object_is_secure(string expression)
+            => CompileAndTest($$"""
+                @secure()
+                param secureObj object
+                @secure()
+                param typedSecureObj {
+                  flag: bool
+                }
+                param enabled bool
+                var merged = {{expression}}
+                output o object = merged
+                """, OnCompileErrors.IncludeErrors, [$"{description} Found possible secret: secure value 'merged'"]);
+
+        [TestMethod]
+        [DataRow("""
+            @discriminator('kind')
+            param p { kind: 'a', x: string } | { kind: 'b', y: string }
+            """)]
+        [DataRow("param p resourceInput<'Microsoft.DataFactory/factories/linkedservices@2018-06-01'>.properties")]
+        public void Secure_discriminated_object_is_secure(string declaration)
+            => CompileAndTest($"""
+                @secure()
+                {declaration}
+                output o object = p
+                """, OnCompileErrors.IncludeErrors, [$"{description} Found possible secret: secure value 'p'"]);
+
+        [TestMethod]
+        public void Secure_values_forwarded_through_object_properties_are_still_found()
+            => CompileAndTest("""
+                @secure()
+                param secret string
+                var original = {
+                  direct: secret
+                  interpolated: '${secret}'
+                  public: 'not secret'
+                }
+                var alias = original
+                var chainedAlias = alias
+                output direct string = chainedAlias.direct
+                output indexed string = chainedAlias['direct']
+                output interpolated string = chainedAlias.interpolated
+                output public string = chainedAlias.public
+                output whole object = chainedAlias
+                """, OnCompileErrors.IncludeErrors, [
+                    $"{description} Found possible secret: secure value 'chainedAlias.direct'",
+                    $"{description} Found possible secret: secure value 'chainedAlias['direct']'",
+                    $"{description} Found possible secret: secure value 'chainedAlias.interpolated'",
+                    $"{description} Found possible secret: secure value 'chainedAlias.direct'",
+                    $"{description} Found possible secret: secure value 'chainedAlias.interpolated'",
+                ]);
+
+        [TestMethod]
+        [DataRow("chained.number", "int", 1)]
+        [DataRow("chained['number']", "int", 1)]
+        [DataRow("chained.flag", "bool", 1)]
+        [DataRow("chained.text", "string", 1)]
+        [DataRow("chained.interpolated", "string", 1)]
+        [DataRow("chained.nested.number", "int", 1)]
+        [DataRow("chained.public", "string", 0)]
+        [DataRow("chained", "object", 1)]
+        public void Copied_secure_object_members_are_still_found(string expression, string type, int warnings)
+            => CompileAndTest($$"""
+                @secure()
+                param secureObj { number: int, flag: bool, text: string }
+                var original = {
+                  number: secureObj.number
+                  flag: secureObj.flag
+                  text: secureObj.text
+                  interpolated: '${secureObj.number}'
+                  nested: { number: secureObj.number }
+                  public: 'not secret'
+                }
+                var alias = original
+                var chained = alias
+                output result {{type}} = {{expression}}
+                """, OnCompileErrors.IncludeErrors,
+                Enumerable.Repeat($"{description} Found possible secret: secure value 'secureObj'", warnings).ToArray());
+
+        [TestMethod]
+        [DataRow("split(secret, ',')[0]", 1)]
+        [DataRow("parts[0]", 1)]
+        [DataRow("cfg.password", 1)]
+        [DataRow("wrapped[0].value", 1)]
+        [DataRow("merged.name", 0)]
+        [DataRow("spreadConfig.other[0]", 1)]
+        [DataRow("overwritten.password", 0)]
+        [DataRow("spreadJson.x[0]", 1)]
+        [DataRow("passwords[key]", 1)]
+        [DataRow("spreadSibling.user", 1)]
+        [DataRow("dynamicKey.user", 1)]
+        [DataRow("dynamicSpread.user", 1)]
+        [DataRow("typedSpread.user", 1)]
+        public void Reads_through_variables_whose_types_hide_secrets_are_found(string expression, int warnings)
+            => CompileAndTest($$"""
+                @secure()
+                param secret string
+                @secure()
+                param secureObj object
+                param key string
+                @sealed()
+                type Closed = { name: string }
+                var typed Closed = json(secret)
+                var passwords = { dev: secret, prod: secret }
+                var spreadSibling = { password: secret, ...json(secret) }
+                var dynamicKey = { ...{ user: 'public' }, '${key}': secret }
+                var dynamicSpread = { user: 'public', ...{ '${key}': secret } }
+                var typedSpread = { user: 'public', ...typed }
+                var parts = split(secret, ',')
+                var cfg = json(secret)
+                var wrapped = map(parts, p => { value: p })
+                var merged = union({ password: secret }, { name: 'public' })
+                var overrides = { other: split(secret, ',') }
+                var spreadConfig = { password: secureObj, ...overrides }
+                var overwritten = { password: secret, ...{ password: 'public' } }
+                var spreadJson = { ...json(secret) }
+                output result string = {{expression}}
+                """, OnCompileErrors.IncludeErrors,
+                Enumerable.Repeat($"{description} Found possible secret: secure value 'secret'", warnings).ToArray());
     }
 }
