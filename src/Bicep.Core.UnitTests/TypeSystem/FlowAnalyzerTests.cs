@@ -40,7 +40,7 @@ public class FlowAnalyzerTests
         }
 
         references.Select(analyzer.IsKnownNonNull).Should().Equal(false, true, false, false);
-        references.Select(x => analyzer.IsConditionKnownTrue(condition, x)).Should().Equal(true, true, true, false);
+        references.Select(x => analyzer.TryGetKnownValue(condition, x)).Should().Equal(true, true, true, false);
         analyzer.GetFlowState(root).Should().Be(FlowState.Empty);
     }
 
@@ -120,12 +120,28 @@ public class FlowAnalyzerTests
     }
 
     [TestMethod]
-    public void Ternary_branch_queries_distinguish_dead_branches_from_conditions()
+    [DataRow("enabled == true", "enabled != false")]
+    [DataRow("enabled == false", "enabled != true")]
+    public void Nullable_boolean_comparisons_preserve_unknown_values(string condition, string guard)
+    {
+        var compilation = new ServiceBuilder().BuildCompilation($$"""
+            param enabled bool?
+            var result = {{guard}} ? ({{condition}} ? 'yes' : 'no') : 'other'
+            """);
+        var model = compilation.GetEntrypointSemanticModel();
+        var analyzer = new FlowAnalyzer(model.Binder, model.TypeManager);
+        var ternaries = SyntaxAggregator.AggregateByType<TernaryOperationSyntax>(
+            compilation.SourceFileGrouping.EntryPoint.ProgramSyntax).ToArray();
+
+        analyzer.TryGetKnownValue(ternaries[1].ConditionExpression, ternaries[1]).Should().BeNull();
+    }
+
+    [TestMethod]
+    public void Ternary_branch_queries_distinguish_branches_from_conditions()
     {
         var compilation = new ServiceBuilder().BuildCompilation("""
-            var flag = false
-            var first = flag ? 'dead' : 'live'
-            var second = 1 == 1 ? 'live' : 'dead'
+            param flag bool
+            var result = flag ? (flag ? 'first' : 'second') : 'third'
             """);
         var model = compilation.GetEntrypointSemanticModel();
         var analyzer = new FlowAnalyzer(model.Binder, model.TypeManager);
@@ -134,8 +150,14 @@ public class FlowAnalyzerTests
 
         analyzer.IsWithinTernaryBranch(ternaries[0].ConditionExpression).Should().BeFalse();
         analyzer.IsWithinTernaryBranch(ternaries[0].TrueExpression).Should().BeTrue();
-        analyzer.IsInDeadTernaryBranch(ternaries[0].TrueExpression).Should().BeTrue();
-        analyzer.IsInDeadTernaryBranch(ternaries[0].FalseExpression).Should().BeFalse();
-        analyzer.IsInDeadTernaryBranch(ternaries[1].FalseExpression).Should().BeTrue();
+        analyzer.GetEnclosingTernaryBranches(ternaries[0].ConditionExpression).Should().BeEmpty();
+        analyzer.GetEnclosingTernaryBranches(ternaries[0].TrueExpression).Should()
+            .Equal((ternaries[0], ternaries[0].TrueExpression));
+        analyzer.GetEnclosingTernaryBranches(ternaries[0].FalseExpression).Should()
+            .Equal((ternaries[0], ternaries[0].FalseExpression));
+        analyzer.GetEnclosingTernaryBranches(ternaries[1].ConditionExpression).Should()
+            .Equal((ternaries[0], ternaries[0].TrueExpression));
+        analyzer.GetEnclosingTernaryBranches(ternaries[1].FalseExpression).Should()
+            .Equal((ternaries[1], ternaries[1].FalseExpression), (ternaries[0], ternaries[0].TrueExpression));
     }
 }

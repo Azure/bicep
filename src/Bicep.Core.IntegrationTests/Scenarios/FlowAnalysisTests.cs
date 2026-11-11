@@ -114,6 +114,96 @@ public class FlowAnalysisTests
     }
 
     [TestMethod]
+    [DataRow("enabled == true", "enabled != false", 1)]
+    [DataRow("enabled == false", "enabled != true", 1)]
+    [DataRow("enabled == true", "!(enabled == false)", 1)]
+    [DataRow("enabled == false", "!(enabled == true)", 1)]
+    [DataRow("enabled == true", "enabled == true", 0)]
+    [DataRow("enabled == false", "enabled == false", 0)]
+    [DataRow("enabled != true", "enabled != true", 0)]
+    [DataRow("enabled != false", "enabled != false", 0)]
+    [DataRow("enabled == true", "!(enabled != true)", 0)]
+    [DataRow("enabled == false", "!(enabled != false)", 0)]
+    [DataRow("enabled == true", "enabled == null", 1)]
+    [DataRow("enabled == false", "enabled == null", 1)]
+    public void Nullable_boolean_comparisons_do_not_assume_two_valued_logic(string resourceCondition, string guard, int warnings)
+    {
+        var result = CompilationHelper.Compile($$"""
+            param enabled bool?
+            resource storage 'Microsoft.Storage/storageAccounts@2021-04-01' = if ({{resourceCondition}}) {
+              name: 'storage'
+              location: 'eastus'
+              kind: 'StorageV2'
+              sku: { name: 'Standard_LRS' }
+            }
+            output location string = {{guard}} ? storage.location : ''
+            """);
+
+        AssertNullableAccessWarnings(result, warnings);
+        result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    [DataRow(false, "input", 1)]
+    [DataRow(true, "input", 1)]
+    [DataRow(false, "input ?? false", 0)]
+    [DataRow(true, "input ?? false", 0)]
+    [DataRow(false, "any(input)", 1)]
+    [DataRow(true, "any(input)", 1)]
+    public void Boolean_comparison_predicates_are_independent_of_type_query_order(bool reverse, string initializer, int warnings)
+    {
+        var source = $$"""
+            param input bool?
+            var enabled = {{initializer}}
+            resource storage 'Microsoft.Storage/storageAccounts@2021-04-01' = if (enabled == true) {
+              name: 'storage'
+              location: 'eastus'
+              kind: 'StorageV2'
+              sku: { name: 'Standard_LRS' }
+            }
+            output location string = enabled != false ? storage.location : ''
+            """;
+        var compilation = new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides).BuildCompilation(source);
+        var model = compilation.GetEntrypointSemanticModel();
+        var accesses = SyntaxAggregator.AggregateByType<VariableAccessSyntax>(model.SourceFile.ProgramSyntax).ToArray();
+
+        foreach (var access in reverse ? accesses.Reverse() : accesses)
+        {
+            model.GetTypeInfo(access);
+        }
+
+        var result = CompilationHelper.GetCompilationResult(compilation);
+        AssertNullableAccessWarnings(result, warnings);
+        result.Template.Should().NotBeNull();
+        result.Template.Should().DeepEqual(CompilationHelper.Compile(source).Template!);
+    }
+
+    [TestMethod]
+    [DataRow("var first = second == true ? second : false\nvar second = first", "BCP080")]
+    [DataRow("var first = first == true ? first : false", "BCP079")]
+    public void Boolean_comparison_guards_preserve_cycle_diagnostics(string source, string code)
+    {
+        var result = CompilationHelper.Compile(source);
+
+        result.Template.Should().BeNull();
+        result.Diagnostics.Should().Contain(d => d.Code == code && d.Level == DiagnosticLevel.Error);
+    }
+
+    [TestMethod]
+    public void Boolean_comparison_type_queries_support_loop_and_lambda_locals()
+    {
+        var result = CompilationHelper.Compile("""
+            param input string?
+            output loop array = [for enabled in [true, false]: enabled == true && input != null ? length(input) : 0]
+            output lambda array = map([true, false], enabled => enabled == true && input != null ? length(input) : 0)
+            output reduction bool = reduce([true, false], true, (acc, enabled) => acc == true && enabled == true)
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
     public void Logical_flow_proves_only_the_implications_of_and_and_or()
     {
         var result = CompilationHelper.Compile("""
