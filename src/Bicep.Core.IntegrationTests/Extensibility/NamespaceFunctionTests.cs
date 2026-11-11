@@ -5,8 +5,8 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Azure.Bicep.Types.Serialization;
+using Bicep.Core.Artifacts.Codecs;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Registry.Extensions;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -400,7 +400,7 @@ public class NamespaceFunctionTests
             ("index.json", StreamHelper.GetString(stream => TypeSerializer.SerializeIndex(stream, index))),
             ("types.json", StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes()))));
 
-        return await ExtensionV1Archive.Build(new(indexTgz, false, []));
+        return await ExtensionArtifactArchiveCodec.Encode(new(indexTgz, false, []));
     }
 
     private record CommonPrimitives(TypeBase IntType, TypeBase StringType, TypeBase BoolType, TypeBase AnyType);

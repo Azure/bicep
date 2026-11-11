@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions.TestingHelpers;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.LegacyModuleAliasMocks;
 using Bicep.Core.Configuration;
+using Bicep.Core.Configuration.LegacyModuleAliasMocks;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.IO.Abstraction;

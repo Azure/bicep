@@ -3,8 +3,8 @@
 
 using System.Collections.Immutable;
 using Azure.Bicep.Types.Concrete;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Features;
-using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceGraph.ArtifactReferences;
 using Bicep.Core.TypeSystem.Providers;

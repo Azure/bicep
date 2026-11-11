@@ -4,9 +4,11 @@
 using System.Diagnostics;
 using System.Reactive;
 using Azure.Deployments.Core.Diagnostics;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Resolution;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceLink;
 using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
@@ -41,14 +43,14 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
     /// <summary>
     /// This handles the case where the document is a source file from an external module, and we've been asked to return nested links within it (to files local to that module or to other external modules)
     /// </summary>
-    public class BicepExternalSourceDocumentLinkHandler(IArtifactRestorer restorer, ILanguageServerFacade Server, IExternalArtifactContextFactory externalArtifactContextFactory)
+    public class BicepExternalSourceDocumentLinkHandler(IRemoteArtifactRestorer restorer, ILanguageServerFacade Server, IRemoteArtifactContextFactory remoteArtifactContextFactory)
         : DocumentLinkHandlerBase<ExternalSourceDocumentLinkData>
     {
         protected override Task<DocumentLinkContainer<ExternalSourceDocumentLinkData>> HandleParams(DocumentLinkParams request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var links = GetDocumentLinks(externalArtifactContextFactory, request, cancellationToken);
+            var links = GetDocumentLinks(remoteArtifactContextFactory, request, cancellationToken);
             return Task.FromResult(new DocumentLinkContainer<ExternalSourceDocumentLinkData>(links));
         }
 
@@ -56,7 +58,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await ResolveDocumentLink(request, restorer, externalArtifactContextFactory, Server);
+            return await ResolveDocumentLink(request, restorer, remoteArtifactContextFactory, Server);
         }
 
         protected override DocumentLinkRegistrationOptions CreateRegistrationOptions(DocumentLinkCapability capability, LspClientCapabilities clientCapabilities) => new()
@@ -65,7 +67,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             ResolveProvider = true,
         };
 
-        public static IEnumerable<DocumentLink<ExternalSourceDocumentLinkData>> GetDocumentLinks(IExternalArtifactContextFactory externalArtifactContextFactory, DocumentLinkParams request, CancellationToken cancellationToken)
+        public static IEnumerable<DocumentLink<ExternalSourceDocumentLinkData>> GetDocumentLinks(IRemoteArtifactContextFactory remoteArtifactContextFactory, DocumentLinkParams request, CancellationToken cancellationToken)
         {
             var currentDocument = request.TextDocument;
             if (currentDocument.Uri.Scheme == LangServerConstants.ExternalSourceFileScheme)
@@ -85,7 +87,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                 var currentDocumentRelativeFile = currentDocumentReference.RequestedFile;
                 if (currentDocumentRelativeFile is { })
                 {
-                    if (!currentDocumentReference.ToArtifactReference(ExternalSourceReference.GetOciArtifactContext(externalArtifactContextFactory)).IsSuccess(out var currentDocumentArtifact, out var message))
+                    if (!currentDocumentReference.ToArtifactReference(ExternalSourceReference.GetOciArtifactContext(remoteArtifactContextFactory)).IsSuccess(out var currentDocumentArtifact, out var message))
                     {
                         Trace.WriteLine(message);
                         yield break;
@@ -129,15 +131,15 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
         public static async Task<DocumentLink<ExternalSourceDocumentLinkData>> ResolveDocumentLink(
             DocumentLink<ExternalSourceDocumentLinkData> request,
-            IArtifactRestorer restorer,
-            IExternalArtifactContextFactory externalArtifactContextFactory,
+            IRemoteArtifactRestorer restorer,
+            IRemoteArtifactContextFactory remoteArtifactContextFactory,
             ILanguageServerFacade server)
         {
             Trace.WriteLine($"{nameof(BicepExternalSourceDocumentLinkHandler)}: Resolving external source document link: {request.Data.TargetArtifactId}");
 
             var data = request.Data;
 
-            if (!OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(externalArtifactContextFactory), ArtifactType.Module, null, data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
+            if (!OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(remoteArtifactContextFactory), ArtifactType.Module, null, data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
             {
                 server.Window.ShowWarning($"Unable to parse the module source ID '{data.TargetArtifactId}': {error(DiagnosticBuilder.ForDocumentStart()).Message}");
                 return GetAlternateLink();
@@ -145,7 +147,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
             var restoreState = restorer.GetRestoreState(targetArtifactReference);
             Trace.WriteLine($"Restore state: {restoreState.GetType().Name}");
-            if (restoreState is ArtifactRestoreState.NotRestored)
+            if (restoreState is RemoteArtifactRestoreState.NotRestored)
             {
                 // We haven't tried restoring this module yet. Let's try it now.
                 Trace.WriteLine($"Attempting to restore module {targetArtifactReference.FullyQualifiedReference}");
@@ -154,9 +156,9 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                 restoreState = restorer.GetRestoreState(targetArtifactReference);
                 Trace.WriteLine($"New restore state: {restoreState.GetType().Name}");
 
-                if (restoreState is not ArtifactRestoreState.Restored)
+                if (restoreState is not RemoteArtifactRestoreState.Restored)
                 {
-                    DiagnosticBuilder.DiagnosticBuilderDelegate restoreError = restoreState is ArtifactRestoreState.RestoreFailed failed
+                    DiagnosticBuilder.DiagnosticBuilderDelegate restoreError = restoreState is RemoteArtifactRestoreState.RestoreFailed failed
                         ? failed.Error
                         : x => x.ArtifactRequiresRestore(targetArtifactReference.FullyQualifiedReference);
                     var restoreMessage = restoreError(DiagnosticBuilder.ForDocumentStart()).Message;
@@ -164,7 +166,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                     return GetAlternateLink();
                 }
             }
-            else if (restoreState is ArtifactRestoreState.RestoreFailed)
+            else if (restoreState is RemoteArtifactRestoreState.RestoreFailed)
             {
                 server.Window.ShowWarning("Restore previously failed. Force module restore or restart to try again.");
                 return GetAlternateLink();

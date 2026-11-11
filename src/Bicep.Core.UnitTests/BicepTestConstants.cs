@@ -6,17 +6,17 @@ using Azure.Bicep.Types.Az;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Registries;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Oci.Oras;
-using Bicep.Core.Registry.Sessions;
+using Bicep.Core.RegistryClients.Oci;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
+using Bicep.Core.RegistryClients.TemplateSpecs;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
@@ -71,7 +71,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
-        public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
+        public static readonly ITemplateSpecClientFactory TemplateSpecClientFactory = StrictMock.Of<ITemplateSpecClientFactory>().Object;
 
         // Rules that are currently skipped due to configuration for ProgramsShouldProduceExpectedDiagnostics
         public static readonly string[] TestAnalyzersToSkip = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedLocationRule.Code, ExplicitValuesForLocationParamsRule.Code, NoLocationExprOutsideParamsRule.Code, NoModuleNameRule.Code, NoHardcodedOutputsRule.Code, UseDescriptionParametersRule.Code, UseDescriptionVarsRule.Code, UseDescriptionOutputRule.Code, UseDescriptionTypeRule.Code, UseDescriptionTypePropertyRule.Code];
@@ -88,14 +88,14 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
-        public static IArtifactRegistry[] CreateRegistries()
+        public static IRemoteArtifactRegistry[] CreateRegistries()
         {
             var transportFactory = new ServiceBuilder()
                 .WithContainerRegistryClientFactory(ClientFactory)
                 .Build().Construct<IOciRegistryTransportFactory>();
             return [
                 new OciArtifactRegistry(TestRegistryConfiguration, transportFactory, NullLogger<OciArtifactRegistry>.Instance),
-                new TemplateSpecModuleRegistry(TemplateSpecRepositoryFactory),
+                new TemplateSpecArtifactRegistry(TemplateSpecClientFactory),
             ];
         }
 

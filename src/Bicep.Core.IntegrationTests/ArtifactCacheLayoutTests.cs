@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Security.Cryptography;
+using Bicep.Core.Artifacts.Codecs;
+using Bicep.Core.Artifacts.Packages;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Samples;
 using Bicep.IO.Abstraction;
 using Bicep.Testing;
@@ -44,7 +44,7 @@ public class ArtifactCacheLayoutTests
     {
         var compiler = this.CreateCompiler();
         var remoteExtension = MockExtensionFactory.CreateMockExtWithNoConfigType("foo");
-        var localExtensionPackage = await ExtensionV1Archive.Build(new ExtensionPackage(MockExtensionFactory.CreateMockExtWithNoConfigType("bar").TypesTgzData, LocalDeployEnabled: false, []));
+        var localExtensionPackage = await ExtensionArtifactArchiveCodec.Encode(new ExtensionArtifactPackage(MockExtensionFactory.CreateMockExtWithNoConfigType("bar").TypesTgzData, LocalDeployEnabled: false, []));
 
         await this.artifactManager.PublishRegistryModules(
             new("br:mockregistry.io/test/module1:v1", "output o string = 'v1'", WithSource: true),

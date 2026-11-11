@@ -4,14 +4,14 @@
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Cli.UnitTests.Assertions;
-using Bicep.Core.Registry;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Utils;
 using FluentAssertions;
@@ -40,7 +40,7 @@ public class PublishExtensionCommandTests : TestBase
         var fakeBlobClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, registryUri, repository);
 
         var indexPath = Path.Combine(outputDirectory, "index.json");
-        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecClientFactory);
 
         List<string> requiredArgs = new() { "publish-extension", indexPath, "--target", $"br:{registryStr}/{repository}:{version}" };
 
@@ -303,7 +303,7 @@ resource fooRes 'fooType@v1' = {
         var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor(registryStr, repository, ["tag"]));
         var fakeBlobClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, registryUri, repository);
 
-        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecClientFactory);
 
         var result = await Bicep(settings, "publish-extension", indexPath, "--target", $"br:{registryStr}/{repository}:{version}");
 

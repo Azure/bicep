@@ -3,8 +3,9 @@
 
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Packages;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.UnitTests.Features;
 using Bicep.IO.Abstraction;
 using Bicep.Testing.Mocks;
@@ -30,12 +31,12 @@ public static class ExtensionTestHelper
     }
 
     public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(BinaryData tgzData, FeatureProviderOverrides features, IFileSystem? fileSystem = null, string? artifactTarget = null)
-        => GetServiceBuilderWithPublishedExtension(new ExtensionPackage(tgzData, false, []), artifactTarget ?? "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
+        => GetServiceBuilderWithPublishedExtension(new ExtensionArtifactPackage(tgzData, false, []), artifactTarget ?? "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
 
-    public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionPackage package, FeatureProviderOverrides features, IFileSystem? fileSystem = null, string? artifactTarget = null)
+    public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionArtifactPackage package, FeatureProviderOverrides features, IFileSystem? fileSystem = null, string? artifactTarget = null)
         => GetServiceBuilderWithPublishedExtension(package, artifactTarget ?? "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
 
-    public static async Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionPackage package, string target, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
+    public static async Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionArtifactPackage package, string target, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
     {
         var reference = OciArtifactReference.TryParse(OciArtifactContext.Create(BicepTestConstants.DummyBicepFile.LoadConfiguration(), BicepTestConstants.DummyBicepFile.LoadFeatures()), ArtifactType.Module, null, target).Unwrap();
 

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.Artifacts;
+using Bicep.Core.RegistryClients.Oci;
 
 
 namespace Bicep.Core.Modules

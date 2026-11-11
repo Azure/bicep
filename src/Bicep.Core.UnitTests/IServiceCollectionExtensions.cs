@@ -6,12 +6,14 @@ using Azure.ResourceManager;
 using Azure.ResourceManager.Resources.Mocking;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Artifacts.Resolution;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Catalog.Implementation;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
+using Bicep.Core.RegistryClients.TemplateSpecs;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
@@ -20,8 +22,6 @@ using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Mock.Registry;
-using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
@@ -52,7 +52,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithContainerRegistryClientFactory(this IServiceCollection services, IContainerRegistryClientFactory containerRegistryClientFactory)
         => Register(services, containerRegistryClientFactory);
 
-    public static IServiceCollection WithTemplateSpecRepositoryFactory(this IServiceCollection services, ITemplateSpecRepositoryFactory factory)
+    public static IServiceCollection WithTemplateSpecClientFactory(this IServiceCollection services, ITemplateSpecClientFactory factory)
         => Register(services, factory);
 
     public static IServiceCollection WithWorkspace(this IServiceCollection services, IActiveSourceFileSet workspace)
@@ -84,7 +84,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithArtifactReferenceResolver(this IServiceCollection services, IArtifactReferenceResolver referenceResolver)
         => Register(services, referenceResolver);
 
-    public static IServiceCollection WithArtifactRestorer(this IServiceCollection services, IArtifactRestorer restorer)
+    public static IServiceCollection WithRemoteArtifactRestorer(this IServiceCollection services, IRemoteArtifactRestorer restorer)
         => Register(services, restorer);
 
     public static IServiceCollection WithCompilationManager(this IServiceCollection services, ICompilationManager compilationManager)

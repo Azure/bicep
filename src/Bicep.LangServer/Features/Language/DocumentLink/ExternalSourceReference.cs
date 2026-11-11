@@ -3,10 +3,12 @@
 
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
@@ -162,8 +164,8 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
         /// Gets the context for the module references stored in external source URIs, which are always OCI references.
         /// External source documents are not files, so they use the built-in configuration.
         /// </summary>
-        public static OciArtifactContext GetOciArtifactContext(IExternalArtifactContextFactory externalArtifactContextFactory) =>
-            externalArtifactContextFactory.GetOciArtifactContext(new IOUri(new IOUriScheme(LangServerConstants.ExternalSourceFileScheme), null, ""));
+        public static OciArtifactContext GetOciArtifactContext(IRemoteArtifactContextFactory remoteArtifactContextFactory) =>
+            remoteArtifactContextFactory.GetOciArtifactContext(new IOUri(new IOUriScheme(LangServerConstants.ExternalSourceFileScheme), null, ""));
 
         private string GetVersion()
         {

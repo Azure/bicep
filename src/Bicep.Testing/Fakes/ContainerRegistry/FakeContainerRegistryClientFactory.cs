@@ -4,7 +4,7 @@
 using System.Collections.Concurrent;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
 
 namespace Bicep.Testing.Fakes.ContainerRegistry
 {

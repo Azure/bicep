@@ -6,13 +6,12 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
 using System.Text;
 using Bicep.Core;
+using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
@@ -22,8 +21,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Mock.Registry;
-using Bicep.Core.UnitTests.Mock.Registry.Catalog;
+using Bicep.Core.UnitTests.Mock.Artifacts.Catalog;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Assertions;
@@ -4742,7 +4740,7 @@ var file = " + functionName + @"(templ|)
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
                 services => services
-                    .AddSingleton<IPublicModuleMetadataProvider>(publicModuleMetadataProvider.Object)
+                    .AddSingleton<IBrmMetadataProvider>(publicModuleMetadataProvider.Object)
                     .AddSingleton(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);

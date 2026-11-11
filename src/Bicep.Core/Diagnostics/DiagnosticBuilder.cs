@@ -3,11 +3,11 @@
 
 using System.Collections.Immutable;
 using System.Text;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -1030,11 +1030,11 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic InvalidOciArtifactReference(string? aliasName, string badRef) => CoreError(
                 "BCP193",
-                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactReferenceSchemes.Oci}:<artifact-uri>:<tag>\", or \"{ArtifactReferenceSchemes.Oci}/<module-alias>:<module-name-or-path>:<tag>\".");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactSchemes.Oci}:<artifact-uri>:<tag>\", or \"{ArtifactSchemes.Oci}/<module-alias>:<module-name-or-path>:<tag>\".");
 
             public Diagnostic InvalidTemplateSpecReference(string? aliasName, string badRef) => CoreError(
                 "BCP194",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactReferenceSchemes.TemplateSpecs}:<subscription-ID>/<resource-group-name>/<template-spec-name>:<version>\", or \"{ArtifactReferenceSchemes.TemplateSpecs}/<module-alias>:<template-spec-name>:<version>\".");
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactSchemes.TemplateSpecs}:<subscription-ID>/<resource-group-name>/<template-spec-name>:<version>\", or \"{ArtifactSchemes.TemplateSpecs}/<module-alias>:<template-spec-name>:<version>\".");
 
             public Diagnostic InvalidOciArtifactReferenceInvalidPathSegment(string? aliasName, string badRef, string badSegment) => CoreError(
                 "BCP195",
@@ -2051,7 +2051,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ModuleReferenceSchemeBrFsNotSupported() => CoreError(
                 "BCP449",
-                $"The '{Registry.Oci.OciArtifactReferenceFacts.MockedScheme}' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'mapToFilePath' alias instead.");
+                $"The '{OciArtifactReferenceFacts.MockedScheme}' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'mapToFilePath' alias instead.");
 
             public Diagnostic ConfigurationFileNotFound(string featureName) => CoreError(
                 "BCP450",

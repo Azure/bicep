@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Text.Json;
+using Bicep.Core.Configuration.LegacyModuleAliasMocks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;

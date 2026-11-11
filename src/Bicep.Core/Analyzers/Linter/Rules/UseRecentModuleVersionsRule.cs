@@ -6,12 +6,13 @@ using System.Data;
 using System.Diagnostics;
 using System.Web.Services.Description;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
+using Bicep.Core.Artifacts.Catalog;
+using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
@@ -67,7 +68,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static IEnumerable<Failure> GetFailures(SemanticModel model, IServiceProvider serviceProvider, DiagnosticLevel diagnosticLevel)
         {
-            var publicModuleMetadataProvider = serviceProvider.GetRequiredService<IPublicModuleMetadataProvider>();
+            var publicModuleMetadataProvider = serviceProvider.GetRequiredService<IBrmMetadataProvider>();
             var hasShownDownloadWarning = false;
 
             foreach (var (syntax, artifactResolutionInfo) in model.SourceFileGrouping.ArtifactLookup
@@ -116,10 +117,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             yield break;
         }
 
-        private static IEnumerable<Failure> AnalyzeBicepModule(IPublicModuleMetadataProvider publicModuleMetadataProvider, ModuleDeclarationSyntax moduleSyntax, TextSpan errorSpan, string tag, string publicModulePath)
+        private static IEnumerable<Failure> AnalyzeBicepModule(IBrmMetadataProvider publicModuleMetadataProvider, ModuleDeclarationSyntax moduleSyntax, TextSpan errorSpan, string tag, string publicModulePath)
         {
             // NOTE: We don't want linter tests to download anything during analysis.  So metadata is loaded
-            //   and cached during module restore.  So don't use the Get*Async methods of IPublicModuleMetadataProvider,
+            //   and cached during module restore.  So don't use the Get*Async methods of IBrmMetadataProvider,
             //   just the GetCached* methods
             var fullModuleName = $"{LanguageConstants.BicepPublicMcrPathPrefix}{publicModulePath}";
             var availableVersions = publicModuleMetadataProvider.GetCachedModules()

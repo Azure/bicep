@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
 using Bicep.LanguageServer.Features.Language.DocumentLink;
@@ -19,7 +19,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
     {
         private static readonly Range DocumentStart = new(new Position(0, 0), new Position(0, 0));
 
-        public static IEnumerable<LspCodeLens> GetCodeLenses(IExternalArtifactContextFactory externalArtifactContextFactory, CodeLensParams request, CancellationToken cancellationToken)
+        public static IEnumerable<LspCodeLens> GetCodeLenses(IRemoteArtifactContextFactory remoteArtifactContextFactory, CodeLensParams request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -47,7 +47,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
                     Debug.Assert(message is null);
 
                     var isDisplayingCompiledJson = externalReference.IsRequestingCompiledJson;
-                    if (externalReference.ToArtifactReference(ExternalSourceReference.GetOciArtifactContext(externalArtifactContextFactory)).IsSuccess(out var artifactReference, out message))
+                    if (externalReference.ToArtifactReference(ExternalSourceReference.GetOciArtifactContext(remoteArtifactContextFactory)).IsSuccess(out var artifactReference, out message))
                     {
                         var sourceArchiveResult = artifactReference.TryLoadSourceArchive();
 

@@ -7,7 +7,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

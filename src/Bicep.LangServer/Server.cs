@@ -4,8 +4,9 @@
 using System.Diagnostics;
 using System.Net;
 using System.ServiceProcess;
+using Bicep.Core.Artifacts.Catalog;
+using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.Features;
-using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
 using Bicep.LanguageServer.Features.Custom.Build;
@@ -138,7 +139,7 @@ namespace Bicep.LanguageServer
 #pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
             }
 
-            var publicModuleMetadataProvider = server.GetRequiredService<IPublicModuleMetadataProvider>();
+            var publicModuleMetadataProvider = server.GetRequiredService<IBrmMetadataProvider>();
             publicModuleMetadataProvider.StartCache();
         }
 

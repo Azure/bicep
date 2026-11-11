@@ -5,7 +5,8 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive.Linq;
 using System.Reflection;
-using Bicep.Core.Registry;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Samples;
 using Bicep.Core.SourceLink;
 using Bicep.Core.UnitTests;
@@ -81,8 +82,8 @@ namespace Bicep.LangServer.IntegrationTests
             var cacheRootDirectoryMock = StrictMock.Of<IDirectoryHandle>();
             cacheRootDirectoryMock.Setup(x => x.GetDirectory(It.IsAny<string>())).Returns(cacheDirectoryMock.Object);
 
-            var restorer = StrictMock.Of<IArtifactRestorer>();
-            restorer.Setup(x => x.RestoreAsync(It.IsAny<ImmutableArray<ExternalArtifactReference>>(), It.IsAny<RestoreMode>())).
+            var restorer = StrictMock.Of<IRemoteArtifactRestorer>();
+            restorer.Setup(x => x.RestoreAsync(It.IsAny<ImmutableArray<RemoteArtifactReference>>(), It.IsAny<RestoreMode>())).
                 ReturnsAsync(true);
 
             var defaultServer = new SharedLanguageHelperManager();
@@ -90,7 +91,7 @@ namespace Bicep.LangServer.IntegrationTests
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     TestContext,
                     services => services
-                        .WithArtifactRestorer(restorer.Object)
+                        .WithRemoteArtifactRestorer(restorer.Object)
                         .WithFeatureOverrides(new(cacheRootDirectoryMock.Object))));
             return defaultServer;
         }

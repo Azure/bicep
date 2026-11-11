@@ -5,14 +5,12 @@ using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Templates.Extensions;
 using Bicep.Core;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.SourceGraph;
@@ -185,7 +183,7 @@ namespace Bicep.LanguageServer.Features.Language.Definition
 
         private DocumentUri GetArtifactSourceLinkUri(ISourceFile sourceFile, ArtifactReference reference)
         {
-            if (!this.CanClientAcceptRegistryContent() || reference is not ExternalArtifactReference)
+            if (!this.CanClientAcceptRegistryContent() || reference is not RemoteArtifactReference)
             {
                 // the client doesn't support the bicep-extsrc scheme or we're dealing with a local module
                 // just use the file URI
@@ -197,9 +195,9 @@ namespace Bicep.LanguageServer.Features.Language.Definition
                 return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(ociArtifactReference, ociArtifactReference.TryLoadSourceArchive().TryUnwrap());
             }
 
-            if (reference is TemplateSpecModuleReference templateSpecModuleReference)
+            if (reference is TemplateSpecArtifactReference templateSpecArtifactReference)
             {
-                return BicepExternalSourceRequestHandler.GetTemplateSpecSourceLinkUri(templateSpecModuleReference);
+                return BicepExternalSourceRequestHandler.GetTemplateSpecSourceLinkUri(templateSpecArtifactReference);
             }
 
             throw new UnreachableException();

@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Artifacts.Codecs;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Registry.Extensions;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
@@ -357,7 +357,7 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
         public async Task ThisNamespace_ExtensibleResource()
         {
             var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
-            var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
+            var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, false, []));
 
             var result = await CreateCompiler(useMockFileSystem: true).Compile(
               ("main.bicep", new("""
@@ -388,7 +388,7 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
         public async Task ThisNamespace_ExtensibleResource_Diagnostics()
         {
             var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
-            var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
+            var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, false, []));
 
             var result = await CreateCompiler(useMockFileSystem: true).Compile(
               ("main.bicep", new("""

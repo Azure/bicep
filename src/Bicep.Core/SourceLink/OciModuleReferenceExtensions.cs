@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.SourceLink

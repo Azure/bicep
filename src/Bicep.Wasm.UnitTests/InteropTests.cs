@@ -5,8 +5,8 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Catalog;
+using Bicep.Core.Artifacts.Registries;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
@@ -23,7 +23,7 @@ public class InteropTests
     public void Wasm_registers_only_the_OCI_registry()
     {
         using var services = new ServiceCollection().AddBicepWasm().BuildServiceProvider();
-        services.GetServices<IArtifactRegistry>().Should().ContainSingle()
+        services.GetServices<IRemoteArtifactRegistry>().Should().ContainSingle()
             .Which.Should().BeSameAs(services.GetRequiredService<OciArtifactRegistry>());
     }
 

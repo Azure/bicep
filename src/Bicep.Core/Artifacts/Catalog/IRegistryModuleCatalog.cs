@@ -1,0 +1,18 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core.Configuration;
+
+namespace Bicep.Core.Artifacts.Catalog;
+
+/// <summary>
+/// Retrieves module metadata from OCI registries (public or private)
+/// </summary>
+public interface IRegistryModuleCatalog
+{
+    // Aways returns a provider instance, either from cache or newly created, from which loading will fail if the registry
+    // is not accessible or doesn't exist
+    IRegistryModuleMetadataProvider GetProviderForRegistry(IBicepCloudConfiguration cloud, string registry, bool useOrasSdk);
+
+    IRegistryModuleMetadataProvider? TryGetCachedRegistry(string registry, bool useOrasSdk);
+}

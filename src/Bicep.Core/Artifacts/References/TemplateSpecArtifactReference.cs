@@ -1,0 +1,138 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System.Text.RegularExpressions;
+using Azure.Deployments.Core.Uri;
+using Bicep.Core.Artifacts.Cache;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.SourceGraph;
+using Bicep.IO.Abstraction;
+
+namespace Bicep.Core.Artifacts.References
+{
+    public class TemplateSpecArtifactReference : RemoteArtifactReference
+    {
+        private readonly Lazy<TemplateSpecArtifactCacheEntry> templateSpecArtifactCacheEntry;
+
+        private const int ResourceNameMaximumLength = 90;
+
+        private static readonly UriTemplate TemplateSpecUriTemplate = new("{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}");
+
+        private static readonly HashSet<char> ResourceGroupNameAllowedCharacterSet = new(new[] { '-', '_', '.', '(', ')' });
+
+        private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+        private TemplateSpecArtifactReference(TemplateSpecArtifactContext context, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
+            : base(context, ArtifactSchemes.TemplateSpecs, ArtifactType.Module)
+        {
+            this.SubscriptionId = subscriptionId;
+            this.ResourceGroupName = resourceGroupName;
+            this.TemplateSpecName = templateSpecName;
+            this.Version = version;
+            this.templateSpecArtifactCacheEntry = new(() => new(subscriptionId, resourceGroupName, templateSpecName, version, context.CacheRootDirectory));
+        }
+
+        public override string UnqualifiedReference => $"{this.SubscriptionId}/{this.ResourceGroupName}/{this.TemplateSpecName}:{this.Version}";
+
+        public string SubscriptionId { get; }
+
+        public string ResourceGroupName { get; }
+
+        public string TemplateSpecName { get; }
+
+        public string Version { get; }
+
+        public string TemplateSpecResourceId => $"/subscriptions/{this.SubscriptionId}/resourceGroups/{this.ResourceGroupName}/providers/Microsoft.Resources/templateSpecs/{this.TemplateSpecName}/versions/{this.Version}";
+
+        /// <summary>
+        /// Gets the cache entry of the Template Spec. Its layout is owned by the entry.
+        /// </summary>
+        public TemplateSpecArtifactCacheEntry CacheEntry => this.templateSpecArtifactCacheEntry.Value;
+
+        public override bool Equals(object? obj) =>
+            obj is TemplateSpecArtifactReference other &&
+            StringComparer.OrdinalIgnoreCase.Equals(this.SubscriptionId, other.SubscriptionId) &&
+            StringComparer.OrdinalIgnoreCase.Equals(this.ResourceGroupName, other.ResourceGroupName) &&
+            StringComparer.OrdinalIgnoreCase.Equals(this.TemplateSpecName, other.TemplateSpecName) &&
+            StringComparer.OrdinalIgnoreCase.Equals(this.Version, other.Version) &&
+            this.Context.Equals(other.Context);
+
+        public override int GetHashCode()
+        {
+            var hash = new HashCode();
+
+            hash.Add(this.SubscriptionId, StringComparer.OrdinalIgnoreCase);
+            hash.Add(this.ResourceGroupName, StringComparer.OrdinalIgnoreCase);
+            hash.Add(this.TemplateSpecName, StringComparer.OrdinalIgnoreCase);
+            hash.Add(this.Version, StringComparer.OrdinalIgnoreCase);
+            hash.Add(this.Context);
+
+            return hash.ToHashCode();
+        }
+
+        /// <summary>
+        /// Parses a fully qualified Template Spec reference body without the scheme, e.g. <c>&lt;subscription&gt;/&lt;resource group&gt;/&lt;name&gt;:&lt;version&gt;</c>.
+        /// </summary>
+        /// <param name="aliasName">The scheme-qualified alias the body was expanded from, if any. Only used in diagnostics.</param>
+        public static ResultWithDiagnosticBuilder<TemplateSpecArtifactReference> TryParse(TemplateSpecArtifactContext context, string? aliasName, string referenceValue)
+        {
+            if (TemplateSpecUriTemplate.GetTemplateMatch(referenceValue) is not { } match)
+            {
+                return new(x => x.InvalidTemplateSpecReference(aliasName, FullyQualify(referenceValue)));
+            }
+
+            string subscriptionId = GetBoundVariable(match, nameof(subscriptionId));
+            string resourceGroupName = GetBoundVariable(match, nameof(resourceGroupName));
+            string templateSpecName = GetBoundVariable(match, nameof(templateSpecName));
+            string version = GetBoundVariable(match, nameof(version));
+
+            // Validate subscription ID.
+            if (!Guid.TryParse(subscriptionId, out _))
+            {
+                return new(x => x.InvalidTemplateSpecReferenceInvalidSubscriptionId(aliasName, subscriptionId, FullyQualify(referenceValue)));
+            }
+
+            // Validate resource group name.
+            if (resourceGroupName.Length > ResourceNameMaximumLength)
+            {
+                return new(x => x.InvalidTemplateSpecReferenceResourceGroupNameTooLong(aliasName, resourceGroupName, FullyQualify(referenceValue), ResourceNameMaximumLength));
+            }
+
+            if (resourceGroupName.Length == 0 ||
+                resourceGroupName[^1] == '.' ||
+                resourceGroupName.Where(c => !char.IsLetterOrDigit(c) && !ResourceGroupNameAllowedCharacterSet.Contains(c)).Any())
+            {
+                return new(x => x.InvalidTemplateSpecReferenceInvalidResourceGroupName(aliasName, resourceGroupName, FullyQualify(referenceValue)));
+            }
+
+            // Validate template spec name.
+            if (templateSpecName.Length > ResourceNameMaximumLength)
+            {
+                return new(x => x.InvalidTemplateSpecReferenceTemplateSpecNameTooLong(aliasName, templateSpecName, FullyQualify(referenceValue), ResourceNameMaximumLength));
+            }
+
+            if (!ResourceNameRegex.IsMatch(templateSpecName))
+            {
+                return new(x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecName(aliasName, templateSpecName, FullyQualify(referenceValue)));
+            }
+
+            // Validate template spec version.
+            if (version.Length > ResourceNameMaximumLength)
+            {
+                return new(x => x.InvalidTemplateSpecReferenceTemplateSpecVersionTooLong(aliasName, version, FullyQualify(referenceValue), ResourceNameMaximumLength));
+            }
+
+            if (!ResourceNameRegex.IsMatch(version))
+            {
+                return new(x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, version, FullyQualify(referenceValue)));
+            }
+
+            return new(new TemplateSpecArtifactReference(context, subscriptionId, resourceGroupName, templateSpecName, version));
+        }
+
+        private static string FullyQualify(string referenceValue) => $"{ArtifactSchemes.TemplateSpecs}:{referenceValue}";
+
+        private static string GetBoundVariable(UriTemplateMatch match, string variableName) =>
+            match.BoundVariables[variableName] ?? throw new InvalidOperationException($"Could not get bound variable \"{variableName}\".");
+    }
+}

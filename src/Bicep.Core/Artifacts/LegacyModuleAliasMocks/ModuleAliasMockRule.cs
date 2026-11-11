@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Artifacts.Redirects;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.LegacyModuleAliasMocks;
@@ -46,7 +45,7 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
     /// </summary>
     public override ResultWithDiagnosticBuilder<ArtifactReference>? TryRedirect(IOUri referencingUri, ArtifactType artifactType, ArtifactAddress address)
     {
-        if (address is not ArtifactAddress.SchemeAndAliasQualified { Scheme: ArtifactReferenceSchemes.Oci, Alias: var aliasName, Body: var unqualifiedReference })
+        if (address is not ArtifactAddress.SchemeAndAliasQualified { Scheme: ArtifactSchemes.Oci, Alias: var aliasName, Body: var unqualifiedReference })
         {
             return null;
         }
