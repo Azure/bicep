@@ -125,8 +125,9 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                         $"metadata {metadata.Name}: {metadata.Type}", TryGetDescription(result, metadata)));
 
                 case ParameterSymbol parameter:
+                    var parameterType = GetTypeAtOrigin(result, parameter.Type);
                     return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
-                        WithTypeModifiers($"param {parameter.Name}: {parameter.Type}", parameter.Type), TryGetDescription(result, parameter)));
+                        WithTypeModifiers($"param {parameter.Name}: {parameterType}", parameterType), TryGetDescription(result, parameter)));
 
                 case TypeAliasSymbol declaredType:
                     return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
@@ -144,7 +145,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                     return AsMarkdown(MarkdownHelper.CodeBlock(WithTypeModifiers($"type {ambientType.Name}: {ambientType.Type}", ambientType.Type)));
 
                 case VariableSymbol variable:
-                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescription(result, variable)));
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"var {variable.Name}: {GetTypeAtOrigin(result, variable.Type)}", TryGetDescription(result, variable)));
 
                 case ResourceSymbol resource:
                     var docsSuffix = TryGetTypeDocumentationLink(resource) is { } typeDocsLink ? MarkdownHelper.GetDocumentationLink(typeDocsLink) : "";
@@ -184,10 +185,11 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                     return AsMarkdown(GetFunctionOverloadMarkdown(importedFunction.Overload));
 
                 case PropertySymbol property:
-                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(WithTypeModifiers($"{property.Name}: {property.Type}", property.Type), property.Description));
+                    var propertyType = GetTypeAtOrigin(result, property.Type);
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(WithTypeModifiers($"{property.Name}: {propertyType}", propertyType), property.Description));
 
                 case LocalVariableSymbol local:
-                    return AsMarkdown(MarkdownHelper.CodeBlock($"{local.Name}: {local.Type}"));
+                    return AsMarkdown(MarkdownHelper.CodeBlock($"{local.Name}: {GetTypeAtOrigin(result, local.Type)}"));
 
                 case ParameterAssignmentSymbol parameterAssignment:
                     if (GetBicepFileSemanticModelOrDefault(parameterAssignment)?.Parameters.TryGetValue(parameterAssignment.Name, out var declaredParamMetadata) is not true)
@@ -309,6 +311,30 @@ namespace Bicep.LanguageServer.Features.Language.Hover
             contentBuilder.Append(coreContent);
 
             return contentBuilder.ToString();
+        }
+
+        private static TypeSymbol GetTypeAtOrigin(SymbolResolutionResult result, TypeSymbol declaredType)
+        {
+            var model = result.Context.Compilation.GetEntrypointSemanticModel();
+            if (result.Origin is VariableAccessSyntax reference &&
+                model.GetTypeInfo(reference) is not ErrorType and var referenceType)
+            {
+                return referenceType;
+            }
+
+            if (result.Origin is AccessExpressionSyntax access &&
+                TypeHelper.TryRemoveNullability(declaredType) is { } nonNullable)
+            {
+                var assignedType = model.GetTypeInfo(access);
+                if (assignedType is not (AnyType or ErrorType) &&
+                    !TypeHelper.IsNullable(assignedType) &&
+                    TypeValidator.AreTypesAssignable(assignedType, nonNullable))
+                {
+                    return nonNullable;
+                }
+            }
+
+            return declaredType;
         }
 
         private static TypeSymbol UnwrapType(TypeSymbol type) => type switch

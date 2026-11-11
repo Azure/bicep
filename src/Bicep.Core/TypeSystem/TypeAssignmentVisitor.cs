@@ -25,6 +25,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IFeatureProvider features;
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
+        private readonly FlowAnalyzer flowAnalyzer;
         private readonly SemanticModel model;
         private readonly IDiagnosticLookup parsingErrorLookup;
         private readonly ResourceDerivedTypeResolver resourceDerivedTypeResolver;
@@ -39,6 +40,7 @@ namespace Bicep.Core.TypeSystem
             this.model = model;
             this.features = model.Features;
             this.binder = model.Binder;
+            this.flowAnalyzer = new(binder, typeManager);
             this.parsingErrorLookup = model.ParsingErrorLookup;
             resourceDerivedTypeResolver = new(binder);
             resourceDerivedTypeDiagnosticReporter = new(features, binder);
@@ -222,36 +224,11 @@ namespace Bicep.Core.TypeSystem
             var parent => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}"),
         };
 
-        // Walks the ancestor chain looking for a ternary operator that reaches the starting node through one of its
-        // branches (as opposed to its condition). This is used as a heuristic proxy for "the operator is arguably
-        // null-guarded"; note it does NOT verify that the ternary's condition actually null-checks the operand, so
-        // e.g. `unrelatedFlag ? input + 1 : 0` also returns true. A precise check requires flow-sensitive typing
-        // (tracked by https://github.com/Azure/bicep/issues/12121).
-        private bool IsInsideTernaryBranch(SyntaxBase syntax)
-            => GetEnclosingTernaryBranches(syntax).Any();
-
-        private bool IsInDeadTernaryBranch(SyntaxBase syntax)
-            => GetEnclosingTernaryBranches(syntax).Any(pair =>
-                typeManager.GetTypeInfo(pair.ternary.ConditionExpression) is BooleanLiteralType condition &&
-                ReferenceEquals(pair.branch, condition.Value ? pair.ternary.FalseExpression : pair.ternary.TrueExpression));
-
-        private IEnumerable<(TernaryOperationSyntax ternary, SyntaxBase branch)> GetEnclosingTernaryBranches(SyntaxBase syntax)
-        {
-            var current = syntax;
-            while (binder.GetParent(current) is { } parent)
-            {
-                if (parent is TernaryOperationSyntax ternary &&
-                    (ReferenceEquals(current, ternary.TrueExpression) || ReferenceEquals(current, ternary.FalseExpression)))
-                {
-                    yield return (ternary, current);
-                }
-                current = parent;
-            }
-        }
-
         private bool ShouldWarnForDeadBranchPropertyAccess(SyntaxBase syntax, TypeSymbol baseType)
             => baseType is not ResourceType and not ModuleType and not NamespaceType &&
-                IsInDeadTernaryBranch(syntax);
+                flowAnalyzer.GetEnclosingTernaryBranches(syntax).Any(pair =>
+                    typeManager.GetTypeInfo(pair.ternary.ConditionExpression) is BooleanLiteralType condition &&
+                    ReferenceEquals(pair.branch, condition.Value ? pair.ternary.FalseExpression : pair.ternary.TrueExpression));
 
         public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
@@ -1708,7 +1685,7 @@ namespace Bicep.Core.TypeSystem
                 var nonNullableOperand1 = TypeHelper.TryRemoveNullability(operandType1);
                 var nonNullableOperand2 = TypeHelper.TryRemoveNullability(operandType2);
                 if ((nonNullableOperand1 is not null || nonNullableOperand2 is not null) &&
-                    IsInsideTernaryBranch(syntax) &&
+                    flowAnalyzer.IsWithinTernaryBranch(syntax) &&
                     OperationReturnTypeEvaluator.TryFoldBinaryExpression(syntax, nonNullableOperand1 ?? operandType1, nonNullableOperand2 ?? operandType2, diagnostics) is { } nullableResult)
                 {
                     if (nonNullableOperand1 is not null)
@@ -1765,7 +1742,7 @@ namespace Bicep.Core.TypeSystem
                 // ternary branch (a rough proxy for "the user has some form of null-guard"); outside a ternary we still
                 // hard-fail with BCP044 rather than silently succeed against a possibly-null runtime value.
                 if (TypeHelper.TryRemoveNullability(operandType) is { } nonNullableOperand &&
-                    IsInsideTernaryBranch(syntax) &&
+                    flowAnalyzer.IsWithinTernaryBranch(syntax) &&
                     OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax.Operator, nonNullableOperand, diagnostics) is { } nullableResult)
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax)
@@ -1845,7 +1822,7 @@ namespace Bicep.Core.TypeSystem
 
                     return GetArrayItemType(syntax, diagnostics, nonNullableBaseType, baseSymbol, indexType);
 
-                case TypeSymbol when IsPotentiallyDisabledResourceOrModule(baseSymbol):
+                case TypeSymbol when IsPotentiallyDisabledResourceOrModule(baseSymbol, syntax):
                     diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare))
                         .DereferenceOfPossiblyNullReference(TypeHelper.CreateTypeUnion(baseType, LanguageConstants.Null).Name, syntax));
 
@@ -2020,6 +1997,7 @@ namespace Bicep.Core.TypeSystem
             Symbol? prevBaseSymbol = null;
             while (chainedAccesses.TryPop(out var nextAccess))
             {
+                baseType = NarrowTypeByFlow(nextAccess.BaseExpression, baseType);
                 var (unwrappedBase, nonNullAsserted) = UnwrapParenthesesAndAssertions(nextAccess.BaseExpression);
                 var baseSymbol = nonNullAsserted ? null : binder.GetSymbolInfo(unwrappedBase);
 
@@ -2039,9 +2017,9 @@ namespace Bicep.Core.TypeSystem
                     }
                     else if (nextAccess.IsSafeAccess && (
                         // this access expression is a safe dereference of a resource or module property (`res.?properties` or `mod.?outputs`)
-                        IsPotentiallyDisabledResourceOrModule(baseSymbol) ||
+                        IsPotentiallyDisabledResourceOrModule(baseSymbol, syntax) ||
                         // this access expression is a safe dereference of a property of an element of a resource or module collection (`res[0].?properties` or `mod[0].?outputs`)
-                        (IsPotentiallyDisabledResourceOrModule(prevBaseSymbol) && prevAccess is ArrayAccessSyntax)))
+                        (IsPotentiallyDisabledResourceOrModule(prevBaseSymbol, syntax) && prevAccess is ArrayAccessSyntax)))
                     {
                         nullVariantRemoved = true;
                         baseSymbol = null;
@@ -2077,10 +2055,16 @@ namespace Bicep.Core.TypeSystem
                 prevBaseSymbol = baseSymbol;
             }
 
-            return nullVariantRemoved
+            var result = nullVariantRemoved
                 ? TypeHelper.CreateTypeUnion(baseType, LanguageConstants.Null)
                 : baseType;
+            return NarrowTypeByFlow(syntax, result);
         }
+
+        private TypeSymbol NarrowTypeByFlow(SyntaxBase syntax, TypeSymbol type)
+            => flowAnalyzer.IsKnownNonNull(syntax)
+                ? TypeHelper.TryRemoveNullability(type) ?? type
+                : type;
 
         private TypeSymbol GetNamedPropertyType(PropertyAccessSyntax syntax, TypeSymbol baseType, Symbol? baseSymbol, IDiagnosticWriter diagnostics)
             => UnwrapType(baseType) switch
@@ -2092,7 +2076,7 @@ namespace Bicep.Core.TypeSystem
                 TypeSymbol original when TypeHelper.TryRemoveNullability(original) is TypeSymbol nonNullable
                     => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, original, nonNullable, diagnostics),
 
-                TypeSymbol original when IsPotentiallyDisabledResourceOrModule(baseSymbol) && !IsResourceInfoProperty(baseSymbol, syntax.PropertyName.IdentifierName)
+                TypeSymbol original when IsPotentiallyDisabledResourceOrModule(baseSymbol, syntax) && !IsResourceInfoProperty(baseSymbol, syntax.PropertyName.IdentifierName)
                     => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, TypeHelper.CreateTypeUnion(original, LanguageConstants.Null), baseType, diagnostics),
 
                 // the property is not valid
@@ -2137,15 +2121,23 @@ namespace Bicep.Core.TypeSystem
             return GetNamedPropertyType(syntax, nonNullableBaseType, baseSymbol: null, diagnostics);
         }
 
-        private bool IsPotentiallyDisabledResourceOrModule(Symbol? symbol) => symbol switch
+        private bool IsPotentiallyDisabledResourceOrModule(Symbol? symbol, SyntaxBase context) => symbol switch
         {
-            ResourceSymbol resourceSymbol => IsResourceEnabled(resourceSymbol) is not true,
+            ResourceSymbol resourceSymbol => IsResourceEnabled(resourceSymbol, context) is not true,
             ModuleSymbol moduleSymbol => moduleSymbol.DeclaringModule.TryGetCondition() is { } condition &&
-                GetTypeInfo(condition) is not BooleanLiteralType { Value: true },
+                IsConditionPotentiallyFalse(condition, moduleSymbol.IsCollection, context),
             _ => false,
         };
 
-        private bool? IsResourceEnabled(ResourceSymbol resource)
+        private bool IsConditionPotentiallyFalse(SyntaxBase condition, bool isCollection, SyntaxBase context)
+            => GetTypeInfo(condition) switch
+            {
+                BooleanLiteralType { Value: true } => false,
+                BooleanLiteralType { Value: false } => true,
+                _ => isCollection || flowAnalyzer.TryGetKnownValue(condition, context) is not true,
+            };
+
+        private bool? IsResourceEnabled(ResourceSymbol resource, SyntaxBase context)
         {
             // Resources with @nullIfNotFound() decorator may not exist at deployment time
             if (resource.DeclaringResource.IsExistingResource() &&
@@ -2154,7 +2146,8 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            if (resource.DeclaringResource.TryGetCondition() is { } condition)
+            if (resource.DeclaringResource.TryGetCondition() is { } condition &&
+                IsConditionPotentiallyFalse(condition, resource.IsCollection, context))
             {
                 switch (GetTypeInfo(condition))
                 {
@@ -2171,7 +2164,7 @@ namespace Bicep.Core.TypeSystem
             {
                 // nested resource conditions stack. This resource either doesn't have a condition or has a condition
                 // that is definitely `true`, so check its parent
-                return IsResourceEnabled(syntacticAncestor);
+                return IsResourceEnabled(syntacticAncestor, context);
             }
 
             return true;
@@ -2368,7 +2361,7 @@ namespace Bicep.Core.TypeSystem
                 var (unwrapped, nonNullAsserted) = UnwrapParenthesesAndAssertions(syntax.BaseExpression);
 
                 if (!nonNullAsserted &&
-                    IsPotentiallyDisabledResourceOrModule(binder.GetSymbolInfo(unwrapped)))
+                    IsPotentiallyDisabledResourceOrModule(binder.GetSymbolInfo(unwrapped), syntax))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Name)
                         .InstanceFunctionCallOnPossiblyNullBase(TypeHelper.CreateTypeUnion(baseType, LanguageConstants.Null), syntax.Name));
@@ -2499,7 +2492,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ReferencedSymbolHasErrors(syntax.Name.IdentifierName));
             }
 
-            return declaringType;
+            return NarrowTypeByFlow(syntax, declaringType);
         }
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
