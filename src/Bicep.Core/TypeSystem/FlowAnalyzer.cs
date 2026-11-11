@@ -21,8 +21,8 @@ public class FlowAnalyzer(IBinder binder, ITypeManager typeManager)
 
     private readonly ConcurrentDictionary<SyntaxBase, FlowState> states = new();
 
-    public bool IsConditionKnownTrue(SyntaxBase condition, SyntaxBase context)
-        => TryGetKnownValue(condition, GetFlowState(context)) is true;
+    public bool? TryGetKnownValue(SyntaxBase condition, SyntaxBase context)
+        => TryGetKnownValue(condition, GetFlowState(context));
 
     public bool IsKnownNonNull(SyntaxBase syntax)
         => TryGetReference(syntax) is { } reference && GetFlowState(syntax).NonNullReferences.Contains(reference);
@@ -32,12 +32,7 @@ public class FlowAnalyzer(IBinder binder, ITypeManager typeManager)
     public bool IsWithinTernaryBranch(SyntaxBase syntax)
         => GetEnclosingTernaryBranches(syntax).Any();
 
-    public bool IsInDeadTernaryBranch(SyntaxBase syntax)
-        => GetEnclosingTernaryBranches(syntax).Any(pair =>
-            typeManager.GetTypeInfo(pair.ternary.ConditionExpression) is BooleanLiteralType condition &&
-            ReferenceEquals(pair.branch, condition.Value ? pair.ternary.FalseExpression : pair.ternary.TrueExpression));
-
-    private IEnumerable<(TernaryOperationSyntax ternary, SyntaxBase branch)> GetEnclosingTernaryBranches(SyntaxBase syntax)
+    public IEnumerable<(TernaryOperationSyntax ternary, SyntaxBase branch)> GetEnclosingTernaryBranches(SyntaxBase syntax)
     {
         var current = syntax;
         while (binder.GetParent(current) is { } parent)
@@ -172,16 +167,40 @@ public class FlowAnalyzer(IBinder binder, ITypeManager typeManager)
                 return left is not null && right is not null
                     ? new LogicalPredicate(logical.Operator, left, right)
                     : null;
-            case BinaryOperationSyntax when TryGetComparison(syntax) is { Reference: SymbolFlowReference { Symbol: var symbol } } comparison:
-                // `x == true` and `x == false` are canonicalized to `x` and `!x` so that all spellings share one fact.
-                var (predicate, negated) = comparison.Literal is BooleanFlowLiteral { Value: var literalValue }
-                    ? ((FlowPredicate)new BooleanSymbolPredicate(symbol), comparison.Negated == literalValue)
-                    : (new LiteralComparisonPredicate(symbol, comparison.Operator, comparison.Literal), comparison.Negated);
-                return negated ? new NegatedPredicate(predicate) : predicate;
+            case BinaryOperationSyntax comparison:
+                return TryGetComparisonPredicate(comparison);
             default:
                 return null;
         }
     }
+
+    private FlowPredicate? TryGetComparisonPredicate(BinaryOperationSyntax syntax)
+    {
+        if (TryGetComparison(syntax) is not { Reference: SymbolFlowReference { Symbol: var symbol } } comparison)
+        {
+            return null;
+        }
+
+        FlowPredicate predicate = new LiteralComparisonPredicate(
+            symbol, comparison.Operator, comparison.Literal);
+        var negated = comparison.Negated;
+
+        if (comparison.Operator == BinaryOperator.Equals &&
+            comparison.Literal is BooleanFlowLiteral { Value: var value } &&
+            IsNonNullableBoolean(comparison.Operand))
+        {
+            predicate = new BooleanSymbolPredicate(symbol);
+            negated = value ? negated : !negated;
+        }
+
+        return negated ? new NegatedPredicate(predicate) : predicate;
+    }
+
+    private bool IsNonNullableBoolean(SyntaxBase syntax)
+        // Use the declared type to avoid narrowing the operand or making predicate identity location-dependent.
+        => typeManager.GetDeclaredType(syntax) is { } type &&
+            type is not AnyType &&
+            TypeValidator.AreTypesAssignable(type, LanguageConstants.Bool);
 
     private static (FlowPredicate Operand, bool Negated) UnwrapPredicate(FlowPredicate predicate)
     {

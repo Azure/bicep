@@ -226,7 +226,9 @@ namespace Bicep.Core.TypeSystem
 
         private bool ShouldWarnForDeadBranchPropertyAccess(SyntaxBase syntax, TypeSymbol baseType)
             => baseType is not ResourceType and not ModuleType and not NamespaceType &&
-                flowAnalyzer.IsInDeadTernaryBranch(syntax);
+                flowAnalyzer.GetEnclosingTernaryBranches(syntax).Any(pair =>
+                    typeManager.GetTypeInfo(pair.ternary.ConditionExpression) is BooleanLiteralType condition &&
+                    ReferenceEquals(pair.branch, condition.Value ? pair.ternary.FalseExpression : pair.ternary.TrueExpression));
 
         public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
@@ -2132,7 +2134,7 @@ namespace Bicep.Core.TypeSystem
             {
                 BooleanLiteralType { Value: true } => false,
                 BooleanLiteralType { Value: false } => true,
-                _ => isCollection || !flowAnalyzer.IsConditionKnownTrue(condition, context),
+                _ => isCollection || flowAnalyzer.TryGetKnownValue(condition, context) is not true,
             };
 
         private bool? IsResourceEnabled(ResourceSymbol resource, SyntaxBase context)

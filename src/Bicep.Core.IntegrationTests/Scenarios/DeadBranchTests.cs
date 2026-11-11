@@ -158,13 +158,18 @@ public class DeadBranchTests
     }
 
     [TestMethod]
-    [DataRow(true)]
-    [DataRow(false)]
-    public void Hover_order_does_not_change_dead_branch_warnings(bool hoverFirst)
+    [DataRow(true, "false")]
+    [DataRow(false, "false")]
+    [DataRow(true, "flag")]
+    [DataRow(false, "flag")]
+    [DataRow(true, "1 != 1")]
+    [DataRow(false, "1 != 1")]
+    public void Hover_order_does_not_change_dead_branch_warnings(bool hoverFirst, string condition)
     {
-        var compilation = new ServiceBuilder().BuildCompilation("""
+        var compilation = new ServiceBuilder().BuildCompilation($$"""
+            var flag = false
             var cfg = {}
-            output value string = false ? cfg.a : 'default'
+            output value string = {{condition}} ? cfg.a : 'default'
             """);
         var model = compilation.GetEntrypointSemanticModel();
         var output = model.SourceFile.ProgramSyntax.Children.OfType<OutputDeclarationSyntax>().Single();
