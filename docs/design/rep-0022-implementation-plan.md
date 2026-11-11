@@ -22,7 +22,7 @@ The work has two parts:
 | 0.7 | External artifact context on remote references | #20523 | Merged |
 | 0.8a | Registry, publish and cache cuts (includes the former 0.8c) | #20528 | Merged |
 | 0.8b | Vocabulary and folders: renames and moves only | #20530 | Merged |
-| 0.9a | OCI payload and codecs | – | In progress |
+| 0.9a | OCI payload and codecs | #20554 | In review |
 | 0.9b | Cache entries store packages | – | Next |
 | 0.9c | The compiler gets artifacts, not files | – | Planned |
 | 1–10 | REP 0022 features (section 5) | – | Planned |
