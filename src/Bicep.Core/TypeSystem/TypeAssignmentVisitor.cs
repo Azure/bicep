@@ -40,7 +40,7 @@ namespace Bicep.Core.TypeSystem
             this.model = model;
             this.features = model.Features;
             this.binder = model.Binder;
-            this.flowAnalyzer = new(binder);
+            this.flowAnalyzer = new(binder, typeManager);
             this.parsingErrorLookup = model.ParsingErrorLookup;
             resourceDerivedTypeResolver = new(binder);
             resourceDerivedTypeDiagnosticReporter = new(features, binder);
@@ -224,35 +224,9 @@ namespace Bicep.Core.TypeSystem
             var parent => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}"),
         };
 
-        // Walks the ancestor chain looking for a ternary operator that reaches the starting node through one of its
-        // branches (as opposed to its condition). Supported null guards are handled by FlowAnalyzer.
-        // This heuristic preserves the existing warning policy for unproven guards such as
-        // `unrelatedFlag ? input + 1 : 0`.
-        private bool IsInsideTernaryBranch(SyntaxBase syntax)
-            => GetEnclosingTernaryBranches(syntax).Any();
-
-        private bool IsInDeadTernaryBranch(SyntaxBase syntax)
-            => GetEnclosingTernaryBranches(syntax).Any(pair =>
-                typeManager.GetTypeInfo(pair.ternary.ConditionExpression) is BooleanLiteralType condition &&
-                ReferenceEquals(pair.branch, condition.Value ? pair.ternary.FalseExpression : pair.ternary.TrueExpression));
-
-        private IEnumerable<(TernaryOperationSyntax ternary, SyntaxBase branch)> GetEnclosingTernaryBranches(SyntaxBase syntax)
-        {
-            var current = syntax;
-            while (binder.GetParent(current) is { } parent)
-            {
-                if (parent is TernaryOperationSyntax ternary &&
-                    (ReferenceEquals(current, ternary.TrueExpression) || ReferenceEquals(current, ternary.FalseExpression)))
-                {
-                    yield return (ternary, current);
-                }
-                current = parent;
-            }
-        }
-
         private bool ShouldWarnForDeadBranchPropertyAccess(SyntaxBase syntax, TypeSymbol baseType)
             => baseType is not ResourceType and not ModuleType and not NamespaceType &&
-                IsInDeadTernaryBranch(syntax);
+                flowAnalyzer.IsInDeadTernaryBranch(syntax);
 
         public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
@@ -1709,7 +1683,7 @@ namespace Bicep.Core.TypeSystem
                 var nonNullableOperand1 = TypeHelper.TryRemoveNullability(operandType1);
                 var nonNullableOperand2 = TypeHelper.TryRemoveNullability(operandType2);
                 if ((nonNullableOperand1 is not null || nonNullableOperand2 is not null) &&
-                    IsInsideTernaryBranch(syntax) &&
+                    flowAnalyzer.IsWithinTernaryBranch(syntax) &&
                     OperationReturnTypeEvaluator.TryFoldBinaryExpression(syntax, nonNullableOperand1 ?? operandType1, nonNullableOperand2 ?? operandType2, diagnostics) is { } nullableResult)
                 {
                     if (nonNullableOperand1 is not null)
@@ -1766,7 +1740,7 @@ namespace Bicep.Core.TypeSystem
                 // ternary branch (a rough proxy for "the user has some form of null-guard"); outside a ternary we still
                 // hard-fail with BCP044 rather than silently succeed against a possibly-null runtime value.
                 if (TypeHelper.TryRemoveNullability(operandType) is { } nonNullableOperand &&
-                    IsInsideTernaryBranch(syntax) &&
+                    flowAnalyzer.IsWithinTernaryBranch(syntax) &&
                     OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax.Operator, nonNullableOperand, diagnostics) is { } nullableResult)
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax)

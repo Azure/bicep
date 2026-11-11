@@ -28,7 +28,7 @@ public class FlowAnalyzerTests
                 """,
         }, uri);
         var model = compilation.GetEntrypointSemanticModel();
-        var analyzer = new FlowAnalyzer(model.Binder);
+        var analyzer = new FlowAnalyzer(model.Binder, model.TypeManager);
         var root = compilation.SourceFileGrouping.EntryPoint.ProgramSyntax;
         var references = SyntaxAggregator.AggregateByType<VariableAccessSyntax>(root)
             .Where(x => x.Name.IdentifierName == "input").ToArray();
@@ -61,7 +61,7 @@ public class FlowAnalyzerTests
                 """,
         }, uri);
         var model = compilation.GetEntrypointSemanticModel();
-        var analyzer = new FlowAnalyzer(model.Binder);
+        var analyzer = new FlowAnalyzer(model.Binder, model.TypeManager);
         var properties = SyntaxAggregator.AggregateByType<ObjectPropertySyntax>(
             compilation.SourceFileGrouping.EntryPoint.ProgramSyntax).ToArray();
 
@@ -94,7 +94,8 @@ public class FlowAnalyzerTests
                 } : { otherBranch: config.value }
                 """,
         }, uri);
-        var analyzer = new FlowAnalyzer(compilation.GetEntrypointSemanticModel().Binder);
+        var model = compilation.GetEntrypointSemanticModel();
+        var analyzer = new FlowAnalyzer(model.Binder, model.TypeManager);
         var properties = SyntaxAggregator.AggregateByType<ObjectPropertySyntax>(
             compilation.SourceFileGrouping.EntryPoint.ProgramSyntax).ToArray();
 
@@ -116,5 +117,25 @@ public class FlowAnalyzerTests
         var dottedKey = (TernaryOperationSyntax)properties[7].Value;
         analyzer.IsKnownNonNull(dottedKey.TrueExpression).Should().BeFalse();
         analyzer.IsKnownNonNull(properties[8].Value).Should().BeFalse();
+    }
+
+    [TestMethod]
+    public void Ternary_branch_queries_distinguish_dead_branches_from_conditions()
+    {
+        var compilation = new ServiceBuilder().BuildCompilation("""
+            var flag = false
+            var first = flag ? 'dead' : 'live'
+            var second = 1 == 1 ? 'live' : 'dead'
+            """);
+        var model = compilation.GetEntrypointSemanticModel();
+        var analyzer = new FlowAnalyzer(model.Binder, model.TypeManager);
+        var ternaries = SyntaxAggregator.AggregateByType<TernaryOperationSyntax>(
+            compilation.SourceFileGrouping.EntryPoint.ProgramSyntax).ToArray();
+
+        analyzer.IsWithinTernaryBranch(ternaries[0].ConditionExpression).Should().BeFalse();
+        analyzer.IsWithinTernaryBranch(ternaries[0].TrueExpression).Should().BeTrue();
+        analyzer.IsInDeadTernaryBranch(ternaries[0].TrueExpression).Should().BeTrue();
+        analyzer.IsInDeadTernaryBranch(ternaries[0].FalseExpression).Should().BeFalse();
+        analyzer.IsInDeadTernaryBranch(ternaries[1].FalseExpression).Should().BeTrue();
     }
 }

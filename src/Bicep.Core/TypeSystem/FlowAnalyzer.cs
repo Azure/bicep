@@ -6,10 +6,11 @@ using System.Collections.Immutable;
 using System.Numerics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem;
 
-public class FlowAnalyzer(IBinder binder)
+public class FlowAnalyzer(IBinder binder, ITypeManager typeManager)
 {
     private readonly record struct FlowComparison(
         SyntaxBase Operand,
@@ -27,6 +28,28 @@ public class FlowAnalyzer(IBinder binder)
         => TryGetReference(syntax) is { } reference && GetFlowState(syntax).NonNullReferences.Contains(reference);
 
     public FlowState GetFlowState(SyntaxBase syntax) => states.GetOrAdd(syntax, ComputeFlowState);
+
+    public bool IsWithinTernaryBranch(SyntaxBase syntax)
+        => GetEnclosingTernaryBranches(syntax).Any();
+
+    public bool IsInDeadTernaryBranch(SyntaxBase syntax)
+        => GetEnclosingTernaryBranches(syntax).Any(pair =>
+            typeManager.GetTypeInfo(pair.ternary.ConditionExpression) is BooleanLiteralType condition &&
+            ReferenceEquals(pair.branch, condition.Value ? pair.ternary.FalseExpression : pair.ternary.TrueExpression));
+
+    private IEnumerable<(TernaryOperationSyntax ternary, SyntaxBase branch)> GetEnclosingTernaryBranches(SyntaxBase syntax)
+    {
+        var current = syntax;
+        while (binder.GetParent(current) is { } parent)
+        {
+            if (parent is TernaryOperationSyntax ternary &&
+                (ReferenceEquals(current, ternary.TrueExpression) || ReferenceEquals(current, ternary.FalseExpression)))
+            {
+                yield return (ternary, current);
+            }
+            current = parent;
+        }
+    }
 
     private FlowState ComputeFlowState(SyntaxBase syntax)
     {
