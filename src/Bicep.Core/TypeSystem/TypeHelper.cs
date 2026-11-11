@@ -84,17 +84,15 @@ namespace Bicep.Core.TypeSystem
 
         /// <summary>
         /// Merges object types while tracking visited pairs to avoid recursion cycles.
-        /// Falls back to 'object' for unknown property sets or recursive pairs, or 'secureObject' if any input
-        /// contains a secure type.
+        /// Falls back to 'object' for unknown property sets or recursive pairs, retaining whole-object security.
         /// </summary>
         private static TypeSymbol MergeObjectTypes(IEnumerable<TypeSymbol> types, HashSet<(TypeSymbol, TypeSymbol)> visiting)
         {
             var inputs = types.ToArray();
-            TypeSymbol Fallback() => inputs.Any(IsOrContainsSecureType) ? LanguageConstants.SecureObject : LanguageConstants.Object;
-
             // The result holds every input's members, so it's secure if any input, or any alternative of one, is
             // secure as a whole. Secure properties stay secure on their own, so they don't make the whole result secure.
             var isSecure = inputs.Any(input => FindPathsToSecureTypeComponents(input, hasTrailingAccessExpressions: true).Any());
+            TypeSymbol Fallback() => isSecure ? LanguageConstants.SecureObject : LanguageConstants.Object;
 
             Dictionary<string, NamedTypeProperty> properties = new(LanguageConstants.IdentifierComparer);
             TypeProperty? additionalProperties = null;

@@ -3,6 +3,9 @@
 
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
@@ -450,6 +453,138 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
         }
+
+        [TestMethod]
+        [DataRow("{ name: 'public', password: secret, ...extra }", 0)]
+        [DataRow("{ name: secret, ...extra }", 1)]
+        [DataRow("{ name: 'public', '${key}': secret }", 1)]
+        [DataRow("{ name: 'public', ...json(secret) }", 1)]
+        [DataRow("{ name: 'public', ...{ password: secret, ...extra } }", 0)]
+        [DataRow("{ name: 'public', ...extra, ...{ name: 'replaced' } }", 0)]
+        [DataRow("{ ...{ name: secret }, ...extra, name: 'replaced' }", 0)]
+        [DataRow("{ ...{ name: secret }, ...container.settings }", 0)]
+        [DataRow("union({ name: 'public', password: secret }, extra)", 0)]
+        [DataRow("sys.union({ name: 'public', password: secret }, extra)", 0)]
+        [DataRow("union({ name: secret }, extra)", 1)]
+        [DataRow("union({ name: 'public' }, json(secret))", 1)]
+        [DataRow("union({ name: secret }, extra, { name: 'replaced' })", 0)]
+        [DataRow("union({ name: 'public' }, { '${key}': secret })", 1)]
+        public void Uncertain_property_reads_only_follow_values_that_can_supply_the_property(string initializer, int warnings)
+        {
+            var result = CompilationHelper.Compile($$"""
+                @secure()
+                param secret string
+                param extra object
+                param key string
+                var container = { settings: { name: 'replaced' } }
+                var original = {{initializer}}
+                var alias = original
+                output result string = alias.name
+                """);
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Diagnostics.Count(diagnostic => diagnostic.Code == OutputsShouldNotContainSecretsRule.Code).Should().Be(warnings);
+        }
+
+        [TestMethod]
+        [DataRow("{ password: secret, sku: 'S' }", "sku", 0)]
+        [DataRow("{ password: secret, sku: 'S' }", "password", 1)]
+        [DataRow("union({ password: secret, sku: 'S' }, overrides)", "sku", 0)]
+        [DataRow("union({ password: secret, sku: 'S' }, overrides)", "password", 1)]
+        public void Inline_and_aliased_property_reads_report_each_secret_once(string initializer, string property, int warnings)
+        {
+            var result = CompilationHelper.Compile($$"""
+                @secure()
+                param secret string
+                param overrides { name: string }
+                var cfg = {{initializer}}
+                output inline string = ({{initializer}}).{{property}}
+                output aliased string = cfg.{{property}}
+                """);
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Diagnostics.Count(diagnostic => diagnostic.Code == OutputsShouldNotContainSecretsRule.Code).Should().Be(2 * warnings);
+        }
+
+        [TestMethod]
+        [DataRow("union(cfg, extra)", "password", 1)]
+        [DataRow("union(extra, cfg)", "password", 1)]
+        [DataRow("union(cfg, extra)", "name", 0)]
+        [DataRow("union(extra, cfg)", "name", 0)]
+        [DataRow("union(cfg, extra, { password: 'public' })", "password", 0)]
+        [DataRow("union({ password: secret }, extra, cfg)", "name", 0)]
+        [DataRow("union(cfg, extra)", "nested.password", 1)]
+        [DataRow("union(cfg, extra)", "nested.name", 0)]
+        [DataRow("union(cfg, extra, { nested: { name: 'public' } })", "nested.password", 1)]
+        [DataRow("union(cfg, extra, { nested: { password: 'public' } })", "nested.password", 0)]
+        [DataRow("union(cfg, extra, { nested: 'public' })", "nested", 0)]
+        [DataRow("union(cfg, { nested: 'public' }, { nested: { name: 'public' } }, extra)", "nested.?password", 0)]
+        [DataRow("union(cfg, extra)", "optional.?password", 1)]
+        [DataRow("union(cfg, extra)", "optional.?name", 0)]
+        [DataRow("union(cfg, extra, { optional: { password: 'public' } })", "optional.?password", 0)]
+        [DataRow("union(cfg, extra)", "names[0]", 0)]
+        [DataRow("union(cfg, extra)", "items[0].name", 0)]
+        [DataRow("union(cfg, extra)", "items[0].password", 1)]
+        public void Union_preserves_selected_secure_parameter_members_without_tainting_siblings(string initializer, string property, int warnings)
+        {
+            var result = CompilationHelper.Compile($$"""
+                @secure()
+                param secret string
+                param cfg {
+                  name: string
+                  @secure()
+                  password: string
+                  nested: {
+                    name: string
+                    @secure()
+                    password: string
+                  }
+                  optional: {
+                    name: string
+                    @secure()
+                    password: string
+                  }?
+                  names: string[]
+                  items: {
+                    name: string
+                    @secure()
+                    password: string
+                  }[]
+                }
+                param extra object
+                var merged = {{initializer}}
+                var alias = merged
+                output inline string? = ({{initializer}}).{{property}}
+                output aliased string? = alias.{{property}}
+                """);
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Diagnostics.Count(diagnostic => diagnostic.Code == OutputsShouldNotContainSecretsRule.Code).Should().Be(2 * warnings);
+        }
+
+        [TestMethod]
+        [DataRow("union({ nested: { value: secret } }, extra, { nested: { name: 'public' } })", "secret")]
+        [DataRow("union({ nested: { value: secret } }, { nested: { name: 'public' }, ...json('{}') })", "cfg.nested.value")]
+        public void Uncertain_union_properties_preserve_recursively_merged_secrets(string initializer, string secretName)
+            => CompileAndTest($$"""
+                @secure()
+                param secret string
+                param extra object
+                var cfg = {{initializer}}
+                output result string = cfg.nested.value
+                """, OnCompileErrors.IncludeErrors, [$"{description} Found possible secret: secure value '{secretName}'"]);
+
+        [TestMethod]
+        public void Union_with_a_discriminated_object_preserves_recursively_merged_secrets()
+            => CompileAndTest("""
+                @secure()
+                param secret string
+                @discriminator('kind')
+                type Settings = { kind: 'a', x: string } | { kind: 'b', y: string }
+                param settings Settings
+                var cfg = union({ nested: { value: secret } }, { nested: settings })
+                output result string = cfg.nested.value
+                """, OnCompileErrors.IncludeErrors, [$"{description} Found possible secret: secure value 'secret'"]);
 
         [TestMethod]
         [DataRow("union(secureObj, { extra: 1 })")]

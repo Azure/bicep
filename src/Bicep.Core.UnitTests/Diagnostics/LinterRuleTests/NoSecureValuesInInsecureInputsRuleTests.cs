@@ -141,8 +141,7 @@ public class NoSecureValuesInInsecureInputsRuleTests : SecureAssignmentCheckerTe
             ]);
 
     // A declared object type may hold properties it doesn't list, so union() can't tell which earlier properties
-    // it replaces. The result falls back to an object, as before union() was typed, and stays secure if a secure
-    // value went in.
+    // it replaces. The type falls back to object; the visitor still finds secrets in the value.
     [TestMethod]
     public void Union_with_an_open_object_does_not_keep_properties_it_may_replace()
         => AssertFlow("""
@@ -163,6 +162,87 @@ public class NoSecureValuesInInsecureInputsRuleTests : SecureAssignmentCheckerTe
             param tier 'Basic' | 'Premium' | 'Standard'
             param config object
             """, [], [LeakWarning("config", "secret")]);
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void Opaque_and_unknown_public_properties_do_not_follow_secure_siblings(bool loop)
+        => AssertFlow($$"""
+            type itemType = {
+              @secure()
+              content: string
+              metadata: resourceInput<'Microsoft.Logic/integrationAccounts/assemblies@2019-05-01'>.properties.metadata?
+            }
+            {{(loop ? "param items itemType[]" : "param item itemType")}}
+            module child 'child.bicep' = {{(loop ? "[for (item, index) in items:" : "")}} {
+              name: {{(loop ? "'child-${index}'" : "'child'")}}
+              params: {
+                metadata: item.?metadata
+                description: item.?description
+                content: item.content
+              }
+            }{{(loop ? "]" : "")}}
+            """, """
+            param metadata object?
+            param description string?
+            param content string
+            """, [], [LeakWarning("content", "item.content")]);
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void Optional_public_siblings_are_not_tainted_by_a_secure_member(bool loop)
+        => AssertFlow($$"""
+            type itemType = {
+              @secure()
+              content: string
+              metadata: object?
+              attributes: {
+                enabled: bool?
+                exp: int?
+              }?
+            }
+            {{(loop ? "param items itemType[]" : "param item itemType")}}
+            module child 'child.bicep' = {{(loop ? "[for (item, index) in items:" : "")}} {
+              name: {{(loop ? "'child-${index}'" : "'child'")}}
+              params: {
+                metadata: item.?metadata
+                enabled: item.?attributes.?enabled
+                exp: item.?attributes.?exp
+                content: item.content
+              }
+            }{{(loop ? "]" : "")}}
+            """, """
+            param metadata object?
+            param enabled bool?
+            param exp int?
+            param content string
+            """, [], [LeakWarning("content", "item.content")]);
+
+    [TestMethod]
+    [DataRow("{ name: 'public', password: secret, ...overrides }", false)]
+    [DataRow("union({ name: 'public', password: secret }, overrides)", false)]
+    [DataRow("{ name: 'public', password: secret, ...overrides }", true)]
+    [DataRow("union({ name: 'public', password: secret }, overrides)", true)]
+    public void Uncertain_property_reads_keep_module_security_checks_property_specific(string initializer, bool secureTarget)
+        => AssertFlow($$"""
+            @secure()
+            param secret string
+            param overrides { other: string }
+            var original = {{initializer}}
+            var cfg = original
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                public: cfg.name
+                sensitive: cfg.password
+              }
+            }
+            """, $$"""
+            param public string
+            {{(secureTarget ? "@secure()" : "")}}
+            param sensitive string
+            """, [], secureTarget ? [] : [LeakWarning("sensitive", "cfg.password")]);
 
     [TestMethod]
     [DataRow("chained.number", "int")]
@@ -396,6 +476,34 @@ public class NoSecureValuesInInsecureInputsRuleTests : SecureAssignmentCheckerTe
               }
             }
             """, "@secure()\nparam config object", [], []);
+
+    [TestMethod]
+    [DataRow("union(cfg, extra)", 2)]
+    [DataRow("union(extra, cfg)", 2)]
+    [DataRow("union(cfg, extra, { password: 'public' })", 0)]
+    public void Union_parameter_member_reads_preserve_security_at_module_boundaries(string initializer, int leaks)
+        => AssertFlow($$"""
+            param cfg {
+              name: string
+              @secure()
+              password: string
+            }
+            param extra object
+            var merged = {{initializer}}
+            var alias = merged
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                direct: ({{initializer}}).password
+                aliased: alias.password
+                public: alias.name
+              }
+            }
+            """, """
+            param direct string
+            param aliased string
+            param public string
+            """, 0, leaks);
 
     [TestMethod]
     [DataRow("""

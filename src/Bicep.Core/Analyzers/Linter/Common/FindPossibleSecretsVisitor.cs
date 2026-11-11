@@ -15,10 +15,15 @@ namespace Bicep.Core.Analyzers.Linter.Common
     {
         public record PossibleSecret(SyntaxBase Syntax, string FoundMessage) { }
 
+        private record PropertyValue(SyntaxBase Syntax, TypeSymbol? Type = null, string? Name = null, bool IsSecure = false);
+        // IsDefinite means a source guarantees the property exists, not that only one value is possible.
+        // IsMerge keeps union() sources in precedence order so nested reads merge them instead of replacing them.
+        private record PropertyResolution(PropertyValue[] Values, bool IsDefinite, bool IsMerge = false);
+
         private readonly SemanticModel semanticModel;
         private readonly List<PossibleSecret> possibleSecrets = new();
         private readonly Dictionary<SyntaxBase, PossibleSecret[]> secretsBySyntax = new();
-        private readonly Dictionary<(SyntaxBase Syntax, string PropertyName), (SyntaxBase? Value, bool IsFallback)> propertyInitializers = new();
+        private readonly Dictionary<(SyntaxBase Syntax, string PropertyName), PropertyResolution> propertyInitializers = new();
         private uint trailingAccessExpressions = 0;
 
         /// <summary>
@@ -66,7 +71,10 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            CheckAccessExpression(syntax);
+            if (CheckAccessExpression(syntax))
+            {
+                return;
+            }
             trailingAccessExpressions++;
             base.VisitPropertyAccessSyntax(syntax);
             trailingAccessExpressions--;
@@ -74,13 +82,17 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            CheckAccessExpression(syntax);
+            if (CheckAccessExpression(syntax))
+            {
+                Visit(syntax.IndexExpression);
+                return;
+            }
             trailingAccessExpressions++;
             base.VisitArrayAccessSyntax(syntax);
             trailingAccessExpressions--;
         }
 
-        private void CheckAccessExpression(AccessExpressionSyntax syntax)
+        private bool CheckAccessExpression(AccessExpressionSyntax syntax)
         {
             var secretCount = possibleSecrets.Count;
             possibleSecrets.AddRange(FindPathsToSecureTypeComponents(semanticModel.GetTypeInfo(syntax))
@@ -88,102 +100,225 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
             if (possibleSecrets.Count != secretCount || trailingAccessExpressions > 0)
             {
-                return;
+                return possibleSecrets.Count != secretCount;
             }
 
-            var property = syntax.TryGetPropertyName() is { } propertyName
-                ? ResolvePropertyInitializer(syntax.BaseExpression, propertyName)
-                : default;
             var followFallback = semanticModel.GetTypeInfo(syntax) is AnyType ||
                 !TypeHelper.IsOrContainsSecureType(semanticModel.GetTypeInfo(syntax.BaseExpression));
 
-            if (property.Value is { } propertyValue)
+            if (syntax.TryGetPropertyName() is { } propertyName)
             {
-                if (!property.IsFallback || propertyValue is ObjectSyntax || followFallback)
+                var property = ResolvePropertyInitializers(syntax.BaseExpression, propertyName);
+                if (property.IsDefinite || followFallback)
                 {
-                    AddForwardedSecrets(propertyValue, syntax.IndexExpression);
+                    foreach (var value in property.Values)
+                    {
+                        AddForwardedSecrets(value, syntax);
+                    }
+                    return property.IsDefinite || property.Values.Length > 0;
                 }
             }
             // Any other read, like parts[0] or cfg.password from json(secret), may select any part of the value.
             // If its type has lost track of the secret, follow the whole initializer, just as reading it inline would.
-            else if (followFallback &&
-                TryResolveInitializer(syntax.BaseExpression) is { } initializer)
+            else if (followFallback)
             {
-                AddForwardedSecrets(initializer, syntax.IndexExpression);
+                var initializers = ResolveInitializers(syntax.BaseExpression).ToArray();
+                foreach (var initializer in initializers)
+                {
+                    AddForwardedSecrets(initializer, syntax);
+                }
+                return initializers.Length > 0;
             }
+
+            return false;
         }
 
-        private SyntaxBase? TryResolveInitializer(SyntaxBase syntax)
+        private IEnumerable<PropertyValue> ResolveInitializers(SyntaxBase syntax)
             => syntax switch
             {
                 VariableAccessSyntax access when semanticModel.GetSymbolInfo(access) is VariableSymbol variable &&
                     semanticModel.Binder.TryGetCycle(variable) is null
-                    => variable.DeclaringVariable.Value,
-                // If the selected property can't be pinned down, any part of what it's read from may be what is read.
-                AccessExpressionSyntax access => (access.TryGetPropertyName() is { } propertyName
-                    ? ResolvePropertyInitializer(access.BaseExpression, propertyName).Value
-                    : null) ?? TryResolveInitializer(access.BaseExpression),
-                _ => null,
+                    => [new(variable.DeclaringVariable.Value)],
+                VariableAccessSyntax => [],
+                AccessExpressionSyntax access => access.TryGetPropertyName() is { } propertyName
+                    ? ResolvePropertyInitializers(access.BaseExpression, propertyName).Values
+                    : ResolveArrayItemInitializers(access),
+                _ => [new(syntax)],
             };
 
-        private (SyntaxBase? Value, bool IsFallback) ResolvePropertyInitializer(SyntaxBase syntax, string propertyName)
+        private IEnumerable<PropertyValue> ResolveArrayItemInitializers(AccessExpressionSyntax access)
+            => ResolveInitializers(access.BaseExpression).SelectMany(value => value.Type is null
+                ? [value]
+                : ResolveTypedArrayItem(value, access));
+
+        private IEnumerable<PropertyValue> ResolveTypedArrayItem(PropertyValue value, AccessExpressionSyntax access)
+        {
+            var type = GetValueType(value);
+            var isSecure = value.IsSecure || type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
+            if (type is UnionType union)
+            {
+                return union.Members.Where(member => member.Type is not NullType)
+                    .SelectMany(member => ResolveTypedArrayItem(value with { Type = member.Type, IsSecure = isSecure }, access));
+            }
+
+            var itemType = type switch
+            {
+                TupleType tuple when semanticModel.GetTypeInfo(access.IndexExpression) is IntegerLiteralType index &&
+                    index.Value >= 0 && index.Value < tuple.Items.Length => tuple.Items[(int)index.Value].Type,
+                ArrayType array => array.Item.Type,
+                _ => type,
+            };
+            return [value with { Type = itemType, Name = isSecure ? value.Name : $"{value.Name}[{access.IndexExpression}]", IsSecure = isSecure }];
+        }
+
+        private PropertyResolution ResolvePropertyInitializers(SyntaxBase syntax, string propertyName)
         {
             if (propertyInitializers.TryGetValue((syntax, propertyName), out var result))
             {
                 return result;
             }
 
-            // Null without a fallback means absent; a fallback may supply the property.
-            // Cache both so repeated spreads don't expand a diamond exponentially.
+            // Cache absent properties too, so repeated spreads don't expand a diamond exponentially.
             result = syntax switch
             {
-                ObjectSyntax obj => ResolveObjectPropertyInitializer(obj, propertyName),
+                ObjectSyntax obj => ResolveObjectPropertyInitializers(obj, propertyName),
+                ParenthesizedExpressionSyntax parenthesized => ResolvePropertyInitializers(parenthesized.Expression, propertyName),
+                NonNullAssertionSyntax nonNull => ResolvePropertyInitializers(nonNull.BaseExpression, propertyName),
                 VariableAccessSyntax access when semanticModel.GetSymbolInfo(access) is VariableSymbol variable &&
                     semanticModel.Binder.TryGetCycle(variable) is null
-                    => ResolvePropertyInitializer(variable.DeclaringVariable.Value, propertyName),
+                    => ResolvePropertyInitializers(variable.DeclaringVariable.Value, propertyName),
                 VariableAccessSyntax access when semanticModel.GetSymbolInfo(access) is VariableSymbol cyclic &&
-                    semanticModel.Binder.TryGetCycle(cyclic) is not null => default,
-                AccessExpressionSyntax access when access.TryGetPropertyName() is { } selectedProperty &&
-                    ResolvePropertyInitializer(access.BaseExpression, selectedProperty) is { Value: { } selectedValue, IsFallback: false }
-                    => ResolvePropertyInitializer(selectedValue, propertyName),
-                _ => (null, true),
+                    semanticModel.Binder.TryGetCycle(cyclic) is not null => new([], false),
+                // Project the selected type, not the whole parameter or loop item with its unrelated members.
+                VariableAccessSyntax => ResolveTypedProperty(new(syntax, semanticModel.GetTypeInfo(syntax), syntax.ToString()), propertyName),
+                AccessExpressionSyntax access when access.TryGetPropertyName() is { } selectedProperty
+                    => ResolveAccessPropertyInitializers(access, selectedProperty, propertyName),
+                AccessExpressionSyntax access => new(ResolveArrayItemInitializers(access)
+                    .SelectMany(value => value.Type is null ? [value] : ResolveTypedProperty(value, propertyName).Values).Distinct().ToArray(), false),
+                FunctionCallSyntaxBase function when SemanticModelHelper.TryGetNamedFunction(semanticModel, SystemNamespaceType.BuiltInName, "union", function) is { }
+                    => ResolveUnionPropertyInitializers(function, propertyName),
+                _ => new([new(syntax)], false),
             };
             propertyInitializers.Add((syntax, propertyName), result);
             return result;
         }
 
-        private (SyntaxBase? Value, bool IsFallback) ResolveObjectPropertyInitializer(ObjectSyntax obj, string propertyName)
+        private PropertyResolution ResolveAccessPropertyInitializers(AccessExpressionSyntax access, string selectedProperty, string propertyName)
         {
+            var selected = ResolvePropertyInitializers(access.BaseExpression, selectedProperty);
+            if (!selected.IsDefinite && !selected.IsMerge && (selected.Values.Length == 0 || selected.Values.Any(value => value.Type is null)))
+            {
+                // An unresolved projection is not its whole source object, which may contain unrelated secrets.
+                return new([new(access)], false);
+            }
+
+            if (selected.IsMerge)
+            {
+                return ResolveMergedPropertyInitializers(selected.Values, propertyName);
+            }
+
+            var results = selected.Values.Select(value => ResolvePropertyValue(value, propertyName)).ToArray();
+            return new(results.SelectMany(result => result.Values).Distinct().ToArray(),
+                results.Length > 0 && results.All(result => result.IsDefinite));
+        }
+
+        private PropertyResolution ResolvePropertyValue(PropertyValue value, string propertyName)
+            => value.Type is null ? ResolvePropertyInitializers(value.Syntax, propertyName) : ResolveTypedProperty(value, propertyName);
+
+        private PropertyResolution ResolveTypedProperty(PropertyValue value, string propertyName)
+        {
+            var type = GetValueType(value);
+            var isSecure = value.IsSecure || type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
+            IEnumerable<TypeSymbol>? members = type switch
+            {
+                UnionType union => union.Members.Select(member => member.Type),
+                DiscriminatedObjectType discriminated => discriminated.UnionMembersByKey.Values,
+                _ => null,
+            };
+            if (members is not null)
+            {
+                var results = members.Where(member => member is not NullType)
+                    .Select(member => ResolveTypedProperty(value with { Type = member, IsSecure = isSecure }, propertyName)).ToArray();
+                return new(results.SelectMany(result => result.Values).Distinct().ToArray(),
+                    results.Length > 0 && results.All(result => result.IsDefinite));
+            }
+
+            var property = (type as ObjectType)?.Properties.GetValueOrDefault(propertyName);
+            var propertyType = property?.TypeReference.Type ?? (type as ObjectType)?.AdditionalProperties?.TypeReference.Type;
+            return new([new(value.Syntax, propertyType ?? LanguageConstants.Any, isSecure ? value.Name : $"{value.Name}.{propertyName}", isSecure)],
+                property?.Flags.HasFlag(TypePropertyFlags.Required) == true);
+        }
+
+        private PropertyResolution ResolveObjectPropertyInitializers(ObjectSyntax obj, string propertyName)
+        {
+            List<PropertyValue> values = [];
             // The last definition wins. Dynamic keys and unknown spreads may replace earlier properties.
             foreach (var child in obj.Children.Reverse())
             {
                 switch (child)
                 {
                     case ObjectPropertySyntax property when property.HasPropertyName(propertyName):
-                        return (property.Value, false);
+                        values.Add(new(property.Value));
+                        return new(values.Distinct().ToArray(), true);
                     case ObjectPropertySyntax property when property.TryGetKeyText() is null:
-                        return (obj, true);
+                        values.Add(new(property.Value));
+                        break;
                     case SpreadExpressionSyntax spread:
-                        var result = ResolvePropertyInitializer(spread.Expression, propertyName);
-                        if (result.IsFallback)
+                        var result = ResolvePropertyInitializers(spread.Expression, propertyName);
+                        values.AddRange(result.Values);
+                        if (result.IsDefinite)
                         {
-                            return (obj, true);
-                        }
-                        if (result.Value is not null)
-                        {
-                            return result;
+                            return new(values.Distinct().ToArray(), true, result.IsMerge);
                         }
                         break;
                 }
             }
 
-            return default;
+            return new(values.Distinct().ToArray(), false);
         }
 
-        private void AddForwardedSecrets(SyntaxBase syntax, SyntaxBase anchor)
+        private PropertyResolution ResolveUnionPropertyInitializers(FunctionCallSyntaxBase union, string propertyName)
+            => ResolveMergedPropertyInitializers(union.Arguments.Reverse().Select(argument => new PropertyValue(argument.Expression)), propertyName);
+
+        private PropertyResolution ResolveMergedPropertyInitializers(IEnumerable<PropertyValue> sources, string propertyName)
         {
-            // Keep the secret's name, but report it on this read rather than in a shared variable declaration.
-            possibleSecrets.AddRange(GetSecretsIn(syntax).Select(secret => secret with { Syntax = anchor }));
+            List<PropertyValue> values = [];
+            var isDefinite = false;
+            var mergingObjects = false;
+            foreach (var source in sources)
+            {
+                var result = ResolvePropertyValue(source, propertyName);
+                values.AddRange(result.Values.Where(value => !mergingObjects || GetValueType(value) is ObjectLikeType or AnyType or UnionType));
+                isDefinite |= result.IsDefinite;
+                if (result.IsDefinite)
+                {
+                    // Unlike a spread, union() recursively merges objects instead of replacing them.
+                    if (result.Values.All(value => GetValueType(value) is not (ObjectLikeType or AnyType or UnionType)))
+                    {
+                        break;
+                    }
+                    mergingObjects = true;
+                }
+            }
+
+            return new(values.Distinct().ToArray(), isDefinite, IsMerge: true);
+        }
+
+        private TypeSymbol GetValueType(PropertyValue value) => value.Type ?? semanticModel.GetTypeInfo(value.Syntax);
+
+        private void AddForwardedSecrets(PropertyValue value, AccessExpressionSyntax access)
+        {
+            if (value.Type is { } type)
+            {
+                var paths = value.IsSecure ? [""] : TypeHelper.FindPathsToSecureTypeComponents(type);
+                possibleSecrets.AddRange(paths.Select(path => new PossibleSecret(access.IndexExpression, PossibleSecretMessage(value.Name + path))));
+                return;
+            }
+
+            // Keep inline findings where they are, but anchor shared initializers on this read.
+            possibleSecrets.AddRange(GetSecretsIn(value.Syntax).Select(secret => access.Span.Contains(secret.Syntax.Span.Position)
+                ? secret
+                : secret with { Syntax = access.IndexExpression }));
         }
 
         private PossibleSecret[] GetSecretsIn(SyntaxBase syntax)
