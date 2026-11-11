@@ -94,7 +94,6 @@ namespace Bicep.Cli.Commands
 
             var package = new ExtensionArtifactPackage(
                 Types: tarPayload,
-                LocalDeployEnabled: binaries.Any(),
                 Binaries: binaries);
 
             if (reference is not null)

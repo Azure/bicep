@@ -4,7 +4,6 @@
 using System.Data;
 using System.Reflection;
 using Bicep.Core.Artifacts.References;
-using Bicep.Core.Modules;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

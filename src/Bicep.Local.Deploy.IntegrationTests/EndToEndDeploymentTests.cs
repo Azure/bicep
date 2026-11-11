@@ -35,7 +35,7 @@ public class EndToEndDeploymentTests : TestBase
 
         // this doesn't need to contain a real binary, because this test emulates the local binary connection
         ExtensionBinary binary = new(architecture, BinaryData.FromBytes([]));
-        return new ExtensionArtifactPackage(tgzData, true, [binary]);
+        return new ExtensionArtifactPackage(tgzData, [binary]);
     }
 
     [TestMethod]

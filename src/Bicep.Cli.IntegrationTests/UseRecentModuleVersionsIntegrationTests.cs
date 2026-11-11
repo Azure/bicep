@@ -12,7 +12,6 @@ using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.Configuration;
-using Bicep.Core.Modules;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;

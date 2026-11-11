@@ -389,10 +389,10 @@ public class VisualGraphRemoteModuleTests
             ?? throw new InvalidOperationException("The storage module must have an OCI publish target.");
         await provider.Construct<OciArtifactRegistry>().PublishModule(
             storageReference,
-            new ModuleArtifactPackage(
+            ModuleArtifactPackage.FromTemplate(
                 BinaryData.FromString(storage.Template!.ToString()),
                 SourceArchive.CreateFrom(storage.Compilation.SourceFileGrouping).PackIntoBinaryData(),
-                DocumentationUri: null));
+                documentationUri: null));
 
         this.cacheRootDirectory.Delete();
 

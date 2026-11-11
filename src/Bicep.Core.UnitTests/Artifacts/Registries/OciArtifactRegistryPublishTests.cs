@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Codecs;
 using Bicep.Core.Artifacts.Packages;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Registries;
@@ -36,47 +37,41 @@ public class OciArtifactRegistryPublishTests
     }
 
     [TestMethod]
-    public async Task PublishModule_PassesTheTemplateDescriptionAndSourcesToTheRegistry()
+    public async Task PublishModule_PushesTheEncodedPackage()
     {
         var reference = CreateReference(ArtifactType.Module);
         var template = BinaryData.FromString("""{ "metadata": { "description": "My module" } }""");
         var sources = BinaryData.FromString("sources");
         var session = CreateSession();
-        session.Setup(x => x.PushAsync(
-                reference, BicepMediaTypes.OciImageManifest, BicepMediaTypes.BicepModuleArtifactType,
-                It.IsAny<OciDescriptor>(), It.IsAny<IEnumerable<OciDescriptor>>(),
-                It.IsAny<OciManifestAnnotationsBuilder>(), CancellationToken.None))
-            .Callback<IOciArtifactReference, string?, string?, OciDescriptor, IEnumerable<OciDescriptor>, OciManifestAnnotationsBuilder, CancellationToken>(
-                (_, _, _, config, layers, annotations, _) =>
-                {
-                    config.MediaType.Should().Be(BicepMediaTypes.BicepModuleConfigV1);
-                    layers.Select(layer => layer.Data).Should().Equal(template, sources);
-                    annotations.Build().Should().ContainKey(OciAnnotationKeys.OciOpenContainerImageDescriptionAnnotation).WhoseValue.Should().Be("My module");
-                    annotations.Build().Should().ContainKey(OciAnnotationKeys.OciOpenContainerImageDocumentationAnnotation).WhoseValue.Should().Be("https://docs");
-                })
+        session.Setup(x => x.PushAsync(reference, It.IsAny<OciArtifactPayload>(), CancellationToken.None))
+            .Callback<IOciArtifactReference, OciArtifactPayload, CancellationToken>((_, payload, _) =>
+            {
+                payload.Manifest.ArtifactType.Should().Be(BicepMediaTypes.BicepModuleArtifactType);
+                var decoded = OciModuleArtifactCodec.Decode(payload);
+                decoded.Template.ToString().Should().Be(template.ToString());
+                decoded.Sources!.ToString().Should().Be(sources.ToString());
+                decoded.Description.Should().Be("My module");
+                decoded.DocumentationUri.Should().Be("https://docs");
+            })
             .Returns(Task.CompletedTask);
 
-        await CreateRegistry(reference, session.Object).PublishModule(reference, new ModuleArtifactPackage(template, sources, "https://docs"));
+        await CreateRegistry(reference, session.Object).PublishModule(reference, ModuleArtifactPackage.FromTemplate(template, sources, "https://docs"));
 
         session.VerifyAll();
     }
 
     [TestMethod]
-    public async Task PublishExtension_PassesThePackageToTheRegistry()
+    public async Task PublishExtension_PushesTheEncodedPackage()
     {
         var reference = CreateReference(ArtifactType.Extension);
-        var package = new ExtensionArtifactPackage(BinaryData.FromString("types"), LocalDeployEnabled: false, []);
+        var package = new ExtensionArtifactPackage(BinaryData.FromString("types"), []);
         var session = CreateSession();
-        session.Setup(x => x.PushAsync(
-                reference, BicepMediaTypes.OciImageManifest, BicepMediaTypes.BicepExtensionArtifactType,
-                It.IsAny<OciDescriptor>(), It.IsAny<IEnumerable<OciDescriptor>>(),
-                It.IsAny<OciManifestAnnotationsBuilder>(), CancellationToken.None))
-            .Callback<IOciArtifactReference, string?, string?, OciDescriptor, IEnumerable<OciDescriptor>, OciManifestAnnotationsBuilder, CancellationToken>(
-                (_, _, _, config, layers, _, _) =>
-                {
-                    config.MediaType.Should().Be(BicepMediaTypes.BicepExtensionConfigV1);
-                    layers.Single().Data.Should().BeSameAs(package.Types);
-                })
+        session.Setup(x => x.PushAsync(reference, It.IsAny<OciArtifactPayload>(), CancellationToken.None))
+            .Callback<IOciArtifactReference, OciArtifactPayload, CancellationToken>((_, payload, _) =>
+            {
+                payload.Manifest.ArtifactType.Should().Be(BicepMediaTypes.BicepExtensionArtifactType);
+                OciExtensionArtifactCodec.Decode(payload).Types.ToString().Should().Be("types");
+            })
             .Returns(Task.CompletedTask);
 
         await CreateRegistry(reference, session.Object).PublishExtension(reference, package);
@@ -94,14 +89,11 @@ public class OciArtifactRegistryPublishTests
         var registry = CreateRegistry(reference, session.Object);
 
         Func<Task> publish = targetType == ArtifactType.Module
-            ? () => registry.PublishExtension(reference, new ExtensionArtifactPackage(BinaryData.FromString("types"), LocalDeployEnabled: false, []))
+            ? () => registry.PublishExtension(reference, new ExtensionArtifactPackage(BinaryData.FromString("types"), []))
             : () => registry.PublishModule(reference, new ModuleArtifactPackage(BinaryData.FromString("{}"), null, null));
 
         await publish.Should().ThrowAsync<ArgumentException>().WithParameterName("reference");
-        session.Verify(x => x.PushAsync(
-            It.IsAny<IOciArtifactReference>(), It.IsAny<string?>(), It.IsAny<string?>(),
-            It.IsAny<OciDescriptor>(), It.IsAny<IEnumerable<OciDescriptor>>(),
-            It.IsAny<OciManifestAnnotationsBuilder>(), It.IsAny<CancellationToken>()), Times.Never);
+        session.Verify(x => x.PushAsync(It.IsAny<IOciArtifactReference>(), It.IsAny<OciArtifactPayload>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     private static OciArtifactReference CreateReference(ArtifactType type) =>
@@ -117,7 +109,7 @@ public class OciArtifactRegistryPublishTests
     private static OciArtifactRegistry CreateRegistry(OciArtifactReference reference, IRegistrySession session)
     {
         var transportFactory = StrictMock.Of<IOciRegistryTransportFactory>();
-        transportFactory.Setup(x => x.CreateSession(reference)).Returns(session);
+        transportFactory.Setup(x => x.CreateSession(reference.Context.Cloud, reference.Registry, reference.Repository, reference.UseOrasSdk)).Returns(session);
         return new OciArtifactRegistry(BicepTestConstants.TestRegistryConfiguration, transportFactory.Object, NullLogger<OciArtifactRegistry>.Instance);
     }
 }

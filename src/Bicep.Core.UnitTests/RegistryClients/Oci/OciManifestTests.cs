@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.RegistryClients.Oci
 {
     /// <summary>
-    /// Tests related to deserialization of OciArtifactResult class
+    /// Tests related to deserialization of the OciManifest class
     /// </summary>
     [TestClass]
     public class OciManifestTests

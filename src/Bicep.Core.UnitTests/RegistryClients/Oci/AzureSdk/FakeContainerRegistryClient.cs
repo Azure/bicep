@@ -6,7 +6,6 @@ using System.Collections.Immutable;
 using System.Reflection;
 using Azure;
 using Azure.Containers.ContainerRegistry;
-using Bicep.Core.Modules;
 using Bicep.Core.UnitTests.Mock;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Legacy.Table;

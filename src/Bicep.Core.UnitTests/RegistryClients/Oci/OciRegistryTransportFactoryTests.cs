@@ -60,10 +60,8 @@ public class OciRegistryTransportFactoryTests
     public void GetTransport_SelectsExclusivelyByFeatureFlag(string registry, bool useOrasSdk)
     {
         var (factory, transport, azure) = CreateFactory();
-        var reference = CreateReference(registry, useOrasSdk);
         var expected = useOrasSdk ? (IOciRegistryTransport)transport : azure;
         factory.GetTransport(registry, useOrasSdk).Should().BeSameAs(expected);
-        factory.GetTransport(reference).Should().BeSameAs(expected);
     }
 
     [TestMethod]
@@ -77,7 +75,7 @@ public class OciRegistryTransportFactoryTests
     {
         var (factory, _, _) = CreateFactory();
         var reference = CreateReference(registry, useOrasSdk);
-        await using var session = factory.CreateSession(reference);
+        await using var session = factory.CreateSession(reference.Context.Cloud, reference.Registry, reference.Repository, reference.UseOrasSdk);
         session.Should().BeOfType(useOrasSdk ? typeof(OrasRegistrySession) : typeof(AcrRegistrySession));
     }
 
@@ -101,7 +99,7 @@ public class OciRegistryTransportFactoryTests
         sdk.Setup(x => x.CreateAuthenticatedBlobClient(cloud, new Uri("https://example.azurecr.io"), "modules/foo")).Returns(blob.Object);
         var (_, oras, _) = CreateFactory();
         var factory = new OciRegistryTransportFactory(oras, new AzureContainerRegistryManager(sdk.Object));
-        await using var session = factory.CreateSession(reference);
+        await using var session = factory.CreateSession(reference.Context.Cloud, reference.Registry, reference.Repository, reference.UseOrasSdk);
 
         var action = () => session.PullAsync(reference, CancellationToken.None);
 
@@ -123,7 +121,7 @@ public class OciRegistryTransportFactoryTests
             StrictMock.Of<ITokenCredentialFactory>().Object, clients.Object);
         var factory = new OciRegistryTransportFactory(oras, new AzureContainerRegistryManager(sdk.Object));
         var reference = CreateReference("example.azurecr.io", true);
-        await using var session = factory.CreateSession(reference);
+        await using var session = factory.CreateSession(reference.Context.Cloud, reference.Registry, reference.Repository, reference.UseOrasSdk);
 
         var action = () => session.PullAsync(reference, CancellationToken.None);
 

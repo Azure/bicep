@@ -20,37 +20,22 @@ internal sealed class AcrRegistrySession : IRegistrySession
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
-    public Task PushAsync(
-        IOciArtifactReference target,
-        string? mediaType,
-        string? artifactType,
-        OciDescriptor config,
-        IEnumerable<OciDescriptor> layers,
-        OciManifestAnnotationsBuilder annotations,
-        CancellationToken cancellationToken)
+    public Task PushAsync(IOciArtifactReference target, OciArtifactPayload payload, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(target.Tag))
         {
             throw new InvalidOperationException("Push operations require a tag when using Azure Container Registry.");
         }
 
-        return manager.PushArtifactAsync(
-            cloud,
-            target,
-            mediaType,
-            artifactType,
-            config,
-            layers,
-            annotations,
-            cancellationToken);
+        return manager.PushArtifactAsync(cloud, target, payload, cancellationToken);
     }
 
-    public Task<OciArtifactResult> PullAsync(IOciArtifactReference reference, CancellationToken cancellationToken) =>
+    public Task<OciArtifactPayload> PullAsync(IOciArtifactReference reference, CancellationToken cancellationToken) =>
         manager.PullArtifactAsync(cloud, reference, cancellationToken);
 
     public async Task<(string Digest, OciManifest Manifest)> ResolveAsync(IOciArtifactReference reference, CancellationToken cancellationToken)
     {
-        var result = await manager.PullArtifactAsync(cloud, reference, cancellationToken);
-        return (result.ManifestDigest, result.Manifest);
+        var payload = await manager.PullArtifactAsync(cloud, reference, cancellationToken);
+        return (payload.ManifestDigest, payload.Manifest);
     }
 }

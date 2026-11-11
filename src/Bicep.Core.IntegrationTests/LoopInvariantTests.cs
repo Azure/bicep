@@ -282,7 +282,7 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' existing = [for (item, i) 
         {
             // See https://github.com/Azure/bicep/issues/14770 for context
             var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
-            var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, false, []));
+            var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, []));
 
             var result = await CompilationHelper.RestoreAndCompile(
               ("main.bicep", new("""
@@ -307,7 +307,7 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' existing = [for (item, i) 
         {
             // See https://github.com/Azure/bicep/issues/14770 for context
             var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
-            var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, false, []));
+            var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, []));
 
             var result = await CompilationHelper.RestoreAndCompile(
               ("main.bicep", new("""
@@ -329,7 +329,7 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' existing = [for (item, i) 
         {
             // See https://github.com/Azure/bicep/issues/14770 for context
             var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
-            var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, false, []));
+            var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, []));
 
             var result = await CompilationHelper.RestoreAndCompile(
               ("main.bicep", new("""
