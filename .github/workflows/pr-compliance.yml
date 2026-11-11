@@ -9,10 +9,10 @@ on:
 jobs:
   check-for-docs-label:
     name: Check for Docs label
-    if: ${{ !(contains(github.event.pull_request.labels.*.name, '📘 Docs Needed') || contains(github.event.pull_request.labels.*.name, '📘 Docs Not Needed') || contains(github.event.pull_request.labels.*.name, 'dependencies')) }}
+    if: ${{ !(contains(github.event.pull_request.labels.*.name, '📘 Docs Needed') || contains(github.event.pull_request.labels.*.name, '📘 Docs In Progress') || contains(github.event.pull_request.labels.*.name, '📘 Docs Completed') || contains(github.event.pull_request.labels.*.name, '📘 Docs Not Needed') || contains(github.event.pull_request.labels.*.name, 'dependencies')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Docs label is missing
         run: |
-          echo 'All PRs must either have the `📘 Docs Needed` or `📘 Docs Not Needed` label applied' >> $GITHUB_STEP_SUMMARY
+          echo 'All PRs must have one of the `📘 Docs Needed`, `📘 Docs In Progress`, `📘 Docs Completed` or `📘 Docs Not Needed` labels applied' >> $GITHUB_STEP_SUMMARY
           exit 1
