@@ -78,7 +78,7 @@ public sealed class LocalArtifactReference : ArtifactReference, IExtensionArtifa
         ExtensionArtifactPackage package;
         try
         {
-            package = ExtensionArtifactArchiveCodec.Decode(binaryData);
+            package = LocalExtensionArtifactCodec.Decode(binaryData);
         }
         catch (InvalidDataException exception)
         {

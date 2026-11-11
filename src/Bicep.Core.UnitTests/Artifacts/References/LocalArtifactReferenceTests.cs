@@ -88,7 +88,7 @@ namespace Bicep.Core.UnitTests.Artifacts.References
         {
             var resolver = CreateResolver(out var fileExplorer);
             var types = BinaryData.FromString("types");
-            fileExplorer.GetFile(CreateUri("/repo/sub/ext.tgz")).Write(await ExtensionArtifactArchiveCodec.Encode(new(types, [])));
+            fileExplorer.GetFile(CreateUri("/repo/sub/ext.tgz")).Write(await LocalExtensionArtifactCodec.Encode(new(types, [])));
 
             var reference = Resolve(resolver, ReferencingUri, ArtifactType.Extension, "./ext.tgz");
             var entryPointResult = reference.TryGetEntryPointFileHandle();

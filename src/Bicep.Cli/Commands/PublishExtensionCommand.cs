@@ -102,7 +102,7 @@ namespace Bicep.Cli.Commands
             }
             else if (fileTarget is not null)
             {
-                fileTarget.Write(await ExtensionArtifactArchiveCodec.Encode(package));
+                fileTarget.Write(await LocalExtensionArtifactCodec.Encode(package));
             }
             else
             {

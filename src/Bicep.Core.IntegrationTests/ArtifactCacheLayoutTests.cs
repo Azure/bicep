@@ -44,7 +44,7 @@ public class ArtifactCacheLayoutTests
     {
         var compiler = this.CreateCompiler();
         var remoteExtension = MockExtensionFactory.CreateMockExtWithNoConfigType("foo");
-        var localExtensionPackage = await ExtensionArtifactArchiveCodec.Encode(new ExtensionArtifactPackage(MockExtensionFactory.CreateMockExtWithNoConfigType("bar").TypesTgzData, []));
+        var localExtensionPackage = await LocalExtensionArtifactCodec.Encode(new ExtensionArtifactPackage(MockExtensionFactory.CreateMockExtWithNoConfigType("bar").TypesTgzData, []));
 
         await this.artifactManager.PublishRegistryModules(
             new("br:mockregistry.io/test/module1:v1", "output o string = 'v1'", WithSource: true),

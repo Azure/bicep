@@ -357,7 +357,7 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
         public async Task ThisNamespace_ExtensibleResource()
         {
             var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
-            var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, []));
+            var extensionTgz = await LocalExtensionArtifactCodec.Encode(new(typesTgz, []));
 
             var result = await CreateCompiler(useMockFileSystem: true).Compile(
               ("main.bicep", new("""
@@ -388,7 +388,7 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
         public async Task ThisNamespace_ExtensibleResource_Diagnostics()
         {
             var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
-            var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, []));
+            var extensionTgz = await LocalExtensionArtifactCodec.Encode(new(typesTgz, []));
 
             var result = await CreateCompiler(useMockFileSystem: true).Compile(
               ("main.bicep", new("""

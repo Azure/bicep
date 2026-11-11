@@ -290,7 +290,7 @@ public static class RegistryHelper
                 await ociRegistry.PublishExtension(ociReference, package);
                 break;
             case LocalArtifactReference local:
-                local.File.Write(await ExtensionArtifactArchiveCodec.Encode(package));
+                local.File.Write(await LocalExtensionArtifactCodec.Encode(package));
                 break;
             default:
                 throw new InvalidOperationException($"Extension target '{target}' must be an OCI reference or a local file.");
