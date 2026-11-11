@@ -46,6 +46,133 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
         }
 
         [TestMethod]
+        [DataRow("items[0].?metadata", "object?")]
+        [DataRow("items[0].?missing", "string?")]
+        public void Unresolved_array_item_properties_do_not_follow_secure_siblings(string expression, string type)
+            => CompileAndTest($$"""
+                type itemType = {
+                  @secure()
+                  content: string
+                  metadata: resourceInput<'Microsoft.Logic/integrationAccounts/assemblies@2019-05-01'>.properties.metadata?
+                }
+                param items itemType[]
+                output result {{type}} = {{expression}}
+                """, []);
+
+        [TestMethod]
+        public void Unknown_property_reads_of_wholly_secure_parameters_still_warn()
+            => CompileAndTest("""
+                @secure()
+                param whole object
+                output result string = whole.?unknown
+                """, ["secure value 'whole'"]);
+
+        [TestMethod]
+        [DataRow("item.?attributes.?enabled", "bool?")]
+        [DataRow("item.?attributes.?exp", "int?")]
+        [DataRow("item.?attributes.?nested.?name", "string?")]
+        public void Unresolved_nested_reads_do_not_follow_secure_siblings(string expression, string type)
+            => CompileAndTest($$"""
+                param item {
+                  @secure()
+                  content: string
+                  attributes: {
+                    enabled: bool?
+                    exp: int?
+                    nested: { name: string? }?
+                  }?
+                }
+                output result {{type}} = {{expression}}
+                """, []);
+
+        [TestMethod]
+        [DataRow("name", 0)]
+        [DataRow("password", 1)]
+        [Timeout(60_000)]
+        public void Repeated_parameter_union_projections_reuse_shared_sources(string property, int warnings)
+        {
+            const int depth = 24;
+            var declarations = string.Join("\n", Enumerable.Range(1, depth)
+                .Select(level => $"var v{level} = union(v{level - 1}, v{level - 1})"));
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore($$"""
+                param cfg {
+                  name: string
+                  @secure()
+                  password: string
+                }
+                param extra object
+                var v0 = union(cfg, extra)
+                {{declarations}}
+                output result string = v{{depth}}.{{property}}
+                """);
+            var model = result.Compilation.GetEntrypointSemanticModel();
+            var output = model.SourceFile.ProgramSyntax.Children.OfType<OutputDeclarationSyntax>().Single();
+            model.GetTypeInfo(output.Value).Should().NotBeOfType<ErrorType>();
+
+            var stopwatch = Stopwatch.StartNew();
+            var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, output.Value).ToArray();
+            stopwatch.Stop();
+
+            secrets.Should().HaveCount(warnings);
+            stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(5));
+        }
+
+        [TestMethod]
+        public void Dynamic_index_expressions_are_checked_for_secrets()
+            => CompileAndTest("""
+                @secure()
+                param secret string
+                var values = { public: 'value' }
+                output result string = values[secret]
+                """, ["secure value 'secret'"]);
+
+        [TestMethod]
+        public void Inline_list_function_findings_keep_the_call_span()
+        {
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore("""
+                output result string = listKeys(resourceId('Microsoft.Storage/storageAccounts', 'test'), '2023-01-01').keys[0].value
+                """);
+            var model = result.Compilation.GetEntrypointSemanticModel();
+            var output = model.SourceFile.ProgramSyntax.Children.OfType<OutputDeclarationSyntax>().Single();
+            var secret = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, output.Value)
+                .Should().ContainSingle().Subject;
+
+            secret.Syntax.Should().BeOfType<FunctionCallSyntax>().Subject.Name.IdentifierName.Should().Be("listKeys");
+        }
+
+        [TestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        [Timeout(60_000)]
+        public void Repeated_uncertain_property_sources_do_not_expand_a_diamond_exponentially(bool useUnion)
+        {
+            const int depth = 24;
+            var declarations = string.Join("\n", Enumerable.Range(1, depth)
+                .Select(level => useUnion
+                    ? $"var v{level} = union(v{level - 1}, v{level - 1})"
+                    : $"var v{level} = {{ ...v{level - 1}, ...v{level - 1} }}"));
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore($$"""
+                @secure()
+                param secret string
+                param extra object
+                var v0 = { password: secret, ...extra }
+                {{declarations}}
+                output result string = v{{depth}}.name
+                """);
+            var model = result.Compilation.GetEntrypointSemanticModel();
+            var output = model.SourceFile.ProgramSyntax.Children.OfType<OutputDeclarationSyntax>().Single();
+            model.GetTypeInfo(output.Value).Should().NotBeOfType<ErrorType>();
+
+            var stopwatch = Stopwatch.StartNew();
+            var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, output.Value).ToArray();
+            stopwatch.Stop();
+
+            secrets.Should().BeEmpty();
+            stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(5),
+                "repeated uncertain property sources should reuse their analysis");
+        }
+
+        [TestMethod]
         [DataRow(24)]
         [Timeout(60_000)]
         public void Repeated_property_reads_do_not_expand_a_diamond_exponentially(int depth)

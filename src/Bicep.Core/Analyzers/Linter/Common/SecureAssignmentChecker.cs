@@ -145,7 +145,8 @@ public sealed class SecureAssignmentChecker
         var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, value).ToList();
         // union() tracks secure member types and can overwrite them with public values. Don't put those
         // discarded secrets back on the result; use the merged type instead.
-        var hasTrackedUnionSecrets = SemanticModelHelper.TryGetNamedFunction(model, SystemNamespaceType.BuiltInName, "union", value) is { } union &&
+        var hasTrackedUnionSecrets = !ReferenceEquals(source, LanguageConstants.Object) &&
+            SemanticModelHelper.TryGetNamedFunction(model, SystemNamespaceType.BuiltInName, "union", value) is { } union &&
             union.Arguments.Any(argument => TypeHelper.IsOrContainsSecureType(model.GetTypeInfo(argument.Expression)));
         // If a result type doesn't retain the secret, treat the whole result as secure. Composite types that
         // retain secure members are compared member by member below.

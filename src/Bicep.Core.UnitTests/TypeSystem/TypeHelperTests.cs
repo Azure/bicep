@@ -63,8 +63,8 @@ public class TypeHelperTests
         TypeHelper.MergeObjectTypes([nested, addition]).Should().BeOfType<ObjectType>().Subject
             .Properties["config"].TypeReference.Type.Should().BeOfType<ObjectType>().Subject.Properties.Keys
             .Should().BeEquivalentTo(["name", "password"]);
-        // The fallback can't keep the secure member on its own, so the whole result is secure.
-        TypeHelper.MergeObjectTypes([first, LanguageConstants.Object]).Should().BeSameAs(LanguageConstants.SecureObject);
+        // A secure member must not make unrelated properties secure when the shape is unknown.
+        TypeHelper.MergeObjectTypes([first, LanguageConstants.Object]).Should().BeSameAs(LanguageConstants.Object);
         TypeHelper.MergeObjectTypes([second, LanguageConstants.Object]).Should().BeSameAs(LanguageConstants.Object);
     }
 
@@ -83,7 +83,7 @@ public class TypeHelperTests
             .Properties["sku"].TypeReference.Type.Should().BeSameAs(LanguageConstants.String);
 
         ObjectType secureDefaults = new("secureDefaults", default, [new("password", LanguageConstants.SecureString, TypePropertyFlags.Required)]);
-        TypeHelper.MergeObjectTypes([secureDefaults, open]).Should().BeSameAs(LanguageConstants.SecureObject);
+        TypeHelper.MergeObjectTypes([secureDefaults, open]).Should().BeSameAs(LanguageConstants.Object);
     }
 
     [TestMethod]
