@@ -379,6 +379,8 @@ export function useGraphSync(
         layoutResponse.bounds,
         getViewportCenter(),
       );
+      // Nodes added since the last layout wait at a spawn point near the middle, so they cannot anchor it.
+      const laidOutNodeIds = new Set(lastLaidOutGraphRef.current?.nodes.map((node) => node.id));
       lastLaidOutGraphRef.current = measuredGraph;
 
       // A graph that was just opened or replaced, still hidden, is framed as its nodes spring out from the center.
@@ -391,7 +393,9 @@ export function useGraphSync(
       const layoutCenters = getLayoutCenters(topLeftCorners, measuredGraph);
       const positionsAfter = moveNodes(
         positionsBefore,
-        isOpening ? layoutCenters : keepFocusedNodeInPlace(layoutCenters, positionsBefore, getViewportCenter()),
+        isOpening
+          ? layoutCenters
+          : keepFocusedNodeInPlace(layoutCenters, positionsBefore, getViewportCenter(), laidOutNodeIds),
         store.get(sourceGraphAtom),
         store.get(collapsedModuleIdsAtom),
       );
