@@ -319,11 +319,15 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   sendNotification(notificationMessage: WebviewNotificationMessage) {
     if (notificationMessage.method === ready.method) {
       this.sendSettings();
-      // Simulate async response from the extension host:
-      // after a short delay, present the sample deployment graph.
-      setTimeout(() => {
-        this.pushGraph(MODULE_GRAPH);
-      }, 50);
+      // Simulate async response from the extension host: after a short delay, or `initialGraphDelay`, present the
+      // sample deployment graph.
+      const delay = Number(new URLSearchParams(window.location.search).get("initialGraphDelay") ?? 50);
+      setTimeout(
+        () => {
+          this.pushGraph(MODULE_GRAPH);
+        },
+        Number.isFinite(delay) && delay >= 0 ? delay : 50,
+      );
     } else if (notificationMessage.method === revealNode.method) {
       // The real host would resolve the node's source location via the language server and reveal it.
       console.log("[FakeMessageChannel] revealNode:", notificationMessage.params);

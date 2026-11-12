@@ -153,6 +153,17 @@ test.describe("Status bar", () => {
     await expect(page.getByTestId("status-bar")).toHaveAttribute("data-status", "empty");
     await expect(page.getByTestId("status-empty-message")).toBeVisible();
   });
+
+  test("shows no empty-state message before the first graph arrives", async ({ page }) => {
+    await page.goto("/?initialGraphDelay=1500");
+    await expect(page.getByTestId("app-root")).toBeVisible();
+
+    await expect(page.getByTestId("status-bar")).toHaveAttribute("data-status", "loading");
+    await expect(page.getByTestId("status-empty-message")).toHaveCount(0);
+
+    await expect(page.getByTestId("graph-node").first()).toBeVisible();
+    await expect(page.getByTestId("status-bar")).toHaveAttribute("data-status", "ready");
+  });
 });
 
 test.describe("Control bar", () => {

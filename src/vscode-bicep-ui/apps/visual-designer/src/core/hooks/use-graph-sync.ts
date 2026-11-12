@@ -17,6 +17,7 @@ import {
   collapsedModuleIdsAtom,
   commitPendingResourcesAtom,
   documentErrorCountAtom,
+  graphReceivedAtom,
   pendingPlacementsAtom,
   pendingRemovalNodeIdsAtom,
   pendingSubgraphLayoutsAtom,
@@ -172,6 +173,7 @@ export function useGraphSync(
       // disabled, since an edit in progress can make a step replayable again. The coordinator never
       // applies a response fetched before the latest document change, so these match the current file.
       store.set(replayableSourceStepKeysAtom, new Set((response.replayableSourceSteps ?? []).map(getSourceStepKey)));
+      store.set(graphReceivedAtom, true);
 
       if (!response.graph) {
         return { layoutRequired: false };
