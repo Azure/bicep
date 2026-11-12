@@ -102,12 +102,17 @@ The designer uses curated light, dark, and high-contrast palettes for the VS Cod
 instead, keeping curated colors wherever a theme color is missing or lacks contrast. Export's
 "Current" theme captures what is shown. See [Theme](./docs/architecture.md#theme).
 
-Fake-host controls include **Document target scope**, **Change catalog**, and **Match color theme**.
-The playground's own theme picker switches between VS Code's built-in color themes. Query parameters:
+A floating **dev panel** at the top left stands in for the extension host. Its **Host** section sets
+the document target scope, toggles **Resource editing** and **Match color theme**, picks the motion
+policy, and replaces the resource catalog; **Graphs** loads the sample graphs, marking the current one;
+and **Mutations** changes the current graph (nodes, modules, and edges). The panel collapses to a small
+**DEV** tab, and remembers that. The playground's own theme picker switches between VS Code's
+built-in color themes. Query parameters set the initial state, and simulate host behavior the panel
+does not cover:
 
 | Parameter                                | Purpose                                                                               |
 | ---------------------------------------- | ------------------------------------------------------------------------------------- |
-| `resourceEditing=false`                  | Hide the Resources tool                                                               |
+| `resourceEditing=false`                  | Start with resource editing off, which hides the Resources tool                       |
 | `targetScope=tenant`                     | Initial document scope (`resourceGroup`, `subscription`, `managementGroup`, `tenant`) |
 | `catalogDelay=5000`                      | Delay the resource type catalog response in milliseconds                              |
 | `versionsDelay=1000`                     | Delay per-type API-version responses in milliseconds                                  |

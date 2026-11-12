@@ -726,7 +726,8 @@ test("popover stays above the dock, viewport-clamped with pinned search", async 
   await expect(popover).toBeVisible();
   expect((await popover.boundingBox())!.width).toBe(400);
   expect((await popover.boundingBox())!.height).toBe(360);
-  await page.setViewportSize({ width: 380, height: 500 });
+  // Short enough that the palette is clamped and its list scrolls.
+  await page.setViewportSize({ width: 380, height: 340 });
   const filter = page.getByRole("textbox", { name: "Filter resource types" });
   await filter.fill("Microsoft");
   await expect(page.getByTestId("resource-type-row")).toHaveCount(3);

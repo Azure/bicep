@@ -6,8 +6,8 @@ import type { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 /**
- * Sample graphs exposed by the dev toolbar.  The slugs match the
- * `data-testid` values generated in {@link DevToolbar.tsx}. `nodeId` is a node found only in that
+ * Sample graphs exposed by the dev panel. The slugs match the
+ * `data-testid` values generated in {@link DevPanel.tsx}. `nodeId` is a node found only in that
  * sample, so a test can tell when the sample has replaced the previous graph.
  */
 export const SAMPLE_GRAPHS = {
@@ -42,12 +42,12 @@ export async function openVisualDesigner(page: Page, query: Record<string, strin
   await page.goto(search ? `/?${search}` : "/");
   await expect(page.getByTestId("app-root")).toBeVisible();
   await expect(page.getByTestId("graph-canvas")).toBeVisible();
-  await expect(page.getByTestId("dev-toolbar")).toBeVisible();
+  await expect(page.getByTestId("dev-panel")).toBeVisible();
   await waitForAnyNode(page);
 }
 
 /**
- * Click a sample-graph button in the dev toolbar and wait for the graph to replace the previous one:
+ * Click a sample-graph button in the dev panel and wait for the graph to replace the previous one:
  * the sample's own node must be visible (or every node gone, for the empty sample), since the designer
  * fetches the graph only once document changes pause.
  */
