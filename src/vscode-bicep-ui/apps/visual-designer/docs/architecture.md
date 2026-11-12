@@ -511,7 +511,8 @@ CSS variable on `<html>`. [atoms.ts](../src/ui/theme/atoms.ts) observes both and
   ([themes.ts](../src/ui/theme/themes.ts)): light, dark, high contrast, or high contrast light.
 - With `bicep.visualizer.matchColorTheme` on, [color-theme.ts](../src/ui/theme/color-theme.ts)
   builds the theme from about twenty theme colors: the editor background for the canvas, the editor
-  foreground for text, focus and link colors for accents, chart colors for modules and success,
+  foreground for text, focus and link colors for accents (including the selection ring and the
+  selection marquee), chart colors for modules and success,
   error colors, and toolbar and scrollbar colors. Translucent colors are composited into solid
   surfaces. `descriptionForeground` is not used: nearly every theme leaves it at the workbench's
   default gray.
