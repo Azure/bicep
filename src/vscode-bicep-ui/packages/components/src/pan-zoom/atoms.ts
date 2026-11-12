@@ -21,7 +21,8 @@ type PanZoomController = {
   zoomIn: (scaleFactor?: number) => void;
   zoomOut: (scaleFactor?: number) => void;
   reset: () => void;
-  transform: (x: number, y: number, scale: number) => void;
+  /** Moves the camera, animating unless `animate` is false. */
+  transform: (x: number, y: number, scale: number, animate?: boolean) => void;
 };
 
 export const panZoomControlAtom = atom<PanZoomController | null>(null);
@@ -41,6 +42,6 @@ export const zoomOutAtom = atom(null, (get, _set, scaleFactor?: number) =>
   getPanZoomController(get).zoomOut(scaleFactor),
 );
 export const resetPanZoomAtom = atom(null, (get) => getPanZoomController(get).reset());
-export const transformPanZoomAtom = atom(null, (get, _set, x: number, y: number, scale: number) =>
-  getPanZoomController(get).transform(x, y, scale),
+export const transformPanZoomAtom = atom(null, (get, _set, x: number, y: number, scale: number, animate?: boolean) =>
+  getPanZoomController(get).transform(x, y, scale, animate),
 );

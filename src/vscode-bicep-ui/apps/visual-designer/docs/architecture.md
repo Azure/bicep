@@ -147,11 +147,11 @@ the graph) yields `layoutFailed`.
 
 The response status controls the next step:
 
-| Status         | Client action                                 |
-| -------------- | --------------------------------------------- |
-| `ok`           | Apply node positions and fit the graph bounds |
-| `graphChanged` | Reconcile and retry the same layout mode      |
-| `layoutFailed` | Reveal the graph at its current positions     |
+| Status         | Client action                              |
+| -------------- | ------------------------------------------ |
+| `ok`           | Apply node positions; frame a hidden graph |
+| `graphChanged` | Reconcile and retry the same layout mode   |
+| `layoutFailed` | Reveal the graph at its current positions  |
 
 Source locations are resolved on demand through `document/revealNode` and are not stored in graph
 metadata. The language server answers with the declaring document's URI: a file, or a read-only
@@ -177,7 +177,11 @@ the error count do not invalidate layout.
 After an invalidating change, the webview renders and measures the graph. It requests layout only when
 topology or dimensions differ from the last successful layout input.
 
-- Automatic layout may skip unchanged input and fits the viewport after success.
+- Automatic layout may skip unchanged input. A graph that was just opened or replaced springs out from the middle of the view,
+  and the camera zooms to frame it in step with the nodes. The zoom finishes early, so the graph never grows past
+  its final size on screen and shrinks back. A visible graph keeps its camera: its nodes
+  move to the new layout around the node nearest the middle of the view, as in a reset, since zooming
+  while nodes move makes the whole graph appear to shrink. Fit View frames it on request.
 - **Reset Graph Layout** bypasses the unchanged-input check and preserves the viewport. It also keeps the
   node nearest the middle of the view where it is and moves the new layout around it, rather than
   centering the layout's box, which would shift every node when opening or closing a container has

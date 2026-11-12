@@ -8,6 +8,7 @@ import { PanZoom, useGetPanZoomTransform } from "@vscode-bicep-ui/components";
 import { useStore } from "jotai";
 import { useCallback, useEffect, useEffectEvent, useLayoutEffect, useRef } from "react";
 import styled, { useTheme } from "styled-components";
+import { MINIMUM_ZOOM } from "../hooks/use-fit-view";
 import { isGraphInteractiveTarget } from "../interactive";
 import { getNodeIdsInMarquee, getSelectableNodes } from "../selection";
 import { ViewportBackground } from "./ViewportBackground";
@@ -319,7 +320,7 @@ export function Viewport({
       data-testid="graph-canvas"
       data-export-viewport=""
     >
-      <$PanZoom filter={panZoomFilter}>
+      <$PanZoom minimumScale={MINIMUM_ZOOM} filter={panZoomFilter}>
         {showBackground && <ViewportBackground />}
         {children}
       </$PanZoom>

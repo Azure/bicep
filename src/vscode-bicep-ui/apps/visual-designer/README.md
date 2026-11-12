@@ -218,7 +218,7 @@ Each feature, library, and `src/core` exposes one barrel:
 
 `AppEnvironment` owns the Jotai store, real or fake message channel, theme, and the app-wide host
 synchronization from `@/core`: the document, the resource-editing setting, and motion policy. `App` mounts `PanZoomProvider`, then `GraphActionsProvider` inside it, because graph
-layout reads the viewport size and fits the camera. `Canvas`, `Controls`, and `Dock` are siblings
+layout reads the viewport size and frames a newly opened graph. `Canvas`, `Controls`, and `Dock` are siblings
 inside both.
 
 Use Jotai for shared observable state and local React state for component-local interaction. Prefer

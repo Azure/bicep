@@ -34,7 +34,7 @@ criteria. Uncompleted stages are not a commitment to a particular release. See
   missing or lacks contrast. Export offers Current and explicit theme choices.
 - A correlated resource drop and undo of its independent creation preserve the other
   nodes' positions and the camera. Edge changes and other topology changes can still reflow the
-  graph; automatic layout currently fits the viewport.
+  graph; automatic layout frames a newly opened graph but keeps the camera for one already shown.
 - Node clicks use total pointer travel to distinguish dragging, and cancellation does not change
   focus or selection.
 - Bicep source edits use a version-checked `WorkspaceEdit` and VS Code's dirty-file/undo behavior;
@@ -387,8 +387,8 @@ workspace operation. Registry-module authoring and Extract to Module are separat
 | Reset/Tidy Layout requested by the user                     | Recompute layout as requested, with the existing viewport-preservation contract                                 |
 
 Layout invalidation already exempts a correlated `addNode` and the matching independent resource
-removal on undo. Edges can still trigger reflow, and automatic structural layout fits
-the viewport. Review those cases before introducing placeholders or module drops; do not
+removal on undo. Edges can still trigger reflow, which moves nodes
+under a fixed camera. Review those cases before introducing placeholders or module drops; do not
 present the entire policy as shipped behavior.
 
 ### Stage 8: new module files

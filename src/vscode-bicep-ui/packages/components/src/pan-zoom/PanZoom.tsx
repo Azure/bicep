@@ -133,10 +133,14 @@ export function PanZoom({
           .transition()
           .duration(transition.duration)
           .call(panZoomBehavior.scaleBy, 1 / (scaleFactor ?? defaultScaleFactor)),
-      transform: (x: number, y: number, scale: number) => {
+      transform: (x: number, y: number, scale: number, animate = true) => {
         const clammpedScale = Math.min(Math.max(scale, minimumScale), maximumScale);
         const transform = zoomIdentity.translate(x, y).scale(clammpedScale);
-        selection.transition().duration(transition.duration).call(panZoomBehavior.transform, transform);
+        if (animate) {
+          selection.transition().duration(transition.duration).call(panZoomBehavior.transform, transform);
+        } else {
+          selection.interrupt().call(panZoomBehavior.transform, transform);
+        }
       },
     });
 

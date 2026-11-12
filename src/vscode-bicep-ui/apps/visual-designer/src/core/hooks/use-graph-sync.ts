@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import type { createStore } from "jotai";
+import type { FitViewMotion } from "@/lib/graph";
 import type { Box, Point } from "@/lib/math";
 import type { GetGraphResult, MeasuredGraph } from "../api";
 import type { ClientGraph } from "../graph-model";
@@ -52,6 +53,7 @@ import {
 } from "../node-positions";
 import { isMostlyNewGraph, showGraph } from "../show-graph";
 import { forgetRemovedNodes, getSourceStepKey, getSourceStepReferences, recordLayoutChange } from "../undo-history";
+import { useIsMotionReduced } from "./use-is-motion-reduced";
 import { useTrackGraphChange } from "./use-track-graph-change";
 
 type Store = ReturnType<typeof createStore>;
@@ -133,11 +135,16 @@ export interface GraphSync {
 export function useGraphSync(
   coordinator: GraphUpdateCoordinator<GetGraphResult>,
   getViewportCenter: () => Point,
-  fitViewToBounds: (bounds: Box) => void,
+  fitViewToBounds: (bounds: Box, motion?: FitViewMotion) => void,
 ): GraphSync {
   const store = useStore();
   const api = useGraphApi();
   const trackGraphChange = useTrackGraphChange();
+  const reduceMotion = useIsMotionReduced();
+  const reduceMotionRef = useRef(reduceMotion);
+  useEffect(() => {
+    reduceMotionRef.current = reduceMotion;
+  }, [reduceMotion]);
 
   /** The last graph submitted for layout, so a pass can skip layout when nothing was resized. */
   const lastLaidOutGraphRef = useRef<MeasuredGraph | null>(null);
@@ -372,24 +379,32 @@ export function useGraphSync(
       );
       lastLaidOutGraphRef.current = measuredGraph;
 
+      // A graph that was just opened or replaced, still hidden, is framed as its nodes spring out from the center.
+      // Any other layout re-arranges the graph the user is already looking at, so it keeps their camera and the node
+      // they are looking at: zooming while nodes move between layouts makes the whole graph appear to shrink.
+      const isOpening = !isReset && !store.get(layoutReadyAtom);
+
       // The descendants of collapsed modules move with them, so they are in place when one opens.
       const positionsBefore = getNodePositions(store);
       const layoutCenters = getLayoutCenters(topLeftCorners, measuredGraph);
       const positionsAfter = moveNodes(
         positionsBefore,
-        // A reset keeps the camera, so it keeps the node the user is looking at in place too.
-        isReset ? keepFocusedNodeInPlace(layoutCenters, positionsBefore, getViewportCenter()) : layoutCenters,
+        isOpening ? layoutCenters : keepFocusedNodeInPlace(layoutCenters, positionsBefore, getViewportCenter()),
         store.get(sourceGraphAtom),
         store.get(collapsedModuleIdsAtom),
       );
 
-      // An automatic layout frames what arrived, before the nodes settle there. A reset re-arranges the
-      // graph the user is already looking at, so it keeps their camera and is one undoable step.
-      if (!isReset && bounds) {
-        fitViewToBounds(bounds);
-      }
-
       await revealGraph();
+      if (isOpening) {
+        // The frame that first paints a graph is slow. Starting after it keeps the spring and the zoom from leaping.
+        await waitForAnimationFrame();
+        if (store.get(shownGraphAtom) !== shown) {
+          return "graphChanged";
+        }
+        if (bounds) {
+          fitViewToBounds(bounds, reduceMotionRef.current ? "instant" : "follow-nodes");
+        }
+      }
       setNodePositions(store, positionsAfter, "animate");
       // The whole graph was placed, including any pending subgraph.
       store.set(pendingSubgraphLayoutsAtom, new Map());
