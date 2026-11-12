@@ -5,5 +5,6 @@ export * from "./atoms";
 export * from "./components";
 export { useFitView, useFitViewToBounds } from "./hooks/use-fit-view";
 export { graphInteractiveProps } from "./interactive";
+export { getNodeIdsInMarquee } from "./selection";
 export * from "./motion";
 export * from "./theme";

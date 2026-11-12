@@ -5,7 +5,7 @@ import { Codicon } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import { useCallback } from "react";
 import { styled } from "styled-components";
-import { FLOATING_PANEL_THICKNESS, FloatingPanel } from "@/ui";
+import { ARROW_CURSOR, FLOATING_PANEL_THICKNESS, FloatingPanel, POINTER_CURSOR } from "@/ui";
 import { useStatusApi } from "../api";
 import { graphStatusAtom } from "../atoms";
 
@@ -32,7 +32,7 @@ const $StatusChip = styled(FloatingPanel)`
   font-size: 12px;
   font-weight: 500;
   white-space: nowrap;
-  cursor: default;
+  cursor: ${ARROW_CURSOR};
   pointer-events: auto;
 `;
 
@@ -58,7 +58,7 @@ const $ErrorLink = styled.button`
   color: ${({ theme }) => theme.error};
   font: inherit;
   font-weight: 600;
-  cursor: pointer;
+  cursor: ${POINTER_CURSOR};
   text-decoration: underline;
   text-decoration-color: transparent;
   text-underline-offset: 2px;

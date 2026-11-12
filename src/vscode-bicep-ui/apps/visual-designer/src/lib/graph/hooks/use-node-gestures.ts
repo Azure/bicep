@@ -17,14 +17,21 @@ const INTERACTIVE_PRESS_EVENTS = ["pointerdown", "mousedown", "touchstart"] as c
  * node nor pans. Double-clicks never reach the canvas, which would otherwise zoom.
  */
 export function useNodeGestures(ref: RefObject<HTMLDivElement | null>, id: string) {
-  const { events } = useContext(GraphContext);
-  const onDoubleClick = useEffectEvent(() => events.onNodeDoubleClick(id));
-
-  useDragListener(ref, {
-    onDragStart: () => events.onNodeDragStart(id),
-    onDrag: (dx, dy) => events.onNodeDrag(id, dx, dy),
-    onDragEnd: () => events.onNodeDragEnd(id),
+  const { events, panOnNodeDrag, marqueeOnModifiedDrag } = useContext(GraphContext);
+  const onDoubleClick = useEffectEvent(() => {
+    if (!panOnNodeDrag) events.onNodeDoubleClick(id);
   });
+
+  useDragListener(
+    ref,
+    {
+      onDragStart: () => events.onNodeDragStart(id),
+      onDrag: (dx, dy) => events.onNodeDrag(id, dx, dy),
+      onDragEnd: () => events.onNodeDragEnd(id),
+    },
+    // A press that pans, or a modified press that draws a marquee, leaves the node where it is.
+    (event) => !panOnNodeDrag && !(marqueeOnModifiedDrag && (event.altKey || event.ctrlKey || event.metaKey)),
+  );
 
   useEffect(() => {
     const element = ref.current;

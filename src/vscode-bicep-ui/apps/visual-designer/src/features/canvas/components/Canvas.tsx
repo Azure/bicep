@@ -3,10 +3,9 @@
 
 import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback } from "react";
-import { styled, ThemeProvider } from "styled-components";
+import { styled, ThemeProvider, useTheme } from "styled-components";
 import {
   canvasElementAtom,
-  focusNodeAtom,
   isGraphChangeInProgressAtom,
   raisedNodeIdsAtom,
   useGraphActions,
@@ -15,6 +14,11 @@ import {
 } from "@/core";
 import { effectiveExportThemeAtom, ExportAreaCover, ExportPreviewLayer } from "@/features/export";
 import { Graph, Viewport } from "@/lib/graph";
+import { getCursors } from "@/ui";
+import { isHandModeAtom } from "../atoms";
+import { useNavigationShortcuts } from "../hooks/use-navigation-shortcuts";
+import { useSelectionGestures } from "../hooks/use-selection-gestures";
+import { NodeContextMenu } from "./NodeContextMenu";
 import { NodeContentProvider } from "./nodes/NodeContentProvider";
 import { PendingResourceLayer } from "./PendingResourceLayer";
 import { ScopeIndicator } from "./ScopeIndicator";
@@ -40,7 +44,10 @@ const $CanvasWrapper = styled.div`
 export function Canvas() {
   const { handleNodeDragStart, handleNodeDrag, handleNodeDragEnd } = useGraphActions();
   const api = useGraphApi();
-  const focusNode = useSetAtom(focusNodeAtom);
+  const selectionGestures = useSelectionGestures();
+  const cursors = getCursors(useTheme());
+  const handMode = useAtomValue(isHandModeAtom);
+  useNavigationShortcuts();
   const revealNode = useCallback((nodeId: string) => api.revealNode(nodeId), [api]);
   const reduceMotion = useIsMotionReduced();
   const isGraphChangeInProgress = useAtomValue(isGraphChangeInProgressAtom);
@@ -58,11 +65,18 @@ export function Canvas() {
             aria-busy={isGraphChangeInProgress}
             tabIndex={0}
           >
-            <Viewport onNodeClick={focusNode}>
+            <Viewport
+              mode={handMode ? "hand" : "select"}
+              cursor={handMode ? cursors.hand : cursors.arrow}
+              grabbingCursor={cursors.grabbing}
+              {...selectionGestures}
+            >
               <PendingResourceLayer />
               <Graph
                 raisedNodeIdsAtom={raisedNodeIdsAtom}
                 reduceMotion={reduceMotion}
+                panOnNodeDrag={handMode}
+                marqueeOnModifiedDrag={!handMode}
                 onNodeDragStart={handleNodeDragStart}
                 onNodeDrag={handleNodeDrag}
                 onNodeDragEnd={handleNodeDragEnd}
@@ -71,6 +85,7 @@ export function Canvas() {
                 <ExportAreaCover />
               </Graph>
             </Viewport>
+            <NodeContextMenu />
           </$CanvasWrapper>
         </ThemeProvider>
       </NodeContentProvider>

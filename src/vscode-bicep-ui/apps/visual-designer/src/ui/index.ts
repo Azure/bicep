@@ -4,4 +4,5 @@
 export * from "./components/IconButton";
 export * from "./components/FloatingPanel";
 export * from "./components/OverlayScrollArea";
+export * from "./cursors";
 export * from "./motion";

@@ -11,6 +11,7 @@ import { useCallback, useState } from "react";
 import { styled } from "styled-components";
 import { canvasElementAtom } from "@/core";
 import { graphBoundsAtom } from "@/lib/graph";
+import { ARROW_CURSOR, POINTER_CURSOR } from "@/ui";
 import {
   closeExportOverlayAtom,
   exportBackgroundColorAtom,
@@ -109,7 +110,7 @@ const $ExportButton = styled.button`
   border-radius: 4px;
   background-color: ${({ theme }) => theme.focusBorder};
   color: #ffffff;
-  cursor: pointer;
+  cursor: ${POINTER_CURSOR};
   font-size: 12px;
   font-family: inherit;
   font-weight: 600;
@@ -128,7 +129,7 @@ const $ExportButton = styled.button`
 
   &:disabled {
     opacity: 0.5;
-    cursor: default;
+    cursor: ${ARROW_CURSOR};
   }
 
   &:focus-visible {
@@ -150,7 +151,7 @@ const $IconButton = styled.button`
   border-radius: 4px;
   background-color: transparent;
   color: ${({ theme }) => theme.iconButton.color};
-  cursor: pointer;
+  cursor: ${POINTER_CURSOR};
   transition: background-color 0.15s ease;
 
   &:hover {
@@ -200,7 +201,7 @@ const $StepButton = styled.button`
   border: none;
   background-color: transparent;
   color: ${({ theme }) => theme.text.primary};
-  cursor: pointer;
+  cursor: ${POINTER_CURSOR};
   transition: background-color 0.15s ease;
 
   &:hover {

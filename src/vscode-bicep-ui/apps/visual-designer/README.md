@@ -31,8 +31,8 @@ make loading and concurrency states deterministic.
 
 **Undo** and **Redo** sit in their own panel below the control bar. While the designer has focus, Ctrl/Cmd+Z undoes,
 Ctrl/Cmd+Shift+Z redoes, and Ctrl+Y also redoes on Windows/Linux. These shortcuts do not intercept
-text fields or the source editor. Right-click opens no menu outside text fields: VS Code's default
-Cut/Copy/Paste menu does nothing on the graph, so the designer suppresses it.
+text fields or the source editor. VS Code's default Cut/Copy/Paste menu does nothing on the graph,
+so the designer suppresses it outside text fields, and offers a node-specific menu instead.
 Creation, node moves, and Reset Layout share one session-local history. Each drag and reset is
 one step; pan, zoom, and focus are not. Layout undo/redo animates node positions (or snaps under
 reduced motion) without editing Bicep or moving the camera.
@@ -44,13 +44,36 @@ the file do not affect them. Failed actions are logged, not shown as canvas noti
 editor's native history remains separate. See
 [Undo and redo](./docs/undo-redo.md) for the interaction and conflict policy.
 
-The bottom-center creation dock is gated by the experimental resource-editing setting. Currently it
-enables resource creation only: the Resources button opens a compact popover. Unimplemented tools
-are not shown. With editing disabled, viewing, local repositioning, focus, pan/zoom, source
-navigation, status, export, and layout undo remain available. The extension also rejects creation
-and source replay while the setting is off, including requests started before it was turned off. Module
+The bottom-center dock holds the Select and Hand tools and, when the experimental resource-editing
+setting is on, the Resources tool, whose button opens a compact popover. The setting controls only
+the Resources tool; everything else, including selection, works with it off. Unimplemented tools are
+not shown. The extension also rejects creation and source replay while the setting is off, including
+requests started before it was turned off. Module
 editing does not implicitly use this resource-only setting; it requires its own opt-in decision before
 implementation.
+
+**Select (V)** and **Hand (H)** start the dock. With
+Select, a click selects one node, Shift/Ctrl/Cmd+click adds or removes a node, and dragging on the
+background draws a marquee that selects the nodes it touches (a container only when enclosed, and
+then with everything inside it); Shift+marquee adds to the selection. Alt/Option+drag, or
+Ctrl/Cmd+drag, draws a marquee even from a node, such as inside a module's frame, to select some of
+the module's nodes. Dragging a node moves it, or the whole selection when it is one of several
+selected nodes, as one undo step. With Hand, a left drag pans from anywhere and never selects or
+moves nodes; holding Space switches to Hand until it is released, so trackpads can pan without
+changing tools. A right drag pans in either tool. The designer draws its own cursors, colored like
+the dock's icons (the icon color outlining the dock's surface color): the Codicon `cursor` arrow as
+the default and for Select, a pointing hand over buttons and other clickable controls, and an
+outlined open hand for Hand and palette drag handles that closes while panning or dragging. Text
+fields keep the text cursor. Select shows no grab indicator when a node is pressed, and the active
+tool is shown without an accent color. Shortcuts ignore text fields,
+composition, and modifier keys, and Space keeps its normal behavior on buttons and other controls.
+Selection is independent of focus and paint order. Clicking blank canvas or pressing Escape clears it.
+A right click on a node opens its context menu with **Go to Source** when it leaves exactly one node
+selected; there is no menu while several nodes are selected. Shift+F10 or the Context Menu key opens
+the menu for a single selected node; Escape dismisses it and returns focus to the canvas without
+clearing selection. Double-click still opens source in Select until inline rename is implemented;
+Hand does not reveal source.
+
 Each resource shows its API version as a pill: quiet text at rest, with pill chrome revealed on row
 hover or focus, and kept when the selection differs from the host default. Clicking it (or pressing
 Arrow keys, Enter, or Space
@@ -84,7 +107,7 @@ The playground's own theme picker switches between VS Code's built-in color them
 
 | Parameter                                | Purpose                                                                               |
 | ---------------------------------------- | ------------------------------------------------------------------------------------- |
-| `resourceEditing=false`                  | Hide the entire creation dock                                                         |
+| `resourceEditing=false`                  | Hide the Resources tool                                                               |
 | `targetScope=tenant`                     | Initial document scope (`resourceGroup`, `subscription`, `managementGroup`, `tenant`) |
 | `catalogDelay=5000`                      | Delay the resource type catalog response in milliseconds                              |
 | `versionsDelay=1000`                     | Delay per-type API-version responses in milliseconds                                  |

@@ -68,6 +68,10 @@ export const lightTheme: DefaultTheme = {
   focusBorder: "#0078d4",
   error: "#dc2626",
   success: "#16a34a",
+  marquee: {
+    border: "#0078d4",
+    background: "rgba(0, 120, 212, 0.08)",
+  },
   grabCursor: {
     background: "rgba(0, 0, 0, 0.20)",
     blur: 3,
@@ -123,6 +127,10 @@ export const darkTheme: DefaultTheme = {
   focusBorder: "#4da6ff",
   error: "#f87171",
   success: "#4ade80",
+  marquee: {
+    border: "#4da6ff",
+    background: "rgba(77, 166, 255, 0.12)",
+  },
   grabCursor: {
     background: "rgba(255, 255, 255, 0.20)",
     blur: 3,
@@ -178,6 +186,10 @@ export const highContrastTheme: DefaultTheme = {
   focusBorder: "#ffd700",
   error: "#ff00ff",
   success: "#00ffff",
+  marquee: {
+    border: "#ffd700",
+    background: "rgba(255, 215, 0, 0.12)",
+  },
   grabCursor: {
     background: "rgba(255, 255, 255, 0.75)",
     blur: 3,
@@ -233,6 +245,10 @@ export const highContrastLightTheme: DefaultTheme = {
   focusBorder: "#0000cd",
   error: "#ff0000",
   success: "#008000",
+  marquee: {
+    border: "#0000cd",
+    background: "rgba(0, 0, 205, 0.08)",
+  },
   grabCursor: {
     background: "rgba(0, 0, 0, 0.75)",
     blur: 3,

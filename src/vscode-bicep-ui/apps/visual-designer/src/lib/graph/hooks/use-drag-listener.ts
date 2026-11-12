@@ -19,12 +19,20 @@ export interface DragListeners {
   onDragEnd: () => void;
 }
 
-/** Reports drags of an element, except those that start on interactive content inside it. */
-export function useDragListener(ref: RefObject<HTMLDivElement | null>, listeners: DragListeners) {
+/**
+ * Reports drags of an element, except those that start on interactive content inside it, or that `canStart`
+ * declines when the press begins.
+ */
+export function useDragListener(
+  ref: RefObject<HTMLDivElement | null>,
+  listeners: DragListeners,
+  canStart: (event: MouseEvent) => boolean = () => true,
+) {
   const getPanZoomTransform = useGetPanZoomTransform();
   const onDragStart = useEffectEvent(listeners.onDragStart);
   const onDrag = useEffectEvent(listeners.onDrag);
   const onDragEnd = useEffectEvent(listeners.onDragEnd);
+  const isStartAllowed = useEffectEvent(canStart);
 
   useEffect(() => {
     if (!ref.current) {
@@ -34,7 +42,10 @@ export function useDragListener(ref: RefObject<HTMLDivElement | null>, listeners
     const selection = select(ref.current);
     let hasMoved = false;
     const dragBehavior = drag<HTMLDivElement, unknown>()
-      .filter((event: MouseEvent) => !event.ctrlKey && !event.button && !isGraphInteractiveTarget(event.target))
+      .filter(
+        (event: MouseEvent) =>
+          isStartAllowed(event) && !event.ctrlKey && !event.button && !isGraphInteractiveTarget(event.target),
+      )
       .on("start", () => {
         hasMoved = false;
       })

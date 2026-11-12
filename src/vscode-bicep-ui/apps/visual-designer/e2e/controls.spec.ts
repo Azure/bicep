@@ -401,7 +401,7 @@ test.describe("Control bar", () => {
     await loadSampleGraph(page, "flat");
     const { before: laidOut, after: dragged } = await dragNode(page, "subnet", 120, 80);
     expect(Math.abs(dragged.x - laidOut.x)).toBeGreaterThan(90);
-    await expect(page.getByTestId("creation-dock")).toHaveCount(0);
+    await expect(page.getByTestId("open-resource-palette")).toHaveCount(0);
 
     await expectHistoryButtonEnabled(page, "Undo", true);
     await page.keyboard.press("ControlOrMeta+z");

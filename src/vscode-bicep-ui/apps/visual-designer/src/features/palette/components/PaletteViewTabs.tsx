@@ -7,6 +7,7 @@ import type { PaletteView } from "../atoms";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useRef } from "react";
 import styled from "styled-components";
+import { POINTER_CURSOR } from "@/ui";
 import { paletteViewAtom } from "../atoms";
 
 const VIEWS: readonly { view: PaletteView; label: string; title: string }[] = [
@@ -38,7 +39,7 @@ const $Tab = styled.button<{ $selected: boolean }>`
   font: inherit;
   font-size: 11px;
   font-weight: ${({ $selected }) => ($selected ? 600 : 400)};
-  cursor: pointer;
+  cursor: ${POINTER_CURSOR};
   transition:
     background-color 150ms ease,
     color 150ms ease;

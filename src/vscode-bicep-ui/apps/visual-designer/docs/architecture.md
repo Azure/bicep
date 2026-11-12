@@ -245,8 +245,27 @@ Later stages extend these boundaries rather than move them:
   added the `subgraph` layout, which places a module's new children around it; keeping placed
   nodes fixed in a whole-graph layout is still open. Resource containers (stage 4) followed suit: they
   render through the same `ContainerNode` as modules, and `isCollapsible` is "has children".
-- Selection (stage 5) is view state beside focus. The canvas raises it through `Graph`, and dragging a
-  selection moves several nodes through the same position rules.
+- Selection (stage 5) is a set of node IDs in core view state beside focus. Selecting one node also
+  focuses and raises it; dragging an unselected node raises it without changing selection, and
+  dragging a node in a multiple selection moves every selected subtree in one undo step. Graph
+  refreshes prune removed or hidden selections, and collapsing a container replaces its selected
+  descendants with the container. Selection is not an undo step.
+- `Viewport` takes a `mode` (`pan`, its default, or `select` or `hand`, which the canvas uses) that decides what a left
+  press does, through a `PanZoom` filter: `select` draws a marquee on the background instead of
+  panning (and from a node when Alt, Ctrl, or Cmd is held, which `Graph`'s `marqueeOnModifiedDrag`
+  lets through by not starting the node drag), and `hand` disables node drags so the press pans. In
+  `select` and `hand`, a right press pans, and a right click without travel is reported as a
+  context-menu request on release, so a right drag never opens a menu; `pan` mode ignores right presses. `lib/graph` hit-tests the marquee against drawn node boxes
+  (`getNodeIdsInMarquee`); the canvas feature turns clicks, marquees, and right clicks into
+  selection changes and owns the V/H shortcuts and hold-Space, which switches to the
+  hand tool while Space is held. The cursors live in `ui/cursors.ts`:
+  the app's default arrow, the pointing hand for clickable controls, and the tool cursors, whose
+  shapes the dock reuses as icons. `Viewport` takes the tool's `cursor` and a
+  `grabbingCursor` shown while panning; without the latter, panning hides the
+  pointer behind the translucent grab indicator. In `select`, a press on a node shows neither.
+- The node context menu is a screen-space canvas sibling of the viewport, not graph content, and
+  opens only for a single selection. It exposes source navigation only; source-editing actions,
+  and a floating node toolbar for them, are deferred.
 - Rename (stage 6) remaps IDs in the view state, the positions map, and the undo history.
 - Placeholders (stage 7) stay outside the graph; a committed drop becomes a position. A module dropped
   collapsed is added to the collapsed set before its node arrives. Keeping placed nodes fixed while
@@ -392,8 +411,8 @@ only durable source of truth.
   nothing and never shows the preview. Escape during a drag is consumed
   in the capture phase so it cancels the drag without also dismissing the palette.
 
-The creation dock is a bottom-center `FloatingPanel` that shows only available
-tools (currently Resources) and keeps a minimum width of three tools. It shares the app's bottom chrome
+The dock is a bottom-center `FloatingPanel` toolbar: the Select (`V`) and Hand (`H`) navigation modes,
+a divider, then the available creation tools (currently Resources). It shares the app's bottom chrome
 grid with the status: the status sits at the left, shows only errors (a link to the Problems panel) or
 the empty state, and truncates before it can reach the dock. Both keep the same 16px inset from the
 bottom edge that the other chrome keeps from the top, so their bottom edges line up. As the primary
@@ -530,7 +549,7 @@ CSS variable on `<html>`. [atoms.ts](../src/ui/theme/atoms.ts) observes both and
 | Core layout     | Node positions (centers), including those of hidden nodes                             |
 | `lib/graph`     | Shown nodes and edges, measured sizes, drawn boxes, animation, and paint order        |
 | Canvas          | The rendered surface and its drop target                                              |
-| Dock            | Creation tools and palette launcher                                                   |
+| Dock            | Select/Hand navigation modes, creation tools, and palette launcher                    |
 | Palette         | Catalog, search, browsing view, recent types, drag state, and preview                 |
 | Export          | Export options, preview visibility, target element, and progress                      |
 | Status          | User-facing graph status, derived from core graph facts                               |

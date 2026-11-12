@@ -6,7 +6,6 @@ import type { PropsWithChildren, ReactElement } from "react";
 
 import { select } from "d3-selection";
 import { zoom, zoomIdentity } from "d3-zoom";
-import { frame } from "motion/react";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { panZoomControlAtom, panZoomDimensionsAtom, panZoomTransformAtom, useSetAtom } from "./atoms";
 
@@ -44,10 +43,20 @@ type PanZoomProps = PropsWithChildren<{
   };
 
   /**
+   * Decides which input events start a pan or zoom. Defaults to d3-zoom's filter.
+   */
+  filter?: (event: Event) => boolean;
+
+  /**
    * The class name for styling the component.
    */
   className?: string;
 }>;
+
+function defaultFilter(event: Event) {
+  const { ctrlKey, button } = event as MouseEvent;
+  return (!ctrlKey || event.type === "wheel") && !button;
+}
 
 /**
  * Component for panning and zooming gestures.
@@ -68,10 +77,16 @@ export function PanZoom({
   maximumScale = 4,
   defaultScaleFactor = 1.15,
   transition = { duration: 400 },
+  filter = defaultFilter,
   className,
   children,
 }: PanZoomProps): ReactElement {
   const ref = useRef<HTMLDivElement>(null);
+  const filterRef = useRef(filter);
+
+  useLayoutEffect(() => {
+    filterRef.current = filter;
+  });
   const setPanZoomTransform = useSetAtom(panZoomTransformAtom);
   const setPanZoomDimensions = useSetAtom(panZoomDimensionsAtom);
   const setPanZoomControl = useSetAtom(panZoomControlAtom);
@@ -97,11 +112,11 @@ export function PanZoom({
 
     const panZoomBehavior = zoom<HTMLDivElement, unknown>()
       .scaleExtent([minimumScale, maximumScale])
+      .filter((event: Event) => filterRef.current(event))
       .on("zoom", ({ transform }: D3ZoomEvent<HTMLDivElement, unknown>) => {
-        frame.render(() => {
-          const { x, y, k: scale } = transform;
-          setPanZoomTransform({ x, y, scale });
-        });
+        // Not deferred to the next frame: the canvas would trail the pointer, and the cursor, by a frame.
+        const { x, y, k: scale } = transform;
+        setPanZoomTransform({ x, y, scale });
       });
 
     const selection = select(ref.current).call(panZoomBehavior);
