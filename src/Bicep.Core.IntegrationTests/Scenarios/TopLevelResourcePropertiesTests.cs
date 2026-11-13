@@ -316,7 +316,7 @@ output outputa string = '${inputa}-${inputb}'
             var compilation = Services.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
 
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP053", DiagnosticLevel.Error, $"The type \"module\" does not contain property \"{property}\". Available properties include \"identity\", \"name\", \"outputs\".")
+                ("BCP053", DiagnosticLevel.Error, $"The type \"module\" does not contain property \"{property}\". Available properties include \"name\", \"outputs\".")
             });
         }
 

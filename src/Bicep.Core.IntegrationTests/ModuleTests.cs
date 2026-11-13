@@ -1059,6 +1059,48 @@ output runtimevalue string = 'runtime'
             });
         }
 
+        [TestMethod]
+        public void Module_identity_property_access_raises_write_only_diagnostic()
+        {
+            var result = CompilationHelper.Compile(
+                Services,
+                ("main.bicep", """
+module mod './module.bicep' = {
+    scope: resourceGroup()
+}
+
+module modWithIdentity './module.bicep' = {
+    name: 'modWithIdentity'
+    identity: {
+        type: 'None'
+    }
+}
+
+module modLoop './module.bicep' = [for i in range(0, 2): {
+    name: 'modLoop-${i}'
+    identity: {
+        type: 'None'
+    }
+}]
+
+output identityType string = mod.identity.type
+output identityObj object = modWithIdentity.identity
+output identityIndexer object = modWithIdentity['identity']
+output loopIdentity object = modLoop[0].identity
+"""),
+                ("module.bicep", """
+output out string = 'val'
+"""));
+
+            result.Template.Should().BeNull();
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+                ("BCP077", DiagnosticLevel.Error, "The property \"identity\" on type \"module\" is write-only. Write-only properties cannot be accessed."),
+                ("BCP077", DiagnosticLevel.Error, "The property \"identity\" on type \"module\" is write-only. Write-only properties cannot be accessed."),
+                ("BCP077", DiagnosticLevel.Error, "The property \"identity\" on type \"module\" is write-only. Write-only properties cannot be accessed."),
+                ("BCP077", DiagnosticLevel.Error, "The property \"identity\" on type \"module\" is write-only. Write-only properties cannot be accessed."),
+            ]);
+        }
+
         private static void ModuleTemplateHashValidator(Compilation compilation, string expectedTemplateHash)
         {
             compilation.HasErrors().Should().BeFalse();

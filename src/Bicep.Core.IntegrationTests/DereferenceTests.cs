@@ -482,6 +482,53 @@ public class DereferenceTests
     }
 
     [TestMethod]
+    public void Safe_dereference_of_write_only_or_unknown_module_property_raises_error()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                param condition bool
+
+                module mod 'mod.bicep' = {
+                  name: 'mod'
+                  identity: {
+                    type: 'None'
+                  }
+                }
+
+                module condMod 'mod.bicep' = if (condition) {
+                  name: 'condMod'
+                }
+
+                module modLoop 'mod.bicep' = [for i in range(0, 2): {
+                  name: 'modLoop-${i}'
+                }]
+
+                output identityType string? = mod.?identity.type
+                output identityIndexer object? = mod[?'identity']
+                output paramsObj object? = mod.?params
+                output unknownProp string? = mod.?notARealProperty
+                output loopIdentity object? = modLoop[0].?identity
+                output condIdentity object? = condMod.?identity
+                output unionIdentity object? = (condition ? mod : condMod!).?identity
+                """),
+            ("mod.bicep", """
+                output foo string = 'foo'
+                """));
+
+        result.Template.Should().BeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP077", DiagnosticLevel.Error, "The property \"identity\" on type \"module\" is write-only. Write-only properties cannot be accessed."),
+            ("BCP077", DiagnosticLevel.Error, "The property \"identity\" on type \"module\" is write-only. Write-only properties cannot be accessed."),
+            ("BCP077", DiagnosticLevel.Error, "The property \"params\" on type \"module\" is write-only. Write-only properties cannot be accessed."),
+            ("BCP053", DiagnosticLevel.Error, "The type \"module\" does not contain property \"notARealProperty\". Available properties include \"name\", \"outputs\"."),
+            ("BCP077", DiagnosticLevel.Error, "The property \"identity\" on type \"module\" is write-only. Write-only properties cannot be accessed."),
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"null | object\" but the provided value is of type \"error | null\"."),
+            ("BCP077", DiagnosticLevel.Error, "The property \"identity\" on type \"module\" is write-only. Write-only properties cannot be accessed."),
+            ("BCP077", DiagnosticLevel.Error, "The property \"identity\" on type \"{ dependsOn: (module[] | (resource | module) | resource[])[], identity: { type: 'None' | 'UserAssigned', userAssignedIdentities: object }, name: 'condMod' | 'mod', outputs: { foo: string }, params: { }, scope: resourceGroup | resourceGroup }\" is write-only. Write-only properties cannot be accessed."),
+        ]);
+    }
+
+    [TestMethod]
     public void Possibly_disabled_resources_should_raise_no_diagnostics_when_used_as_parent_or_dependency()
     {
         var result = CompilationHelper.Compile(
