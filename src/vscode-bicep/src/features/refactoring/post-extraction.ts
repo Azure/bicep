@@ -3,7 +3,9 @@
 
 import { commands, Position, Uri } from "vscode";
 import { integer } from "vscode-languageclient";
+import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
+import { ExtractToModuleCommand } from "./extract-to-module";
 
 export class PostExtractionCommand implements Command {
   public readonly id = "bicep.internal.postExtraction";
@@ -18,6 +20,9 @@ export class PostExtractionCommand implements Command {
   }
 }
 
-export async function activateRefactoringFeature(commandManager: CommandManager): Promise<void> {
-  await commandManager.registerCommands(new PostExtractionCommand());
+export async function activateRefactoringFeature(
+  commandManager: CommandManager,
+  client: LanguageClient,
+): Promise<void> {
+  await commandManager.registerCommands(new ExtractToModuleCommand(client), new PostExtractionCommand());
 }
