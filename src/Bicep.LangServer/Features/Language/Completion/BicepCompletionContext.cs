@@ -501,7 +501,11 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                 targetScope.Value is SkippedTriviaSyntax && offset == targetScope.Value.Span.Position) ||
             SyntaxMatcher.IsTailMatch<TargetScopeSyntax, Token>(matchingNodes, (targetScope, token) =>
                 token.Type == TokenType.Assignment &&
-                ReferenceEquals(targetScope.Assignment, token));
+                ReferenceEquals(targetScope.Assignment, token)) ||
+            SyntaxMatcher.IsTailMatch<TargetScopeSyntax, StringSyntax, Token>(matchingNodes, (targetScope, stringSyntax, _) =>
+                ReferenceEquals(targetScope.Value, stringSyntax) && !stringSyntax.Expressions.Any()) ||
+            SyntaxMatcher.IsTailMatch<TargetScopeSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (targetScope, variableAccess, _, _) =>
+                ReferenceEquals(targetScope.Value, variableAccess));
 
         private static bool IsUsingFollowerContext(List<SyntaxBase> matchingNodes, int offset) =>
             // using 'main.bicep' |
