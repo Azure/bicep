@@ -39,11 +39,9 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
         public void TryParse_EmptyModulePath_ShouldFail()
         {
             var fileExplorer = new FileSystemFileExplorer(new MockFileSystem());
-            var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
             var result = ModuleAliasMockRule.TryCreateReference(
-                referencingFile.LoadFeatures().CacheRootDirectory,
                 "./modules",
                 configFileUri,
                 ":1.0.0",
@@ -58,11 +56,9 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
         public void TryParse_ValidModulePath_ShouldSucceed()
         {
             var fileExplorer = new FileSystemFileExplorer(new MockFileSystem());
-            var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
             var result = ModuleAliasMockRule.TryCreateReference(
-                referencingFile.LoadFeatures().CacheRootDirectory,
                 "../bicepModules",
                 configFileUri,
                 "keyvault:1.0.0",
@@ -78,11 +74,9 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
         public void TryParse_MultiSegmentModulePath_ShouldSucceed()
         {
             var fileExplorer = new FileSystemFileExplorer(new MockFileSystem());
-            var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
             var result = ModuleAliasMockRule.TryCreateReference(
-                referencingFile.LoadFeatures().CacheRootDirectory,
                 "./modules",
                 configFileUri,
                 "storage/queue:v2.0",
@@ -96,11 +90,9 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
         public void TryParse_DigestReference_ShouldIgnoreDigestAndSucceed()
         {
             var fileExplorer = new FileSystemFileExplorer(new MockFileSystem());
-            var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
             var result = ModuleAliasMockRule.TryCreateReference(
-                referencingFile.LoadFeatures().CacheRootDirectory,
                 "./modules",
                 configFileUri,
                 "keyvault@sha256:e207a69d02b3de40d48ede9fd208d80441a9e590a83a0bc915d46244c03310d4",
@@ -111,39 +103,15 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
         }
 
         [TestMethod]
-        public void TryGetEntryPointFileHandle_ShouldReturnFileHandle()
-        {
-            var fileExplorer = new FileSystemFileExplorer(new MockFileSystem());
-            var referencingFile = BicepTestConstants.CreateDummyBicepFile();
-            var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
-
-            var parseResult = ModuleAliasMockRule.TryCreateReference(
-                referencingFile.LoadFeatures().CacheRootDirectory,
-                "../bicepModules",
-                configFileUri,
-                "keyvault:1.0.0",
-                fileExplorer);
-
-            parseResult.IsSuccess(out var reference, out _).Should().BeTrue();
-
-            var entryPointResult = reference!.TryGetEntryPointFileHandle();
-
-            entryPointResult.IsSuccess(out var fileHandle, out _).Should().BeTrue();
-            fileHandle.Should().NotBeNull();
-            fileHandle!.Uri.Path.Should().Contain("keyvault.bicep");
-        }
-
-        [TestMethod]
         public void Equals_SameReferences_ShouldBeEqual()
         {
             var fileExplorer = new FileSystemFileExplorer(new MockFileSystem());
-            var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
             var result1 = ModuleAliasMockRule.TryCreateReference(
-                referencingFile.LoadFeatures().CacheRootDirectory, "../bicepModules", configFileUri, "keyvault:1.0.0", fileExplorer);
+                "../bicepModules", configFileUri, "keyvault:1.0.0", fileExplorer);
             var result2 = ModuleAliasMockRule.TryCreateReference(
-                referencingFile.LoadFeatures().CacheRootDirectory, "../bicepModules", configFileUri, "keyvault:2.0.0", fileExplorer);
+                "../bicepModules", configFileUri, "keyvault:2.0.0", fileExplorer);
 
             result1.IsSuccess(out var ref1, out _).Should().BeTrue();
             result2.IsSuccess(out var ref2, out _).Should().BeTrue();
@@ -156,13 +124,12 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
         public void Equals_DifferentModulePaths_ShouldNotBeEqual()
         {
             var fileExplorer = new FileSystemFileExplorer(new MockFileSystem());
-            var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
             var result1 = ModuleAliasMockRule.TryCreateReference(
-                referencingFile.LoadFeatures().CacheRootDirectory, "../bicepModules", configFileUri, "keyvault:1.0.0", fileExplorer);
+                "../bicepModules", configFileUri, "keyvault:1.0.0", fileExplorer);
             var result2 = ModuleAliasMockRule.TryCreateReference(
-                referencingFile.LoadFeatures().CacheRootDirectory, "../bicepModules", configFileUri, "storage:1.0.0", fileExplorer);
+                "../bicepModules", configFileUri, "storage:1.0.0", fileExplorer);
 
             result1.IsSuccess(out var ref1, out _).Should().BeTrue();
             result2.IsSuccess(out var ref2, out _).Should().BeTrue();
@@ -227,11 +194,9 @@ namespace Bicep.Core.UnitTests.Artifacts.LegacyModuleAliasMocks
         public void TryParse_InvalidPathSegment_ShouldFail(string unqualifiedReference, string expectedBadSegment)
         {
             var fileExplorer = new FileSystemFileExplorer(new MockFileSystem());
-            var referencingFile = BicepTestConstants.CreateDummyBicepFile();
             var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
 
             var result = ModuleAliasMockRule.TryCreateReference(
-                referencingFile.LoadFeatures().CacheRootDirectory,
                 "./modules",
                 configFileUri,
                 unqualifiedReference,

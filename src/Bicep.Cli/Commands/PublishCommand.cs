@@ -20,7 +20,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.IO.Abstraction;
@@ -37,7 +36,6 @@ namespace Bicep.Cli.Commands
         private readonly OciArtifactRegistry ociRegistry;
         private readonly IFileExplorer fileExplorer;
         private readonly IBicepConfigurationManager configurationManager;
-        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IOContext ioContext;
         private readonly InputOutputArgumentsResolver inputOutputArgumentsResolver;
 
@@ -48,7 +46,6 @@ namespace Bicep.Cli.Commands
             IArtifactReferenceResolver referenceResolver,
             OciArtifactRegistry ociRegistry,
             IBicepConfigurationManager configurationManager,
-            IFeatureProviderFactory featureProviderFactory,
             IFileExplorer fileExplorer,
             InputOutputArgumentsResolver inputOutputArgumentsResolver)
         {
@@ -58,7 +55,6 @@ namespace Bicep.Cli.Commands
             this.ociRegistry = ociRegistry;
             this.fileExplorer = fileExplorer;
             this.configurationManager = configurationManager;
-            this.featureProviderFactory = featureProviderFactory;
             this.ioContext = ioContext;
             this.inputOutputArgumentsResolver = inputOutputArgumentsResolver;
         }
@@ -136,7 +132,7 @@ namespace Bicep.Cli.Commands
         private OciArtifactReference ValidateReference(string targetModuleReference, IOUri targetModuleUri)
         {
             // A moduleAliasesMock alias is resolved to a local file, which cannot be published.
-            var result = new ModuleAliasMockRule(this.fileExplorer, this.configurationManager, this.featureProviderFactory).TryRedirect(targetModuleUri, ArtifactType.Module, ArtifactAddress.Parse(targetModuleReference)) ??
+            var result = new ModuleAliasMockRule(this.fileExplorer, this.configurationManager).TryRedirect(targetModuleUri, ArtifactType.Module, ArtifactAddress.Parse(targetModuleReference)) ??
                 this.referenceResolver.TryResolve(targetModuleUri, ArtifactType.Module, targetModuleReference);
 
             if (!result.IsSuccess(out var moduleReference, out var failureBuilder))

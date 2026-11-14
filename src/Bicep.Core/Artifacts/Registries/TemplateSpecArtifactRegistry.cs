@@ -22,7 +22,8 @@ namespace Bicep.Core.Artifacts.Registries
 
         public override string Scheme => ArtifactSchemes.TemplateSpecs;
 
-        protected override ArtifactCacheEntry GetCacheEntry(TemplateSpecArtifactReference reference) => reference.CacheEntry;
+        protected override TemplateSpecArtifactCacheEntry GetCacheEntry(TemplateSpecArtifactReference reference) =>
+            new(reference.SubscriptionId, reference.ResourceGroupName, reference.TemplateSpecName, reference.Version, reference.Context.CacheRootDirectory);
 
         protected override async Task<IDictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<TemplateSpecArtifactReference> references)
         {
@@ -30,13 +31,14 @@ namespace Bicep.Core.Artifacts.Registries
 
             foreach (var reference in references)
             {
-                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {reference.CacheEntry.CacheDirectory.Uri.GetFilePath()}");
+                var cacheEntry = this.GetCacheEntry(reference);
+                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {cacheEntry.CacheDirectory.Uri.GetFilePath()}");
                 try
                 {
                     var client = this.clientFactory.CreateClient(reference.Context.Cloud, reference.SubscriptionId);
                     var templateSpecVersion = await client.GetTemplateSpecVersionAsync(reference.TemplateSpecResourceId);
 
-                    await reference.CacheEntry.WriteAsync(templateSpecVersion.Content);
+                    await cacheEntry.WriteAsync(templateSpecVersion.Content);
                 }
                 catch (ArtifactException templateSpecException)
                 {

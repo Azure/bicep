@@ -22,9 +22,9 @@ The work has two parts:
 | 0.7 | External artifact context on remote references | #20523 | Merged |
 | 0.8a | Registry, publish and cache cuts (includes the former 0.8c) | #20528 | Merged |
 | 0.8b | Vocabulary and folders: renames and moves only | #20530 | Merged |
-| 0.9a | OCI payload and codecs | #20554 | In review |
-| 0.9b | Cache entries store packages | – | Next |
-| 0.9c | The compiler gets artifacts, not files | – | Planned |
+| 0.9a | OCI payload and codecs | #20554 | Merged |
+| 0.9b | Cache entries store packages | #20560 | In review |
+| 0.9c | The compiler gets artifacts, not files | – | Next |
 | 1–10 | REP 0022 features (section 5) | – | Planned |
 
 Restructuring the source file grouping (`ArtifactResolutionInfo`) is a separate effort (`source-graph-ownership.md`, draft).
@@ -42,7 +42,7 @@ Restructuring the source file grouping (`ArtifactResolutionInfo`) is a separate 
 | **Artifact package** | An artifact's content in memory, independent of any container | `ModuleArtifactPackage`, `ExtensionArtifactPackage` |
 | **Artifact codec** | Converts a package to and from one container (an OCI payload, a `.tgz`), both ways; tested by round trip | `OciModuleArtifactCodec`, `OciExtensionArtifactCodec`, `LocalExtensionArtifactCodec` |
 | **Artifact payload** | An OCI manifest and the blobs it references, as pushed or pulled | `OciArtifactPayload` |
-| **Artifact cache entry** | Where an artifact is stored on this machine; owns the on-disk layout | `ArtifactCacheEntry`, `OciModuleArtifactCacheEntry`, `OciExtensionArtifactCacheEntry`, `TemplateSpecArtifactCacheEntry`, `LocalExtensionArtifactCacheEntry` |
+| **Artifact cache entry** | Where an artifact is stored on this machine; owns the on-disk layout (the two extension entries share `ExtensionArtifactCacheLayout`) | `ArtifactCacheEntry`, `OciModuleArtifactCacheEntry`, `OciExtensionArtifactCacheEntry`, `TemplateSpecArtifactCacheEntry`, `LocalExtensionArtifactCacheEntry` |
 | **Remote artifact registry** | Restores remote artifacts; the OCI registry also publishes | `IRemoteArtifactRegistry`, `RemoteArtifactRegistry<TReference>`, `OciArtifactRegistry`, `TemplateSpecArtifactRegistry` |
 | **Remote artifact restorer** | Restores remote artifacts across registries and remembers recent failures | `IRemoteArtifactRestorer`, `RemoteArtifactRestorer`, `RemoteArtifactRestoreState` |
 
@@ -209,15 +209,20 @@ public sealed class OciModuleArtifactCacheEntry : OciArtifactCacheEntry
     public ModuleArtifact Open(OciArtifactReference reference);
 }
 
-// One writer for the extension files shared by OCI and local extension cache entries:
-// picks this machine's binary (today's two error messages), then writes types.tgz last.
-public static class ExtensionArtifactCacheFiles
+// The extension layout shared by OCI and local extension cache entries (since 0.9b), and its one writer:
+// picks this machine's binary before writing anything (the two existing error messages), then writes types.tgz last.
+public sealed class ExtensionArtifactCacheLayout
 {
-    public static void Write(IDirectoryHandle directory, ExtensionArtifactPackage package, string referenceForErrors);
+    public ExtensionArtifactCacheLayout(IDirectoryHandle directory);
+    public IFileHandle TypesTgzFile { get; }
+    public IFileHandle BinaryFile { get; }
+    public void Write(ExtensionArtifactPackage package, ArtifactReference reference);
+    public ExtensionArtifact Open();
 }
 
 // What the compiler, language server and local deploy get. Backed by files and read lazily
-// (extension binaries can be large).
+// (extension binaries can be large). ExtensionArtifact exists since 0.9b, without a base class or Reference;
+// Artifact and ModuleArtifact are 0.9c.
 public abstract class Artifact(ArtifactReference reference) { public ArtifactReference Reference { get; } = reference; }
 
 public enum ModuleTemplateKind { SourceFile, ArmTemplate, TemplateSpec }
@@ -232,7 +237,7 @@ public sealed class ModuleArtifact : Artifact
 public sealed class ExtensionArtifact : Artifact
 {
     public IFileHandle Types { get; }
-    public IFileHandle? Binary { get; }                             // this machine's binary, if any
+    public IFileHandle? Binary { get; }                             // this machine's binary, if any (looked up on first use)
 }
 ```
 
@@ -282,7 +287,8 @@ Bicep.Core/
   Artifacts/
     Artifact.cs                                (0.9c) Artifact
     ModuleArtifact.cs                          (0.9c) ModuleArtifact, ModuleTemplateKind
-    ExtensionArtifact.cs                       (0.9c)
+    ExtensionArtifact.cs                       (0.9b)
+    LocalArtifactLoader.cs                     (0.9b) loads local modules; decodes local extension archives and extracts them into the cache
     ArtifactType.cs                            <- Registry/
     ArtifactSchemes.cs                         <- Modules/ModuleReferenceSchemes.cs (ArtifactReferenceSchemes)
     ArtifactException.cs                       <- Registry/ExternalArtifactException.cs
@@ -303,7 +309,6 @@ Bicep.Core/
       ArtifactReferenceResolver.cs             <- Registry/
       IRemoteArtifactContextFactory.cs         <- Registry/IExternalArtifactContextFactory.cs
       RemoteArtifactContextFactory.cs          <- Registry/ExternalArtifactContextFactory.cs
-      LocalArtifactLoader.cs                   (0.9b) opens local modules; decodes local extension archives, extracts them into the cache and opens them
     Redirects/                                 unchanged: ArtifactRedirectRule, RedirectingArtifactResolver (+ PatternRedirectRule in PR 7)
     LegacyModuleAliasMocks/                    unchanged: ModuleAliasMockRule
     Restore/
@@ -335,7 +340,7 @@ Bicep.Core/
       OciExtensionArtifactCacheEntry.cs        <- SourceGraph/Artifacts/BicepRegistryExtensionArtifact.cs
       TemplateSpecArtifactCacheEntry.cs        <- SourceGraph/Artifacts/TemplateSpecModuleArtifact.cs
       LocalExtensionArtifactCacheEntry.cs      <- SourceGraph/Artifacts/LocalExtensionArtifact.cs
-      ExtensionArtifactCacheFiles.cs           (0.9b) the one writer of types.tgz and extension.bin
+      ExtensionArtifactCacheLayout.cs          (0.9b) the extension layout (types.tgz, extension.bin) both extension entries share
       ModuleMetadata.cs                        <- Registry/Oci/ (the cache's "metadata" file)
       TagEncoder.cs                            <- Registry/Oci/ (the cache directory name of a tag)
     Catalog/                                   <- Registry/Catalog/: published modules for completion, the linter and MCP
@@ -378,8 +383,8 @@ Files and folders that disappear:
 | `Registry/Providers/` | 0.8b | Both archives move to `Artifacts/Codecs/` |
 | `Registry/ArtifactHelper.cs` | 0.8b | Its one method became the `GetRemoteArtifactReferences()` extension method in `Artifacts/Restore/RestoreExtensions.cs` |
 | `RegistryClients/Oci/OciArtifactResult.cs`, `OciExtensionArtifactResult.cs`, `OciArtifactResultFactory.cs` | 0.9a | `OciArtifactPayload` and the codecs |
-| `SourceGraph/Artifacts/IExtensionArtifact.cs` | 0.9c | `ExtensionArtifact` (after 0.8b it is the only file left in that folder) |
-| `SourceGraph/ArtifactReferences/` | 0.9c | `IExtensionArtifactReference` replaced by `NamespaceType.ExtensionArtifact` |
+| `SourceGraph/Artifacts/` | 0.9b | `IExtensionArtifact` (the last file left in that folder after 0.8b) replaced by `ExtensionArtifact` |
+| `SourceGraph/ArtifactReferences/` | 0.9b | `IExtensionArtifactReference` replaced by `NamespaceType.ExtensionArtifact` |
 | `SourceLink/OciModuleReferenceExtensions.cs` | 0.9c | `ModuleArtifact.TryGetSources()` |
 
 Tests mirror the product folders and namespaces under `Bicep.Core.UnitTests/Artifacts/` (`References`, `Resolution`, `Restore`, `Registries`, `Codecs`, `Cache`, `Catalog`, `LegacyModuleAliasMocks`) and `Bicep.Core.UnitTests/RegistryClients/`; catalog mocks are in `Mock/Artifacts/Catalog`. `ArtifactCacheLayoutTests` stays an integration test.
@@ -495,13 +500,19 @@ Every Phase 0 PR leaves all baselines unchanged. Diagnostic text isn't frozen: a
     - The Azure SDK session's `ResolveAsync` (existence checks before publish, hover's manifest fallback) no longer validates Bicep content, as the ORAS session already didn't. Publishing without `--force` over an invalid artifact now reports that it exists.
     - An extension whose config lists an architecture with no matching layer now decodes without that binary. Restore still fails on a machine of that architecture if the extension has other binaries; if it has none, it restores without a binary.
   - Round-trip tests per codec (with and without sources, documentation, description and binaries).
+- **0.9b: cache entries store packages.**
+  - `ExtensionArtifactCacheLayout` is the extension layout both extension entries share, and the one writer of `types.tgz` and `extension.bin`: `OciExtensionArtifactCacheEntry.WriteAsync(package, payload, reference)` and `LocalExtensionArtifactCacheEntry.Write(package, reference)` (was `Unpack`) delegate to it. It picks this machine's binary before writing anything, then writes `types.tgz` last. The writers take the `ArtifactReference` for their error messages instead of a string.
+  - `LocalArtifactLoader.TryGetEntryPoint` (named to pair with `IRemoteArtifactRegistry.TryGetEntryPoint`; both become `TryOpen` in 0.9c) loads local artifacts: a module is its file, and an extension package is decoded and extracted into the referencing file's cache. The source graph passes `BicepSourceFile.LoadFeatures().CacheRootDirectory`, the same root the resolver used to get from the feature provider. `LocalArtifactReference(Type, File, SourceText)` is now a pure value with no cache root, `Lazy` or I/O, so `ArtifactReferenceResolver`, `ModuleAliasMockRule`, `RedirectingArtifactResolver.Create` and the CLI `publish` command no longer take `IFeatureProviderFactory`.
+  - References no longer expose cache entries (`OciArtifactReference.CacheEntry` and `ModuleCacheEntry`, `TemplateSpecArtifactReference.CacheEntry`); registries create entries from references. `TryLoadSourceArchive` and the language server's ext-src handler build the module entry themselves until 0.9c replaces them.
+  - Pulled forward from 0.9c: `ExtensionArtifact` (`Types`, and `Binary`, looked up on first use), without the `Artifact` base class or `Reference`, which nothing would use yet. `NamespaceType.ExtensionArtifact` replaced `ExtensionArtifactReference`, and `IExtensionArtifact`, `IExtensionArtifactReference` and `ResolveExtensionArtifact` were deleted. Without a cache root, a local reference can't find its extracted files, so local deploy can't ask it for the binary. Instead, `NamespaceProvider` opens the extension through `ExtensionArtifactCacheLayout` in its types file's directory, which is always the extension's cache entry.
+  - The one on-disk difference: an OCI extension with no binary for this machine no longer leaves `types.tgz` in its incomplete cache entry.
+  - `LocalArtifactLoaderTests` cover modules, extraction, this machine's binary, an unsupported architecture and concurrent loads on a real file system. `LocalArtifactReferenceTests` keeps only the identity tests.
 
 ### 4.2 Remaining phases
 
 | # | Phase | Details | Verification |
 |---|---|---|---|
-| 0.9b | **Cache entries store packages** | `ExtensionArtifactCacheFiles`, shared with OCI extension entries (which `WriteAsync(package, payload)` since 0.9a), is the one writer of extension files; local extensions are decoded, written and opened through the same path (`LocalExtensionArtifactCacheEntry.Unpack` becomes the cache entry's `Write(package)`). Unpacking moves out of `LocalArtifactReference` into `LocalArtifactLoader`; references stop exposing cache entries, and registries create entries from references. `LocalArtifactReference` loses its cache root, so `ArtifactReferenceResolver` and `ModuleAliasMockRule` no longer need `IFeatureProviderFactory`; `IArtifactReferenceResolver` itself is unchanged. | `ArtifactCacheLayoutTests` unchanged; local-extension and concurrent-extraction tests. |
-| 0.9c | **The compiler gets artifacts** | Add `Artifact`, `ModuleArtifact` and `ExtensionArtifact`. `IRemoteArtifactRegistry.TryGetEntryPoint` becomes `TryOpen`; `RemoteArtifactRestoreState.Restored(Artifact)`; `ArtifactResolutionInfo.Result` becomes `ResultWithDiagnosticBuilder<Artifact>`. The source graph uses `ModuleArtifact.Kind`; `NamespaceProvider` uses `ExtensionArtifact.Types`; `NamespaceType` carries `ExtensionArtifact` for local deploy; the language server uses `ModuleArtifact.TryGetSources()`. Delete `IExtensionArtifact`, `IExtensionArtifactReference`, `ResolveExtensionArtifact` and `TryLoadSourceArchive`. | Baselines unchanged; language server ext-src, visualizer and code-lens tests; local deploy tests. |
+| 0.9c | **The compiler gets artifacts** | Add `Artifact` (with `Reference`) and `ModuleArtifact`; `ExtensionArtifact` derives from `Artifact`. `IRemoteArtifactRegistry.TryGetEntryPoint` and `LocalArtifactLoader.TryGetEntryPoint` become `TryOpen`; `RemoteArtifactRestoreState.Restored(Artifact)`; `ArtifactResolutionInfo.Result` becomes `ResultWithDiagnosticBuilder<Artifact>`. The source graph uses `ModuleArtifact.Kind`; `NamespaceProvider` uses `ExtensionArtifact.Types` and passes the source graph's `ExtensionArtifact` to `NamespaceType` instead of opening it from the types file's directory; the language server uses `ModuleArtifact.TryGetSources()`. Delete `TryLoadSourceArchive`. | Baselines unchanged; language server ext-src, visualizer and code-lens tests; local deploy tests. |
 
 Phase 0 ends with 0.9c.
 
@@ -514,7 +525,7 @@ Phase 0 ends with 0.9c.
 
 ### 4.4 Validation notes
 
-- **Last full run (0.9a):** `dotnet build Bicep.slnx --no-restore` with 0 warnings; `dotnet test --solution Bicep.slnx --no-build` with 16,395 passed, 3 skipped and 9 failed. The 9 failures were in `Bicep.LangServer.IntegrationTests` (7) and `Bicep.RpcClient.Tests` (2). Both projects then passed on their own (2,062 and 105 tests). No baseline changes. 0.8b: 16,108 passed and 1 skipped. Each earlier phase ran the full suite; its results are in the PR description.
+- **Last full run (0.9b):** `dotnet build Bicep.slnx --no-restore` with 0 warnings; `dotnet test --solution Bicep.slnx --no-build` with 16,471 passed, 3 skipped and 0 failed. No baseline changes. 0.9a: 16,395 passed, 3 skipped and 9 failed (`Bicep.LangServer.IntegrationTests` and `Bicep.RpcClient.Tests`, which then passed on their own). 0.8b: 16,108 passed and 1 skipped. Each earlier phase ran the full suite; its results are in the PR description.
 - **Test runner flags:** these test runners use Microsoft.Testing.Platform and don't accept `--blame-hang-timeout` or `--output Minimal`. A run with either flag executes zero tests.
 - **Wasm DI:** `AddBicepDecompiler` calls `AddBicepCore` again, so Wasm removes the default registries after both calls.
 - **Mock test case:** `RemoteArtifactRestorerTests`' mock reference includes its context in equality, as real references do.

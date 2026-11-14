@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Cache;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
@@ -11,6 +13,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Semantics.Namespaces;
 
@@ -192,8 +195,11 @@ public class NamespaceProvider : INamespaceProvider
                 azResourceTypeProvider,
                 sourceFile.FileKind,
                 sourceFile.LoadFeatures().AzExtensionConfigEnabled ? azResourceTypeProvider.GetConfigurationType() : null)),
-            ExtensionResourceTypeProvider extensionResourceTypeProvider => new(ExtensionNamespaceType.Create(aliasName, extensionResourceTypeProvider, artifact.Reference, sourceFile.LoadFeatures(), sourceFile.FileKind)),
+            ExtensionResourceTypeProvider extensionResourceTypeProvider => new(ExtensionNamespaceType.Create(aliasName, extensionResourceTypeProvider, OpenExtensionArtifact(typesTgzFileHandle), sourceFile.LoadFeatures(), sourceFile.FileKind)),
             _ => throw new InvalidOperationException($"Unexpected resource type provider type: {typeProvider.GetType().Name}."),
         };
     }
+
+    // An extension's types file is in its cache entry, next to its binary.
+    private static ExtensionArtifact OpenExtensionArtifact(IFileHandle typesTgzFile) => new ExtensionArtifactCacheLayout(typesTgzFile.GetParent()).Open();
 }
