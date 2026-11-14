@@ -667,6 +667,10 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
+            static IEnumerable<FunctionOverload> GetReplPermittedOverloads() =>
+                GetBicepFilePermittedOverloads()
+                    .Where(overload => overload.Flags.HasFlag(FunctionFlags.Pure) || overload.IsPure is not null);
+
             foreach (var overload in GetBicepFilePermittedOverloads())
             {
                 yield return new(overload, (targetScope, sfk) => sfk == BicepSourceFileKind.BicepFile && targetScope != ResourceScope.Local);
@@ -675,6 +679,11 @@ namespace Bicep.Core.Semantics.Namespaces
             foreach (var overload in GetParamsFilePermittedOverloads())
             {
                 yield return new(overload, (targetScope, sfk) => sfk == BicepSourceFileKind.ParamsFile && targetScope != ResourceScope.Local);
+            }
+
+            foreach (var overload in GetReplPermittedOverloads())
+            {
+                yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.ReplFile);
             }
 
             foreach (var (overload, allowedScopes) in GetScopeFunctions())
