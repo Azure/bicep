@@ -57,5 +57,7 @@ public static class TestFeatureProviderFactory
 
         public bool ArtifactAliasesAndRedirectsEnabled => features.ArtifactAliasesAndRedirectsEnabled;
 
+        public bool DeploymentModulesEnabled => features.DeploymentModulesEnabled;
+
     }
 }
