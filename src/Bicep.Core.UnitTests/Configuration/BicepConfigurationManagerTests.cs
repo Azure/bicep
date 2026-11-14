@@ -306,7 +306,7 @@ namespace Bicep.Core.UnitTests.Configuration
             chain2.LayerCount.Should().Be(2);
 
             // Assert — after base file changes, chain is invalidated but structure and values are still correct.
-            sut.PurgeCacheForAffectedChains(fileSet.GetUri("base/bicepconfig.base.json"));
+            sut.InvalidateFile(fileSet.GetUri("base/bicepconfig.base.json"));
             var chain3 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
             chain3.Should().NotBeSameAs(chain1);
 
@@ -357,6 +357,67 @@ namespace Bicep.Core.UnitTests.Configuration
             // Assert.
             diagnostic.Code.Should().Be("BCP454");
             diagnostic.Level.Should().Be(DiagnosticLevel.Error);
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_Cycle_ListsFilesInChainOrder()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./b/bicepconfig.json" }"""),
+                ("b/bicepconfig.json", """{ "extends": "../c/bicepconfig.json" }"""),
+                ("c/bicepconfig.json", """{ "extends": "../b/bicepconfig.json" }"""));
+
+            var diagnostic = GetSingleDiagnostic(GetChain(fileSet));
+
+            diagnostic.Message.Should().EndWith(
+                $": {fileSet.GetUri("bicepconfig.json")} -> {fileSet.GetUri("b/bicepconfig.json")} -> {fileSet.GetUri("c/bicepconfig.json")} -> {fileSet.GetUri("b/bicepconfig.json")}.");
+        }
+
+        // ── Invalid values ────────────────────────────────────────────────────
+
+        [TestMethod]
+        [DataRow("""[]""", "BCP273", "The configuration must be a JSON object")]
+        [DataRow("""{ "extends": 5 }""", "BCP453", "must be a string containing a relative path")]
+        [DataRow("""{ "experimentalFeaturesWarning": "yes" }""", "BCP273", "The \"experimentalFeaturesWarning\" property has an invalid value")]
+        [DataRow("""{ "cacheRootDirectory": 5 }""", "BCP273", "The \"cacheRootDirectory\" property has an invalid value")]
+        [DataRow("""{ "bicep": "1.0" }""", "BCP273", "The \"bicep\" property has an invalid value")]
+        [DataRow("""{ "bicep": { "version": 1 } }""", "BCP273", "The \"bicep.version\" property has an invalid value")]
+        [DataRow("""{ "cloud": [] }""", "BCP273", "The \"cloud\" property has an invalid value")]
+        [DataRow("""{ "moduleAliases": 5 }""", "BCP273", "The \"moduleAliases\" property has an invalid value")]
+        [DataRow("""{ "moduleAliasesMock": 5 }""", "BCP273", "The \"moduleAliasesMock\" property has an invalid value")]
+        [DataRow("""{ "extensions": [] }""", "BCP273", "The \"extensions\" property has an invalid value")]
+        [DataRow("""{ "analyzers": 5 }""", "BCP273", "The \"analyzers\" property has an invalid value")]
+        [DataRow("""{ "experimentalFeaturesEnabled": { "symbolicNameCodegen": "yes" } }""", "BCP273", "The \"experimentalFeaturesEnabled.symbolicNameCodegen\" property has an invalid value")]
+        [DataRow("""{ "formatting": { "indentSize": "x" } }""", "BCP273", "The \"formatting.indentSize\" property has an invalid value")]
+        [DataRow("""{ "documentation": 5 }""", "BCP273", "The \"documentation\" property has an invalid value")]
+        public void GetConfigurationChain_InvalidValue_ReportsErrorAndUsesBuiltInConfiguration(string contents, string expectedCode, string expectedMessagePart)
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", contents));
+
+            var chain = GetChain(fileSet);
+            var diagnostic = GetSingleDiagnostic(chain);
+
+            chain.GetEffectiveConfiguration().IsBuiltIn.Should().BeTrue();
+            diagnostic.Code.Should().Be(expectedCode);
+            diagnostic.Level.Should().Be(DiagnosticLevel.Error);
+            diagnostic.Message.Should().Contain(expectedMessagePart);
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_BaseSetsCompilerSectionToNonObject_UsesLeafSection()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json", "bicep": {} }"""),
+                ("base/bicepconfig.base.json", """{ "bicep": "1.0" }"""));
+
+            var configuration = GetChain(fileSet).GetEffectiveConfiguration();
+
+            configuration.GetDiagnostics().Should().BeEmpty();
+            configuration.Compiler.Version.Should().BeNull();
         }
 
         // ── File not found ────────────────────────────────────────────────────
@@ -467,7 +528,7 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void GetConfigurationChain_AfterPurgeCache_ReturnsNewInstance()
+        public void GetConfigurationChain_AfterInvalidateAll_ReturnsNewInstance()
         {
             // Arrange.
             var fileSet = InMemoryTestFileSet.Create(
@@ -478,7 +539,7 @@ namespace Bicep.Core.UnitTests.Configuration
 
             // Act.
             var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-            sut.PurgeCache();
+            sut.InvalidateAll();
             var chain2 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
 
             // Assert — different instance after purge.
@@ -488,7 +549,7 @@ namespace Bicep.Core.UnitTests.Configuration
         // ── Real content change after purge ───────────────────────────────────
 
         [TestMethod]
-        public void PurgeCacheForAffectedChains_AfterBaseFileContentChanges_PicksUpNewValues()
+        public void InvalidateFile_AfterBaseFileContentChanges_PicksUpNewValues()
         {
             // Arrange — base starts with experimentalFeaturesWarning: false.
             var fileSet = InMemoryTestFileSet.Create(
@@ -507,7 +568,7 @@ namespace Bicep.Core.UnitTests.Configuration
             fileSet.AddFile("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": true }""");
 
             // Purge the chain cache for the changed file.
-            sut.PurgeCacheForAffectedChains(fileSet.GetUri("base/bicepconfig.base.json"));
+            sut.InvalidateFile(fileSet.GetUri("base/bicepconfig.base.json"));
 
             // Reload — must pick up the NEW value from the updated base file.
             var chain2 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
@@ -517,60 +578,10 @@ namespace Bicep.Core.UnitTests.Configuration
             chain2.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
         }
 
-        [TestMethod]
-        public void GetDependenciesForLeaf_SingleConfig_TracksSelf()
-        {
-            var fileSet = InMemoryTestFileSet.Create(
-                ("main.bicep", ""),
-                ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
-            sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-
-            var deps = sut.GetDependenciesForLeaf(fileSet.GetUri("bicepconfig.json"));
-
-            deps.Should().ContainSingle().Which.Should().Be(fileSet.GetUri("bicepconfig.json"));
-        }
+        // ── InvalidateFile ───────────────────────────────────────────────────
 
         [TestMethod]
-        public void GetDependenciesForLeaf_LeafExtendsBase_TracksBothFiles()
-        {
-            var fileSet = InMemoryTestFileSet.Create(
-                ("main.bicep", ""),
-                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
-                ("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
-            sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-
-            var deps = sut.GetDependenciesForLeaf(fileSet.GetUri("bicepconfig.json"));
-
-            deps.Should().HaveCount(2);
-            deps.Should().Contain(fileSet.GetUri("bicepconfig.json"));
-            deps.Should().Contain(fileSet.GetUri("base/bicepconfig.base.json"));
-        }
-
-        [TestMethod]
-        public void GetDependenciesForLeaf_DeepChain_TracksAllFiles()
-        {
-            var fileSet = InMemoryTestFileSet.Create(
-                ("main.bicep", ""),
-                ("bicepconfig.json", """{ "extends": "./b/bicepconfig.b.json" }"""),
-                ("b/bicepconfig.b.json", """{ "extends": "../c/bicepconfig.c.json" }"""),
-                ("c/bicepconfig.c.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
-            sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-
-            var deps = sut.GetDependenciesForLeaf(fileSet.GetUri("bicepconfig.json"));
-
-            deps.Should().HaveCount(3);
-            deps.Should().Contain(fileSet.GetUri("bicepconfig.json"));
-            deps.Should().Contain(fileSet.GetUri("b/bicepconfig.b.json"));
-            deps.Should().Contain(fileSet.GetUri("c/bicepconfig.c.json"));
-        }
-
-        // ── PurgeCacheForAffectedChains ───────────────────────────────────────
-
-        [TestMethod]
-        public void PurgeCacheForAffectedChains_BaseFileChanges_InvalidatesAffectedChain()
+        public void InvalidateFile_BaseFileChanges_InvalidatesAffectedChain()
         {
             var fileSet = InMemoryTestFileSet.Create(
                 ("main.bicep", ""),
@@ -583,7 +594,7 @@ namespace Bicep.Core.UnitTests.Configuration
             chain1.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
             chain1.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
 
-            sut.PurgeCacheForAffectedChains(fileSet.GetUri("base/bicepconfig.base.json"));
+            sut.InvalidateFile(fileSet.GetUri("base/bicepconfig.base.json"));
             var chain2 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
 
             // Chain was rebuilt (different instance) but content is still correct.
@@ -593,7 +604,7 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void PurgeCacheForAffectedChains_UnrelatedFileChanges_DoesNotInvalidateChain()
+        public void InvalidateFile_UnrelatedFileChanges_DoesNotInvalidateChain()
         {
             var fileSet = InMemoryTestFileSet.Create(
                 ("main.bicep", ""),
@@ -606,7 +617,7 @@ namespace Bicep.Core.UnitTests.Configuration
             // Verify chain1 has correct content before purge.
             chain1.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
 
-            sut.PurgeCacheForAffectedChains(fileSet.GetUri("other/bicepconfig.json"));
+            sut.InvalidateFile(fileSet.GetUri("other/bicepconfig.json"));
             var chain2 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
 
             // Unrelated change — chain must NOT be invalidated (same instance, same values).
@@ -616,7 +627,7 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void PurgeCacheForAffectedChains_LeafFileChanges_InvalidatesItsOwnChain()
+        public void InvalidateFile_LeafFileChanges_InvalidatesItsOwnChain()
         {
             var fileSet = InMemoryTestFileSet.Create(
                 ("main.bicep", ""),
@@ -627,7 +638,7 @@ namespace Bicep.Core.UnitTests.Configuration
             // Verify chain1 has correct content before purge.
             chain1.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
 
-            sut.PurgeCacheForAffectedChains(fileSet.GetUri("bicepconfig.json"));
+            sut.InvalidateFile(fileSet.GetUri("bicepconfig.json"));
             var chain2 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
 
             // Chain was rebuilt — different instance, but correct content.
@@ -637,7 +648,7 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void PurgeCacheForAffectedChains_DeepChainBaseChanges_InvalidatesEntireChain()
+        public void InvalidateFile_DeepChainBaseChanges_InvalidatesEntireChain()
         {
             // A extends B extends C — deepest file C changes.
             var fileSet = InMemoryTestFileSet.Create(
@@ -651,7 +662,7 @@ namespace Bicep.Core.UnitTests.Configuration
             // Verify chain1 has correct content — value inherited from deepest C.
             chain1.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
 
-            sut.PurgeCacheForAffectedChains(fileSet.GetUri("c/bicepconfig.c.json"));
+            sut.InvalidateFile(fileSet.GetUri("c/bicepconfig.c.json"));
             var chain2 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
 
             // Chain was rebuilt — value from C still flows through correctly.
@@ -661,7 +672,7 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void PurgeCacheForAffectedChains_SharedBase_InvalidatesOnlyAffectedLeaf()
+        public void InvalidateFile_SharedBase_InvalidatesOnlyAffectedLeaf()
         {
             // main extends shared; other does not — only main's chain should be purged.
             var fileSet = InMemoryTestFileSet.Create(
@@ -678,7 +689,7 @@ namespace Bicep.Core.UnitTests.Configuration
             chainMain.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();   // from shared
             chainOther.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse(); // its own value
 
-            sut.PurgeCacheForAffectedChains(fileSet.GetUri("shared/bicepconfig.shared.json"));
+            sut.InvalidateFile(fileSet.GetUri("shared/bicepconfig.shared.json"));
             var chainMainAfter = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
             var chainOtherAfter = sut.GetConfigurationChain(fileSet.GetUri("other/other.bicep"));
 
@@ -691,6 +702,70 @@ namespace Bicep.Core.UnitTests.Configuration
             chainOther.Should().BeSameAs(chainOtherAfter);
             chainOtherAfter.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse();
             chainOtherAfter.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void InvalidateFile_FileNotReadByAnyChain_ReturnsFalse()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""),
+                ("unrelated.json", "{}"));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            var chain = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
+
+            sut.InvalidateFile(fileSet.GetUri("unrelated.json")).Should().BeFalse();
+            sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).Should().BeSameAs(chain);
+        }
+
+        [TestMethod]
+        public void InvalidateFile_AfterBrokenBaseIsFixed_ReloadsChain()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
+                ("base/bicepconfig.base.json", "not json"));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            GetSingleDiagnostic(sut.GetConfigurationChain(fileSet.GetUri("main.bicep"))).Code.Should().Be("BCP271");
+
+            fileSet.AddFile("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": false }""");
+
+            sut.InvalidateFile(fileSet.GetUri("base/bicepconfig.base.json")).Should().BeTrue();
+            var configuration = sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).GetEffectiveConfiguration();
+            configuration.GetDiagnostics().Should().BeEmpty();
+            configuration.ExperimentalFeaturesWarning.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void InvalidateFile_AfterMissingBaseIsCreated_ReloadsChain()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            GetSingleDiagnostic(sut.GetConfigurationChain(fileSet.GetUri("main.bicep"))).Code.Should().Be("BCP272");
+
+            fileSet.AddFile("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": false }""");
+
+            sut.InvalidateFile(fileSet.GetUri("base/bicepconfig.base.json")).Should().BeTrue();
+            var configuration = sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).GetEffectiveConfiguration();
+            configuration.GetDiagnostics().Should().BeEmpty();
+            configuration.ExperimentalFeaturesWarning.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void InvalidateFile_ConfigFileCreatedCloserToSource_ChangesDiscoveredConfiguration()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("src/main.bicep", ""),
+                ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            sut.GetEffectiveConfiguration(fileSet.GetUri("src/main.bicep")).ConfigFileUri.Should().Be(fileSet.GetUri("bicepconfig.json"));
+
+            fileSet.AddFile("src/bicepconfig.json", """{ "experimentalFeaturesWarning": false }""");
+
+            sut.InvalidateFile(fileSet.GetUri("src/bicepconfig.json")).Should().BeTrue();
+            sut.GetEffectiveConfiguration(fileSet.GetUri("src/main.bicep")).ConfigFileUri.Should().Be(fileSet.GetUri("src/bicepconfig.json"));
         }
 
         // ── moduleAliasesMock relative path provenance ────────────────────────
@@ -953,11 +1028,7 @@ namespace Bicep.Core.UnitTests.Configuration
             chain.LayerCount.Should().Be(2);
             chain.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse();
             chain.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
-            sut.GetDependenciesForLeaf(fileSet.GetUri("eng/bicepconfig.prod.json")).Should().BeEquivalentTo(
-            [
-                fileSet.GetUri("eng/bicepconfig.prod.json"),
-                fileSet.GetUri("eng/shared/bicepconfig.base.json"),
-            ]);
+            sut.InvalidateFile(fileSet.GetUri("eng/shared/bicepconfig.base.json")).Should().BeTrue();
         }
 
         [TestMethod]
