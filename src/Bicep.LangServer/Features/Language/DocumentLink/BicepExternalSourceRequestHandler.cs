@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Cache;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Artifacts.Restore;
@@ -96,7 +97,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
             // No sources available, or specifically requesting the compiled main.json (requestedSourceFile=null).
             // Return the compiled JSON (main.json).
-            var mainTemplateFile = ociModuleReference.ModuleCacheEntry.MainTemplateFile;
+            var mainTemplateFile = new OciModuleArtifactCacheEntry(ociModuleReference.AddressComponents, ociModuleReference.Context.CacheRootDirectory).MainTemplateFile;
             if (!mainTemplateFile.TryReadAllText().IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;

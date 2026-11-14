@@ -7,7 +7,6 @@ using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
@@ -68,7 +67,7 @@ public class ArtifactReferenceResolutionTests
         var (entryPoint, _, _, services) = Setup(entryContents: $"module foo '{referenceText}' = {{}}");
         var module = entryPoint.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
         var resolver = new RedirectingArtifactResolver(
-            new ArtifactReferenceResolver([], services.GetRequiredService<IFileExplorer>(), services.GetRequiredService<IBicepConfigurationManager>(), services.GetRequiredService<IFeatureProviderFactory>(), services.GetRequiredService<IRemoteArtifactContextFactory>()),
+            new ArtifactReferenceResolver([], services.GetRequiredService<IFileExplorer>(), services.GetRequiredService<IBicepConfigurationManager>(), services.GetRequiredService<IRemoteArtifactContextFactory>()),
             []);
 
         Describe(ResolveDeclaration(resolver, entryPoint, module)).Should().Be(expected);

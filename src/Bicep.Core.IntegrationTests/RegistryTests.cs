@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Cache;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Artifacts.Restore;
@@ -407,8 +408,8 @@ namespace Bicep.Core.IntegrationTests
             // The entry point's path, whether or not the artifact is restored yet.
             reference switch
             {
-                OciArtifactReference oci => oci.CacheEntry.EntryPoint,
-                TemplateSpecArtifactReference templateSpec => templateSpec.CacheEntry.EntryPoint,
+                OciArtifactReference oci => new OciModuleArtifactCacheEntry(oci.AddressComponents, oci.Context.CacheRootDirectory).EntryPoint,
+                TemplateSpecArtifactReference templateSpec => new TemplateSpecArtifactCacheEntry(templateSpec.SubscriptionId, templateSpec.ResourceGroupName, templateSpec.TemplateSpecName, templateSpec.Version, templateSpec.Context.CacheRootDirectory).EntryPoint,
                 _ => throw new InvalidOperationException($"Unexpected reference type '{reference.GetType().Name}'."),
             };
 

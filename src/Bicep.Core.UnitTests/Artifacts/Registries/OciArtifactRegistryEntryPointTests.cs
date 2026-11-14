@@ -3,6 +3,7 @@
 
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Cache;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Registries;
 using Bicep.Core.Extensions;
@@ -36,7 +37,7 @@ public class OciArtifactRegistryEntryPointTests
         if (expectRestored)
         {
             entryPoint.Should().NotBeNull();
-            entryPoint!.Uri.Should().Be(reference.ModuleCacheEntry.MainTemplateFile.Uri);
+            entryPoint!.Uri.Should().Be(GetCacheEntry(reference).MainTemplateFile.Uri);
         }
         else
         {
@@ -48,7 +49,7 @@ public class OciArtifactRegistryEntryPointTests
     public void An_incomplete_cache_entry_is_not_restored()
     {
         var reference = CreateCachedModuleReference("contoso.azurecr.io");
-        reference.ModuleCacheEntry.MetadataFile.Delete();
+        GetCacheEntry(reference).MetadataFile.Delete();
         IRemoteArtifactRegistry ociRegistry = new OciArtifactRegistry(
             new RegistryConfiguration(PermitUntrustedRegistries: false),
             StrictMock.Of<IOciRegistryTransportFactory>().Object,
@@ -63,7 +64,7 @@ public class OciArtifactRegistryEntryPointTests
         var context = new OciArtifactContext(BicepTestConstants.BuiltInConfiguration.Cloud, cacheRoot, UseOrasSdk: false);
         var reference = new OciArtifactReference(context, ArtifactType.Module, registry, "modules/storage", "v1", null);
 
-        var cacheEntry = reference.ModuleCacheEntry;
+        var cacheEntry = GetCacheEntry(reference);
         cacheEntry.CacheDirectory.EnsureExists();
         cacheEntry.MainTemplateFile.Write("{}");
         cacheEntry.ManifestFile.Write("{}");
@@ -71,4 +72,6 @@ public class OciArtifactRegistryEntryPointTests
 
         return reference;
     }
+
+    private static OciModuleArtifactCacheEntry GetCacheEntry(OciArtifactReference reference) => new(reference.AddressComponents, reference.Context.CacheRootDirectory);
 }
