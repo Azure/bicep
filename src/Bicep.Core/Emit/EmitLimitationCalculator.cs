@@ -700,7 +700,9 @@ namespace Bicep.Core.Emit
 
             var externalInputDefinitions = evaluator.TryGetExternalInputDefinitions();
             ParameterAssignmentValue? usingConfig = null;
-            if (evaluator.EvaluateUsingConfig(model.Root) is { } usingConfigResult)
+            if (model.Root.UsingDeclarationSyntax?.Config is { } config &&
+                model.GetTypeInfo(config) is not ErrorType &&
+                evaluator.EvaluateUsingConfig(model.Root) is { } usingConfigResult)
             {
                 usingConfig = new(usingConfigResult.Value, usingConfigResult.Expression, usingConfigResult.KeyVaultReference);
             }

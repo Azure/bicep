@@ -89,6 +89,8 @@ param foo string
 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Parameters.Should().NotBeNull();
+        result.Parameters!["usingConfig"]!["expression"]!.Value<string>().Should().Contain("externalInputs");
     }
 
     [TestMethod]
@@ -119,6 +121,25 @@ param foo string
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    [DataRow("checks.resourceExists('id')", "BCP057")]
+    [DataRow("sys.notAFunction('id')", "BCP107")]
+    public void Invalid_function_in_nested_using_config_reports_diagnostics(string expression, string code)
+    {
+        var result = CompilationHelper.CompileParams(Services,
+            ("parameters.bicepparam", $$"""
+                using 'main.bicep' with {
+                  mode: 'deployment'
+                  scope: '/subscriptions/test/resourceGroups/test'
+                  preChecks: [{{expression}}]
+                }
+                """),
+            ("main.bicep", ""));
+
+        result.Parameters.Should().BeNull();
+        result.Diagnostics.Should().Contain(diagnostic => diagnostic.Level == DiagnosticLevel.Error && diagnostic.Code == code);
     }
 
     [TestMethod]

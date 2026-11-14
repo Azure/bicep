@@ -47,6 +47,38 @@ namespace Bicep.LangServer.IntegrationTests
         private const string RemoveUnusedImportTitle = "Remove unused import";
 
         [TestMethod]
+        public async Task Code_actions_work_when_referenced_stack_has_invalid_using_config()
+        {
+            var mainFile = new LanguageClientFile("/example/main.bicep", """
+                targetScope = 'orchestrator'
+                var unused = 'test'
+                stack example './stack.bicepparam' = {
+                  inputs: {}
+                }
+                """);
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [InMemoryFileResolver.GetFileUri("/example/stack.bicepparam")] = """
+                    using './stack.bicep' with {
+                      mode: 'deployment'
+                      scope: '/subscriptions/test/resourceGroups/test'
+                      preChecks: [checks.resourceExists('id')]
+                    }
+                    """,
+                [InMemoryFileResolver.GetFileUri("/example/stack.bicep")] = "",
+            });
+
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
+                services => services
+                    .WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem))
+                    .WithFeatureOverrides(new(OrchestrationEnabled: true, DeployCommandsEnabled: true)));
+            await helper.OpenFileOnceAsync(TestContext, mainFile);
+
+            var codeActions = await RequestCodeActions(helper.Client, mainFile, new TextSpan(mainFile.Text.IndexOf("unused", StringComparison.Ordinal), 0));
+            codeActions.Should().Contain(action => action.Title.StartsWith(RemoveUnusedVariableTitle));
+        }
+
+        [TestMethod]
         [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task RequestingCodeActionWithFixableDiagnosticsShouldProduceQuickFixes(DataSet dataSet)
         {
