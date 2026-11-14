@@ -2,10 +2,11 @@
 
 Scope: everything under `src/Bicep.Core/Configuration`, plus the code that loads, caches and reads `bicepconfig.json`: the language server's config lifecycle, `BicepSourceFile.LoadConfiguration`, `FeatureProvider`, linter rules, and artifact and extension resolution.
 
-The work is 11 PRs, plus one in a later release:
+The work is 13 PRs, plus one in a later release:
 
-- **Fixes (PR 1)**: crashes and cache invalidation. Can start now.
+- **Fixes (PR 1)**: crashes and cache invalidation. In review (#20561).
 - **Loading (PRs 2–4)**: a loader pipeline that records which file set each value, so errors and relative paths use that file; the cache root moves to an environment variable.
+- **Cache freshness (PRs 13–14)**: caches record the files they read and check them themselves, so every host (language server, `bicep jsonrpc`, MCP server) sees file changes; the language server pushes file events through a shared notifier.
 - **Models and validation (PRs 5–9)**: plain records, typed sections, warnings for unknown and ignored settings, per-section fallback.
 - **Access (PRs 10–11)**: one configuration snapshot per compilation; the explicit config path passed in instead of ambient state.
 
@@ -17,7 +18,7 @@ PRs that change user-visible behavior are marked **(behavior change)**. Everythi
 
 | PR | Summary | Files (product + test) | After | Status |
 |---|---|---|---|---|
-| 1 | Config errors become diagnostics; correct cache invalidation | ~9 + ~11 | – | In progress |
+| 1 | Config errors become diagnostics; correct cache invalidation | ~9 + ~11 | – | In review (#20561) |
 | 2 | Loader pipeline: parse cache, one merge that records the declaring file, per-file diagnostics | ~13 + ~7 | 1 | Planned |
 | 3 | The declaring file is used everywhere: `bicep.version`, aliases, mocks, relative paths | ~12 + ~8 | 2 | Planned |
 | 4 | `BICEP_ARTIFACT_CACHE_DIR`; `cacheRootDirectory` deprecated | ~5 + ~5 | 2 | Planned |
@@ -29,8 +30,10 @@ PRs that change user-visible behavior are marked **(behavior change)**. Everythi
 | 10 | One configuration snapshot per compilation | ~13 + ~14 | 2 | Planned |
 | 11 | Explicit config path passed in; `ExplicitConfigurationContext` removed | ~6 + ~2 | 2 | Planned |
 | 12 | *(later release)* Remove the `cacheRootDirectory` property | ~3 + ~3 | 4 | Later |
+| 13 | Configuration cache checks its own dependencies; shared file-change notifier | ~10 + ~6 | 2 | Planned |
+| 14 | Auxiliary file cache (`load*()` files) uses the same mechanism | ~5 + ~4 | 13 | Planned |
 
-File counts are estimates from today's call sites. PRs 5 and 10 are larger, but most of their edits are the same change repeated (noted in each PR).
+File counts are estimates from today's call sites. PRs 5 and 10 are larger, but most of their edits are the same change repeated (noted in each PR). PRs 13 and 14 were added after PR 1 showed that the CLI JSON-RPC and MCP servers never see file changes (B6).
 
 ```
 1 -> 2 ─┬─> 3 -> 5 ─┬─> 6
@@ -39,10 +42,11 @@ File counts are estimates from today's call sites. PRs 5 and 10 are larger, but 
         │           └─> 9
         ├─> 4 ··· (one release later) ··· 12
         ├─> 10
-        └─> 11
+        ├─> 11
+        └─> 13 -> 14
 ```
 
-After PR 2, three tracks can run side by side: PRs 3, 5 and 6–9 in order, PR 4, and PRs 10–11. PRs 6, 7, 8 and 9 only depend on PR 5.
+After PR 2, four tracks can run side by side: PRs 3, 5 and 6–9 in order, PR 4, PRs 10–11, and PRs 13–14. PRs 6, 7, 8 and 9 only depend on PR 5.
 
 ---
 
@@ -59,6 +63,8 @@ Each item was confirmed with the Debug CLI built from `main`, or by reading the 
 | B3 | Errors are blamed on the wrong file | An invalid `currentProfile` in a base config reports BCP273 against the child's `bicepconfig.json`. Module alias errors (`ModuleAliasesConfiguration.configFileUri`) also always name the leaf. | PRs 2, 3 |
 | B4 | Per-file config diagnostics are always empty (code reading) | `BicepConfiguration.Bind` passes `diagnostics: null`, so every layer has none. `EnumerateDiagnosticsPerFile` only ever returns empty arrays. The doc comments on `IBicepConfiguration.GetDiagnostics` and `BicepConfigurationChain.GetEffectiveConfiguration` describe aggregation that doesn't happen. | PR 2 |
 | B5 | A failed chain stays cached after the file is fixed (code reading) | `LoadChain` records a chain's files only when loading succeeds. After a parse error or a missing base file, `PurgeCacheForAffectedChains(base)` finds nothing to purge. In the language server this is hidden because the change event purges everything. | PR 1 |
+| B6 | Long-running hosts other than the language server never see file changes (code reading) | `bicep jsonrpc` and the MCP server use the same singleton `BicepConfigurationManager` and `AuxiliaryFileCache`, and nothing in `Bicep.Cli` or `Bicep.McpServer*` ever invalidates or trims them. An edited `bicepconfig.json`, or a file read by a `load*()` function, isn't picked up until the process restarts, and `AuxiliaryFileCache` grows without limit. | PRs 13, 14 |
+| B7 | Config changes the language server missed | The watched-files handler only reacted to files named exactly `bicepconfig.json`, so editing an extended base config such as `bicepconfig.base.json` never refreshed anything. Clients may also report only the folder when a folder is deleted, which exact URI matching misses. | PR 1 |
 
 ### 2.2 Silent misconfiguration
 
@@ -131,17 +137,93 @@ Types:
 | `ConfigurationBinder` | `MergedConfiguration` -> `BicepConfiguration` plus diagnostics. Each section has a binder; each binder gets the provenance so it can resolve paths and report against the right file. |
 | `ConfigurationDiagnostic` | Internal: `(IOUri? File, string JsonPath, DiagnosticLevel Level, string Code, string Message)`. Converted to `IDiagnostic` at the edge. |
 
-### 3.2 Caches
+### 3.2 Caches and freshness
 
-| Cache | Key | Value | Invalidated by |
-|---|---|---|---|
-| Located leaf | directory | leaf `IOUri?` | a `bicepconfig.json` is created or deleted (full clear) |
-| Parsed file | file `IOUri` | `ConfigurationFile` | that file changes |
-| Chain | leaf `IOUri` | `BicepConfigurationChain` (includes the list of its files) | any of its files changes |
+| Cache | Key | Value |
+|---|---|---|
+| Located leaf | directory | leaf `IOUri?` |
+| Parsed file | file `IOUri` | `ConfigurationFile` |
+| Chain | leaf `IOUri` | `BicepConfigurationChain` and its `FileDependencies` |
 
-- The chain's file list is recorded **for failures too** (fixes B5): a chain that failed to load still lists the files it got as far as reading, plus the file it failed on.
-- `directoryHandleCache` is removed.
-- Public invalidation API: `InvalidateFile(IOUri fileUri)` and `InvalidateAll()`. `InvalidateFile` drops every chain that read the file. Any event on a file named `bicepconfig.json` also clears the leaf lookup cache, because clients don't reliably say whether a file was created or changed.
+**After PR 1 (interim).** The configuration manager records which files each chain read, including failed chains (fixes B5). The language server forwards every watched-file event to `InvalidateFile(uri)`, which drops each chain that read the file or anything under it (a folder event covers its contents). An event on any `bicepconfig.json` also resets discovery, because clients don't reliably say whether a file was created or changed. This works for the language server only; other hosts never call it (B6).
+
+**Target (PRs 13–14).** Each cache owns its freshness. Callers don't tell it what to invalidate.
+
+1. **Recorded dependencies.** A shared `FileDependencies` type in `Bicep.IO` records, for one cache entry, every file it read with a version stamp (last-write time and size), and every path it checked that didn't exist. For configuration, that's each file in the chain plus every directory searched for a `bicepconfig.json` without finding one. That second list is what catches a config file created closer to the source file.
+2. **Version checks.** `FileDependencies.IsCurrent()` compares the recorded stamps with the file system: a file changed or was deleted, or a missing path now exists. `IFileHandle` gets a version API for this; the in-memory file system returns a counter that increases on every write.
+3. **An optional notifier.** `IFileChangeNotifier` in `Bicep.IO.Abstraction` publishes batches of changed URIs. Only the language server provides one, fed by `didChangeWatchedFiles`. Caches subscribe, find entries whose dependencies match (a folder covers everything under it), check those entries' version stamps right away, and drop the ones that changed. The configuration manager raises `ConfigurationChanged` only if it dropped something, and the compilation manager refreshes compilations from that event, not from raw file events. That way it never recompiles before the configuration cache has been updated, or for events that didn't change anything (some watchers report a folder as "changed" when files inside it change).
+4. **Re-checking depends on the host.** With a notifier, entries are checked only when an event matches them, so steady-state requests cost nothing. Without one (CLI commands, `bicep jsonrpc`, MCP server), entries are checked against their version stamps when they're read: a few file-status calls, once per request.
+
+With this, `InvalidateFile` and the invalidation part of `BicepConfigLifecycleManager` go away; the lifecycle manager only publishes diagnostics for open config files. `InvalidateAll()` stays as an explicit command.
+
+```mermaid
+flowchart LR
+    subgraph LSP["Language server"]
+        W["didChangeWatchedFiles handler"]
+        N["LanguageServerFileChangeNotifier"]
+        CM["BicepCompilationManager"]
+    end
+
+    subgraph Core["Bicep.Core / Bicep.IO"]
+        BCM["BicepConfigurationManager"]
+        AUX["AuxiliaryFileCache"]
+        FD["FileDependencies<br/>(files read + version stamps,<br/>paths checked but missing)"]
+    end
+
+    FS[("File system")]
+
+    W -- "changed URIs" --> N
+    N -- "FilesChanged" --> BCM
+    N -- "FilesChanged" --> AUX
+    BCM -- "ConfigurationChanged<br/>(only if entries were dropped)" --> CM
+    AUX -- "AuxiliaryFilesChanged" --> CM
+    BCM -- "one per chain" --> FD
+    AUX -- "one per entry" --> FD
+    FD -- "IsCurrent(): file-status checks" --> FS
+```
+
+How each host sees an edit to a base config:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as Editor / caller
+    participant Host as Host
+    participant BCM as BicepConfigurationManager
+    participant FS as File system
+
+    rect rgb(235, 245, 255)
+    Note over Client,FS: Language server (notifier present)
+    Client->>Host: didChangeWatchedFiles(base/bicepconfig.base.json)
+    Host->>BCM: FilesChanged([...]) via IFileChangeNotifier
+    BCM->>FS: IsCurrent() for chains whose dependencies match
+    BCM->>BCM: drop the chains that changed
+    BCM-->>Host: ConfigurationChanged (only if something was dropped)
+    Host->>BCM: GetConfigurationChain(main.bicep) while recompiling
+    BCM-->>Host: reloaded chain
+    end
+
+    rect rgb(245, 245, 235)
+    Note over Client,FS: bicep jsonrpc / MCP (no notifier)
+    Client->>Host: compile request
+    Host->>BCM: GetConfigurationChain(main.bicep)
+    BCM->>FS: IsCurrent(): status of each recorded file and missing path
+    alt something changed
+        BCM->>BCM: reload chain
+    end
+    BCM-->>Host: current chain
+    end
+```
+
+**Why not a file watcher for `bicep jsonrpc` and the MCP server?** The interface allows one later, but it isn't needed now:
+
+- These servers have no workspace root. Each request brings arbitrary paths, so a watcher implementation would have to start and stop directory watchers for every file read, count references, and dispose of them when cache entries are dropped.
+- `FileSystemWatcher` is least reliable in the places that matter:
+  - Editors often save by writing a temp file and renaming it, so a save shows up as a rename.
+  - Its buffer can overflow and drop events; the only signal is its `Error` event, which then has to clear everything.
+  - Linux limits how many watches a user can have.
+  - Network shares, WSL and container mounts are unreliable.
+- These servers compile once per request, so checking a few file versions per request costs microseconds and is deterministic.
 
 ### 3.3 Merge rules
 
@@ -213,7 +295,7 @@ Verify with `dotnet test --solution Bicep.slnx --no-build` (full suite). To upda
 
 ### PR 1 – Config errors become diagnostics; correct cache invalidation **(behavior change: crashes become errors)**
 
-Fixes B1 and B5. Two independent fixes in the same files (`BicepConfigurationManager` and its tests), so they're reviewed together.
+Fixes B1, B5 and B7. Two independent fixes in the same files (`BicepConfigurationManager` and its tests), so they're reviewed together.
 
 Errors:
 
@@ -231,14 +313,17 @@ Caching:
 9. Remove `directoryHandleCache`: building a directory handle is in-memory string work, and handles compare by URI, so the lookup cache still hits.
 10. Replace `PurgeCacheForAffectedChains`, `PurgeAllCaches` and `PurgeChainCache` with `InvalidateFile(uri)` (returns whether anything was dropped) and `InvalidateAll()`. Delete `PurgeCache`, `PurgeLookupCache`, `GetDependenciesForLeaf` and the unused `BicepConfigurationChain.GetAllDiagnostics`. Update `PatchingConfigurationManager` and the `ConstantBicepConfigurationManager` test fake.
 11. The language server passes **every** watched-file event to `InvalidateFile` and refreshes compilations only if something was dropped. Before, only files named exactly `bicepconfig.json` were considered, so editing an extended base config such as `bicepconfig.base.json` never refreshed anything. Unsaved editor changes no longer purge anything, because configuration is read from disk.
+12. A URI passed to `InvalidateFile` also covers everything under it, because clients may report only the folder when a folder is deleted. It uses `IOUri.IsBaseOf`, which compares whole path segments, so `base` covers `base/x.json` but not `base.json`. Cached lookups for directories under the folder are also dropped, so a folder recreated without its `bicepconfig.json` finds its parent's config. That cleanup doesn't count as an invalidation, so a folder reported as "changed" doesn't refresh every compilation.
 
 Tests:
 
 - A data-driven test over the inputs that crash today, plus a wrong-type value in each top-level section. Each asserts a diagnostic and no exception.
 - The cycle message lists files in order.
-- Fixing a broken base file and calling `InvalidateFile(base)` reloads the chain.
-- Editing one leaf leaves other chains cached.
+- Fixing a broken base file, or creating a missing one, and calling `InvalidateFile(base)` reloads the chain.
+- Editing one leaf leaves other chains cached; a file no chain read returns `false`.
 - Creating a `bicepconfig.json` closer to a source file changes which leaf it finds.
+- Deleting a folder that holds a base config, or recreating a folder without its config, when only the folder is reported; a path that only shares a prefix (`base` vs `base.json`) doesn't match.
+- LangServer: editing an extended base config with another name refreshes the compilation (fails without the fix).
 - Run `BicepConfigChangeHandlerTests` and the LangServer `BicepConfigTests`.
 
 ### PR 2 – Loader pipeline with declaring-file tracking **(behavior change: errors name the right file)**
@@ -363,6 +448,37 @@ Tests: the existing `--config` CLI and JSON-RPC tests.
 
 At least one release after PR 4. Remove the property from `BicepConfiguration`, the binder and the schema. A leftover key then gets the "unknown setting" warning.
 
+### PR 13 – Configuration cache checks its own dependencies **(behavior change: `bicep jsonrpc` and the MCP server see config edits)**
+
+Fixes B6 for configuration and replaces PR 1's interim `InvalidateFile` (3.2).
+
+1. Add `IFileHandle.GetVersion()` (or similar) returning last-write time and size, with an in-memory implementation that returns a counter increased on every write.
+2. Add `FileDependencies` to `Bicep.IO`: files read, with their versions, plus paths checked but missing; `IsCurrent()`; `Matches(IOUri)`, where a folder covers everything under it.
+3. `BicepConfigurationManager` records `FileDependencies` for each chain (built from PR 2's parsed files) and for each located-leaf lookup (the found file plus every directory searched without finding one).
+4. Add `IFileChangeNotifier` to `Bicep.IO.Abstraction`. When a notifier is registered, the manager subscribes: on `FilesChanged` it checks matching entries, drops the stale ones, and raises `ConfigurationChanged` if any were dropped. When none is registered, `GetConfigurationChain` checks an entry's `IsCurrent()` before returning it.
+5. Language server: add `LanguageServerFileChangeNotifier`, fed by the watched-files handler. `BicepCompilationManager` refreshes compilations on `ConfigurationChanged`. Delete `InvalidateFile` and the invalidation in `BicepConfigLifecycleManager`, which keeps only diagnostics publishing.
+
+Tests:
+
+- `FileDependencies`: changed, deleted and created files; a folder covers its contents.
+- Without a notifier: editing a base config, creating a closer `bicepconfig.json`, and deleting the leaf are all seen on the next `GetConfigurationChain`.
+- With a test notifier: an event that doesn't change anything raises nothing; an event that does raises `ConfigurationChanged` once.
+- A CLI JSON-RPC test: compile, edit `bicepconfig.json`, compile again, and see the new setting.
+- The LangServer `BicepConfigTests` keep passing unchanged.
+
+Before turning on the version checks for CLI commands, measure them on a large repo with the `bicep-perf-profiling` skill. PR 10's snapshot per compilation keeps the number of checks to about one per source file per compilation.
+
+### PR 14 – Auxiliary file cache uses the same mechanism **(behavior change: `bicep jsonrpc` and the MCP server see `load*()` edits)**
+
+Fixes B6 for files read by `load*()` functions.
+
+1. `AuxiliaryFileCache` entries record `FileDependencies` (one file each).
+2. It subscribes to the notifier when one is registered; otherwise it checks the version when an entry is read and drops entries that changed or were deleted.
+3. `BicepCompilationManager` stops trimming the cache by hand on file events (keeping the trim for files no open compilation uses) and refreshes on the cache's change event instead.
+4. Long-running hosts without a notifier trim entries that haven't been read for a while, so the cache stops growing without limit.
+
+Tests: a CLI JSON-RPC test that edits a `loadTextContent` file between two requests; the existing LangServer tests for files read by `load*()` functions.
+
 ### Optional follow-ups
 
 - **Diagnostics at the property's position.** `ConfigurationFileReader` records each property's offset while reading, so the language server can underline the property instead of publishing at `Range(0,0,0,0)`. About 6 files. Measure the cost first.
@@ -377,6 +493,7 @@ At least one release after PR 4. Remove the property from `BicepConfiguration`, 
 3. **Cache root**: moves to `BICEP_ARTIFACT_CACHE_DIR`, which accepts an absolute path or `~`. The config property is deprecated with a warning (PR 4) and removed a release later (PR 12).
 4. **Diagnostic codes**: one code per category (3.4).
 5. **Unknown rule names**: checked in every analyzer namespace, and unknown namespaces are reported too (PR 6).
+6. **Cache freshness**: caches record the files they read and check them themselves (`FileDependencies`). The language server pushes file events through a shared `IFileChangeNotifier`, so the configuration manager decides what's stale instead of being told what to invalidate. Hosts without a notifier check version stamps on read. A `FileSystemWatcher`-based notifier is deferred (3.2). PR 1's `InvalidateFile` is an interim API that PR 13 removes.
 
 ### Still open
 
@@ -394,6 +511,9 @@ At least one release after PR 4. Remove the property from `BicepConfiguration`, 
 | Removing `cacheRootDirectory` (PR 12) moves caches for users who set it | At least one release with a deprecation warning naming the variable; the variable takes precedence as soon as PR 4 ships |
 | PRs 5 and 10 are large | Most files only swap a type name or a call; `With(...)` kept in `Bicep.Testing` so test files don't churn; baselines and `ToUtf8Json` output checked |
 | A missed call site keeps calling `LoadConfiguration()` (PR 10) | Delete the method so every remaining caller fails to compile |
+| Version checks miss an edit (PR 13) | Compare size as well as last-write time; some file systems record times only to the second. Config files are small enough to hash if this turns out to matter |
+| Version checks cost too much in CLI commands or large repos (PR 13) | Only hosts without a notifier check on read; PR 10 limits checks to one per source file per compilation; measure before turning them on |
+| A file changes between being read and its version being recorded (PR 13) | Record the version before reading the file, so a change in between shows up as stale on the next check |
 
 ---
 
@@ -402,5 +522,6 @@ At least one release after PR 4. Remove the property from `BicepConfiguration`, 
 - **Unit** (`Bicep.Core.UnitTests/Configuration`): reader, chain resolver, merger and provenance, each section's binder, cache invalidation, and the "no exception for bad input" test.
 - **Integration** (`Bicep.Core.IntegrationTests/ConfigurationInheritanceTests`): an inheritance scenario for each section that has paths or errors (PRs 2–3).
 - **Language server** (`Bicep.LangServer.IntegrationTests/BicepConfigTests`, `Bicep.LangServer.UnitTests/Configuration`): per-file squiggles, invalidation on file events, one snapshot per compilation.
+- **CLI JSON-RPC** (`Bicep.Cli.IntegrationTests`): edits to `bicepconfig.json` and to files read by `load*()` functions are seen between requests (PRs 13–14).
 - **Schema** (`BicepConfigSchemaTests`): defaults and properties match the schema (PR 5).
 - **Baselines**: PRs 1, 2, 6 and 7 change diagnostic text. Update the baselines and review every diff.

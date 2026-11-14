@@ -24,7 +24,8 @@ public interface IBicepConfigurationManager
 
     /// <summary>
     /// Drops cached state affected by a change to <paramref name="fileUri"/> on disk (created, changed or deleted).
-    /// Every cached chain that read the file is invalidated, including chains that failed to load because of it.
+    /// The URI may also be a folder, which covers everything under it, because clients may report only the folder when one is deleted.
+    /// Every cached chain that read an affected file is invalidated, including chains that failed to load because of it.
     /// If the file is a bicepconfig.json, configuration file discovery is also reset, because creating or deleting one
     /// can change which configuration file a source file uses.
     /// </summary>

@@ -719,6 +719,56 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
+        public void InvalidateFile_DeletedFolderContainingBaseConfig_InvalidatesChain()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
+                ("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": false }"""));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
+
+            fileSet.RemoveFile("base/bicepconfig.base.json");
+
+            // Only the folder is reported, as some clients do for folder deletions.
+            sut.InvalidateFile(fileSet.GetUri("base")).Should().BeTrue();
+            GetSingleDiagnostic(sut.GetConfigurationChain(fileSet.GetUri("main.bicep"))).Code.Should().Be("BCP272");
+        }
+
+        [TestMethod]
+        public void InvalidateFile_FolderRecreatedWithoutConfig_DiscoversParentConfig()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("src/main.bicep", ""),
+                ("src/bicepconfig.json", """{ "experimentalFeaturesWarning": false }"""),
+                ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            sut.GetEffectiveConfiguration(fileSet.GetUri("src/main.bicep")).ConfigFileUri.Should().Be(fileSet.GetUri("src/bicepconfig.json"));
+
+            // The folder is deleted and recreated without its configuration file, and only the folder is reported.
+            fileSet.RemoveFile("src/bicepconfig.json");
+
+            sut.InvalidateFile(fileSet.GetUri("src")).Should().BeTrue();
+            var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("src/main.bicep"));
+            configuration.GetDiagnostics().Should().BeEmpty();
+            configuration.ConfigFileUri.Should().Be(fileSet.GetUri("bicepconfig.json"));
+        }
+
+        [TestMethod]
+        public void InvalidateFile_PathThatOnlySharesAPrefix_DoesNotInvalidateChain()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base.json" }"""),
+                ("base.json", "{}"));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            var chain = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
+
+            sut.InvalidateFile(fileSet.GetUri("base")).Should().BeFalse();
+            sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).Should().BeSameAs(chain);
+        }
+
+        [TestMethod]
         public void InvalidateFile_AfterBrokenBaseIsFixed_ReloadsChain()
         {
             var fileSet = InMemoryTestFileSet.Create(

@@ -78,9 +78,11 @@ public class BicepConfigurationManager : IBicepConfigurationManager
     {
         var invalidated = false;
 
+        // Clients may report only the folder when a folder is deleted, so the URI also covers everything under it.
+        // IsBaseOf compares whole path segments, so "base" covers "base/x.json" but not "base.json".
         foreach (var (leafHandle, dependencies) in this.chainDependencies)
         {
-            if (dependencies.Contains(fileUri))
+            if (dependencies.Any(fileUri.IsBaseOf))
             {
                 this.chainCache.TryRemove(leafHandle, out _);
                 this.chainDependencies.TryRemove(leafHandle, out _);
@@ -93,6 +95,19 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         {
             this.configFileLookupCache.Clear();
             invalidated = true;
+        }
+        else
+        {
+            // A deleted folder can be recreated without its configuration file, so forget what was found under it.
+            // This doesn't count as invalidation: if the folder still exists, discovery finds the same files, and
+            // chains that read files under the folder were already invalidated above.
+            foreach (var directory in this.configFileLookupCache.Keys)
+            {
+                if (fileUri.IsBaseOf(directory.Uri))
+                {
+                    this.configFileLookupCache.TryRemove(directory, out _);
+                }
+            }
         }
 
         return invalidated;
