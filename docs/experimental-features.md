@@ -36,6 +36,12 @@ extension az with {
 
 Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).
 
+### `deploymentModules`
+
+Emits Bicep modules as `Microsoft.Resources/deployments/modules` resources (API version `2026-10-05-preview`) under an experimental template language version, instead of `Microsoft.Resources/deployments`. Module resources are children of the root deployment, don't appear in the target-scope deployment history, and don't count toward the 800 deployments per scope limit.
+
+This feature requires the deployment modules preview to be enabled in ARM.
+
 ### `legacyFormatter`
 
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.

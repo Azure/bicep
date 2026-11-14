@@ -12,6 +12,10 @@ public static class EmitConstants
 
     public const string NestedDeploymentResourceApiVersion = "2025-04-01";
 
+    public const string DeploymentModuleResourceType = "Microsoft.Resources/deployments/modules";
+
+    public const string DeploymentModuleResourceApiVersion = "2026-10-05-preview";
+
     public static readonly FrozenSet<string> ResourceInfoProperties
         = new[] { "id", "name", "type", "apiVersion" }.ToFrozenSet();
 }

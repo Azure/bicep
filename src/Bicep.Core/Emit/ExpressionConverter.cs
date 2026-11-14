@@ -12,6 +12,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
@@ -553,7 +554,7 @@ namespace Bicep.Core.Emit
                         var target = context.Settings.EnableSymbolicNames
                             ? GenerateSymbolicReference(reference.Module, reference.IndexContext)
                             : GetFullyQualifiedResourceId(reference.Module, reference.IndexContext?.Index);
-                        var apiVersion = new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion);
+                        var apiVersion = new JTokenExpression(ModuleApiVersion);
                         return guardOnModuleCondition(CreateFunction(secureOutputsApi, target, apiVersion));
                     }
 
@@ -693,8 +694,21 @@ namespace Bicep.Core.Emit
             }
         }
 
+        private bool UseDeploymentModules
+            => context.SemanticModel.Features.DeploymentModulesEnabled && context.SemanticModel.TargetScope != ResourceScope.Local;
+
+        private string ModuleApiVersion
+            => UseDeploymentModules ? EmitConstants.DeploymentModuleResourceApiVersion : EmitConstants.NestedDeploymentResourceApiVersion;
+
         public LanguageExpression GetFullyQualifiedResourceId(ModuleSymbol moduleSymbol, Expression? indexExpression)
         {
+            if (UseDeploymentModules)
+            {
+                // A deployment module's ID sits under the root deployment's scope, which a nested template can't know statically.
+                // The deploymentModules feature forces symbolic names, so modules must be referenced symbolically.
+                throw new InvalidOperationException($"Deployment module '{moduleSymbol.Name}' must be referenced by symbolic name.");
+            }
+
             return ScopeHelper.FormatFullyQualifiedResourceId(
                 context,
                 this,
@@ -725,7 +739,7 @@ namespace Bicep.Core.Emit
             return CreateFunction(
                 referenceFunctionName,
                 GetConverter(indexContext).GetFullyQualifiedResourceId(moduleSymbol, indexContext?.Index),
-                new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion));
+                new JTokenExpression(ModuleApiVersion));
         }
 
         public FunctionExpression GetReferenceExpression(ResourceMetadata resource, IndexReplacementContext? indexContext, bool full)
