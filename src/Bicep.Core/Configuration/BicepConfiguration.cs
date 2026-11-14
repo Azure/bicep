@@ -100,25 +100,30 @@ namespace Bicep.Core.Configuration
         /// </summary>
         public static BicepConfiguration Bind(JsonElement element, IOUri? configFileUri = null)
         {
-            var cloud = CloudConfiguration.Bind(element.GetProperty(CloudKey));
-            var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configFileUri);
-            var moduleAliasesMock = element.TryGetProperty(ModuleAliasesMockKey, out var mockElement)
-                 ? ModuleAliasesMockConfiguration.Bind(mockElement, configFileUri)
-                  : ModuleAliasesMockConfiguration.Bind(JsonElementFactory.CreateElement(new ModuleAliasesMock()), configFileUri);
-            var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
-            var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
-            var experimentalFeaturesWarning = element.TryGetProperty(ExperimentalFeaturesWarningKey, out var value) && value.GetBoolean();
-            var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
-            var formatting = FormattingConfiguration.Bind(element.GetProperty(FormattingKey));
-            var documentation = element.TryGetProperty(DocumentationKey, out var documentationElement)
-                ? DocumentationConfiguration.Bind(documentationElement)
+            var cloud = BindSection(element, CloudKey, CloudConfiguration.Bind);
+            var moduleAliases = BindSection(element, ModuleAliasesKey, x => ModuleAliasesConfiguration.Bind(x, configFileUri));
+            var moduleAliasesMock = element.TryGetProperty(ModuleAliasesMockKey, out _)
+                ? BindSection(element, ModuleAliasesMockKey, x => ModuleAliasesMockConfiguration.Bind(x, configFileUri))
+                : ModuleAliasesMockConfiguration.Bind(JsonElementFactory.CreateElement(new ModuleAliasesMock()), configFileUri);
+            var analyzers = BindSection(element, AnalyzersKey, x => x.ValueKind == JsonValueKind.Object
+                ? new AnalyzersConfiguration(x)
+                : throw new ConfigurationException($"The \"{AnalyzersKey}\" property has an invalid value."));
+            var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out _)
+                ? BindSection(element, CacheRootDirectoryKey, x => x.GetString())
+                : null;
+            var experimentalFeaturesWarning = element.TryGetProperty(ExperimentalFeaturesWarningKey, out _) &&
+                BindSection(element, ExperimentalFeaturesWarningKey, x => x.GetBoolean());
+            var experimentalFeaturesEnabled = BindSection(element, ExperimentalFeaturesEnabledKey, ExperimentalFeaturesEnabled.Bind);
+            var formatting = BindSection(element, FormattingKey, FormattingConfiguration.Bind);
+            var documentation = element.TryGetProperty(DocumentationKey, out _)
+                ? BindSection(element, DocumentationKey, DocumentationConfiguration.Bind)
                 : new DocumentationConfiguration(new());
-            var compiler = element.TryGetProperty(CompilerKey, out var compilerElement)
-                ? CompilerConfiguration.Bind(compilerElement)
+            var compiler = element.TryGetProperty(CompilerKey, out _)
+                ? BindSection(element, CompilerKey, CompilerConfiguration.Bind)
                 : new CompilerConfiguration(new(), null);
 
-            var extensions = ExtensionsConfiguration.Bind(element.GetProperty(ExtensionsKey));
-            var implicitExtensions = ImplicitExtensionsConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
+            var extensions = BindSection(element, ExtensionsKey, ExtensionsConfiguration.Bind);
+            var implicitExtensions = BindSection(element, ImplicitExtensionsKey, ImplicitExtensionsConfiguration.Bind);
 
             return new BicepConfiguration(
                 cloud: cloud,
@@ -135,6 +140,31 @@ namespace Bicep.Core.Configuration
                 experimentalFeaturesWarning: experimentalFeaturesWarning,
                 configFileUri: configFileUri,
                 diagnostics: null);
+        }
+
+        /// <summary>
+        /// Binds the <paramref name="key"/> property of <paramref name="element"/>. A value of the wrong shape becomes a
+        /// <see cref="ConfigurationException"/> that names the property, instead of a JSON exception about .NET types.
+        /// </summary>
+        private static T BindSection<T>(JsonElement element, string key, Func<JsonElement, T> bind)
+        {
+            try
+            {
+                return bind(element.GetProperty(key));
+            }
+            catch (JsonException exception)
+            {
+                // Deserialization errors carry the failing path within the section, e.g. "$.version".
+                var path = exception.Path is { Length: > 1 } innerPath && innerPath.StartsWith("$.", StringComparison.Ordinal)
+                    ? $"{key}.{innerPath[2..]}"
+                    : key;
+
+                throw new ConfigurationException($"The \"{path}\" property has an invalid value.");
+            }
+            catch (InvalidOperationException)
+            {
+                throw new ConfigurationException($"The \"{key}\" property has an invalid value.");
+            }
         }
 
         public IBicepCloudConfiguration Cloud { get; }

@@ -11,32 +11,22 @@ namespace Bicep.Core.Configuration;
 /// Represents a chain of Bicep configuration files linked via "extends".
 /// The chain is ordered from the leaf (most specific, e.g. closest bicepconfig.json)
 /// to the built-in defaults (last).
-///
-/// The primary purpose of keeping the full chain — rather than just the merged result —
-/// is to support accurate diagnostics: each <see cref="IBicepConfiguration"/> in the chain
-/// carries its own diagnostics, so errors can be
-/// attributed to the exact file that caused them.
-///
 /// </summary>
 public class BicepConfigurationChain : IBicepConfigurationChain
 {
     // The fully merged effective configuration constructed by BicepConfigurationManager.
     private readonly IBicepConfiguration effectiveConfiguration;
 
-    // All individual configurations in the chain, ordered leaf-first.
-    // Each carries its own diagnostics, enabling per-file error attribution.
+    // One entry per configuration file in the chain, ordered leaf-first.
     private readonly ImmutableArray<IBicepConfiguration> layers;
-
-    // Lazily computed aggregation of diagnostics from all layers.
-    private ImmutableArray<IDiagnostic>? aggregatedDiagnostics;
 
     /// <param name="effectiveConfiguration">
     ///   The pre-merged configuration representing the combined settings of all layers.
     ///   Produced by <c>BicepConfigurationManager</c>.
     /// </param>
     /// <param name="layers">
-    ///   Ordered collection of individual configurations, leaf first, built-in last.
-    ///   Used for diagnostic provenance tracking.
+    ///   One entry per configuration file in the chain, leaf first. Each entry identifies its file through
+    ///   <see cref="IBicepConfiguration.ConfigFileUri"/>.
     /// </param>
     public BicepConfigurationChain(
         IBicepConfiguration effectiveConfiguration,
@@ -48,27 +38,9 @@ public class BicepConfigurationChain : IBicepConfigurationChain
 
     /// <summary>
     /// Returns the fully merged effective configuration.
-    /// The returned configuration's <see cref="IBicepConfiguration.GetDiagnostics"/>
-    /// aggregates diagnostics from every layer in the chain.
+    /// Errors that prevented the chain from loading are reported by its <see cref="IBicepConfiguration.GetDiagnostics"/>.
     /// </summary>
     public IBicepConfiguration GetEffectiveConfiguration() => this.effectiveConfiguration;
-
-    /// <summary>
-    /// Returns all diagnostics from every configuration file in the chain.
-    /// Each diagnostic already carries its source file URI via its message context,
-    /// so callers can attribute errors to the exact file that caused them.
-    /// </summary>
-    public IEnumerable<IDiagnostic> GetAllDiagnostics()
-    {
-        if (this.aggregatedDiagnostics is null)
-        {
-            this.aggregatedDiagnostics = this.layers
-                .SelectMany(layer => layer.GetDiagnostics())
-                .ToImmutableArray();
-        }
-
-        return this.aggregatedDiagnostics.Value;
-    }
 
     /// <summary>
     /// Returns diagnostics grouped by the config file URI they originated from.

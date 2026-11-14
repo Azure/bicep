@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core;
 using Bicep.LanguageServer.BicepConfig;
 using Bicep.LanguageServer.Compilation;
 using MediatR;
@@ -26,15 +25,9 @@ namespace Bicep.LanguageServer.Features.Workspace.DidChangeWatchedFiles
         public override Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken)
         {
             Container<FileEvent> fileEvents = request.Changes;
-            IEnumerable<FileEvent> bicepConfigFileChangeEvents = fileEvents.Where(x => string.Equals(Path.GetFileName(x.Uri.Path),
-                                                                                       LanguageConstants.BicepConfigurationFileName,
-                                                                                       StringComparison.OrdinalIgnoreCase));
 
-            // Refresh compilation of source files in workspace when local bicepconfig.json file is created, deleted or changed
-            if (bicepConfigFileChangeEvents.Any())
-            {
-                bicepConfigLifecycleManager.RefreshCompilationOfSourceFilesInWorkspace();
-            }
+            // Configuration files can have any name when they're extended, so let the configuration manager decide which events matter.
+            bicepConfigLifecycleManager.HandleFileChanges(fileEvents);
 
             compilationManager.HandleFileChanges(fileEvents);
 
