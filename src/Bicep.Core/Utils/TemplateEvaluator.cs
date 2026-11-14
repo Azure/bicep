@@ -179,7 +179,8 @@ namespace Bicep.Core.Utils
                 if (resource.Properties is not null)
                 {
                     var skipEvaluationPaths = new InsensitiveHashSet();
-                    if (resource.Type.Value.EqualsOrdinalInsensitively("Microsoft.Resources/deployments"))
+                    if (resource.Type.Value.EqualsOrdinalInsensitively("Microsoft.Resources/deployments") ||
+                        resource.Type.Value.EqualsOrdinalInsensitively(EmitConstants.DeploymentModuleResourceType))
                     {
                         skipEvaluationPaths.Add("template");
                     }

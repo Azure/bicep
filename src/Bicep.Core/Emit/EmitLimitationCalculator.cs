@@ -210,6 +210,9 @@ namespace Bicep.Core.Emit
                 this.moduleScopeData = moduleScopeData;
             }
 
+            private bool ScopeIgnoredForIdentity
+                => model.Features.DeploymentModulesEnabled && model.TargetScope != ResourceScope.Local;
+
             public bool Equals(ModuleSymbol? x, ModuleSymbol? y)
             {
                 if (x is null && y is null)
@@ -227,8 +230,10 @@ namespace Bicep.Core.Emit
                     (y.DeclaringModule.TryGetCondition() is not { } yCondition ||
                         model.GetTypeInfo(yCondition) is BooleanLiteralType { Value: true }) &&
                     // To have the same ID, modules must have the same scope
-                    moduleScopingSegments.GetOrAdd(x, ScopingSegmentsFor)
-                        .Equals(moduleScopingSegments.GetOrAdd(y, ScopingSegmentsFor)) &&
+                    // (deployment modules are not scoped by their target scope, so names must be unique regardless of scope)
+                    (ScopeIgnoredForIdentity ||
+                        moduleScopingSegments.GetOrAdd(x, ScopingSegmentsFor)
+                            .Equals(moduleScopingSegments.GetOrAdd(y, ScopingSegmentsFor))) &&
                     // and the same name
                     IArmIdSegment.For(xName, model).Equals(IArmIdSegment.For(yName, model));
             }
@@ -385,8 +390,11 @@ namespace Bicep.Core.Emit
 
                 // collect the values of the expected variant properties
                 // provided that they exist on the type
+                // with deployment modules, the target scope is not part of the resource ID, so only the name must vary
+                var nameOnly = semanticModel.Features.DeploymentModulesEnabled && semanticModel.TargetScope != ResourceScope.Local;
                 var expectedVariantPropertiesForType = bodyType.Properties.Values
                     .Where(property => property.Flags.HasFlag(TypePropertyFlags.LoopVariant))
+                    .Where(property => !nameOnly || LanguageConstants.IdentifierComparer.Equals(property.Name, LanguageConstants.ModuleNamePropertyName))
                     .OrderBy(property => property.Name, LanguageConstants.IdentifierComparer);
 
                 var propertyMap = expectedVariantPropertiesForType
