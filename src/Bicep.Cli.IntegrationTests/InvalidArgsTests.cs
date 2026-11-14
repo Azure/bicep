@@ -40,14 +40,26 @@ namespace Bicep.Cli.IntegrationTests
         [DataRow(new[] { "decompile" }, "The input file path was not specified")]
         [DataRow(new[] { "generate-params" }, "The input file path was not specified")]
         [DataRow(new[] { "publish" }, "The input file path was not specified")]
+        // Missing required positional argument (rejected by System.CommandLine)
+        [DataRow(new[] { "snapshot", "--mode", "validate", "--outdir", "snapshots" }, "Required argument missing for command: 'snapshot'.")]
+        [DataRow(new[] { "snapshot", "--outfile", "custom.json" }, "Required argument missing for command: 'snapshot'.")]
         // Missing required option
         [DataRow(new[] { "publish", "file.bicep" }, "The target module was not specified.")]
+        [DataRow(new[] { "snapshot", "main.bicepparam", "--outdir" }, "Required argument missing for option: '--outdir'.")]
+        [DataRow(new[] { "snapshot", "main.bicepparam", "--outfile" }, "Required argument missing for option: '--outfile'.")]
+        [DataRow(new[] { "snapshot", "main.bicepparam", "--mode", "validate", "--outdir" }, "Required argument missing for option: '--outdir'.")]
+        [DataRow(new[] { "snapshot", "main.bicepparam", "--mode", "validate", "--outfile" }, "Required argument missing for option: '--outfile'.")]
         // Either input file or --pattern required (thrown from InputOutputArgumentsResolver)
         [DataRow(new[] { "build" }, "Either the input file path or the --pattern parameter must be specified")]
         [DataRow(new[] { "build-params" }, "Either the input file path or the --pattern parameter must be specified")]
         [DataRow(new[] { "restore" }, "Either the input file path or the --pattern parameter must be specified")]
         [DataRow(new[] { "lint" }, "Either the input file path or the --pattern parameter must be specified")]
         [DataRow(new[] { "format" }, "Either the input file path or the --pattern parameter must be specified")]
+        // Conflicting output options
+        [DataRow(new[] { "snapshot", "main.bicepparam", "--outdir", "snapshots", "--outfile", "custom.json" }, "The --outdir and --outfile parameters cannot both be used")]
+        [DataRow(new[] { "snapshot", "main.bicepparam", "--mode", "overwrite", "--outfile", "custom.json", "--outdir", "snapshots" }, "The --outdir and --outfile parameters cannot both be used")]
+        [DataRow(new[] { "snapshot", "main.bicepparam", "--mode", "validate", "--outdir", "snapshots", "--outfile", "custom.json" }, "The --outdir and --outfile parameters cannot both be used")]
+        [DataRow(new[] { "snapshot", "main.bicepparam", "--mode", "validate", "--outfile", "custom.json", "--outdir", "snapshots" }, "The --outdir and --outfile parameters cannot both be used")]
         // Unrecognized options (rejected by System.CommandLine for commands with TreatUnmatchedTokensAsErrors = true)
         [DataRow(new[] { "build", "--wibble" }, "Unrecognized parameter \"--wibble\"")]
         [DataRow(new[] { "test", "--wibble" }, "Unrecognized parameter \"--wibble\"")]
