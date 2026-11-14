@@ -166,6 +166,13 @@ public class ReplEnvironmentTests
     }
 
     [TestMethod]
+    [DataRow("""
+        getRoleAssignmentName({
+          scope: '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/myRg'
+          principalId: '22222222-2222-2222-2222-222222222222'
+          roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/33333333-3333-3333-3333-333333333333'
+        })
+        """, "eec47c62-a9a9-54dd-b8d8-f9e2839fab35")]
     [DataRow("subscriptionResourceId('00000000-0000-0000-0000-000000000001', 'Microsoft.Authorization/roleDefinitions', 'reader')",
         "/subscriptions/00000000-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleDefinitions/reader")]
     [DataRow("az.resourceId('00000000-0000-0000-0000-000000000001', 'my-rg', 'Microsoft.Storage/storageAccounts', 'storage')",
@@ -176,7 +183,7 @@ public class ReplEnvironmentTests
         "/providers/Microsoft.Management/managementGroups/my-mg/providers/Microsoft.Authorization/policyDefinitions/policy")]
     [DataRow("extensionResourceId('/subscriptions/00000000-0000-0000-0000-000000000001', 'Microsoft.Authorization/roleAssignments', 'assignment')",
         "/subscriptions/00000000-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleAssignments/assignment")]
-    public void Resource_id_functions_succeed(string input, string expected)
+    public void Pure_az_namespace_functions_succeed(string input, string expected)
     {
         var outputs = EvaluateInputs([input]);
 
@@ -187,7 +194,7 @@ public class ReplEnvironmentTests
     [TestMethod]
     [DataRow("subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'reader')")]
     [DataRow("managementGroupResourceId('Microsoft.Authorization/policyDefinitions', 'policy')")]
-    public void Resource_id_functions_report_missing_deployment_context(string input)
+    public void Non_pure_az_namespace_functions_error(string input)
     {
         var replEnvironment = CreateReplEnvironment();
         var result = replEnvironment.EvaluateInput(input);

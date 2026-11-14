@@ -26,6 +26,13 @@ public class ConsoleTests
     }
 
     [TestMethod]
+    [DataRow("""
+        getRoleAssignmentName({
+          scope: '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/myRg'
+          principalId: '22222222-2222-2222-2222-222222222222'
+          roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/33333333-3333-3333-3333-333333333333'
+        })
+        """, "eec47c62-a9a9-54dd-b8d8-f9e2839fab35")]
     [DataRow("subscriptionResourceId('00000000-0000-0000-0000-000000000001', 'Microsoft.Authorization/roleDefinitions', 'reader')",
         "/subscriptions/00000000-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleDefinitions/reader")]
     [DataRow("az.subscriptionResourceId('00000000-0000-0000-0000-000000000001', 'Microsoft.Authorization/roleDefinitions', 'reader')",
@@ -42,7 +49,7 @@ public class ConsoleTests
         "/subscriptions/00000000-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleAssignments/assignment")]
     [DataRow("extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'my-mg'), 'Microsoft.Authorization/policyDefinitions', 'policy')",
         "/providers/Microsoft.Management/managementGroups/my-mg/providers/Microsoft.Authorization/policyDefinitions/policy")]
-    public void Console_evaluates_resource_ids_without_deployment_context(string input, string expected)
+    public void Console_pure_az_namespace_functions_succeed(string input, string expected)
     {
         using var services = new ServiceCollection().AddBicepWasm().BuildServiceProvider();
         var interop = new Interop(_ => Task.FromResult<string?>(null), services);
@@ -72,23 +79,6 @@ public class ConsoleTests
     }
 
     [TestMethod]
-    public void Console_evaluates_context_independent_role_assignment_names()
-    {
-        using var services = new ServiceCollection().AddBicepWasm().BuildServiceProvider();
-        var interop = new Interop(_ => Task.FromResult<string?>(null), services);
-        var result = interop.EvaluateConsole("""
-            getRoleAssignmentName({
-              scope: '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/myRg'
-              principalId: '22222222-2222-2222-2222-222222222222'
-              roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/33333333-3333-3333-3333-333333333333'
-            })
-            """, interop.ResetConsole());
-
-        result.Diagnostics.Should().BeEmpty();
-        result.Output.Should().Be("\"eec47c62-a9a9-54dd-b8d8-f9e2839fab35\"");
-    }
-
-    [TestMethod]
     [DataRow("subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'reader')")]
     [DataRow("subscriptionResourceId('Microsoft.Test/parents/children', 'parent', 'child')")]
     [DataRow("resourceId('my-rg', 'Microsoft.Storage/storageAccounts', 'storage')")]
@@ -102,7 +92,7 @@ public class ConsoleTests
     [DataRow("tenantResourceId('Microsoft.Test/parents/children', 'parent')")]
     [DataRow("resourceId('00000000-0000-0000-0000-000000000001', 'my-rg', 'Microsoft.Network/virtualNetworks/subnets', 'vnet/subnet')")]
     [DataRow("subscriptionResourceId(123, 'Microsoft.Authorization/roleDefinitions', 'reader')")]
-    public void Console_rejects_resource_calls_requiring_context_or_invalid_arguments(string input)
+    public void Console_non_pure_az_namespace_functions_or_invalid_arguments_error(string input)
     {
         using var services = new ServiceCollection().AddBicepWasm().BuildServiceProvider();
         var interop = new Interop(_ => Task.FromResult<string?>(null), services);
