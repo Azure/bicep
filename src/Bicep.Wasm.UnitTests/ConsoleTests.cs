@@ -26,6 +26,95 @@ public class ConsoleTests
     }
 
     [TestMethod]
+    [DataRow("subscriptionResourceId('00000000-0000-0000-0000-000000000001', 'Microsoft.Authorization/roleDefinitions', 'reader')",
+        "/subscriptions/00000000-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleDefinitions/reader")]
+    [DataRow("az.subscriptionResourceId('00000000-0000-0000-0000-000000000001', 'Microsoft.Authorization/roleDefinitions', 'reader')",
+        "/subscriptions/00000000-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleDefinitions/reader")]
+    [DataRow("resourceId('00000000-0000-0000-0000-000000000001', 'my-rg', 'Microsoft.Storage/storageAccounts', 'storage')",
+        "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/my-rg/providers/Microsoft.Storage/storageAccounts/storage")]
+    [DataRow("resourceId('00000000-0000-0000-0000-000000000001', 'my-rg', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')",
+        "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/my-rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/subnet")]
+    [DataRow("tenantResourceId('Microsoft.Management/managementGroups', 'my-mg')",
+        "/providers/Microsoft.Management/managementGroups/my-mg")]
+    [DataRow("managementGroupResourceId('my-mg', 'Microsoft.Authorization/policyDefinitions', 'policy')",
+        "/providers/Microsoft.Management/managementGroups/my-mg/providers/Microsoft.Authorization/policyDefinitions/policy")]
+    [DataRow("extensionResourceId('/subscriptions/00000000-0000-0000-0000-000000000001', 'Microsoft.Authorization/roleAssignments', 'assignment')",
+        "/subscriptions/00000000-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleAssignments/assignment")]
+    [DataRow("extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'my-mg'), 'Microsoft.Authorization/policyDefinitions', 'policy')",
+        "/providers/Microsoft.Management/managementGroups/my-mg/providers/Microsoft.Authorization/policyDefinitions/policy")]
+    public void Console_evaluates_resource_ids_without_deployment_context(string input, string expected)
+    {
+        using var services = new ServiceCollection().AddBicepWasm().BuildServiceProvider();
+        var interop = new Interop(_ => Task.FromResult<string?>(null), services);
+        var result = interop.EvaluateConsole(input, interop.ResetConsole());
+
+        result.Diagnostics.Should().BeEmpty();
+        JToken.Parse(result.Output!).Value<string>().Should().Be(expected);
+    }
+
+    [TestMethod]
+    public void Console_evaluates_resource_ids_using_declarations_and_expressions()
+    {
+        using var services = new ServiceCollection().AddBicepWasm().BuildServiceProvider();
+        var interop = new Interop(_ => Task.FromResult<string?>(null), services);
+        var session = interop.ResetConsole();
+
+        interop.EvaluateConsole("var subscriptionId = '00000000-0000-0000-0000-000000000001'", session).Diagnostics.Should().BeEmpty();
+        interop.EvaluateConsole("var roleId = subscriptionResourceId(subscriptionId, 'Microsoft.Authorization/roleDefinitions', toLower('READER'))", session).Diagnostics.Should().BeEmpty();
+        interop.EvaluateConsole("roleId", session).Output.Should().Be(
+            "\"/subscriptions/00000000-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleDefinitions/reader\"");
+        interop.EvaluateConsole("func policyId(name string) string => tenantResourceId('Microsoft.Authorization/policyDefinitions', name)", session).Diagnostics.Should().BeEmpty();
+        interop.EvaluateConsole("policyId('policy')", session).Output.Should().Be(
+            "\"/providers/Microsoft.Authorization/policyDefinitions/policy\"");
+        interop.EvaluateConsole("func scopedRoleId(sub string, role string) string => subscriptionResourceId(sub, 'Microsoft.Authorization/roleDefinitions', role)", session).Diagnostics.Should().BeEmpty();
+        interop.EvaluateConsole("scopedRoleId(subscriptionId, 'reader')", session).Output.Should().Be(
+            "\"/subscriptions/00000000-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleDefinitions/reader\"");
+    }
+
+    [TestMethod]
+    public void Console_evaluates_context_independent_role_assignment_names()
+    {
+        using var services = new ServiceCollection().AddBicepWasm().BuildServiceProvider();
+        var interop = new Interop(_ => Task.FromResult<string?>(null), services);
+        var result = interop.EvaluateConsole("""
+            getRoleAssignmentName({
+              scope: '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/myRg'
+              principalId: '22222222-2222-2222-2222-222222222222'
+              roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/33333333-3333-3333-3333-333333333333'
+            })
+            """, interop.ResetConsole());
+
+        result.Diagnostics.Should().BeEmpty();
+        result.Output.Should().Be("\"eec47c62-a9a9-54dd-b8d8-f9e2839fab35\"");
+    }
+
+    [TestMethod]
+    [DataRow("subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'reader')")]
+    [DataRow("subscriptionResourceId('Microsoft.Test/parents/children', 'parent', 'child')")]
+    [DataRow("resourceId('my-rg', 'Microsoft.Storage/storageAccounts', 'storage')")]
+    [DataRow("managementGroupResourceId('Microsoft.Authorization/policyDefinitions', 'policy')")]
+    [DataRow("reference('/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage', '2023-05-01')")]
+    [DataRow("listKeys('/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage', '2023-05-01')")]
+    [DataRow("subscription()")]
+    [DataRow("resourceGroup()")]
+    [DataRow("deployment()")]
+    [DataRow("environment()")]
+    [DataRow("tenantResourceId('Microsoft.Test/parents/children', 'parent')")]
+    [DataRow("resourceId('00000000-0000-0000-0000-000000000001', 'my-rg', 'Microsoft.Network/virtualNetworks/subnets', 'vnet/subnet')")]
+    [DataRow("subscriptionResourceId(123, 'Microsoft.Authorization/roleDefinitions', 'reader')")]
+    public void Console_rejects_resource_calls_requiring_context_or_invalid_arguments(string input)
+    {
+        using var services = new ServiceCollection().AddBicepWasm().BuildServiceProvider();
+        var interop = new Interop(_ => Task.FromResult<string?>(null), services);
+        var session = interop.ResetConsole();
+        var result = interop.EvaluateConsole(input, session);
+
+        result.Output.Should().BeNull();
+        result.Diagnostics.Should().Contain(d => d.Level == "Error");
+        interop.EvaluateConsole("1 + 1", session).Output.Should().Be("2");
+    }
+
+    [TestMethod]
     [DataRow("var broken =")]
     [DataRow("unknownName")]
     [DataRow("toUpper(123)")]

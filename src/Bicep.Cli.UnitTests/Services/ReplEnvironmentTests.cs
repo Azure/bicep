@@ -166,6 +166,38 @@ public class ReplEnvironmentTests
     }
 
     [TestMethod]
+    [DataRow("subscriptionResourceId('00000000-0000-0000-0000-000000000001', 'Microsoft.Authorization/roleDefinitions', 'reader')",
+        "/subscriptions/00000000-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleDefinitions/reader")]
+    [DataRow("az.resourceId('00000000-0000-0000-0000-000000000001', 'my-rg', 'Microsoft.Storage/storageAccounts', 'storage')",
+        "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/my-rg/providers/Microsoft.Storage/storageAccounts/storage")]
+    [DataRow("tenantResourceId('Microsoft.Management/managementGroups', 'my-mg')",
+        "/providers/Microsoft.Management/managementGroups/my-mg")]
+    [DataRow("managementGroupResourceId('my-mg', 'Microsoft.Authorization/policyDefinitions', 'policy')",
+        "/providers/Microsoft.Management/managementGroups/my-mg/providers/Microsoft.Authorization/policyDefinitions/policy")]
+    [DataRow("extensionResourceId('/subscriptions/00000000-0000-0000-0000-000000000001', 'Microsoft.Authorization/roleAssignments', 'assignment')",
+        "/subscriptions/00000000-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleAssignments/assignment")]
+    public void Resource_id_functions_succeed(string input, string expected)
+    {
+        var outputs = EvaluateInputs([input]);
+
+        outputs.Should().ContainSingle()
+            .Which.Should().BeEquivalentToIgnoringNewlines($"[Orange]'{expected}'[Reset]\n");
+    }
+
+    [TestMethod]
+    [DataRow("subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'reader')")]
+    [DataRow("managementGroupResourceId('Microsoft.Authorization/policyDefinitions', 'policy')")]
+    public void Resource_id_functions_report_missing_deployment_context(string input)
+    {
+        var replEnvironment = CreateReplEnvironment();
+        var result = replEnvironment.EvaluateInput(input);
+
+        result.Value.Should().BeNull();
+        result.AnnotatedDiagnostics.Should().NotBeEmpty();
+        replEnvironment.EvaluateInput("1 + 1").AnnotatedDiagnostics.Should().BeEmpty();
+    }
+
+    [TestMethod]
     public void Long_expressions_over_terminal_width_are_printed_correctly()
     {
         var outputs = EvaluateInputs([
