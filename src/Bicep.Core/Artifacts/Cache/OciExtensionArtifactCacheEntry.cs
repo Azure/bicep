@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Text.Json;
 using Bicep.Core.Artifacts.Codecs;
+using Bicep.Core.Artifacts.Packages;
 using Bicep.Core.Extensions;
 using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.SourceGraph.Artifacts;
@@ -24,37 +24,30 @@ namespace Bicep.Core.Artifacts.Cache
 
         public override IFileHandle EntryPoint => this.TypesTgzFile;
 
-        protected override void WriteLayers(OciArtifactResult result, string artifactReference)
+        /// <summary>
+        /// Writes a pulled extension into the cache, with this machine's binary if it has binaries, unless another
+        /// compilation already has.
+        /// </summary>
+        /// <param name="artifactReference">The reference, for error messages.</param>
+        public Task WriteAsync(ExtensionArtifactPackage package, OciArtifactPayload payload, string artifactReference) => this.WriteAsync(payload, () =>
         {
-            this.TypesTgzFile.Write(result.GetMainLayer().Data);
+            this.TypesTgzFile.Write(package.Types);
 
-            if (result is not OciExtensionArtifactResult extension)
-            {
-                return;
-            }
-
-            var config = extension.Config is { } ?
-                JsonSerializer.Deserialize(extension.Config.Data, OciExtensionV1ConfigSerializationContext.Default.OciExtensionV1Config) :
-                null;
-
-            // if the artifact supports local deployment, fetch the extension binary
-            if (config?.LocalDeployEnabled == true &&
-                config?.SupportedArchitectures is { } binaryArchitectures)
+            if (package.Binaries.Any())
             {
                 if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
                 {
                     throw new InvalidOperationException($"Failed to determine the system OS or architecture to execute extension \"{artifactReference}\".");
                 }
 
-                if (!binaryArchitectures.Contains(architecture.Name) ||
-                    result.TryGetSingleLayerByMediaType(BicepMediaTypes.GetExtensionArtifactLayerV1Binary(architecture)) is not { } binaryData)
+                if (package.Binaries.FirstOrDefault(x => x.Architecture.Name == architecture.Name) is not { } binary)
                 {
                     throw new InvalidOperationException($"The extension \"{artifactReference}\" does not support architecture {architecture.Name}.");
                 }
 
-                this.BinaryFile.Write(binaryData);
+                this.BinaryFile.Write(binary.Data);
                 this.BinaryFile.MakeExecutable();
             }
-        }
+        });
     }
 }

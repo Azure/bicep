@@ -8,7 +8,11 @@ using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Artifacts.Codecs;
 
-public static class ExtensionArtifactArchiveCodec
+/// <summary>
+/// Converts an extension package to and from a local extension file: a gzipped tar with <c>types.tgz</c> and one
+/// <c>&lt;architecture&gt;.bin</c> entry per binary.
+/// </summary>
+public static class LocalExtensionArtifactCodec
 {
     public static async Task<BinaryData> Encode(ExtensionArtifactPackage package)
     {
@@ -60,7 +64,6 @@ public static class ExtensionArtifactArchiveCodec
 
         return new(
             Types: types,
-            LocalDeployEnabled: binaries.Count != 0,
             Binaries: [.. binaries]);
     }
 

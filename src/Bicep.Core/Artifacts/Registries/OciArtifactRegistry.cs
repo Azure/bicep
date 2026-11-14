@@ -14,7 +14,6 @@ using Bicep.Core.Artifacts.References;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Modules;
 using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
@@ -205,9 +204,9 @@ namespace Bicep.Core.Artifacts.Registries
                 }
 
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {this.GetCacheEntry(reference).CacheDirectory.Uri.GetFilePath()}");
-                var (result, errorMessage) = await this.TryRestoreArtifactAsync(reference);
+                var (restored, errorMessage) = await this.TryRestoreArtifactAsync(reference);
 
-                if (result is null)
+                if (!restored)
                 {
                     if (errorMessage is not null)
                     {
@@ -229,154 +228,88 @@ namespace Bicep.Core.Artifacts.Registries
         {
             EnsureArtifactType(reference, ArtifactType.Module);
 
-            var config = new OciDescriptor("{}", BicepMediaTypes.BicepModuleConfigV1);
-
-            var layers = new List<OciDescriptor>
-            {
-                new(package.Template, BicepMediaTypes.BicepModuleLayerV1Json, new OciManifestAnnotationsBuilder().WithTitle("Compiled ARM template").Build())
-            };
-
-            if (package.Sources is { } bicepSources)
-            {
-                layers.Add(
-                    new(
-                        bicepSources,
-                        BicepMediaTypes.BicepSourceV1Layer,
-                        new OciManifestAnnotationsBuilder().WithTitle("Source files").Build()));
-            }
-
-            var annotations = new OciManifestAnnotationsBuilder()
-                .WithDescription(DescriptionHelper.TryGetFromArmTemplate(package.Template))
-                .WithDocumentationUri(package.DocumentationUri)
-                .WithCreatedTime(DateTime.Now);
-
-            await using var session = CreateSession(reference);
-
-            try
-            {
-                await session.PushAsync(
-                    reference,
-                    BicepMediaTypes.OciImageManifest,
-                    BicepMediaTypes.BicepModuleArtifactType,
-                    config,
-                    layers,
-                    annotations,
-                    CancellationToken.None);
-            }
-            catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
-            {
-                throw new ArtifactException(exception.Message, exception);
-            }
-            catch (RequestFailedException exception)
-            {
-                throw new ArtifactException(exception.Message, exception);
-            }
+            await this.PushAsync(reference, OciModuleArtifactCodec.Encode(package));
         }
 
         public async Task PublishExtension(OciArtifactReference reference, ExtensionArtifactPackage package)
         {
             EnsureArtifactType(reference, ArtifactType.Extension);
 
-            OciExtensionV1Config configData = package.LocalDeployEnabled ? new(
-                localDeployEnabled: true,
-                supportedArchitectures: package.Binaries.Select(x => x.Architecture.Name).ToImmutableArray()) :
-                new(null, null);
-
-            var config = new OciDescriptor(
-                JsonSerializer.Serialize(configData, OciExtensionV1ConfigSerializationContext.Default.OciExtensionV1Config),
-                BicepMediaTypes.BicepExtensionConfigV1);
-
-            var layers = new List<OciDescriptor>
-            {
-                new(package.Types, BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip, new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
-            };
-
-            if (configData.LocalDeployEnabled == true)
-            {
-                foreach (var binary in package.Binaries)
-                {
-                    var layerName = BicepMediaTypes.GetExtensionArtifactLayerV1Binary(binary.Architecture);
-                    layers.Add(new(binary.Data, layerName, new OciManifestAnnotationsBuilder().WithTitle("extension.bin").Build()));
-                }
-            }
-
-            var annotations = new OciManifestAnnotationsBuilder()
-                .WithBicepSerializationFormatV1()
-                .WithCreatedTime(DateTime.Now);
-
-            await using var session = CreateSession(reference);
-
-            try
-            {
-                await session.PushAsync(
-                    reference,
-                    BicepMediaTypes.OciImageManifest,
-                    BicepMediaTypes.BicepExtensionArtifactType,
-                    config,
-                    layers,
-                    annotations,
-                    CancellationToken.None);
-            }
-            catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
-            {
-                throw new ArtifactException(exception.Message, exception);
-            }
-            catch (RequestFailedException exception)
-            {
-                throw new ArtifactException(exception.Message, exception);
-            }
+            await this.PushAsync(reference, OciExtensionArtifactCodec.Encode(package));
         }
 
-        // media types are case-insensitive (they are lowercase by convention only)
-        public static readonly StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
-
-        private async Task<(OciArtifactResult?, string? errorMessage)> TryRestoreArtifactAsync(OciArtifactReference reference)
+        private async Task PushAsync(OciArtifactReference reference, OciArtifactPayload payload)
         {
             await using var session = CreateSession(reference);
 
             try
             {
-                var result = await session.PullAsync(reference, CancellationToken.None);
-
-                // Check the artifact type before writing anything, so that a wrong artifact leaves no partial cache entry.
-                switch (reference.Type, result)
-                {
-                    case (ArtifactType.Module, OciModuleArtifactResult):
-                    case (ArtifactType.Extension, OciExtensionArtifactResult):
-                        break;
-                    case (ArtifactType.Module, OciExtensionArtifactResult):
-                        throw new InvalidArtifactException($"Expected a module, but retrieved an extension.");
-                    case (ArtifactType.Extension, OciModuleArtifactResult):
-                        throw new InvalidArtifactException($"Expected an extension, but retrieved a module.");
-                    default:
-                        throw new InvalidOperationException($"Unexpected artifact type \"{result.GetType().Name}\".");
-                }
-
-                await this.GetCacheEntry(reference).WriteAsync(result, reference.ToString());
-
-                return (result, null);
-            }
-            catch (InvalidArtifactException exception)
-            {
-                return (null, exception.Message);
-            }
-            catch (ArtifactException exception)
-            {
-                return (null, exception.Message);
+                await session.PushAsync(reference, payload, CancellationToken.None);
             }
             catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
             {
-                return (null, exception.Message);
+                throw new ArtifactException(exception.Message, exception);
             }
             catch (RequestFailedException exception)
             {
-                return (null, exception.Message);
+                throw new ArtifactException(exception.Message, exception);
+            }
+        }
+
+        private async Task<(bool Restored, string? errorMessage)> TryRestoreArtifactAsync(OciArtifactReference reference)
+        {
+            await using var session = CreateSession(reference);
+
+            try
+            {
+                var payload = await session.PullAsync(reference, CancellationToken.None);
+
+                // Check the artifact type before writing anything, so that a wrong artifact leaves no partial cache entry.
+                switch (GetDeclaredArtifactType(payload.Manifest), this.GetCacheEntry(reference))
+                {
+                    case (ArtifactType.Module, OciModuleArtifactCacheEntry entry):
+                        await entry.WriteAsync(OciModuleArtifactCodec.Decode(payload), payload);
+                        break;
+                    case (ArtifactType.Extension, OciExtensionArtifactCacheEntry entry):
+                        await entry.WriteAsync(OciExtensionArtifactCodec.Decode(payload), payload, reference.ToString());
+                        break;
+                    case (ArtifactType.Extension, _):
+                        throw new InvalidArtifactException("Expected a module, but the artifact is an extension.");
+                    default:
+                        throw new InvalidArtifactException("Expected an extension, but the artifact is a module.");
+                }
+
+                return (true, null);
+            }
+            catch (InvalidArtifactException exception)
+            {
+                return (false, exception.Message);
+            }
+            catch (ArtifactException exception)
+            {
+                return (false, exception.Message);
+            }
+            catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
+            {
+                return (false, exception.Message);
+            }
+            catch (RequestFailedException exception)
+            {
+                return (false, exception.Message);
             }
             catch (Exception exception)
             {
-                return (null, $"Unhandled exception: {exception}");
+                return (false, $"Unhandled exception: {exception}");
             }
         }
+
+        // A manifest without an artifact type is a module published before extensions existed.
+        private static ArtifactType GetDeclaredArtifactType(OciManifest manifest) => manifest.ArtifactType switch
+        {
+            BicepMediaTypes.BicepExtensionArtifactType => ArtifactType.Extension,
+            BicepMediaTypes.BicepModuleArtifactType or null => ArtifactType.Module,
+            _ => throw new InvalidArtifactException($"The artifact type \"{manifest.ArtifactType}\" is not supported by this version of Bicep. {OciModuleArtifactCodec.NewerVersionMightBeRequired}"),
+        };
 
         private static void EnsureArtifactType(OciArtifactReference reference, ArtifactType expected)
         {
@@ -399,7 +332,7 @@ namespace Bicep.Core.Artifacts.Registries
                     $"Set the {BicepEnvironmentVariables.TrustedRegistries} environment variable (comma-separated hostnames, e.g. \"contoso.example.com,*.contoso.io\") to allow it.");
             }
 
-            return transportFactory.CreateSession(reference);
+            return transportFactory.CreateSession(reference.Context.Cloud, reference.Registry, reference.Repository, reference.UseOrasSdk);
         }
 
         private static bool IsNotFoundException(Exception? exception) =>

@@ -47,7 +47,7 @@ namespace Bicep.Testing
             }
 
             BinaryData? sourceArchiveData = withSource ? SourceArchive.CreateFrom(compilationResult.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
-            await ociRegistry.PublishModule(targetReference, new ModuleArtifactPackage(BinaryData.FromString(compilationResult.Template.ToString()), sourceArchiveData, documentationUri));
+            await ociRegistry.PublishModule(targetReference, ModuleArtifactPackage.FromTemplate(BinaryData.FromString(compilationResult.Template.ToString()), sourceArchiveData, documentationUri));
         }
 
         public async Task PublishRegistryModules(IEnumerable<RegistryModulePublishArguments> modules)
@@ -83,7 +83,7 @@ namespace Bicep.Testing
             var ociRegistry = this.compiler.GetService<OciArtifactRegistry>();
             var extensionReference = resolver.TryResolve(DummyFileHandle.Default.Uri, ArtifactType.Extension, extension.ExtensionRepoReference).Unwrap() as OciArtifactReference
                 ?? throw new InvalidOperationException($"Extension '{extension.ExtensionRepoReference}' must have an OCI publish target.");
-            var extensionPackage = new ExtensionArtifactPackage(extension.TypesTgzData, false, []);
+            var extensionPackage = new ExtensionArtifactPackage(extension.TypesTgzData, []);
 
             await ociRegistry.PublishExtension(extensionReference, extensionPackage);
         }

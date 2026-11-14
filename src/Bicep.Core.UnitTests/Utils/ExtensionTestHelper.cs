@@ -31,7 +31,7 @@ public static class ExtensionTestHelper
     }
 
     public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(BinaryData tgzData, FeatureProviderOverrides features, IFileSystem? fileSystem = null, string? artifactTarget = null)
-        => GetServiceBuilderWithPublishedExtension(new ExtensionArtifactPackage(tgzData, false, []), artifactTarget ?? "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
+        => GetServiceBuilderWithPublishedExtension(new ExtensionArtifactPackage(tgzData, []), artifactTarget ?? "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
 
     public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionArtifactPackage package, FeatureProviderOverrides features, IFileSystem? fileSystem = null, string? artifactTarget = null)
         => GetServiceBuilderWithPublishedExtension(package, artifactTarget ?? "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);

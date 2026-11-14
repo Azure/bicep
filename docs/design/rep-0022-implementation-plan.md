@@ -21,9 +21,9 @@ The work has two parts:
 | 0.6 | One `LocalArtifactReference`; local references are never restored | #20519 | Merged |
 | 0.7 | External artifact context on remote references | #20523 | Merged |
 | 0.8a | Registry, publish and cache cuts (includes the former 0.8c) | #20528 | Merged |
-| 0.8b | Vocabulary and folders: renames and moves only | #20530 | In review |
-| 0.9a | OCI payload and codecs | – | Next |
-| 0.9b | Cache entries store packages | – | Planned |
+| 0.8b | Vocabulary and folders: renames and moves only | #20530 | Merged |
+| 0.9a | OCI payload and codecs | #20554 | In review |
+| 0.9b | Cache entries store packages | – | Next |
 | 0.9c | The compiler gets artifacts, not files | – | Planned |
 | 1–10 | REP 0022 features (section 5) | – | Planned |
 
@@ -40,7 +40,7 @@ Restructuring the source file grouping (`ArtifactResolutionInfo`) is a separate 
 | **Artifact** | A module or extension, as the compiler, language server and local deploy use it | `Artifact`, `ModuleArtifact`, `ExtensionArtifact` |
 | **Artifact reference** | Which artifact, and where it lives. Identity only, no I/O | `ArtifactReference`, `RemoteArtifactReference`, `OciArtifactReference`, `TemplateSpecArtifactReference`, `LocalArtifactReference` |
 | **Artifact package** | An artifact's content in memory, independent of any container | `ModuleArtifactPackage`, `ExtensionArtifactPackage` |
-| **Artifact codec** | Converts a package to and from one container (an OCI payload, a `.tgz`), both ways; tested by round trip | `OciModuleArtifactCodec`, `OciExtensionArtifactCodec`, `ExtensionArtifactArchiveCodec` |
+| **Artifact codec** | Converts a package to and from one container (an OCI payload, a `.tgz`), both ways; tested by round trip | `OciModuleArtifactCodec`, `OciExtensionArtifactCodec`, `LocalExtensionArtifactCodec` |
 | **Artifact payload** | An OCI manifest and the blobs it references, as pushed or pulled | `OciArtifactPayload` |
 | **Artifact cache entry** | Where an artifact is stored on this machine; owns the on-disk layout | `ArtifactCacheEntry`, `OciModuleArtifactCacheEntry`, `OciExtensionArtifactCacheEntry`, `TemplateSpecArtifactCacheEntry`, `LocalExtensionArtifactCacheEntry` |
 | **Remote artifact registry** | Restores remote artifacts; the OCI registry also publishes | `IRemoteArtifactRegistry`, `RemoteArtifactRegistry<TReference>`, `OciArtifactRegistry`, `TemplateSpecArtifactRegistry` |
@@ -100,7 +100,7 @@ An empty body is allowed only for an OCI alias whose body starts with `:` or `@`
 
 - Every local file uses one reference type, however it's spelled. The spellings differ only in what the path is relative to (the referencing file, a file alias root, or the declaring configuration file), and resolving that is the resolver's job. Redirects and mocks are recorded as provenance on `ArtifactResolution`, not as reference types.
 - `OciArtifactReference.FullyQualifiedReference` stays `br:…`. It's persisted in source archives, ext-src URIs and cache paths, which older Bicep versions read. `ArtifactReference.CanonicalIdentity` is added instead (PR 1), and the resolver parses both `br:` and `oci:` into `OciArtifactReference`.
-- Diagnostics that print a reference prefer the user's spelling (`LocalArtifactReference.SourceText`, `ArtifactResolution.SourceText`). Existing diagnostic text stays byte-identical.
+- Diagnostics that print a reference prefer the user's spelling (`LocalArtifactReference.SourceText`, `ArtifactResolution.SourceText`).
 - `LocalArtifactReference` equality is `(File, Type)`. So `./a.bicep` and `file:./a.bicep` are the same artifact, while `./a.bicep` written in two different folders are different artifacts.
 - Allowed file types: modules must be `.bicep` or `.json` (and `.bicepparam` only where `using`/`extends` already allows it). Extensions have no file-type requirement; a file is valid if it decodes as an extension archive.
 
@@ -164,15 +164,19 @@ public sealed record ExtensionArtifactPackage(BinaryData Types, ImmutableArray<E
 
 // One model for both directions, shaped like ORAS: a manifest plus the content it references, keyed by digest.
 // The manifest bytes are the truth. A pulled payload keeps the exact bytes (digest checks; the cache stores them
-// as-is); a pushed payload serializes once.
-public sealed record OciArtifactPayload(BinaryData ManifestData, ImmutableDictionary<string, BinaryData> BlobsByDigest)
+// as-is); a created payload serializes once. A pulled payload has no blob for an empty config.
+public sealed class OciArtifactPayload
 {
+    public OciArtifactPayload(BinaryData manifestData, ImmutableDictionary<string, BinaryData> blobsByDigest);
     public OciManifest Manifest { get; }           // parsed from ManifestData
     public string ManifestDigest { get; }          // sha256 of ManifestData
     public BinaryData? Config { get; }
+    public BinaryData GetLayer(OciDescriptor layer);
     public BinaryData? TryGetLayer(string mediaType);
-    public static OciArtifactPayload Create(string artifactType, … config, … layers, … annotations);
+    public static OciArtifactPayload Create(string? artifactType, OciBlob config, IEnumerable<OciBlob> layers, ImmutableDictionary<string, string> annotations, …);
 }
+
+public sealed record OciBlob(string MediaType, BinaryData Data, ImmutableDictionary<string, string>? Annotations = null);
 
 public interface IRegistrySession : IAsyncDisposable   // the Azure SDK and ORAS transports: no Bicep media types
 {
@@ -181,23 +185,24 @@ public interface IRegistrySession : IAsyncDisposable   // the Azure SDK and ORAS
     Task<(string Digest, OciManifest Manifest)> ResolveAsync(IOciArtifactReference reference, CancellationToken cancellationToken);
 }
 
-// Codecs: the only code that knows Bicep's OCI media types. Error messages move here verbatim.
-internal static class OciModuleArtifactCodec
+// Codecs: they know Bicep's OCI layout and own its validation errors. The registry picks the codec from the
+// manifest's artifactType (a missing one means a module), the one other place that reads Bicep media types.
+public static class OciModuleArtifactCodec
 {
     public static OciArtifactPayload Encode(ModuleArtifactPackage package);    // config, template layer, optional sources layer, annotations
-    public static ModuleArtifactPackage Decode(OciArtifactPayload payload);    // today's OciModuleArtifactResult validation
+    public static ModuleArtifactPackage Decode(OciArtifactPayload payload);    // the former OciModuleArtifactResult validation
 }
 
-internal static class OciExtensionArtifactCodec
+public static class OciExtensionArtifactCodec
 {
     public static OciArtifactPayload Encode(ExtensionArtifactPackage package); // config, types layer, one layer per binary
     public static ExtensionArtifactPackage Decode(OciArtifactPayload payload); // keeps every architecture's binary
 }
 
-// ExtensionArtifactArchiveCodec (today's ExtensionV1Archive) encodes and decodes the local .tgz.
+// LocalExtensionArtifactCodec (formerly ExtensionV1Archive, then ExtensionArtifactArchiveCodec) encodes and decodes the local .tgz.
 
 // Cache entries: write a package once, open it as an artifact. OCI entries also store the original manifest
-// bytes and the metadata file, which older Bicep versions and hover read.
+// bytes and the metadata file, which older Bicep versions and hover read. WriteAsync exists since 0.9a; Open is 0.9c.
 public sealed class OciModuleArtifactCacheEntry : OciArtifactCacheEntry
 {
     public Task WriteAsync(ModuleArtifactPackage package, OciArtifactPayload pulled);
@@ -206,7 +211,7 @@ public sealed class OciModuleArtifactCacheEntry : OciArtifactCacheEntry
 
 // One writer for the extension files shared by OCI and local extension cache entries:
 // picks this machine's binary (today's two error messages), then writes types.tgz last.
-internal static class ExtensionArtifactCacheFiles
+public static class ExtensionArtifactCacheFiles
 {
     public static void Write(IDirectoryHandle directory, ExtensionArtifactPackage package, string referenceForErrors);
 }
@@ -238,7 +243,7 @@ publish:          ModuleArtifactPackage -> OciModuleArtifactCodec.Encode -> OciA
 restore:          pull -> OciArtifactPayload -> Decode -> package -> cache entry WriteAsync(package, payload) -> files
 compile:          files -> cache entry Open -> ModuleArtifact / ExtensionArtifact
 local module:     LocalArtifactReference -> ModuleArtifact(file, SourceFile)
-local extension:  .tgz -> ExtensionArtifactArchiveCodec.Decode -> package -> LocalExtensionArtifactCacheEntry.Write -> Open -> ExtensionArtifact
+local extension:  .tgz -> LocalExtensionArtifactCodec.Decode -> package -> LocalExtensionArtifactCacheEntry.Write -> Open -> ExtensionArtifact
 ```
 
 Consumers after 0.9c:
@@ -268,7 +273,7 @@ There are two top-level folders, with a one-way dependency between them:
 
 The names state the relationship: an artifact registry (`OciArtifactRegistry`, a Bicep service) uses a registry client (`RegistryClients.Oci`) to reach the wire. 0.8b replaced the former `Bicep.Core.Registry`, whose name clashed with `Artifacts.Registries`, and moved the module catalog to `Artifacts/Catalog`: it lists published Bicep modules (the public MCR index and private ACRs) for completion, the linter and the MCP server.
 
-`Artifacts` depends on `RegistryClients`, never the other way around. Exceptions remain where client code still uses artifact types: `IOciRegistryTransportFactory.CreateSession(OciArtifactReference)` (0.9a takes the address plus the cloud and ORAS settings instead); `OciDescriptor` and `OciArtifactAddressComponents`, which use the address grammar and comparers in `OciArtifactReferenceFacts` (those wire-level facts should move to `RegistryClients/Oci`, leaving the `br` scheme in `Artifacts`); the result classes that 0.9a deletes, `BicepMediaTypes` (Bicep encoding knowledge, which belongs with the codecs), and the exceptions the clients throw (`TemplateSpecException : ArtifactException`, and `OciArtifactRegistryException`/`InvalidArtifactException` from the transports), which need client-level exception types. Once they're gone, a test can enforce the direction.
+`Artifacts` depends on `RegistryClients`, never the other way around. Exceptions remain where client code still uses artifact types (0.9a removed `IOciRegistryTransportFactory.CreateSession(OciArtifactReference)` and the result classes): `OciDescriptor` and `OciArtifactAddressComponents`, which use the address grammar and comparers in `OciArtifactReferenceFacts` (those wire-level facts should move to `RegistryClients/Oci`, leaving the `br` scheme in `Artifacts`); `BicepMediaTypes` (Bicep encoding knowledge, which belongs with the codecs), and the exceptions the clients throw (`TemplateSpecException : ArtifactException`, and `OciArtifactRegistryException`/`InvalidArtifactException` from the transports), which need client-level exception types. Once they're gone, a test can enforce the direction.
 
 Annotations: `<-` gives where a file came from (moved in 0.8b unless marked); `(0.9x)` marks a new file. Namespaces follow the folders (`Bicep.Core.Artifacts.References` and so on).
 
@@ -318,7 +323,7 @@ Bicep.Core/
       ModuleArtifactPackage.cs                 <- Registry/ModulePackage.cs
       ExtensionArtifactPackage.cs              <- Registry/ExtensionPackage.cs (with ExtensionBinary)
     Codecs/
-      ExtensionArtifactArchiveCodec.cs         <- Registry/Providers/ExtensionV1Archive.cs
+      LocalExtensionArtifactCodec.cs           <- Registry/Providers/ExtensionV1Archive.cs (ExtensionArtifactArchiveCodec until 0.9a)
       TypesV1Archive.cs                        <- Registry/Providers/ (packs a types index into types.tgz)
       OciExtensionV1Config.cs                  <- Registry/Oci/
       OciModuleArtifactCodec.cs                (0.9a)
@@ -338,7 +343,7 @@ Bicep.Core/
                                                   with Brm* type names, and Implementation/PrivateRegistries became PrivateRegistries/)
   RegistryClients/
     Oci/
-      OciArtifactPayload.cs                    (0.9a) a manifest and its blobs, pushed or pulled
+      OciArtifactPayload.cs                    (0.9a) a manifest and its blobs, pushed or pulled (with OciBlob)
       BicepMediaTypes.cs                       <- Registry/Oci/
       OciAnnotationKeys.cs                     <- Registry/Oci/
       OciDescriptor.cs                         <- Registry/Oci/ (0.9a: Data removed)
@@ -425,7 +430,7 @@ Deprecating the mock (warnings, a timeline) is a product decision outside REP 00
 
 ## 4. Phase 0: refactoring
 
-Every Phase 0 PR leaves all baselines unchanged and changes no diagnostic text. `Azure.Bicep.Core` is published to nuget.org but explicitly unsupported, so public API renames are fine. Bicep.Core types stay `public`, by convention.
+Every Phase 0 PR leaves all baselines unchanged. Diagnostic text isn't frozen: a phase that touches an error should make it clear and understandable to users, and lists the reworded messages. `Azure.Bicep.Core` is published to nuget.org but explicitly unsupported, so public API renames are fine. Bicep.Core types stay `public`, by convention.
 
 ### 4.1 Completed phases
 
@@ -472,13 +477,30 @@ Every Phase 0 PR leaves all baselines unchanged and changes no diagnostic text. 
   - Types that survive 0.9 took the section 2 names: the cache entries (`ArtifactCacheEntry`, `Oci*ArtifactCacheEntry`, `TemplateSpecArtifactCacheEntry`, `LocalExtensionArtifactCacheEntry`), `*ArtifactPackage`, `ExtensionArtifactArchiveCodec` (`Encode`/`Decode`), `TemplateSpecArtifact{Reference,Registry}`, `RemoteArtifact{Reference,Context,ContextFactory}`, `(I)RemoteArtifactRegistry`, `(I)RemoteArtifactRestorer`, `RemoteArtifactRestoreState`, `ArtifactException` and `ArtifactSchemes`. The Template Spec repository, which wraps one ARM call, became a client: `(I)TemplateSpecClient(Factory)`, `TemplateSpecVersion` and `GetTemplateSpecVersionAsync`. `ArtifactHelper` became `RestoreExtensions.GetRemoteArtifactReferences()`.
   - The types that 0.9 deletes kept their names and folders. No naming architecture test was added (see section 2).
   - Two commits (moves, then renames), so that git shows both as renames.
+- **0.9a: OCI payload and codecs.**
+  - `OciArtifactPayload` (a manifest and its blobs by digest) replaced `OciArtifactResult` and its subclasses, `OciArtifactResultFactory`, `OciArtifactLayer` and `OciDescriptor.Data`. Both transports and `IRegistrySession` push and pull payloads and know nothing about Bicep artifacts. `IOciRegistryTransportFactory.CreateSession` takes the cloud, registry, repository and ORAS setting instead of an `OciArtifactReference`, and `GetTransport(OciArtifactReference)` is gone. The `Modules/` folder is gone.
+  - `OciModuleArtifactCodec` and `OciExtensionArtifactCodec` own push encoding (from `OciArtifactRegistry`) and pull validation (from the result classes). Restore picks the codec from the artifact type the manifest declares, and reports a mismatch with the reference before decoding anything. The private ACR catalog decodes only modules.
+  - `ModuleArtifactPackage` gained `Description` and `FromTemplate`; `ExtensionArtifactPackage` dropped `LocalDeployEnabled`. OCI cache entries `WriteAsync(package, payload)`, pulled forward from 0.9b because nothing else could write the result classes' replacement.
+  - `ExtensionArtifactArchiveCodec` became `LocalExtensionArtifactCodec`, which follows the section 2 rule and pairs with `OciExtensionArtifactCodec` and `LocalExtensionArtifactCacheEntry`.
+  - Reworded restore errors (all follow BCP192's "The OCI artifact is not a valid Bicep artifact."):
+    - "Expected a module, but the artifact is an extension." and the reverse (was "…but retrieved an extension.").
+    - "The artifact type "…" is not supported by this version of Bicep. A newer version of Bicep might be required to reference this artifact." (was "artifacts of type: '…' are not supported by this Bicep version.").
+    - "The module has no compiled template layer (media type "…")." and "The module has more than one compiled template layer (…)." (were "Expected to find a layer with media type …, but found none." and "Did not expect to find multiple layer media types of …").
+    - "The module's config media type "…" is not supported by this version of Bicep." and "The extension's config media type "…" is not supported…" (were "Did not expect config media type …" and "Unknown config.mediaType: '…'.").
+    - "Expected an extension, but the artifact type is "…"." (was "Unknown artifactType: '…'.").
+    - "The manifest refers to a blob that does not exist in the registry (digest "…")." (was "Module manifest refers to a non-existent blob…", also for extensions).
+    - New: "The extension has no types layer (…)." and "The extension has more than one types layer (…).", and "The extension's config is not valid JSON." Before, these surfaced as "Unhandled exception: …" with a stack trace.
+  - Behavior changes, all edge cases:
+    - A wrong-kind artifact always reports "Expected a module, but the artifact is an extension." (or the reverse), even when it's also malformed; before, the malformation error won. The private ACR catalog likewise labels an unknown artifact type or a broken extension as an unexpected type rather than an invalid module.
+    - The Azure SDK session's `ResolveAsync` (existence checks before publish, hover's manifest fallback) no longer validates Bicep content, as the ORAS session already didn't. Publishing without `--force` over an invalid artifact now reports that it exists.
+    - An extension whose config lists an architecture with no matching layer now decodes without that binary. Restore still fails on a machine of that architecture if the extension has other binaries; if it has none, it restores without a binary.
+  - Round-trip tests per codec (with and without sources, documentation, description and binaries).
 
 ### 4.2 Remaining phases
 
 | # | Phase | Details | Verification |
 |---|---|---|---|
-| 0.9a | **OCI payload and codecs** | `OciArtifactPayload` replaces `OciArtifactResult` and its subclasses, `OciArtifactResultFactory`, `OciArtifactLayer` and `OciDescriptor.Data`. `IRegistrySession` pushes and pulls payloads in both transports (Azure SDK and ORAS), with no Bicep media types. `OciModuleArtifactCodec` and `OciExtensionArtifactCodec` take over the encoding for push (from `OciArtifactRegistry`) and the pull validation (from the result classes), keeping error messages verbatim. `ModuleArtifactPackage` gains `Description` and `FromTemplate`; `ExtensionArtifactPackage` drops `LocalDeployEnabled`. `PrivateAcrModuleMetadataProvider` reads the payload's manifest. | A round-trip test per codec, with and without sources, documentation and binaries; publish, restore and BCP192 message tests unchanged. |
-| 0.9b | **Cache entries store packages** | OCI cache entries `WriteAsync(package, payload)`; `ExtensionArtifactCacheFiles` is the one writer of extension files; local extensions are decoded, written and opened through the same path (`LocalExtensionArtifactCacheEntry.Unpack` becomes the cache entry's `Write(package)`). Unpacking moves out of `LocalArtifactReference` into `LocalArtifactLoader`; references stop exposing cache entries, and registries create entries from references. `LocalArtifactReference` loses its cache root, so `ArtifactReferenceResolver` and `ModuleAliasMockRule` no longer need `IFeatureProviderFactory`; `IArtifactReferenceResolver` itself is unchanged. | `ArtifactCacheLayoutTests` unchanged; local-extension and concurrent-extraction tests. |
+| 0.9b | **Cache entries store packages** | `ExtensionArtifactCacheFiles`, shared with OCI extension entries (which `WriteAsync(package, payload)` since 0.9a), is the one writer of extension files; local extensions are decoded, written and opened through the same path (`LocalExtensionArtifactCacheEntry.Unpack` becomes the cache entry's `Write(package)`). Unpacking moves out of `LocalArtifactReference` into `LocalArtifactLoader`; references stop exposing cache entries, and registries create entries from references. `LocalArtifactReference` loses its cache root, so `ArtifactReferenceResolver` and `ModuleAliasMockRule` no longer need `IFeatureProviderFactory`; `IArtifactReferenceResolver` itself is unchanged. | `ArtifactCacheLayoutTests` unchanged; local-extension and concurrent-extraction tests. |
 | 0.9c | **The compiler gets artifacts** | Add `Artifact`, `ModuleArtifact` and `ExtensionArtifact`. `IRemoteArtifactRegistry.TryGetEntryPoint` becomes `TryOpen`; `RemoteArtifactRestoreState.Restored(Artifact)`; `ArtifactResolutionInfo.Result` becomes `ResultWithDiagnosticBuilder<Artifact>`. The source graph uses `ModuleArtifact.Kind`; `NamespaceProvider` uses `ExtensionArtifact.Types`; `NamespaceType` carries `ExtensionArtifact` for local deploy; the language server uses `ModuleArtifact.TryGetSources()`. Delete `IExtensionArtifact`, `IExtensionArtifactReference`, `ResolveExtensionArtifact` and `TryLoadSourceArchive`. | Baselines unchanged; language server ext-src, visualizer and code-lens tests; local deploy tests. |
 
 Phase 0 ends with 0.9c.
@@ -492,7 +514,7 @@ Phase 0 ends with 0.9c.
 
 ### 4.4 Validation notes
 
-- **Last full run (0.8b):** `dotnet build Bicep.slnx --no-restore` with 0 warnings; `dotnet test --solution Bicep.slnx --no-build` with 16,108 passed and 1 skipped; no baseline changes. Each earlier phase ran the full suite; its results are in the PR description.
+- **Last full run (0.9a):** `dotnet build Bicep.slnx --no-restore` with 0 warnings; `dotnet test --solution Bicep.slnx --no-build` with 16,395 passed, 3 skipped and 9 failed. The 9 failures were in `Bicep.LangServer.IntegrationTests` (7) and `Bicep.RpcClient.Tests` (2). Both projects then passed on their own (2,062 and 105 tests). No baseline changes. 0.8b: 16,108 passed and 1 skipped. Each earlier phase ran the full suite; its results are in the PR description.
 - **Test runner flags:** these test runners use Microsoft.Testing.Platform and don't accept `--blame-hang-timeout` or `--output Minimal`. A run with either flag executes zero tests.
 - **Wasm DI:** `AddBicepDecompiler` calls `AddBicepCore` again, so Wasm removes the default registries after both calls.
 - **Mock test case:** `RemoteArtifactRestorerTests`' mock reference includes its context in equality, as real references do.

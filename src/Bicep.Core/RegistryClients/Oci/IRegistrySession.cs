@@ -9,16 +9,9 @@ namespace Bicep.Core.RegistryClients.Oci;
 /// </summary>
 public interface IRegistrySession : IAsyncDisposable
 {
-    Task PushAsync(
-        IOciArtifactReference target,
-        string? mediaType,
-        string? artifactType,
-        OciDescriptor config,
-        IEnumerable<OciDescriptor> layers,
-        OciManifestAnnotationsBuilder annotations,
-        CancellationToken cancellationToken);
+    Task PushAsync(IOciArtifactReference target, OciArtifactPayload payload, CancellationToken cancellationToken);
 
-    Task<OciArtifactResult> PullAsync(IOciArtifactReference reference, CancellationToken cancellationToken);
+    Task<OciArtifactPayload> PullAsync(IOciArtifactReference reference, CancellationToken cancellationToken);
 
     Task<(string Digest, OciManifest Manifest)> ResolveAsync(IOciArtifactReference reference, CancellationToken cancellationToken);
 }

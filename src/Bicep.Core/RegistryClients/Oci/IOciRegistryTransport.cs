@@ -14,15 +14,11 @@ public interface IOciRegistryTransport
 
     Task<IReadOnlyList<string>> GetRepositoryTagsAsync(IBicepCloudConfiguration cloud, string registry, string repository, CancellationToken cancellationToken = default);
 
-    Task<OciArtifactResult> PullArtifactAsync(IBicepCloudConfiguration cloud, IOciArtifactAddressComponents artifactReference, CancellationToken cancellationToken = default);
+    Task<OciArtifactPayload> PullArtifactAsync(IBicepCloudConfiguration cloud, IOciArtifactAddressComponents artifactReference, CancellationToken cancellationToken = default);
 
     Task PushArtifactAsync(
         IBicepCloudConfiguration cloud,
         IOciArtifactReference artifactReference,
-        string? mediaType,
-        string? artifactType,
-        OciDescriptor config,
-        IEnumerable<OciDescriptor> layers,
-        OciManifestAnnotationsBuilder annotations,
+        OciArtifactPayload payload,
         CancellationToken cancellationToken = default);
 }

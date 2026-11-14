@@ -94,7 +94,6 @@ namespace Bicep.Cli.Commands
 
             var package = new ExtensionArtifactPackage(
                 Types: tarPayload,
-                LocalDeployEnabled: binaries.Any(),
                 Binaries: binaries);
 
             if (reference is not null)
@@ -103,7 +102,7 @@ namespace Bicep.Cli.Commands
             }
             else if (fileTarget is not null)
             {
-                fileTarget.Write(await ExtensionArtifactArchiveCodec.Encode(package));
+                fileTarget.Write(await LocalExtensionArtifactCodec.Encode(package));
             }
             else
             {

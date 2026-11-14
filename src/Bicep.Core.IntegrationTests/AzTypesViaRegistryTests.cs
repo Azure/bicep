@@ -95,7 +95,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(
                 new[] {
-                ("BCP192", DiagnosticLevel.Error, """Unable to restore the artifact with reference "br:mcr.microsoft.com/bicep/extensions/az:0.2.661": The OCI artifact is not a valid Bicep artifact. Expected an extension, but retrieved a module."""),
+                ("BCP192", DiagnosticLevel.Error, """Unable to restore the artifact with reference "br:mcr.microsoft.com/bicep/extensions/az:0.2.661": The OCI artifact is not a valid Bicep artifact. Expected an extension, but the artifact is a module."""),
             });
         }
 

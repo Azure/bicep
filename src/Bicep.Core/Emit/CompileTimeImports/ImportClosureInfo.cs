@@ -8,7 +8,6 @@ using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;

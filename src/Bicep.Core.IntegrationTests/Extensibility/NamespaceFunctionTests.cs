@@ -400,7 +400,7 @@ public class NamespaceFunctionTests
             ("index.json", StreamHelper.GetString(stream => TypeSerializer.SerializeIndex(stream, index))),
             ("types.json", StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes()))));
 
-        return await ExtensionArtifactArchiveCodec.Encode(new(indexTgz, false, []));
+        return await LocalExtensionArtifactCodec.Encode(new(indexTgz, []));
     }
 
     private record CommonPrimitives(TypeBase IntType, TypeBase StringType, TypeBase BoolType, TypeBase AnyType);

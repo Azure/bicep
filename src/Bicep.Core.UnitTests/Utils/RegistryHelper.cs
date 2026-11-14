@@ -164,7 +164,7 @@ public static class RegistryHelper
         }
 
         BinaryData? sourcesStream = module.WithSource ? SourceArchive.CreateFrom(result.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
-        await ociRegistry.PublishModule(targetReference, new ModuleArtifactPackage(BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri));
+        await ociRegistry.PublishModule(targetReference, ModuleArtifactPackage.FromTemplate(BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri));
     }
 
     // Creates a new registry client factory and publishes the specified modules to the registry.
@@ -260,7 +260,7 @@ public static class RegistryHelper
     }
 
     public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, BinaryData tgzData, Uri? bicepFileUri = null)
-        => await PublishExtensionToRegistryAsync(services, target, new ExtensionArtifactPackage(tgzData, false, []), bicepFileUri);
+        => await PublishExtensionToRegistryAsync(services, target, new ExtensionArtifactPackage(tgzData, []), bicepFileUri);
 
     public static Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, ExtensionArtifactPackage package, Uri? bicepFileUri = null)
         => PublishExtensionToRegistryAsync(services.Construct<IArtifactReferenceResolver>(), services.Construct<OciArtifactRegistry>(), target, package, bicepFileUri);
@@ -290,7 +290,7 @@ public static class RegistryHelper
                 await ociRegistry.PublishExtension(ociReference, package);
                 break;
             case LocalArtifactReference local:
-                local.File.Write(await ExtensionArtifactArchiveCodec.Encode(package));
+                local.File.Write(await LocalExtensionArtifactCodec.Encode(package));
                 break;
             default:
                 throw new InvalidOperationException($"Extension target '{target}' must be an OCI reference or a local file.");

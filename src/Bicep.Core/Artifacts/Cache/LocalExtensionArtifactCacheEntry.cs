@@ -38,7 +38,7 @@ namespace Bicep.Core.Artifacts.Cache
 
         private void WriteContent(ExtensionArtifactPackage package, string extensionReference)
         {
-            if (package.LocalDeployEnabled)
+            if (package.Binaries.Any())
             {
                 if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
                 {

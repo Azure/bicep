@@ -168,7 +168,7 @@ public class ExtensionRegistryTests : TestBase
             """);
         await File.WriteAllBytesAsync(
             Path.Combine(tempDirectory, "extension.tgz"),
-            (await ExtensionArtifactArchiveCodec.Encode(new(ExtensionResourceTypeHelper.GetTestTypesTgz(), false, []))).ToArray());
+            (await LocalExtensionArtifactCodec.Encode(new(ExtensionResourceTypeHelper.GetTestTypesTgz(), []))).ToArray());
 
         var compilation = services.Build().GetCompiler().CreateCompilationWithoutRestore(PathHelper.FilePathToFileUrl(bicepPath).ToIOUri());
 
@@ -181,7 +181,7 @@ public class ExtensionRegistryTests : TestBase
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
         var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
-        var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, false, []));
+        var extensionTgz = await LocalExtensionArtifactCodec.Encode(new(typesTgz, []));
 
         var result = await CompilationHelper.RestoreAndCompile(
           ("main.bicep", new("""
@@ -203,7 +203,7 @@ resource fooRes 'fooType@v1' = {
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
         var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
-        var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, false, []));
+        var extensionTgz = await LocalExtensionArtifactCodec.Encode(new(typesTgz, []));
 
         var result = await this.compiler.Compile(
             ("main.bicep", """
