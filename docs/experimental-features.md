@@ -38,7 +38,7 @@ Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with`
 
 ### `deploymentModules`
 
-Emits Bicep modules as `Microsoft.Resources/deployments/modules` resources (API version `2026-10-05-preview`) under an experimental template language version, instead of `Microsoft.Resources/deployments`. Module resources are children of the root deployment, don't appear in the target-scope deployment history, and don't count toward the 800 deployments per scope limit.
+Emits Bicep modules as `Microsoft.Resources/deployments/modules` resources (API version `2026-10-05-preview`) instead of `Microsoft.Resources/deployments`. Module resources are children of the root deployment and don't count toward the 800 deployments per scope limit.
 
 This feature requires the deployment modules preview to be enabled in ARM.
 
