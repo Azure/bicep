@@ -15,6 +15,7 @@ import type {
   GetGraphParams,
   GetGraphResult,
   LayoutGraphParams,
+  MotionPolicy,
   ReplaySourceStepParams,
   ReplaySourceStepResult,
   RestoreModuleParams,
@@ -47,6 +48,11 @@ import { getCatalogDelayMs, getSampleApiVersions, getSampleResourceTypes } from 
 
 const FAKE_FILE_PATH = "file:///main.bicep";
 
+/** The `motionPolicy` query parameter, which defaults to animating so tests do not depend on the OS setting. */
+function readMotionPolicy(value: string | null): MotionPolicy {
+  return value === "reduce" || value === "system" ? value : "animate";
+}
+
 /**
  * A fake message channel that simulates the VS Code extension host for dev-mode usage.
  * Graph changes are announced with `document/didChange`; the webview then pulls the graph
@@ -60,6 +66,10 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   private restoreAttemptCount = 0;
   private targetScope: TargetScope = "resourceGroup";
   private colorThemeMatched = new URLSearchParams(window.location.search).get("matchColorTheme") === "true";
+  private resourceEditingEnabled = new URLSearchParams(window.location.search).get("resourceEditing") !== "false";
+  private motionPolicy: MotionPolicy = readMotionPolicy(
+    new URLSearchParams(window.location.search).get("motionPolicy"),
+  );
   /** Set by `skipGraphUpdateAfterUndo`: graph updates omit an undone creation until the graph changes again. */
   private isWithholdingUndoneRemoval = false;
   private readonly notificationSubscriptions: Record<string, Set<WebviewNotificationCallback>> = {};
@@ -156,7 +166,8 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
         : Promise.resolve(answer());
     }
     if (requestMessage.method === createResource.method) {
-      if (new URLSearchParams(window.location.search).get("resourceEditing") === "false") {
+      // Like the extension, which rechecks the setting before applying an edit.
+      if (!this.resourceEditingEnabled) {
         return Promise.reject({ code: "editingDisabled", message: "Resource editing is disabled." });
       }
       const request = requestMessage.params as CreateResourceParams;
@@ -308,11 +319,15 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   sendNotification(notificationMessage: WebviewNotificationMessage) {
     if (notificationMessage.method === ready.method) {
       this.sendSettings();
-      // Simulate async response from the extension host:
-      // after a short delay, present the sample deployment graph.
-      setTimeout(() => {
-        this.pushGraph(MODULE_GRAPH);
-      }, 50);
+      // Simulate async response from the extension host: after a short delay, or `initialGraphDelay`, present the
+      // sample deployment graph.
+      const delay = Number(new URLSearchParams(window.location.search).get("initialGraphDelay") ?? 50);
+      setTimeout(
+        () => {
+          this.pushGraph(MODULE_GRAPH);
+        },
+        Number.isFinite(delay) && delay >= 0 ? delay : 50,
+      );
     } else if (notificationMessage.method === revealNode.method) {
       // The real host would resolve the node's source location via the language server and reveal it.
       console.log("[FakeMessageChannel] revealNode:", notificationMessage.params);
@@ -341,6 +356,10 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
     return this.currentGraph;
   }
 
+  getTargetScope(): TargetScope {
+    return this.targetScope;
+  }
+
   setTargetScope(scope: TargetScope) {
     this.targetScope = scope;
     this.pushGraph(this.currentGraph);
@@ -361,12 +380,30 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
     this.sendSettings();
   }
 
+  isResourceEditingEnabled(): boolean {
+    return this.resourceEditingEnabled;
+  }
+
+  /** Simulate changing `bicep.experimental.visualizer.enableResourceEditing`. */
+  setResourceEditingEnabled(enabled: boolean) {
+    this.resourceEditingEnabled = enabled;
+    this.sendSettings();
+  }
+
+  getMotionPolicy(): MotionPolicy {
+    return this.motionPolicy;
+  }
+
+  /** Simulate a change of the effective motion policy. */
+  setMotionPolicy(motionPolicy: MotionPolicy) {
+    this.motionPolicy = motionPolicy;
+    this.sendSettings();
+  }
+
   private sendSettings() {
-    const params = new URLSearchParams(window.location.search);
-    const motionPolicy = params.get("motionPolicy");
     this.dispatchNotification(settingsDidChange.method, {
-      motionPolicy: motionPolicy === "reduce" || motionPolicy === "system" ? motionPolicy : "animate",
-      isResourceEditingEnabled: params.get("resourceEditing") !== "false",
+      motionPolicy: this.motionPolicy,
+      isResourceEditingEnabled: this.resourceEditingEnabled,
       isColorThemeMatched: this.colorThemeMatched,
     } satisfies Settings);
   }

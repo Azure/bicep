@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/** How nodes travel to new positions. */
-export const NODE_MOVE_TRANSITION = { type: "spring", duration: 0.6 } as const;
+/** How nodes travel to new positions: a spring with a slight bounce as they settle. */
+export const NODE_MOVE_TRANSITION = { type: "spring", duration: 0.45, bounce: 0.15 } as const;
 
 /**
  * How a node changes shape when it becomes a container or stops being one. Node content that animates

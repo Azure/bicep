@@ -40,6 +40,10 @@ export type GraphProps = PropsWithChildren<
     raisedNodeIdsAtom?: Atom<readonly string[]>;
     /** Snap nodes to new positions and shapes, and show and hide them without fading. */
     reduceMotion?: boolean;
+    /** Let node presses pan (in the viewport's `hand` mode) rather than move nodes. */
+    panOnNodeDrag?: boolean;
+    /** Let an Alt, Ctrl, or Cmd press on a node draw a marquee (in the viewport's `select` mode) rather than move it. */
+    marqueeOnModifiedDrag?: boolean;
   }
 >;
 
@@ -47,6 +51,8 @@ export function Graph({
   children,
   raisedNodeIdsAtom,
   reduceMotion = false,
+  panOnNodeDrag = false,
+  marqueeOnModifiedDrag = false,
   onNodeDragStart = ignoreNodeEvent,
   onNodeDrag = ignoreNodeEvent,
   onNodeDragEnd = ignoreNodeEvent,
@@ -59,9 +65,20 @@ export function Graph({
     () => ({
       events: { onNodeDragStart, onNodeDrag, onNodeDragEnd, onNodeDoubleClick },
       reduceMotion,
+      panOnNodeDrag,
+      marqueeOnModifiedDrag,
       paintOrderAtom,
     }),
-    [onNodeDoubleClick, onNodeDrag, onNodeDragEnd, onNodeDragStart, paintOrderAtom, reduceMotion],
+    [
+      onNodeDoubleClick,
+      onNodeDrag,
+      onNodeDragEnd,
+      onNodeDragStart,
+      marqueeOnModifiedDrag,
+      paintOrderAtom,
+      panOnNodeDrag,
+      reduceMotion,
+    ],
   );
 
   return (

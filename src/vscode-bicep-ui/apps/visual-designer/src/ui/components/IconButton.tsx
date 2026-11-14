@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import styled from "styled-components";
+import { ARROW_CURSOR, POINTER_CURSOR } from "../cursors";
 
 export const ICON_BUTTON_SIZE = 26;
 export const ICON_BUTTON_RADIUS = 5;
@@ -26,7 +27,7 @@ export const IconButton = styled.button`
   background-color: transparent;
   color: ${({ theme }) => theme.iconButton.color};
   /* Matches VS Code's action bar: a pointer when enabled, the default arrow when disabled. */
-  cursor: pointer;
+  cursor: ${POINTER_CURSOR};
   transition:
     background-color 150ms ease,
     transform 150ms ease;
@@ -42,7 +43,7 @@ export const IconButton = styled.button`
 
   &:disabled {
     opacity: 0.45;
-    cursor: default;
+    cursor: ${ARROW_CURSOR};
     transform: none;
   }
 

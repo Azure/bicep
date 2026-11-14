@@ -21,6 +21,11 @@ export interface GraphTheme {
   edge: {
     color: string;
   };
+  /** The rectangle drawn while dragging to select nodes. */
+  marquee: {
+    border: string;
+    background: string;
+  };
   grabCursor: {
     /** Semi-transparent background color for the cursor overlay (CSS color value). */
     background: string;

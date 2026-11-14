@@ -211,6 +211,12 @@ describe("createColorTheme", () => {
     expect(theme.focusBorder).toBe("#3794ff");
   });
 
+  it("draws the selection marquee in the accent that rings selected nodes", () => {
+    const theme = createColorTheme(darkTheme, { "editor-background": "#1e1e1e", focusBorder: "#3794ff" });
+
+    expect(theme.marquee).toEqual({ border: "#3794ff", background: "rgba(55, 148, 255, 0.12)" });
+  });
+
   it("makes a translucent editor background opaque for the canvas and export", () => {
     const theme = createColorTheme(lightTheme, { "editor-background": "rgba(0, 0, 0, 0.5)" });
 

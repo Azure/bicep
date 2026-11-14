@@ -11,11 +11,12 @@ import {
   collapsedModuleIdsAtom,
   isGraphChangeInProgressAtom,
   raiseNodeAtom,
+  selectedNodeIdsAtom,
   shownGraphAtom,
   sourceGraphAtom,
   undoHistoryAtom,
 } from "../atoms";
-import { getDescendantIds } from "../graph-model";
+import { getDescendantIds, isDescendant } from "../graph-model";
 import { getNodePositions, getPositionedNodeIds, moveNodes, setNodePositions, translateNodes } from "../node-positions";
 import { recordLayoutChange } from "../undo-history";
 
@@ -34,9 +35,9 @@ export interface NodeDragHandlers {
 
 /**
  * Moves dragged nodes, and records each drag as one undo step. A dragged node is raised above the
- * others. Dragging a container moves what is inside it, and dragging a collapsed module moves its hidden
- * descendants with it. A drag that starts while a source edit or Reset Layout is in flight is ignored, and
- * Undo and Redo wait for drags to end.
+ * others. Dragging a container moves what is inside it, dragging a collapsed module moves its hidden
+ * descendants with it, and dragging one of several selected nodes moves the whole selection. A drag that
+ * starts while a source edit or Reset Layout is in flight is ignored, and Undo and Redo wait for drags to end.
  */
 export function useNodeDrag(): NodeDragHandlers {
   const store = useStore();
@@ -51,7 +52,15 @@ export function useNodeDrag(): NodeDragHandlers {
 
       const source = store.get(sourceGraphAtom);
       const shown = store.get(shownGraphAtom);
-      const subtreeIds = new Set([nodeId, ...getDescendantIds(shown, nodeId)]);
+      // Dragging one of several selected nodes moves them all. A node inside a selected container moves with it.
+      const selected = store.get(selectedNodeIdsAtom);
+      const rootIds =
+        selected.has(nodeId) && selected.size > 1
+          ? [...selected].filter(
+              (id) => shown.nodes.has(id) && ![...selected].some((other) => isDescendant(shown, id, other)),
+            )
+          : [nodeId];
+      const subtreeIds = new Set(rootIds.flatMap((id) => [id, ...getDescendantIds(shown, id)]));
       const movedNodeIds = getPositionedNodeIds(shown).filter((id) => subtreeIds.has(id));
       const positionsBefore = getNodePositions(store);
 

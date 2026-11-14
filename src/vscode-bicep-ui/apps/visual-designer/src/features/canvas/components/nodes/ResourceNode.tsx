@@ -8,7 +8,7 @@ import { motion } from "motion/react";
 import { styled } from "styled-components";
 import { EXPAND_TRANSITION } from "@/ui";
 import { camelCaseToWords } from "@/utils";
-import { useIsNodeFocused } from "../../hooks/use-is-node-focused";
+import { useIsNodeFocused, useIsNodeSelected } from "../../hooks/use-node-selection";
 import { RESOURCE_NODE_PREVIEW_HEIGHT, RESOURCE_NODE_PREVIEW_WIDTH } from "./ResourceNodePreview";
 
 export interface ResourceNodeProps {
@@ -19,7 +19,7 @@ export interface ResourceNodeProps {
 const $ResourceNode = styled(motion.div)<{
   $hasError?: boolean;
   $isCollection?: boolean;
-  $isFocused?: boolean;
+  $isSelected?: boolean;
 }>`
   position: relative;
   flex: 1;
@@ -29,28 +29,28 @@ const $ResourceNode = styled(motion.div)<{
   margin: 4px;
   box-sizing: border-box;
   border: ${({ $hasError, theme }) => ($hasError ? theme.node.errorBorderWidth : theme.node.borderWidth)} solid
-    ${({ $hasError, $isFocused, theme }) =>
-      $hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
+    ${({ $hasError, $isSelected, theme }) =>
+      $hasError ? theme.error : $isSelected ? theme.node.focusBorder : theme.node.border};
   border-radius: 8px;
   background-color: ${({ theme }) => theme.node.background};
   height: 76px;
   min-width: 220px;
-  box-shadow: ${({ $isFocused, $hasError, theme }) =>
-    $isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
+  box-shadow: ${({ $isSelected, $hasError, theme }) =>
+    $isSelected ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
   transition:
     border-color 180ms ease,
     box-shadow 180ms ease;
 
   &:hover {
-    border-color: ${({ $hasError, $isFocused, theme }) =>
-      $hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.hoverBorder};
-    box-shadow: ${({ $isFocused, $hasError, theme }) => {
-      if ($isFocused) return $hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow;
+    border-color: ${({ $hasError, $isSelected, theme }) =>
+      $hasError ? theme.error : $isSelected ? theme.node.focusBorder : theme.node.hoverBorder};
+    box-shadow: ${({ $isSelected, $hasError, theme }) => {
+      if ($isSelected) return $hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow;
       return $hasError ? theme.node.hoverErrorShadow : theme.node.hoverShadow;
     }};
   }
 
-  ${({ $isCollection, $hasError, $isFocused, theme }) => {
+  ${({ $isCollection, $hasError, $isSelected, theme }) => {
     const offset = theme.node.collectionOffset;
     return $isCollection
       ? `
@@ -63,15 +63,15 @@ const $ResourceNode = styled(motion.div)<{
       left: ${offset}px;
       right: -${offset}px;
       bottom: -${offset}px;
-      border: ${$hasError ? theme.node.errorBorderWidth : theme.node.borderWidth} solid ${$hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
+      border: ${$hasError ? theme.node.errorBorderWidth : theme.node.borderWidth} solid ${$hasError ? theme.error : $isSelected ? theme.node.focusBorder : theme.node.border};
       border-radius: 10px;
       background-color: ${theme.node.background};
       z-index: -1;
-      box-shadow: ${$isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
+      box-shadow: ${$isSelected ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
       transition: border-color 180ms ease, box-shadow 180ms ease;
     }
     &:hover::before {
-      border-color: ${$hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.hoverBorder};
+      border-color: ${$hasError ? theme.error : $isSelected ? theme.node.focusBorder : theme.node.hoverBorder};
     }
   `
       : "";
@@ -121,6 +121,7 @@ export function ResourceNode({ id, data }: ResourceNodeProps) {
   const { symbolicName, resourceType, isCollection, hasError, replacesPlaceholder } = data;
   const resourceTypeDisplayName = camelCaseToWords(resourceType.split("/").pop());
   const isFocused = useIsNodeFocused(id);
+  const isSelected = useIsNodeSelected(id);
   const initialScaleX = RESOURCE_NODE_PREVIEW_WIDTH / 220;
   const initialScaleY = RESOURCE_NODE_PREVIEW_HEIGHT / 76;
   const initialIconScaleX = 18 / (36 * initialScaleX);
@@ -134,8 +135,9 @@ export function ResourceNode({ id, data }: ResourceNodeProps) {
       transition={EXPAND_TRANSITION}
       $hasError={hasError}
       $isCollection={isCollection}
-      $isFocused={isFocused}
+      $isSelected={isSelected}
       data-focused={isFocused}
+      data-selected={isSelected}
     >
       <$ResourceIcon
         initial={replacesPlaceholder ? { scaleX: initialIconScaleX, scaleY: initialIconScaleY } : false}

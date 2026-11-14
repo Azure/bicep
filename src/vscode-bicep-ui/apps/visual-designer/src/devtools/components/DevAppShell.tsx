@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 
 import { WebviewMessageChannelProvider } from "@vscode-bicep-ui/messaging";
 import { useDevChannel } from "../hooks/use-dev-channel";
-import { DevToolbar } from "./DevToolbar";
+import { DevPanel } from "./DevPanel";
 
 interface DevAppShellProps {
   children: ReactNode;
@@ -15,7 +15,7 @@ interface DevAppShellProps {
  * Wrapper used only in dev mode (`npm run dev`).
  *
  * It creates a {@link FakeMessageChannel}, renders the
- * {@link DevToolbar}, and provides the channel to the rest
+ * {@link DevPanel}, and provides the channel to the rest
  * of the app via {@link WebviewMessageChannelProvider}.
  *
  * The channel is passed without a cast on purpose: the provider accepts the channel *interface*, so
@@ -28,7 +28,7 @@ export function DevAppShell({ children }: DevAppShellProps) {
 
   return (
     <WebviewMessageChannelProvider messageChannel={channel}>
-      <DevToolbar channel={channel} />
+      <DevPanel channel={channel} />
       {children}
     </WebviewMessageChannelProvider>
   );

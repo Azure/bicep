@@ -7,6 +7,7 @@ import type { ResourceVersionsState } from "../atoms";
 import { Codicon } from "@vscode-bicep-ui/components";
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import { POINTER_CURSOR } from "@/ui";
 
 const POPUP_GAP = 4;
 const VIEWPORT_MARGIN = 8;
@@ -27,7 +28,7 @@ const $Trigger = styled.div`
   font-size: 11px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  cursor: pointer;
+  cursor: ${POINTER_CURSOR};
   user-select: none;
   transition:
     background-color 150ms ease,
@@ -104,7 +105,7 @@ const $Option = styled.li`
   border-radius: 4px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  cursor: pointer;
+  cursor: ${POINTER_CURSOR};
 
   &[data-active="true"] {
     border-color: var(--vscode-contrastActiveBorder, transparent);
@@ -135,7 +136,7 @@ const $Retry = styled.button`
   color: var(--vscode-textLink-foreground);
   background: transparent;
   font: inherit;
-  cursor: pointer;
+  cursor: ${POINTER_CURSOR};
 
   &:hover {
     text-decoration: underline;

@@ -97,16 +97,22 @@ export function centerGraphLayout(
  * `layoutCenters` moved as a whole so the node nearest `focus` that has a position in `currentCenters` stays where it
  * is. A reset lays out a graph the user is looking at, perhaps after opening or closing a container changed its
  * size; centering the new layout's box would shift every node by half that change, which reads as the camera moving.
- * With no node in both, the layout is returned as is.
+ * Only `anchorNodeIds` qualify, when given: a node still waiting at its spawn point would drag the layout to it.
+ * With no node qualifying, the layout is returned as is.
  */
 export function keepFocusedNodeInPlace(
   layoutCenters: ReadonlyMap<string, Point>,
   currentCenters: ReadonlyMap<string, Point>,
   focus: Point,
+  anchorNodeIds?: ReadonlySet<string>,
 ): Map<string, Point> {
   let anchor: { from: Point; to: Point; distance: number } | null = null;
 
   for (const [nodeId, to] of currentCenters) {
+    if (anchorNodeIds && !anchorNodeIds.has(nodeId)) {
+      continue;
+    }
+
     const from = layoutCenters.get(nodeId);
     const distance = Math.hypot(to.x - focus.x, to.y - focus.y);
 
