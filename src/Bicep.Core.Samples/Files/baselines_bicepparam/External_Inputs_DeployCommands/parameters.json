@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "$usingConfig": {
-      "expression": "[createObject('scope', format('/subscriptions/{0}/resourceGroups/{1}', externalInput('sys.cliArg', 'subscription-id'), externalInput('sys.cliArg', 'resource-group')), 'actionOnUnmanage', createObject('resources', 'delete'), 'denySettings', createObject('mode', 'denyDelete'), 'mode', 'stack')]"
+      "expression": "[createObject('scope', format('/subscriptions/{0}/resourceGroups/{1}', externalInputs('sys_cliArg_0'), externalInputs('sys_cliArg_1')), 'actionOnUnmanage', createObject('resources', 'delete'), 'denySettings', createObject('mode', 'denyDelete'), 'mode', 'stack')]"
     }
   },
   "externalInputDefinitions": {
