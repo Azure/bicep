@@ -1389,10 +1389,10 @@ namespace Bicep.Core.TypeSystem
                     // Interpolated strings contain their embedded values, so preserve any security those values carry.
                     validationFlags: expressionTypes.Any(TypeHelper.IsOrContainsSecureType) ? TypeSymbolValidationFlags.IsSecure : default,
                     maxLength: maxLength, minLength: minLength switch
-                {
-                    <= 0 => null,
-                    _ => minLength,
-                });
+                    {
+                        <= 0 => null,
+                        _ => minLength,
+                    });
             });
 
         public override void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax)
