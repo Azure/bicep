@@ -237,6 +237,8 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         VisitDescribableExpression(expression);
         Visit(expression.Body);
         Visit(expression.DependsOn);
+        Visit(expression.GroupLabels);
+        Visit(expression.StackLabels);
     }
 
     public virtual void VisitDeclaredRuleExpression(DeclaredRuleExpression expression)

@@ -150,12 +150,25 @@ public class NestedDeploymentExtension(
 
     private async Task<LocalExtensionOperationResponse> CreateOrUpdateStack(ResourceSpecification request, CancellationToken cancellationToken)
     {
+        try
+        {
+            return await DeployStack(request, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return new LocalExtensionOperationResponse(
+                Resource: null,
+                ErrorData: new(new("InvalidDeployment", $"Failed to deploy stack. {ex}")));
+        }
+    }
+
+    private async Task<LocalExtensionOperationResponse> DeployStack(ResourceSpecification request, CancellationToken cancellationToken)
+    {
         var templateFile = request.Properties["template"]!.ToString();
         var parametersFile = request.Properties["parameters"]!.ToString();
         var sourceUri = request.Properties["sourceUri"]!.ToString();
         var body = request.Properties["body"]!.ToString().FromJson<JObject>();
         var region = body!["region"]!.Value<string>();
-        var deploy = body!["deploy"]!.Value<string>();
         var inputs = body!["inputs"]!.Value<JObject>();
 
         var paramsResult = await ProcessParameters(parametersFile, inputs!);
@@ -185,27 +198,18 @@ public class NestedDeploymentExtension(
             ["parametersHash"] = TemplateHelpers.ComputeDeploymentParametersHash(paramsResult.Parameters.FromJson<DeploymentParametersDefinition>().Parameters),
         };
 
-        stacksConfig = stacksConfig with { Description = descriptionJson.ToJson() };
+        stacksConfig = stacksConfig with { Description = descriptionJson.ToJson(), Version = body["version"]?.Value<string>() };
 
-        try
-        {
-            GuardHelper.ArgumentNotNull(identifiers.SourceUri);
-            var configuration = configurationManager.GetEffectiveConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
-            DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
+        GuardHelper.ArgumentNotNull(identifiers.SourceUri);
+        var configuration = configurationManager.GetEffectiveConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
+        DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
 
-            await armDeploymentProvider.CreateResourceGroup(configuration, locator, region!, cancellationToken);
+        await armDeploymentProvider.CreateResourceGroup(configuration, locator, region!, cancellationToken);
 
-            await armDeploymentProvider.StartDeploymentStack(configuration, locator, templateFile, paramsResult.Parameters, stacksConfig, cancellationToken);
-            var result = await armDeploymentProvider.CheckDeploymentStack(configuration, locator, cancellationToken);
+        await armDeploymentProvider.StartDeploymentStack(configuration, locator, templateFile, paramsResult.Parameters, stacksConfig, cancellationToken);
+        var result = await armDeploymentProvider.CheckDeploymentStack(configuration, locator, cancellationToken);
 
-            return GetResponse(request.Type, request.ApiVersion, identifiers, result);
-        }
-        catch (Exception ex)
-        {
-            return new LocalExtensionOperationResponse(
-                Resource: null,
-                ErrorData: new(new("InvalidDeployment", $"Failed to deploy to Azure. {ex}")));
-        }
+        return GetResponse(request.Type, request.ApiVersion, identifiers, result);
     }
 
     public async Task<LocalExtensionOperationResponse> Get(ResourceReference request, CancellationToken cancellationToken)
@@ -310,7 +314,8 @@ public class NestedDeploymentExtension(
     public record StacksConfig(
         string? Description,
         ActionOnUnmanage? ActionOnUnmanage,
-        DenySettings? DenySettings);
+        DenySettings? DenySettings,
+        string? Version = null);
 
     public record ProcessParametersResult(
         string Parameters,

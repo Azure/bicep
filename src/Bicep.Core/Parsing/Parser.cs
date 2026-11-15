@@ -64,6 +64,8 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
                             LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
                             LanguageConstants.StackKeyword => this.StackDeclaration(leadingNodes),
+                            LanguageConstants.GroupKeyword => this.GroupDeclaration(leadingNodes),
+                            LanguageConstants.ConfigurationKeyword => this.ConfigurationDeclaration(leadingNodes),
                             LanguageConstants.RuleKeyword => this.RuleDeclaration(leadingNodes),
                             LanguageConstants.TestKeyword => this.TestDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
@@ -255,6 +257,42 @@ namespace Bicep.Core.Parsing
             return new StackDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
         }
 
+        private SyntaxBase GroupDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.GroupKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.LeftBrace, TokenType.NewLine);
+            var newlines = reader.Peek(skipNewlines: true).IsKeyword(LanguageConstants.IfKeyword)
+                ? this.NewLines().ToImmutableArray()
+                : [];
+            var flags = ExpressionFlags.AllowStackDeclarations | ExpressionFlags.AllowComplexLiterals;
+            var value = this.WithRecovery(() =>
+                {
+                    var current = reader.Peek();
+                    return current.Type switch
+                    {
+                        TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(flags, insideForExpression: false),
+                        TokenType.LeftBrace => this.Object(flags),
+                        TokenType.LeftSquare => this.ForExpression(flags, isResourceOrModuleContext: true),
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIfOrLoopStart())
+                    };
+                },
+                GetSuppressionFlag(assignment),
+                TokenType.NewLine);
+
+            return new GroupDeclarationSyntax(leadingNodes, keyword, name, assignment, newlines, value);
+        }
+
+        private SyntaxBase ConfigurationDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.ConfigurationKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
+            var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
+
+            return new VariableDeclarationSyntax(leadingNodes, keyword, name, null, assignment, value);
+        }
+
         protected SyntaxBase RuleDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             // TODO: Add dedicated diagnostics instead of reusing variables
@@ -267,7 +305,17 @@ namespace Bicep.Core.Parsing
                 TokenType.Assignment, TokenType.NewLine);
 
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);
-            var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
+            var value = this.WithRecovery(() =>
+            {
+                var current = reader.Peek();
+                return current.Type switch
+                {
+                    TokenType.Identifier when current.Text == LanguageConstants.IfKeyword =>
+                        this.IfCondition(ExpressionFlags.AllowComplexLiterals, insideForExpression: false),
+                    TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
+                    _ => this.Expression(ExpressionFlags.AllowComplexLiterals),
+                };
+            }, GetSuppressionFlag(assignment), TokenType.NewLine);
 
             return new RuleDeclarationSyntax(leadingNodes, keyword, name, type, assignment, value);
         }

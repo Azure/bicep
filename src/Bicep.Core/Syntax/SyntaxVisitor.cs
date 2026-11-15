@@ -60,6 +60,8 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax);
 
+        public abstract void VisitGroupDeclarationSyntax(GroupDeclarationSyntax syntax);
+
         public abstract void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax);
 
         public abstract void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax);

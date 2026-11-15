@@ -582,10 +582,12 @@ using 'main.bicep'
         mockExtensionFactory.Setup(x => x.Start(It.IsAny<IOUri>())).ReturnsAsync(extension);
         var serviceProvider = services.Build().Construct<IServiceProvider>();
 
+        var provider = StrictMock.Of<IArmDeploymentProvider>();
+        provider.SetupGet(x => x.SupportsExternalExtensions).Returns(true);
         await using LocalExtensionDispatcher extensionDispatcher = new(
             serviceProvider.GetRequiredService<IBicepConfigurationManager>(),
             mockExtensionFactory.Object,
-            StrictMock.Of<IArmDeploymentProvider>().Object);
+            provider.Object);
 
         await extensionDispatcher.InitializeExtensions(result.Compilation);
 

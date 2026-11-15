@@ -91,7 +91,31 @@ namespace Bicep.Core.Semantics
                 this.bindings.Add(syntax, symbol);
                 return;
             }
-            else if (symbol is null || symbol is not ResourceSymbol)
+
+            if (syntax.BaseExpression is ArrayAccessSyntax arrayAccess)
+            {
+                this.bindings.TryGetValue(arrayAccess.BaseExpression, out symbol);
+            }
+
+            if (symbol is GroupSymbol group)
+            {
+                var bindingSyntax = group.DeclaringGroup.Value switch
+                {
+                    ForSyntax loop => loop.Body,
+                    IfConditionSyntax condition => condition.Body,
+                    var value => value,
+                };
+                var stack = this.allLocalScopes.TryGetValue(bindingSyntax, out var groupScope)
+                    ? groupScope.Declarations.OfType<StackSymbol>().FirstOrDefault(candidate => syntax.ResourceName.NameEquals(candidate.Name))
+                    : null;
+
+                this.bindings.Add(syntax, stack is not null
+                    ? stack
+                    : new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.ResourceName).GroupStackNotFound(group.Name, syntax.ResourceName.IdentifierName)));
+                return;
+            }
+
+            if (symbol is null || symbol is not ResourceSymbol)
             {
                 // symbol could be null in the case of an incomplete expression during parsing like `a:`
                 var error = new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.ResourceName).ResourceRequiredForResourceAccess(symbol?.Kind.ToString() ?? LanguageConstants.ErrorName));
@@ -158,6 +182,8 @@ namespace Bicep.Core.Semantics
 
         public override void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax)
         {
+            var previousAllowedFlags = allowedFlags;
+            allowedFlags = FunctionFlags.ModuleDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
@@ -165,7 +191,19 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Assignment);
             allowedFlags = FunctionFlags.RequiresInlining;
             this.Visit(syntax.Value);
-            allowedFlags = FunctionFlags.Default;
+            allowedFlags = previousAllowedFlags;
+        }
+
+        public override void VisitGroupDeclarationSyntax(GroupDeclarationSyntax syntax)
+        {
+            var previousAllowedFlags = allowedFlags;
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
+            allowedFlags = FunctionFlags.RequiresInlining;
+            this.Visit(syntax.Value);
+            allowedFlags = previousAllowedFlags;
         }
 
         public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax)

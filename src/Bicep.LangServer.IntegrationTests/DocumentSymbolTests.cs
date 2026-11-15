@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.UnitTests;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using FluentAssertions;
@@ -21,13 +22,52 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static readonly SharedLanguageHelperManager DefaultServer = new();
 
+        private static readonly SharedLanguageHelperManager OrchestrationServer = new();
+
         [ClassInitialize]
-        public static void ClassInitialize(TestContext testContext) =>
+        public static void ClassInitialize(TestContext testContext)
+        {
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
+            OrchestrationServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(
+                testContext,
+                services => services.WithFeatureOverrides(new(testContext, OrchestrationEnabled: true))));
+        }
 
         [ClassCleanup]
-        public static async Task ClassCleanup() =>
+        public static async Task ClassCleanup()
+        {
             await DefaultServer.DisposeAsync();
+            await OrchestrationServer.DisposeAsync();
+        }
+
+        [TestMethod]
+        public async Task RequestDocumentSymbol_returns_stacks_nested_under_groups()
+        {
+            var documentUri = DocumentUri.From("/orchestration.bicep");
+            var helper = await OrchestrationServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, """
+                targetScope = 'orchestrator'
+                group apps = {
+                  stack backend './stack.bicepparam' = {}
+                  stack frontend './stack.bicepparam' = {}
+                }
+                stack global './stack.bicepparam' = {}
+                """, documentUri);
+
+            var symbols = await RequestSymbols(helper.Client, documentUri);
+            symbols.Should().SatisfyRespectively(
+                group =>
+                {
+                    group.DocumentSymbol!.Name.Should().Be("apps");
+                    group.DocumentSymbol.Kind.Should().Be(SymbolKind.Namespace);
+                    group.DocumentSymbol.Children!.Select(child => child.Name).Should().Equal("backend", "frontend");
+                },
+                stack =>
+                {
+                    stack.DocumentSymbol!.Name.Should().Be("global");
+                    stack.DocumentSymbol.Kind.Should().Be(SymbolKind.Module);
+                });
+        }
 
         [TestMethod]
         public async Task RequestDocumentSymbol_should_return_full_symbol_list()

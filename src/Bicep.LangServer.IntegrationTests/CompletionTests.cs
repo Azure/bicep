@@ -66,6 +66,8 @@ namespace Bicep.LangServer.IntegrationTests.Completions
 
         private static readonly SharedLanguageHelperManager ServerWithResourceTypedParamsEnabled = new();
 
+        private static readonly SharedLanguageHelperManager ServerWithOrchestrationEnabled = new();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -102,6 +104,11 @@ namespace Bicep.LangServer.IntegrationTests.Completions
                     testContext,
                     services => services.WithFeatureOverrides(new(testContext, ResourceTypedParamsAndOutputsEnabled: true))
                         .WithNamespaceProvider(BuiltInTestTypes.Create())));
+
+            ServerWithOrchestrationEnabled.Initialize(
+                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
+                    testContext,
+                    services => services.WithFeatureOverrides(new(testContext, OrchestrationEnabled: true))));
         }
 
         [ClassCleanup]
@@ -112,6 +119,7 @@ namespace Bicep.LangServer.IntegrationTests.Completions
             await DefaultServer.DisposeAsync();
             await ServerWithBuiltInTypes.DisposeAsync();
             await ServerWithResourceTypedParamsEnabled.DisposeAsync();
+            await ServerWithOrchestrationEnabled.DisposeAsync();
         }
 
         [TestMethod]
@@ -135,6 +143,33 @@ namespace Bicep.LangServer.IntegrationTests.Completions
             var expected = JToken.Parse(expectedStr);
 
             actual.Should().EqualWithJsonDiffOutput(this.TestContext, expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
+        }
+
+        [TestMethod]
+        public async Task Group_stack_declarations_and_qualified_references_have_completions()
+        {
+            var (text, cursors) = ParserHelper.GetFileWithCursors("""
+                targetScope = 'orchestrator'
+                group apps = [for region in ['westus']: {
+                  |
+                  stack backend './stack.bicepparam' = {}
+                  stack frontend './stack.bicepparam' = {}
+                }]
+                stack global './stack.bicepparam' = {
+                  requires: [
+                    apps::|
+                    apps[0]::|
+                    |
+                  ]
+                }
+                """, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithOrchestrationEnabled).OpenFile(text);
+            var completions = await file.RequestCompletions(cursors);
+
+            completions[0].Should().Contain(item => item.Label == "stack");
+            completions[1].Should().Contain(item => item.Label == "backend").And.Contain(item => item.Label == "frontend");
+            completions[2].Should().Contain(item => item.Label == "backend").And.Contain(item => item.Label == "frontend");
+            completions[3].Should().Contain(item => item.Label == "apps::backend").And.Contain(item => item.Label == "apps::frontend");
         }
 
         [TestMethod]

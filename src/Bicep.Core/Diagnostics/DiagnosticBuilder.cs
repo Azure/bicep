@@ -109,6 +109,34 @@ namespace Bicep.Core.Diagnostics
                 "BCP601",
                 $"""Usage of syntax with keyword "{keyword}" is only permitted if the target scope is set to "{LanguageConstants.TargetScopeTypeOrchestrator}".""");
 
+            public Diagnostic GroupStackNotFound(string group, string stack) => CoreError(
+                "BCP602",
+                $"""The group "{group}" does not contain a stack named "{stack}".""");
+
+            public Diagnostic NestedStackLoopInGroupLoop() => CoreError(
+                "BCP603",
+                "A stack cannot use a loop inside a looping group.");
+
+            public Diagnostic GroupLabelConflict(string label, string group, string stack) => CoreError(
+                "BCP604",
+                $"""The label "{label}" is defined on both group "{group}" and stack "{stack}". Label names must be distinct.""");
+
+            public Diagnostic GroupCanOnlyBeUsedForStackAccess() => CoreError(
+                "BCP605",
+                "A group can only be used to access one of its stacks with the :: operator.");
+
+            public Diagnostic GroupStackCanOnlyBeUsedInRequires() => CoreError(
+                "BCP606",
+                "A stack in a group can only be referenced directly in a stack's 'requires' array.");
+
+            public Diagnostic StackLabelsDifferOnlyInCasing(string label, string stack) => CoreError(
+                "BCP607",
+                $"""The label "{label}" differs only in casing from another label on stack "{stack}". Stack labels combined with group labels must have distinct names ignoring case.""");
+
+            public Diagnostic InterpolatedGroupedStackProperty() => CoreError(
+                "BCP608",
+                "A stack inheriting group labels cannot use an interpolated property name in its body. Declare stack labels using the 'labels' property.");
+
             public Diagnostic UnrecognizedToken(string token) => CoreError(
                 "BCP001",
                 $"The following token is not recognized: \"{token}\".");

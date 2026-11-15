@@ -20,6 +20,7 @@ namespace Bicep.Core.Semantics
         private readonly IList<ScopeInfo> localScopes;
 
         private readonly Stack<ScopeInfo> activeScopes = new();
+        private GroupDeclarationSyntax? activeGroup;
 
         private DeclarationVisitor(
             ImmutableDictionary<ExtensionDeclarationSyntax, NamespaceResult> namespaceResults,
@@ -156,8 +157,23 @@ namespace Bicep.Core.Semantics
         {
             base.VisitStackDeclarationSyntax(syntax);
 
-            var symbol = new StackSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            var symbol = new StackSymbol(this.context, syntax.Name.IdentifierName, syntax, activeGroup);
             DeclareSymbol(symbol);
+        }
+
+        public override void VisitGroupDeclarationSyntax(GroupDeclarationSyntax syntax)
+        {
+            var bindingSyntax = syntax.Value is IfConditionSyntax condition ? condition.Body : syntax.Value;
+            var scope = new LocalScope(string.Empty, syntax, bindingSyntax, [], [], ScopeResolution.InheritAll);
+            PushScope(scope);
+
+            var previousGroup = activeGroup;
+            activeGroup = syntax;
+            base.VisitGroupDeclarationSyntax(syntax);
+            activeGroup = previousGroup;
+
+            PopScope();
+            DeclareSymbol(new GroupSymbol(context, syntax.Name.IdentifierName, syntax));
         }
 
         public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax)

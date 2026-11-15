@@ -8,5 +8,6 @@ namespace Bicep.Core.Parsing
         None = 0,
         AllowComplexLiterals = 1 << 0,
         AllowResourceDeclarations = 1 << 1,
+        AllowStackDeclarations = 1 << 2,
     }
 }

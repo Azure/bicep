@@ -55,7 +55,12 @@ public class LocalDeployCommandTests : TestBase
         IArmDeploymentProvider? armDeploymentProvider = null)
     {
         localExtension ??= StrictMock.Of<ILocalExtension>().Object;
-        armDeploymentProvider ??= StrictMock.Of<IArmDeploymentProvider>().Object;
+        if (armDeploymentProvider is null)
+        {
+            var provider = StrictMock.Of<IArmDeploymentProvider>();
+            provider.SetupGet(x => x.SupportsExternalExtensions).Returns(true);
+            armDeploymentProvider = provider.Object;
+        }
 
         var mockExtensionFactory = StrictMock.Of<ILocalExtensionFactory>();
         mockExtensionFactory.Setup(x => x.Start(It.IsAny<IOUri>())).ReturnsAsync(localExtension);
@@ -291,6 +296,7 @@ public class LocalDeployCommandTests : TestBase
             });
 
         var deploymentProviderMock = StrictMock.Of<IArmDeploymentProvider>();
+        deploymentProviderMock.SetupGet(x => x.SupportsExternalExtensions).Returns(true);
 
         deploymentProviderMock.Setup(x => x.StartDeployment(It.IsAny<IBicepConfiguration>(), It.IsAny<DeploymentLocator>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns<IBicepConfiguration, DeploymentLocator, string, string, CancellationToken>((config, locator, templateString, parametersString, _) => Task.CompletedTask);

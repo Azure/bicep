@@ -146,13 +146,29 @@ namespace Bicep.Core.Emit
 
         public override void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax)
         {
+            if (syntax.Value is ForSyntax &&
+                this.semanticModel.Binder.GetNearestAncestor<GroupDeclarationSyntax>(syntax)?.Value is ForSyntax)
+            {
+                this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.Value).NestedStackLoopInGroupLoop());
+            }
+
+            var previousDeclaration = this.activeLoopCapableTopLevelDeclaration;
+            var previousDependsOnProperty = this.currentDependsOnProperty;
             this.activeLoopCapableTopLevelDeclaration = syntax;
             this.currentDependsOnProperty = syntax.TryGetBody()?.TryGetPropertyByName("requires");
 
             base.VisitStackDeclarationSyntax(syntax);
 
-            this.currentDependsOnProperty = null;
-            this.activeLoopCapableTopLevelDeclaration = null;
+            this.currentDependsOnProperty = previousDependsOnProperty;
+            this.activeLoopCapableTopLevelDeclaration = previousDeclaration;
+        }
+
+        public override void VisitGroupDeclarationSyntax(GroupDeclarationSyntax syntax)
+        {
+            var previousDeclaration = this.activeLoopCapableTopLevelDeclaration;
+            this.activeLoopCapableTopLevelDeclaration = syntax;
+            base.VisitGroupDeclarationSyntax(syntax);
+            this.activeLoopCapableTopLevelDeclaration = previousDeclaration;
         }
 
         public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax)
@@ -482,6 +498,7 @@ namespace Bicep.Core.Emit
                 case ResourceDeclarationSyntax resource when ReferenceEquals(resource.Value, syntax):
                 case ModuleDeclarationSyntax module when ReferenceEquals(module.Value, syntax):
                 case StackDeclarationSyntax stack when ReferenceEquals(stack.Value, syntax):
+                case GroupDeclarationSyntax group when ReferenceEquals(group.Value, syntax):
                 case OutputDeclarationSyntax output when ReferenceEquals(output.Value, syntax):
                 case VariableDeclarationSyntax variable when ReferenceEquals(variable.Value, syntax):
                 case ParameterAssignmentSyntax parameterAssignment when ReferenceEquals(parameterAssignment.Value, syntax):

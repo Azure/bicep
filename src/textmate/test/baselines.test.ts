@@ -187,4 +187,11 @@ describe('Test suite', () => {
     // This test just ensures the suite doesn't pass in 'record' mode
     expect(baselineRecordEnabled).toBeFalsy();
   });
+
+  it('highlights group declarations as keywords', async () => {
+    const [line] = await getTokensByLine('group apps = {');
+    const groupToken = line.tokens.find(token => token.startIndex === 0 && token.endIndex === 5);
+
+    expect(groupToken?.scopes).toContain('keyword.control.declaration.bicep');
+  });
 });

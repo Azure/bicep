@@ -10,4 +10,5 @@ public record ResourceDependency(
     DeclaredSymbol Resource,
     SyntaxBase? IndexExpression,
     // A reference is considered "weak" if it would not automatically create an implicit dependency in the ARM engine
-    bool WeakReference = false);
+    bool WeakReference = false,
+    bool GroupInstanceReference = false);

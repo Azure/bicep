@@ -202,6 +202,19 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Newlines,
                 syntax.Value);
 
+        private IEnumerable<Document> LayoutGroupDeclarationSyntax(GroupDeclarationSyntax syntax)
+        {
+            if (syntax.Value is IfConditionSyntax && syntax.Newlines.Any(SyntaxFacts.HasCommentOrDirective))
+            {
+                var valueGroup = this.IndentGroup(syntax.Newlines.Append(syntax.Value));
+                return this.LayoutLeadingNodes(syntax.LeadingNodes)
+                    .Concat(this.Spread(syntax.Keyword, syntax.Name, syntax.Assignment, valueGroup));
+            }
+
+            return this.LayoutLeadingNodes(syntax.LeadingNodes)
+                .Concat(this.Spread(syntax.Keyword, syntax.Name, syntax.Assignment, syntax.Value));
+        }
+
         private IEnumerable<Document> LayoutRuleDeclarationSyntax(RuleDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
                 .Concat(Spread(syntax.Keyword, syntax.Name, syntax.Type, syntax.Assignment, syntax.Value));
@@ -236,10 +249,9 @@ namespace Bicep.Core.PrettyPrintV2
                 separator: LineOrCommaSpace,
                 padding: LineOrSpace,
                 forceBreak:
-                    // Special case for objects: if the object contains a newline before
-                    // the first property, always break the object.
+                    // Preserve multiline objects containing properties or grouped stacks.
                     StartsWithNewline(syntax.Children) &&
-                    syntax.Properties.Any());
+                    (syntax.Properties.Any() || syntax.Stacks.Any()));
 
         private IEnumerable<Document> LayoutObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)

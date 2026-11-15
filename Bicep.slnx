@@ -25,6 +25,8 @@
     <Project Path="src/Bicep.LangServer/Bicep.LangServer.csproj" />
   </Folder>
   <Folder Name="/Local/">
+    <Project Path="src/Bicep.Orchestration.Local/Bicep.Orchestration.Local.csproj" />
+    <Project Path="src/Bicep.Orchestration.Local.UnitTests/Bicep.Orchestration.Local.UnitTests.csproj" />
     <Project Path="src/Bicep.Local.Deploy.IntegrationTests/Bicep.Local.Deploy.IntegrationTests.csproj" />
     <Project Path="src/Bicep.Local.Deploy/Bicep.Local.Deploy.csproj" />
     <Project Path="src/Bicep.Local.Extension.Mock/Bicep.Local.Extension.Mock.csproj" />

@@ -64,6 +64,14 @@ namespace Bicep.LanguageServer.Features.Language.DocumentSymbol
                     .Where(s => s is ResourceSymbol)
                     .Select(s => CreateDocumentSymbol(model, s!, lineStarts));
             }
+            else if (symbol is GroupSymbol groupSymbol &&
+                groupSymbol.DeclaringGroup.TryGetBody() is ObjectSyntax groupBody)
+            {
+                children = groupBody.Stacks
+                    .Select(model.GetSymbolInfo)
+                    .OfType<StackSymbol>()
+                    .Select(stack => CreateDocumentSymbol(model, stack, lineStarts));
+            }
 
             return new LspDocumentSymbol
             {
@@ -87,6 +95,8 @@ namespace Bicep.LanguageServer.Features.Language.DocumentSymbol
             DeclaredFunctionSymbol => SymbolKind.Function,
             ResourceSymbol => SymbolKind.Object,
             ModuleSymbol => SymbolKind.Module,
+            StackSymbol => SymbolKind.Module,
+            GroupSymbol => SymbolKind.Namespace,
             OutputSymbol => SymbolKind.Interface,
             ParameterAssignmentSymbol => SymbolKind.Constant,
             ExtensionConfigAssignmentSymbol => SymbolKind.Constant,
@@ -102,6 +112,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentSymbol
             DeclaredFunctionSymbol func => func.Type.Name,
             ResourceSymbol resource => resource.Type.Name,
             ModuleSymbol module => module.Type.Name,
+            StackSymbol stack => stack.Type.Name,
             OutputSymbol output => output.Type.Name,
             ParameterAssignmentSymbol paramAssignment => paramAssignment.Type.Name,
             ExtensionConfigAssignmentSymbol extConfigAssignment => extConfigAssignment.Type.Name,

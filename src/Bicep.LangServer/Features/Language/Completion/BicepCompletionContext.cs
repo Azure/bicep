@@ -225,6 +225,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
 
             var kind = ConvertFlag(IsTopLevelDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.TopLevelDeclarationStart) |
                 ConvertFlag(IsNestedResourceStartContext(matchingNodes, topLevelDeclarationInfo, objectInfo, offset), BicepCompletionContextKind.NestedResourceDeclarationStart) |
+                ConvertFlag(IsNestedStackStartContext(matchingNodes, topLevelDeclarationInfo, objectInfo, offset), BicepCompletionContextKind.NestedStackDeclarationStart) |
                 GetDeclarationTypeFlags(matchingNodes, offset) |
                 ConvertFlag(IsResourceTypeFollowerContext(matchingNodes, offset), BicepCompletionContextKind.ResourceTypeFollower) |
                 ConvertFlag(IsModulePathFollowerContext(matchingNodes, offset), BicepCompletionContextKind.ModulePathFollower) |
@@ -562,24 +563,17 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         }
 
         private static bool IsNestedResourceStartContext(List<SyntaxBase> matchingNodes, (SyntaxBase? node, int index) topLevelDeclarationInfo, (ObjectSyntax? node, int index) objectInfo, int offset)
+            => topLevelDeclarationInfo.node is ResourceDeclarationSyntax resource &&
+                IsNestedDeclarationStartContext(matchingNodes, resource.TryGetBody(), objectInfo.node, offset);
+
+        private static bool IsNestedStackStartContext(List<SyntaxBase> matchingNodes, (SyntaxBase? node, int index) topLevelDeclarationInfo, (ObjectSyntax? node, int index) objectInfo, int offset)
+            => topLevelDeclarationInfo.node is GroupDeclarationSyntax group &&
+                IsNestedDeclarationStartContext(matchingNodes, group.TryGetBody(), objectInfo.node, offset);
+
+        private static bool IsNestedDeclarationStartContext(List<SyntaxBase> matchingNodes, ObjectSyntax? declarationBody, ObjectSyntax? currentObject, int offset)
         {
-            // A nested resource must be at the top level of a resource declaration (not nested within another level of object).
-            if (objectInfo.node == null)
+            if (currentObject is null || !ReferenceEquals(declarationBody, currentObject))
             {
-                // none of the matching nodes are ObjectSyntax,
-                // so we cannot possibly be in a position to begin an object property
-                return false;
-            }
-
-            if (topLevelDeclarationInfo.node == null || topLevelDeclarationInfo.node is not ResourceDeclarationSyntax resourceDeclarationSyntax)
-            {
-                // not inside of a resource, top level declarations are handled separately.
-                return false;
-            }
-
-            if (!ReferenceEquals(resourceDeclarationSyntax.TryGetBody(), objectInfo.node))
-            {
-                // we're inside of an object, but it's not the body of a resource.
                 return false;
             }
 

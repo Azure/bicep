@@ -67,6 +67,7 @@ const keywords = [
   "assert",
   "extension",
   "stack",
+  "group",
   "rule",
 ];
 

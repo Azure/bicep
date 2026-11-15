@@ -700,7 +700,9 @@ namespace Bicep.Core.Emit
 
             var externalInputDefinitions = evaluator.TryGetExternalInputDefinitions();
             ParameterAssignmentValue? usingConfig = null;
-            if (evaluator.EvaluateUsingConfig(model.Root) is { } usingConfigResult)
+            if (model.Root.UsingDeclarationSyntax?.Config is { } config &&
+                model.GetTypeInfo(config) is not ErrorType &&
+                evaluator.EvaluateUsingConfig(model.Root) is { } usingConfigResult)
             {
                 usingConfig = new(usingConfigResult.Value, usingConfigResult.Expression, usingConfigResult.KeyVaultReference);
             }
@@ -1037,7 +1039,10 @@ namespace Bicep.Core.Emit
             {
                 Token[] blockedKeywords = [
                     ..model.Root.StackDeclarations.Select(m => m.DeclaringStack.Keyword),
+                    ..model.Root.GroupDeclarations.Select(g => g.DeclaringGroup.Keyword),
                     ..model.Root.RuleDeclarations.Select(m => m.DeclaringRule.Keyword),
+                    ..model.Root.VariableDeclarations.Select(v => v.DeclaringVariable.Keyword)
+                        .Where(keyword => keyword.Text == LanguageConstants.ConfigurationKeyword),
                 ];
 
                 foreach (var keyword in blockedKeywords)
@@ -1084,6 +1089,23 @@ namespace Bicep.Core.Emit
                 if (resource.DeclaringResource.TryGetBody() is { } body)
                 {
                     yield return body;
+                }
+            }
+
+            foreach (var group in model.Root.GroupDeclarations)
+            {
+                if (group.DeclaringGroup.TryGetBody() is not { } body)
+                {
+                    continue;
+                }
+
+                yield return body;
+                foreach (var stack in body.Stacks)
+                {
+                    if (stack.TryGetBody() is { } stackBody)
+                    {
+                        yield return stackBody;
+                    }
                 }
             }
         }

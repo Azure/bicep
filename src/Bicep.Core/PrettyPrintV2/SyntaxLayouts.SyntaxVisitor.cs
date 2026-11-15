@@ -72,6 +72,8 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutStackDeclarationSyntax);
 
+        public void VisitGroupDeclarationSyntax(GroupDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutGroupDeclarationSyntax);
+
         public void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutRuleDeclarationSyntax);
 
         public void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutTestDeclarationSyntax);

@@ -58,6 +58,7 @@ public class DecoratorCodeFixProvider : ICodeFixProvider
         VariableDeclarationSyntax => FunctionFlags.VariableDecorator,
         ResourceDeclarationSyntax => FunctionFlags.ResourceDecorator,
         ModuleDeclarationSyntax => FunctionFlags.ModuleDecorator,
+        StackDeclarationSyntax => FunctionFlags.ModuleDecorator,
         OutputDeclarationSyntax => FunctionFlags.OutputDecorator,
         ExtensionDeclarationSyntax => FunctionFlags.ExtensionDecorator,
         MetadataDeclarationSyntax => FunctionFlags.MetadataDecorator,

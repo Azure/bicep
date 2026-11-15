@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -87,6 +88,53 @@ namespace Bicep.Core.UnitTests.PrettyPrintV2
             var output = PrettyPrinterV2.Print(program, context);
 
             output.Should().Be("var foo = {\n  prop1: true\n\n  prop2: false\n}\n\n/* leading comment */\n\nvar bar = 1\n");
+        }
+
+        [TestMethod]
+        public void Print_GroupConditionWithComment_PreservesTheComment()
+        {
+            var programText = """
+                group apps =
+                  // keep this comment
+                  if (true) {
+                    stack backend './stack.bicepparam' = {}
+                    stack frontend './stack.bicepparam' = { requires: [backend] }
+                  }
+                """;
+            var program = ParserHelper.Parse(programText, out var lexingErrorLookup, out var parsingErrorLookup);
+            var context = PrettyPrinterV2Context.Create(PrettyPrinterV2Options.Default, lexingErrorLookup, parsingErrorLookup);
+
+            var output = PrettyPrinterV2.Print(program, context);
+
+            output.Should().Be("""
+                group apps =
+                  // keep this comment
+                  if (true) {
+                    stack backend './stack.bicepparam' = {}
+                    stack frontend './stack.bicepparam' = { requires: [backend] }
+                  }
+
+                """);
+        }
+
+        [TestMethod]
+        public void LegacyPrint_GroupConditionWithComment_PreservesTheComment()
+        {
+            var programText = """
+                group apps =
+                  // keep this comment
+                  if (true) {
+                    stack backend './stack.bicepparam' = {}
+                  }
+                """;
+            var program = ParserHelper.Parse(programText, out var lexingErrorLookup, out var parsingErrorLookup);
+            var options = PrettyPrintOptions.FromV2Options(PrettyPrinterV2Options.Default);
+
+            var output = PrettyPrinter.PrintProgram(program, options, lexingErrorLookup, parsingErrorLookup);
+
+            output.Should().Contain("// keep this comment").And.Contain("if (true)");
+            ParserHelper.Parse(output, out var diagnostics);
+            diagnostics.Should().BeEmpty();
         }
     }
 }

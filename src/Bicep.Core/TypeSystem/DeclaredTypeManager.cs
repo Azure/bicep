@@ -123,6 +123,11 @@ namespace Bicep.Core.TypeSystem
                 case StackDeclarationSyntax stack:
                     return GetStackType(stack);
 
+                case GroupDeclarationSyntax group:
+                    return new DeclaredTypeAssignment(
+                        group.Value is ForSyntax ? new TypedArrayType(LanguageConstants.CreateGroupType(), TypeSymbolValidationFlags.Default) : LanguageConstants.CreateGroupType(),
+                        group);
+
                 case RuleDeclarationSyntax rule:
                     return GetRuleType(rule);
 
@@ -1408,6 +1413,15 @@ namespace Bicep.Core.TypeSystem
             if (symbol is ErrorSymbol error)
             {
                 return new DeclaredTypeAssignment(ErrorType.Create(error.GetDiagnostics()), syntax);
+            }
+            else if (symbol is StackSymbol stack && stack.DeclaringGroup is { } group)
+            {
+                var type = GetDeclaredType(stack.DeclaringStack) ?? LanguageConstants.Any;
+                return new DeclaredTypeAssignment(
+                    group.Value is ForSyntax && syntax.BaseExpression is not ArrayAccessSyntax
+                        ? new TypedArrayType(type, TypeSymbolValidationFlags.Default)
+                        : type,
+                    syntax);
             }
             else if (symbol is not ResourceSymbol resourceSymbol)
             {

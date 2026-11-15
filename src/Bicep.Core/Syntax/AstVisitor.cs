@@ -120,6 +120,13 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Value);
         }
 
+        public override void VisitGroupDeclarationSyntax(GroupDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Value);
+        }
+
         public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);

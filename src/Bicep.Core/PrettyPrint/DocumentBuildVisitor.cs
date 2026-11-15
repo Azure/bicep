@@ -195,6 +195,21 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Value);
             });
 
+        public override void VisitGroupDeclarationSyntax(GroupDeclarationSyntax syntax) =>
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.Assignment);
+                if (syntax.Newlines.Any(SyntaxFacts.HasCommentOrDirective))
+                {
+                    this.VisitNodes(syntax.Newlines);
+                }
+                this.Visit(syntax.Value);
+            });
+
         public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax) =>
             this.BuildStatement(syntax, () =>
             {

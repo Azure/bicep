@@ -62,6 +62,11 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
+        public virtual void VisitGroupSymbol(GroupSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
         public virtual void VisitRuleSymbol(RuleSymbol symbol)
         {
             VisitDescendants(symbol);

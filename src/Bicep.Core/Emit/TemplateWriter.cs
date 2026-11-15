@@ -1191,7 +1191,7 @@ namespace Bicep.Core.Emit
                     foreach (var stack in stacks)
                     {
                         emitter.EmitProperty(
-                            stack.Symbol.Name,
+                            stack.Symbol.SymbolicName,
                             () => EmitStackForLocalDeploy(stack, emitter),
                             stack.SourceSyntax);
                     }
@@ -1653,6 +1653,15 @@ namespace Bicep.Core.Emit
                     var model = stack.Symbol.TryGetSemanticModel().Unwrap() as SemanticModel;
                     emitter.EmitProperty("sourceUri", model!.SourceFile.FileHandle.Uri.ToUriString());
 
+                    if (stack.GroupLabels is not null)
+                    {
+                        emitter.EmitProperty(EmitConstants.OrchestrationGroupLabelsProperty, stack.GroupLabels);
+                        if (stack.StackLabels is not null)
+                        {
+                            emitter.EmitProperty(EmitConstants.OrchestrationStackLabelsProperty, stack.StackLabels);
+                        }
+                    }
+
                     emitter.EmitObjectProperty("body", () =>
                     {
                         ObjectExpression bodyObject = new(
@@ -1717,13 +1726,13 @@ namespace Bicep.Core.Emit
                     switch ((stack.IsCollection, reference.IndexContext?.Index))
                     {
                         case (false, var index):
-                            emitter.EmitExpression(new StringLiteralExpression(null, stack.Name));
+                            emitter.EmitExpression(new StringLiteralExpression(null, stack.SymbolicName));
                             Debug.Assert(index is null);
                             break;
                         // dependency is on the entire resource collection
                         // write the name of the resource collection as the dependency
                         case (true, null):
-                            emitter.EmitExpression(new StringLiteralExpression(null, stack.Name));
+                            emitter.EmitExpression(new StringLiteralExpression(null, stack.SymbolicName));
                             break;
                         case (true, { } index):
                             emitter.EmitIndexedSymbolReference(stack, reference.IndexContext);

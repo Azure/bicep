@@ -957,7 +957,7 @@ namespace Bicep.Core.Emit
             => GenerateSymbolicReference(module.Name, indexContext);
 
         public LanguageExpression GenerateSymbolicReference(StackSymbol stack, IndexReplacementContext? indexContext)
-            => GenerateSymbolicReference(stack.Name, indexContext);
+            => GenerateSymbolicReference(stack.SymbolicName, indexContext);
 
         public static LanguageExpression GenerateUnqualifiedResourceId(string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
         {

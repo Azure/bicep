@@ -11,7 +11,7 @@ namespace Bicep.Core.Syntax
         public VariableDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase? type, SyntaxBase assignment, SyntaxBase value)
             : base(keyword, name, leadingNodes)
         {
-            AssertKeyword(keyword, nameof(keyword), LanguageConstants.VariableKeyword);
+            AssertKeyword(keyword, nameof(keyword), LanguageConstants.VariableKeyword, LanguageConstants.ConfigurationKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);

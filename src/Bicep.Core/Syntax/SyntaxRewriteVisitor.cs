@@ -349,6 +349,21 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitStackDeclarationSyntax(StackDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceStackDeclarationSyntax);
 
+        protected virtual SyntaxBase ReplaceGroupDeclarationSyntax(GroupDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Newlines, out var newlines);
+            hasChanges |= TryRewrite(syntax.Value, out var value);
+
+            return hasChanges
+                ? new GroupDeclarationSyntax(leadingNodes, keyword, name, assignment, newlines.Cast<Token>().ToImmutableArray(), value)
+                : syntax;
+        }
+        void ISyntaxVisitor.VisitGroupDeclarationSyntax(GroupDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceGroupDeclarationSyntax);
+
         protected virtual SyntaxBase ReplaceRuleDeclarationSyntax(RuleDeclarationSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);

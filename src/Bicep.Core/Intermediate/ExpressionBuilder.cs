@@ -500,7 +500,7 @@ public class ExpressionBuilder
             .OfType<DeclaredModuleExpression>()
             .ToImmutableArray();
 
-        var stacks = Context.SemanticModel.Root.StackDeclarations
+        var stacks = Context.SemanticModel.Root.AllStackDeclarations
             .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
             .OfType<DeclaredStackExpression>()
             .ToImmutableArray();
@@ -610,29 +610,61 @@ public class ExpressionBuilder
 
     private DeclaredStackExpression ConvertStack(StackDeclarationSyntax syntax)
     {
-        var symbol = GetDeclaredSymbol<StackSymbol>(syntax);
+        var symbol = Context.SemanticModel.GetSymbolInfo(syntax) as StackSymbol
+            ?? throw new InvalidOperationException("Failed to find the stack declaration symbol.");
         Expression? condition = null;
         LoopExpressionContext? loop = null;
 
-        // Unwrap the 'real' body if there's a condition / for loop
-        var body = syntax.Value;
-        if (body is ForSyntax @for)
+        SyntaxBase Unwrap(SyntaxBase value)
         {
-            loop = new(symbol.Name, @for, ConvertWithoutLowering(@for.Expression));
-            body = @for.Body;
+            if (value is ForSyntax @for)
+            {
+                if (loop is not null)
+                {
+                    throw new InvalidOperationException("Nested stack and group loops are not supported.");
+                }
+
+                loop = new(symbol.SymbolicName, @for, ConvertWithoutLowering(@for.Expression));
+                value = @for.Body;
+            }
+
+            if (value is IfConditionSyntax @if)
+            {
+                var nextCondition = ConvertWithoutLowering(@if.ConditionExpression);
+                condition = condition is null
+                    ? nextCondition
+                    : new BinaryExpression(@if, BinaryOperator.LogicalAnd, condition, nextCondition);
+                value = @if.Body;
+            }
+
+            return value;
         }
 
-        if (body is IfConditionSyntax @if)
+        if (symbol.DeclaringGroup is { } group)
         {
-            condition = ConvertWithoutLowering(@if.ConditionExpression);
-            body = @if.Body;
+            Unwrap(group.Value);
         }
 
+        var body = Unwrap(syntax.Value);
         var objectBody = (ObjectSyntax)body;
+        var groupLabelsSyntax = symbol.DeclaringGroup?.TryGetBody()?.TryGetPropertyByName("labels");
+        var stackLabelsSyntax = objectBody.TryGetPropertyByName("labels");
+        var groupLabels = groupLabelsSyntax is not null ? ConvertWithoutLowering(groupLabelsSyntax.Value) : null;
+        var stackLabels = stackLabelsSyntax is not null ? ConvertWithoutLowering(stackLabelsSyntax.Value) : null;
 
         var properties = objectBody.Properties
-            .Where(x => x.TryGetKeyText() is not { } key || !ModulePropertiesToOmit.Contains(key))
-            .Select(ConvertObjectProperty);
+            .Where(x => x.TryGetKeyText() is not { } key ||
+                (!ModulePropertiesToOmit.Contains(key) && (groupLabels is null || key != "labels")))
+            .Select(ConvertObjectProperty)
+            .ToList();
+        if (groupLabels is not null)
+        {
+            var effectiveLabels = stackLabels is null
+                ? groupLabels
+                : new FunctionCallExpression(null, "union", [groupLabels, stackLabels]);
+            properties.Add(new ObjectPropertyExpression(groupLabelsSyntax, new StringLiteralExpression(null, "labels"), effectiveLabels));
+        }
+
         Expression bodyExpression = new ObjectExpression(body, [.. properties]);
 
         if (condition is not null)
@@ -654,14 +686,16 @@ public class ExpressionBuilder
             syntax,
             symbol,
             bodyExpression,
-            BuildDependencyExpressions(symbol, body));
+            BuildDependencyExpressions(symbol, body),
+            GroupLabels: groupLabels,
+            StackLabels: groupLabels is not null ? stackLabels : null);
     }
 
     private ImmutableArray<ResourceDependencyExpression> BuildDependencyExpressions(DeclaredSymbol dependent, SyntaxBase body)
         => [.. Context.ResourceDependencies[dependent]
             .SelectMany(dd => ToDependencyExpressions(dd, body, Context.ResourceDependencies))
             .GroupBy(t => t.Target.Resource)
-            .SelectMany(g => g.FirstOrDefault(t => t.Target.IndexExpression is null) is { } dependencyOnCollection
+            .SelectMany(g => g.FirstOrDefault(t => t.Target.IndexExpression is null && !t.Target.GroupInstanceReference) is { } dependencyOnCollection
                 ? dependencyOnCollection.AsEnumerable()
                 : g.Distinct(t => t.Target))
             .OrderBy(t => t.TargetKey)  // order to generate a deterministic template
@@ -1035,6 +1069,12 @@ public class ExpressionBuilder
                 var indexContext = TryGetReplacementContext(moduleSymbol, arrayAccess.IndexExpression, arrayAccess);
                 return new ModuleReferenceExpression(arrayAccess, moduleSymbol, indexContext);
             }
+
+            if (Context.SemanticModel.GetSymbolInfo(arrayAccess.BaseExpression) is StackSymbol { IsCollection: true } stackSymbol)
+            {
+                var indexContext = new IndexReplacementContext([], ConvertWithoutLowering(arrayAccess.IndexExpression));
+                return new StackReferenceExpression(arrayAccess, stackSymbol, indexContext);
+            }
         }
 
         if (arrayAccess.IndexExpression is StringSyntax indexString &&
@@ -1175,6 +1215,14 @@ public class ExpressionBuilder
 
     private Expression ConvertResourceAccess(ResourceAccessSyntax resourceAccessSyntax)
     {
+        if (Context.SemanticModel.GetSymbolInfo(resourceAccessSyntax) is StackSymbol stack)
+        {
+            var indexContext = stack.DeclaringGroup?.Value is ForSyntax && resourceAccessSyntax.BaseExpression is ArrayAccessSyntax groupIndex
+                ? new IndexReplacementContext([], ConvertWithoutLowering(groupIndex.IndexExpression))
+                : null;
+            return new StackReferenceExpression(resourceAccessSyntax, stack, indexContext);
+        }
+
         if (Context.SemanticModel.ResourceMetadata.TryLookup(resourceAccessSyntax) is { } resource)
         {
             return new ResourceReferenceExpression(resourceAccessSyntax, resource, null);
@@ -1277,6 +1325,7 @@ public class ExpressionBuilder
             ResourceDeclarationSyntax => null,
             ModuleDeclarationSyntax => null,
             StackDeclarationSyntax => null,
+            GroupDeclarationSyntax => null,
 
             // variable copy index has the name of the variable
             VariableDeclarationSyntax variable when variable.Name.IsValid => variable.Name.IdentifierName,
@@ -1474,10 +1523,13 @@ public class ExpressionBuilder
                         }
                     case StackSymbol stack:
                         {
-                            indexContext = (stack.IsCollection && target.IndexExpression is null)
-                                ? null
-                                : new ExpressionBuilder(Context, localReplacements)
-                                    .TryGetReplacementContext(stack.DeclaringStack.GetBody(), target.IndexExpression, targetContext);
+                            targetKey = stack.SymbolicName;
+                            indexContext = target.GroupInstanceReference
+                                ? new IndexReplacementContext(localReplacements, new CopyIndexExpression(null, null))
+                                : (stack.IsCollection && target.IndexExpression is null)
+                                    ? null
+                                    : new ExpressionBuilder(Context, localReplacements)
+                                        .TryGetReplacementContext(stack.DeclaringStack.GetBody(), target.IndexExpression, targetContext);
                             reference = new StackReferenceExpression(null, stack, indexContext);
                             break;
                         }

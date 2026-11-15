@@ -428,9 +428,11 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         var hasChanges =
             TryRewrite(expression.Body, out var body) |
             TryRewriteStrict(expression.DependsOn, out var dependsOn) |
+            TryRewrite(expression.GroupLabels, out var groupLabels) |
+            TryRewrite(expression.StackLabels, out var stackLabels) |
             TryRewriteDescription(expression, out var description);
 
-        return hasChanges ? expression with { Body = body, DependsOn = dependsOn, Description = description } : expression;
+        return hasChanges ? expression with { Body = body, DependsOn = dependsOn, Description = description, GroupLabels = groupLabels, StackLabels = stackLabels } : expression;
     }
 
     void IExpressionVisitor.VisitDeclaredRuleExpression(DeclaredRuleExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredRuleExpression);

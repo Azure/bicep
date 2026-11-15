@@ -193,6 +193,13 @@ public class SemanticTokenVisitor : CstVisitor
         base.VisitStackDeclarationSyntax(syntax);
     }
 
+    public override void VisitGroupDeclarationSyntax(GroupDeclarationSyntax syntax)
+    {
+        AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+        AddTokenType(syntax.Name, SemanticTokenType.Variable);
+        base.VisitGroupDeclarationSyntax(syntax);
+    }
+
     public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax)
     {
         AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);

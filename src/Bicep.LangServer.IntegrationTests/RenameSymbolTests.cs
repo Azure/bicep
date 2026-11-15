@@ -16,17 +16,48 @@ namespace Bicep.LangServer.IntegrationTests;
 public class RenameSymbolTests : TestBase
 {
     private static readonly SharedLanguageHelperManager DefaultServer = new();
+    private static readonly SharedLanguageHelperManager OrchestrationServer = new();
 
     [ClassInitialize]
     public static void ClassInitialize(TestContext testContext)
     {
         DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
+        OrchestrationServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(
+            testContext,
+            services => services.WithFeatureOverrides(new(testContext, OrchestrationEnabled: true))));
     }
 
     [ClassCleanup]
     public static async Task ClassCleanup()
     {
         await DefaultServer.DisposeAsync();
+        await OrchestrationServer.DisposeAsync();
+    }
+
+    [TestMethod]
+    public async Task Renaming_grouped_stack_updates_sibling_and_qualified_references()
+    {
+        var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("""
+            targetScope = 'orchestrator'
+            group apps = {
+              stack backend './stack.bicepparam' = {}
+              stack frontend './stack.bicepparam' = { requires: [backend] }
+            }
+            stack global './stack.bicepparam' = { requires: [apps::ba|ckend] }
+            """);
+        var file = await new ServerRequestHelper(TestContext, OrchestrationServer).OpenFile(contents);
+
+        var edit = await file.RequestRename(cursor, "service");
+        var updated = file.ApplyWorkspaceEdit(edit).Text;
+
+        updated.Should().EqualIgnoringTrailingWhitespace("""
+            targetScope = 'orchestrator'
+            group apps = {
+              stack service './stack.bicepparam' = {}
+              stack frontend './stack.bicepparam' = { requires: [service] }
+            }
+            stack global './stack.bicepparam' = { requires: [apps::service] }
+            """);
     }
 
     [TestMethod]

@@ -9,12 +9,17 @@ namespace Bicep.Core.Semantics;
 
 public class StackSymbol : DeclaredSymbol
 {
-    public StackSymbol(ISymbolContext context, string name, StackDeclarationSyntax declaringSyntax)
+    public StackSymbol(ISymbolContext context, string name, StackDeclarationSyntax declaringSyntax, GroupDeclarationSyntax? declaringGroup = null)
         : base(context, name, declaringSyntax, declaringSyntax.Name)
     {
+        DeclaringGroup = declaringGroup;
     }
 
     public StackDeclarationSyntax DeclaringStack => (StackDeclarationSyntax)this.DeclaringSyntax;
+
+    public GroupDeclarationSyntax? DeclaringGroup { get; }
+
+    public string SymbolicName => DeclaringGroup is { } group ? $"{group.Name.IdentifierName}::{Name}" : Name;
 
     public override void Accept(SymbolVisitor visitor) => visitor.VisitStackSymbol(this);
 
@@ -31,7 +36,7 @@ public class StackSymbol : DeclaredSymbol
         }
     }
 
-    public bool IsCollection => this.Type is ArrayType;
+    public bool IsCollection => this.Type is ArrayType || DeclaringGroup?.Value is ForSyntax;
 
     public ModuleType? TryGetModuleType() => ModuleType.TryUnwrap(this.Type);
 

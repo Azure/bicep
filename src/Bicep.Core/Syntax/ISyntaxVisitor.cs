@@ -31,6 +31,8 @@ namespace Bicep.Core.Syntax
 
         void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax);
 
+        void VisitGroupDeclarationSyntax(GroupDeclarationSyntax syntax);
+
         void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax);
 
         void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax);

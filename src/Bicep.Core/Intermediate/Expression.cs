@@ -557,7 +557,9 @@ public record DeclaredStackExpression(
     StackSymbol Symbol,
     Expression Body,
     ImmutableArray<ResourceDependencyExpression> DependsOn,
-    Expression? Description = null
+    Expression? Description = null,
+    Expression? GroupLabels = null,
+    Expression? StackLabels = null
 ) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)

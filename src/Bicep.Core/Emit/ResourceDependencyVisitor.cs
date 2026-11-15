@@ -170,7 +170,11 @@ namespace Bicep.Core.Emit
                     return;
 
                 case StackSymbol stackSymbol:
-                    currentResourceDependencies.Add(new(stackSymbol, GetIndexExpression(syntax, stackSymbol.IsCollection)));
+                    var groupInstanceReference = stackSymbol.DeclaringGroup is { Value: ForSyntax } group &&
+                        currentDeclaration is StackSymbol currentStack &&
+                        ReferenceEquals(currentStack.DeclaringGroup, group) &&
+                        stackSymbol.DeclaringStack.Value is not ForSyntax;
+                    currentResourceDependencies.Add(new(stackSymbol, GetIndexExpression(syntax, stackSymbol.IsCollection), GroupInstanceReference: groupInstanceReference));
                     return;
 
                 case ModuleSymbol moduleSymbol:
@@ -274,14 +278,23 @@ namespace Bicep.Core.Emit
                 case ModuleSymbol moduleSymbol:
                     currentResourceDependencies.Add(new(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection)));
                     return;
+
+                case StackSymbol stackSymbol:
+                    var groupIndex = stackSymbol.DeclaringGroup?.Value is ForSyntax && syntax.BaseExpression is ArrayAccessSyntax arrayAccess
+                        ? arrayAccess.IndexExpression
+                        : null;
+                    currentResourceDependencies.Add(new(stackSymbol, GetIndexExpression(syntax, stackSymbol.IsCollection, groupIndex)));
+                    return;
             }
         }
 
-        private SyntaxBase? GetIndexExpression(SyntaxBase syntax, bool isCollection)
+        private SyntaxBase? GetIndexExpression(SyntaxBase syntax, bool isCollection, SyntaxBase? explicitIndexExpression = null)
         {
-            SyntaxBase? candidateIndexExpression = isCollection && this.model.Binder.GetParent(syntax) is ArrayAccessSyntax arrayAccess && ReferenceEquals(arrayAccess.BaseExpression, syntax)
+            SyntaxBase? candidateIndexExpression = explicitIndexExpression ?? (isCollection &&
+                this.model.Binder.GetParentIgnoringParentheses(syntax) is ArrayAccessSyntax arrayAccess &&
+                this.model.Binder.IsEqualOrDescendent(syntax, arrayAccess.BaseExpression)
                 ? arrayAccess.IndexExpression
-                : null;
+                : null);
 
             if (candidateIndexExpression is null)
             {

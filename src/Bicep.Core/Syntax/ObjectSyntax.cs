@@ -42,5 +42,7 @@ namespace Bicep.Core.Syntax
         /// Gets the child resources of this object.
         /// </summary>
         public IEnumerable<ResourceDeclarationSyntax> Resources => this.Children.OfType<ResourceDeclarationSyntax>();
+
+        public IEnumerable<StackDeclarationSyntax> Stacks => this.Children.OfType<StackDeclarationSyntax>();
     }
 }

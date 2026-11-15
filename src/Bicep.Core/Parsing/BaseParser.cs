@@ -1176,6 +1176,13 @@ namespace Bicep.Core.Parsing
                     return this.Declaration(LanguageConstants.ResourceKeyword);
                 }
 
+                if (HasExpressionFlag(expressionFlags, ExpressionFlags.AllowStackDeclarations) &&
+                    (Check(TokenType.At) ||
+                     (CheckKeyword(LanguageConstants.StackKeyword) && Check(this.reader.PeekAhead(), TokenType.Identifier))))
+                {
+                    return this.Declaration(LanguageConstants.StackKeyword);
+                }
+
                 if (current.Type == TokenType.Ellipsis)
                 {
                     return SpreadExpression([TokenType.Comma, TokenType.NewLine, TokenType.RightBrace]);

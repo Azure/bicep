@@ -89,6 +89,8 @@ param foo string
 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Parameters.Should().NotBeNull();
+        result.Parameters!["usingConfig"]!["expression"]!.Value<string>().Should().Contain("externalInputs");
     }
 
     [TestMethod]
@@ -119,6 +121,63 @@ param foo string
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Stack_pre_and_post_checks_accept_arrays_of_objects()
+    {
+        var result = CompilationHelper.CompileParams(Services,
+            ("parameters.bicepparam", """
+                using 'main.bicep' with {
+                  mode: 'stack'
+                  scope: '/subscriptions/test/resourceGroups/test'
+                  actionOnUnmanage: { resources: 'delete' }
+                  denySettings: { mode: 'denyDelete' }
+                  preChecks: [{ type: 'resourceExists', resourceId: 'example' }]
+                  postChecks: [{ type: 'health', timeout: 'PT5M' }]
+                }
+                """),
+            ("main.bicep", ""));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Stack_pre_and_post_checks_must_be_arrays_of_objects()
+    {
+        var result = CompilationHelper.CompileParams(Services,
+            ("parameters.bicepparam", """
+                using 'main.bicep' with {
+                  mode: 'stack'
+                  scope: '/subscriptions/test/resourceGroups/test'
+                  actionOnUnmanage: { resources: 'delete' }
+                  denySettings: { mode: 'denyDelete' }
+                  preChecks: ['not an object']
+                  postChecks: ['not an object']
+                }
+                """),
+            ("main.bicep", ""));
+
+        result.Diagnostics.Should().Contain(diagnostic => diagnostic.Code == "BCP034");
+    }
+
+    [TestMethod]
+    [DataRow("checks.resourceExists('id')", "BCP057")]
+    [DataRow("sys.notAFunction('id')", "BCP107")]
+    public void Invalid_function_in_nested_using_config_reports_diagnostics(string expression, string code)
+    {
+        var result = CompilationHelper.CompileParams(Services,
+            ("parameters.bicepparam", $$"""
+                using 'main.bicep' with {
+                  mode: 'deployment'
+                  scope: '/subscriptions/test/resourceGroups/test'
+                  preChecks: [{{expression}}]
+                }
+                """),
+            ("main.bicep", ""));
+
+        result.Parameters.Should().BeNull();
+        result.Diagnostics.Should().Contain(diagnostic => diagnostic.Level == DiagnosticLevel.Error && diagnostic.Code == code);
     }
 
     [TestMethod]

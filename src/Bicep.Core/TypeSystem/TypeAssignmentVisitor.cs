@@ -22,6 +22,15 @@ namespace Bicep.Core.TypeSystem
 {
     public sealed class TypeAssignmentVisitor : AstVisitor
     {
+        private static readonly ObjectType configurationBodyType = new(
+            "configuration",
+            TypeSymbolValidationFlags.Default,
+            [
+                new NamedTypeProperty("labels", new ObjectType("labels", TypeSymbolValidationFlags.Default, [], new(LanguageConstants.String)), TypePropertyFlags.None),
+                new NamedTypeProperty("values", LanguageConstants.Object, TypePropertyFlags.Required),
+            ],
+            new(LanguageConstants.Any));
+
         private readonly IFeatureProvider features;
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
@@ -66,6 +75,10 @@ namespace Bicep.Core.TypeSystem
         {
             // ensure we've visited all of the syntax nodes
             Visit(this.binder.FileSymbol.Syntax);
+            foreach (var stack in this.binder.FileSymbol.AllStackDeclarations)
+            {
+                Visit(stack.DeclaringStack);
+            }
 
             return assignedTypes.Values.SelectMany(x => x.Diagnostics);
         }
@@ -506,6 +519,67 @@ namespace Bicep.Core.TypeSystem
 
 
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType);
+            });
+
+        public override void VisitGroupDeclarationSyntax(GroupDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? LanguageConstants.Any;
+                ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
+
+                if (syntax.TryGetBody() is { } body &&
+                    body.TryGetPropertyByName("labels") is { } groupLabels)
+                {
+                    var names = (groupLabels.Value as ObjectSyntax)?.Properties
+                        .Select(property => property.TryGetKeyText())
+                        .WhereNotNull()
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase) ?? [];
+                    foreach (var stack in body.Stacks)
+                    {
+                        if (stack.TryGetBody() is not { } stackBody)
+                        {
+                            continue;
+                        }
+
+                        foreach (var property in stackBody.Properties.Where(property => property.TryGetKeyText() is null))
+                        {
+                            diagnostics.Write(DiagnosticBuilder.ForPosition(property.Key).InterpolatedGroupedStackProperty());
+                        }
+
+                        if (stackBody.TryGetPropertyByName("labels")?.Value is not ObjectSyntax stackLabels)
+                        {
+                            continue;
+                        }
+
+                        var stackNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                        foreach (var label in stackLabels.Properties)
+                        {
+                            if (label.TryGetKeyText() is not { } name)
+                            {
+                                continue;
+                            }
+
+                            if (stackNames.TryGetValue(name, out var previousName) &&
+                                !string.Equals(name, previousName, StringComparison.Ordinal))
+                            {
+                                diagnostics.Write(DiagnosticBuilder.ForPosition(label.Key)
+                                    .StackLabelsDifferOnlyInCasing(name, stack.Name.IdentifierName));
+                            }
+                            else
+                            {
+                                stackNames.TryAdd(name, name);
+                            }
+
+                            if (names.Contains(name))
+                            {
+                                diagnostics.Write(DiagnosticBuilder.ForPosition(label.Key)
+                                    .GroupLabelConflict(name, syntax.Name.IdentifierName, stack.Name.IdentifierName));
+                            }
+                        }
+                    }
+                }
+
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnostics, syntax.Value, declaredType);
             });
 
         public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax)
@@ -1226,6 +1300,14 @@ namespace Bicep.Core.TypeSystem
                 if (TypeValidator.AreTypesAssignable(valueType, LanguageConstants.Any) != true)
                 {
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Value).VariableTypeAssignmentDisallowed(valueType));
+                }
+
+                if (syntax.Keyword.Text == LanguageConstants.ConfigurationKeyword)
+                {
+                    var targetType = valueType is ArrayType
+                        ? new TypedArrayType(configurationBodyType, TypeSymbolValidationFlags.Default)
+                        : (TypeSymbol)configurationBodyType;
+                    TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnostics, syntax.Value, targetType);
                 }
 
                 this.ValidateDecorators(syntax.Decorators, valueType, diagnostics);
@@ -2229,6 +2311,26 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
+                if (binder.GetSymbolInfo(syntax) is StackSymbol { DeclaringGroup: { } group } stack)
+                {
+                    if (!IsGroupedStackDependencyReference(syntax))
+                    {
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).GroupStackCanOnlyBeUsedInRequires());
+                    }
+
+                    var stackType = typeManager.GetTypeInfo(stack.DeclaringStack);
+                    return group.Value is ForSyntax && syntax.BaseExpression is not ArrayAccessSyntax
+                        ? new TypedArrayType(stackType, TypeSymbolValidationFlags.Default)
+                        : stackType;
+                }
+
+                if (binder.GetSymbolInfo(syntax) is ErrorSymbol groupError &&
+                    (binder.GetSymbolInfo(syntax.BaseExpression) is GroupSymbol ||
+                     syntax.BaseExpression is ArrayAccessSyntax groupIndex && binder.GetSymbolInfo(groupIndex.BaseExpression) is GroupSymbol))
+                {
+                    return ErrorType.Create(groupError.GetDiagnostics());
+                }
+
                 if (baseType is not ResourceType)
                 {
                     // can only access children of resources
@@ -2359,6 +2461,7 @@ namespace Bicep.Core.TypeSystem
                 MetadataDeclarationSyntax _ => FunctionFlags.MetadataDecorator,
                 ResourceDeclarationSyntax _ => FunctionFlags.ResourceDecorator,
                 ModuleDeclarationSyntax _ => FunctionFlags.ModuleDecorator,
+                StackDeclarationSyntax _ => FunctionFlags.ModuleDecorator,
                 ParameterDeclarationSyntax _ => FunctionFlags.ParameterDecorator,
                 TypeDeclarationSyntax _ => FunctionFlags.TypeDecorator,
                 VariableDeclarationSyntax _ => FunctionFlags.VariableDecorator,
@@ -2526,6 +2629,22 @@ namespace Bicep.Core.TypeSystem
             return declaringType;
         }
 
+        private bool IsGroupedStackDependencyReference(SyntaxBase syntax)
+        {
+            var parent = binder.GetParentIgnoringParentheses(syntax);
+            if (parent is ArrayAccessSyntax index && binder.IsEqualOrDescendent(syntax, index.BaseExpression))
+            {
+                parent = binder.GetParentIgnoringParentheses(index);
+            }
+
+            return parent is ArrayItemSyntax item &&
+                binder.GetParent(item) is ArraySyntax array &&
+                binder.GetParentIgnoringParentheses(array) is ObjectPropertySyntax property &&
+                string.Equals(property.TryGetKeyText(), "requires", LanguageConstants.IdentifierComparison) &&
+                binder.GetNearestAncestor<StackDeclarationSyntax>(property) is { } stack &&
+                ReferenceEquals(stack.TryGetBody(), binder.GetParent(property));
+        }
+
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
             => AssignType(syntax, () =>
             {
@@ -2548,8 +2667,19 @@ namespace Bicep.Core.TypeSystem
                     case ModuleSymbol module:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, module));
 
+                    case StackSymbol { DeclaringGroup: not null } when !IsGroupedStackDependencyReference(syntax):
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).GroupStackCanOnlyBeUsedInRequires());
+
                     case StackSymbol stack:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, stack));
+
+                    case GroupSymbol group:
+                        var parent = binder.GetParent(syntax);
+                        var isGroupAccess = parent is ResourceAccessSyntax ||
+                            parent is ArrayAccessSyntax array && binder.GetParent(array) is ResourceAccessSyntax;
+                        return isGroupAccess
+                            ? new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, group))
+                            : ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).GroupCanOnlyBeUsedForStackAccess());
 
                     case TestSymbol test:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, test));

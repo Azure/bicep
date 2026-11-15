@@ -298,5 +298,10 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         /// The current location needs a stack path (local or remote)
         /// </summary>
         StackPath = 1UL << 55,
+
+        /// <summary>
+        /// The current location could be the start of a stack declaration inside a group.
+        /// </summary>
+        NestedStackDeclarationStart = 1UL << 56,
     }
 }

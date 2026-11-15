@@ -72,6 +72,9 @@ namespace Bicep.Core.TypeSystem
         public override void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax)
             => VisitDeclaration(syntax, base.VisitStackDeclarationSyntax);
 
+        public override void VisitGroupDeclarationSyntax(GroupDeclarationSyntax syntax)
+            => VisitDeclaration(syntax, base.VisitGroupDeclarationSyntax);
+
         public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax)
             => VisitDeclaration(syntax, base.VisitRuleDeclarationSyntax);
 

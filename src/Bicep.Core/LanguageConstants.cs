@@ -71,6 +71,8 @@ namespace Bicep.Core
         public const string ResourceKeyword = "resource";
         public const string ModuleKeyword = "module";
         public const string StackKeyword = "stack";
+        public const string GroupKeyword = "group";
+        public const string ConfigurationKeyword = "configuration";
         public const string RuleKeyword = "rule";
         public const string TestKeyword = "test";
         public const string FunctionKeyword = "func";
@@ -117,6 +119,7 @@ namespace Bicep.Core
                 MetadataKeyword,
                 ParameterKeyword,
                 VariableKeyword,
+                ConfigurationKeyword,
                 ResourceKeyword,
                 OutputKeyword,
                 ModuleKeyword,
@@ -411,15 +414,21 @@ namespace Bicep.Core
 
         public static TypeSymbol CreateStackType(string typeName)
         {
-            // List<NamedTypeProperty> properties =
-            // [
-            //     // TODO add properties
-            // ];
-
-            // return new ObjectType(typeName, TypeSymbolValidationFlags.Default, properties, null);
-
-            return Object;
+            return new ObjectType(typeName, TypeSymbolValidationFlags.Default,
+                [
+                    new("labels", CreateLabelsType(), TypePropertyFlags.None, "String-valued labels used to select stacks for orchestration."),
+                    new("version", TypeFactory.CreateStringType(minLength: 1, maxLength: 256), TypePropertyFlags.None, "Version persisted in the deployment stack's version tag."),
+                ],
+                new TypeProperty(Any, TypePropertyFlags.None));
         }
+
+        public static TypeSymbol CreateGroupType() => new ObjectType(
+            GroupKeyword,
+            TypeSymbolValidationFlags.Default,
+            [new("labels", CreateLabelsType(), TypePropertyFlags.None, "String-valued labels shared by stacks in the group.")]);
+
+        private static ObjectType CreateLabelsType() => new("labels", TypeSymbolValidationFlags.Default, [],
+            new TypeProperty(String, TypePropertyFlags.None));
 
         public static TypeSymbol CreateRuleType(string typeName)
         {
@@ -480,6 +489,8 @@ namespace Bicep.Core
                 new("mode", TypeFactory.CreateStringLiteralType("stack"), requiredPropFlags),
                 new("actionOnUnmanage", actionOnUnmanage, requiredPropFlags, "Defines the behavior of resources that are not managed immediately after the stack is updated."),
                 new("denySettings", denySettings, requiredPropFlags, "Defines how resources deployed by the deployment stack are locked."),
+                new("preChecks", new TypedArrayType(LanguageConstants.Object, TypeSymbolValidationFlags.Default), optionalPropFlags),
+                new("postChecks", new TypedArrayType(LanguageConstants.Object, TypeSymbolValidationFlags.Default), optionalPropFlags),
             ], null);
 
 

@@ -335,6 +335,8 @@ namespace Bicep.Core.SourceGraph
         };
 
         private static IEnumerable<IArtifactReferenceSyntax> GetArtifactReferences(ProgramSyntax program)
-            => program.Declarations.OfType<IArtifactReferenceSyntax>();
+            => program.Declarations.OfType<IArtifactReferenceSyntax>()
+                .Concat(program.Declarations.OfType<GroupDeclarationSyntax>()
+                    .SelectMany(group => group.TryGetBody()?.Stacks ?? []));
     }
 }

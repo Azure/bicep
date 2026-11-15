@@ -41,6 +41,7 @@ namespace Bicep.Core.Semantics
             var resourceDeclarations = ImmutableArray.CreateBuilder<ResourceSymbol>();
             var moduleDeclarations = ImmutableArray.CreateBuilder<ModuleSymbol>();
             var stackDeclarations = ImmutableArray.CreateBuilder<StackSymbol>();
+            var groupDeclarations = ImmutableArray.CreateBuilder<GroupSymbol>();
             var ruleDeclarations = ImmutableArray.CreateBuilder<RuleSymbol>();
             var outputDeclarations = ImmutableArray.CreateBuilder<OutputSymbol>();
             var assertDeclarations = ImmutableArray.CreateBuilder<AssertSymbol>();
@@ -91,6 +92,9 @@ namespace Bicep.Core.Semantics
                     case StackSymbol stack:
                         stackDeclarations.Add(stack);
                         break;
+                    case GroupSymbol group:
+                        groupDeclarations.Add(group);
+                        break;
                     case RuleSymbol rule:
                         ruleDeclarations.Add(rule);
                         break;
@@ -138,6 +142,7 @@ namespace Bicep.Core.Semantics
             ResourceDeclarations = resourceDeclarations.ToImmutable();
             ModuleDeclarations = moduleDeclarations.ToImmutable();
             StackDeclarations = stackDeclarations.ToImmutable();
+            GroupDeclarations = groupDeclarations.ToImmutable();
             RuleDeclarations = ruleDeclarations.ToImmutable();
             OutputDeclarations = outputDeclarations.ToImmutable();
             AssertDeclarations = assertDeclarations.ToImmutable();
@@ -167,6 +172,9 @@ namespace Bicep.Core.Semantics
             .Concat(this.FunctionDeclarations)
             .Concat(this.ResourceDeclarations)
             .Concat(this.ModuleDeclarations)
+            .Concat(this.StackDeclarations)
+            .Concat(this.GroupDeclarations)
+            .Concat(this.RuleDeclarations)
             .Concat(this.OutputDeclarations)
             .Concat(this.AssertDeclarations)
             .Concat(this.ParameterAssignments)
@@ -213,6 +221,14 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<ModuleSymbol> ModuleDeclarations { get; }
 
         public ImmutableArray<StackSymbol> StackDeclarations { get; }
+
+        public ImmutableArray<GroupSymbol> GroupDeclarations { get; }
+
+        public IEnumerable<StackSymbol> AllStackDeclarations => StackDeclarations.Concat(
+            GroupDeclarations
+                .SelectMany(group => group.DeclaringGroup.TryGetBody()?.Stacks ?? [])
+                .Select(stack => Context.Binder.GetSymbolInfo(stack))
+                .OfType<StackSymbol>());
 
         public ImmutableArray<RuleSymbol> RuleDeclarations { get; }
 

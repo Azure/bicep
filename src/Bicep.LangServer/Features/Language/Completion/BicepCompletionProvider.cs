@@ -157,6 +157,8 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                         if (model.TargetScope == ResourceScope.Orchestrator)
                         {
                             yield return CreateKeywordCompletion(LanguageConstants.StackKeyword, "Stack keyword", context.ReplacementRange, priority: CompletionPriority.High);
+                            yield return CreateKeywordCompletion(LanguageConstants.GroupKeyword, "Group keyword", context.ReplacementRange, priority: CompletionPriority.High);
+                            yield return CreateKeywordCompletion(LanguageConstants.ConfigurationKeyword, "Configuration keyword", context.ReplacementRange, priority: CompletionPriority.High);
                         }
                         else
                         {
@@ -235,6 +237,12 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                             preselect: true);
                     }
                 }
+
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.NestedStackDeclarationStart) && model.Features.OrchestrationEnabled)
+            {
+                yield return CreateKeywordCompletion(LanguageConstants.StackKeyword, "Stack keyword", context.ReplacementRange);
             }
         }
 
@@ -1055,6 +1063,23 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                 }
             }
 
+            void AddGroupedStackCompletions(IDictionary<string, CompletionItem> result)
+            {
+                foreach (var stack in model.Root.AllStackDeclarations.Where(stack => stack.DeclaringGroup is not null))
+                {
+                    if (stack.NameSource.IsValid &&
+                        ShouldSymbolBeIncludedInCompletion(stack, model, context, enclosingDecorableSymbol) &&
+                        !result.ContainsKey(stack.SymbolicName))
+                    {
+                        result.Add(stack.SymbolicName, CreateSymbolCompletion(
+                            stack,
+                            context.ReplacementRange,
+                            model,
+                            insertText: stack.SymbolicName));
+                    }
+                }
+            }
+
             // local function
             IEnumerable<FunctionSymbol> GetAccessibleDecoratorFunctionsWithCache(NamespaceType namespaceType)
             {
@@ -1099,6 +1124,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                 }
 
                 AddNestedResourceCompletions(completions);
+                AddGroupedStackCompletions(completions);
             }
             else
             {
@@ -1313,15 +1339,26 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                 return [];
             }
 
-            var symbol = compilation.GetEntrypointSemanticModel().GetSymbolInfo(context.ResourceAccess.BaseExpression) as ResourceSymbol;
-            if (symbol == null)
+            var model = compilation.GetEntrypointSemanticModel();
+            var baseExpression = context.ResourceAccess.BaseExpression is ArrayAccessSyntax arrayAccess
+                ? arrayAccess.BaseExpression
+                : context.ResourceAccess.BaseExpression;
+            var symbol = model.GetSymbolInfo(baseExpression);
+            if (symbol is GroupSymbol group)
+            {
+                return (group.DeclaringGroup.TryGetBody()?.Stacks ?? [])
+                    .Select(model.GetSymbolInfo)
+                    .OfType<StackSymbol>()
+                    .Select(stack => CreateSymbolCompletion(stack, context.ReplacementRange, model));
+            }
+
+            if (symbol is not ResourceSymbol resource)
             {
                 return [];
             }
-            var model = compilation.GetEntrypointSemanticModel();
 
             // Find child resources
-            var children = symbol.DeclaringResource.TryGetBody()?.Resources ?? [];
+            var children = resource.DeclaringResource.TryGetBody()?.Resources ?? [];
             return children
                 .Select(r => new { resource = r, symbol = compilation.GetEntrypointSemanticModel().GetSymbolInfo(r) as ResourceSymbol, })
                 .Where(entry => entry.symbol != null)
@@ -2110,7 +2147,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             priority ??= GetCompletionPriority(symbol.Kind);
             completion.WithSortText(GetSortText(insertText, priority.Value));
 
-            if (symbol is ResourceSymbol)
+            if (symbol is ResourceSymbol or GroupSymbol)
             {
                 // treat : as a commit character for the resource access operator case
                 completion.WithCommitCharacters(ResourceSymbolCommitChars);
@@ -2313,6 +2350,8 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                 SymbolKind.TypeAlias => CompletionItemKind.TypeParameter,
                 SymbolKind.Resource => CompletionItemKind.Interface,
                 SymbolKind.Module => CompletionItemKind.Module,
+                SymbolKind.Stack => CompletionItemKind.Module,
+                SymbolKind.Group => CompletionItemKind.Folder,
                 SymbolKind.Test => CompletionItemKind.Keyword,
                 SymbolKind.Local => CompletionItemKind.Variable,
                 SymbolKind.BaseParameters => CompletionItemKind.Variable,

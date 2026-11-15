@@ -19,6 +19,7 @@ using Bicep.Core;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.Core.Semantics;
@@ -66,6 +67,46 @@ public static class SnapshotHelper
             rootDeploymentMetadata: GetDeploymentMetadata(tenantId, managementGroupId, subscriptionId, resourceGroup, deploymentName, location, scope, template),
             referenceFunctionPreflightEnabled: true,
             cancellationToken: cancellationToken);
+
+        if (targetScope == ResourceScope.Orchestrator)
+        {
+            foreach (var resource in expansionResult.extensibleResources)
+            {
+                var properties = resource.Properties?.ToObject<JObject>();
+                if (properties?[EmitConstants.OrchestrationGroupLabelsProperty] is not { } groupLabels)
+                {
+                    continue;
+                }
+
+                if (properties[EmitConstants.OrchestrationStackLabelsProperty] is not { } stackLabels)
+                {
+                    continue;
+                }
+
+                if (groupLabels is not JObject groupObject ||
+                    stackLabels is not JObject stackObject)
+                {
+                    throw new BicepException($"Labels for stack '{resource.SymbolicName}' must be resolvable before deployment.");
+                }
+
+                var groupNames = groupObject.Properties().Select(property => property.Name)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                var stackNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var label in stackObject.Properties())
+                {
+                    if (!stackNames.Add(label.Name))
+                    {
+                        throw new BicepException($"Label '{label.Name}' differs only in casing from another label on stack '{resource.SymbolicName}'. Stack labels combined with group labels must have distinct names ignoring case.");
+                    }
+                }
+
+                var duplicate = stackObject.Properties().FirstOrDefault(property => groupNames.Contains(property.Name));
+                if (duplicate is not null)
+                {
+                    throw new BicepException($"Label '{duplicate.Name}' is defined on both the group and stack '{resource.SymbolicName}'. Label names must be distinct.");
+                }
+            }
+        }
 
         return new(
             [
