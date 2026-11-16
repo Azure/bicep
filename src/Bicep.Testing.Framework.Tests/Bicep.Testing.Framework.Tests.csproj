@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="MSTest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bicep.Testing.Framework\Bicep.Testing.Framework.csproj" />
+    <ProjectReference Include="..\Bicep.Cli\Bicep.Cli.csproj" />
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+    <None Update="Files\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CopyBicepAppHost" AfterTargets="Build">
+    <PropertyGroup>
+      <BicepExeName Condition="$([MSBuild]::IsOSPlatform('Windows'))">bicep.exe</BicepExeName>
+      <BicepExeName Condition="!$([MSBuild]::IsOSPlatform('Windows'))">bicep</BicepExeName>
+      <BicepCliAppHostPath>$(MSBuildThisFileDirectory)..\Bicep.Cli\bin\$(Configuration)\$(TargetFramework)\$(BicepExeName)</BicepCliAppHostPath>
+    </PropertyGroup>
+    <Copy SourceFiles="$(BicepCliAppHostPath)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <ItemGroup>
+      <FileWrites Include="$(OutDir)$(BicepExeName)" />
+    </ItemGroup>
+  </Target>
+</Project>

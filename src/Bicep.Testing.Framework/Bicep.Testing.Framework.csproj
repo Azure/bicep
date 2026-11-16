@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Azure.Bicep.Testing.Framework</AssemblyName>
+    <RootNamespace>Bicep.Testing.Framework</RootNamespace>
+    <EnableNuget>true</EnableNuget>
+    <PackageTags>Testing;Snapshots;ResourceManager;ARM</PackageTags>
+    <Description>
+      Experimental library for testing evaluated Bicep resources and outputs without deploying to Azure.
+      This package is not officially supported: no compatibility or support SLA is provided, and breaking changes may be introduced at any time.
+    </Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bicep.RpcClient\Bicep.RpcClient.csproj" />
+  </ItemGroup>
+</Project>
