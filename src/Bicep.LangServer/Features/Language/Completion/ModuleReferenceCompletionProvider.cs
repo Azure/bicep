@@ -344,11 +344,9 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             if (await registryModuleCatalog.GetProviderForRegistry((CloudConfiguration)rootConfiguration.Cloud, parts.ResolvedRegistry)
                 .TryGetModuleAsync($"{parts.ResolvedModulePath}") is { } module)
             {
-                var availableVersions = (await module.TryGetVersionsAsync())
-                    .Where(v => v.IsBicepModule != false);
-                var versions = (parts.IsPublicRegistry
-                    ? availableVersions
-                    : availableVersions.OrderBySemanticVersion(v => v.Version))
+                var versions = (await module.TryGetVersionsAsync())
+                    .Where(v => v.IsBicepModule != false)
+                    .OrderByRegistryTag(v => v.Version)
                     .Reverse()
                     .ToArray();
 

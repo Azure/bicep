@@ -22,8 +22,8 @@ public record PublicModuleIndexEntry(
     {
         get
         {
-            // Sort by ascending version number here, the completion provider will reverse it to show the most recent version first
-            return [.. Tags.OrderBySemanticVersion(x => x)];
+            // Sort tags in ascending order here; the completion provider reverses them.
+            return [.. Tags.OrderByRegistryTag(x => x)];
         }
     }
 

@@ -7,12 +7,22 @@ namespace Bicep.Core.Extensions
 {
     public static class EnumerableExtensions
     {
-        private static readonly SemVersion DefaultVersion = new(0);
+        public static IEnumerable<TSource> OrderByRegistryTag<TSource>(this IEnumerable<TSource> source, Func<TSource, string> tagSelector)
+        {
+            var tags = source.Select(item => (item, tag: tagSelector(item))).ToArray();
+            List<(TSource item, SemVersion version)> versions = [];
+            foreach (var (item, tag) in tags)
+            {
+                if (!SemVersion.TryParse(tag, SemVersionStyles.AllowV, out var version))
+                {
+                    return tags.OrderBy(x => x.tag, StringComparer.OrdinalIgnoreCase).Select(x => x.item);
+                }
 
-        public static IOrderedEnumerable<TSource> OrderBySemanticVersion<TSource>(this IEnumerable<TSource> source, Func<TSource, string> versionSelector)
-            => source.OrderBy(
-                item => SemVersion.TryParse(versionSelector(item), SemVersionStyles.AllowV, out var version) ? version : DefaultVersion,
-                SemVersion.SortOrderComparer);
+                versions.Add((item, version));
+            }
+
+            return versions.OrderBy(x => x.version, SemVersion.SortOrderComparer).Select(x => x.item);
+        }
 
         public static string ConcatString(this IEnumerable<string> source, string separator) => string.Join(separator, source);
 
