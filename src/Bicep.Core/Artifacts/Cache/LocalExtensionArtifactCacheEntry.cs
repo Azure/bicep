@@ -1,68 +1,47 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Artifacts.Codecs;
 using Bicep.Core.Artifacts.Packages;
-using Bicep.Core.Extensions;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.RegistryClients.Oci;
-using Bicep.Core.SourceGraph.Artifacts;
 using Bicep.IO.Abstraction;
-using Bicep.IO.Utils;
 
 namespace Bicep.Core.Artifacts.Cache
 {
     /// <summary>
-    /// The cache entry of a local extension package, unpacked under <c>local/sha256_&lt;digest of the package&gt;/</c>.
+    /// The cache entry of a local extension package, extracted under <c>local/sha256_&lt;digest of the package&gt;/</c>.
     /// </summary>
-    internal class LocalExtensionArtifactCacheEntry : ArtifactCacheEntry, IExtensionArtifact
+    public sealed class LocalExtensionArtifactCacheEntry : ArtifactCacheEntry
     {
-        public LocalExtensionArtifactCacheEntry(BinaryData extensionBinaryData, IDirectoryHandle rootCacheDirectory)
-            : base(ResolveCacheDirectory(extensionBinaryData, rootCacheDirectory))
+        private readonly ExtensionArtifactCacheLayout layout;
+
+        /// <param name="packageData">The encoded package, whose digest names the entry.</param>
+        public LocalExtensionArtifactCacheEntry(BinaryData packageData, IDirectoryHandle rootCacheDirectory)
+            : base(ResolveCacheDirectory(packageData, rootCacheDirectory))
         {
+            this.layout = new(this.CacheDirectory);
         }
 
-        public IFileHandle TypesTgzFile => this.GetFile("types.tgz");
+        public IFileHandle TypesTgzFile => this.layout.TypesTgzFile;
 
-        public IFileHandle BinaryFile => this.GetFile("extension.bin");
+        public IFileHandle BinaryFile => this.layout.BinaryFile;
 
         public override IFileHandle EntryPoint => this.TypesTgzFile;
 
         public override bool IsComplete => this.TypesTgzFile.Exists();
 
         /// <summary>
-        /// Unpacks the extension package into the cache, unless another compilation (possibly in another process) already has.
+        /// Writes a decoded extension package into the cache, unless another compilation (possibly in another process) already has.
         /// </summary>
+        /// <param name="reference">The extension's reference, for error messages.</param>
         /// <exception cref="ArtifactException">The cache directory could not be created or locked.</exception>
         /// <exception cref="InvalidOperationException">The extension does not support the current OS or architecture.</exception>
-        public void Unpack(ExtensionArtifactPackage package, string extensionReference) => this.Write(() => this.WriteContent(package, extensionReference));
+        public void Write(ExtensionArtifactPackage package, ArtifactReference reference) => this.Write(() => this.layout.Write(package, reference));
 
-        private void WriteContent(ExtensionArtifactPackage package, string extensionReference)
+        private static IDirectoryHandle ResolveCacheDirectory(BinaryData packageData, IDirectoryHandle rootCacheDirectory)
         {
-            if (package.Binaries.Any())
-            {
-                if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
-                {
-                    throw new InvalidOperationException($"Failed to determine the system OS or architecture to execute extension \"{extensionReference}\".");
-                }
-
-                if (package.Binaries.SingleOrDefault(x => x.Architecture.Name == architecture.Name) is not { } binary)
-                {
-                    throw new InvalidOperationException($"The extension \"{extensionReference}\" does not support architecture {architecture.Name}.");
-                }
-
-                this.BinaryFile.Write(binary.Data);
-                this.BinaryFile.MakeExecutable();
-            }
-
-            // types.tgz is written last: its presence marks the cache entry as complete.
-            this.TypesTgzFile.Write(package.Types);
-        }
-
-        private static IDirectoryHandle ResolveCacheDirectory(BinaryData extensionBinaryData, IDirectoryHandle rootCacheDirectory)
-        {
-            // The cache directory is structured as "local/{extensionDigest}"
-            // where extensionDigest is a unique identifier for the extension.
-            var digest = OciDescriptor.ComputeDigest(OciDescriptor.AlgorithmIdentifierSha256, extensionBinaryData, separator: '_');
+            // The cache is content-addressed, so that a package extracted once is reused by every reference to the same content.
+            var digest = OciDescriptor.ComputeDigest(OciDescriptor.AlgorithmIdentifierSha256, packageData, separator: '_');
 
             return rootCacheDirectory.GetDirectory($"local/{digest}");
         }

@@ -47,7 +47,12 @@ namespace Bicep.Core.Artifacts.Registries
 
         public override string Scheme => ArtifactSchemes.Oci;
 
-        protected override OciArtifactCacheEntry GetCacheEntry(OciArtifactReference reference) => reference.CacheEntry;
+        protected override OciArtifactCacheEntry GetCacheEntry(OciArtifactReference reference) => reference.Type switch
+        {
+            ArtifactType.Module => new OciModuleArtifactCacheEntry(reference.AddressComponents, reference.Context.CacheRootDirectory),
+            ArtifactType.Extension => new OciExtensionArtifactCacheEntry(reference.AddressComponents, reference.Context.CacheRootDirectory),
+            _ => throw new InvalidOperationException($"Unexpected artifact type '{reference.Type}'."),
+        };
 
         protected override IFileHandle? TryGetEntryPoint(OciArtifactReference reference) =>
             // Security-first: an artifact from an untrusted registry is never loaded, even if it is cached. It counts as
@@ -271,7 +276,7 @@ namespace Bicep.Core.Artifacts.Registries
                         await entry.WriteAsync(OciModuleArtifactCodec.Decode(payload), payload);
                         break;
                     case (ArtifactType.Extension, OciExtensionArtifactCacheEntry entry):
-                        await entry.WriteAsync(OciExtensionArtifactCodec.Decode(payload), payload, reference.ToString());
+                        await entry.WriteAsync(OciExtensionArtifactCodec.Decode(payload), payload, reference);
                         break;
                     case (ArtifactType.Extension, _):
                         throw new InvalidArtifactException("Expected a module, but the artifact is an extension.");

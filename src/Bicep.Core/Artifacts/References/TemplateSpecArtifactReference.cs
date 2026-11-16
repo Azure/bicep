@@ -3,7 +3,6 @@
 
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Uri;
-using Bicep.Core.Artifacts.Cache;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
@@ -12,8 +11,6 @@ namespace Bicep.Core.Artifacts.References
 {
     public class TemplateSpecArtifactReference : RemoteArtifactReference
     {
-        private readonly Lazy<TemplateSpecArtifactCacheEntry> templateSpecArtifactCacheEntry;
-
         private const int ResourceNameMaximumLength = 90;
 
         private static readonly UriTemplate TemplateSpecUriTemplate = new("{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}");
@@ -29,7 +26,6 @@ namespace Bicep.Core.Artifacts.References
             this.ResourceGroupName = resourceGroupName;
             this.TemplateSpecName = templateSpecName;
             this.Version = version;
-            this.templateSpecArtifactCacheEntry = new(() => new(subscriptionId, resourceGroupName, templateSpecName, version, context.CacheRootDirectory));
         }
 
         public override string UnqualifiedReference => $"{this.SubscriptionId}/{this.ResourceGroupName}/{this.TemplateSpecName}:{this.Version}";
@@ -43,11 +39,6 @@ namespace Bicep.Core.Artifacts.References
         public string Version { get; }
 
         public string TemplateSpecResourceId => $"/subscriptions/{this.SubscriptionId}/resourceGroups/{this.ResourceGroupName}/providers/Microsoft.Resources/templateSpecs/{this.TemplateSpecName}/versions/{this.Version}";
-
-        /// <summary>
-        /// Gets the cache entry of the Template Spec. Its layout is owned by the entry.
-        /// </summary>
-        public TemplateSpecArtifactCacheEntry CacheEntry => this.templateSpecArtifactCacheEntry.Value;
 
         public override bool Equals(object? obj) =>
             obj is TemplateSpecArtifactReference other &&

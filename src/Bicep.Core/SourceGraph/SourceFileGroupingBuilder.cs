@@ -255,7 +255,7 @@ namespace Bicep.Core.SourceGraph
                 return new(extensionName, extensionEntry, new(referencingFile, null, null, new(errorBuilder), RequiresRestore: false));
             }
 
-            var (result, requiresRestore) = GetArtifactRestoreResult(artifactReference);
+            var (result, requiresRestore) = GetArtifactRestoreResult(referencingFile, artifactReference);
             return new(extensionName, extensionEntry, new(referencingFile, null, artifactReference, result, RequiresRestore: requiresRestore));
         }
 
@@ -268,15 +268,15 @@ namespace Bicep.Core.SourceGraph
                 return new(referencingFile, referenceSyntax, null, new(errorBuilder), RequiresRestore: false);
             }
 
-            var (result, requiresRestore) = GetArtifactRestoreResult(artifactReference);
+            var (result, requiresRestore) = GetArtifactRestoreResult(referencingFile, artifactReference);
 
             return new(referencingFile, referenceSyntax, artifactReference, result, RequiresRestore: requiresRestore);
         }
 
-        private (ResultWithDiagnosticBuilder<IFileHandle> result, bool requiresRestore) GetArtifactRestoreResult(ArtifactReference artifactReference) => artifactReference switch
+        private (ResultWithDiagnosticBuilder<IFileHandle> result, bool requiresRestore) GetArtifactRestoreResult(BicepSourceFile referencingFile, ArtifactReference artifactReference) => artifactReference switch
         {
             // Local files are loaded directly; they are never restored.
-            LocalArtifactReference local => (local.TryGetEntryPointFileHandle(), requiresRestore: false),
+            LocalArtifactReference local => (LocalArtifactLoader.TryGetEntryPoint(local, referencingFile.LoadFeatures().CacheRootDirectory), requiresRestore: false),
             RemoteArtifactReference external => this.GetRemoteArtifactRestoreResult(external),
             _ => throw new InvalidOperationException($"Unexpected artifact reference type '{artifactReference.GetType().Name}'."),
         };

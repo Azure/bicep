@@ -60,7 +60,6 @@ namespace Bicep.Core.UnitTests.Artifacts.Registries
                 BicepTestConstants.CreateRegistries(),
                 BicepTestConstants.FileExplorer,
                 BicepTestConstants.BuiltInOnlyConfigurationManager,
-                featureProviderFactory,
                 new RemoteArtifactContextFactory(BicepTestConstants.BuiltInOnlyConfigurationManager, featureProviderFactory));
 
             var result = resolver.TryResolve(referencingFile.FileHandle.Uri, ArtifactType.Module, "br:ghcr.io/contoso/app:v1");

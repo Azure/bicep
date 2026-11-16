@@ -5,30 +5,22 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
 using System.Web;
-using Bicep.Core.Artifacts.Cache;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.SourceGraph;
-using Bicep.Core.SourceGraph.ArtifactReferences;
-using Bicep.Core.SourceGraph.Artifacts;
 using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
 using Bicep.IO.Utils;
 
 namespace Bicep.Core.Artifacts.References
 {
-    public class OciArtifactReference : RemoteArtifactReference, IOciArtifactReference, IExtensionArtifactReference
+    public class OciArtifactReference : RemoteArtifactReference, IOciArtifactReference
     {
-        private readonly Lazy<OciModuleArtifactCacheEntry> lazyOciModuleArtifactCacheEntry;
-        private readonly Lazy<OciExtensionArtifactCacheEntry> lazyOciExtensionArtifactCacheEntry;
-
         public OciArtifactReference(OciArtifactContext context, ArtifactType type, IOciArtifactAddressComponents artifactIdParts) :
             base(context, OciArtifactReferenceFacts.Scheme, type)
         {
             OciContext = context;
             AddressComponents = artifactIdParts;
-            lazyOciModuleArtifactCacheEntry = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
-            lazyOciExtensionArtifactCacheEntry = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
         }
 
         public OciArtifactReference(OciArtifactContext context, ArtifactType type, string registry, string repository, string? tag, string? digest) :
@@ -44,8 +36,6 @@ namespace Bicep.Core.Artifacts.References
 
             OciContext = context;
             AddressComponents = new OciArtifactAddressComponents(registry, repository, tag, digest);
-            lazyOciModuleArtifactCacheEntry = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
-            lazyOciExtensionArtifactCacheEntry = new(() => new(this.AddressComponents, this.Context.CacheRootDirectory));
         }
 
         /// <summary>
@@ -88,21 +78,6 @@ namespace Bicep.Core.Artifacts.References
         public override string UnqualifiedReference => ArtifactId;
 
         /// <summary>
-        /// Gets the cache entry of the artifact if it is a module. Its layout is owned by the entry.
-        /// </summary>
-        public OciModuleArtifactCacheEntry ModuleCacheEntry => this.lazyOciModuleArtifactCacheEntry.Value;
-
-        /// <summary>
-        /// Gets the cache entry of the artifact for its <see cref="ArtifactReference.Type"/>.
-        /// </summary>
-        public OciArtifactCacheEntry CacheEntry => this.Type switch
-        {
-            ArtifactType.Module => this.lazyOciModuleArtifactCacheEntry.Value,
-            ArtifactType.Extension => this.lazyOciExtensionArtifactCacheEntry.Value,
-            _ => throw new InvalidOperationException($"Unexpected artifact type '{this.Type}'."),
-        };
-
-        /// <summary>
         /// Parses a fully qualified OCI reference body without the scheme, e.g. <c>example.azurecr.invalid/foo/bar:v3</c>.
         /// </summary>
         /// <param name="aliasContext">The scheme-qualified alias the body was expanded from, if any. Only used in diagnostics.</param>
@@ -117,11 +92,6 @@ namespace Bicep.Core.Artifacts.References
                 return new(errorBuilder);
             }
         }
-
-        public IExtensionArtifact ResolveExtensionArtifact() =>
-            this.Type == ArtifactType.Extension
-                ? this.lazyOciExtensionArtifactCacheEntry.Value
-                : throw new InvalidOperationException($"Cannot resolve extension artifact for type {this.Type}.");
 
         public override bool Equals(object? obj)
         {

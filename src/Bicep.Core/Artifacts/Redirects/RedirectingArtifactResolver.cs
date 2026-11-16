@@ -7,7 +7,6 @@ using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.Redirects;
@@ -30,9 +29,8 @@ public sealed class RedirectingArtifactResolver
     public static RedirectingArtifactResolver Create(
         IArtifactReferenceResolver resolver,
         IFileExplorer fileExplorer,
-        IBicepConfigurationManager configurationManager,
-        IFeatureProviderFactory featureProviderFactory) =>
-        new(resolver, [new ModuleAliasMockRule(fileExplorer, configurationManager, featureProviderFactory)]);
+        IBicepConfigurationManager configurationManager) =>
+        new(resolver, [new ModuleAliasMockRule(fileExplorer, configurationManager)]);
 
     public ResultWithDiagnosticBuilder<ArtifactReference> TryResolve(IOUri referencingUri, ArtifactType artifactType, string referenceText)
     {

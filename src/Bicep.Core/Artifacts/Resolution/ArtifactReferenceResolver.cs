@@ -8,7 +8,6 @@ using Bicep.Core.Artifacts.Registries;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
@@ -33,20 +32,17 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
     private readonly ImmutableArray<string> supportedSchemes;
     private readonly IFileExplorer fileExplorer;
     private readonly IBicepConfigurationManager configurationManager;
-    private readonly IFeatureProviderFactory featureProviderFactory;
     private readonly IRemoteArtifactContextFactory remoteArtifactContextFactory;
 
     public ArtifactReferenceResolver(
         IEnumerable<IRemoteArtifactRegistry> registries,
         IFileExplorer fileExplorer,
         IBicepConfigurationManager configurationManager,
-        IFeatureProviderFactory featureProviderFactory,
         IRemoteArtifactContextFactory remoteArtifactContextFactory)
     {
         this.supportedSchemes = [.. registries.Select(registry => registry.Scheme).Distinct().OrderBy(scheme => scheme)];
         this.fileExplorer = fileExplorer;
         this.configurationManager = configurationManager;
-        this.featureProviderFactory = featureProviderFactory;
         this.remoteArtifactContextFactory = remoteArtifactContextFactory;
     }
 
@@ -115,10 +111,7 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
             return new(failureBuilder);
         }
 
-        // A local extension package is unpacked into the artifact cache.
-        var cacheRootDirectory = this.featureProviderFactory.GetFeatureProvider(referencingUri).CacheRootDirectory;
-
-        return new(new LocalArtifactReference(cacheRootDirectory, artifactType, file, path));
+        return new(new LocalArtifactReference(artifactType, file, path));
     }
 
     private ResultWithDiagnosticBuilder<ArtifactReference> TryResolveSchemeAndAliasQualified(IOUri referencingUri, ArtifactType artifactType, ArtifactAddress.SchemeAndAliasQualified address)
