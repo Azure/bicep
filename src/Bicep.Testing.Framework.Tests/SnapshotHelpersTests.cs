@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text.Json;
+using Azure.Deployments.Core.Definitions.Identifiers;
 using FluentAssertions;
 
 namespace Bicep.Testing.Framework.Tests;
@@ -12,13 +13,23 @@ public class SnapshotHelpersTests
     [TestMethod]
     public void Resource_selection_uses_expected_case_sensitivity_and_requires_unique_matches()
     {
-        var first = new SnapshotResource { Id = "/id/first", Type = "Test/resources", Name = "first" };
-        var second = new SnapshotResource { Id = "/id/second", Type = "Test/resources", Name = "second" };
+        var first = new SnapshotResource
+        {
+            Id = ParseResourceId("/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/rg/providers/Test/resources/first"),
+            Type = "Test/resources",
+            Name = SnapshotValue<string>.FromValue("first"),
+        };
+        var second = new SnapshotResource
+        {
+            Id = ParseResourceId("/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/rg/providers/Test/resources/second"),
+            Type = "Test/resources",
+            Name = SnapshotValue<string>.FromValue("second"),
+        };
         var snapshot = new SnapshotResult { PredictedResources = [first, second], Diagnostics = [], Outputs = [] };
 
         snapshot.ResourcesOfType("test/RESOURCES").Should().Equal(first, second);
         snapshot.ResourcesOfType("Other/type").Should().BeEmpty();
-        snapshot.RequireResource("/ID/FIRST").Should().BeSameAs(first);
+        snapshot.RequireResource(first.Id.Value.FullyQualifiedId.ToUpperInvariant()).Should().BeSameAs(first);
         snapshot.RequireResource("test/RESOURCES", "second").Should().BeSameAs(second);
         var wrongCase = () => snapshot.RequireResource("Test/resources", "FIRST");
         wrongCase.Should().Throw<InvalidOperationException>().WithMessage("*found 0*");
@@ -26,10 +37,16 @@ public class SnapshotHelpersTests
         missing.Should().Throw<InvalidOperationException>().WithMessage("*found 0*");
 
         var duplicate = snapshot with { PredictedResources = [first, first] };
-        var ambiguousId = () => duplicate.RequireResource("/id/first");
+        var ambiguousId = () => duplicate.RequireResource(first.Id.Value.FullyQualifiedId);
         ambiguousId.Should().Throw<InvalidOperationException>().WithMessage("*found 2*");
         var ambiguousName = () => duplicate.RequireResource("Test/resources", "first");
         ambiguousName.Should().Throw<InvalidOperationException>().WithMessage("*found 2*");
+    }
+
+    private static SnapshotValue<SnapshotResourceIdentifier> ParseResourceId(string value)
+    {
+        ResourceId.TryParse(value, out var resourceId).Should().BeTrue();
+        return SnapshotValue<SnapshotResourceIdentifier>.FromValue(new(resourceId!));
     }
 
     [TestMethod]

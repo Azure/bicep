@@ -32,10 +32,11 @@ public class SnapshotTests
         snapshot.PredictedResources.Should().ContainSingle();
         storage.Properties.GetProperty("allowBlobPublicAccess").GetBoolean().Should().BeFalse();
         storage.Properties.GetProperty("minimumTlsVersion").GetString().Should().Be("TLS1_2");
-        storage.Location.Should().Be("eastus");
-        storage.Id.Should().Be("/subscriptions/00000000-0000-0000-0000-000000000002/resourceGroups/test-rg/providers/Microsoft.Storage/storageAccounts/teststorage");
-        storage.AdditionalProperties!["sku"].GetProperty("name").GetString().Should().Be("Standard_LRS");
-        snapshot.Outputs["storageId"].GetString().Should().Be(storage.Id);
+        storage.Location!.Value.Should().Be("eastus");
+        storage.Id.Value.SubscriptionId.Should().Be("00000000-0000-0000-0000-000000000002");
+        storage.Id.Value.ResourceGroup.Should().Be("test-rg");
+        storage.Sku!.Value.GetProperty("name").GetString().Should().Be("Standard_LRS");
+        snapshot.Outputs["storageId"].GetString().Should().Be(storage.Id.Value.FullyQualifiedId);
         snapshot.Outputs["tenantId"].GetString().Should().Be("00000000-0000-0000-0000-000000000001");
         snapshot.Outputs["deploymentName"].GetString().Should().Be("offline-test");
     }

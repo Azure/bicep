@@ -40,11 +40,13 @@ public class BicepTestSessionTests
                 {
                   "predictedResources": [
                     {
-                      "id": "/resource/id",
+                      "id": "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage",
                       "name": "storage",
                       "type": "Microsoft.Storage/storageAccounts",
                       "apiVersion": "2023-05-01",
                       "location": "eastus",
+                      "kind": "StorageV2",
+                      "managedBy": "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/owner",
                       "properties": { "allowBlobPublicAccess": false },
                       "sku": { "name": "Standard_LRS" },
                       "tags": { "environment": "test" }
@@ -56,7 +58,7 @@ public class BicepTestSessionTests
                     }
                   ],
                   "diagnostics": ["Evaluation warning"],
-                  "outputs": { "storageId": "/resource/id", "count": 2, "optional": null }
+                  "outputs": { "storageId": "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage", "count": 2, "optional": null }
                 }
                 """));
         client.Setup(x => x.Dispose());
@@ -66,18 +68,61 @@ public class BicepTestSessionTests
 
         snapshot.Diagnostics.Should().Equal("Evaluation warning");
         snapshot.PredictedResources.Should().HaveCount(2);
-        var storage = snapshot.RequireResource("/RESOURCE/ID");
+        var storage = snapshot.RequireResource("/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage");
         storage.ApiVersion.Should().Be("2023-05-01");
-        storage.Location.Should().Be("eastus");
+        storage.Id.HasValue().Should().BeTrue();
+        storage.Id.Value.SubscriptionId.Should().Be("00000000-0000-0000-0000-000000000001");
+        storage.Id.Value.ResourceGroup.Should().Be("rg");
+        storage.Location!.Value.Should().Be("eastus");
+        storage.Kind!.Value.Should().Be("StorageV2");
+        storage.ManagedBy!.Value.Should().Be("/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/owner");
         storage.Properties.GetProperty("allowBlobPublicAccess").GetBoolean().Should().BeFalse();
-        storage.AdditionalProperties!["sku"].GetProperty("name").GetString().Should().Be("Standard_LRS");
-        storage.AdditionalProperties["tags"].GetProperty("environment").GetString().Should().Be("test");
-        snapshot.PredictedResources[1].Id.Should().BeNull();
+        storage.Sku!.Value.GetProperty("name").GetString().Should().Be("Standard_LRS");
+        storage.Tags!.Value.GetProperty("environment").GetString().Should().Be("test");
+        snapshot.PredictedResources[1].Id.IsMissing.Should().BeTrue();
+        snapshot.PredictedResources[1].Id.HasValue().Should().BeFalse();
+        snapshot.PredictedResources[1].Id.Expression.Should().BeNull();
         snapshot.PredictedResources[1].AdditionalProperties!["identifiers"].GetProperty("name").GetString().Should().Be("custom");
-        snapshot.Outputs["storageId"].GetString().Should().Be("/resource/id");
+        snapshot.Outputs["storageId"].GetString().Should().Be(storage.Id.Value.FullyQualifiedId);
         snapshot.Outputs["count"].GetInt32().Should().Be(2);
         snapshot.Outputs["optional"].ValueKind.Should().Be(JsonValueKind.Null);
         client.Verify(x => x.GetSnapshot(It.IsAny<GetSnapshotRequest>(), cts.Token), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Unresolved_resource_values_expose_ARM_expressions()
+    {
+        var client = CreateClient("""
+            {
+              "predictedResources": [
+                {
+                  "id": "[resourceId('Microsoft.Storage/storageAccounts', 'storage')]",
+                  "name": "[parameters('storageName')]",
+                  "type": "Microsoft.Storage/storageAccounts",
+                  "apiVersion": "2023-05-01",
+                  "location": "[parameters('location')]",
+                  "kind": "[parameters('kind')]",
+                  "managedBy": "[parameters('owner')]",
+                  "properties": {}
+                }
+              ],
+              "diagnostics": [],
+              "outputs": {}
+            }
+            """);
+        using var session = new BicepTestSession(client.Object);
+
+        var snapshot = await session.SnapshotAsync(new() { FilePath = "main.bicepparam" });
+        var resource = snapshot.PredictedResources.Single();
+
+        resource.Id.HasValue().Should().BeFalse();
+        resource.Id.Expression!.Name.Should().Be("resourceId");
+        resource.Name!.Expression!.Name.Should().Be("parameters");
+        resource.Location!.Expression!.Name.Should().Be("parameters");
+        resource.Kind!.Expression!.Name.Should().Be("parameters");
+        resource.ManagedBy!.Expression!.Name.Should().Be("parameters");
+        var serializedId = JsonSerializer.Serialize(resource.Id);
+        JsonSerializer.Deserialize<SnapshotValue<SnapshotResourceIdentifier>>(serializedId)!.Expression!.Name.Should().Be("resourceId");
     }
 
     [TestMethod]

@@ -78,9 +78,10 @@ public class InfrastructureTests
         Assert.IsEmpty(snapshot.Diagnostics, string.Join(Environment.NewLine, snapshot.Diagnostics));
         var storage = snapshot.RequireResource("Microsoft.Storage/storageAccounts", "teststorage");
         Assert.IsFalse(storage.Properties.GetProperty("allowBlobPublicAccess").GetBoolean());
+        Assert.IsTrue(storage.Id.HasValue());
         Assert.AreEqual(
             "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/test-rg/providers/Microsoft.Storage/storageAccounts/teststorage",
-            storage.Id);
+            storage.Id.Value.FullyQualifiedId);
     }
 }
 ```
@@ -115,8 +116,14 @@ version for the latest snapshot fixes.
 ## Assertions and evaluation limits
 
 - `PredictedResources` contains flattened resources, including resources from
-  nested modules. `Properties` is a `JsonElement`; other fields such as `sku`,
-  `tags`, and `identity` are retained in `AdditionalProperties`.
+  nested modules. `Properties`, `Sku`, `Tags`, `Identity`, `Zones`, `Plan`, and
+  `ExtendedLocation` are `JsonElement`s; unknown fields are retained in
+  `AdditionalProperties`.
+- `Id`, `Name`, `Location`, `Kind`, and `ManagedBy` are `SnapshotValue<T>` values. Use
+  `HasValue()` and `Value` for resolved values, or `Expression` when a value
+  remains an ARM expression. `IsMissing` identifies absent values. Resolved IDs
+  expose the parsed Azure `ResourceId` and scope details through
+  `SnapshotResourceIdentifier`.
 - `ResourcesOfType(type)` compares types without case sensitivity.
   `RequireResource(id)` compares IDs without case sensitivity.
   `RequireResource(type, name)` compares the name case-sensitively.

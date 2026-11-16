@@ -10,6 +10,7 @@
     </Description>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Azure.Deployments.Expression" />
     <ProjectReference Include="..\Bicep.RpcClient\Bicep.RpcClient.csproj" />
   </ItemGroup>
 </Project>
