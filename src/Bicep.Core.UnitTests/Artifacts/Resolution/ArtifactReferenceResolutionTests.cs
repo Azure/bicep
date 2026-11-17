@@ -101,14 +101,14 @@ public class ArtifactReferenceResolutionTests
     private static string Describe(ResultWithDiagnosticBuilder<ArtifactReference> result) =>
         result.IsSuccess(out var reference, out var errorBuilder) ? Describe(reference) : Describe(errorBuilder);
 
-    private static string Describe(ArtifactResolutionInfo resolutionInfo)
+    private static string Describe(ArtifactDependency dependency)
     {
-        if (resolutionInfo.Reference is { } reference)
+        if (dependency.Reference is { } reference)
         {
             return Describe(reference);
         }
 
-        resolutionInfo.Result.IsSuccess(out _, out var errorBuilder).Should().BeFalse();
+        dependency.TryGetArtifact().IsSuccess(out _, out var errorBuilder).Should().BeFalse();
         return Describe(errorBuilder!);
     }
 
@@ -237,7 +237,7 @@ public class ArtifactReferenceResolutionTests
 
         var implicitExtension = grouping.ImplicitExtensions[entryPoint].Single(x => x.Name == "localExt");
 
-        Describe(implicitExtension.Artifact!).Should().Be("LocalArtifactReference ./extensions/local.tgz -> /repo/sub/extensions/local.tgz");
+        Describe(implicitExtension.Dependency!).Should().Be("LocalArtifactReference ./extensions/local.tgz -> /repo/sub/extensions/local.tgz");
     }
 
     [TestMethod]

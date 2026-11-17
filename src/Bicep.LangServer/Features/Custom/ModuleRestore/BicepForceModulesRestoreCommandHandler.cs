@@ -97,7 +97,8 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
 
             // refresh all compilations with a reference to this file or cached artifacts
             var artifactUris = artifactsToRestore
-                .Select(x => x.Result.TryUnwrap() switch
+                .OfType<ArtifactDependency.Loaded>()
+                .Select(x => x.Artifact switch
                 {
                     ModuleArtifact module => module.EntryPoint.Uri.ToDocumentUri(),
                     ExtensionArtifact extension => extension.Types.Uri.ToDocumentUri(),

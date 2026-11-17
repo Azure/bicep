@@ -267,8 +267,8 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             PendingFile file,
             BicepSourceFile entryFile)
         {
-            var reference = file.Model.SourceFileGrouping.ArtifactLookup.TryGetValue(module.DeclaringModule, out var artifact)
-                ? artifact.Reference
+            var reference = file.Model.SourceFileGrouping.ArtifactLookup.TryGetValue(module.DeclaringModule, out var dependency)
+                ? dependency.Reference
                 : null;
 
             if (file.Archive is not { } archive)

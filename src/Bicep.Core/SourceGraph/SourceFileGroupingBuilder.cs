@@ -29,7 +29,7 @@ namespace Bicep.Core.SourceGraph
         private readonly ISourceFileFactory sourceFileFactory;
 
         private readonly Dictionary<IOUri, ResultWithDiagnosticBuilder<ISourceFile>> fileResultByUri;
-        private readonly Dictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> artifactLookup;
+        private readonly Dictionary<IArtifactReferenceSyntax, ArtifactDependency> artifactLookup;
         private readonly Dictionary<ISourceFile, HashSet<ImplicitExtension>> implicitExtensions;
         private readonly bool forceRestore;
 
@@ -66,7 +66,7 @@ namespace Bicep.Core.SourceGraph
             this.restorer = restorer;
             this.workspace = workspace;
             this.sourceFileFactory = sourceFileFactory;
-            this.artifactLookup = current.ArtifactLookup.Where(x => x.Value.Result.IsSuccess()).ToDictionary();
+            this.artifactLookup = current.ArtifactLookup.Where(x => x.Value is ArtifactDependency.Loaded).ToDictionary();
             this.implicitExtensions = current.ImplicitExtensions.ToDictionary(x => x.Key, x => x.Value.ToHashSet());
             this.fileResultByUri = current.SourceFileLookup.ToDictionary();
             this.forceRestore = forceArtifactRestore;
@@ -84,15 +84,15 @@ namespace Bicep.Core.SourceGraph
             var builder = new SourceFileGroupingBuilder(fileExplorer, referenceResolver, restorer, workspace, sourceFileFactory, current);
 
             var sourceFilesRequiringRestore = new HashSet<ISourceFile>();
-            foreach (var (syntax, artifact) in current.ArtifactLookup.Where(x => SourceFileGrouping.ShouldRestore(x.Value)))
+            foreach (var (syntax, dependency) in current.ArtifactLookup.Where(x => SourceFileGrouping.ShouldRestore(x.Value)))
             {
                 builder.artifactLookup.Remove(syntax);
-                sourceFilesRequiringRestore.Add(artifact.ReferencingFile);
+                sourceFilesRequiringRestore.Add(dependency.ReferencingFile);
             }
 
             foreach (var (file, extensions) in current.ImplicitExtensions)
             {
-                foreach (var extension in extensions.Where(x => x.Artifact is { } artifact && SourceFileGrouping.ShouldRestore(artifact)))
+                foreach (var extension in extensions.Where(x => x.Dependency is { } dependency && SourceFileGrouping.ShouldRestore(dependency)))
                 {
                     builder.implicitExtensions[file].Remove(extension);
                     sourceFilesRequiringRestore.Add(file);
@@ -210,15 +210,15 @@ namespace Bicep.Core.SourceGraph
                         continue;
                     }
 
-                    artifactLookup[restorable] = GetArtifactRestoreResult(file, restorable);
+                    artifactLookup[restorable] = GetArtifactDependency(file, restorable);
 
                     // recursion not needed for extension declarations
                     continue;
                 }
 
-                var resolutionInfo = GetArtifactRestoreResult(file, restorable);
-                artifactLookup[restorable] = resolutionInfo;
-                if (!resolutionInfo.Result.IsSuccess(out var artifact) || artifact is not ModuleArtifact moduleArtifact)
+                var dependency = GetArtifactDependency(file, restorable);
+                artifactLookup[restorable] = dependency;
+                if (dependency is not ArtifactDependency.Loaded { Artifact: ModuleArtifact moduleArtifact })
                 {
                     // recursion not possible
                     continue;
@@ -241,54 +241,51 @@ namespace Bicep.Core.SourceGraph
         {
             if (!config.Extensions.TryGetExtensionSource(extensionName).IsSuccess(out var extensionEntry, out var errorBuilder))
             {
-                return new(extensionName, null, new(referencingFile, null, null, new(errorBuilder), RequiresRestore: false));
+                // The extension is listed in "implicitExtensions" but has no entry in "extensions".
+                return new(extensionName, new ArtifactDependency.Failed(referencingFile, null, null, x => x.InvalidExtension_ImplicitExtensionMissingConfig(config.ConfigFileUri, extensionName)));
             }
 
             if (extensionEntry.BuiltIn)
             {
-                return new(extensionName, extensionEntry, null);
+                return new(extensionName, null);
             }
 
             if (!referenceResolver.TryResolve(referencingFile.FileHandle.Uri, ArtifactType.Extension, extensionEntry.Value).IsSuccess(out var artifactReference, out errorBuilder))
             {
                 // reference is not valid
-                return new(extensionName, extensionEntry, new(referencingFile, null, null, new(errorBuilder), RequiresRestore: false));
+                return new(extensionName, new ArtifactDependency.Failed(referencingFile, null, null, errorBuilder));
             }
 
-            var (result, requiresRestore) = GetArtifactRestoreResult(referencingFile, artifactReference);
-            return new(extensionName, extensionEntry, new(referencingFile, null, artifactReference, result, RequiresRestore: requiresRestore));
+            return new(extensionName, GetArtifactDependency(referencingFile, null, artifactReference));
         }
 
-        private ArtifactResolutionInfo GetArtifactRestoreResult(BicepSourceFile referencingFile, IArtifactReferenceSyntax referenceSyntax)
+        private ArtifactDependency GetArtifactDependency(BicepSourceFile referencingFile, IArtifactReferenceSyntax referenceSyntax)
         {
             if (!ArtifactReferenceText.TryGet(referencingFile, referenceSyntax).IsSuccess(out var referenceText, out var errorBuilder) ||
                 !referenceResolver.TryResolve(referencingFile.FileHandle.Uri, referenceSyntax.GetArtifactType(), referenceText).IsSuccess(out var artifactReference, out errorBuilder))
             {
                 // artifact reference is not valid
-                return new(referencingFile, referenceSyntax, null, new(errorBuilder), RequiresRestore: false);
+                return new ArtifactDependency.Failed(referencingFile, referenceSyntax, null, errorBuilder);
             }
 
-            var (result, requiresRestore) = GetArtifactRestoreResult(referencingFile, artifactReference);
-
-            return new(referencingFile, referenceSyntax, artifactReference, result, RequiresRestore: requiresRestore);
+            return GetArtifactDependency(referencingFile, referenceSyntax, artifactReference);
         }
 
-        private (ResultWithDiagnosticBuilder<Artifact> result, bool requiresRestore) GetArtifactRestoreResult(BicepSourceFile referencingFile, ArtifactReference artifactReference) => artifactReference switch
+        private ArtifactDependency GetArtifactDependency(BicepSourceFile referencingFile, IArtifactReferenceSyntax? referenceSyntax, ArtifactReference artifactReference) => artifactReference switch
         {
             // Local files are loaded directly; they are never restored.
-            LocalArtifactReference local => (LocalArtifactLoader.TryOpen(local, referencingFile.LoadFeatures().CacheRootDirectory), requiresRestore: false),
-            RemoteArtifactReference external => this.GetRemoteArtifactRestoreResult(external),
-            _ => throw new InvalidOperationException($"Unexpected artifact reference type '{artifactReference.GetType().Name}'."),
-        };
-
-        private (ResultWithDiagnosticBuilder<Artifact> result, bool requiresRestore) GetRemoteArtifactRestoreResult(RemoteArtifactReference artifactReference) =>
-            restorer.GetRestoreState(artifactReference) switch
+            LocalArtifactReference local => LocalArtifactLoader.TryOpen(local, referencingFile.LoadFeatures().CacheRootDirectory).IsSuccess(out var artifact, out var errorBuilder)
+                ? new ArtifactDependency.Loaded(referencingFile, referenceSyntax, artifact)
+                : new ArtifactDependency.Failed(referencingFile, referenceSyntax, local, errorBuilder),
+            RemoteArtifactReference remote => restorer.GetRestoreState(remote) switch
             {
                 // A recent restore failed. Report it rather than retrying, even when a restore is forced.
-                RemoteArtifactRestoreState.RestoreFailed failed => (new(failed.Error), requiresRestore: false),
-                RemoteArtifactRestoreState.Restored restored when !forceRestore => (new(restored.Artifact), requiresRestore: false),
-                _ => (new(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference)), requiresRestore: true),
-            };
+                RemoteArtifactRestoreState.RestoreFailed failed => new ArtifactDependency.Failed(referencingFile, referenceSyntax, remote, failed.Error),
+                RemoteArtifactRestoreState.Restored restored when !forceRestore => new ArtifactDependency.Loaded(referencingFile, referenceSyntax, restored.Artifact),
+                _ => new ArtifactDependency.NotRestored(referencingFile, referenceSyntax, remote),
+            },
+            _ => throw new InvalidOperationException($"Unexpected artifact reference type '{artifactReference.GetType().Name}'."),
+        };
 
         private ILookup<ISourceFile, ISourceFile> ReportFailuresForCycles()
         {
@@ -296,7 +293,9 @@ namespace Bicep.Core.SourceGraph
                 .Select(x => x.TryUnwrap())
                 .WhereNotNull()
                 .SelectMany(sourceFile => GetArtifactReferenceDeclarations(sourceFile)
-                    .Select(x => this.artifactLookup.TryGetValue(x)?.Result.TryUnwrap())
+                    .Select(x => this.artifactLookup.TryGetValue(x))
+                    .OfType<ArtifactDependency.Loaded>()
+                    .Select(dependency => dependency.Artifact)
                     .OfType<ModuleArtifact>()
                     .Select(artifact => this.fileResultByUri.TryGetValue(artifact.EntryPoint.Uri)?.TryUnwrap())
                     .WhereNotNull()
@@ -305,23 +304,23 @@ namespace Bicep.Core.SourceGraph
                 .ToLookup(x => x.sourceFile, x => x.referencedFile);
 
             var cycles = CycleDetector<ISourceFile>.FindCycles(sourceFileGraph);
-            foreach (var (statement, info) in artifactLookup)
+            foreach (var (statement, dependency) in artifactLookup)
             {
                 if (statement.GetArtifactType() == ArtifactType.Module &&
-                    info.Result.TryUnwrap() is ModuleArtifact artifact &&
+                    dependency is ArtifactDependency.Loaded { Artifact: ModuleArtifact artifact } &&
                     fileResultByUri[artifact.EntryPoint.Uri].IsSuccess(out var sourceFile) &&
                     cycles.TryGetValue(sourceFile, out var cycle))
                 {
-                    ResultWithDiagnosticBuilder<Artifact> result = cycle switch
+                    DiagnosticBuilderDelegate error = cycle switch
                     {
-                        { Length: 1 } when cycle[0] is BicepParamFile paramFile => new(x => x.CyclicParametersSelfReference()),
-                        { Length: 1 } => new(x => x.CyclicModuleSelfReference()),
+                        { Length: 1 } when cycle[0] is BicepParamFile paramFile => x => x.CyclicParametersSelfReference(),
+                        { Length: 1 } => x => x.CyclicModuleSelfReference(),
                         // the error message is generic so it should work for either bicep module or params
-                        _ => new(x => x.CyclicFile(cycle.Select(u => u.FileHandle.Uri.ToString()))),
+                        _ => x => x.CyclicFile(cycle.Select(u => u.FileHandle.Uri.ToString())),
                     };
 
                     // overwrite to add the cycle error
-                    artifactLookup[statement] = info with { Result = result };
+                    artifactLookup[statement] = new ArtifactDependency.Failed(dependency.ReferencingFile, dependency.Syntax, artifact.Reference, error);
                 }
             }
 

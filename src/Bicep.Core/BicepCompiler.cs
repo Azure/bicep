@@ -120,19 +120,19 @@ public class BicepCompiler
             [],
             compilerVersionCheckOptions);
 
-    private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ArtifactResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
+    private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ArtifactDependency> originalModulesToRestore, bool forceModulesRestore)
     {
         static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, IArtifactReferenceSyntax moduleDeclaration)
             => grouping.TryGetSourceFile(moduleDeclaration).IsSuccess(out _, out var errorBuilder) ? null : errorBuilder(DiagnosticBuilder.ForPosition(moduleDeclaration.SourceSyntax));
 
-        static IEnumerable<(BicepSourceFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ArtifactResolutionInfo> originalArtifactsToRestore)
+        static IEnumerable<(BicepSourceFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ArtifactDependency> originalArtifactsToRestore)
         {
-            foreach (var artifact in originalArtifactsToRestore)
+            foreach (var dependency in originalArtifactsToRestore)
             {
-                if (artifact.Syntax is not null and not ExtensionDeclarationSyntax &&
-                    DiagnosticForModule(grouping, artifact.Syntax) is { } diagnostic)
+                if (dependency.Syntax is not null and not ExtensionDeclarationSyntax &&
+                    DiagnosticForModule(grouping, dependency.Syntax) is { } diagnostic)
                 {
-                    yield return (artifact.ReferencingFile, diagnostic);
+                    yield return (dependency.ReferencingFile, diagnostic);
                 }
             }
         }

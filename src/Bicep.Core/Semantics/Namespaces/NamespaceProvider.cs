@@ -57,7 +57,7 @@ public class NamespaceProvider : INamespaceProvider
 
         // sys isn't included in the implicit extensions config, because we don't want users to customize it.
         // for the purposes of this logic, it's simpler to treat it as if it is.
-        implicitExtensions[SystemNamespaceType.BuiltInName] = new ImplicitExtension(SystemNamespaceType.BuiltInName, new("builtin:"), null);
+        implicitExtensions[SystemNamespaceType.BuiltInName] = new ImplicitExtension(SystemNamespaceType.BuiltInName, null);
 
         foreach (var (extensionName, implicitExtension) in implicitExtensions)
         {
@@ -67,23 +67,9 @@ public class NamespaceProvider : INamespaceProvider
                 continue;
             }
 
-            var nsType = GetNamespaceTypeForImplicitExtension(sourceFile, targetScope, implicitExtension, null);
+            var nsType = GetNamespaceTypeForConfigManagedExtension(sourceFile, targetScope, implicitExtension.Dependency, null, extensionName);
             yield return new(extensionName, nsType, null);
         }
-    }
-
-    private TypeSymbol GetNamespaceTypeForImplicitExtension(
-        BicepSourceFile sourceFile,
-        ResourceScope targetScope,
-        ImplicitExtension extension,
-        ExtensionDeclarationSyntax? syntax)
-    {
-        if (extension.Config is null)
-        {
-            return ErrorType.Create(DiagnosticBuilder.ForDocumentStart().InvalidExtension_ImplicitExtensionMissingConfig(sourceFile.LoadConfiguration().ConfigFileUri, extension.Name));
-        }
-
-        return GetNamespaceTypeForConfigManagedExtension(sourceFile, targetScope, extension.Artifact, syntax, extension.Name);
     }
 
     private TypeSymbol GetNamespaceType(
@@ -98,9 +84,9 @@ public class NamespaceProvider : INamespaceProvider
             return ErrorType.Empty();
         }
 
-        if (artifactFileLookup.ArtifactLookup.TryGetValue(syntax, out var artifact))
+        if (artifactFileLookup.ArtifactLookup.TryGetValue(syntax, out var dependency))
         {
-            if (GetNamespaceTypeForArtifact(artifact, sourceFile, targetScope, syntax.TryGetSymbolName()).IsSuccess(out var namespaceType, out var errorBuilder))
+            if (GetNamespaceTypeForArtifact(dependency, sourceFile, targetScope, syntax.TryGetSymbolName()).IsSuccess(out var namespaceType, out var errorBuilder))
             {
                 return namespaceType;
             }
@@ -120,17 +106,17 @@ public class NamespaceProvider : INamespaceProvider
     protected virtual TypeSymbol GetNamespaceTypeForConfigManagedExtension(
         BicepSourceFile sourceFile,
         ResourceScope targetScope,
-        ArtifactResolutionInfo? artifact,
+        ArtifactDependency? dependency,
         ExtensionDeclarationSyntax? syntax,
         string extensionName)
     {
         var aliasName = syntax?.TryGetSymbolName() ?? extensionName;
         var diagBuilder = syntax is { } ? DiagnosticBuilder.ForPosition(syntax) : DiagnosticBuilder.ForDocumentStart();
 
-        if (artifact is { })
+        if (dependency is { })
         {
             // not a built-in extension
-            if (GetNamespaceTypeForArtifact(artifact, sourceFile, targetScope, aliasName).IsSuccess(out var namespaceType, out var errorBuilder))
+            if (GetNamespaceTypeForArtifact(dependency, sourceFile, targetScope, aliasName).IsSuccess(out var namespaceType, out var errorBuilder))
             {
                 return namespaceType;
             }
@@ -173,16 +159,16 @@ public class NamespaceProvider : INamespaceProvider
         return ErrorType.Create(diagBuilder.InvalidExtension_NotABuiltInExtension(sourceFile.LoadConfiguration().ConfigFileUri, extensionName));
     }
 
-    private ResultWithDiagnosticBuilder<NamespaceType> GetNamespaceTypeForArtifact(ArtifactResolutionInfo artifact, BicepSourceFile sourceFile, ResourceScope targetScope, string? aliasName)
+    private ResultWithDiagnosticBuilder<NamespaceType> GetNamespaceTypeForArtifact(ArtifactDependency dependency, BicepSourceFile sourceFile, ResourceScope targetScope, string? aliasName)
     {
-        if (!artifact.Result.IsSuccess(out var openedArtifact, out var errorBuilder))
+        if (!dependency.TryGetArtifact().IsSuccess(out var artifact, out var errorBuilder))
         {
             return new(errorBuilder);
         }
 
-        if (openedArtifact is not ExtensionArtifact extensionArtifact)
+        if (artifact is not ExtensionArtifact extensionArtifact)
         {
-            throw new InvalidOperationException($"Expected an extension, but the artifact for '{openedArtifact.Reference.FullyQualifiedReference}' is a {openedArtifact.Reference.Type}.");
+            throw new InvalidOperationException($"Expected an extension, but the artifact for '{artifact.Reference.FullyQualifiedReference}' is a {artifact.Reference.Type}.");
         }
 
         if (!resourceTypeProviderFactory.GetResourceTypeProvider(extensionArtifact.Types).IsSuccess(out var typeProvider, out errorBuilder))

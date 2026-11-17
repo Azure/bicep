@@ -4,8 +4,6 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using Bicep.Core.Artifacts;
-using Bicep.Core.Artifacts.References;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
@@ -14,48 +12,44 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.SourceGraph;
 
+/// <summary>
+/// An extension that the Bicep configuration loads into every file ("implicitExtensions").
+/// </summary>
+/// <param name="Dependency">The extension's artifact, or <c>null</c> for a built-in extension.</param>
 public record ImplicitExtension(
     string Name,
-    ExtensionConfigEntry? Config,
-    ArtifactResolutionInfo? Artifact);
-
-public record ArtifactResolutionInfo(
-    BicepSourceFile ReferencingFile,
-    IArtifactReferenceSyntax? Syntax,
-    ArtifactReference? Reference,
-    ResultWithDiagnosticBuilder<Artifact> Result,
-    bool RequiresRestore);
+    ArtifactDependency? Dependency);
 
 public record SourceFileGrouping(
     BicepSourceFile EntryPoint,
     ImmutableArray<ISourceFile> SourceFiles,
     ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup,
-    ImmutableDictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> ArtifactLookup,
+    ImmutableDictionary<IArtifactReferenceSyntax, ArtifactDependency> ArtifactLookup,
     ImmutableDictionary<ISourceFile, ImmutableHashSet<ImplicitExtension>> ImplicitExtensions,
     ImmutableDictionary<IOUri, ResultWithDiagnosticBuilder<ISourceFile>> SourceFileLookup) : IArtifactFileLookup
 {
-    public IEnumerable<ArtifactResolutionInfo> GetArtifactsToRestore(bool force = false)
+    public IEnumerable<ArtifactDependency> GetArtifactsToRestore(bool force = false)
     {
-        foreach (var (_, artifact) in ArtifactLookup.Where(x => ShouldRestore(x.Value, force)))
+        foreach (var (_, dependency) in ArtifactLookup.Where(x => ShouldRestore(x.Value, force)))
         {
-            yield return artifact;
+            yield return dependency;
         }
 
         foreach (var (file, extensions) in ImplicitExtensions)
         {
-            foreach (var artifact in extensions.Select(x => x.Artifact).WhereNotNull().Where(artifact => ShouldRestore(artifact, force)))
+            foreach (var dependency in extensions.Select(x => x.Dependency).WhereNotNull().Where(dependency => ShouldRestore(dependency, force)))
             {
-                yield return artifact;
+                yield return dependency;
             }
         }
     }
 
-    public static bool ShouldRestore(ArtifactResolutionInfo artifact, bool force = false)
-        => force || (!artifact.Result.IsSuccess() && artifact.RequiresRestore);
+    public static bool ShouldRestore(ArtifactDependency dependency, bool force = false)
+        => force || dependency is ArtifactDependency.NotRestored;
 
     public ResultWithDiagnosticBuilder<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax reference)
     {
-        if (!ArtifactLookup[reference].Result.IsSuccess(out var artifact, out var errorBuilder))
+        if (!ArtifactLookup[reference].TryGetArtifact().IsSuccess(out var artifact, out var errorBuilder))
         {
             return new(errorBuilder);
         }

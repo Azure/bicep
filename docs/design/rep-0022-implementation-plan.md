@@ -27,7 +27,7 @@ The work has two parts:
 | 0.9c | The compiler gets artifacts, not files | – | In review |
 | 1–10 | REP 0022 features (section 5) | – | Next |
 
-Restructuring the source file grouping (`ArtifactResolutionInfo`) is a separate effort, not yet designed.
+Restructuring the source file grouping into per-file nodes is a separate effort, outside this plan.
 
 ---
 
@@ -257,7 +257,7 @@ local extension:  .tgz -> LocalExtensionArtifactCodec.Decode -> package -> Local
 Consumers after 0.9c:
 
 - **Restore state:** `RemoteArtifactRestoreState.Restored(Artifact)`.
-- **Source graph:** `ArtifactResolutionInfo.Result` is a `ResultWithDiagnosticBuilder<Artifact>`, and it chooses the parser from `ModuleArtifact.Kind`.
+- **Source graph:** each declaration's `ArtifactDependency` is `Loaded(Artifact)`, `NotRestored` or `Failed`, and the source graph chooses the parser from `ModuleArtifact.Kind`.
 - **Extensions:** `NamespaceProvider` reads `ExtensionArtifact.Types`.
 - **Local deploy:** `NamespaceType.ExtensionArtifact?.Binary` gives the binary.
 - **Language server:** it calls `ModuleArtifact.TryGetSources()`, from the source graph when it has a compilation (go to definition, source archives) and from the restorer when it doesn't (ext-src requests, document links, code lenses, the visualizer).
@@ -512,7 +512,7 @@ Every Phase 0 PR leaves all baselines unchanged. Diagnostic text isn't frozen: a
   - `LocalArtifactLoaderTests` cover modules, extraction, this machine's binary, an unsupported architecture and concurrent loads on a real file system. `LocalArtifactReferenceTests` keeps only the identity tests.
 - **0.9c: the compiler gets artifacts.**
   - `Artifact` (with `Reference`) and `ModuleArtifact` (`EntryPoint`, `Kind`, `TryGetSources()`) were added, and `ExtensionArtifact` derives from `Artifact`. Each cache entry overrides `ArtifactCacheEntry.Open(ArtifactReference)` with its own artifact type: OCI modules open as `ArmTemplate` with their `source.tgz`, Template Specs as `TemplateSpec`, and both extension entries through `ExtensionArtifactCacheLayout.Open(reference)`.
-  - `IRemoteArtifactRegistry.TryOpen` and `LocalArtifactLoader.TryOpen` replaced `TryGetEntryPoint`. `RemoteArtifactRestoreState.Restored` carries the `Artifact`, and `ArtifactResolutionInfo.Result` is a `ResultWithDiagnosticBuilder<Artifact>`; the new `IArtifactFileLookup.TryGetArtifact()` extension method reads it.
+  - `IRemoteArtifactRegistry.TryOpen` and `LocalArtifactLoader.TryOpen` replaced `TryGetEntryPoint`. `RemoteArtifactRestoreState.Restored` carries the `Artifact`, and the source graph stores it in `ArtifactDependency.Loaded` (below); the new `IArtifactFileLookup.TryGetArtifact()` extension method reads it.
   - `ArtifactCacheEntry.EntryPoint` was removed: callers get the file from the opened artifact (`ModuleArtifact.EntryPoint`, `ExtensionArtifact.Types`). OCI entries keep a protected `ContentFile` for their completeness check.
   - The source graph recurses into `ModuleArtifact.EntryPoint` and chooses the parser from `ModuleArtifact.Kind` instead of the reference type. `NamespaceProvider` reads `ExtensionArtifact.Types` and passes the source graph's `ExtensionArtifact` to `NamespaceType`, so it no longer opens the extension from its types file's directory. The MCP server reads restored extensions' `Types`.
   - `TryLoadSourceArchive` (`SourceLink/OciModuleReferenceExtensions.cs`) was deleted; only the registries and `LocalArtifactLoader` create cache entries. `ModuleArtifact.TryGetSources()` keeps the old result type and fails with `SourceNotAvailableException` for a module without sources, which every caller already handles. Go to definition and source archives use the source graph's artifact; ext-src requests, document links, code lenses and the visualizer ask the restorer, so the code-lens and document-link handlers now take `IRemoteArtifactRestorer`.
@@ -521,6 +521,8 @@ Every Phase 0 PR leaves all baselines unchanged. Diagnostic text isn't frozen: a
     - New: "The module '…' has not been restored." for an ext-src request or a code lens on a module that isn't in the cache.
   - Behavior changes, all in the language server: ext-src requests, document links, code lenses and the visualizer read sources only from restored modules. Before, they read the cache directly, so they showed a cached module even if its registry was no longer trusted or its cache entry was incomplete.
   - `OciArtifactRegistryTryOpenTests` (was `OciArtifactRegistryEntryPointTests`) and `LocalArtifactLoaderTests` check the artifact types, kinds and references. New tests cover the ext-src handler and code lenses on a module that isn't restored.
+  - **`ArtifactDependency` replaced `ArtifactResolutionInfo`.** The old record's `Reference`, `Result` and `RequiresRestore` had to agree with each other. `ArtifactDependency` has one nested type per state: `Loaded(Artifact)`, `NotRestored(RemoteArtifactReference)` and `Failed(ArtifactReference?, Error)`, the reference being `null` when the text didn't resolve. `Reference` and `TryGetArtifact()` are derived from the state, `RequiresRestore` is gone (`ShouldRestore` is `force || dependency is NotRestored`), and the builder's `(result, requiresRestore)` tuples and the cycle override (`info with { Result = … }`) construct states instead. `ImplicitExtension.Artifact` became `Dependency`.
+  - **`ImplicitExtension.Config` was removed.** For an implicit extension with no `extensions` entry, the builder stored the configuration's error while `NamespaceProvider` reported BCP397 from its own `Config is null` check, so the stored error was never read. The builder now stores BCP397 in the `Failed` dependency, and implicit extensions take the same path as declared ones. The reported errors don't change; a new `ExtensionRegistryTests` case pins BCP397, which no test covered.
 
 ### 4.2 Remaining phases
 
@@ -535,7 +537,7 @@ None: Phase 0 ended with 0.9c.
 
 ### 4.4 Validation notes
 
-- **Last full run (0.9c):** `dotnet build Bicep.slnx --no-restore` with 0 warnings; `dotnet test --solution Bicep.slnx --no-build` with 16,504 passed, 3 skipped and 0 failed. No baseline changes. 0.9b: 16,471 passed and 3 skipped. 0.9a: 16,395 passed, 3 skipped and 9 failed (`Bicep.LangServer.IntegrationTests` and `Bicep.RpcClient.Tests`, which then passed on their own). 0.8b: 16,108 passed and 1 skipped. Each earlier phase ran the full suite; its results are in the PR description.
+- **Last full run (0.9c):** `dotnet build Bicep.slnx --no-restore` with 0 warnings; `dotnet test --solution Bicep.slnx --no-build` with 16,506 passed, 3 skipped and 0 failed. No baseline changes. 0.9b: 16,471 passed and 3 skipped. 0.9a: 16,395 passed, 3 skipped and 9 failed (`Bicep.LangServer.IntegrationTests` and `Bicep.RpcClient.Tests`, which then passed on their own). 0.8b: 16,108 passed and 1 skipped. Each earlier phase ran the full suite; its results are in the PR description.
 - **Disk space:** the integration tests leave about 18 GB in `bin/Debug/net10.0/TestOutput` folders across runs. When the disk fills, about a hundred tests fail with "There is not enough space on the disk"; deleting those folders fixes it.
 - **Test runner flags:** these test runners use Microsoft.Testing.Platform and don't accept `--blame-hang-timeout` or `--output Minimal`. A run with either flag executes zero tests.
 - **Wasm DI:** `AddBicepDecompiler` calls `AddBicepCore` again, so Wasm removes the default registries after both calls.

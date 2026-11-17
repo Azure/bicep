@@ -123,10 +123,10 @@ namespace Bicep.Core.SourceLink
                     continue;
                 }
 
-                foreach (var artifactResolutionInfo in grouping)
+                foreach (var dependency in grouping)
                 {
-                    if (artifactResolutionInfo.Syntax is { Path: { } path } &&
-                        artifactResolutionInfo.Result.TryUnwrap() is ModuleArtifact artifact &&
+                    if (dependency.Syntax is { Path: { } path } &&
+                        dependency is ArtifactDependency.Loaded { Artifact: ModuleArtifact artifact } &&
                         sourceFileGrouping.SourceFileLookup.TryGetValue(artifact.EntryPoint.Uri, out var sourceFileResult) &&
                         sourceFileResult.IsSuccess(out var referencedFile) &&
                         ShouldArchiveSourceFile(referencedFile))
@@ -204,7 +204,8 @@ namespace Bicep.Core.SourceLink
             };
 
             var sourceArtifactIdBySourceFileUri = sourceFileGrouping.ArtifactLookup.Values
-                .Select(x => x.Result.TryUnwrap())
+                .OfType<ArtifactDependency.Loaded>()
+                .Select(x => x.Artifact)
                 .OfType<ModuleArtifact>()
                 .Where(x => x.Reference is OciArtifactReference)
                 .DistinctBy(x => x.EntryPoint.Uri)
