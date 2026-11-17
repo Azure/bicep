@@ -18,7 +18,7 @@ public class BicepConfigResolverTests
 
     private string WriteConfig(string relativePath, string content)
     {
-        var path = Path.Combine(Root, relativePath);
+        var path = Path.GetFullPath(Path.Combine(Root, relativePath));
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         File.WriteAllText(path, content);
         return path;
