@@ -263,6 +263,37 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
+    public void Imported_private_functions_with_the_same_name_are_ordered_by_namespace()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                import { aThing } from 'a.bicep'
+                import { bThing } from 'b.bicep'
+
+                output result string = '${aThing('x')}${bThing('y')}'
+                """),
+            ("a.bicep", """
+                func helper(x string) string => 'a-${x}'
+
+                @export()
+                func aThing(x string) string => helper(x)
+                """),
+            ("b.bicep", """
+                func helper(x string) string => 'b-${x}'
+
+                @export()
+                func bThing(x string) string => helper(x)
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("functions[0].namespace", EmitConstants.UserDefinedFunctionsNamespace);
+        result.Template.Should().HaveValueAtPath("functions[1].namespace", "_1");
+        result.Template.Should().HaveValueAtPath("functions[2].namespace", "_2");
+        result.Template.Should().HaveValueAtPath("functions[0].members.aThing.output.value", "[_1.helper(parameters('x'))]");
+        result.Template.Should().HaveValueAtPath("functions[0].members.bThing.output.value", "[_2.helper(parameters('x'))]");
+    }
+
+    [TestMethod]
     public void Type_symbols_imported_from_ARM_json_should_have_declarations_injected_into_compiled_template()
     {
         var result = CompilationHelper.Compile(

@@ -125,7 +125,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
 
         return new([.. importedTypes.Values.OrderBy(dte => dte.Name)],
             [.. importedVariables.Values.OrderBy(dve => dve.Name)],
-            [.. importedFunctions.Values.OrderBy(dfe => dfe.Name)],
+            [.. importedFunctions.Values.OrderBy(dfe => dfe.Name).ThenBy(dfe => dfe.Namespace, StringComparer.Ordinal)],
             importedSymbolNames,
             wildcardImportPropertyNames,
             importedSymbolMetadata.ToImmutable());
