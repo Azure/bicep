@@ -19,8 +19,7 @@ public static class SnapshotHelpers
     /// </summary>
     public static SnapshotResource RequireResource(this SnapshotResult snapshot, string id)
         => RequireSingle(snapshot.PredictedResources.Where(resource =>
-            resource.Id.HasValue() &&
-            string.Equals(resource.Id.Value.FullyQualifiedId, id, StringComparison.OrdinalIgnoreCase)), id);
+            string.Equals(resource.Id, id, StringComparison.OrdinalIgnoreCase)), id);
 
     /// <summary>
     /// Selects exactly one resource by case-insensitive type and case-sensitive name.
@@ -28,9 +27,7 @@ public static class SnapshotHelpers
     /// </summary>
     public static SnapshotResource RequireResource(this SnapshotResult snapshot, string type, string name)
         => RequireSingle(snapshot.ResourcesOfType(type).Where(resource =>
-            resource.Name is { } resourceName &&
-            resourceName.HasValue() &&
-            string.Equals(resourceName.Value, name, StringComparison.Ordinal)), $"{type}/{name}");
+            string.Equals(resource.Name, name, StringComparison.Ordinal)), $"{type}/{name}");
 
     private static SnapshotResource RequireSingle(IEnumerable<SnapshotResource> resources, string selector)
     {

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.RpcClient;
+using Azure.Deployments.Core.Definitions.Identifiers;
 using FluentAssertions;
 
 namespace Bicep.Testing.Framework.Tests;
@@ -32,11 +33,13 @@ public class SnapshotTests
         snapshot.PredictedResources.Should().ContainSingle();
         storage.Properties.GetProperty("allowBlobPublicAccess").GetBoolean().Should().BeFalse();
         storage.Properties.GetProperty("minimumTlsVersion").GetString().Should().Be("TLS1_2");
-        storage.Location!.Value.Should().Be("eastus");
-        storage.Id.Value.SubscriptionId.Should().Be("00000000-0000-0000-0000-000000000002");
-        storage.Id.Value.ResourceGroup.Should().Be("test-rg");
+        storage.Location.Should().Be("eastus");
+        storage.TryParseId().Should().BeOfType<ResourceGroupLevelResourceId>()
+            .Which.SubscriptionId.Should().Be("00000000-0000-0000-0000-000000000002");
+        storage.TryParseId().Should().BeOfType<ResourceGroupLevelResourceId>()
+            .Which.ResourceGroup.Should().Be("test-rg");
         storage.Sku!.Value.GetProperty("name").GetString().Should().Be("Standard_LRS");
-        snapshot.Outputs["storageId"].GetString().Should().Be(storage.Id.Value.FullyQualifiedId);
+        snapshot.Outputs["storageId"].GetString().Should().Be(storage.Id);
         snapshot.Outputs["tenantId"].GetString().Should().Be("00000000-0000-0000-0000-000000000001");
         snapshot.Outputs["deploymentName"].GetString().Should().Be("offline-test");
     }
@@ -69,8 +72,8 @@ public class SnapshotTests
         snapshot.Outputs["scopeId"].GetString().Should().Be("/providers/Microsoft.Management/managementGroups/platform");
     }
 
-    private Task<BicepTestSession> CreateSession(BicepConnectionMode connectionMode = BicepConnectionMode.NamedPipe)
-        => BicepTestSession.CreateAsync(new BicepClientConfiguration
+    private Task<BicepTestHelper> CreateSession(BicepConnectionMode connectionMode = BicepConnectionMode.NamedPipe)
+        => BicepTestHelper.CreateAsync(new BicepClientConfiguration
         {
             ExistingCliPath = Path.Combine(AppContext.BaseDirectory, OperatingSystem.IsWindows() ? "bicep.exe" : "bicep"),
             ConnectionMode = connectionMode,

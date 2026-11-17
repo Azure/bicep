@@ -56,6 +56,7 @@ Copy your fixtures to the test output directory, preserving relative paths:
 This MSTest example pins the CLI version for reproducible tests:
 
 ```csharp
+using Bicep.RpcClient;
 using Bicep.Testing.Framework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -65,7 +66,10 @@ public class InfrastructureTests
     [TestMethod]
     public async Task Storage_disallows_public_access()
     {
-        await using var session = await BicepTestSession.CreateAsync("0.49.2");
+        await using var session = await BicepTestHelper.CreateAsync(new BicepClientConfiguration
+        {
+            BicepVersion = "0.49.2",
+        });
         var snapshot = await session.SnapshotAsync(new SnapshotOptions
         {
             FilePath = Path.Combine(AppContext.BaseDirectory, "infra", "main.bicepparam"),
@@ -78,25 +82,25 @@ public class InfrastructureTests
         Assert.IsEmpty(snapshot.Diagnostics, string.Join(Environment.NewLine, snapshot.Diagnostics));
         var storage = snapshot.RequireResource("Microsoft.Storage/storageAccounts", "teststorage");
         Assert.IsFalse(storage.Properties.GetProperty("allowBlobPublicAccess").GetBoolean());
-        Assert.IsTrue(storage.Id.HasValue());
+        Assert.IsNotNull(storage.TryParseId());
         Assert.AreEqual(
             "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/test-rg/providers/Microsoft.Storage/storageAccounts/teststorage",
-            storage.Id.Value.FullyQualifiedId);
+            storage.Id);
     }
 }
 ```
 
 ## CLI and session lifetime
 
-`CreateAsync(version)` downloads the CLI if needed and caches it under
-`~/.bicep/bin`. This installation can require network access. To run without
-downloading a CLI, use an existing installation:
+`CreateAsync(configuration)` downloads the configured CLI if needed and caches
+it under `~/.bicep/bin`. This installation can require network access. To run
+without downloading a CLI, use an existing installation:
 
 ```csharp
 using Bicep.RpcClient;
 using Bicep.Testing.Framework;
 
-await using var session = await BicepTestSession.CreateAsync(new BicepClientConfiguration
+await using var session = await BicepTestHelper.CreateAsync(new BicepClientConfiguration
 {
     ExistingCliPath = Path.GetFullPath("tools/bicep.exe"),
 });
@@ -104,8 +108,8 @@ await using var session = await BicepTestSession.CreateAsync(new BicepClientConf
 
 Use the platform-appropriate executable path. The configuration overload also
 supports the RPC client's transport and installation options. Alternatively,
-`new BicepTestSession(client)` accepts an existing `IBicepClient`.
-**The session owns and disposes that client.** Reuse a session across snapshots
+`new BicepTestHelper(client)` accepts an existing `IBicepClient`.
+**The helper owns and disposes that client.** Reuse a helper across snapshots
 and dispose it at the end of the test or fixture lifetime. All asynchronous
 operations accept a cancellation token.
 
@@ -119,11 +123,10 @@ version for the latest snapshot fixes.
   nested modules. `Properties`, `Sku`, `Tags`, `Identity`, `Zones`, `Plan`, and
   `ExtendedLocation` are `JsonElement`s; unknown fields are retained in
   `AdditionalProperties`.
-- `Id`, `Name`, `Location`, `Kind`, and `ManagedBy` are `SnapshotValue<T>` values. Use
-  `HasValue()` and `Value` for resolved values, or `Expression` when a value
-  remains an ARM expression. `IsMissing` identifies absent values. Resolved IDs
-  expose the parsed Azure `ResourceId` and scope details through
-  `SnapshotResourceIdentifier`.
+- `Id`, `Name`, `Location`, `Kind`, and `ManagedBy` are nullable strings.
+  Unresolved ARM values remain expressions such as `[parameters('name')]`.
+  `TryParseId()` returns the parsed Azure `ResourceId` for a resolved ID, or
+  `null` when the ID is absent, unresolved, or invalid.
 - `ResourcesOfType(type)` compares types without case sensitivity.
   `RequireResource(id)` compares IDs without case sensitivity.
   `RequireResource(type, name)` compares the name case-sensitively.

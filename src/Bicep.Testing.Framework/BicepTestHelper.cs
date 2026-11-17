@@ -10,7 +10,7 @@ namespace Bicep.Testing.Framework;
 /// <summary>
 /// Evaluates Bicep parameter files through the Bicep CLI without deploying resources.
 /// </summary>
-public sealed class BicepTestSession(IBicepClient client) : IDisposable, IAsyncDisposable
+public sealed class BicepTestHelper(IBicepClient client) : IDisposable, IAsyncDisposable
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
@@ -21,15 +21,9 @@ public sealed class BicepTestSession(IBicepClient client) : IDisposable, IAsyncD
     private bool disposed;
 
     /// <summary>
-    /// Creates a session using a pinned CLI version, downloading and caching it if necessary.
+    /// Creates a helper with the specified CLI configuration, including support for an existing executable.
     /// </summary>
-    public static Task<BicepTestSession> CreateAsync(string bicepVersion, CancellationToken cancellationToken = default)
-        => CreateAsync(new BicepClientConfiguration { BicepVersion = bicepVersion }, cancellationToken);
-
-    /// <summary>
-    /// Creates a session with the specified CLI configuration, including support for an existing executable.
-    /// </summary>
-    public static async Task<BicepTestSession> CreateAsync(BicepClientConfiguration configuration, CancellationToken cancellationToken = default)
+    public static async Task<BicepTestHelper> CreateAsync(BicepClientConfiguration configuration, CancellationToken cancellationToken = default)
     {
         var client = await new BicepClientFactory().Initialize(configuration, cancellationToken).ConfigureAwait(false);
         return new(client);

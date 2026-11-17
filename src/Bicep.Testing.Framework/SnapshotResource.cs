@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Azure.Deployments.Core.Definitions.Identifiers;
 
 namespace Bicep.Testing.Framework;
 
@@ -13,22 +14,22 @@ namespace Bicep.Testing.Framework;
 public sealed record SnapshotResource
 {
     [JsonPropertyName("id")]
-    public SnapshotValue<SnapshotResourceIdentifier> Id { get; init; } = SnapshotValue<SnapshotResourceIdentifier>.Missing;
+    public string? Id { get; init; }
 
     [JsonPropertyName("type")]
     public required string Type { get; init; }
 
     [JsonPropertyName("name")]
-    public SnapshotValue<string>? Name { get; init; }
+    public string? Name { get; init; }
 
     [JsonPropertyName("apiVersion")]
     public string? ApiVersion { get; init; }
 
     [JsonPropertyName("location")]
-    public SnapshotValue<string>? Location { get; init; }
+    public string? Location { get; init; }
 
     [JsonPropertyName("kind")]
-    public SnapshotValue<string>? Kind { get; init; }
+    public string? Kind { get; init; }
 
     [JsonPropertyName("properties")]
     public JsonElement Properties { get; init; }
@@ -49,7 +50,7 @@ public sealed record SnapshotResource
     public JsonElement? Plan { get; init; }
 
     [JsonPropertyName("managedBy")]
-    public SnapshotValue<string>? ManagedBy { get; init; }
+    public string? ManagedBy { get; init; }
 
     [JsonPropertyName("extendedLocation")]
     public JsonElement? ExtendedLocation { get; init; }
@@ -59,4 +60,12 @@ public sealed record SnapshotResource
     /// </summary>
     [JsonExtensionData]
     public IDictionary<string, JsonElement>? AdditionalProperties { get; init; }
+
+    /// <summary>
+    /// Parses the resource ID, or returns <see langword="null"/> when the ID is missing or unresolved.
+    /// </summary>
+    public ResourceId? TryParseId()
+        => Id is not null && ResourceId.TryParse(Id, out var resourceId) && resourceId is not null
+            ? resourceId
+            : null;
 }
