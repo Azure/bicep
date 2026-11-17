@@ -5,6 +5,7 @@ using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Templates.Extensions;
 using Bicep.Core;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -102,9 +103,9 @@ namespace Bicep.LanguageServer.Features.Language.Definition
                  && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile)
-                 && context.Compilation.SourceFileGrouping.TryGetArtifactReference(moduleDeclarationSyntax) is { } moduleReference)
+                 && context.Compilation.SourceFileGrouping.TryGetArtifact(moduleDeclarationSyntax) is { } artifact)
                 {
-                    return HandleModuleReference(context, stringToken, sourceFile, moduleReference);
+                    return HandleModuleReference(context, stringToken, sourceFile, artifact);
                 }
             }
             {
@@ -113,9 +114,9 @@ namespace Bicep.LanguageServer.Features.Language.Definition
                     matchingNodes[^3] is UsingDeclarationSyntax usingDeclaration &&
                     matchingNodes[^2] is StringSyntax stringSyntax &&
                     context.Compilation.SourceFileGrouping.TryGetSourceFile(usingDeclaration).IsSuccess(out var sourceFile) &&
-                    context.Compilation.SourceFileGrouping.TryGetArtifactReference(usingDeclaration) is { } moduleReference)
+                    context.Compilation.SourceFileGrouping.TryGetArtifact(usingDeclaration) is { } artifact)
                 {
-                    return HandleModuleReference(context, stringSyntax, sourceFile, moduleReference);
+                    return HandleModuleReference(context, stringSyntax, sourceFile, artifact);
                 }
             }
             { // Definition handler for a non symbol bound to implement import path goto.
@@ -126,11 +127,11 @@ namespace Bicep.LanguageServer.Features.Language.Definition
                  && matchingNodes[^4] is CompileTimeImportDeclarationSyntax importDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(importDeclarationSyntax).IsSuccess(out var sourceFile)
-                 && context.Compilation.SourceFileGrouping.TryGetArtifactReference(importDeclarationSyntax) is { } moduleReference)
+                 && context.Compilation.SourceFileGrouping.TryGetArtifact(importDeclarationSyntax) is { } artifact)
                 {
                     // goto beginning of the module file.
                     return GetFileDefinitionLocation(
-                        GetArtifactSourceLinkUri(sourceFile, moduleReference),
+                        GetArtifactSourceLinkUri(sourceFile, artifact),
                         stringToken,
                         context,
                         new() { Start = new(0, 0), End = new(0, 0) });
@@ -171,31 +172,31 @@ namespace Bicep.LanguageServer.Features.Language.Definition
             return new();
         }
 
-        private LocationOrLocationLinks HandleModuleReference(CompilationContext context, StringSyntax stringToken, ISourceFile sourceFile, ArtifactReference reference)
+        private LocationOrLocationLinks HandleModuleReference(CompilationContext context, StringSyntax stringToken, ISourceFile sourceFile, Artifact artifact)
         {
             // Return the correct link format so our language client can display the sources
             return GetFileDefinitionLocation(
-                GetArtifactSourceLinkUri(sourceFile, reference),
+                GetArtifactSourceLinkUri(sourceFile, artifact),
                 stringToken,
                 context,
                 new() { Start = new(0, 0), End = new(0, 0) });
         }
 
-        private DocumentUri GetArtifactSourceLinkUri(ISourceFile sourceFile, ArtifactReference reference)
+        private DocumentUri GetArtifactSourceLinkUri(ISourceFile sourceFile, Artifact artifact)
         {
-            if (!this.CanClientAcceptRegistryContent() || reference is not RemoteArtifactReference)
+            if (!this.CanClientAcceptRegistryContent() || artifact.Reference is not RemoteArtifactReference)
             {
                 // the client doesn't support the bicep-extsrc scheme or we're dealing with a local module
                 // just use the file URI
                 return sourceFile.FileHandle.Uri.ToDocumentUri();
             }
 
-            if (reference is OciArtifactReference ociArtifactReference)
+            if (artifact is ModuleArtifact { Reference: OciArtifactReference ociArtifactReference } moduleArtifact)
             {
-                return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(ociArtifactReference, ociArtifactReference.TryLoadSourceArchive().TryUnwrap());
+                return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(ociArtifactReference, moduleArtifact.TryGetSources().TryUnwrap());
             }
 
-            if (reference is TemplateSpecArtifactReference templateSpecArtifactReference)
+            if (artifact.Reference is TemplateSpecArtifactReference templateSpecArtifactReference)
             {
                 return BicepExternalSourceRequestHandler.GetTemplateSpecSourceLinkUri(templateSpecArtifactReference);
             }
@@ -206,10 +207,10 @@ namespace Bicep.LanguageServer.Features.Language.Definition
         private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, WildcardImportSymbol wildcardImport)
         {
             if (context.Compilation.SourceFileGrouping.TryGetSourceFile(wildcardImport.EnclosingDeclaration).IsSuccess(out var sourceFile) &&
-                context.Compilation.SourceFileGrouping.TryGetArtifactReference(wildcardImport.EnclosingDeclaration) is { } moduleReference)
+                context.Compilation.SourceFileGrouping.TryGetArtifact(wildcardImport.EnclosingDeclaration) is { } artifact)
             {
                 return GetFileDefinitionLocation(
-                    GetArtifactSourceLinkUri(sourceFile, moduleReference),
+                    GetArtifactSourceLinkUri(sourceFile, artifact),
                     wildcardImport.DeclaringSyntax,
                     context,
                     new() { Start = new(0, 0), End = new(0, 0) });
@@ -466,8 +467,8 @@ namespace Bicep.LanguageServer.Features.Language.Definition
 
             // CONSIDER using only the syntax tree, not the semantic model
             if (sourceModel is ArmTemplateSemanticModel &&
-                context.Compilation.SourceFileGrouping.TryGetArtifactReference(enclosingDeclaration) is OciArtifactReference ociArtifactReference
-                && ociArtifactReference.TryLoadSourceArchive().TryUnwrap() is SourceArchive sourceArchive)
+                context.Compilation.SourceFileGrouping.TryGetArtifact(enclosingDeclaration) is ModuleArtifact { Reference: OciArtifactReference ociArtifactReference } moduleArtifact
+                && moduleArtifact.TryGetSources().TryUnwrap() is SourceArchive sourceArchive)
             {
                 // An imported remote artifact was published with source, so we want to take the user to the definition in the source archive.
                 // Long term, it would be best to package up symbol information with the source that we could query here to find the location of the definition in the source file.

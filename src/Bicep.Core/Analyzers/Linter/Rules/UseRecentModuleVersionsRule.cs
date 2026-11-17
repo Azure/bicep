@@ -71,7 +71,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var publicModuleMetadataProvider = serviceProvider.GetRequiredService<IBrmMetadataProvider>();
             var hasShownDownloadWarning = false;
 
-            foreach (var (syntax, artifactResolutionInfo) in model.SourceFileGrouping.ArtifactLookup
+            foreach (var (syntax, dependency) in model.SourceFileGrouping.ArtifactLookup
                 .Where(entry => entry.Value.ReferencingFile == model.SourceFile
                     && entry.Value.Syntax is ModuleDeclarationSyntax moduleSyntax))
             {
@@ -79,7 +79,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     var errorSpan = syntax.SourceSyntax.Span;
 
-                    if (artifactResolutionInfo.Reference is IOciArtifactReference ociReference
+                    if (dependency.Reference is IOciArtifactReference ociReference
                         && ociReference.Registry.Equals(LanguageConstants.BicepPublicMcrRegistry, StringComparison.Ordinal)
                         && ociReference.Tag is string tag)
                     {

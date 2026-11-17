@@ -43,8 +43,9 @@ public sealed class ExtensionArtifactCacheLayout
         this.TypesTgzFile.Write(package.Types);
     }
 
-    public ExtensionArtifact Open() =>
-        new(this.TypesTgzFile, new(() => this.BinaryFile.Exists() ? this.BinaryFile : null));
+    /// <param name="reference">The reference the extension was restored or loaded from.</param>
+    public ExtensionArtifact Open(ArtifactReference reference) =>
+        new(reference, this.TypesTgzFile, new(() => this.BinaryFile.Exists() ? this.BinaryFile : null));
 
     private static ExtensionBinary? SelectBinary(ExtensionArtifactPackage package, ArtifactReference reference)
     {

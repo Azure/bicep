@@ -435,6 +435,28 @@ output baz string = fooRes.convertBarToBaz('bar')
     }
 
     [TestMethod]
+    // microsoftGraph pins current behavior: an explicit "extension microsoftGraph" reports that the built-in was retired instead.
+    [DataRow("notConfigured")]
+    [DataRow("microsoftGraph")]
+    public async Task Implicit_extension_without_an_extensions_entry_reports_missing_configuration(string extensionName)
+    {
+        var fileSystem = new MockFileSystem();
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ExtensionResourceTypeHelper.GetTestTypesTgz(), AllFeaturesEnabled, fileSystem);
+
+        fileSystem.File.WriteAllText("/bicepconfig.json", $$"""
+            {
+              "implicitExtensions": ["{{extensionName}}"]
+            }
+            """);
+
+        var result = await CompilationHelper.RestoreAndCompile(services, "output o string = 'x'");
+
+        var diagnostic = result.ExcludingLinterDiagnostics().Diagnostics.Should().ContainSingle().Subject;
+        diagnostic.Code.Should().Be("BCP397");
+        diagnostic.Message.Should().StartWith($"Extension {extensionName} is incorrectly configured in the Bicep configuration");
+    }
+
+    [TestMethod]
     public async Task Third_party_imports_are_enabled_when_feature_is_enabled()
     {
         var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(

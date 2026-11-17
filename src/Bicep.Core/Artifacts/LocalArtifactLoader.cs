@@ -19,13 +19,13 @@ namespace Bicep.Core.Artifacts;
 public static class LocalArtifactLoader
 {
     /// <summary>
-    /// Gets the file the compiler loads for a local artifact: the module file, or the extracted extension's types.
+    /// Opens a local artifact: the module file, or the extension extracted into the artifact cache.
     /// </summary>
     /// <param name="cacheRootDirectory">The root of the artifact cache of the referencing file.</param>
-    public static ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPoint(LocalArtifactReference reference, IDirectoryHandle cacheRootDirectory) => reference.Type switch
+    public static ResultWithDiagnosticBuilder<Artifact> TryOpen(LocalArtifactReference reference, IDirectoryHandle cacheRootDirectory) => reference.Type switch
     {
-        ArtifactType.Module => new(reference.File),
-        ArtifactType.Extension => TryExtractExtension(reference, cacheRootDirectory).Transform(x => x.EntryPoint),
+        ArtifactType.Module => new(new ModuleArtifact(reference, reference.File, ModuleTemplateKind.SourceFile)),
+        ArtifactType.Extension => TryExtractExtension(reference, cacheRootDirectory).Transform(x => (Artifact)x.Open(reference)),
         _ => throw new InvalidOperationException($"Unexpected artifact type '{reference.Type}'."),
     };
 

@@ -3,7 +3,6 @@
 
 namespace Bicep.Core.SourceGraph
 {
-    // TODO: Move to a more common namespace
     public enum BicepSourceFileKind
     {
         /// <summary>

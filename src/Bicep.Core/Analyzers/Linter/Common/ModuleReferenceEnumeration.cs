@@ -23,11 +23,11 @@ namespace Bicep.Core.Analyzers.Linter.Common
         {
             var grouping = model.SourceFileGrouping;
 
-            foreach (var (syntax, reference) in grouping.ArtifactLookup)
+            foreach (var (syntax, dependency) in grouping.ArtifactLookup)
             {
-                if (reference.ReferencingFile != model.SourceFile ||
+                if (dependency.ReferencingFile != model.SourceFile ||
                     syntax is not ModuleDeclarationSyntax ||
-                    reference.Reference is null or RemoteArtifactReference)
+                    dependency.Reference is null or RemoteArtifactReference)
                 {
                     continue;
                 }

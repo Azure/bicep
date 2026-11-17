@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Resolution;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
 using Bicep.LanguageServer.Features.Language.DocumentLink;
@@ -19,7 +21,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
     {
         private static readonly Range DocumentStart = new(new Position(0, 0), new Position(0, 0));
 
-        public static IEnumerable<LspCodeLens> GetCodeLenses(IRemoteArtifactContextFactory remoteArtifactContextFactory, CodeLensParams request, CancellationToken cancellationToken)
+        public static IEnumerable<LspCodeLens> GetCodeLenses(IRemoteArtifactRestorer restorer, IRemoteArtifactContextFactory remoteArtifactContextFactory, CodeLensParams request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -49,7 +51,13 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
                     var isDisplayingCompiledJson = externalReference.IsRequestingCompiledJson;
                     if (externalReference.ToArtifactReference(ExternalSourceReference.GetOciArtifactContext(remoteArtifactContextFactory)).IsSuccess(out var artifactReference, out message))
                     {
-                        var sourceArchiveResult = artifactReference.TryLoadSourceArchive();
+                        if (restorer.GetRestoreState(artifactReference) is not RemoteArtifactRestoreState.Restored { Artifact: ModuleArtifact artifact })
+                        {
+                            yield return CreateErrorLens($"The module '{artifactReference.FullyQualifiedReference}' has not been restored.");
+                            yield break;
+                        }
+
+                        var sourceArchiveResult = artifact.TryGetSources();
 
                         if (isDisplayingCompiledJson)
                         {

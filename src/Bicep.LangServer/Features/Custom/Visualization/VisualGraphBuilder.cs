@@ -267,8 +267,8 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             PendingFile file,
             BicepSourceFile entryFile)
         {
-            var reference = file.Model.SourceFileGrouping.ArtifactLookup.TryGetValue(module.DeclaringModule, out var artifact)
-                ? artifact.Reference
+            var reference = file.Model.SourceFileGrouping.ArtifactLookup.TryGetValue(module.DeclaringModule, out var dependency)
+                ? dependency.Reference
                 : null;
 
             if (file.Archive is not { } archive)
@@ -318,16 +318,21 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 return new ModuleExpansion.Leaf();
             }
 
+            ModuleArtifact artifact;
             switch (restorer.GetRestoreState(registryReference))
             {
-                case RemoteArtifactRestoreState.NotRestored:
-                    return new ModuleExpansion.Unrestored(registryReference);
+                case RemoteArtifactRestoreState.Restored { Artifact: ModuleArtifact restored }:
+                    artifact = restored;
+                    break;
 
                 case RemoteArtifactRestoreState.RestoreFailed failed:
                     return new ModuleExpansion.Failed(registryReference, failed.Error(DiagnosticBuilder.ForDocumentStart()).Message);
+
+                default:
+                    return new ModuleExpansion.Unrestored(registryReference);
             }
 
-            if (!registryReference.TryLoadSourceArchive().IsSuccess(out var archive, out var exception))
+            if (!artifact.TryGetSources().IsSuccess(out var archive, out var exception))
             {
                 // An archive that cannot be read, for example from an incompatible Bicep version, may restore again.
                 return exception is SourceNotAvailableException

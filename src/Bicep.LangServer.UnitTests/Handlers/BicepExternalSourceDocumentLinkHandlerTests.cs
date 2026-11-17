@@ -96,6 +96,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 });
 
             var links = BicepExternalSourceDocumentLinkHandler.GetDocumentLinks(
+                restorer,
                 remoteArtifactContextFactory,
                 new DocumentLinkParams() { TextDocument = documentId },
                 CancellationToken.None)

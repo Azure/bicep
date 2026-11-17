@@ -14,7 +14,7 @@ namespace Bicep.Core.SourceGraph
     {
         ResultWithDiagnosticBuilder<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference);
 
-        ImmutableDictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> ArtifactLookup { get; }
+        ImmutableDictionary<IArtifactReferenceSyntax, ArtifactDependency> ArtifactLookup { get; }
 
         ImmutableDictionary<ISourceFile, ImmutableHashSet<ImplicitExtension>> ImplicitExtensions { get; }
     }

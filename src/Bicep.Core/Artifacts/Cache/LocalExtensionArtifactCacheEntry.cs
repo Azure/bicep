@@ -26,9 +26,9 @@ namespace Bicep.Core.Artifacts.Cache
 
         public IFileHandle BinaryFile => this.layout.BinaryFile;
 
-        public override IFileHandle EntryPoint => this.TypesTgzFile;
-
         public override bool IsComplete => this.TypesTgzFile.Exists();
+
+        public override ExtensionArtifact Open(ArtifactReference reference) => this.layout.Open(reference);
 
         /// <summary>
         /// Writes a decoded extension package into the cache, unless another compilation (possibly in another process) already has.

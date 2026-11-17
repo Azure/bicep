@@ -4,7 +4,6 @@
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Diagnostics;
-using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.Registries
 {
@@ -24,10 +23,10 @@ namespace Bicep.Core.Artifacts.Registries
         bool CanHandle(RemoteArtifactReference reference);
 
         /// <summary>
-        /// Gets the file in the local cache that the compiler loads for the artifact, or <c>null</c> if the artifact
-        /// has not been restored (or cannot be, for example because its registry is not trusted).
+        /// Opens the artifact from the local cache, or returns <c>null</c> if the artifact has not been restored (or
+        /// cannot be, for example because its registry is not trusted).
         /// </summary>
-        IFileHandle? TryGetEntryPoint(RemoteArtifactReference reference);
+        Artifact? TryOpen(RemoteArtifactReference reference);
 
         /// <summary>
         /// Downloads the specified artifacts from the registry and caches them locally. A forced restore deletes the

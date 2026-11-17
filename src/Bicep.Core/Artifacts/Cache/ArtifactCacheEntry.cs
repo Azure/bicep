@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using Bicep.Core.Artifacts.References;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.Cache
@@ -29,14 +30,15 @@ namespace Bicep.Core.Artifacts.Cache
         public IDirectoryHandle CacheDirectory { get; }
 
         /// <summary>
-        /// Gets the file the compiler loads for the artifact. It only exists once the entry is complete.
-        /// </summary>
-        public abstract IFileHandle EntryPoint { get; }
-
-        /// <summary>
         /// Gets a value indicating whether every file of the entry has been written.
         /// </summary>
         public abstract bool IsComplete { get; }
+
+        /// <summary>
+        /// Opens the artifact stored in the entry. The entry must be complete.
+        /// </summary>
+        /// <param name="reference">The reference the artifact was restored or loaded from.</param>
+        public abstract Artifact Open(ArtifactReference reference);
 
         private IFileHandle LockFile => this.GetFile("lock");
 
