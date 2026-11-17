@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Azure.Deployments.Core.Definitions.Identifiers;
 
 namespace Bicep.Testing.Framework;
 
@@ -54,18 +52,4 @@ public sealed record SnapshotResource
 
     [JsonPropertyName("extendedLocation")]
     public JsonElement? ExtendedLocation { get; init; }
-
-    /// <summary>
-    /// Other resource fields not modeled by this class, such as <c>identifiers</c>.
-    /// </summary>
-    [JsonExtensionData]
-    public IDictionary<string, JsonElement>? AdditionalProperties { get; init; }
-
-    /// <summary>
-    /// Parses the resource ID, or returns <see langword="null"/> when the ID is missing or unresolved.
-    /// </summary>
-    public ResourceId? TryParseId()
-        => Id is not null && ResourceId.TryParse(Id, out var resourceId) && resourceId is not null
-            ? resourceId
-            : null;
 }

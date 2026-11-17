@@ -66,18 +66,20 @@ public class InfrastructureTests
     [TestMethod]
     public async Task Storage_disallows_public_access()
     {
-        await using var session = await BicepTestHelper.CreateAsync(new BicepClientConfiguration
+        using var factory = new PooledBicepClientFactory();
+        var helper = new BicepTestHelper(factory);
+        var configuration = new BicepClientConfiguration
         {
             BicepVersion = "0.49.2",
-        });
-        var snapshot = await session.SnapshotAsync(new SnapshotOptions
+        };
+        var snapshot = await helper.SnapshotAsync(new SnapshotOptions
         {
             FilePath = Path.Combine(AppContext.BaseDirectory, "infra", "main.bicepparam"),
             SubscriptionId = "00000000-0000-0000-0000-000000000001",
             ResourceGroup = "test-rg",
             Location = "eastus",
             DeploymentName = "offline-test",
-        });
+        }, configuration);
 
         Assert.IsEmpty(snapshot.Diagnostics, string.Join(Environment.NewLine, snapshot.Diagnostics));
         var storage = snapshot.RequireResource("Microsoft.Storage/storageAccounts", "teststorage");
@@ -90,9 +92,11 @@ public class InfrastructureTests
 }
 ```
 
-## CLI and session lifetime
+## CLI and factory lifetime
 
-`CreateAsync(configuration)` downloads the configured CLI if needed and caches
+`SnapshotAsync(options, configuration)` uses the supplied `IBicepClientFactory`
+to acquire a client for each call and disposes that client when the call completes,
+including on failure. The default factories download the configured CLI if needed and cache
 it under `~/.bicep/bin`. This installation can require network access. To run
 without downloading a CLI, use an existing installation:
 
@@ -100,17 +104,24 @@ without downloading a CLI, use an existing installation:
 using Bicep.RpcClient;
 using Bicep.Testing.Framework;
 
-await using var session = await BicepTestHelper.CreateAsync(new BicepClientConfiguration
+using var factory = new PooledBicepClientFactory();
+var helper = new BicepTestHelper(factory);
+var snapshot = await helper.SnapshotAsync(new SnapshotOptions
+{
+    FilePath = Path.GetFullPath("infra/main.bicepparam"),
+}, new BicepClientConfiguration
 {
     ExistingCliPath = Path.GetFullPath("tools/bicep.exe"),
 });
 ```
 
-Use the platform-appropriate executable path. The configuration overload also
-supports the RPC client's transport and installation options. Alternatively,
-`new BicepTestHelper(client)` accepts an existing `IBicepClient`.
-**The helper owns and disposes that client.** Reuse a helper across snapshots
-and dispose it at the end of the test or fixture lifetime. All asynchronous
+Use the platform-appropriate executable path. The configuration also supports
+the RPC client's transport and installation options. A helper can evaluate
+different CLI versions side by side by passing different configurations to
+`SnapshotAsync`. Use `BicepClientFactory` for a new client per snapshot, or
+`PooledBicepClientFactory` to reuse clients by configuration.
+**The caller owns the factory.** Dispose a pooled factory at the end of the test
+or fixture lifetime; the helper itself does not require disposal. All asynchronous
 operations accept a cancellation token.
 
 Snapshot evaluation requires CLI 0.36.1 or later; `ManagementGroupId` requires
@@ -121,11 +132,10 @@ version for the latest snapshot fixes.
 
 - `PredictedResources` contains flattened resources, including resources from
   nested modules. `Properties`, `Sku`, `Tags`, `Identity`, `Zones`, `Plan`, and
-  `ExtendedLocation` are `JsonElement`s; unknown fields are retained in
-  `AdditionalProperties`.
+  `ExtendedLocation` are `JsonElement`s; unknown fields are ignored.
 - `Id`, `Name`, `Location`, `Kind`, and `ManagedBy` are nullable strings.
   Unresolved ARM values remain expressions such as `[parameters('name')]`.
-  `TryParseId()` returns the parsed Azure `ResourceId` for a resolved ID, or
+  The `TryParseId()` extension returns the parsed Azure `ResourceId` for a resolved ID, or
   `null` when the ID is absent, unresolved, or invalid.
 - `ResourcesOfType(type)` compares types without case sensitivity.
   `RequireResource(id)` compares IDs without case sensitivity.

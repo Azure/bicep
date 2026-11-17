@@ -3,11 +3,20 @@
 
 using System.Globalization;
 using System.Text.Json;
+using Azure.Deployments.Core.Definitions.Identifiers;
 
 namespace Bicep.Testing.Framework;
 
 public static class SnapshotHelpers
 {
+    /// <summary>
+    /// Parses the resource ID, or returns <see langword="null"/> when the ID is missing, unresolved, or invalid.
+    /// </summary>
+    public static ResourceId? TryParseId(this SnapshotResource resource)
+        => resource.Id is not null && ResourceId.TryParse(resource.Id, out var resourceId) && resourceId is not null
+            ? resourceId
+            : null;
+
     /// <summary>
     /// Selects resources by type, ignoring case.
     /// </summary>

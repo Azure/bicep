@@ -9,8 +9,9 @@ namespace Bicep.Testing.Framework;
 
 /// <summary>
 /// Evaluates Bicep parameter files through the Bicep CLI without deploying resources.
+/// The caller owns the client factory; each snapshot acquires and disposes its own client.
 /// </summary>
-public sealed class BicepTestHelper(IBicepClient client) : IDisposable, IAsyncDisposable
+public sealed class BicepTestHelper(IBicepClientFactory clientFactory)
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
@@ -18,24 +19,13 @@ public sealed class BicepTestHelper(IBicepClient client) : IDisposable, IAsyncDi
         RespectNullableAnnotations = true,
     };
 
-    private bool disposed;
-
-    /// <summary>
-    /// Creates a helper with the specified CLI configuration, including support for an existing executable.
-    /// </summary>
-    public static async Task<BicepTestHelper> CreateAsync(BicepClientConfiguration configuration, CancellationToken cancellationToken = default)
-    {
-        var client = await new BicepClientFactory().Initialize(configuration, cancellationToken).ConfigureAwait(false);
-        return new(client);
-    }
-
     /// <summary>
     /// Compiles and evaluates a parameter file. Evaluation diagnostics are returned in the snapshot;
     /// compilation and RPC failures are propagated to the caller.
     /// </summary>
-    public async Task<SnapshotResult> SnapshotAsync(SnapshotOptions options, CancellationToken cancellationToken = default)
+    public async Task<SnapshotResult> SnapshotAsync(SnapshotOptions options, BicepClientConfiguration configuration, CancellationToken cancellationToken = default)
     {
-        ObjectDisposedException.ThrowIf(disposed, this);
+        using var client = await clientFactory.Initialize(configuration, cancellationToken).ConfigureAwait(false);
 
         if (options.ManagementGroupId is not null)
         {
@@ -64,24 +54,5 @@ public sealed class BicepTestHelper(IBicepClient client) : IDisposable, IAsyncDi
 
         return JsonSerializer.Deserialize<SnapshotResult>(response.Snapshot, SerializerOptions)
             ?? throw new InvalidDataException("The Bicep CLI returned a null snapshot.");
-    }
-
-    /// <summary>
-    /// Disposes the session and its RPC client, including a client supplied to the constructor.
-    /// </summary>
-    public void Dispose()
-    {
-        if (!disposed)
-        {
-            disposed = true;
-            client.Dispose();
-        }
-    }
-
-    /// <inheritdoc />
-    public ValueTask DisposeAsync()
-    {
-        Dispose();
-        return ValueTask.CompletedTask;
     }
 }

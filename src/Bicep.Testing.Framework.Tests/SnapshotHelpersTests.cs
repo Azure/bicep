@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text.Json;
+using Azure.Deployments.Core.Definitions.Identifiers;
 using FluentAssertions;
 
 namespace Bicep.Testing.Framework.Tests;
@@ -9,6 +10,31 @@ namespace Bicep.Testing.Framework.Tests;
 [TestClass]
 public class SnapshotHelpersTests
 {
+    [TestMethod]
+    public void Resource_id_extension_parses_resolved_ids()
+    {
+        var resource = new SnapshotResource
+        {
+            Type = "Microsoft.Storage/storageAccounts",
+            Id = "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage",
+        };
+
+        SnapshotHelpers.TryParseId(resource).Should().BeOfType<ResourceGroupLevelResourceId>()
+            .Which.ResourceGroup.Should().Be("rg");
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("not a resource ID")]
+    [DataRow("[resourceId('Microsoft.Storage/storageAccounts', 'storage')]")]
+    public void Resource_id_extension_returns_null_for_missing_unresolved_or_invalid_ids(string? id)
+    {
+        var resource = new SnapshotResource { Type = "Microsoft.Storage/storageAccounts", Id = id };
+
+        resource.TryParseId().Should().BeNull();
+    }
+
     [TestMethod]
     public void Resource_selection_uses_expected_case_sensitivity_and_requires_unique_matches()
     {

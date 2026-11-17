@@ -63,9 +63,9 @@ public class BicepTestHelperTests
                 }
                 """));
         client.Setup(x => x.Dispose());
-        using var session = new BicepTestHelper(client.Object);
+        var session = CreateHelper(client);
 
-        var snapshot = await session.SnapshotAsync(options, cts.Token);
+        var snapshot = await session.SnapshotAsync(options, new(), cts.Token);
 
         snapshot.Diagnostics.Should().Equal("Evaluation warning");
         snapshot.PredictedResources.Should().HaveCount(2);
@@ -82,7 +82,6 @@ public class BicepTestHelperTests
         storage.Tags!.Value.GetProperty("environment").GetString().Should().Be("test");
         snapshot.PredictedResources[1].Id.Should().BeNull();
         snapshot.PredictedResources[1].TryParseId().Should().BeNull();
-        snapshot.PredictedResources[1].AdditionalProperties!["identifiers"].GetProperty("name").GetString().Should().Be("custom");
         snapshot.Outputs["storageId"].GetString().Should().Be(storage.Id);
         snapshot.Outputs["count"].GetInt32().Should().Be(2);
         snapshot.Outputs["optional"].ValueKind.Should().Be(JsonValueKind.Null);
@@ -110,9 +109,9 @@ public class BicepTestHelperTests
               "outputs": {}
             }
             """);
-        using var session = new BicepTestHelper(client.Object);
+        var session = CreateHelper(client);
 
-        var snapshot = await session.SnapshotAsync(new() { FilePath = "main.bicepparam" });
+        var snapshot = await session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, new());
         var resource = snapshot.PredictedResources.Single();
 
         resource.Id.Should().Be("[resourceId('Microsoft.Storage/storageAccounts', 'storage')]");
@@ -131,22 +130,24 @@ public class BicepTestHelperTests
     public async Task Malformed_snapshots_fail_instead_of_returning_empty_results(string json)
     {
         var client = CreateClient(json);
-        using var session = new BicepTestHelper(client.Object);
+        var session = CreateHelper(client);
 
-        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam" });
+        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, new());
 
         await act.Should().ThrowAsync<JsonException>();
+        client.Verify(x => x.Dispose(), Times.Once);
     }
 
     [TestMethod]
     public async Task Null_snapshot_fails_explicitly()
     {
         var client = CreateClient("null");
-        using var session = new BicepTestHelper(client.Object);
+        var session = CreateHelper(client);
 
-        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam" });
+        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, new());
 
         await act.Should().ThrowAsync<InvalidDataException>().WithMessage("*null snapshot*");
+        client.Verify(x => x.Dispose(), Times.Once);
     }
 
     [TestMethod]
@@ -159,12 +160,13 @@ public class BicepTestHelperTests
             .ThrowsAsync(failure)
             .ThrowsAsync(new OperationCanceledException(cts.Token));
         client.Setup(x => x.Dispose());
-        using var session = new BicepTestHelper(client.Object);
-        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, cts.Token);
+        var session = CreateHelper(client);
+        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, new(), cts.Token);
 
         (await act.Should().ThrowAsync<IOException>()).Which.Should().BeSameAs(failure);
         await cts.CancelAsync();
         (await act.Should().ThrowAsync<OperationCanceledException>()).Which.CancellationToken.Should().Be(cts.Token);
+        client.Verify(x => x.Dispose(), Times.Exactly(2));
     }
 
     [TestMethod]
@@ -175,27 +177,62 @@ public class BicepTestHelperTests
         var client = new Mock<IBicepClient>(MockBehavior.Strict);
         client.Setup(x => x.GetVersion(default)).ReturnsAsync(version);
         client.Setup(x => x.Dispose());
-        using var session = new BicepTestHelper(client.Object);
-        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam", ManagementGroupId = "platform" });
+        var session = CreateHelper(client);
+        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam", ManagementGroupId = "platform" }, new());
 
         await act.Should().ThrowAsync<NotSupportedException>().WithMessage("*0.47.16*");
         client.Verify(x => x.GetSnapshot(It.IsAny<GetSnapshotRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+        client.Verify(x => x.Dispose(), Times.Once);
     }
 
     [TestMethod]
-    public async Task Disposal_releases_the_client_once_and_prevents_further_requests()
+    public async Task Snapshot_uses_the_factory_for_each_configuration_and_releases_each_client()
     {
-        var client = new Mock<IBicepClient>(MockBehavior.Strict);
-        client.Setup(x => x.Dispose());
-        var session = new BicepTestHelper(client.Object);
+        using var cts = new CancellationTokenSource();
+        var firstConfiguration = new BicepClientConfiguration { BicepVersion = "0.48.0" };
+        var secondConfiguration = new BicepClientConfiguration { BicepVersion = "0.49.2" };
+        var firstClient = CreateClient("""{"predictedResources":[],"diagnostics":[],"outputs":{"version":"first"}}""");
+        var secondClient = CreateClient("""{"predictedResources":[],"diagnostics":[],"outputs":{"version":"second"}}""");
+        var factory = new Mock<IBicepClientFactory>(MockBehavior.Strict);
+        factory.Setup(x => x.Initialize(firstConfiguration, cts.Token)).ReturnsAsync(firstClient.Object);
+        factory.Setup(x => x.Initialize(secondConfiguration, cts.Token)).ReturnsAsync(secondClient.Object);
+        var session = new BicepTestHelper(factory.Object);
 
-        await session.DisposeAsync();
-        session.Dispose();
-        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam" });
+        var snapshots = await Task.WhenAll(
+            session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, firstConfiguration, cts.Token),
+            session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, secondConfiguration, cts.Token));
 
-        await act.Should().ThrowAsync<ObjectDisposedException>();
-        client.Verify(x => x.Dispose(), Times.Once);
-        client.VerifyNoOtherCalls();
+        snapshots[0].Outputs["version"].GetString().Should().Be("first");
+        snapshots[1].Outputs["version"].GetString().Should().Be("second");
+        factory.Verify(x => x.Initialize(firstConfiguration, cts.Token), Times.Once);
+        factory.Verify(x => x.Initialize(secondConfiguration, cts.Token), Times.Once);
+        firstClient.Verify(x => x.Dispose(), Times.Once);
+        secondClient.Verify(x => x.Dispose(), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Factory_failures_and_cancellation_are_propagated()
+    {
+        using var cts = new CancellationTokenSource();
+        var factory = new Mock<IBicepClientFactory>(MockBehavior.Strict);
+        var failure = new IOException("CLI initialization failed");
+        factory.SetupSequence(x => x.Initialize(It.IsAny<BicepClientConfiguration>(), cts.Token))
+            .ThrowsAsync(failure)
+            .ThrowsAsync(new OperationCanceledException(cts.Token));
+        var session = new BicepTestHelper(factory.Object);
+        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, new(), cts.Token);
+
+        (await act.Should().ThrowAsync<IOException>()).Which.Should().BeSameAs(failure);
+        await cts.CancelAsync();
+        (await act.Should().ThrowAsync<OperationCanceledException>()).Which.CancellationToken.Should().Be(cts.Token);
+    }
+
+    private static BicepTestHelper CreateHelper(Mock<IBicepClient> client)
+    {
+        var factory = new Mock<IBicepClientFactory>(MockBehavior.Strict);
+        factory.Setup(x => x.Initialize(It.IsAny<BicepClientConfiguration>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(client.Object);
+        return new(factory.Object);
     }
 
     private static Mock<IBicepClient> CreateClient(string json)

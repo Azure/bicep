@@ -10,6 +10,8 @@ namespace Bicep.Testing.Framework.Tests;
 [TestClass]
 public class SnapshotTests
 {
+    private readonly IBicepClientFactory clientFactory = new BicepClientFactory();
+
     public TestContext TestContext { get; set; } = null!;
 
     [TestMethod]
@@ -17,7 +19,7 @@ public class SnapshotTests
     [DataRow(BicepConnectionMode.Stdio)]
     public async Task Snapshot_evaluates_nested_module_parameters_and_deployment_context(BicepConnectionMode connectionMode)
     {
-        await using var session = await CreateSession(connectionMode);
+        var session = new BicepTestHelper(clientFactory);
         var snapshot = await session.SnapshotAsync(new()
         {
             FilePath = Fixture("main.bicepparam"),
@@ -26,7 +28,7 @@ public class SnapshotTests
             ResourceGroup = "test-rg",
             Location = "eastus",
             DeploymentName = "offline-test",
-        }, TestContext.CancellationTokenSource.Token);
+        }, Configuration(connectionMode), TestContext.CancellationTokenSource.Token);
 
         snapshot.Diagnostics.Should().BeEmpty();
         var storage = snapshot.RequireResource("microsoft.storage/STORAGEACCOUNTS", "teststorage");
@@ -47,11 +49,12 @@ public class SnapshotTests
     [TestMethod]
     public async Task Snapshot_accepts_omitted_context_and_reuses_the_session()
     {
-        await using var session = await CreateSession();
+        using var factory = new PooledBicepClientFactory();
+        var session = new BicepTestHelper(factory);
 
         for (var i = 0; i < 2; i++)
         {
-            var snapshot = await session.SnapshotAsync(new() { FilePath = Fixture("main.bicepparam") }, TestContext.CancellationTokenSource.Token);
+            var snapshot = await session.SnapshotAsync(new() { FilePath = Fixture("main.bicepparam") }, Configuration(), TestContext.CancellationTokenSource.Token);
             snapshot.Diagnostics.Should().BeEmpty();
             snapshot.ResourcesOfType("Microsoft.Storage/storageAccounts").Should().ContainSingle();
         }
@@ -60,24 +63,24 @@ public class SnapshotTests
     [TestMethod]
     public async Task Snapshot_supports_management_group_context()
     {
-        await using var session = await CreateSession();
+        var session = new BicepTestHelper(clientFactory);
         var snapshot = await session.SnapshotAsync(new()
         {
             FilePath = Fixture("managementGroup.bicepparam"),
             ManagementGroupId = "platform",
             Location = "eastus",
-        }, TestContext.CancellationTokenSource.Token);
+        }, Configuration(), TestContext.CancellationTokenSource.Token);
 
         snapshot.Diagnostics.Should().BeEmpty();
         snapshot.Outputs["scopeId"].GetString().Should().Be("/providers/Microsoft.Management/managementGroups/platform");
     }
 
-    private Task<BicepTestHelper> CreateSession(BicepConnectionMode connectionMode = BicepConnectionMode.NamedPipe)
-        => BicepTestHelper.CreateAsync(new BicepClientConfiguration
+    private static BicepClientConfiguration Configuration(BicepConnectionMode connectionMode = BicepConnectionMode.NamedPipe)
+        => new()
         {
             ExistingCliPath = Path.Combine(AppContext.BaseDirectory, OperatingSystem.IsWindows() ? "bicep.exe" : "bicep"),
             ConnectionMode = connectionMode,
-        }, TestContext.CancellationTokenSource.Token);
+        };
 
     private static string Fixture(string fileName) => Path.Combine(AppContext.BaseDirectory, "Files", fileName);
 }
