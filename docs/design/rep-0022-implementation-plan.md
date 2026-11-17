@@ -24,7 +24,7 @@ The work has two parts:
 | 0.8b | Vocabulary and folders: renames and moves only | #20530 | Merged |
 | 0.9a | OCI payload and codecs | #20554 | Merged |
 | 0.9b | Cache entries store packages | #20560 | Merged |
-| 0.9c | The compiler gets artifacts, not files | – | In review |
+| 0.9c | The compiler gets artifacts, not files | #20575 | In review |
 | 1–10 | REP 0022 features (section 5) | – | Next |
 
 Restructuring the source file grouping into per-file nodes is a separate effort, outside this plan.
