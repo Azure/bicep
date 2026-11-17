@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.Redirects;
 using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Configuration;
@@ -95,7 +96,14 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
             }
 
             // refresh all compilations with a reference to this file or cached artifacts
-            var artifactUris = artifactsToRestore.Select(x => x.Result.Transform(x => x.Uri.ToDocumentUri()).TryUnwrap()).WhereNotNull();
+            var artifactUris = artifactsToRestore
+                .Select(x => x.Result.TryUnwrap() switch
+                {
+                    ModuleArtifact module => module.EntryPoint.Uri.ToDocumentUri(),
+                    ExtensionArtifact extension => extension.Types.Uri.ToDocumentUri(),
+                    _ => null,
+                })
+                .WhereNotNull();
             compilationManager.RefreshChangedFiles(artifactUris.Concat(documentUri));
             return $"Restore (force) summary: {sbRestoreSummary}";
         }

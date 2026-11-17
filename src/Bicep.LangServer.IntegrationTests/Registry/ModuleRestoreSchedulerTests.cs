@@ -165,7 +165,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
 
             public bool CanHandle(RemoteArtifactReference reference) => reference is MockArtifactRef;
 
-            public IFileHandle? TryGetEntryPoint(RemoteArtifactReference _) => null;
+            public Artifact? TryOpen(RemoteArtifactReference _) => null;
 
             public Task<IDictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreAsync(IEnumerable<RemoteArtifactReference> references, RestoreMode mode)
             {

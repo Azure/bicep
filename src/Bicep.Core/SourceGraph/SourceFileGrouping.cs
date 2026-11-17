@@ -3,6 +3,7 @@
 
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -22,7 +23,7 @@ public record ArtifactResolutionInfo(
     BicepSourceFile ReferencingFile,
     IArtifactReferenceSyntax? Syntax,
     ArtifactReference? Reference,
-    ResultWithDiagnosticBuilder<IFileHandle> Result,
+    ResultWithDiagnosticBuilder<Artifact> Result,
     bool RequiresRestore);
 
 public record SourceFileGrouping(
@@ -35,8 +36,6 @@ public record SourceFileGrouping(
 {
     public IEnumerable<ArtifactResolutionInfo> GetArtifactsToRestore(bool force = false)
     {
-        var artifacts = ArtifactLookup.Values.Concat(ImplicitExtensions.Values.SelectMany(x => x).Select(x => x.Artifact));
-
         foreach (var (_, artifact) in ArtifactLookup.Where(x => ShouldRestore(x.Value, force)))
         {
             yield return artifact;
@@ -56,12 +55,17 @@ public record SourceFileGrouping(
 
     public ResultWithDiagnosticBuilder<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax reference)
     {
-        if (!ArtifactLookup[reference].Result.IsSuccess(out var fileHandle, out var errorBuilder))
+        if (!ArtifactLookup[reference].Result.IsSuccess(out var artifact, out var errorBuilder))
         {
             return new(errorBuilder);
         }
 
-        return SourceFileLookup[fileHandle.Uri];
+        if (artifact is not ModuleArtifact moduleArtifact)
+        {
+            throw new InvalidOperationException($"Expected a module, but the artifact for '{artifact.Reference.FullyQualifiedReference}' is a {artifact.Reference.Type}.");
+        }
+
+        return SourceFileLookup[moduleArtifact.EntryPoint.Uri];
     }
 
     public FrozenSet<ISourceFile> GetSourceFilesDependingOn(ISourceFile sourceFile)

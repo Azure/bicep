@@ -408,8 +408,8 @@ namespace Bicep.Core.IntegrationTests
             // The entry point's path, whether or not the artifact is restored yet.
             reference switch
             {
-                OciArtifactReference oci => new OciModuleArtifactCacheEntry(oci.AddressComponents, oci.Context.CacheRootDirectory).EntryPoint,
-                TemplateSpecArtifactReference templateSpec => new TemplateSpecArtifactCacheEntry(templateSpec.SubscriptionId, templateSpec.ResourceGroupName, templateSpec.TemplateSpecName, templateSpec.Version, templateSpec.Context.CacheRootDirectory).EntryPoint,
+                OciArtifactReference oci => new OciModuleArtifactCacheEntry(oci.AddressComponents, oci.Context.CacheRootDirectory).MainTemplateFile,
+                TemplateSpecArtifactReference templateSpec => new TemplateSpecArtifactCacheEntry(templateSpec.SubscriptionId, templateSpec.ResourceGroupName, templateSpec.TemplateSpecName, templateSpec.Version, templateSpec.Context.CacheRootDirectory).MainTemplateSpecFile,
                 _ => throw new InvalidOperationException($"Unexpected reference type '{reference.GetType().Name}'."),
             };
 

@@ -109,7 +109,7 @@ namespace Bicep.Core.SourceGraph
 
         private SourceFileGrouping Build(IOUri entryFileUri, FrozenSet<ISourceFile>? sourceFileExplorerBuild = null)
         {
-            var fileResult = this.PopulateRecursive(entryFileUri, null, sourceFileExplorerBuild);
+            var fileResult = this.PopulateRecursive(entryFileUri, ModuleTemplateKind.SourceFile, sourceFileExplorerBuild);
 
             if (!fileResult.IsSuccess(out var entryFile, out var errorBuilder))
             {
@@ -134,7 +134,7 @@ namespace Bicep.Core.SourceGraph
                 fileResultByUri.ToImmutableDictionary());
         }
 
-        private ResultWithDiagnosticBuilder<ISourceFile> GetFileResolutionResult(IOUri fileUri, ArtifactReference? moduleReference)
+        private ResultWithDiagnosticBuilder<ISourceFile> GetFileResolutionResult(IOUri fileUri, ModuleTemplateKind kind)
         {
             if (workspace.TryGetSourceFile(fileUri) is { } sourceFile)
             {
@@ -147,27 +147,27 @@ namespace Bicep.Core.SourceGraph
             }
 
 
-            sourceFile = moduleReference is TemplateSpecArtifactReference
+            sourceFile = kind == ModuleTemplateKind.TemplateSpec
                 ? this.sourceFileFactory.CreateTemplateSpecFile(fileUri, fileContents)
                 : this.sourceFileFactory.CreateSourceFile(fileUri, fileContents);
 
             return new(sourceFile);
         }
 
-        private ResultWithDiagnosticBuilder<ISourceFile> GetFileResolutionResultWithCaching(IOUri fileUri, ArtifactReference? reference)
+        private ResultWithDiagnosticBuilder<ISourceFile> GetFileResolutionResultWithCaching(IOUri fileUri, ModuleTemplateKind kind)
         {
             if (!fileResultByUri.TryGetValue(fileUri, out var resolutionResult))
             {
-                resolutionResult = GetFileResolutionResult(fileUri, reference);
+                resolutionResult = GetFileResolutionResult(fileUri, kind);
                 fileResultByUri[fileUri] = resolutionResult;
             }
 
             return resolutionResult;
         }
 
-        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(IOUri fileUri, ArtifactReference? reference, FrozenSet<ISourceFile>? sourceFileExplorerBuild)
+        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(IOUri fileUri, ModuleTemplateKind kind, FrozenSet<ISourceFile>? sourceFileExplorerBuild)
         {
-            var fileResult = GetFileResolutionResultWithCaching(fileUri, reference);
+            var fileResult = GetFileResolutionResultWithCaching(fileUri, kind);
             if (fileResult.TryUnwrap() is BicepSourceFile bicepSource)
             {
                 PopulateRecursive(bicepSource, sourceFileExplorerBuild);
@@ -218,20 +218,20 @@ namespace Bicep.Core.SourceGraph
 
                 var resolutionInfo = GetArtifactRestoreResult(file, restorable);
                 artifactLookup[restorable] = resolutionInfo;
-                if (!resolutionInfo.Result.IsSuccess(out var artifactFileHandle))
+                if (!resolutionInfo.Result.IsSuccess(out var artifact) || artifact is not ModuleArtifact moduleArtifact)
                 {
                     // recursion not possible
                     continue;
                 }
 
-                var artifactUri = artifactFileHandle.Uri;
+                var artifactUri = moduleArtifact.EntryPoint.Uri;
 
                 // recurse into child modules, to ensure we have an exhaustive list of restorable artifacts for the full compilation
                 if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
                     (childResult.IsSuccess(out var childFile) && sourceFileExplorerBuild is not null && sourceFileExplorerBuild.Contains(childFile)))
                 {
                     // only recurse if we've not seen this file before - to avoid infinite loops
-                    childResult = PopulateRecursive(artifactUri, resolutionInfo.Reference, sourceFileExplorerBuild);
+                    childResult = PopulateRecursive(artifactUri, moduleArtifact.Kind, sourceFileExplorerBuild);
                 }
                 fileResultByUri[artifactUri] = childResult;
             }
@@ -273,20 +273,20 @@ namespace Bicep.Core.SourceGraph
             return new(referencingFile, referenceSyntax, artifactReference, result, RequiresRestore: requiresRestore);
         }
 
-        private (ResultWithDiagnosticBuilder<IFileHandle> result, bool requiresRestore) GetArtifactRestoreResult(BicepSourceFile referencingFile, ArtifactReference artifactReference) => artifactReference switch
+        private (ResultWithDiagnosticBuilder<Artifact> result, bool requiresRestore) GetArtifactRestoreResult(BicepSourceFile referencingFile, ArtifactReference artifactReference) => artifactReference switch
         {
             // Local files are loaded directly; they are never restored.
-            LocalArtifactReference local => (LocalArtifactLoader.TryGetEntryPoint(local, referencingFile.LoadFeatures().CacheRootDirectory), requiresRestore: false),
+            LocalArtifactReference local => (LocalArtifactLoader.TryOpen(local, referencingFile.LoadFeatures().CacheRootDirectory), requiresRestore: false),
             RemoteArtifactReference external => this.GetRemoteArtifactRestoreResult(external),
             _ => throw new InvalidOperationException($"Unexpected artifact reference type '{artifactReference.GetType().Name}'."),
         };
 
-        private (ResultWithDiagnosticBuilder<IFileHandle> result, bool requiresRestore) GetRemoteArtifactRestoreResult(RemoteArtifactReference artifactReference) =>
+        private (ResultWithDiagnosticBuilder<Artifact> result, bool requiresRestore) GetRemoteArtifactRestoreResult(RemoteArtifactReference artifactReference) =>
             restorer.GetRestoreState(artifactReference) switch
             {
                 // A recent restore failed. Report it rather than retrying, even when a restore is forced.
                 RemoteArtifactRestoreState.RestoreFailed failed => (new(failed.Error), requiresRestore: false),
-                RemoteArtifactRestoreState.Restored restored when !forceRestore => (new(restored.EntryPoint), requiresRestore: false),
+                RemoteArtifactRestoreState.Restored restored when !forceRestore => (new(restored.Artifact), requiresRestore: false),
                 _ => (new(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference)), requiresRestore: true),
             };
 
@@ -297,8 +297,8 @@ namespace Bicep.Core.SourceGraph
                 .WhereNotNull()
                 .SelectMany(sourceFile => GetArtifactReferenceDeclarations(sourceFile)
                     .Select(x => this.artifactLookup.TryGetValue(x)?.Result.TryUnwrap())
-                    .WhereNotNull()
-                    .Select(fileHandle => this.fileResultByUri.TryGetValue(fileHandle.Uri)?.TryUnwrap())
+                    .OfType<ModuleArtifact>()
+                    .Select(artifact => this.fileResultByUri.TryGetValue(artifact.EntryPoint.Uri)?.TryUnwrap())
                     .WhereNotNull()
                     .Distinct()
                     .Select(referencedFile => (sourceFile, referencedFile)))
@@ -308,11 +308,11 @@ namespace Bicep.Core.SourceGraph
             foreach (var (statement, info) in artifactLookup)
             {
                 if (statement.GetArtifactType() == ArtifactType.Module &&
-                    info.Result.IsSuccess(out var fileHandle) &&
-                    fileResultByUri[fileHandle.Uri].IsSuccess(out var sourceFile) &&
+                    info.Result.TryUnwrap() is ModuleArtifact artifact &&
+                    fileResultByUri[artifact.EntryPoint.Uri].IsSuccess(out var sourceFile) &&
                     cycles.TryGetValue(sourceFile, out var cycle))
                 {
-                    ResultWithDiagnosticBuilder<IFileHandle> result = cycle switch
+                    ResultWithDiagnosticBuilder<Artifact> result = cycle switch
                     {
                         { Length: 1 } when cycle[0] is BicepParamFile paramFile => new(x => x.CyclicParametersSelfReference()),
                         { Length: 1 } => new(x => x.CyclicModuleSelfReference()),

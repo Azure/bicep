@@ -22,7 +22,9 @@ namespace Bicep.Core.Artifacts.Cache
 
         public IFileHandle BinaryFile => this.layout.BinaryFile;
 
-        public override IFileHandle EntryPoint => this.TypesTgzFile;
+        protected override IFileHandle ContentFile => this.TypesTgzFile;
+
+        public override ExtensionArtifact Open(ArtifactReference reference) => this.layout.Open(reference);
 
         /// <summary>
         /// Writes a pulled extension into the cache, with this machine's binary if it has binaries, unless another

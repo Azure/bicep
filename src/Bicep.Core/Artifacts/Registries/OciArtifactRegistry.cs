@@ -54,10 +54,10 @@ namespace Bicep.Core.Artifacts.Registries
             _ => throw new InvalidOperationException($"Unexpected artifact type '{reference.Type}'."),
         };
 
-        protected override IFileHandle? TryGetEntryPoint(OciArtifactReference reference) =>
+        protected override Artifact? TryOpen(OciArtifactReference reference) =>
             // Security-first: an artifact from an untrusted registry is never loaded, even if it is cached. It counts as
             // not restored, so that restore runs and reports the untrusted registry (BCP446).
-            this.registryConfiguration.IsRegistryTrusted(reference.Registry) ? base.TryGetEntryPoint(reference) : null;
+            this.registryConfiguration.IsRegistryTrusted(reference.Registry) ? base.TryOpen(reference) : null;
 
         public async Task<bool> CheckArtifactExists(OciArtifactReference reference)
         {

@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using Bicep.Core.Artifacts;
-using Bicep.Core.Artifacts.Cache;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Artifacts.Restore;
@@ -68,13 +67,20 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
             var moduleReference = ociModuleReference;
 
-            if (restorer.GetRestoreState(moduleReference) is RemoteArtifactRestoreState.RestoreFailed)
+            ModuleArtifact artifact;
+            switch (restorer.GetRestoreState(moduleReference))
             {
-                return Task.FromResult(new BicepExternalSourceResponse(null,
-                    $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'."));
+                case RemoteArtifactRestoreState.Restored { Artifact: ModuleArtifact restored }:
+                    artifact = restored;
+                    break;
+                case RemoteArtifactRestoreState.RestoreFailed failed:
+                    return Task.FromResult(new BicepExternalSourceResponse(null, failed.Error(DiagnosticBuilder.ForDocumentStart()).Message));
+                default:
+                    return Task.FromResult(new BicepExternalSourceResponse(null,
+                        $"The module '{moduleReference.FullyQualifiedReference}' has not been restored."));
             }
 
-            var success = ociModuleReference.TryLoadSourceArchive().IsSuccess(out var sourceArchive, out var ex);
+            var success = artifact.TryGetSources().IsSuccess(out var sourceArchive, out var ex);
 
             if (request.requestedSourceFile is { })
             {
@@ -97,7 +103,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
             // No sources available, or specifically requesting the compiled main.json (requestedSourceFile=null).
             // Return the compiled JSON (main.json).
-            var mainTemplateFile = new OciModuleArtifactCacheEntry(ociModuleReference.AddressComponents, ociModuleReference.Context.CacheRootDirectory).MainTemplateFile;
+            var mainTemplateFile = artifact.EntryPoint;
             if (!mainTemplateFile.TryReadAllText().IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;

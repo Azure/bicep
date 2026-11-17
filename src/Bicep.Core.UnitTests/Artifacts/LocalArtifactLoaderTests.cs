@@ -28,7 +28,11 @@ public class LocalArtifactLoaderTests
     {
         var reference = new LocalArtifactReference(ArtifactType.Module, this.GetFile("main.bicep"), "./main.bicep");
 
-        Load(reference, this.GetCacheRoot()).Uri.Should().Be(reference.File.Uri);
+        var artifact = Load(reference, this.GetCacheRoot()).Should().BeOfType<ModuleArtifact>().Subject;
+
+        artifact.Reference.Should().BeSameAs(reference);
+        artifact.EntryPoint.Uri.Should().Be(reference.File.Uri);
+        artifact.Kind.Should().Be(ModuleTemplateKind.SourceFile);
     }
 
     [TestMethod]
@@ -37,16 +41,17 @@ public class LocalArtifactLoaderTests
         var cacheRoot = this.GetCacheRoot();
         var reference = await this.CreateExtensionReference("ext.tgz", new(Types, []));
 
-        var entryPoint = Load(reference, cacheRoot);
+        var artifact = LoadExtension(reference, cacheRoot);
 
-        entryPoint.Uri.Path.Should().MatchRegex("/local/sha256_[0-9a-f]{64}/types\\.tgz$");
-        entryPoint.TryReadBinaryData().Unwrap().ToString().Should().Be("types");
-        new ExtensionArtifactCacheLayout(entryPoint.GetParent()).Open().Binary.Should().BeNull();
+        artifact.Reference.Should().BeSameAs(reference);
+        artifact.Types.Uri.Path.Should().MatchRegex("/local/sha256_[0-9a-f]{64}/types\\.tgz$");
+        artifact.Types.TryReadBinaryData().Unwrap().ToString().Should().Be("types");
+        artifact.Binary.Should().BeNull();
 
         // The cache is content-addressed, so another file with the same content reuses the extracted package.
         var copy = new LocalArtifactReference(ArtifactType.Extension, this.GetFile("copy.tgz"), "./copy.tgz");
         copy.File.Write(reference.File.TryReadBinaryData().Unwrap());
-        Load(copy, cacheRoot).Uri.Should().Be(entryPoint.Uri);
+        LoadExtension(copy, cacheRoot).Types.Uri.Should().Be(artifact.Types.Uri);
     }
 
     [TestMethod]
@@ -57,10 +62,8 @@ public class LocalArtifactLoaderTests
         var cacheRoot = this.GetCacheRoot();
         var reference = await this.CreateExtensionReference("ext.tgz", new(Types, [new(other, BinaryData.FromString("other")), new(current, BinaryData.FromString("this"))]));
 
-        var entryPoint = Load(reference, cacheRoot);
+        var artifact = LoadExtension(reference, cacheRoot);
 
-        var artifact = new ExtensionArtifactCacheLayout(entryPoint.GetParent()).Open();
-        artifact.Types.Uri.Should().Be(entryPoint.Uri);
         artifact.Binary!.TryReadBinaryData().Unwrap().ToString().Should().Be("this");
     }
 
@@ -91,11 +94,11 @@ public class LocalArtifactLoaderTests
         ExtensionBinary[] binaries = SupportedArchitectures.TryGetCurrent() is { } current ? [new(current, binary)] : [];
         var reference = await this.CreateExtensionReference("ext.tgz", new(Types, [.. binaries]));
 
-        var results = await Task.WhenAll(Enumerable.Range(0, 8).Select(_ => Task.Run(() => LocalArtifactLoader.TryGetEntryPoint(reference, cacheRoot))));
+        var results = await Task.WhenAll(Enumerable.Range(0, 8).Select(_ => Task.Run(() => LocalArtifactLoader.TryOpen(reference, cacheRoot))));
 
-        var entryPoints = results.Select(result => result.Unwrap()).ToArray();
-        entryPoints.Select(x => x.Uri).Distinct().Should().ContainSingle();
-        entryPoints[0].TryReadBinaryData().Unwrap().ToString().Should().Be("types");
+        var typesFiles = results.Select(result => result.Unwrap().Should().BeOfType<ExtensionArtifact>().Subject.Types).ToArray();
+        typesFiles.Select(x => x.Uri).Distinct().Should().ContainSingle();
+        typesFiles[0].TryReadBinaryData().Unwrap().ToString().Should().Be("types");
         if (binaries.Length > 0)
         {
             GetCacheEntry(reference, cacheRoot).BinaryFile.TryReadBinaryData().Unwrap().ToArray().Should().Equal(binary.ToArray());
@@ -119,23 +122,26 @@ public class LocalArtifactLoaderTests
     {
         var reference = new LocalArtifactReference(ArtifactType.Extension, this.GetFile("missing.tgz"), "./missing.tgz");
 
-        LocalArtifactLoader.TryGetEntryPoint(reference, this.GetCacheRoot()).IsSuccess().Should().BeFalse();
+        LocalArtifactLoader.TryOpen(reference, this.GetCacheRoot()).IsSuccess().Should().BeFalse();
     }
 
     private static SupportedArchitecture GetCurrentArchitecture() =>
         SupportedArchitectures.TryGetCurrent() ?? throw new AssertInconclusiveException("Extension binaries are not supported on this machine's OS or architecture.");
 
-    private static IFileHandle Load(LocalArtifactReference reference, IDirectoryHandle cacheRoot)
+    private static Artifact Load(LocalArtifactReference reference, IDirectoryHandle cacheRoot)
     {
-        LocalArtifactLoader.TryGetEntryPoint(reference, cacheRoot).IsSuccess(out var entryPoint, out var errorBuilder)
+        LocalArtifactLoader.TryOpen(reference, cacheRoot).IsSuccess(out var artifact, out var errorBuilder)
             .Should().BeTrue(errorBuilder?.Invoke(DiagnosticBuilder.ForDocumentStart()).Message);
 
-        return entryPoint!;
+        return artifact!;
     }
+
+    private static ExtensionArtifact LoadExtension(LocalArtifactReference reference, IDirectoryHandle cacheRoot) =>
+        Load(reference, cacheRoot).Should().BeOfType<ExtensionArtifact>().Subject;
 
     private static Diagnostic LoadError(LocalArtifactReference reference, IDirectoryHandle cacheRoot)
     {
-        LocalArtifactLoader.TryGetEntryPoint(reference, cacheRoot).IsSuccess(out _, out var errorBuilder).Should().BeFalse();
+        LocalArtifactLoader.TryOpen(reference, cacheRoot).IsSuccess(out _, out var errorBuilder).Should().BeFalse();
 
         return errorBuilder!(DiagnosticBuilder.ForDocumentStart());
     }

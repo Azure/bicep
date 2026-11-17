@@ -23,11 +23,11 @@ The work has two parts:
 | 0.8a | Registry, publish and cache cuts (includes the former 0.8c) | #20528 | Merged |
 | 0.8b | Vocabulary and folders: renames and moves only | #20530 | Merged |
 | 0.9a | OCI payload and codecs | #20554 | Merged |
-| 0.9b | Cache entries store packages | #20560 | In review |
-| 0.9c | The compiler gets artifacts, not files | – | Next |
-| 1–10 | REP 0022 features (section 5) | – | Planned |
+| 0.9b | Cache entries store packages | #20560 | Merged |
+| 0.9c | The compiler gets artifacts, not files | – | In review |
+| 1–10 | REP 0022 features (section 5) | – | Next |
 
-Restructuring the source file grouping (`ArtifactResolutionInfo`) is a separate effort (`source-graph-ownership.md`, draft).
+Restructuring the source file grouping (`ArtifactResolutionInfo`) is a separate effort, not yet designed.
 
 ---
 
@@ -122,7 +122,7 @@ Design rules:
 - **Objects carry their own facts.** Every reference knows its `ArtifactType`, and whether it's local or remote is its type, not a flag. Module/extension method pairs exist only where the payload differs (publish).
 - **Variation is modeled with types:** restore states, the module and extension families, and redirect rules. The legacy mock and redirect patterns are subclasses of one redirect-rule type, so deleting the mock means deleting one class.
 
-`IRemoteArtifactRegistry` (`IArtifactRegistry` until 0.8b) has `Scheme` (`Schemes` from PR 2), `CanHandle`, `TryGetEntryPoint` (`TryOpen` after 0.9c) and `RestoreAsync(references, RestoreMode)`. Each has one job: `Schemes` lists the text spellings the registry supports (for BCP189); `CanHandle` routes references by type, so the cast in `RemoteArtifactRegistry<TReference>` can't fail. Routing by scheme was removed on purpose in 0.6, and after PR 2 `oci:` and `br:` share one reference type whose persisted scheme stays `br`. A forced restore deletes the cached copies first. The restorer starts the public module catalog download alongside a restore, so that linter rules read cached metadata. Hover reads OCI metadata from `OciArtifactRegistry` and gets other modules' descriptions from their semantic models.
+`IRemoteArtifactRegistry` (`IArtifactRegistry` until 0.8b) has `Scheme` (`Schemes` from PR 2), `CanHandle`, `TryOpen` (`TryGetEntryPoint` until 0.9c) and `RestoreAsync(references, RestoreMode)`. Each has one job: `Schemes` lists the text spellings the registry supports (for BCP189); `CanHandle` routes references by type, so the cast in `RemoteArtifactRegistry<TReference>` can't fail. Routing by scheme was removed on purpose in 0.6, and after PR 2 `oci:` and `br:` share one reference type whose persisted scheme stays `br`. A forced restore deletes the cached copies first. The restorer starts the public module catalog download alongside a restore, so that linter rules read cached metadata. Hover reads OCI metadata from `OciArtifactRegistry` and gets other modules' descriptions from their semantic models.
 
 ### 3.3 Artifact model (Phase 0.9)
 
@@ -202,11 +202,13 @@ public static class OciExtensionArtifactCodec
 // LocalExtensionArtifactCodec (formerly ExtensionV1Archive, then ExtensionArtifactArchiveCodec) encodes and decodes the local .tgz.
 
 // Cache entries: write a package once, open it as an artifact. OCI entries also store the original manifest
-// bytes and the metadata file, which older Bicep versions and hover read. WriteAsync exists since 0.9a; Open is 0.9c.
+// bytes and the metadata file, which older Bicep versions and hover read. WriteAsync exists since 0.9a; Open since 0.9c.
+// Every entry overrides ArtifactCacheEntry.Open(ArtifactReference) with its own artifact type, so registries open
+// any complete entry without a switch.
 public sealed class OciModuleArtifactCacheEntry : OciArtifactCacheEntry
 {
     public Task WriteAsync(ModuleArtifactPackage package, OciArtifactPayload pulled);
-    public ModuleArtifact Open(OciArtifactReference reference);
+    public override ModuleArtifact Open(ArtifactReference reference);
 }
 
 // The extension layout shared by OCI and local extension cache entries (since 0.9b), and its one writer:
@@ -217,12 +219,11 @@ public sealed class ExtensionArtifactCacheLayout
     public IFileHandle TypesTgzFile { get; }
     public IFileHandle BinaryFile { get; }
     public void Write(ExtensionArtifactPackage package, ArtifactReference reference);
-    public ExtensionArtifact Open();
+    public ExtensionArtifact Open(ArtifactReference reference);
 }
 
 // What the compiler, language server and local deploy get. Backed by files and read lazily
-// (extension binaries can be large). ExtensionArtifact exists since 0.9b, without a base class or Reference;
-// Artifact and ModuleArtifact are 0.9c.
+// (extension binaries can be large). ExtensionArtifact exists since 0.9b; Artifact and ModuleArtifact since 0.9c.
 public abstract class Artifact(ArtifactReference reference) { public ArtifactReference Reference { get; } = reference; }
 
 public enum ModuleTemplateKind { SourceFile, ArmTemplate, TemplateSpec }
@@ -231,7 +232,9 @@ public sealed class ModuleArtifact : Artifact
 {
     public IFileHandle EntryPoint { get; }
     public ModuleTemplateKind Kind { get; }
-    public ResultWithException<SourceArchive>? TryGetSources();     // null if published without sources
+    // Fails with SourceNotAvailableException if the module was published without sources (or can't have any: local
+    // files and Template Specs). The language server already handles that exception as "no sources", not as an error.
+    public ResultWithException<SourceArchive> TryGetSources();
 }
 
 public sealed class ExtensionArtifact : Artifact
@@ -257,7 +260,7 @@ Consumers after 0.9c:
 - **Source graph:** `ArtifactResolutionInfo.Result` is a `ResultWithDiagnosticBuilder<Artifact>`, and it chooses the parser from `ModuleArtifact.Kind`.
 - **Extensions:** `NamespaceProvider` reads `ExtensionArtifact.Types`.
 - **Local deploy:** `NamespaceType.ExtensionArtifact?.Binary` gives the binary.
-- **Language server:** it calls `ModuleArtifact.TryGetSources()`, after asking the restorer when it has no compilation.
+- **Language server:** it calls `ModuleArtifact.TryGetSources()`, from the source graph when it has a compilation (go to definition, source archives) and from the restorer when it doesn't (ext-src requests, document links, code lenses, the visualizer).
 - **Local extensions:** extracting them into the cache moves into a small `LocalArtifactLoader`, leaving `LocalArtifactReference` a pure value.
 
 Deliberately not done:
@@ -507,14 +510,21 @@ Every Phase 0 PR leaves all baselines unchanged. Diagnostic text isn't frozen: a
   - Pulled forward from 0.9c: `ExtensionArtifact` (`Types`, and `Binary`, looked up on first use), without the `Artifact` base class or `Reference`, which nothing would use yet. `NamespaceType.ExtensionArtifact` replaced `ExtensionArtifactReference`, and `IExtensionArtifact`, `IExtensionArtifactReference` and `ResolveExtensionArtifact` were deleted. Without a cache root, a local reference can't find its extracted files, so local deploy can't ask it for the binary. Instead, `NamespaceProvider` opens the extension through `ExtensionArtifactCacheLayout` in its types file's directory, which is always the extension's cache entry.
   - The one on-disk difference: an OCI extension with no binary for this machine no longer leaves `types.tgz` in its incomplete cache entry.
   - `LocalArtifactLoaderTests` cover modules, extraction, this machine's binary, an unsupported architecture and concurrent loads on a real file system. `LocalArtifactReferenceTests` keeps only the identity tests.
+- **0.9c: the compiler gets artifacts.**
+  - `Artifact` (with `Reference`) and `ModuleArtifact` (`EntryPoint`, `Kind`, `TryGetSources()`) were added, and `ExtensionArtifact` derives from `Artifact`. Each cache entry overrides `ArtifactCacheEntry.Open(ArtifactReference)` with its own artifact type: OCI modules open as `ArmTemplate` with their `source.tgz`, Template Specs as `TemplateSpec`, and both extension entries through `ExtensionArtifactCacheLayout.Open(reference)`.
+  - `IRemoteArtifactRegistry.TryOpen` and `LocalArtifactLoader.TryOpen` replaced `TryGetEntryPoint`. `RemoteArtifactRestoreState.Restored` carries the `Artifact`, and `ArtifactResolutionInfo.Result` is a `ResultWithDiagnosticBuilder<Artifact>`; the new `IArtifactFileLookup.TryGetArtifact()` extension method reads it.
+  - `ArtifactCacheEntry.EntryPoint` was removed: callers get the file from the opened artifact (`ModuleArtifact.EntryPoint`, `ExtensionArtifact.Types`). OCI entries keep a protected `ContentFile` for their completeness check.
+  - The source graph recurses into `ModuleArtifact.EntryPoint` and chooses the parser from `ModuleArtifact.Kind` instead of the reference type. `NamespaceProvider` reads `ExtensionArtifact.Types` and passes the source graph's `ExtensionArtifact` to `NamespaceType`, so it no longer opens the extension from its types file's directory. The MCP server reads restored extensions' `Types`.
+  - `TryLoadSourceArchive` (`SourceLink/OciModuleReferenceExtensions.cs`) was deleted; only the registries and `LocalArtifactLoader` create cache entries. `ModuleArtifact.TryGetSources()` keeps the old result type and fails with `SourceNotAvailableException` for a module without sources, which every caller already handles. Go to definition and source archives use the source graph's artifact; ext-src requests, document links, code lenses and the visualizer ask the restorer, so the code-lens and document-link handlers now take `IRemoteArtifactRestorer`.
+  - Reworded language server messages:
+    - An ext-src request for a module whose restore failed returns the restore error (was "Unable to obtain the entry point URI for module '…'.").
+    - New: "The module '…' has not been restored." for an ext-src request or a code lens on a module that isn't in the cache.
+  - Behavior changes, all in the language server: ext-src requests, document links, code lenses and the visualizer read sources only from restored modules. Before, they read the cache directly, so they showed a cached module even if its registry was no longer trusted or its cache entry was incomplete.
+  - `OciArtifactRegistryTryOpenTests` (was `OciArtifactRegistryEntryPointTests`) and `LocalArtifactLoaderTests` check the artifact types, kinds and references. New tests cover the ext-src handler and code lenses on a module that isn't restored.
 
 ### 4.2 Remaining phases
 
-| # | Phase | Details | Verification |
-|---|---|---|---|
-| 0.9c | **The compiler gets artifacts** | Add `Artifact` (with `Reference`) and `ModuleArtifact`; `ExtensionArtifact` derives from `Artifact`. `IRemoteArtifactRegistry.TryGetEntryPoint` and `LocalArtifactLoader.TryGetEntryPoint` become `TryOpen`; `RemoteArtifactRestoreState.Restored(Artifact)`; `ArtifactResolutionInfo.Result` becomes `ResultWithDiagnosticBuilder<Artifact>`. The source graph uses `ModuleArtifact.Kind`; `NamespaceProvider` uses `ExtensionArtifact.Types` and passes the source graph's `ExtensionArtifact` to `NamespaceType` instead of opening it from the types file's directory; the language server uses `ModuleArtifact.TryGetSources()`. Delete `TryLoadSourceArchive`. | Baselines unchanged; language server ext-src, visualizer and code-lens tests; local deploy tests. |
-
-Phase 0 ends with 0.9c.
+None: Phase 0 ended with 0.9c.
 
 ### 4.3 Why rename (0.8b) before simplifying (0.9)
 
@@ -525,7 +535,8 @@ Phase 0 ends with 0.9c.
 
 ### 4.4 Validation notes
 
-- **Last full run (0.9b):** `dotnet build Bicep.slnx --no-restore` with 0 warnings; `dotnet test --solution Bicep.slnx --no-build` with 16,471 passed, 3 skipped and 0 failed. No baseline changes. 0.9a: 16,395 passed, 3 skipped and 9 failed (`Bicep.LangServer.IntegrationTests` and `Bicep.RpcClient.Tests`, which then passed on their own). 0.8b: 16,108 passed and 1 skipped. Each earlier phase ran the full suite; its results are in the PR description.
+- **Last full run (0.9c):** `dotnet build Bicep.slnx --no-restore` with 0 warnings; `dotnet test --solution Bicep.slnx --no-build` with 16,504 passed, 3 skipped and 0 failed. No baseline changes. 0.9b: 16,471 passed and 3 skipped. 0.9a: 16,395 passed, 3 skipped and 9 failed (`Bicep.LangServer.IntegrationTests` and `Bicep.RpcClient.Tests`, which then passed on their own). 0.8b: 16,108 passed and 1 skipped. Each earlier phase ran the full suite; its results are in the PR description.
+- **Disk space:** the integration tests leave about 18 GB in `bin/Debug/net10.0/TestOutput` folders across runs. When the disk fills, about a hundred tests fail with "There is not enough space on the disk"; deleting those folders fixes it.
 - **Test runner flags:** these test runners use Microsoft.Testing.Platform and don't accept `--blame-hang-timeout` or `--output Minimal`. A run with either flag executes zero tests.
 - **Wasm DI:** `AddBicepDecompiler` calls `AddBicepCore` again, so Wasm removes the default registries after both calls.
 - **Mock test case:** `RemoteArtifactRestorerTests`' mock reference includes its context in equality, as real references do.

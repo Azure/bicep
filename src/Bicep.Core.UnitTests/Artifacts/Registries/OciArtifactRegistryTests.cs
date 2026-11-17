@@ -724,7 +724,8 @@ namespace Bicep.Core.UnitTests.Artifacts.Registries
                 modules.Should().AllSatisfy(m => m.HasSourceLayer.Should().Be(publishSource));
             }
 
-            var actualSourceResult = moduleReference.TryLoadSourceArchive();
+            var restoredModule = ociRegistry.TryOpen(moduleReference).Should().BeOfType<ModuleArtifact>().Subject;
+            var actualSourceResult = restoredModule.TryGetSources();
 
             if (sourceArchive is { })
             {

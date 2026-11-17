@@ -22,8 +22,13 @@ namespace Bicep.Core.Artifacts.Cache
 
         public IFileHandle MetadataFile => this.GetFile("metadata");
 
+        /// <summary>
+        /// Gets the file that holds the artifact's content: the module's template, or the extension's types.
+        /// </summary>
+        protected abstract IFileHandle ContentFile { get; }
+
         // The manifest and the metadata are written first and last, so all three files exist only once the entry is complete.
-        public override bool IsComplete => this.EntryPoint.Exists() && this.ManifestFile.Exists() && this.MetadataFile.Exists();
+        public override bool IsComplete => this.ContentFile.Exists() && this.ManifestFile.Exists() && this.MetadataFile.Exists();
 
         /// <summary>
         /// Writes a pulled artifact into the cache, unless another compilation already has.

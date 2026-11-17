@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Artifacts.Resolution;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -15,11 +16,13 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
     // Provides code lenses for a range in a Bicep document
     public class BicepCodeLensHandler : CodeLensHandlerBase
     {
+        private readonly IRemoteArtifactRestorer restorer;
         private readonly IRemoteArtifactContextFactory remoteArtifactContextFactory;
         private readonly DocumentSelectorFactory documentSelectorFactory;
 
-        public BicepCodeLensHandler(IRemoteArtifactContextFactory remoteArtifactContextFactory, DocumentSelectorFactory documentSelectorFactory)
+        public BicepCodeLensHandler(IRemoteArtifactRestorer restorer, IRemoteArtifactContextFactory remoteArtifactContextFactory, DocumentSelectorFactory documentSelectorFactory)
         {
+            this.restorer = restorer;
             this.remoteArtifactContextFactory = remoteArtifactContextFactory;
             this.documentSelectorFactory = documentSelectorFactory;
         }
@@ -28,7 +31,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var lenses = ExternalSourceCodeLensProvider.GetCodeLenses(remoteArtifactContextFactory, request, cancellationToken);
+            var lenses = ExternalSourceCodeLensProvider.GetCodeLenses(restorer, remoteArtifactContextFactory, request, cancellationToken);
 
             return Task.FromResult<CodeLensContainer?>(new CodeLensContainer(lenses));
         }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Navigation;
 
@@ -14,4 +15,11 @@ public static class IArtifactFileLookupExtensions
     /// </summary>
     public static ArtifactReference? TryGetArtifactReference(this IArtifactFileLookup lookup, IArtifactReferenceSyntax syntax)
         => lookup.ArtifactLookup.TryGetValue(syntax, out var resolutionInfo) ? resolutionInfo.Reference : null;
+
+    /// <summary>
+    /// Gets the artifact that was loaded for <paramref name="syntax"/> when the source file grouping was built.
+    /// Returns null if the artifact could not be loaded.
+    /// </summary>
+    public static Artifact? TryGetArtifact(this IArtifactFileLookup lookup, IArtifactReferenceSyntax syntax)
+        => lookup.ArtifactLookup.TryGetValue(syntax, out var resolutionInfo) ? resolutionInfo.Result.TryUnwrap() : null;
 }
