@@ -51,10 +51,8 @@ namespace Bicep.Core.Configuration
         bool IsBuiltIn { get; }
 
         /// <summary>
-        /// Returns all diagnostics produced while loading this configuration.
-        /// For an inherited chain, this includes diagnostics from every file in the chain.
-        /// Each diagnostic's message already includes the source config file URI so callers
-        /// can report exactly which file caused the problem.
+        /// Returns the errors that prevented the configuration from loading, in which case the built-in defaults are in effect.
+        /// Each diagnostic's message names the configuration file that caused it.
         /// </summary>
         IEnumerable<IDiagnostic> GetDiagnostics();
     }

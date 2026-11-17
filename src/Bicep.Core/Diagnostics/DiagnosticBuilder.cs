@@ -1332,9 +1332,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP272",
                 $"Could not load the Bicep configuration file \"{configFileUri}\": {loadErrorMessage.TrimEnd('.')}.");
 
-            public Diagnostic InvalidBicepConfigFile(IOUri configFileUri, string parsingErrorMessage) => CoreError(
+            public Diagnostic InvalidBicepConfigFile(IOUri configFileUri, string errorMessage) => CoreError(
                 "BCP273",
-                $"Failed to parse the contents of the Bicep configuration file \"{configFileUri}\": {parsingErrorMessage.TrimEnd('.')}.");
+                $"The Bicep configuration file \"{configFileUri}\" is invalid: {errorMessage.TrimEnd('.')}.");
 
             public Diagnostic PotentialConfigDirectoryCouldNotBeScanned(IOUri? directoryIdentifier, string scanErrorMessage) => CoreDiagnostic(
                 DiagnosticLevel.Info, // should this be a warning instead?
@@ -2065,9 +2065,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP452",
                 @$"The imported symbol ""{symbolName}"" cannot be used in a {LanguageConstants.ParamsFileExtension} file because it depends on deployment-context functions: {ToQuotedString(functionNames)}. Imported declarations may only use functions that can be evaluated while building the parameters file.");
 
-            public Diagnostic BicepConfigExtendsAbsolutePath(IOUri configFileUri) => CoreError(
+            public Diagnostic BicepConfigExtendsMustBeRelativePath(IOUri configFileUri) => CoreError(
                 "BCP453",
-                $"The \"extends\" value in the Bicep configuration file \"{configFileUri}\" must be a relative path. Absolute paths are not allowed.");
+                $"The \"extends\" value in the Bicep configuration file \"{configFileUri}\" must be a string containing a relative path.");
 
             public Diagnostic BicepConfigExtendsCycle(IOUri configFileUri, string cycle) => CoreError(
                 "BCP454",
