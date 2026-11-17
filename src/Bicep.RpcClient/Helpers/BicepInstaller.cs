@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -13,11 +14,17 @@ using System.Threading.Tasks;
 
 namespace Bicep.RpcClient.Helpers;
 
-internal static class BicepInstaller
+internal sealed class BicepInstaller(HttpClient httpClient)
 {
     private const string DownloadBaseUrl = "https://downloads.bicep.azure.com";
     private const string LatestReleaseUrl = $"{DownloadBaseUrl}/releases/latest";
+    private const string ReleasesUrl = $"{DownloadBaseUrl}/releases";
     private const string TagNameProperty = "tag_name";
+
+    private readonly SemaphoreSlim releasesSemaphore = new(1, 1);
+    private readonly SemaphoreSlim latestVersionSemaphore = new(1, 1);
+    private ImmutableArray<string> cachedReleases;
+    private string? cachedLatestVersion;
 
     // if we're unable to acquire a lock on the install location, we will retry until this timeout is reached
     private static readonly TimeSpan InstallContentionTimeout = TimeSpan.FromSeconds(30);
@@ -25,8 +32,7 @@ internal static class BicepInstaller
     // interval at which we will retry acquiring the lock on the install location
     private static readonly TimeSpan InstallContentionRetryInterval = TimeSpan.FromMilliseconds(300);
 
-    public static async Task DownloadAndInstallBicepCliAsync(
-        HttpClient httpClient,
+    public async Task DownloadAndInstallBicepCliAsync(
         string bicepCliPath,
         OSPlatform targetOSPlatform,
         Architecture targetOSArchitecture,
@@ -67,18 +73,64 @@ internal static class BicepInstaller
         }, cancellationToken).ConfigureAwait(false);
     }
 
-    public static async Task<string> GetLatestBicepVersion(
-        HttpClient httpClient,
-        CancellationToken cancellationToken)
+    public async Task<string> GetLatestBicepVersion(CancellationToken cancellationToken)
     {
-        var response = await httpClient.GetAsync(LatestReleaseUrl, cancellationToken).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+        await latestVersionSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (cachedLatestVersion is null)
+            {
+                using var response = await httpClient.GetAsync(LatestReleaseUrl, cancellationToken).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
 
-        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-        var json = JsonSerializer.Deserialize<JsonElement>(responseBody);
+                var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                using var document = JsonDocument.Parse(responseBody);
+                cachedLatestVersion = document.RootElement.GetProperty(TagNameProperty).GetString()
+                    ?? throw new InvalidOperationException("Failed to determine the latest Bicep CLI version from the releases API.");
+            }
 
-        return json.GetProperty(TagNameProperty).GetString()
-            ?? throw new InvalidOperationException("Failed to determine the latest Bicep CLI version from the releases API.");
+            return cachedLatestVersion;
+        }
+        finally
+        {
+            latestVersionSemaphore.Release();
+        }
+    }
+
+    public async Task<ImmutableArray<string>> ListBicepVersions(CancellationToken cancellationToken)
+    {
+        await releasesSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (!cachedReleases.IsDefault)
+            {
+                return cachedReleases;
+            }
+
+            using var response = await httpClient.GetAsync(ReleasesUrl, cancellationToken).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            using var document = JsonDocument.Parse(responseBody);
+            var versions = ImmutableArray.CreateBuilder<string>();
+            foreach (var release in document.RootElement.EnumerateArray())
+            {
+                if (release.TryGetProperty(TagNameProperty, out var tag) &&
+                    tag.ValueKind == JsonValueKind.String &&
+                    tag.GetString() is { } tagName &&
+                    tagName.StartsWith("v", StringComparison.Ordinal))
+                {
+                    versions.Add(tagName.Substring(1));
+                }
+            }
+
+            cachedReleases = versions.ToImmutable();
+            return cachedReleases;
+        }
+        finally
+        {
+            releasesSemaphore.Release();
+        }
     }
 
     internal static string BuildDownloadUrlForTag(

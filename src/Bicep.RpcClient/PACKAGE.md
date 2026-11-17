@@ -35,6 +35,28 @@ using var bicep = await factory.Initialize(new() {
 });
 ```
 
+### Honor a project's version pin
+
+```csharp
+using var bicep = await factory.Initialize(new() {
+    SourceFilePath = "./main.bicepparam"
+}, CancellationToken.None);
+```
+
+This opt-in setting discovers the nearest `bicepconfig.json` and follows its relative `extends`
+chain. The nearest non-null `bicep.version` constraint wins; missing or null versions inherit
+from the next layer, while empty strings are invalid. Exact pins are installed directly; ranges
+such as `">=0.40.0, <1.0.0"` select the highest matching recent published release. An explicit
+`BicepVersion` must satisfy the constraint. Invalid chains, invalid constraints, and ranges
+without a matching release throw. Without a constraint, explicit-version/latest behavior is
+unchanged. `SourceFilePath` cannot be combined with `ExistingCliPath`.
+
+Range resolution considers recent releases, not the full release history. Successful release
+listings and latest-version lookups are cached for the factory's lifetime; create a new factory
+to refresh them. Failed or canceled fetches are not cached.
+Version selection is performed at client initialization; pooled clients retain their selected
+version until idle eviction or factory disposal.
+
 ### Use an existing Bicep installation
 
 ```csharp

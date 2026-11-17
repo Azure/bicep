@@ -16,6 +16,7 @@ namespace Bicep.RpcClient
             "re release.")]
         public string? InstallPath { get; init; }
         public System.Runtime.InteropServices.OSPlatform? OsPlatform { get; init; }
+        public string? SourceFilePath { get; init; }
         public static Bicep.RpcClient.BicepClientConfiguration Default { get; }
     }
     public class BicepClientFactory : Bicep.RpcClient.IBicepClientFactory
