@@ -2,13 +2,13 @@
 
 Scope: everything under `src/Bicep.Core/Configuration`, plus the code that loads, caches and reads `bicepconfig.json`: the language server's config lifecycle, `BicepSourceFile.LoadConfiguration`, `FeatureProvider`, linter rules, and artifact and extension resolution.
 
-The work is 13 PRs, plus one in a later release:
+The work is 12 PRs, plus one in a later release. Anything the [source graph redesign](https://github.com/Azure/bicep/blob/shenglol/source-graph-redesign/docs/design/source-graph-redesign.md) covers is left to it (see the end of section 1):
 
 - **Fixes (PR 1)**: crashes and cache invalidation. Merged (#20561).
 - **Loading (PRs 2–4)**: a loader pipeline that records which file set each value, so errors and relative paths use that file; the cache root moves to an environment variable.
 - **Cache freshness (PRs 13–14)**: caches record the files they read and check them themselves, so every host (language server, `bicep jsonrpc`, MCP server) sees file changes; the language server pushes file events through a shared notifier.
 - **Models and validation (PRs 5–9)**: plain records, typed sections, warnings for unknown and ignored settings, per-section fallback.
-- **Access (PRs 10–11)**: one configuration snapshot per compilation; the explicit config path passed in instead of ambient state.
+- **Access (PR 11)**: the explicit config path passed in instead of ambient state. One configuration snapshot per file (PR 10) is handed off to the source graph redesign.
 
 PRs that change user-visible behavior are marked **(behavior change)**. Everything else keeps behavior.
 
@@ -27,13 +27,13 @@ PRs that change user-visible behavior are marked **(behavior change)**. Everythi
 | 7 | Experimental features as a set; warnings for unknown settings and `null` | ~12 + ~8 | 5 | Planned |
 | 8 | Typed extension sources and cloud profiles | ~13 + ~7 | 5 | Planned |
 | 9 | Per-section fallback | ~5 + ~3 | 5 | Planned |
-| 10 | One configuration snapshot per compilation | ~13 + ~14 | 2 | Planned |
+| 10 | One configuration snapshot per file | – | – | Handed off to the source graph redesign |
 | 11 | Explicit config path passed in; `ExplicitConfigurationContext` removed | ~6 + ~2 | 2 | Planned |
 | 12 | *(later release)* Remove the `cacheRootDirectory` property | ~3 + ~3 | 4 | Later |
 | 13 | Configuration cache checks its own dependencies; shared file-change notifier | ~10 + ~6 | 2 | Planned |
-| 14 | Auxiliary file cache (`load*()` files) uses the same mechanism | ~5 + ~4 | 13 | Planned |
+| 14 | Auxiliary file cache (`load*()` files) uses the same mechanism | ~5 + ~4 | 13 | Waiting on the source graph redesign |
 
-File counts are estimates from today's call sites. PRs 5 and 10 are larger, but most of their edits are the same change repeated (noted in each PR). PRs 13 and 14 were added after PR 1 showed that the CLI JSON-RPC and MCP servers never see file changes (B6).
+File counts are estimates from today's call sites. PR 5 is larger, but most of its edits are the same change repeated (noted in the PR). PRs 13 and 14 were added after PR 1 showed that the CLI JSON-RPC and MCP servers never see file changes (B6).
 
 ```
 1 -> 2 ─┬─> 3 -> 5 ─┬─> 6
@@ -41,13 +41,27 @@ File counts are estimates from today's call sites. PRs 5 and 10 are larger, but 
         │           ├─> 8
         │           └─> 9
         ├─> 4 ··· (one release later) ··· 12
-        ├─> 10
         ├─> 11
         └─> 13 -> 14
 ```
 
-After PR 2, four tracks can run side by side: PRs 3, 5 and 6–9 in order, PR 4, PRs 10–11, and PRs 13–14. PRs 6, 7, 8 and 9 only depend on PR 5.
+After PR 2, four tracks can run side by side: PRs 3, 5 and 6–9 in order, PR 4, PR 11, and PRs 13–14. PRs 6, 7, 8 and 9 only depend on PR 5.
 
+**Related work: the [source graph redesign](https://github.com/Azure/bicep/blob/shenglol/source-graph-redesign/docs/design/source-graph-redesign.md)** (draft, not scheduled). What the redesign does as part of its own design is left to it; this plan doesn't build an interim version.
+
+Handed off to the redesign:
+
+- **PR 10, one configuration snapshot per file.** The redesign's `SourceNode` captures `Configuration` and `Features` when the node is built, replacing `BicepSourceFile.LoadConfiguration()` and `LoadFeatures()`. Its immutable nodes are recreated on configuration changes, which removes the reason a snapshot couldn't live with the file (3.6). Until then, the call sites keep querying the manager; in the language server a purge in the middle of a compile can still give one compilation two configs, as it can today.
+- **How the language server reacts to configuration changes.** After redesign step 6, `SourceGraph.WithConfiguration` recreates the affected nodes. PR 13 only provides the event.
+- **A shared "diagnostics by file" type.** The redesign's `FileDiagnostics` replaces `GetAllDiagnosticsByBicepFile()`'s dictionary; the configuration chain follows it later (see the follow-ups).
+
+Coordinate with the redesign:
+
+| PR | What to agree on |
+|---|---|
+| 8 | Redesign step 4 takes built-in implicit extensions out of the graph, so `NamespaceProvider` reads them from configuration. Both edit `SourceFileGroupingBuilder` and `NamespaceProvider`; `ExtensionSource.BuiltIn` is the check step 4 needs. Whichever lands second adapts. |
+| 13 | `ConfigurationChanged` must carry what `WithConfiguration` needs: every leaf whose chain read a changed file (a base edit affects all of them), and the folders where config discovery must run again (a new `bicepconfig.json` changes which config the files under it use). |
+| 14 | Waits on the redesign's open question about data-file loads. If they become graph edges, their freshness is the redesign's and PR 14 is dropped; otherwise it goes ahead as written. |
 ---
 
 ## 2. Problems
@@ -283,8 +297,7 @@ public sealed record BicepConfiguration(
 
 ### 3.6 How code gets configuration
 
-- `SourceFileGroupingBuilder` already calls `LoadConfiguration()` for each file it adds. It takes **one** `BicepConfiguration` (and `IFeatureProvider`) per source file and stores it on the grouping, and every consumer in that compilation reads from there.
-- This can't be stored on `BicepSourceFile`: the language server reuses source file instances across config changes (`RefreshAllActiveCompilations` and the copy constructor keep the same file), so a snapshot there would go stale.
+- **One configuration per file is handed off to the source graph redesign** (section 1). Today `BicepSourceFile.LoadConfiguration()` asks the manager on every call (about 10 call sites). A snapshot can't simply be stored on `BicepSourceFile`, because the language server reuses source file instances across config changes (`RefreshAllActiveCompilations` and the copy constructor keep the same file). The redesign's immutable `SourceNode` captures it when the node is built and is recreated when the configuration changes.
 - `ExplicitConfigurationContext` is replaced by an explicit config path passed in. The CLI and JSON-RPC create a manager scoped to the explicit file for that operation, instead of using `AsyncLocal`.
 
 ---
@@ -428,15 +441,9 @@ When one section is invalid, keep the valid sections and fall back to the built-
 
 Tests: an invalid section next to a valid one keeps the valid one; an invalid cloud blocks restore; chain errors still fall back completely.
 
-### PR 10 – One configuration snapshot per compilation
+### PR 10 – One configuration snapshot per file *(handed off)*
 
-No behavior change in the CLI. In the language server, each compilation sees one consistent config.
-
-1. `SourceFileGroupingBuilder` takes one configuration and feature provider per source file and stores them on `SourceFileGrouping` (3.6). `SemanticModel`, `NamespaceProvider`, `ArtifactReferenceText`, `SourceArchive` and the CLI and LangServer call sites read from there.
-2. Delete `BicepSourceFile.LoadConfiguration()` and `LoadFeatures()`, so a missed call site fails to compile. The 12 test files that call them use the grouping or a `Bicep.Testing` helper instead; those edits are the same change repeated.
-
-Tests: a LangServer test that changes the config during a compile and checks that each compilation sees one config.
-
+Done by the source graph redesign: `SourceNode` captures `Configuration` and `Features` when it's built, and `BicepSourceFile.LoadConfiguration()` and `LoadFeatures()` are deleted, so a missed call site fails to compile. Carry over this test: in the language server, changing the config during a compile still gives each compilation one config.
 ### PR 11 – Explicit config path passed in
 
 No behavior change.
@@ -457,7 +464,7 @@ Fixes B6 for configuration and replaces PR 1's interim `InvalidateFile` (3.2).
 2. Add `FileDependencies` to `Bicep.IO`: files read, with their versions, plus paths checked but missing; `IsCurrent()`; `Matches(IOUri)`, where a folder covers everything under it.
 3. `BicepConfigurationManager` records `FileDependencies` for each chain (built from PR 2's parsed files) and for each located-leaf lookup (the found file plus every directory searched without finding one).
 4. Add `IFileChangeNotifier` to `Bicep.IO.Abstraction`. When a notifier is registered, the manager subscribes: on `FilesChanged` it checks matching entries, drops the stale ones, and raises `ConfigurationChanged` if any were dropped. When none is registered, `GetConfigurationChain` checks an entry's `IsCurrent()` before returning it.
-5. Language server: add `LanguageServerFileChangeNotifier`, fed by the watched-files handler. `BicepCompilationManager` refreshes compilations on `ConfigurationChanged`. Delete `InvalidateFile` and the invalidation in `BicepConfigLifecycleManager`, which keeps only diagnostics publishing.
+5. Language server: add `LanguageServerFileChangeNotifier`, fed by the watched-files handler. `BicepCompilationManager` refreshes compilations on `ConfigurationChanged`. The event says which leaf configs were dropped and which folders need config discovery again (section 1). After redesign step 6, the redesign's `WithConfiguration` consumes it instead of `BicepCompilationManager`. Delete `InvalidateFile` and the invalidation in `BicepConfigLifecycleManager`, which keeps only diagnostics publishing.
 
 Tests:
 
@@ -467,11 +474,11 @@ Tests:
 - A CLI JSON-RPC test: compile, edit `bicepconfig.json`, compile again, and see the new setting.
 - The LangServer `BicepConfigTests` keep passing unchanged.
 
-Before turning on the version checks for CLI commands, measure them on a large repo with the `bicep-perf-profiling` skill. PR 10's snapshot per compilation keeps the number of checks to about one per source file per compilation.
+Before turning on the version checks for CLI commands, measure them on a large repo with the `bicep-perf-profiling` skill. Once the redesign captures configuration on each node, that's about one check per source file per graph build.
 
 ### PR 14 – Auxiliary file cache uses the same mechanism **(behavior change: `bicep jsonrpc` and the MCP server see `load*()` edits)**
 
-Fixes B6 for files read by `load*()` functions.
+Fixes B6 for files read by `load*()` functions. Waits on the source graph redesign's open question about data-file loads (section 1): if they become graph edges, the redesign handles their freshness and this PR is dropped.
 
 1. `AuxiliaryFileCache` entries record `FileDependencies` (one file each).
 2. It subscribes to the notifier when one is registered; otherwise it checks the version when an entry is read and drops entries that changed or were deleted.
@@ -489,7 +496,7 @@ Tests: a CLI JSON-RPC test that edits a `loadTextContent` file between two reque
     - Keep numbers as their raw text, decode strings with `GetString()`, keep today's reader options (comments skipped, trailing commas rejected, default depth limit), and parse the built-in config into a tree once.
     - Expected cost is about today's: one read pass per file (cached), and the merge replaces today's copy into `JsonNode`. Measure a chain load before and after (`bicep-perf-profiling` skill).
   - **One diagnostic per destination.** A config error is shown in two places: on the config file in the editor, and on every `.bicep` file that uses it. The `.bicep` copy is the only one the CLI, JSON-RPC and MCP report (it fails the build), and the only one the editor shows when the config file isn't open. A diagnostic has a single span, so the two can't share one object: the config file gets the positioned diagnostic, and each `.bicep` file gets one at its start that names the config file and property (as BCP273 already does). `ConfigurationDiagnostic` carries the config-file position next to `File`.
-  - **Diagnostics by file.** With line starts on both sides, source files and config files can share one small "URI + line starts" abstraction, so the config chain's `ImmutableDictionary<IOUri, ImmutableArray<IDiagnostic>>` and the compilation's `ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>` can use the same shape.
+  - **Diagnostics by file.** With line starts on both sides, source files and config files can share one small "URI + line starts" abstraction. The source graph redesign's `FileDiagnostics` (an ordered list of per-file records) replaces `GetAllDiagnosticsByBicepFile()`'s dictionary, because no caller looks diagnostics up by file and the dictionary enumerates in hash order. Replace `DiagnosticsPerFile` with the same kind of list.
 - **Remove `IBicepCloudConfiguration` and `IBicepConfiguration`.** Rename-only changes over 51 and 58 files. Only worth doing if the extra names cause confusion.
 
 ---
@@ -518,9 +525,8 @@ Tests: a CLI JSON-RPC test that edits a `loadTextContent` file between two reque
 | Per-section fallback (PR 9) could restore artifacts with the built-in cloud when the user's cloud config is invalid | Cloud stays strict: an invalid or untrusted cloud is an error, and restore doesn't run while it's present |
 | Removing `cacheRootDirectory` (PR 12) moves caches for users who set it | At least one release with a deprecation warning naming the variable; the variable takes precedence as soon as PR 4 ships |
 | PRs 5 and 10 are large | Most files only swap a type name or a call; `With(...)` kept in `Bicep.Testing` so test files don't churn; baselines and `ToUtf8Json` output checked |
-| A missed call site keeps calling `LoadConfiguration()` (PR 10) | Delete the method so every remaining caller fails to compile |
 | Version checks miss an edit (PR 13) | Compare size as well as last-write time; some file systems record times only to the second. Config files are small enough to hash if this turns out to matter |
-| Version checks cost too much in CLI commands or large repos (PR 13) | Only hosts without a notifier check on read; PR 10 limits checks to one per source file per compilation; measure before turning them on |
+| Version checks cost too much in CLI commands or large repos (PR 13) | Only hosts without a notifier check on read; once the redesign captures configuration per node, about one check per source file per graph build; measure before turning them on |
 | A file changes between being read and its version being recorded (PR 13) | Record the version before reading the file, so a change in between shows up as stale on the next check |
 
 ---
@@ -529,7 +535,7 @@ Tests: a CLI JSON-RPC test that edits a `loadTextContent` file between two reque
 
 - **Unit** (`Bicep.Core.UnitTests/Configuration`): reader, chain resolver, merger and provenance, each section's binder, cache invalidation, and the "no exception for bad input" test.
 - **Integration** (`Bicep.Core.IntegrationTests/ConfigurationInheritanceTests`): an inheritance scenario for each section that has paths or errors (PRs 2–3).
-- **Language server** (`Bicep.LangServer.IntegrationTests/BicepConfigTests`, `Bicep.LangServer.UnitTests/Configuration`): per-file squiggles, invalidation on file events, one snapshot per compilation.
+- **Language server** (`Bicep.LangServer.IntegrationTests/BicepConfigTests`, `Bicep.LangServer.UnitTests/Configuration`): per-file squiggles and invalidation on file events. (One configuration per compilation is tested by the source graph redesign.)
 - **CLI JSON-RPC** (`Bicep.Cli.IntegrationTests`): edits to `bicepconfig.json` and to files read by `load*()` functions are seen between requests (PRs 13–14).
 - **Schema** (`BicepConfigSchemaTests`): defaults and properties match the schema (PR 5).
 - **Baselines**: PRs 1, 2, 6 and 7 change diagnostic text. Update the baselines and review every diff.
