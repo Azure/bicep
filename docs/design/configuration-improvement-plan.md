@@ -4,7 +4,7 @@ Scope: everything under `src/Bicep.Core/Configuration`, plus the code that loads
 
 The work is 13 PRs, plus one in a later release:
 
-- **Fixes (PR 1)**: crashes and cache invalidation. In review (#20561).
+- **Fixes (PR 1)**: crashes and cache invalidation. Merged (#20561).
 - **Loading (PRs 2–4)**: a loader pipeline that records which file set each value, so errors and relative paths use that file; the cache root moves to an environment variable.
 - **Cache freshness (PRs 13–14)**: caches record the files they read and check them themselves, so every host (language server, `bicep jsonrpc`, MCP server) sees file changes; the language server pushes file events through a shared notifier.
 - **Models and validation (PRs 5–9)**: plain records, typed sections, warnings for unknown and ignored settings, per-section fallback.
@@ -19,7 +19,7 @@ PRs that change user-visible behavior are marked **(behavior change)**. Everythi
 | PR | Summary | Files (product + test) | After | Status |
 |---|---|---|---|---|
 | 1 | Config errors become diagnostics; correct cache invalidation | ~9 + ~11 | – | Merged (#20561) |
-| 2 | Loader pipeline: parse cache, one merge that records the declaring file, per-file diagnostics | ~13 + ~7 | 1 | In progress |
+| 2 | Loader pipeline: parse cache, one merge that records the declaring file, per-file diagnostics | ~13 + ~7 | 1 | In review (#20582) |
 | 3 | The declaring file is used everywhere: `bicep.version`, aliases, mocks, relative paths | ~12 + ~8 | 2 | Planned |
 | 4 | `BICEP_ARTIFACT_CACHE_DIR`; `cacheRootDirectory` deprecated | ~5 + ~5 | 2 | Planned |
 | 5 | Sections and `BicepConfiguration` become records; one source of defaults | ~18 + ~6 | 3 | Planned |
