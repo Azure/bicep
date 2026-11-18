@@ -1153,7 +1153,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Catalog.Brm
         [DataRow("", "")]
         public void GetModuleVersions_UsesRegistryTagOrdering(string tags, string expectedTags)
         {
-            var entry = new PublicModuleIndexEntry(
+            var entry = new BrmIndexEntry(
                 "bicep/modules",
                 [.. tags.Split(',', StringSplitOptions.RemoveEmptyEntries)],
                 []);
