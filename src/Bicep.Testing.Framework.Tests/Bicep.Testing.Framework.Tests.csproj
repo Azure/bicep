@@ -4,12 +4,18 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
     <PackageReference Include="MSTest" />
+    <PackageReference Include="PublicApiGenerator" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Testing.Framework\Bicep.Testing.Framework.csproj" />
     <ProjectReference Include="..\Bicep.Cli\Bicep.Cli.csproj" />
+    <ProjectReference Include="..\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj" />
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
     <None Update="Files\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Files/PublicApis/**/*.*" />
+    <EmbeddedResource Include="Files/PublicApis/**/*.*" LogicalName="$([System.String]::new('Files/PublicApis/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" WithCulture="false" />
   </ItemGroup>
   <Target Name="CopyBicepAppHost" AfterTargets="Build">
     <PropertyGroup>

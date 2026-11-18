@@ -20,7 +20,7 @@ public class SnapshotTests
     public async Task Snapshot_evaluates_nested_module_parameters_and_deployment_context(BicepConnectionMode connectionMode)
     {
         var session = new BicepTestHelper(clientFactory);
-        var snapshot = await session.SnapshotAsync(new()
+        var snapshot = await session.SnapshotAsync(Configuration(connectionMode), new()
         {
             FilePath = Fixture("main.bicepparam"),
             TenantId = "00000000-0000-0000-0000-000000000001",
@@ -28,20 +28,21 @@ public class SnapshotTests
             ResourceGroup = "test-rg",
             Location = "eastus",
             DeploymentName = "offline-test",
-        }, Configuration(connectionMode), TestContext.CancellationTokenSource.Token);
+        }, TestContext.CancellationTokenSource.Token);
 
         snapshot.Diagnostics.Should().BeEmpty();
-        var storage = snapshot.RequireResource("microsoft.storage/STORAGEACCOUNTS", "teststorage");
+        var storage = snapshot.GetArmResourceOfType("microsoft.storage/STORAGEACCOUNTS").Should().ContainSingle().Subject;
+        storage.Name.Should().Be("teststorage");
         snapshot.PredictedResources.Should().ContainSingle();
-        storage.Properties.GetProperty("allowBlobPublicAccess").GetBoolean().Should().BeFalse();
-        storage.Properties.GetProperty("minimumTlsVersion").GetString().Should().Be("TLS1_2");
-        storage.Location.Should().Be("eastus");
-        storage.TryParseId().Should().BeOfType<ResourceGroupLevelResourceId>()
+        storage.GetRequiredBoolProperty("/properties/allowBlobPublicAccess").Should().BeFalse();
+        storage.GetRequiredStringProperty("/properties/minimumTlsVersion").Should().Be("TLS1_2");
+        storage.GetRequiredStringProperty("/location").Should().Be("eastus");
+        storage.Id.Should().BeOfType<ResourceGroupLevelResourceId>()
             .Which.SubscriptionId.Should().Be("00000000-0000-0000-0000-000000000002");
-        storage.TryParseId().Should().BeOfType<ResourceGroupLevelResourceId>()
+        storage.Id.Should().BeOfType<ResourceGroupLevelResourceId>()
             .Which.ResourceGroup.Should().Be("test-rg");
-        storage.Sku!.Value.GetProperty("name").GetString().Should().Be("Standard_LRS");
-        snapshot.Outputs["storageId"].GetString().Should().Be(storage.Id);
+        storage.GetRequiredStringProperty("/sku/name").Should().Be("Standard_LRS");
+        snapshot.Outputs["storageId"].GetString().Should().Be(storage.GetRequiredStringProperty("/id"));
         snapshot.Outputs["tenantId"].GetString().Should().Be("00000000-0000-0000-0000-000000000001");
         snapshot.Outputs["deploymentName"].GetString().Should().Be("offline-test");
     }
@@ -54,9 +55,11 @@ public class SnapshotTests
 
         for (var i = 0; i < 2; i++)
         {
-            var snapshot = await session.SnapshotAsync(new() { FilePath = Fixture("main.bicepparam") }, Configuration(), TestContext.CancellationTokenSource.Token);
+            var snapshot = await session.SnapshotAsync(Configuration(), new() { FilePath = Fixture("main.bicepparam") }, TestContext.CancellationTokenSource.Token);
             snapshot.Diagnostics.Should().BeEmpty();
-            snapshot.ResourcesOfType("Microsoft.Storage/storageAccounts").Should().ContainSingle();
+            var resource = snapshot.PredictedResources.Should().ContainSingle().Subject;
+            resource.GetRequiredStringProperty("/type").Should().Be("Microsoft.Storage/storageAccounts");
+            resource.GetRequiredStringProperty("/name").Should().Be("teststorage");
         }
     }
 
@@ -64,12 +67,12 @@ public class SnapshotTests
     public async Task Snapshot_supports_management_group_context()
     {
         var session = new BicepTestHelper(clientFactory);
-        var snapshot = await session.SnapshotAsync(new()
+        var snapshot = await session.SnapshotAsync(Configuration(), new()
         {
             FilePath = Fixture("managementGroup.bicepparam"),
             ManagementGroupId = "platform",
             Location = "eastus",
-        }, Configuration(), TestContext.CancellationTokenSource.Token);
+        }, TestContext.CancellationTokenSource.Token);
 
         snapshot.Diagnostics.Should().BeEmpty();
         snapshot.Outputs["scopeId"].GetString().Should().Be("/providers/Microsoft.Management/managementGroups/platform");

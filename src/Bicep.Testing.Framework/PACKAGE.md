@@ -72,29 +72,29 @@ public class InfrastructureTests
         {
             BicepVersion = "0.49.2",
         };
-        var snapshot = await helper.SnapshotAsync(new SnapshotOptions
+        var snapshot = await helper.SnapshotAsync(configuration, new SnapshotOptions
         {
             FilePath = Path.Combine(AppContext.BaseDirectory, "infra", "main.bicepparam"),
             SubscriptionId = "00000000-0000-0000-0000-000000000001",
             ResourceGroup = "test-rg",
             Location = "eastus",
             DeploymentName = "offline-test",
-        }, configuration);
+        });
 
         Assert.IsEmpty(snapshot.Diagnostics, string.Join(Environment.NewLine, snapshot.Diagnostics));
-        var storage = snapshot.RequireResource("Microsoft.Storage/storageAccounts", "teststorage");
-        Assert.IsFalse(storage.Properties.GetProperty("allowBlobPublicAccess").GetBoolean());
-        Assert.IsNotNull(storage.TryParseId());
+        var storage = snapshot.GetArmResourceOfType("Microsoft.Storage/storageAccounts")
+            .Single(resource => resource.Name == "teststorage");
+        Assert.IsFalse(storage.GetRequiredBoolProperty("/properties/allowBlobPublicAccess"));
         Assert.AreEqual(
             "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/test-rg/providers/Microsoft.Storage/storageAccounts/teststorage",
-            storage.Id);
+            storage.GetRequiredStringProperty("/id"));
     }
 }
 ```
 
 ## CLI and factory lifetime
 
-`SnapshotAsync(options, configuration)` uses the supplied `IBicepClientFactory`
+`SnapshotAsync(configuration, options)` uses the supplied `IBicepClientFactory`
 to acquire a client for each call and disposes that client when the call completes,
 including on failure. The default factories download the configured CLI if needed and cache
 it under `~/.bicep/bin`. This installation can require network access. To run
@@ -106,12 +106,12 @@ using Bicep.Testing.Framework;
 
 using var factory = new PooledBicepClientFactory();
 var helper = new BicepTestHelper(factory);
-var snapshot = await helper.SnapshotAsync(new SnapshotOptions
-{
-    FilePath = Path.GetFullPath("infra/main.bicepparam"),
-}, new BicepClientConfiguration
+var snapshot = await helper.SnapshotAsync(new BicepClientConfiguration
 {
     ExistingCliPath = Path.GetFullPath("tools/bicep.exe"),
+}, new SnapshotOptions
+{
+    FilePath = Path.GetFullPath("infra/main.bicepparam"),
 });
 ```
 
@@ -131,18 +131,31 @@ version for the latest snapshot fixes.
 ## Assertions and evaluation limits
 
 - `PredictedResources` contains flattened resources, including resources from
-  nested modules. `Properties`, `Sku`, `Tags`, `Identity`, `Zones`, `Plan`, and
-  `ExtendedLocation` are `JsonElement`s; unknown fields are ignored.
-- `Id`, `Name`, `Location`, `Kind`, and `ManagedBy` are nullable strings.
-  Unresolved ARM values remain expressions such as `[parameters('name')]`.
-  The `TryParseId()` extension returns the parsed Azure `ResourceId` for a resolved ID, or
-  `null` when the ID is absent, unresolved, or invalid.
-- `ResourcesOfType(type)` compares types without case sensitivity.
-  `RequireResource(id)` compares IDs without case sensitivity.
-  `RequireResource(type, name)` compares the name case-sensitively.
-  Both `RequireResource` overloads throw unless exactly one resource matches.
-- `SnapshotHelpers.GetSnapshotValue(value, "/path/0/property")` reads a JSON
-  Pointer and throws if the path is missing or invalid.
+  nested modules. Each `SnapshotResource.Body` is the complete evaluated
+  `JsonElement`, preserving all resource fields. Unresolved ARM values remain
+  expressions such as `[parameters('name')]`.
+- Resources with parseable ARM IDs are represented as `ArmSnapshotResource`.
+  Its `Id` is an Azure Deployments `ResourceId`; `Type` and `Name` are derived
+  from that ID. Missing, invalid, non-string, and unresolved IDs leave resources
+  as generic `SnapshotResource` instances. This can include placeholder IDs when
+  deployment context is omitted.
+- `GetArmResources()` selects only `ArmSnapshotResource` instances.
+  `GetArmResourceOfType(type)` additionally filters by case-insensitive fully
+  qualified type. Use LINQ's `Single`, `Where`, or `GroupBy` for name, ID, or
+  cross-resource assertions. Generic resources remain accessible through
+  `PredictedResources`.
+- `resource.GetProperty("/properties/path/0")` reads a case-sensitive RFC 6901
+  JSON Pointer. The empty pointer selects the whole body; `~0` escapes `~` and
+  `~1` escapes `/` in property names. Malformed pointers throw `ArgumentException`;
+  missing paths throw `KeyNotFoundException`. JSON null is returned as a value.
+- `GetStringProperty`, `GetIntProperty`, and `GetBoolProperty` return the
+  corresponding nullable value. They return null only for JSON null, not for
+  missing properties. Wrong JSON types throw `InvalidOperationException`.
+  Integers must fit in a 32-bit signed integer; fractional and out-of-range
+  numbers throw `FormatException`. Strings are not coerced into numbers or booleans.
+- `GetRequiredStringProperty`, `GetRequiredIntProperty`, and
+  `GetRequiredBoolProperty` use the same JSON Pointer and conversion rules,
+  but additionally throw `JsonException` for JSON null.
 - `Outputs` maps output names to resolved JSON values.
 - **Always assert on `Diagnostics`** before asserting on resources or outputs:
   evaluation can produce an incomplete snapshot. Compilation, transport, and

@@ -65,24 +65,24 @@ public class BicepTestHelperTests
         client.Setup(x => x.Dispose());
         var session = CreateHelper(client);
 
-        var snapshot = await session.SnapshotAsync(options, new(), cts.Token);
+        var snapshot = await session.SnapshotAsync(new(), options, cts.Token);
 
         snapshot.Diagnostics.Should().Equal("Evaluation warning");
         snapshot.PredictedResources.Should().HaveCount(2);
-        var storage = snapshot.RequireResource("/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage");
-        storage.ApiVersion.Should().Be("2023-05-01");
-        storage.TryParseId().Should().BeOfType<ResourceGroupLevelResourceId>()
+        var storage = snapshot.GetArmResourceOfType("Microsoft.Storage/storageAccounts").Should().ContainSingle().Subject;
+        storage.GetRequiredStringProperty("/apiVersion").Should().Be("2023-05-01");
+        storage.Id.Should().BeOfType<ResourceGroupLevelResourceId>()
             .Which.SubscriptionId.Should().Be("00000000-0000-0000-0000-000000000001");
-        storage.TryParseId()!.FormatName().Should().Be("storage");
-        storage.Location.Should().Be("eastus");
-        storage.Kind.Should().Be("StorageV2");
-        storage.ManagedBy.Should().Be("/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/owner");
-        storage.Properties.GetProperty("allowBlobPublicAccess").GetBoolean().Should().BeFalse();
-        storage.Sku!.Value.GetProperty("name").GetString().Should().Be("Standard_LRS");
-        storage.Tags!.Value.GetProperty("environment").GetString().Should().Be("test");
-        snapshot.PredictedResources[1].Id.Should().BeNull();
-        snapshot.PredictedResources[1].TryParseId().Should().BeNull();
-        snapshot.Outputs["storageId"].GetString().Should().Be(storage.Id);
+        storage.Name.Should().Be("storage");
+        storage.GetRequiredStringProperty("/location").Should().Be("eastus");
+        storage.GetRequiredStringProperty("/kind").Should().Be("StorageV2");
+        storage.GetRequiredStringProperty("/managedBy").Should().Be("/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/owner");
+        storage.GetRequiredBoolProperty("/properties/allowBlobPublicAccess").Should().BeFalse();
+        storage.GetRequiredStringProperty("/sku/name").Should().Be("Standard_LRS");
+        storage.GetRequiredStringProperty("/tags/environment").Should().Be("test");
+        snapshot.PredictedResources[1].Should().BeOfType<SnapshotResource>()
+            .Which.GetRequiredStringProperty("/identifiers/name").Should().Be("custom");
+        snapshot.Outputs["storageId"].GetString().Should().Be(storage.GetRequiredStringProperty("/id"));
         snapshot.Outputs["count"].GetInt32().Should().Be(2);
         snapshot.Outputs["optional"].ValueKind.Should().Be(JsonValueKind.Null);
         client.Verify(x => x.GetSnapshot(It.IsAny<GetSnapshotRequest>(), cts.Token), Times.Once);
@@ -111,28 +111,29 @@ public class BicepTestHelperTests
             """);
         var session = CreateHelper(client);
 
-        var snapshot = await session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, new());
+        var snapshot = await session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam" });
         var resource = snapshot.PredictedResources.Single();
 
-        resource.Id.Should().Be("[resourceId('Microsoft.Storage/storageAccounts', 'storage')]");
-        resource.Name.Should().Be("[parameters('storageName')]");
-        resource.Location.Should().Be("[parameters('location')]");
-        resource.Kind.Should().Be("[parameters('kind')]");
-        resource.ManagedBy.Should().Be("[parameters('owner')]");
-        resource.TryParseId().Should().BeNull();
+        resource.GetRequiredStringProperty("/id").Should().Be("[resourceId('Microsoft.Storage/storageAccounts', 'storage')]");
+        resource.GetRequiredStringProperty("/name").Should().Be("[parameters('storageName')]");
+        resource.GetRequiredStringProperty("/location").Should().Be("[parameters('location')]");
+        resource.GetRequiredStringProperty("/kind").Should().Be("[parameters('kind')]");
+        resource.GetRequiredStringProperty("/managedBy").Should().Be("[parameters('owner')]");
+        snapshot.GetArmResources().Should().BeEmpty();
     }
 
     [TestMethod]
     [DataRow("{}")]
     [DataRow("not json")]
     [DataRow("""{"predictedResources":[],"diagnostics":[],"outputs":null}""")]
-    [DataRow("""{"predictedResources":[{}],"diagnostics":[],"outputs":{}}""")]
+    [DataRow("""{"predictedResources":[],"diagnostics":[]}""")]
+    [DataRow("""{"predictedResources":[],"diagnostics":null,"outputs":{}}""")]
     public async Task Malformed_snapshots_fail_instead_of_returning_empty_results(string json)
     {
         var client = CreateClient(json);
         var session = CreateHelper(client);
 
-        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, new());
+        var act = () => session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam" });
 
         await act.Should().ThrowAsync<JsonException>();
         client.Verify(x => x.Dispose(), Times.Once);
@@ -144,7 +145,7 @@ public class BicepTestHelperTests
         var client = CreateClient("null");
         var session = CreateHelper(client);
 
-        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, new());
+        var act = () => session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam" });
 
         await act.Should().ThrowAsync<InvalidDataException>().WithMessage("*null snapshot*");
         client.Verify(x => x.Dispose(), Times.Once);
@@ -161,7 +162,7 @@ public class BicepTestHelperTests
             .ThrowsAsync(new OperationCanceledException(cts.Token));
         client.Setup(x => x.Dispose());
         var session = CreateHelper(client);
-        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, new(), cts.Token);
+        var act = () => session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam" }, cts.Token);
 
         (await act.Should().ThrowAsync<IOException>()).Which.Should().BeSameAs(failure);
         await cts.CancelAsync();
@@ -178,7 +179,7 @@ public class BicepTestHelperTests
         client.Setup(x => x.GetVersion(default)).ReturnsAsync(version);
         client.Setup(x => x.Dispose());
         var session = CreateHelper(client);
-        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam", ManagementGroupId = "platform" }, new());
+        var act = () => session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam", ManagementGroupId = "platform" });
 
         await act.Should().ThrowAsync<NotSupportedException>().WithMessage("*0.47.16*");
         client.Verify(x => x.GetSnapshot(It.IsAny<GetSnapshotRequest>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -199,8 +200,8 @@ public class BicepTestHelperTests
         var session = new BicepTestHelper(factory.Object);
 
         var snapshots = await Task.WhenAll(
-            session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, firstConfiguration, cts.Token),
-            session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, secondConfiguration, cts.Token));
+            session.SnapshotAsync(firstConfiguration, new() { FilePath = "main.bicepparam" }, cts.Token),
+            session.SnapshotAsync(secondConfiguration, new() { FilePath = "main.bicepparam" }, cts.Token));
 
         snapshots[0].Outputs["version"].GetString().Should().Be("first");
         snapshots[1].Outputs["version"].GetString().Should().Be("second");
@@ -220,11 +221,32 @@ public class BicepTestHelperTests
             .ThrowsAsync(failure)
             .ThrowsAsync(new OperationCanceledException(cts.Token));
         var session = new BicepTestHelper(factory.Object);
-        var act = () => session.SnapshotAsync(new() { FilePath = "main.bicepparam" }, new(), cts.Token);
+        var act = () => session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam" }, cts.Token);
 
         (await act.Should().ThrowAsync<IOException>()).Which.Should().BeSameAs(failure);
         await cts.CancelAsync();
         (await act.Should().ThrowAsync<OperationCanceledException>()).Which.CancellationToken.Should().Be(cts.Token);
+    }
+
+    [TestMethod]
+    [DataRow("""{"id":null}""")]
+    [DataRow("""{"id":42}""")]
+    [DataRow("""{"id":"invalid"}""")]
+    [DataRow("""{"id":"[parameters('id')]"}""")]
+    [DataRow("""{"identifiers":{"name":"custom"}}""")]
+    [DataRow("{}")]
+    public async Task Resources_without_parseable_ARM_ids_preserve_their_original_bodies(string json)
+    {
+        var client = CreateClient($$$"""{"predictedResources":[{{{json}}}],"diagnostics":[],"outputs":{}}""");
+        var session = CreateHelper(client);
+
+        var snapshot = await session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam" });
+
+        var resource = snapshot.PredictedResources.Should().ContainSingle().Subject;
+        resource.Should().BeOfType<SnapshotResource>();
+        using var expected = JsonDocument.Parse(json);
+        JsonElement.DeepEquals(resource.Body, expected.RootElement).Should().BeTrue();
+        snapshot.GetArmResources().Should().BeEmpty();
     }
 
     private static BicepTestHelper CreateHelper(Mock<IBicepClient> client)
