@@ -33,6 +33,15 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [TestMethod]
+        [DataRow("targetScope = '${foo|}'")]
+        [DataRow("targetScope = 'management${foo}|'")]
+        public void ContextKind_IsNot_TargetScope_WithinOtherExpressions(string text)
+        {
+            var context = CreateContextFromTextWithCursor(text);
+            context.Kind.Should().NotHaveFlag(BicepCompletionContextKind.TargetScope);
+        }
+
+        [TestMethod]
         public void ShouldArrayItemTypeFlowThrough_True()
         {
             const string text = @"
