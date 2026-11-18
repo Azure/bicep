@@ -45,4 +45,5 @@ T:System.IO.Directory;Don't use System.IO for file operations. Use APIs from Bic
 T:System.IO.FileInfo;Don't use System.IO for file operations. Use APIs from Bicep.IO.Abstraction instead.
 T:System.IO.DirectoryInfo;Don't use System.IO for file operations. Use APIs from Bicep.IO.Abstraction instead.
 T:System.IO.Path;Don't use System.IO for file operations. Use APIs from Bicep.IO.Abstraction instead.
-T:System.IO.Abstraction.IFileSystem;Don't use System.IO.Abstraction for file operations. Use APIs from Bicep.IO.Abstraction instead.
+T:System.IO.Abstractions.IFileSystem;Don't use System.IO.Abstractions for file operations. Use APIs from Bicep.IO.Abstraction instead.
+T:System.IO.Abstractions.FileSystem;Don't use System.IO.Abstractions for file operations. Use APIs from Bicep.IO.Abstraction instead.

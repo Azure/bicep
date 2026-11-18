@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Parsing
             negativeLength.Should().Throw<ArgumentException>().WithMessage("Length must not be negative. (Parameter 'length')");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(1, 2, "[1:3]")]
         [DataRow(0, 0, "[0:0]")]
         [DataRow(10, 20, "[10:30]")]
@@ -41,7 +41,7 @@ namespace Bicep.Core.UnitTests.Parsing
             span.ToString().Should().Be(expectedRange);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(10, 1, 20, 2, "[10:22]")]
         [DataRow(0, 0, 0, 0, "[0:0]")]
         [DataRow(70, 0, 60, 9, "[60:70]")]
@@ -54,7 +54,7 @@ namespace Bicep.Core.UnitTests.Parsing
             TextSpan.Between(second, first).ToString().Should().Be(expectedBetweenRange);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(10, 1, 20, 2, "[11:20]")]
         [DataRow(0, 0, 0, 0, "[0:0]")]
         [DataRow(70, 0, 60, 9, "[69:70]")]
@@ -67,7 +67,7 @@ namespace Bicep.Core.UnitTests.Parsing
             TextSpan.BetweenExclusive(second, first).ToString().Should().Be(expectedBetweenRange);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("[0:0]", "[0:0]", false)]
         [DataRow("[0:1]", "[1:1]", false)]
         [DataRow("[0:1]", "[0:0]", false)]
@@ -87,7 +87,7 @@ namespace Bicep.Core.UnitTests.Parsing
             TextSpan.AreOverlapping(second, first).Should().Be(expectedOverlapResult);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("[0:0]", "[0:0]", true)]
         [DataRow("[10:12]", "[12:13]", true)]
         [DataRow("[12:13]", "[10:12]", false)]
@@ -101,7 +101,7 @@ namespace Bicep.Core.UnitTests.Parsing
             TextSpan.AreNeighbors(first, second).Should().Be(expectedResult);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("[0:0]", "[0:0]", "[0:0]")]
         [DataRow("[0:2]", "[2:3]", "[0:2]")]
         [DataRow("[2:3]", "[0:2]", "[2:3]")]
@@ -116,7 +116,7 @@ namespace Bicep.Core.UnitTests.Parsing
             TextSpan.BetweenInclusiveAndExclusive(inclusive, exclusive).ToString().Should().Be(expected);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("[0:0]")]
         [DataRow("[0:1]")]
         [DataRow("[123:134]")]

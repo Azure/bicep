@@ -28,7 +28,7 @@ public class ArmDeploymentProvider(
 {
     private ArmDeploymentCollection GetDeploymentsClient(IBicepConfiguration configuration, DeploymentLocator deploymentLocator)
     {
-        var armClient = armClientProvider.CreateArmClient(configuration, deploymentLocator.SubscriptionId);
+        var armClient = armClientProvider.CreateArmClient(configuration.Cloud, deploymentLocator.SubscriptionId);
 
         if (deploymentLocator.SubscriptionId == null)
         {

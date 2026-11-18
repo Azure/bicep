@@ -14,7 +14,24 @@ export type DecompileResult = {
   files: Record<string, string> | null;
 };
 
+export type ConsoleResult = {
+  output: string | null;
+  diagnostics: { code: string; level: string; message: string }[];
+};
+
 export type CompilerRequest =
+  | {
+      type: "request";
+      requestId: number;
+      operation: "resetConsole";
+    }
+  | {
+      type: "request";
+      requestId: number;
+      operation: "evaluateConsole";
+      content: string;
+      sessionId: string;
+    }
   | {
       type: "initialize";
       frameworkUrl: string;
@@ -47,6 +64,8 @@ export type CompilerRequest =
     };
 
 export type CompilerResult =
+  | string
+  | ConsoleResult
   | CompileResult
   | DecompileResult
   | languages.SemanticTokensLegend

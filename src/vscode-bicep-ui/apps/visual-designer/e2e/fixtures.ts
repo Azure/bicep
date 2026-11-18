@@ -6,8 +6,8 @@ import type { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 /**
- * Sample graphs exposed by the dev toolbar.  The slugs match the
- * `data-testid` values generated in {@link DevToolbar.tsx}. `nodeId` is a node found only in that
+ * Sample graphs exposed by the dev panel. The slugs match the
+ * `data-testid` values generated in {@link DevPanel.tsx}. `nodeId` is a node found only in that
  * sample, so a test can tell when the sample has replaced the previous graph.
  */
 export const SAMPLE_GRAPHS = {
@@ -15,6 +15,13 @@ export const SAMPLE_GRAPHS = {
   flat: { slug: "dev-graph-flat-graph", label: "Flat graph", nodeId: "subnet" },
   error: { slug: "dev-graph-error-graph", label: "Error graph", nodeId: "brokenStorage" },
   complex: { slug: "dev-graph-complex-graph", label: "Complex graph", nodeId: "hubrg" },
+  remote: { slug: "dev-graph-remote-module-graph", label: "Remote module graph", nodeId: "network" },
+  resourceContainers: { slug: "dev-graph-resource-containers", label: "Resource containers", nodeId: "nic" },
+  nestedResourceContainers: {
+    slug: "dev-graph-nested-resource-containers",
+    label: "Nested resource containers",
+    nodeId: "worker",
+  },
   empty: { slug: "dev-graph-empty-null", label: "Empty (null)", nodeId: null },
 } as const;
 
@@ -26,7 +33,8 @@ export type SampleGraphKey = keyof typeof SAMPLE_GRAPHS;
  * "Module graph" 50 ms after the READY notification) to render.
  *
  * `query` is appended to the URL to drive the dev fake channel, for example
- * `{ catalogDelay: "3000" }` to hold resource-catalog loading states open.
+ * `{ catalogDelay: "3000" }` to hold resource-catalog loading states open, `layoutDelay` to hold a layout
+ * request, `createDelay` to hold a resource creation, or `initialGraphDelay` to hold the first graph.
  */
 export async function openVisualDesigner(page: Page, query: Record<string, string> = {}): Promise<void> {
   const search = new URLSearchParams(query).toString();
@@ -34,12 +42,12 @@ export async function openVisualDesigner(page: Page, query: Record<string, strin
   await page.goto(search ? `/?${search}` : "/");
   await expect(page.getByTestId("app-root")).toBeVisible();
   await expect(page.getByTestId("graph-canvas")).toBeVisible();
-  await expect(page.getByTestId("dev-toolbar")).toBeVisible();
+  await expect(page.getByTestId("dev-panel")).toBeVisible();
   await waitForAnyNode(page);
 }
 
 /**
- * Click a sample-graph button in the dev toolbar and wait for the graph to replace the previous one:
+ * Click a sample-graph button in the dev panel and wait for the graph to replace the previous one:
  * the sample's own node must be visible (or every node gone, for the empty sample), since the designer
  * fetches the graph only once document changes pause.
  */

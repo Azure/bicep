@@ -6,9 +6,9 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
 using Bicep.Core.Utils;
@@ -123,11 +123,11 @@ namespace Bicep.Core.SourceLink
                     continue;
                 }
 
-                foreach (var artifactResolutionInfo in grouping)
+                foreach (var dependency in grouping)
                 {
-                    if (artifactResolutionInfo.Syntax is { Path: { } path } &&
-                        artifactResolutionInfo.Result.TryUnwrap() is { } fileHandle &&
-                        sourceFileGrouping.SourceFileLookup.TryGetValue(fileHandle.Uri, out var sourceFileResult) &&
+                    if (dependency.Syntax is { Path: { } path } &&
+                        dependency is ArtifactDependency.Loaded { Artifact: ModuleArtifact artifact } &&
+                        sourceFileGrouping.SourceFileLookup.TryGetValue(artifact.EntryPoint.Uri, out var sourceFileResult) &&
                         sourceFileResult.IsSuccess(out var referencedFile) &&
                         ShouldArchiveSourceFile(referencedFile))
                     {
@@ -204,19 +204,14 @@ namespace Bicep.Core.SourceLink
             };
 
             var sourceArtifactIdBySourceFileUri = sourceFileGrouping.ArtifactLookup.Values
-                .Where(x => x.Result.IsSuccess() && x.Reference is OciArtifactReference { Type: ArtifactType.Module })
-                .DistinctBy(x => x.Result.Unwrap().Uri)
-                .ToDictionary(x => x.Result.Unwrap().Uri, x =>
-                {
+                .OfType<ArtifactDependency.Loaded>()
+                .Select(x => x.Artifact)
+                .OfType<ModuleArtifact>()
+                .Where(x => x.Reference is OciArtifactReference)
+                .DistinctBy(x => x.EntryPoint.Uri)
+                .ToDictionary(x => x.EntryPoint.Uri, x =>
                     // Only include sourceArtifactId for those that were published with source.
-                    if (x.Reference is OciArtifactReference moduleArtifactReference &&
-                        moduleArtifactReference.TryLoadSourceArchive().IsSuccess())
-                    {
-                        return moduleArtifactReference.FullyQualifiedReference;
-                    }
-
-                    return null;
-                });
+                    x.TryGetSources().IsSuccess() ? x.Reference.FullyQualifiedReference : null);
 
             var entryPointDirectoryUri = sourceFileGrouping.EntryPoint.FileHandle.Uri.Resolve(".");
             var cacheRootDirectoryUri = sourceFileGrouping.EntryPoint.LoadFeatures().CacheRootDirectory.Uri;

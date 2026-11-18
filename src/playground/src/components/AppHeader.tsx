@@ -6,9 +6,12 @@ import { quickstartsPaths } from "../quickstarts/quickstarts";
 import { ColorMode } from "../theme/color-mode";
 
 interface Props {
+  workspaceTabs: React.ReactNode;
+  editorMode: boolean;
   activeOperation: string | undefined;
   colorMode: ColorMode;
   copied: boolean;
+  copyLinkDisabled: boolean;
   sampleSelectRef: React.RefObject<HTMLSelectElement | null>;
   selectedSample: string | undefined;
   uploadInputRef: React.RefObject<HTMLInputElement | null>;
@@ -19,9 +22,12 @@ interface Props {
 }
 
 export const AppHeader: React.FC<Props> = ({
+  workspaceTabs,
+  editorMode,
   activeOperation,
   colorMode,
   copied,
+  copyLinkDisabled,
   sampleSelectRef,
   selectedSample,
   uploadInputRef,
@@ -33,80 +39,90 @@ export const AppHeader: React.FC<Props> = ({
   const isBusy = activeOperation !== undefined;
 
   return (
-    <header className="app-header">
+    <header className="app-header" data-editor-mode={editorMode}>
       <div className="brand" aria-label="Bicep Playground">
         <img src={bicepLogoUrl} alt="" className="brand-mark" />
         <span>Bicep Playground</span>
       </div>
 
+      {workspaceTabs}
+
       <nav className="header-actions" aria-label="Playground actions">
-        <label className="visually-hidden" htmlFor="sample-template">
-          Sample template
-        </label>
-        <select
-          ref={sampleSelectRef}
-          id="sample-template"
-          className="sample-select"
-          disabled={isBusy}
-          value={selectedSample ?? ""}
-          onChange={(event) => {
-            const path = event.currentTarget.value;
-            if (path) {
-              onSampleChange(path);
-            }
-          }}
-        >
-          <option value="">Choose a sample...</option>
-          {quickstartsPaths.map((path) => (
-            <option key={path} value={path}>
-              {path}
-            </option>
-          ))}
-        </select>
-        <input
-          ref={uploadInputRef}
-          className="visually-hidden"
-          type="file"
-          accept="application/json,.json"
-          aria-label="ARM template JSON file"
-          onChange={(event) => {
-            const input = event.currentTarget;
-            const file = input.files?.[0];
-            input.value = "";
-            if (file) {
-              onDecompile(file);
-            }
-          }}
-        />
-        <button
-          type="button"
-          className="button"
-          disabled={isBusy}
-          title="Open an ARM template JSON file and decompile it to Bicep"
-          onClick={() => uploadInputRef.current?.click()}
-        >
-          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M6 3.5h8l4 4V20H6V3.5Z"
-              stroke="currentColor"
-              strokeWidth="1.7"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M14 3.5v4h4M9 11l-1.5 1.5L9 14m6-3 1.5 1.5L15 14m-3.7 1 1.4-5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span>Decompile</span>
-        </button>
+        <div className="editor-actions" hidden={!editorMode}>
+          <label className="visually-hidden" htmlFor="sample-template">
+            Sample template
+          </label>
+          <select
+            ref={sampleSelectRef}
+            id="sample-template"
+            className="sample-select"
+            disabled={isBusy}
+            value={selectedSample ?? ""}
+            onChange={(event) => {
+              const path = event.currentTarget.value;
+              if (path) {
+                onSampleChange(path);
+              }
+            }}
+          >
+            <option value="">Choose a sample...</option>
+            {quickstartsPaths.map((path) => (
+              <option key={path} value={path}>
+                {path}
+              </option>
+            ))}
+          </select>
+          <input
+            ref={uploadInputRef}
+            className="visually-hidden"
+            type="file"
+            accept="application/json,.json"
+            aria-label="ARM template JSON file"
+            onChange={(event) => {
+              const input = event.currentTarget;
+              const file = input.files?.[0];
+              input.value = "";
+              if (file) {
+                onDecompile(file);
+              }
+            }}
+          />
+          <button
+            type="button"
+            className="button"
+            disabled={isBusy}
+            title="Open an ARM template JSON file and decompile it to Bicep"
+            onClick={() => uploadInputRef.current?.click()}
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M6 3.5h8l4 4V20H6V3.5Z"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M14 3.5v4h4M9 11l-1.5 1.5L9 14m6-3 1.5 1.5L15 14m-3.7 1 1.4-5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span>Decompile</span>
+          </button>
+        </div>
 
         <button
           type="button"
           className="button copy-link-button"
           aria-label={copied ? "Copied" : "Copy Link"}
+          disabled={copyLinkDisabled}
+          title={
+            editorMode
+              ? "Copy a link to the Bicep source"
+              : "Copy a link containing all submitted console commands. Do not share secrets."
+          }
           onClick={onCopyLink}
         >
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">

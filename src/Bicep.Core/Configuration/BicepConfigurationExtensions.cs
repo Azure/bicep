@@ -4,6 +4,7 @@
 using System.Buffers;
 using System.Text;
 using System.Text.Json;
+using Bicep.Core.Configuration.LegacyModuleAliasMocks;
 using Bicep.Core.Diagnostics;
 using Bicep.IO.Abstraction;
 

@@ -64,6 +64,92 @@ namespace Bicep.Core.TypeSystem
         /// </summary>
         public static TypeSymbol MakeNullable(ITypeReference typeReference) => CreateTypeUnion(typeReference, LanguageConstants.Null);
 
+        /// <summary>
+        /// Gets the item type of an array or union of arrays, ignoring null union members.
+        /// Returns 'any' for other types.
+        /// </summary>
+        public static TypeSymbol GetArrayItemTypeOrAny(TypeSymbol type) => type switch
+        {
+            ArrayType array => array.Item.Type,
+            UnionType union => CreateTypeUnion(union.Members.Where(member => member.Type is not NullType).Select(member => GetArrayItemTypeOrAny(member.Type))),
+            _ => LanguageConstants.Any,
+        };
+
+        /// <summary>
+        /// Merges object properties in order, recursively merging nested object types. Later properties override
+        /// earlier ones, but optional properties retain the earlier type as an alternative.
+        /// </summary>
+        public static TypeSymbol MergeObjectTypes(IEnumerable<TypeSymbol> types)
+            => MergeObjectTypes(types, []);
+
+        /// <summary>
+        /// Merges object types while tracking visited pairs to avoid recursion cycles.
+        /// Falls back to 'object' for unknown property sets or recursive pairs, retaining whole-object security.
+        /// </summary>
+        private static TypeSymbol MergeObjectTypes(IEnumerable<TypeSymbol> types, HashSet<(TypeSymbol, TypeSymbol)> visiting)
+        {
+            var inputs = types.ToArray();
+            // The result holds every input's members, so it's secure if any input, or any alternative of one, is
+            // secure as a whole. Secure properties stay secure on their own, so they don't make the whole result secure.
+            var isSecure = inputs.Any(input => FindPathsToSecureTypeComponents(input, hasTrailingAccessExpressions: true).Any());
+            TypeSymbol Fallback() => isSecure ? LanguageConstants.SecureObject : LanguageConstants.Object;
+
+            Dictionary<string, NamedTypeProperty> properties = new(LanguageConstants.IdentifierComparer);
+            TypeProperty? additionalProperties = null;
+            foreach (var input in inputs)
+            {
+                // Collapse a union of objects (for example from a ternary) into one shape. Dictionaries have unknown
+                // keys, so we can't list the merged properties.
+                if (TryCollapseTypes([input]) is not ObjectType obj || obj.HasExplicitAdditionalPropertiesType)
+                {
+                    return Fallback();
+                }
+
+                // An open object, such as a declared object type, may hold properties it doesn't list. Those could
+                // replace earlier properties with values we know nothing about.
+                if (obj.AdditionalProperties is not null && properties.Keys.Any(name => !obj.Properties.ContainsKey(name)))
+                {
+                    return Fallback();
+                }
+
+                additionalProperties ??= obj.AdditionalProperties;
+                foreach (var property in obj.Properties.Values)
+                {
+                    if (properties.TryGetValue(property.Name, out var previous))
+                    {
+                        var mergedType = property.TypeReference.Type;
+                        if (previous.TypeReference.Type is ObjectType previousObject && mergedType is ObjectType nextObject)
+                        {
+                            var pair = (previousObject, nextObject);
+                            if (!visiting.Add(pair))
+                            {
+                                return Fallback();
+                            }
+
+                            mergedType = MergeObjectTypes([previousObject, nextObject], visiting);
+                            visiting.Remove(pair);
+                        }
+
+                        properties[property.Name] = new(property.Name,
+                            property.Flags.HasFlag(TypePropertyFlags.Required)
+                                ? mergedType
+                                : CreateTypeUnion(previous.TypeReference, mergedType),
+                            previous.Flags | property.Flags);
+                    }
+                    else
+                    {
+                        properties[property.Name] = property;
+                    }
+                }
+            }
+
+            return new ObjectType(
+                LanguageConstants.Object.Name,
+                isSecure ? TypeSymbolValidationFlags.IsSecure : TypeSymbolValidationFlags.Default,
+                properties.Values,
+                additionalProperties);
+        }
+
         public static LambdaType CreateLambdaType(IEnumerable<ITypeReference> argumentTypes, IEnumerable<ITypeReference> optionalArgumentTypes, TypeSymbol returnType)
             => new([.. argumentTypes], [.. optionalArgumentTypes], returnType);
 
@@ -526,6 +612,43 @@ namespace Bicep.Core.TypeSystem
 
             nonNullableCandidateType = null;
             return false;
+        }
+
+        /// <summary>
+        /// Determines whether a string, int or bool type (or a union containing them) would be assignable if it had
+        /// the <see cref="TypeSymbolValidationFlags.AllowLooseAssignment"/> flag, meaning its value might be one of
+        /// the literal values the expected type allows. A null member of the candidate is tolerated, as it is for the
+        /// nullability warning.
+        /// </summary>
+        public static bool WouldBeAssignableIfLoose(TypeSymbol candidateType, TypeSymbol expectedType, [NotNullWhen(true)] out TypeSymbol? looseCandidateType)
+        {
+            var loose = MakeLoose(TryRemoveNullability(candidateType) ?? candidateType);
+            if (TypeValidator.AreTypesAssignable(loose, expectedType))
+            {
+                looseCandidateType = loose;
+                return true;
+            }
+
+            looseCandidateType = null;
+            return false;
+        }
+
+        private static TypeSymbol MakeLoose(TypeSymbol type)
+        {
+            if (type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment))
+            {
+                return type;
+            }
+
+            var looseFlags = type.ValidationFlags | TypeSymbolValidationFlags.AllowLooseAssignment;
+            return type switch
+            {
+                StringType @string => TypeFactory.CreateStringType(@string.MinLength, @string.MaxLength, @string.Pattern, looseFlags),
+                IntegerType integer => TypeFactory.CreateIntegerType(integer.MinValue, integer.MaxValue, looseFlags),
+                BooleanType => TypeFactory.CreateBooleanType(looseFlags),
+                UnionType union => CreateTypeUnion(union.Members.Select(member => MakeLoose(member.Type))),
+                _ => type,
+            };
         }
 
         /// <summary>

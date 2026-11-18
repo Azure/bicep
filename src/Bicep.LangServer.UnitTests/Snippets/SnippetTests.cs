@@ -11,7 +11,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
     {
         [DataRow("")]
         [DataRow("var foo")]
-        [DataTestMethod]
+        [TestMethod]
         public void SnippetsWithoutPlaceholdersShouldParse(string text)
         {
             var snippet = new Snippet(text);

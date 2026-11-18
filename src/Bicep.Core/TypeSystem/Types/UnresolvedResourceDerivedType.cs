@@ -18,6 +18,8 @@ public class UnresolvedResourceDerivedType : TypeSymbol, IUnresolvedResourceDeri
         PointerSegments = pointerSegments;
         FallbackType = fallbackType;
         Variant = variant;
+        // Resource-derived types inherit only the security flag from their fallback type.
+        ValidationFlags = (TypeHelper.TryRemoveNullability(fallbackType) ?? fallbackType).ValidationFlags & TypeSymbolValidationFlags.IsSecure;
     }
 
     public ResourceTypeReference TypeReference { get; }
@@ -27,6 +29,8 @@ public class UnresolvedResourceDerivedType : TypeSymbol, IUnresolvedResourceDeri
     public TypeSymbol FallbackType { get; }
 
     public ResourceDerivedTypeVariant Variant { get; }
+
+    public override TypeSymbolValidationFlags ValidationFlags { get; }
 
     public override TypeKind TypeKind => TypeKind.UnboundResourceDerivedType;
 }

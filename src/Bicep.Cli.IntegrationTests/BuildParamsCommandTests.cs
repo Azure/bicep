@@ -8,7 +8,8 @@ using Bicep.Cli.Models;
 using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
+using Bicep.Core.RegistryClients.TemplateSpecs;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -1354,7 +1355,7 @@ param objParam object
             result.Stderr.Should().Contain("Error BCP033: Expected a value of type \"object\" but the provided value is of type \"'notAnObject'\".");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Build_Valid_Params_File_Should_Succeed(BaselineData_Bicepparam baselineData)
@@ -1374,7 +1375,7 @@ param objParam object
             data.Compiled!.ShouldHaveExpectedJsonValue();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Build_Valid_Params_File_To_Outdir_Should_Succeed(BaselineData_Bicepparam baselineData)
@@ -1395,7 +1396,7 @@ param objParam object
             data.Compiled!.ShouldHaveExpectedJsonValue();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Build_Valid_Params_File_ToStdOut_Should_Succeed(BaselineData_Bicepparam baselineData)
@@ -1419,7 +1420,7 @@ param objParam object
             data.Compiled.ShouldHaveExpectedJsonValue();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.InvalidOnly)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Build_Invalid_Single_Params_File_ShouldFail_WithExpectedErrorMessage(BaselineData_Bicepparam baselineData)
@@ -1582,9 +1583,9 @@ param objParam object
                 .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://mockregistry.io"), "parameters/basic"))
                 .Returns(client.Object);
 
-            var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+            var templateSpecClientFactory = StrictMock.Of<ITemplateSpecClientFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecClientFactory.Object);
             var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
 
             result.Should().Fail().And.NotHaveStdout();

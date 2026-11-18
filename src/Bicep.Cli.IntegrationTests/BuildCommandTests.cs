@@ -5,13 +5,14 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Artifacts.Cache;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;
 using FluentAssertions;
@@ -55,8 +56,8 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Build_Valid_SingleFile_WithTemplateSpecReference_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -101,8 +102,8 @@ namespace Bicep.Cli.IntegrationTests
                 actualLocation: compiledFilePath);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Build_Valid_SingleFile_WithTemplateSpecReference_ToStdOut_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -144,8 +145,8 @@ namespace Bicep.Cli.IntegrationTests
                 actualLocation: compiledFilePath);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Build_Valid_SingleFile_After_Restore_Should_Succeed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -202,9 +203,9 @@ namespace Bicep.Cli.IntegrationTests
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);
 
-            var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
+            var templateSpecClientFactory = BicepTestConstants.TemplateSpecClientFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecClientFactory);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -244,13 +245,13 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Build_Invalid_SingleFile_ShouldFail_WithExpectedErrorMessage(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecRepositoryFactory);
+            var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecClientFactory);
 
             var (output, error, result) = await Bicep("build", bicepFilePath);
 
@@ -262,8 +263,8 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Build_Invalid_SingleFile_ToStdOut_ShouldFail_WithExpectedErrorMessage(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -274,7 +275,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             result.Should().Be(1);
             output.Should().BeEmpty();
 
-            var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecRepositoryFactory);
+            var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecClientFactory);
             error.Should().ContainAll(diagnostics);
         }
 
@@ -405,7 +406,7 @@ output myOutput string = 'hello!'
         [DataRow([])]
         [DataRow(["--diagnostics-format", "defAULt"])]
         [DataRow(["--diagnostics-format", "sArif"])]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Build_WithOutDir_ShouldSucceed(string[] args)
         {
             var bicepPath = FileHelper.SaveResultFile(
@@ -465,7 +466,7 @@ output myOutput string = 'hello!'
         [DataRow("WrongDir\\Fake.bicep", new[] { "--stdout" }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataRow("WrongDir\\Fake.bicep", new[] { "--outdir", "." }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataRow("WrongDir\\Fake.bicep", new[] { "--outfile", "file1" }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Build_InvalidInputPaths_ShouldProduceExpectedError(string badPath, string[] args, string expectedErrorRegex)
         {
             var (output, error, result) = await Bicep(["build", .. args, badPath]);
@@ -606,7 +607,7 @@ output myOutput string = 'hello!'
 
         [DataRow([])]
         [DataRow(["--diagnostics-format", "defAULt"])]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError(string[] args)
         {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);

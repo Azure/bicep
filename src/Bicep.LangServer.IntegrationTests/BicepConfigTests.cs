@@ -252,6 +252,45 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
+        public async Task ChangingExtendedBaseConfigFile_ShouldRefreshCompilation()
+        {
+            var diagsListener = GetDiagnosticListener();
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
+
+            var bicepFileContents = @"param storageAccountName string = 'test'";
+            SaveFile("bicepconfig.json", """{ "extends": "./bicepconfig.base.json" }""");
+            SaveFile("bicepconfig.base.json", "{}");
+            var mainUri = SaveFile("main.bicep", bicepFileContents);
+
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, bicepFileContents, 1));
+
+            await VerifyDiagnosticsAsync(diagsListener, mainUri, (@"Parameter ""storageAccountName"" is declared but never used.",
+                DiagnosticSeverity.Warning,
+                new Position(0, 6),
+                new Position(0, 24),
+                "no-unused-params"));
+
+            // The base file isn't named bicepconfig.json, but the chain read it, so changing it must refresh the compilation.
+            var baseConfigUri = SaveFile("bicepconfig.base.json", """{ "analyzers": { "core": { "rules": { "no-unused-params": { "level": "info" } } } } }""");
+
+            client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
+            {
+                Changes = new Container<FileEvent>(new FileEvent
+                {
+                    Type = FileChangeType.Changed,
+                    Uri = baseConfigUri,
+                })
+            });
+
+            await VerifyDiagnosticsAsync(diagsListener, mainUri, (@"Parameter ""storageAccountName"" is declared but never used.",
+                DiagnosticSeverity.Information,
+                new Position(0, 6),
+                new Position(0, 24),
+                "no-unused-params"));
+        }
+
+        [TestMethod]
         public async Task WithBicepConfigInParentDirectory_WhenNewBicepConfigFileIsAddedToCurrentDirectory_ShouldUseNewlyAddedConfigSettings()
         {
             var diagsListener = GetDiagnosticListener();

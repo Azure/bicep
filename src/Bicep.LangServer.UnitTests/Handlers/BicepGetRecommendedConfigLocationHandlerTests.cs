@@ -153,8 +153,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
 #endif
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetWorkspaceFoldersTestData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetWorkspaceFoldersTestData))]
         public void WorkspaceFolders(string[] workspaceFolders, string bicepFilePath, string expected)
         {
             var actual = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(workspaceFolders, bicepFilePath);

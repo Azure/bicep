@@ -453,7 +453,7 @@ public class ConfigurationInheritanceTests
         """);
 
         // Purge the cache for the changed file.
-        configManager.PurgeCacheForAffectedChains(BicepUri("/base/bicepconfig.base.json"));
+        configManager.InvalidateFile(BicepUri("/base/bicepconfig.base.json"));
 
         // Act 2 — reloaded chain should reflect the updated base config.
         var chain2 = configManager.GetConfigurationChain(BicepUri("/main.bicep"));

@@ -27,6 +27,8 @@ internal sealed class WriteFailingFileExplorer(
 
         public bool Exists() => inner.Exists();
 
+        public bool IsReparsePoint() => inner.IsReparsePoint();
+
         public string ReadAllText() => inner.ReadAllText();
 
         public Task<string> ReadAllTextAsync(CancellationToken cancellationToken = default) =>

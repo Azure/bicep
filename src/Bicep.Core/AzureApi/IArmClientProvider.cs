@@ -11,6 +11,6 @@ public interface IArmClientProvider
 {
     ArmClient CreateArmClient(TokenCredential credential, string? defaultSubscriptionId, ArmClientOptions options);
 
-    ArmClient CreateArmClient(IBicepConfiguration configuration, string? defaultSubscriptionId);
+    ArmClient CreateArmClient(IBicepCloudConfiguration cloud, string? defaultSubscriptionId);
 }
 

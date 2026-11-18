@@ -27,7 +27,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(
             1, 65, "output o% string = 'o%'",
             new string[] { "Too many outputs. Number of outputs is limited to 64." })]
-        [DataTestMethod]
+        [TestMethod]
         public void TooManyOutputs(int i, int j, string pattern, string[] expectedMessages)
         {
             CompileAndTest(GenerateText(i, j, pattern), MaxNumberOutputsRule.Code, Core.Diagnostics.DiagnosticLevel.Error, expectedMessages);

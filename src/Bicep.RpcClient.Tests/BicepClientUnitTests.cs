@@ -188,8 +188,8 @@ public class BicepClientUnitTests
 
     private static IEnumerable<object[]> GetOperationsWithConfigPath() => RequestsWithConfigPath.Keys.Select(x => new object[] { x });
 
-    [DataTestMethod]
-    [DynamicData(nameof(GetOperationsWithConfigPath), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DynamicData(nameof(GetOperationsWithConfigPath))]
     public async Task Requests_with_config_path_throw_when_cli_version_is_below_minimum(string operationName)
     {
         var (method, invoke) = RequestsWithConfigPath[operationName];

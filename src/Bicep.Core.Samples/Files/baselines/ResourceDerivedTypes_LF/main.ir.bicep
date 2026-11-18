@@ -30,7 +30,7 @@ type strangeFormatting = {
   test: resourceInput<
 //@[02:0085) |   ├─ObjectTypePropertyExpression
 //@[08:0085) |   | └─TypeReferencePropertyAccessExpression { Name = string }
-//@[08:0080) |   |   └─ResourceDerivedTypeExpression { Name = Astronomer.Astro/organizations }
+//@[08:0080) |   |   └─ResourceDerivedTypeExpression { Name = Astronomer.Astro/organizations@2023-08-01-preview }
 
   'Astronomer.Astro/organizations@2023-08-01-preview'
 
@@ -50,7 +50,7 @@ type strangeFormatting = {
 //@[13:0030) | ├─StringLiteralExpression { Value = I love space(s) }
 type test2 = resourceInput<
 //@[13:0093) | └─TypeReferencePropertyAccessExpression { Name = string }
-//@[13:0088) |   └─ResourceDerivedTypeExpression { Name = Astronomer.Astro/organizations }
+//@[13:0088) |   └─ResourceDerivedTypeExpression { Name = Astronomer.Astro/organizations@2023-08-01-preview }
 
      'Astronomer.Astro/organizations@2023-08-01-preview'
 

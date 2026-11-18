@@ -11,7 +11,7 @@ namespace Bicep.Core.UnitTests.Analyzers.Linter.ApiVersions
     [TestClass]
     public class AzureResourceApiVersionTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("2001-01-01", "2001-01-01", "")]
         [DataRow("9999-12-31", "9999-12-31", "")]
         [DataRow("9999-12-31-alpha", "9999-12-31", "-alpha")]
@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Analyzers.Linter.ApiVersions
             apiVersion.Suffix.Should().Be(suffix);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("2001-01-011")]
         [DataRow("whatever")]
         [DataRow("9999-12-31-")]

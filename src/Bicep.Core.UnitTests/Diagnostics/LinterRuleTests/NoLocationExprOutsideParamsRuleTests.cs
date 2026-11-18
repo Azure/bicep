@@ -56,6 +56,43 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             );
         }
 
+        [DataRow("subscription", "resourceGroup().location")]
+        [DataRow("managementGroup", "resourceGroup().location")]
+        [DataRow("tenant", "resourceGroup().location")]
+        [DataRow("subscription", "az.resourceGroup().location")]
+        [DataRow("managementGroup", "az.resourceGroup().location")]
+        [DataRow("tenant", "az.resourceGroup().location")]
+        [DataRow("resourceGroup", "deployment().location")]
+        [DataRow("resourceGroup", "az.deployment().location")]
+        [DataRow("subscription", "resourceGroup('otherGroup').location")]
+        [TestMethod]
+        public void InvalidLocationExpression_ShouldReportCompilerErrorWithoutLinterWarning(string scope, string expression)
+        {
+            var result = Compile($"""
+                targetScope = '{scope}'
+                output location string = {expression}
+                """);
+
+            // Invalid expressions still need their compiler error; suppress only this rule's advice.
+            result.Diagnostics.Should().Contain(diagnostic => diagnostic.Code.StartsWith("BCP") && diagnostic.Level == DiagnosticLevel.Error);
+            result.Diagnostics.Should().NotContain(diagnostic => diagnostic.Code == NoLocationExprOutsideParamsRule.Code);
+        }
+
+        [TestMethod]
+        public void InvalidLocationExpression_ShouldNotSuppressWarningForValidExpressionInSameFile()
+        {
+            var result = Compile("""
+                targetScope = 'subscription'
+                output invalidLocation string = resourceGroup().location
+                output validLocation string = deployment().location
+                """);
+
+            result.Diagnostics.Should().Contain(diagnostic => diagnostic.Code == "BCP071" && diagnostic.Level == DiagnosticLevel.Error);
+            var warning = result.Diagnostics.Where(diagnostic => diagnostic.Code == NoLocationExprOutsideParamsRule.Code)
+                .Should().ContainSingle().Which;
+            result.EntryPointFile.Text.Substring(warning.Span.Position, warning.Span.Length).Should().Be("deployment().location");
+        }
+
         [DataRow(@"
             targetScope = 'managementGroup'
             param Location string = deployment().location
@@ -70,7 +107,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(@"
             param Location string = az.resourceGroup().location
           ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_LocationExprUsedIn_DefaultForParameter_ShouldPass(string text)
         {
             ExpectPass(text);
@@ -98,7 +135,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(@"
             var notAParam = '${az.resourceGroup().properties.provisioningState}'
           ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_DeploymentOrResourceGroup_Object_WithoutLocationProperty_ShouldPass(string text)
         {
             ExpectPass(text);
@@ -131,7 +168,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             param notLocation string = ResourceGroup().location
           ",
             OnCompileErrors.Ignore)]
-        [DataTestMethod]
+        [TestMethod]
         public void If_Not_DeploymentOrResourceGroup_OrWithIncorrectNamespace_ShouldPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             ExpectPass(text, new Options(onCompileErrors));
@@ -173,7 +210,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ",
             "[4] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_DeploymentLocationOrResourceGroup_OutsideParam_ShouldFail(string text, string expectedMessage)
         {
             ExpectFail(text, expectedMessage);
@@ -197,7 +234,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ",
             "[4] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_DeploymentLocationOrResourceGroup_WithAzNamespace_ShouldFail(string text, string expectedMessage)
         {
             ExpectFail(text, expectedMessage);

@@ -10,14 +10,15 @@ import {
   waitForStableNodePosition,
 } from "./fixtures";
 
-test.describe("Viewer mode with resource creation disabled", () => {
+test.describe("With resource editing disabled", () => {
   test.beforeEach(async ({ page }) => {
     await openVisualDesigner(page, { resourceEditing: "false" });
     await loadSampleGraph(page, "flat");
   });
 
-  test("keeps navigation available without creation UI or edit shortcuts", async ({ page }) => {
-    await expect(page.getByTestId("creation-dock")).toHaveCount(0);
+  test("keeps navigation and the select and hand tools, without creation UI or edit shortcuts", async ({ page }) => {
+    await expect(page.getByTestId("creation-dock").getByRole("button")).toHaveCount(2);
+    await expect(page.getByRole("button", { name: "Hand (H)" })).toBeVisible();
     await expect(page.getByTestId("open-resource-palette")).toHaveCount(0);
     await expect(page.getByRole("complementary", { name: "Resource Palette" })).toHaveCount(0);
     await expect(page.getByTestId("control-bar")).toBeVisible();
@@ -36,10 +37,12 @@ test.describe("Viewer mode with resource creation disabled", () => {
     const box = (await canvas.boundingBox())!;
     const start = { x: box.x + 40, y: box.y + 40 };
     const beforePan = await getGraphTransform(page);
+    await page.keyboard.press("h");
     await page.mouse.move(start.x, start.y);
     await page.mouse.down();
     await page.mouse.move(start.x + 50, start.y + 20, { steps: 10 });
     await page.mouse.up();
+    await page.keyboard.press("v");
     await expect.poll(() => getGraphTransform(page)).not.toBe(beforePan);
     await expect(canvas).not.toHaveClass(/\bgrabbing\b/);
 
@@ -48,7 +51,7 @@ test.describe("Viewer mode with resource creation disabled", () => {
     await page.keyboard.press("Insert");
     await page.keyboard.press("Delete");
     await expect(page.getByTestId("graph-node")).toHaveCount(count);
-    await expect(page.getByTestId("creation-dock")).toHaveCount(0);
+    await expect(page.getByTestId("open-resource-palette")).toHaveCount(0);
     await expect(page.getByTestId("pending-resource-node")).toHaveCount(0);
   });
 
@@ -103,6 +106,6 @@ test.describe("Viewer mode with resource creation disabled", () => {
     await loadSampleGraph(page, "empty");
     await expect(page.getByTestId("status-empty-message")).toBeVisible();
     await expect(page.getByTestId("control-export")).toBeDisabled();
-    await expect(page.getByTestId("creation-dock")).toHaveCount(0);
+    await expect(page.getByTestId("open-resource-palette")).toHaveCount(0);
   });
 });

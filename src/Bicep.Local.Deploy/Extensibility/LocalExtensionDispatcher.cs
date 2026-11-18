@@ -17,9 +17,7 @@ using Azure.Deployments.Extensibility.Core.V2.Models;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceGraph.ArtifactReferences;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
 using Bicep.Local.Deploy.Azure;
@@ -182,15 +180,9 @@ public class LocalExtensionDispatcher : IAsyncDisposable
 
         foreach (var namespaceType in namespaceTypes)
         {
-            if (namespaceType.ExtensionArtifactReference is IExtensionArtifactReference extensionArtifactReference)
+            if (namespaceType.ExtensionArtifact?.Binary is { } binary)
             {
-                var extensionArtifact = extensionArtifactReference.ResolveExtensionArtifact();
-
-                if (extensionArtifact.BinaryFile.Exists())
-                {
-                    yield return (namespaceType, extensionArtifact.BinaryFile.Uri);
-                }
-
+                yield return (namespaceType, binary.Uri);
             }
         }
     }

@@ -9,7 +9,7 @@ import { loadSampleGraph, openVisualDesigner, waitForStableNodePosition } from "
 const CURATED_DARK_CANVAS = "rgb(26, 26, 26)";
 const CURATED_DARK_DOCK = "rgba(38, 38, 38, 0.92)";
 const MONOKAI_CANVAS = "rgb(39, 40, 34)";
-// Floating chrome shares Monokai's derived card surface.
+// Floating chrome shares Monokai's derived node surface.
 const MONOKAI_DOCK = "rgba(49, 51, 44, 0.92)";
 const SOLARIZED_DARK_CANVAS = "rgb(0, 43, 54)";
 

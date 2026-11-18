@@ -11,10 +11,11 @@ using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Extensibility.Core.V2.Models;
 using Bicep.Cli.Rpc;
 using Bicep.Cli.UnitTests.Assertions;
+using Bicep.Core.Artifacts.Codecs;
+using Bicep.Core.Artifacts.Packages;
 using Bicep.Core.Configuration;
 using Bicep.Core.Json;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
@@ -38,7 +39,7 @@ namespace Bicep.Cli.IntegrationTests.Commands;
 [TestClass]
 public class LocalDeployCommandTests : TestBase
 {
-    private static ExtensionPackage GetMockLocalDeployPackage(BinaryData? tgzData = null)
+    private static ExtensionArtifactPackage GetMockLocalDeployPackage(BinaryData? tgzData = null)
     {
         tgzData ??= ExtensionResourceTypeHelper.GetHttpExtensionTypesTgz();
 
@@ -46,7 +47,7 @@ public class LocalDeployCommandTests : TestBase
 
         // this doesn't need to contain a real binary, because this test emulates the local binary connection
         ExtensionBinary binary = new(architecture, BinaryData.FromBytes([]));
-        return new ExtensionPackage(tgzData, true, [binary]);
+        return new ExtensionArtifactPackage(tgzData, [binary]);
     }
 
     private static void RegisterExtensionMocks(
@@ -400,7 +401,13 @@ public class LocalDeployCommandTests : TestBase
 
         result.Should().NotHaveStderr().And.Fail();
 
-        result.WithoutAnsi().WithoutDurations().Stdout.Should().BeEquivalentToIgnoringNewlines("""
+        const string correlationIdPattern = @"[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}";
+        var stdout = result.WithoutAnsi().WithoutDurations().Stdout;
+        stdout.Should().Contain("Correlation ID:");
+        Regex.Matches(stdout, correlationIdPattern).Count.Should().Be(1);
+        stdout = Regex.Replace(stdout, correlationIdPattern, "00000000-0000-0000-0000-000000000000");
+
+        stdout.Should().BeEquivalentToIgnoringNewlines("""
         ╭───────────────────────┬──────────┬───────────────────────────────────────────╮
         │ Resource              │ Duration │ Status                                    │
         ├───────────────────────┼──────────┼───────────────────────────────────────────┤
@@ -409,7 +416,8 @@ public class LocalDeployCommandTests : TestBase
         │                       │          │ deployment operations for details. Please │
         │                       │          │ see                                       │
         │                       │          │ https://aka.ms/arm-deployment-operations  │
-        │                       │          │ for usage details.                        │
+        │                       │          │ for usage details. Correlation ID:        │
+        │                       │          │ 00000000-0000-0000-0000-000000000000      │
         │                       │          │   - NestedCode1: Nested message 1         │
         │ main -> gridpointsReq │          │ MyErrorCode: Dummy error message          │
         │                       │          │   - NestedCode1: Nested message 1         │

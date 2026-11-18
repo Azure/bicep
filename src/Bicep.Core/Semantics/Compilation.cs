@@ -7,7 +7,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Utils;
@@ -25,7 +24,6 @@ namespace Bicep.Core.Semantics
             INamespaceProvider namespaceProvider,
             SourceFileGrouping sourceFileGrouping,
             IBicepAnalyzer linterAnalyzer,
-            IArtifactReferenceFactory artifactReferenceFactory,
             ISourceFileFactory sourceFileFactory,
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup,
             CompilerVersionCheckOptions compilerVersionCheckOptions)
@@ -34,7 +32,6 @@ namespace Bicep.Core.Semantics
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
             this.LinterAnalyzer = linterAnalyzer;
-            this.ArtifactReferenceFactory = artifactReferenceFactory;
             this.SourceFileFactory = sourceFileFactory;
             this.CompilerVersionCheckOptions = compilerVersionCheckOptions;
 
@@ -57,8 +54,6 @@ namespace Bicep.Core.Semantics
         public SourceFileGrouping SourceFileGrouping { get; }
 
         public INamespaceProvider NamespaceProvider { get; }
-
-        public IArtifactReferenceFactory ArtifactReferenceFactory { get; }
 
         public IEnvironment Environment { get; }
 
@@ -114,7 +109,6 @@ namespace Bicep.Core.Semantics
         private SemanticModel CreateSemanticModel(BicepSourceFile bicepFile) => new(
             this.LinterAnalyzer,
             this.NamespaceProvider,
-            this.ArtifactReferenceFactory,
             this,
             this.SourceFileGrouping,
             this.Environment,

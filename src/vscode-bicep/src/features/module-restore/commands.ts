@@ -21,7 +21,8 @@ export class ForceModulesRestoreCommand implements Command {
     documentUri = await findOrCreateActiveBicepFile(
       this.prompts,
       documentUri,
-      "Choose which Bicep file to restore modules for",
+      "Choose which .bicep or .bicepparam file to restore modules for",
+      true,
     );
 
     if (documentUri.scheme === "output") {

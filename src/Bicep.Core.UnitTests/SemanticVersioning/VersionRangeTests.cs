@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.SemanticVersioning;
 [TestClass]
 public class VersionRangeTests
 {
-    [DataTestMethod]
+    [TestMethod]
     // Exact versions.
     [DataRow("1.2.3", "1.2.3")]
     [DataRow("=0.31.0", "0.31.0")]
@@ -39,7 +39,7 @@ public class VersionRangeTests
         range!.ToString().Should().Be(expected);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow("   ")]
     [DataRow("whatever")]
@@ -76,7 +76,7 @@ public class VersionRangeTests
         range.Should().BeNull();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(">=0.31.0", "0.31.0", true)]
     [DataRow(">=0.31.0", "0.31.1", true)]
     [DataRow(">=0.31.0", "1.0.0", true)]
@@ -107,7 +107,7 @@ public class VersionRangeTests
         range.IsSatisfiedBy(SemanticVersion.Parse(version)).Should().Be(expected);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.0.0", true)]
     [DataRow(">=1.0.0", true)]
     [DataRow(">=1.0.0, <2.0.0", true)]
@@ -125,7 +125,7 @@ public class VersionRangeTests
         VersionRange.Parse(constraint).IsSatisfiable.Should().Be(expected);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2.3", true)]
     [DataRow("=1.2.3", true)]
     [DataRow(">=1.2.3, <=1.2.3", true)]
@@ -177,7 +177,7 @@ public class VersionRangeTests
         range.UpperBound.Should().BeNull();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     // Fully open ranges always overlap.
     [DataRow(">=0.31.0", ">=0.15.0", true, ">=0.31.0")]
     [DataRow(">=0.31.0", "<1.0.0", true, ">=0.31.0, <1.0.0")]
@@ -222,7 +222,7 @@ public class VersionRangeTests
         ab!.ToString().Should().Be(ba!.ToString());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     // A range is always a subset of itself and of a fully open range.
     [DataRow(">=0.31.0, <1.0.0", ">=0.31.0, <1.0.0", true)]
     [DataRow(">=0.31.0, <1.0.0", ">=0.15.0", true)]

@@ -3,8 +3,8 @@
 
 using System.Text.Json;
 using Bicep.Core.Json;
-using Bicep.Core.Registry.Oci;
-using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.RegistryClients.Oci;
+using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;

@@ -98,6 +98,11 @@ namespace Bicep.Core.TypeSystem
         Pure = 1 << 17,
 
         /// <summary>
+        /// The function's result does not expose its arguments' contents, so secret analysis can skip the arguments.
+        /// </summary>
+        DoesNotRevealSecrets = 1 << 18,
+
+        /// <summary>
         /// The function can be used as a resource or module decorator.
         /// </summary>
         ResourceOrModuleDecorator = ResourceDecorator | ModuleDecorator,

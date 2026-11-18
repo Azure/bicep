@@ -11,7 +11,7 @@ type invalid3 = resourceInput<'abc', 'def'>
 //@[029:043) [BCP071 (Error)] Expected 1 argument, but got 2. (bicep https://aka.ms/bicep/core-diagnostics#BCP071) |<'abc', 'def'>|
 type invalid4 = resourceInput<hello>
 //@[005:013) [no-unused-types (Warning)] Type "invalid4" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |invalid4|
-//@[030:035) [BCP070 (Error)] Argument of type "{ bar: Astronomer.Astro/organizations }" is not assignable to parameter of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |hello|
+//@[030:035) [BCP070 (Error)] Argument of type "{ bar: Astronomer.Astro/organizations@2023-08-01-preview }" is not assignable to parameter of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |hello|
 type invalid5 = resourceInput<'Microsoft.Storage/storageAccounts'>
 //@[005:013) [no-unused-types (Warning)] Type "invalid5" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |invalid5|
 //@[030:065) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Storage/storageAccounts'|

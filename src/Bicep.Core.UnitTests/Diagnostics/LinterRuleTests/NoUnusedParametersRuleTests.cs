@@ -80,7 +80,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             param p2 =
                     ",
             "p1", "p2")]
-        [DataTestMethod]
+        [TestMethod]
         public void TestRule(string text, params string[] unusedParams)
         {
             CompileAndTest(text, OnCompileErrors.Ignore, unusedParams);
@@ -120,7 +120,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             output storageEndpoint object = stgModule.outputs.storageEndpoint
             ",
             "unusedparam")]
-        [DataTestMethod]
+        [TestMethod]
         public void Modules(string text, params string[] unusedParams)
         {
             CompileAndTest(text, OnCompileErrors.Ignore, unusedParams);
@@ -144,7 +144,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
             ",
             "size")]
-        [DataTestMethod]
+        [TestMethod]
         public void Conditions(string text, params string[] unusedParams)
         {
             CompileAndTest(text, unusedParams);
@@ -152,7 +152,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         [DataRow(@"param")] // Don't show as unused - no param name
         [DataRow(@"param // whoops")] // Don't show as unused - no param name
-        [DataTestMethod]
+        [TestMethod]
         public void Errors(string text, params string[] unusedParams)
         {
             CompileAndTest(text, OnCompileErrors.Ignore);

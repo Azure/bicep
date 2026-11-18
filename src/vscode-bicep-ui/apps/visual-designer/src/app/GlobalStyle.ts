@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import { createGlobalStyle } from "styled-components";
+import { getCursors } from "@/ui";
 
 export const GlobalStyle = createGlobalStyle`
   body {
@@ -25,6 +26,18 @@ export const GlobalStyle = createGlobalStyle`
     display: flex;
     flex-direction: column;
     background-color: ${({ theme }) => theme.viewport.background};
+    /* The designer's own arrow, like its tool and button cursors. Text fields keep the text cursor. */
+    cursor: ${({ theme }) => getCursors(theme).arrow};
+  }
+
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="button"]),
+  textarea {
+    cursor: text;
+  }
+
+  /* Browsers give labels the system arrow; let them show whatever is around them instead. */
+  label {
+    cursor: inherit;
   }
 
   *, *::before, *::after {

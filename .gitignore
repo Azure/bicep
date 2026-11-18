@@ -61,7 +61,8 @@ BenchmarkDotNet.Artifacts/
 project.lock.json
 project.fragment.lock.json
 artifacts/
-
+# Source folders named "Artifacts" (case-insensitive file systems would otherwise match the rule above)
+!src/*/Artifacts/
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
 

@@ -2,38 +2,98 @@
 // Licensed under the MIT License.
 import { deflate, inflate } from "pako";
 
-export function handleShareLink(
-  onContents: (contents: string | null) => void,
-): void {
+export type Workspace = "editor" | "console";
+
+export type Fragment =
+  | { kind: "workspace"; workspace: Workspace }
+  | { kind: "editor"; workspace: "editor"; content: string }
+  | { kind: "console"; workspace: "console"; commands: readonly string[] }
+  | { kind: "invalid"; workspace: Workspace; message: string };
+
+const consoleSharePrefix = "console/";
+const editorSharePrefix = "editor/";
+
+export function parseFragment(hash: string): Fragment {
+  const rawHash = hash.startsWith("#") ? hash.substring(1) : hash;
+  if (!rawHash || rawHash === "editor" || rawHash === "console") {
+    return {
+      kind: "workspace",
+      workspace: rawHash === "console" ? "console" : "editor",
+    };
+  }
+
+  const workspace = rawHash.startsWith(consoleSharePrefix)
+    ? "console"
+    : "editor";
   try {
-    const rawHash = window.location.hash.substring(1);
-    if (!rawHash) {
-      onContents(null);
-      return;
+    if (workspace === "console") {
+      return {
+        kind: "console",
+        workspace,
+        commands: decodeConsoleHistory(
+          rawHash.substring(consoleSharePrefix.length),
+        ),
+      };
     }
-
-    history.replaceState(
-      null,
-      "",
-      `${window.location.pathname}${window.location.search}`,
-    );
-    const hashContents = decodeHash(rawHash);
-
-    onContents(hashContents);
+    return {
+      kind: "editor",
+      workspace,
+      content: decodeHash(
+        rawHash.startsWith(editorSharePrefix)
+          ? rawHash.substring(editorSharePrefix.length)
+          : rawHash,
+      ),
+    };
   } catch {
-    onContents(null);
+    return {
+      kind: "invalid",
+      workspace,
+      message:
+        workspace === "console"
+          ? "The shared console history is invalid."
+          : "The shared editor source is invalid.",
+    };
   }
 }
 
 export function getShareLink(content: string) {
   const contentHash = encodeHash(content);
-  let href = document.location.href;
+  return `${getShareBaseUrl()}#${editorSharePrefix}${contentHash}`;
+}
+
+export function getConsoleShareLink(commands: readonly string[]): string {
+  const data = deflate(new TextEncoder().encode(JSON.stringify(commands)));
+  const payload = btoa(
+    Array.from(data, (byte) => String.fromCharCode(byte)).join(""),
+  );
+  return `${getShareBaseUrl()}#${consoleSharePrefix}${payload}`;
+}
+
+function decodeConsoleHistory(payload: string): string[] {
+  const data = Uint8Array.from(atob(payload), (char) => char.charCodeAt(0));
+  const json = new TextDecoder("utf-8", { fatal: true }).decode(inflate(data));
+  const commands: unknown = JSON.parse(json);
+  if (
+    !Array.isArray(commands) ||
+    !commands.every(
+      (command): command is string =>
+        typeof command === "string" && command.trim().length > 0,
+    )
+  ) {
+    throw new Error("Expected an array of console commands.");
+  }
+
+  return commands;
+}
+
+function getShareBaseUrl(): string {
+  let href = document.location.href.split("#")[0];
   if (href === "https://azure.github.io/bicep/") {
     // use aka.ms for the official site
     href = "https://aka.ms/bicepdemo";
   }
 
-  return `${href}#${contentHash}`;
+  return href;
 }
 
 function encodeHash(content: string): string {

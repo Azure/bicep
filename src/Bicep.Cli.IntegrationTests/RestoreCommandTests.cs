@@ -8,15 +8,17 @@ using Azure.Identity;
 using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.RegistryClients.Oci;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
+using Bicep.Core.RegistryClients.TemplateSpecs;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Artifacts.Cache;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
@@ -47,7 +49,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetAllDataSetsWithPublishSource))]
         public async Task Restore_ShouldSucceed(string testName, DataSet dataSet, bool publishSource)
         {
             TestContext.WriteLine(testName);
@@ -159,14 +161,14 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
                 .And.AllSatisfy(m => m.Should().NotHaveSource());
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetAllDataSetsWithPublishSource))]
         public async Task Restore_ShouldSucceedWithAnonymousClient(string testName, DataSet dataSet, bool publishSource)
         {
             TestContext.WriteLine(testName);
 
             var clientFactory = dataSet.CreateMockRegistryClients();
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
+            var templateSpecClientFactory = dataSet.CreateMockTemplateSpecClientFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource);
 
@@ -190,7 +192,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
                 .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns<CloudConfiguration, Uri, string>(clientFactory.CreateAnonymousBlobClient);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactoryForRestore.Object, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactoryForRestore.Object, templateSpecClientFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides!.CacheRootDirectory}");
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
@@ -214,7 +216,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
         //
         //
         // No errors
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(null, null, null)]
         [DataRow(null, "application/vnd.ms.bicep.module.artifact", null)]
         [DataRow("application/vnd.oci.image.manifest.v1+json", null, null)]
@@ -228,7 +230,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
         // Expecting errors
         [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.unexpected", null,
             // expected error:
-            "Error BCP192: Unable to restore.* artifacts of type: 'application/vnd.ms.bicep.module.unexpected'.*newer version of Bicep might be required to reference this artifact.")]
+            "Error BCP192: Unable to restore.* The artifact type \"application/vnd.ms.bicep.module.unexpected\" is not supported by this version of Bicep. A newer version of Bicep might be required to reference this artifact.")]
         public async Task Restore_Artifacts_BackwardsAndForwardsCompatibility(string? mediaType, string? artifactType, string? configContents, string? expectedErrorRegex = null)
         {
             var registry = "example.com";
@@ -261,7 +263,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             restoredFile.Write(bicep);
 
             var restoredFilePath = restoredFile.Uri.GetFilePath();
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecClientFactory);
 
             var (output, error, result) = await Bicep(settings, "restore", restoredFilePath);
             using (new AssertionScope())
@@ -281,7 +283,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // *** Valid Cases ***
         [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json }, null)]
         [DataRow(new string[] { "unknown1", "unknown2", BicepMediaTypes.BicepModuleLayerV1Json }, null)]
@@ -292,23 +294,19 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         // *** Negative Cases ***
         [DataRow(
             new string[] { BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip },
-            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+            ".*The module has no compiled template layer \\(media type \"application\\/vnd.ms.bicep.module.layer.v1\\+json\"\\).*")]
         [DataRow(
             new string[] { },
-            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+            ".*The module has no compiled template layer \\(media type \"application\\/vnd.ms.bicep.module.layer.v1\\+json\"\\).*")]
         [DataRow(
             new string[] { "unknown", BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip },
-            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+            ".*The module has no compiled template layer \\(media type \"application\\/vnd.ms.bicep.module.layer.v1\\+json\"\\).*")]
         [DataRow(
             new string[] { "unknown2", "unknown1" },
-            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+            ".*The module has no compiled template layer \\(media type \"application\\/vnd.ms.bicep.module.layer.v1\\+json\"\\).*")]
         [DataRow(
             new string[] { BicepMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepModuleLayerV1Json },
-            $".*Did not expect to find multiple layer media types of application\\/vnd.ms.bicep.module.layer.v1\\+json")]
-        // TODO: doesn't work because extension error handling is still coupled with module error handling.
-        [DataRow(
-            new string[] { BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip, BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip },
-            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+            ".*The module has more than one compiled template layer \\(media type \"application\\/vnd.ms.bicep.module.layer.v1\\+json\"\\).*")]
         public async Task Restore_Artifacts_LayerMediaTypes(string[] layerMediaTypes, string expectedErrorRegex)
         {
             var registry = "example.com";
@@ -342,7 +340,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var restoredFilePath = restoredFile.Uri.GetFilePath();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecClientFactory);
 
             var (output, error, result) = await Bicep(settings, "restore", restoredFilePath);
             using (new AssertionScope())
@@ -376,9 +374,9 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);
 
-            var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
+            var templateSpecClientFactory = BicepTestConstants.TemplateSpecClientFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecClientFactory);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -483,7 +481,103 @@ output o1 string = '${p1}${p2}'");
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
+        public async Task Restore_With_Force_ShouldRestore_NestedRegistryModules_ReferencedByLocalModule()
+        {
+            var fileSystem = new MockFileSystem();
+            var fileExplorer = new FileSystemFileExplorer(fileSystem);
+
+            var clientFactory = RegistryHelper.CreateMockRegistryClient(
+                new RegistryHelper.RepoDescriptor("mockregistry.io", "bicepmodules/remote-module-01", ["default"]),
+                new RegistryHelper.RepoDescriptor("mockregistry.io", "bicepmodules/remote-module-02", ["default"]));
+
+            await RegistryHelper.PublishModuleToRegistryAsync(
+                new ServiceBuilder(),
+                clientFactory,
+                fileSystem,
+                new("br:mockregistry.io/bicepmodules/remote-module-01:default", "output name string = 'plan'", WithSource: false));
+
+            await RegistryHelper.PublishModuleToRegistryAsync(
+                new ServiceBuilder(),
+                clientFactory,
+                fileSystem,
+                new("br:mockregistry.io/bicepmodules/remote-module-02:default", "output name string = 'kv'", WithSource: false));
+
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            var mainContent = """
+module autoPlan 'br:mockregistry.io/bicepmodules/remote-module-01:default' = {
+  name: 'remote-module-01'
+}
+
+module app './local-module.bicep' = {
+  name: 'local-module'
+}
+""";
+
+            var localModuleContent = """
+module messaging 'br:mockregistry.io/bicepmodules/remote-module-02:default' = {
+  name: 'remote-module-02'
+}
+""";
+
+            var mainPath = $"{outputPath}/main.bicep";
+            var localModulePath = $"{outputPath}/local-module.bicep";
+
+            fileSystem.AddFile(mainPath, mainContent);
+            fileSystem.AddFile(localModulePath, localModuleContent);
+
+            var cacheRoot = fileExplorer.GetDirectory(IOUri.FromFilePath(outputPath));
+
+            var restoreResult = await Bicep(
+                services => services
+                    .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot, RegistryEnabled: true))
+                    .WithContainerRegistryClientFactory(clientFactory)
+                    .WithFileSystem(fileSystem)
+                    .WithFileExplorer(fileExplorer),
+                "restore",
+                mainPath,
+                "--force");
+
+            using (new AssertionScope())
+            {
+                restoreResult.Should().Succeed();
+                restoreResult.Stdout.Should().BeEmpty();
+                restoreResult.Stderr.Should().BeEmpty();
+
+                CachedModules
+                    .GetCachedModules(fileSystem, cacheRoot)
+                    .Should()
+                    .Contain(module =>
+                        module.Registry == "mockregistry.io" &&
+                        module.Repository == "bicepmodules/remote-module-01" &&
+                        module.Tag == "default")
+                    .And
+                    .Contain(module =>
+                        module.Registry == "mockregistry.io" &&
+                        module.Repository == "bicepmodules/remote-module-02" &&
+                        module.Tag == "default");
+            }
+
+            var buildResult = await Bicep(
+                services => services
+                    .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot, RegistryEnabled: true))
+                    .WithContainerRegistryClientFactory(clientFactory)
+                    .WithFileSystem(fileSystem)
+                    .WithFileExplorer(fileExplorer),
+                "build",
+                mainPath,
+                "--no-restore");
+
+            using (new AssertionScope())
+            {
+                buildResult.Should().Succeed();
+                buildResult.Stdout.Should().BeEmpty();
+                buildResult.Stderr.Should().BeEmpty();
+            }
+        }
+
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public async Task Restore_ByDigest_ShouldSucceed(bool publishSource)
@@ -497,9 +591,9 @@ output o1 string = '${p1}${p2}'");
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);
 
-            var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
+            var templateSpecClientFactory = BicepTestConstants.TemplateSpecClientFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecClientFactory);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -539,19 +633,19 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithExternalModulesAndPublishSource), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSetsWithExternalModulesAndPublishSource))]
         public async Task Restore_NonExistentModules_ShouldFail(string testName, DataSet dataSet, bool publishSource)
         {
             var clientFactory = dataSet.CreateMockRegistryClients();
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
+            var templateSpecClientFactory = dataSet.CreateMockTemplateSpecClientFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
             // do not publish modules to the registry
 
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecClientFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides!.CacheRootDirectory}");
             var (output, error, exitCode) = await Bicep(settings, "restore", bicepFilePath);
 
@@ -585,9 +679,9 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
                 .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://fake"), "fake"))
                 .Returns(client.Object);
 
-            var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+            var templateSpecClientFactory = StrictMock.Of<ITemplateSpecClientFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecClientFactory.Object);
             var (output, error, result) = await Bicep(settings, "restore", compiledFilePath);
             using (new AssertionScope())
             {
@@ -617,9 +711,9 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
                 .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://fake"), "fake"))
                 .Returns(client.Object);
 
-            var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+            var templateSpecClientFactory = StrictMock.Of<ITemplateSpecClientFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecClientFactory.Object);
             var (output, error, result) = await Bicep(settings, "restore", compiledFilePath);
             using (new AssertionScope())
             {
@@ -646,9 +740,9 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
                 .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://mockregistry.io"), "parameters/basic"))
                 .Returns(client.Object);
 
-            var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+            var templateSpecClientFactory = StrictMock.Of<ITemplateSpecClientFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecClientFactory.Object);
             var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
 
             result.Should().Fail().And.NotHaveStdout();
@@ -664,7 +758,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             var repository = "mymodule";
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
-            var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+            var templateSpecClientFactory = StrictMock.Of<ITemplateSpecClientFactory>();
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -672,7 +766,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
             File.WriteAllText(bicepFilePath, $"module mod 'br:{registry}/{repository}:v1' = {{ name: 'mod' }}");
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object, registryConfiguration: new(PermitUntrustedRegistries: false));
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecClientFactory.Object, registryConfiguration: new(PermitUntrustedRegistries: false));
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
             using (new AssertionScope())

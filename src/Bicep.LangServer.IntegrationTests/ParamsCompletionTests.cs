@@ -23,7 +23,7 @@ namespace Bicep.LangServer.IntegrationTests.Completions
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
 @"
 //Parameters file
@@ -162,7 +162,7 @@ param firstParam = 'o|'", @"@allowed([
   'two'
 ])
 param firstParam string", new[] { "'one'", "'two'" }, new[] { CompletionItemKind.EnumMember, CompletionItemKind.EnumMember })]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Value_completions_should_be_based_on_type(string paramTextWithCursor, string bicepText, string[] expectedLabels, CompletionItemKind[] expectedKinds)
         {
             var fileTextsByUri = new Dictionary<DocumentUri, string>
@@ -341,7 +341,7 @@ using './nested1/|'
 |")]
         [DataRow(@"param foo = 23
 |")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Param_file_should_have_keyword_completions(string text)
         {
             var completions = await RunCompletionScenario(text, [], '|');
@@ -384,7 +384,7 @@ using './nested1/|'
         [DataRow(@"using 'foo.bicep'
 using 'bar.bicep'
 |")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Using_completion_should_only_be_offered_once(string paramTextWithCursor)
         {
             var completions = await RunCompletionScenario(paramTextWithCursor, [], '|');

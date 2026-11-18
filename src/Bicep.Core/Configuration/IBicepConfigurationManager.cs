@@ -23,20 +23,17 @@ public interface IBicepConfigurationManager
     IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri);
 
     /// <summary>
-    /// Invalidates only the chains that include <paramref name="changedFileUri"/> as a dependency.
+    /// Drops cached state affected by a change to <paramref name="fileUri"/> on disk (created, changed or deleted).
+    /// The URI may also be a folder, which covers everything under it, because clients may report only the folder when one is deleted.
+    /// Every cached chain that read an affected file is invalidated, including chains that failed to load because of it.
+    /// If the file is a bicepconfig.json, configuration file discovery is also reset, because creating or deleting one
+    /// can change which configuration file a source file uses.
     /// </summary>
-    void PurgeCacheForAffectedChains(IOUri changedFileUri);
+    /// <returns>True if any cached state was dropped, meaning configurations returned before the call may be stale.</returns>
+    bool InvalidateFile(IOUri fileUri);
 
     /// <summary>
-    /// Purges all internal caches: chain cache, dependency map, config file lookup cache,
-    /// and directory handle cache. Use when a config file is created or deleted so that
-    /// discovery re-runs from scratch on the next request.
+    /// Drops all cached configuration state.
     /// </summary>
-    void PurgeAllCaches();
-
-    /// <summary>
-    /// Purges the chain cache. Call this when any config file in the workspace changes
-    /// so stale chains are not reused.
-    /// </summary>
-    void PurgeChainCache();
+    void InvalidateAll();
 }

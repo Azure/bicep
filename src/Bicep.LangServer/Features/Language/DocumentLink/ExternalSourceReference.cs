@@ -3,13 +3,14 @@
 
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceGraph;
+using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
@@ -146,17 +147,24 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             return uri.Uri;
         }
 
-        public Result<OciArtifactReference, string> ToArtifactReference(BicepFile referencingFile)
+        public Result<OciArtifactReference, string> ToArtifactReference(OciArtifactContext context)
         {
             if (OciArtifactAddressComponents.TryParse(Components.ArtifactId).IsSuccess(out var components, out var failureBuilder))
             { // No parent file template is available or needed because these are absolute references
-                return new(new OciArtifactReference(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactType.Module, components));
+                return new(new OciArtifactReference(context, ArtifactType.Module, components));
             }
             else
             {
                 return new(failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message);
             }
         }
+
+        /// <summary>
+        /// Gets the context for the module references stored in external source URIs, which are always OCI references.
+        /// External source documents are not files, so they use the built-in configuration.
+        /// </summary>
+        public static OciArtifactContext GetOciArtifactContext(IRemoteArtifactContextFactory remoteArtifactContextFactory) =>
+            remoteArtifactContextFactory.GetOciArtifactContext(new IOUri(new IOUriScheme(LangServerConstants.ExternalSourceFileScheme), null, ""));
 
         private string GetVersion()
         {

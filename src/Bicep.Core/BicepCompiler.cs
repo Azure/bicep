@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
-using System.IO.Abstractions;
 using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Artifacts.Redirects;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
@@ -36,7 +36,8 @@ public class BicepCompiler
     private readonly INamespaceProvider namespaceProvider;
     private readonly IBicepAnalyzer bicepAnalyzer;
     private readonly IFileExplorer fileExplorer;
-    private readonly IModuleDispatcher moduleDispatcher;
+    private readonly RedirectingArtifactResolver referenceResolver;
+    private readonly IRemoteArtifactRestorer restorer;
     private readonly CompilerVersionCheckOptions compilerVersionCheckOptions;
 
     public BicepCompiler(
@@ -44,7 +45,8 @@ public class BicepCompiler
         INamespaceProvider namespaceProvider,
         IBicepAnalyzer bicepAnalyzer,
         IFileExplorer fileExplorer,
-        IModuleDispatcher moduleDispatcher,
+        RedirectingArtifactResolver referenceResolver,
+        IRemoteArtifactRestorer restorer,
         ISourceFileFactory sourceFileFactory,
         CompilerVersionCheckOptions compilerVersionCheckOptions)
     {
@@ -52,7 +54,8 @@ public class BicepCompiler
         this.namespaceProvider = namespaceProvider;
         this.bicepAnalyzer = bicepAnalyzer;
         this.fileExplorer = fileExplorer;
-        this.moduleDispatcher = moduleDispatcher;
+        this.referenceResolver = referenceResolver;
+        this.restorer = restorer;
         this.SourceFileFactory = sourceFileFactory;
         this.compilerVersionCheckOptions = compilerVersionCheckOptions;
     }
@@ -62,7 +65,7 @@ public class BicepCompiler
     public Compilation CreateCompilationWithoutRestore(IOUri bicepUri, IActiveSourceFileLookup? workspace = null, bool markAllForRestore = false)
     {
         workspace ??= new ActiveSourceFileSet();
-        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileExplorer, moduleDispatcher, workspace, this.SourceFileFactory, bicepUri, markAllForRestore);
+        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileExplorer, referenceResolver, restorer, workspace, this.SourceFileFactory, bicepUri, markAllForRestore);
 
         return Create(sourceFileGrouping);
     }
@@ -84,10 +87,10 @@ public class BicepCompiler
         // (the diagnostics will be collected during compilation)
         var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(forceRestore);
 
-        if (await moduleDispatcher.RestoreArtifacts(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore: forceRestore))
+        if (await restorer.RestoreAsync(artifactsToRestore.GetRemoteArtifactReferences(), forceRestore ? RestoreMode.Force : RestoreMode.IfMissing))
         {
             // modules had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, moduleDispatcher, workspace, this.SourceFileFactory, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, referenceResolver, restorer, workspace, this.SourceFileFactory, sourceFileGrouping);
         }
         return Create(sourceFileGrouping);
     }
@@ -98,10 +101,10 @@ public class BicepCompiler
         var sourceFileGrouping = compilation.SourceFileGrouping;
         var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(forceRestore);
 
-        if (await moduleDispatcher.RestoreArtifacts(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore))
+        if (await restorer.RestoreAsync(artifactsToRestore.GetRemoteArtifactReferences(), forceRestore ? RestoreMode.Force : RestoreMode.IfMissing))
         {
             // artifacts had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, moduleDispatcher, workspace, this.SourceFileFactory, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, referenceResolver, restorer, workspace, this.SourceFileFactory, sourceFileGrouping);
         }
 
         return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, [.. artifactsToRestore], forceRestore);
@@ -113,24 +116,23 @@ public class BicepCompiler
             namespaceProvider,
             sourceFileGrouping,
             bicepAnalyzer,
-            moduleDispatcher,
             this.SourceFileFactory,
             [],
             compilerVersionCheckOptions);
 
-    private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ArtifactResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
+    private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ArtifactDependency> originalModulesToRestore, bool forceModulesRestore)
     {
         static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, IArtifactReferenceSyntax moduleDeclaration)
             => grouping.TryGetSourceFile(moduleDeclaration).IsSuccess(out _, out var errorBuilder) ? null : errorBuilder(DiagnosticBuilder.ForPosition(moduleDeclaration.SourceSyntax));
 
-        static IEnumerable<(BicepSourceFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ArtifactResolutionInfo> originalArtifactsToRestore)
+        static IEnumerable<(BicepSourceFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ArtifactDependency> originalArtifactsToRestore)
         {
-            foreach (var artifact in originalArtifactsToRestore)
+            foreach (var dependency in originalArtifactsToRestore)
             {
-                if (artifact.Syntax is not null and not ExtensionDeclarationSyntax &&
-                    DiagnosticForModule(grouping, artifact.Syntax) is { } diagnostic)
+                if (dependency.Syntax is not null and not ExtensionDeclarationSyntax &&
+                    DiagnosticForModule(grouping, dependency.Syntax) is { } diagnostic)
                 {
-                    yield return (artifact.ReferencingFile, diagnostic);
+                    yield return (dependency.ReferencingFile, diagnostic);
                 }
             }
         }

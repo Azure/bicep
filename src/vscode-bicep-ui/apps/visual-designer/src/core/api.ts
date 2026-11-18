@@ -160,20 +160,39 @@ export interface GetGraphResult {
    * no longer be. Null when the host could not tell, so none should be offered until the next update.
    */
   replayableSourceSteps: SourceStepReference[] | null;
+  /** Identifies the graph's topology. A layout request sends it back so the host can tell whether it is current. */
+  revision?: string | null;
 }
 
 export type TargetScope = "resourceGroup" | "subscription" | "managementGroup" | "tenant";
 
+/**
+ * Restore the registry module behind a node whose `sourceStatus` is `unrestored` or `error` into the local module
+ * cache, when the user expands it. It settles once the restore has finished, successfully or not, and never edits the
+ * Bicep file: the next graph shows the module's children, or its new status.
+ */
+export const restoreModule = defineRequest<RestoreModuleParams, RestoreModuleResult>("module/restore");
+
+export interface RestoreModuleParams {
+  nodeId: string;
+}
+
+export interface RestoreModuleResult {
+  /** Whether the module is now in the local module cache. */
+  restored: boolean;
+}
+
 export const layoutGraph = defineRequest<LayoutGraphParams, LayoutGraphResult>("graph/layout");
 
 export interface LayoutGraphParams {
+  /** The graph the webview renders, which may omit hidden nodes. The host lays it out as sent. */
   graph: MeasuredGraph;
-  /** Module IDs whose descendants are omitted from the measured graph. */
-  collapsedNodeIds: string[];
+  /** The revision of the graph it was rendered from. */
+  revision: string | null;
 }
 
 /**
- * `graphChanged` means the host's graph no longer matches the measured one: fetch the graph and retry.
+ * `graphChanged` means the host's graph has moved past the revision sent: fetch the graph and retry.
  * `layoutFailed` means no layout was produced: keep the current positions.
  */
 export interface LayoutGraphResult {
@@ -203,7 +222,20 @@ export interface GraphNode {
   isCollection: boolean;
   hasChildren: boolean;
   hasError: boolean;
+  /** Why a remote module shows no children, or null when it shows them or has none to show. */
+  sourceStatus: GraphNodeSourceStatus | null;
+  /** What went wrong, when `sourceStatus` is `error`. */
+  sourceError: string | null;
+  /** A module whose source comes from a registry (`br:`) or template spec (`ts:`) rather than a local file. */
+  isRemote: boolean;
 }
+
+/**
+ * - `unrestored`: a registry module not in the local module cache yet. Expanding it restores it (`module/restore`).
+ * - `unavailable`: the module has no Bicep source to show, such as one published without it, or a template spec.
+ * - `error`: its source could not be loaded, for example because its restore failed. Expanding it tries again.
+ */
+export type GraphNodeSourceStatus = "unrestored" | "unavailable" | "error";
 
 /** A directed dependency edge. Containment (parent/child) is expressed via a node's parentId, not edges. */
 export interface GraphEdge {
@@ -261,6 +293,7 @@ export function useGraphApi() {
       createResource: (params: CreateResourceParams) => channel.request(createResource, params),
       replaySourceStep: (params: ReplaySourceStepParams) => channel.request(replaySourceStep, params),
       revealNode: (nodeId: string) => channel.notify(revealNode, { nodeId }),
+      restoreModule: (nodeId: string) => channel.request(restoreModule, { nodeId }),
     }),
     [channel],
   );

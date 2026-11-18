@@ -68,6 +68,7 @@ output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-0
 //@[27:86) [outputs-should-not-contain-secrets (Warning)] Outputs should not contain secrets. Found possible secret: function 'listKeys' (bicep core linter https://aka.ms/bicep/linter-diagnostics#outputs-should-not-contain-secrets) |listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-01-01')|
 //@[27:86) [use-recognized-resource-type (Warning)] Resource type "Mock.RP/type" is not recognized in function "listKeys". If this resource type does exist, the API version must be specified as a function argument. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-recognized-resource-type) |listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-01-01')|
 output secondaryKey string = secondaryKeyIntermediateVar
+//@[29:56) [outputs-should-not-contain-secrets (Warning)] Outputs should not contain secrets. Found possible secret: function 'listKeys' (bicep core linter https://aka.ms/bicep/linter-diagnostics#outputs-should-not-contain-secrets) |secondaryKeyIntermediateVar|
 
 var varWithOverlappingOutput = 'hello'
 param paramWithOverlappingOutput string

@@ -4,11 +4,11 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.SourceGraph;
@@ -125,7 +125,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
 
         return new([.. importedTypes.Values.OrderBy(dte => dte.Name)],
             [.. importedVariables.Values.OrderBy(dve => dve.Name)],
-            [.. importedFunctions.Values.OrderBy(dfe => dfe.Name)],
+            [.. importedFunctions.Values.OrderBy(dfe => dfe.Name).ThenBy(dfe => dfe.Namespace, StringComparer.Ordinal)],
             importedSymbolNames,
             wildcardImportPropertyNames,
             importedSymbolMetadata.ToImmutable());
@@ -251,24 +251,10 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
     }
 
     private static ArtifactReference GetImportReference(ImportedSymbol symbol)
-    {
-        if (symbol.TryGetArtifactReference().IsSuccess(out var moduleReference))
-        {
-            return moduleReference;
-        }
-
-        throw new InvalidOperationException("Unable to load module reference for import statement");
-    }
+        => symbol.TryGetArtifactReference() ?? throw new InvalidOperationException("Unable to load module reference for import statement");
 
     private static ArtifactReference GetImportReference(WildcardImportSymbol symbol)
-    {
-        if (symbol.TryGetArtifactReference().IsSuccess(out var moduleReference))
-        {
-            return moduleReference;
-        }
-
-        throw new InvalidOperationException("Unable to load module reference for import statement");
-    }
+        => symbol.TryGetArtifactReference() ?? throw new InvalidOperationException("Unable to load module reference for import statement");
 
     private static IEnumerable<SearchQueueItem> GetImportsFromExtendedFiles(SemanticModel model)
     {
@@ -511,8 +497,10 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
     private static string TemplateIdentifier(IOUri entryPointUri, ISemanticModel modelToIdentify, ArtifactReference reference)
         => reference switch
         {
-            // for local modules, use the path on disk relative to the entry point template
-            LocalModuleReference => GetSourceFileUri(modelToIdentify).GetPathRelativeTo(entryPointUri),
+            // For modules referenced by a relative path, use the path on disk relative to the entry point template.
+            // Other local references (moduleAliasesMock hits) keep their reference text.
+            LocalArtifactReference local when ArtifactAddress.Parse(local.FullyQualifiedReference) is ArtifactAddress.Path
+                => GetSourceFileUri(modelToIdentify).GetPathRelativeTo(entryPointUri),
             ArtifactReference otherwise => otherwise.FullyQualifiedReference,
         };
 

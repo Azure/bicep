@@ -244,7 +244,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(object: object, propertyName: string): bool",
     "parameterTypeSignatures": [
       "object: object",
@@ -270,7 +270,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(array: array, itemToFind: any): bool",
     "parameterTypeSignatures": [
       "array: array",
@@ -296,7 +296,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(string: string, itemToFind: string): bool",
     "parameterTypeSignatures": [
       "string: string",
@@ -444,7 +444,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(itemToTest: array | null | object | string): bool",
     "parameterTypeSignatures": [
       "itemToTest: array | null | object | string"
@@ -469,7 +469,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(stringToSearch: string, stringToFind: string): bool",
     "parameterTypeSignatures": [
       "stringToSearch: string",
@@ -647,7 +647,7 @@
       "type": "string",
       "minimumCount": 1
     },
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(... : string): string",
     "parameterTypeSignatures": [
       "... : string"
@@ -672,7 +672,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(stringToSearch: string, stringToFind: string): int",
     "parameterTypeSignatures": [
       "stringToSearch: string",
@@ -698,7 +698,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(array: array, itemToFind: any): int",
     "parameterTypeSignatures": [
       "array: array",
@@ -879,7 +879,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(stringToSearch: string, stringToFind: string): int",
     "parameterTypeSignatures": [
       "stringToSearch: string",
@@ -905,7 +905,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(array: array, itemToFind: any): int",
     "parameterTypeSignatures": [
       "array: array",
@@ -925,7 +925,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(arg: object | string): int",
     "parameterTypeSignatures": [
       "arg: object | string"
@@ -944,7 +944,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(arg: array): int",
     "parameterTypeSignatures": [
       "arg: array"
@@ -1590,7 +1590,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(stringToSearch: string, stringToFind: string): bool",
     "parameterTypeSignatures": [
       "stringToSearch: string",
@@ -1836,7 +1836,7 @@
       "type": "string",
       "minimumCount": 1
     },
-    "flags": "pure",
+    "flags": "pure, doesNotRevealSecrets",
     "typeSignature": "(... : string): string",
     "parameterTypeSignatures": [
       "... : string"

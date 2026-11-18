@@ -75,7 +75,7 @@ npx http-server ./src/highlightjs/test/baselines
 Bicep has a [Monarch](https://microsoft.github.io/monaco-editor/monarch.html) plugin available at [bicep.ts](https://github.com/Azure/bicep/blob/main/src/monarch/src/bicep.ts).
 
 ### Known uses
-* **Monaco**: Bundled with Monaco - contributed [here](https://github.com/microsoft/monaco-editor/tree/main/src/basic-languages/bicep).
+* **Monaco**: Bundled with Monaco - contributed [here](https://github.com/microsoft/monaco-editor/tree/main/src/languages/definitions/bicep).
 
 * **Azure DevOps**: Used to provide colorization for Bicep samples in [Azure DevOps](https://azure.microsoft.com/en-us/services/devops/).
 

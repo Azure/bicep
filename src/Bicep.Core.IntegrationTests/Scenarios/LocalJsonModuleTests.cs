@@ -16,7 +16,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     [TestClass]
     public class LocalJsonModuleTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(@"{
 }")]
         [DataRow(@"{

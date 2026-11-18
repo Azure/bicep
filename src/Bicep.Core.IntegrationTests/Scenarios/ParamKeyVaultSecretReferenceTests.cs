@@ -417,6 +417,7 @@ module secret 'BAD_PATH_MODULE.bicep' = {
                     module secret 'secret.bicep' = {
                       name: 'secret'
                       params: {
+                        #disable-next-line use-secure-value-for-secure-inputs
                         mySecret: true == true ? false == false ? kv.getSecret('mySecret','secretversionguid') : 'false' : 'true'
                       }
                     }

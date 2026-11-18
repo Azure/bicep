@@ -15,6 +15,10 @@ namespace Bicep.Core.TypeSystem
 
         private readonly Stack<string> visitedVariableNameStack = new();
 
+        // Visiting stops at the first violation, so a variable that was already visited had none. Visiting it
+        // again would only repeat that work, which is exponential when variables read each other repeatedly.
+        private readonly HashSet<VariableSymbol> visitedVariables = [];
+
         private bool hasError = false;
 
         public DeployTimeConstantIndirectViolationVisitor(SyntaxBase deployTimeConstantContainer, VariableAccessSyntax variableDependency, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ResourceTypeResolver resourceTypeResolver)
@@ -90,7 +94,10 @@ namespace Bicep.Core.TypeSystem
             if (this.SemanticModel.GetSymbolInfo(syntax) is VariableSymbol variableSymbol &&
                 this.SemanticModel.Binder.TryGetCycle(variableSymbol) is null)
             {
-                this.Visit(variableSymbol.DeclaringSyntax);
+                if (this.visitedVariables.Add(variableSymbol))
+                {
+                    this.Visit(variableSymbol.DeclaringSyntax);
+                }
             }
             else
             {

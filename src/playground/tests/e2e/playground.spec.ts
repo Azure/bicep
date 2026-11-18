@@ -220,6 +220,7 @@ test.describe("sharing", () => {
 
     await playground.copyLink.click();
     const sharedUrl = await page.evaluate(() => navigator.clipboard.readText());
+    expect(new URL(sharedUrl).hash).toMatch(/^#editor\//);
     await page.goto(sharedUrl);
 
     const reloadedPlayground = createPlayground(page);
@@ -560,7 +561,7 @@ test.describe("native interface", () => {
       page.getByRole("navigation", { name: "Playground actions" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("main", { name: "Bicep compilation workspace" }),
+      page.getByRole("main", { name: "Playground workspace" }),
     ).toBeVisible();
     await expect(playground.bicepPane).toBeVisible();
     await expect(playground.armPane).toBeVisible();
@@ -617,14 +618,26 @@ test.describe("native interface", () => {
     const problems = page.getByRole("region", { name: "Problems" });
     await expect(problems).toBeVisible();
     await expect(problems).toHaveCSS("min-height", "140px");
-    await expect(page.getByRole("main")).toHaveCSS("padding-bottom", "0px");
+    await expect(page.locator(".workspace")).toHaveCSS("padding-bottom", "0px");
     await expect(problems).toHaveCSS("margin-bottom", "4px");
     await expect(problems.locator(".problem").first()).toContainText("BCP");
+    await page.setViewportSize({ width: 640, height: 360 });
+    const problemsBounds = await problems.boundingBox();
+    const footerBounds = await page.getByRole("contentinfo").boundingBox();
+    expect(problemsBounds!.height).toBeLessThanOrEqual(180);
+    expect(problemsBounds!.y + problemsBounds!.height).toBeLessThanOrEqual(
+      footerBounds!.y,
+    );
+    await expect(playground.bicepEditor).toBeVisible();
+    await page.setViewportSize({ width: 1280, height: 720 });
     await problems.getByRole("button", { name: "Close Problems" }).click();
     await expect(problems).toBeHidden();
-    await expect(page.getByRole("main")).toHaveCSS("padding-bottom", "4px");
+    await expect(page.locator(".workspace")).toHaveCSS("padding-bottom", "4px");
 
     await page.getByRole("button", { name: /Compilation failed/ }).click();
+    await expect(
+      page.getByRole("tab", { name: "Editor", exact: true }),
+    ).toHaveAttribute("aria-selected", "true");
     await expect(problems).toBeVisible();
     await problems.locator(".problem").first().click();
     await expect

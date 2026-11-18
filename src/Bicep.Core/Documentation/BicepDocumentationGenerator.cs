@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.IO.Abstractions;
 using System.Reflection;
 using Bicep.Core.Configuration;
 using Bicep.Core.Semantics;
@@ -17,9 +16,7 @@ using Scriban.Syntax;
 
 namespace Bicep.Core.Documentation;
 
-public class BicepDocumentationGenerator(
-    IFileExplorer fileExplorer,
-    IFileSystem? fileSystem = null) : IBicepDocumentationGenerator
+public class BicepDocumentationGenerator(IFileExplorer fileExplorer) : IBicepDocumentationGenerator
 {
     private const string BuiltInTemplateResourceName = "Bicep.Core.Documentation.Templates.Markdown.scriban";
 
@@ -83,10 +80,7 @@ public class BicepDocumentationGenerator(
             ExportedVariables: BuildExportedVariables(semanticModel, typeAnalyzer),
             ExportedFunctions: BuildExportedFunctions(semanticModel, typeAnalyzer),
             References: BuildReferences(semanticModel),
-            UsageExamples: BicepDocumentationExampleDiscovery.Discover(
-                moduleRoot,
-                examples,
-                fileSystem is null ? null : uri => IsReparsePoint(fileSystem, uri)));
+            UsageExamples: BicepDocumentationExampleDiscovery.Discover(moduleRoot, examples));
     }
 
     public string Render(
@@ -376,7 +370,4 @@ public class BicepDocumentationGenerator(
     }
 
     private static string? NormalizeText(string? value) => value?.Trim();
-
-    private static bool IsReparsePoint(IFileSystem fileSystem, IOUri uri) =>
-        fileSystem.File.GetAttributes(uri.GetFilePath()).HasFlag(FileAttributes.ReparsePoint);
 }

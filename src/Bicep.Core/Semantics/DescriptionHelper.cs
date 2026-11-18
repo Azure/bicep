@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 

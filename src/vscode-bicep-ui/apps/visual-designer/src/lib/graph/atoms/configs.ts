@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { ReactNode } from "react";
-import type { NodeState } from "./nodes";
+import type { NodeKind } from "./nodes";
 
 import { atom } from "jotai";
 
@@ -20,7 +20,7 @@ export interface NodeContentRenderProps {
 
 export interface NodeConfig {
   padding: Padding;
-  renderContent: (kind: NodeState["kind"], props: NodeContentRenderProps) => ReactNode;
+  renderContent: (kind: NodeKind, props: NodeContentRenderProps) => ReactNode;
 }
 
 export const nodeConfigAtom = atom<NodeConfig>({

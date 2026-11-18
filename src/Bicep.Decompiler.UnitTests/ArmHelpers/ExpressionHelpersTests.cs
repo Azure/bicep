@@ -23,7 +23,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
             SingleStringHandling = ExpressionSerializerSingleStringHandling.SerializeAsString
         });
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("[concat('abc', concat('def'), 'ghi')]", "abcdefghi")]
         [DataRow("[format('{0}/{1}/{2}', 'abc', concat('def'), 'ghi')]", "abc/def/ghi")]
         [DataRow("[format('{2}/{0}/{1}', 'abc', concat('def'), 'ghi')]", "ghi/abc/def")]
@@ -38,7 +38,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
             output.Should().Be(expectedOutput);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("[resourceId('Microsoft.Sql/servers', variables('dbServerName'))]", "Microsoft.Sql/servers", "[variables('dbServerName')]")]
         [DataRow("[resourceId('Microsoft.Sql/servers/databases', variables('dbServerName'), variables('dbName'))]", "Microsoft.Sql/servers/databases", "[concat(variables('dbServerName'), '/', variables('dbName'))]")]
         [DataRow("[concat('Microsoft.Sql/servers/', variables('dbServerName'), '/databases/', variables('dbName'))]", "Microsoft.Sql/servers/databases", "[concat(variables('dbServerName'), '/', variables('dbName'))]")]
@@ -58,7 +58,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
             nameExpressionString.Should().Be(expectedNameExpression);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', variables('subnet0Name')))]")]
         [DataRow("[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetResourceName'))]")]
         [DataRow("[variables('hostingPlanName')]")]
@@ -70,7 +70,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
             normalizedForm.Should().BeNull();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("[uri('test.com', 'path/to/file.json')]", "path/to/file.json")]
         [DataRow("[uri('test.com', 'path/to/file.json', parameters('sasUri'))]", "path/to/file.json")]
         [DataRow("[concat(uri('test.com', 'path/to/file.json'), parameters('sasUri'))]", "path/to/file.json")]
@@ -86,7 +86,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
             output.Should().Be(expectedOutput);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("[parameters('location')]")]
         [DataRow("[variables('networkSettings').subnet.dse]")]
         public void TryGetLocalFilePathForTemplateLink_fails_to_find_path_for_undecidable_expression(string input)
@@ -97,7 +97,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
             output.Should().BeNull();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("{\"val\": \"[replaceMe()]\"}", "{\"val\": \"[replaced()]\"}")]
         [DataRow("{\"val\": [\"[replaceMe()]\"]}", "{\"val\": [\"[replaced()]\"]}")]
         [DataRow("{\"val\": [\"[nested(replaceMe())]\"]}", "{\"val\": [\"[nested(replaced())]\"]}")]
@@ -119,7 +119,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
             output.Should().DeepEqual(JToken.Parse(expectedJsonOutput));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("{\"val\": \"[visitMe()]\"}")]
         [DataRow("{\"val\": [\"[visitMe()]\"]}")]
         [DataRow("{\"val\": [\"[nested(visitMe())]\"]}")]

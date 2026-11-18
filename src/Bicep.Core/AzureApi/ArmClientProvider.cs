@@ -19,15 +19,15 @@ public class ArmClientProvider(
         return new ArmClient(credential, defaultSubscriptionId, options);
     }
 
-    public ArmClient CreateArmClient(IBicepConfiguration configuration, string? defaultSubscriptionId)
+    public ArmClient CreateArmClient(IBicepCloudConfiguration cloud, string? defaultSubscriptionId)
     {
-        cloudTrustPolicy.ThrowIfCloudIsUntrusted(configuration.Cloud);
+        cloudTrustPolicy.ThrowIfCloudIsUntrusted(cloud);
 
         var options = new ArmClientOptions();
         options.Diagnostics.ApplySharedResourceManagerSettings();
-        options.Environment = new ArmEnvironment(configuration.Cloud.ResourceManagerEndpointUri, configuration.Cloud.AuthenticationScope);
+        options.Environment = new ArmEnvironment(cloud.ResourceManagerEndpointUri, cloud.AuthenticationScope);
 
-        var credential = credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.CredentialOptions, configuration.Cloud.ActiveDirectoryAuthorityUri);
+        var credential = credentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
         return CreateArmClient(credential, defaultSubscriptionId, options);
     }
 }

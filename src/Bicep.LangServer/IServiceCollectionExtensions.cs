@@ -7,8 +7,6 @@ using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
@@ -64,6 +62,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<ISettingsProvider, SettingsProvider>()
         .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
         .AddSingleton<IVisualGraphLayoutEngine, MsaglVisualGraphLayoutEngine>()
+        .AddSingleton<VisualGraphBuilder>()
         .AddSingleton<IVisualResourceTypeCatalogService, VisualResourceTypeCatalogService>()
             .AddSingleton<IVisualResourceEditingService, VisualResourceEditingService>()
         .AddSingleton(bicepLangServerOptions)

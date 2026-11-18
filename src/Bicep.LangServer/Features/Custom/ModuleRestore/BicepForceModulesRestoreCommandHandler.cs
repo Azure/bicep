@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Text;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Redirects;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
@@ -23,7 +25,8 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
     public class BicepForceModulesRestoreCommandHandler : ExecuteTypedResponseCommandHandlerBase<DocumentUri, string>
     {
         private readonly IFileExplorer fileExplorer;
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly RedirectingArtifactResolver referenceResolver;
+        private readonly IRemoteArtifactRestorer restorer;
         private readonly ICompilationManager compilationManager;
         private readonly IActiveSourceFileSet workspace;
         private readonly ISourceFileFactory sourceFileFactory;
@@ -31,14 +34,16 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
         public BicepForceModulesRestoreCommandHandler(
             ISerializer serializer,
             IFileExplorer fileExplorer,
-            IModuleDispatcher moduleDispatcher,
+            RedirectingArtifactResolver referenceResolver,
+            IRemoteArtifactRestorer restorer,
             ICompilationManager compilationManager,
             IActiveSourceFileSet workspace,
             ISourceFileFactory sourceFileFactory)
             : base(LangServerConstants.ForceModulesRestoreCommand, serializer)
         {
             this.fileExplorer = fileExplorer;
-            this.moduleDispatcher = moduleDispatcher;
+            this.referenceResolver = referenceResolver;
+            this.restorer = restorer;
             this.compilationManager = compilationManager;
             this.workspace = workspace;
             this.sourceFileFactory = sourceFileFactory;
@@ -55,7 +60,8 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
 
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 this.fileExplorer,
-                this.moduleDispatcher,
+                this.referenceResolver,
+                this.restorer,
                 this.workspace,
                 this.sourceFileFactory,
                 fileUri);
@@ -64,7 +70,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
             var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(force: true);
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in outputs and logging
-            var artifactReferencesToRestore = ArtifactHelper.GetValidArtifactReferences(artifactsToRestore)
+            var artifactReferencesToRestore = artifactsToRestore.GetRemoteArtifactReferences()
                 .OrderBy(key => key.FullyQualifiedReference)
                 .ToArray();
 
@@ -74,18 +80,31 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
             }
 
             // restore is supposed to only restore the module references that are syntactically valid
-            await this.moduleDispatcher.RestoreArtifacts(artifactReferencesToRestore, forceRestore: true);
+            await this.restorer.RestoreAsync(artifactReferencesToRestore, RestoreMode.Force);
 
             // if all are marked as success
             var sbRestoreSummary = new StringBuilder();
             foreach (var module in artifactReferencesToRestore)
             {
-                var restoreStatus = this.moduleDispatcher.GetArtifactRestoreStatus(module, out _);
+                var restoreStatus = this.restorer.GetRestoreState(module) switch
+                {
+                    RemoteArtifactRestoreState.Restored => "Succeeded",
+                    RemoteArtifactRestoreState.RestoreFailed => "Failed",
+                    _ => "Unknown",
+                };
                 sbRestoreSummary.Append($"{System.Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
             }
 
             // refresh all compilations with a reference to this file or cached artifacts
-            var artifactUris = artifactsToRestore.Select(x => x.Result.Transform(x => x.Uri.ToDocumentUri()).TryUnwrap()).WhereNotNull();
+            var artifactUris = artifactsToRestore
+                .OfType<ArtifactDependency.Loaded>()
+                .Select(x => x.Artifact switch
+                {
+                    ModuleArtifact module => module.EntryPoint.Uri.ToDocumentUri(),
+                    ExtensionArtifact extension => extension.Types.Uri.ToDocumentUri(),
+                    _ => null,
+                })
+                .WhereNotNull();
             compilationManager.RefreshChangedFiles(artifactUris.Concat(documentUri));
             return $"Restore (force) summary: {sbRestoreSummary}";
         }
