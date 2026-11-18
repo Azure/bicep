@@ -5,8 +5,6 @@ using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using Bicep.Core.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Semver;
-using Semver.Comparers;
 
 namespace Bicep.Core.Artifacts.Catalog.Brm;
 
@@ -19,19 +17,12 @@ public record BrmIndexEntry(
     [property: JsonPropertyName("properties")] ImmutableDictionary<string, BrmIndexProperties> PropertiesByTag // Module properties per tag
 )
 {
-    private static readonly SemVersion DefaultVersion = new(0);
-
     public ImmutableArray<string> Versions
     {
         get
         {
-            {
-                var parsedVersions = Tags.Select(x =>
-                    (@string: x, version: SemVersion.TryParse(x, SemVersionStyles.AllowV, out var version) ? version : DefaultVersion))
-                    .ToArray();
-                // Sort by ascending version number here, the completion provider will reverse it to show the most recent version first
-                return [.. parsedVersions.OrderByAscending(x => x.version, SemVersion.SortOrderComparer).Select(x => x.@string)];
-            }
+            // Sort tags in ascending order here; the completion provider reverses them.
+            return [.. Tags.OrderByRegistryTag(x => x)];
         }
     }
 

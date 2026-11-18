@@ -11,6 +11,7 @@ using Bicep.Core;
 using Bicep.Core.Artifacts.Catalog;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.SourceGraph;
@@ -344,11 +345,13 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             {
                 var versions = (await module.TryGetVersionsAsync())
                     .Where(v => v.IsBicepModule != false)
+                    .OrderByRegistryTag(v => v.Version)
+                    .Reverse()
                     .ToArray();
 
                 for (int i = 0; i < versions.Length; ++i)
                 {
-                    var version = versions[versions.Length - 1 - i].Version; // Show versions from most recent to oldest
+                    var version = versions[i].Version;
                     var insertText = $"'{trimmedText}{version}'$0";
 
                     // Module version is last completion, no follow-up completions triggered
