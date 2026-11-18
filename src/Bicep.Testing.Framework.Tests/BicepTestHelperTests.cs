@@ -64,7 +64,7 @@ public class BicepTestHelperTests
         client.Setup(x => x.Dispose());
         var session = CreateHelper(client);
 
-        var snapshot = await session.SnapshotAsync(new(), options, cts.Token);
+        var snapshot = await session.GetSnapshot(new(), options, cts.Token);
 
         snapshot.Diagnostics.Should().Equal("Evaluation warning");
         snapshot.PredictedResources.Should().HaveCount(2);
@@ -110,7 +110,7 @@ public class BicepTestHelperTests
             """);
         var session = CreateHelper(client);
 
-        var snapshot = await session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam" });
+        var snapshot = await session.GetSnapshot(new(), new() { FilePath = "main.bicepparam" });
         var resource = snapshot.PredictedResources.Single();
 
         resource.GetRequiredStringProperty("/id").Should().Be("[resourceId('Microsoft.Storage/storageAccounts', 'storage')]");
@@ -132,7 +132,7 @@ public class BicepTestHelperTests
         var client = CreateClient(json);
         var session = CreateHelper(client);
 
-        var act = () => session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam" });
+        var act = () => session.GetSnapshot(new(), new() { FilePath = "main.bicepparam" });
 
         await act.Should().ThrowAsync<JsonException>();
         client.Verify(x => x.Dispose(), Times.Once);
@@ -144,7 +144,7 @@ public class BicepTestHelperTests
         var client = CreateClient("null");
         var session = CreateHelper(client);
 
-        var act = () => session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam" });
+        var act = () => session.GetSnapshot(new(), new() { FilePath = "main.bicepparam" });
 
         await act.Should().ThrowAsync<InvalidDataException>().WithMessage("*null snapshot*");
         client.Verify(x => x.Dispose(), Times.Once);
@@ -161,7 +161,7 @@ public class BicepTestHelperTests
             .ThrowsAsync(new OperationCanceledException(cts.Token));
         client.Setup(x => x.Dispose());
         var session = CreateHelper(client);
-        var act = () => session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam" }, cts.Token);
+        var act = () => session.GetSnapshot(new(), new() { FilePath = "main.bicepparam" }, cts.Token);
 
         (await act.Should().ThrowAsync<IOException>()).Which.Should().BeSameAs(failure);
         await cts.CancelAsync();
@@ -183,8 +183,8 @@ public class BicepTestHelperTests
         var session = new BicepTestHelper(factory.Object);
 
         var snapshots = await Task.WhenAll(
-            session.SnapshotAsync(firstConfiguration, new() { FilePath = "main.bicepparam" }, cts.Token),
-            session.SnapshotAsync(secondConfiguration, new() { FilePath = "main.bicepparam" }, cts.Token));
+            session.GetSnapshot(firstConfiguration, new() { FilePath = "main.bicepparam" }, cts.Token),
+            session.GetSnapshot(secondConfiguration, new() { FilePath = "main.bicepparam" }, cts.Token));
 
         snapshots[0].Outputs["version"].GetString().Should().Be("first");
         snapshots[1].Outputs["version"].GetString().Should().Be("second");
@@ -204,7 +204,7 @@ public class BicepTestHelperTests
             .ThrowsAsync(failure)
             .ThrowsAsync(new OperationCanceledException(cts.Token));
         var session = new BicepTestHelper(factory.Object);
-        var act = () => session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam" }, cts.Token);
+        var act = () => session.GetSnapshot(new(), new() { FilePath = "main.bicepparam" }, cts.Token);
 
         (await act.Should().ThrowAsync<IOException>()).Which.Should().BeSameAs(failure);
         await cts.CancelAsync();
@@ -223,7 +223,7 @@ public class BicepTestHelperTests
         var client = CreateClient($$$"""{"predictedResources":[{{{json}}}],"diagnostics":[],"outputs":{}}""");
         var session = CreateHelper(client);
 
-        var snapshot = await session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam" });
+        var snapshot = await session.GetSnapshot(new(), new() { FilePath = "main.bicepparam" });
 
         var resource = snapshot.PredictedResources.Should().ContainSingle().Subject;
         resource.Should().BeOfType<SnapshotResource>();

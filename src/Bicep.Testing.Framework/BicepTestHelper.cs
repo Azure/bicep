@@ -23,7 +23,7 @@ public sealed class BicepTestHelper(IBicepClientFactory clientFactory)
     /// <param name="options">The parameter file and optional deployment context.</param>
     /// <param name="cancellationToken">Cancels client initialization and snapshot evaluation.</param>
     /// <returns>The predicted resources, diagnostics, and outputs.</returns>
-    public async Task<SnapshotResult> SnapshotAsync(BicepClientConfiguration configuration, SnapshotOptions options, CancellationToken cancellationToken = default)
+    public async Task<SnapshotResult> GetSnapshot(BicepClientConfiguration configuration, SnapshotOptions options, CancellationToken cancellationToken = default)
     {
         using var client = await clientFactory.Initialize(configuration, cancellationToken).ConfigureAwait(false);
 

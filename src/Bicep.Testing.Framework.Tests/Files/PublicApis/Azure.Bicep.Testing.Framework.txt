@@ -12,7 +12,7 @@ namespace Bicep.Testing.Framework
     public sealed class BicepTestHelper
     {
         public BicepTestHelper(Bicep.RpcClient.IBicepClientFactory clientFactory) { }
-        public System.Threading.Tasks.Task<Bicep.Testing.Framework.SnapshotResult> SnapshotAsync(Bicep.RpcClient.BicepClientConfiguration configuration, Bicep.Testing.Framework.SnapshotOptions options, System.Threading.CancellationToken cancellationToken = default) { }
+        public System.Threading.Tasks.Task<Bicep.Testing.Framework.SnapshotResult> GetSnapshot(Bicep.RpcClient.BicepClientConfiguration configuration, Bicep.Testing.Framework.SnapshotOptions options, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public static class SnapshotExtensions
     {

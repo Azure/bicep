@@ -72,7 +72,7 @@ public class InfrastructureTests
         {
             BicepVersion = "0.49.2",
         };
-        var snapshot = await helper.SnapshotAsync(configuration, new SnapshotOptions
+        var snapshot = await helper.GetSnapshot(configuration, new SnapshotOptions
         {
             FilePath = Path.Combine(AppContext.BaseDirectory, "infra", "main.bicepparam"),
             SubscriptionId = "00000000-0000-0000-0000-000000000001",
@@ -94,7 +94,7 @@ public class InfrastructureTests
 
 ## CLI and factory lifetime
 
-`SnapshotAsync(configuration, options)` uses the supplied `IBicepClientFactory`
+`GetSnapshot(configuration, options)` uses the supplied `IBicepClientFactory`
 to acquire a client for each call and disposes that client when the call completes,
 including on failure. The default factories download the configured CLI if needed and cache
 it under `~/.bicep/bin`. This installation can require network access. To run
@@ -106,7 +106,7 @@ using Bicep.Testing.Framework;
 
 using var factory = new PooledBicepClientFactory();
 var helper = new BicepTestHelper(factory);
-var snapshot = await helper.SnapshotAsync(new BicepClientConfiguration
+var snapshot = await helper.GetSnapshot(new BicepClientConfiguration
 {
     ExistingCliPath = Path.GetFullPath("tools/bicep.exe"),
 }, new SnapshotOptions
@@ -118,8 +118,8 @@ var snapshot = await helper.SnapshotAsync(new BicepClientConfiguration
 Use the platform-appropriate executable path. The configuration also supports
 the RPC client's transport and installation options. A helper can evaluate
 different CLI versions side by side by passing different configurations to
-`SnapshotAsync`. Use `BicepClientFactory` for a new client per snapshot, or
-`PooledBicepClientFactory` to reuse clients by configuration.
+`GetSnapshot`. Use `PooledBicepClientFactory`, as shown in the examples, to reuse
+clients by configuration and avoid starting a new CLI process for each snapshot.
 **The caller owns the factory.** Dispose a pooled factory at the end of the test
 or fixture lifetime; the helper itself does not require disposal. All asynchronous
 operations accept a cancellation token.
@@ -169,19 +169,6 @@ version for the latest snapshot fixes.
   absent for extensible resources. Snapshots can contain sensitive parameter or
   output values; handle and persist them accordingly.
 
-The library does not deploy resources, validate against live Azure, collect usage
-telemetry, or implement an assertion library. CLI dependency restoration (for
-example, registry modules) may still require network access. Pre-cache dependencies
-and provide an existing CLI for fully disconnected runs.
-
-PowerShell packaging and live deployment testing are outside this initial scope.
-
-## Developing in the Bicep repository
-
-The package is included in the solution's normal build, test, and NuGet packing
-workflows. Run its tests (including snapshots against the locally built CLI) with:
-
-```shell
-dotnet test --project src/Bicep.Testing.Framework.Tests/Bicep.Testing.Framework.Tests.csproj --configuration Release
-dotnet pack src/Bicep.Testing.Framework/Bicep.Testing.Framework.csproj --configuration Release
-```
+CLI dependency restoration (for example, registry modules) may require network
+access. Pre-cache dependencies and provide an existing CLI for fully disconnected
+runs.

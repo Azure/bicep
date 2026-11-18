@@ -20,7 +20,7 @@ public class SnapshotTests
     public async Task Snapshot_evaluates_nested_module_parameters_and_deployment_context(BicepConnectionMode connectionMode)
     {
         var session = new BicepTestHelper(clientFactory);
-        var snapshot = await session.SnapshotAsync(Configuration(connectionMode), new()
+        var snapshot = await session.GetSnapshot(Configuration(connectionMode), new()
         {
             FilePath = Fixture("main.bicepparam"),
             TenantId = "00000000-0000-0000-0000-000000000001",
@@ -55,7 +55,7 @@ public class SnapshotTests
 
         for (var i = 0; i < 2; i++)
         {
-            var snapshot = await session.SnapshotAsync(Configuration(), new() { FilePath = Fixture("main.bicepparam") }, TestContext.CancellationTokenSource.Token);
+            var snapshot = await session.GetSnapshot(Configuration(), new() { FilePath = Fixture("main.bicepparam") }, TestContext.CancellationTokenSource.Token);
             snapshot.Diagnostics.Should().BeEmpty();
             var resource = snapshot.PredictedResources.Should().ContainSingle().Subject;
             resource.GetRequiredStringProperty("/type").Should().Be("Microsoft.Storage/storageAccounts");
@@ -67,7 +67,7 @@ public class SnapshotTests
     public async Task Snapshot_supports_management_group_context()
     {
         var session = new BicepTestHelper(clientFactory);
-        var snapshot = await session.SnapshotAsync(Configuration(), new()
+        var snapshot = await session.GetSnapshot(Configuration(), new()
         {
             FilePath = Fixture("managementGroup.bicepparam"),
             ManagementGroupId = "platform",
