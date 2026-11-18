@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.IO.Abstraction;
@@ -8,6 +10,7 @@ using Bicep.Testing;
 using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Bicep.Core.UnitTests.Configuration
 {
@@ -1144,6 +1147,149 @@ namespace Bicep.Core.UnitTests.Configuration
 
             results.Should().Equal(fileSet.GetUri("a.json"), fileSet.GetUri("b.json"));
             context.ConfigFileUri.Should().BeNull();
+        }
+
+        // ── Loader pipeline ───────────────────────────────────────────────────
+
+        private sealed class CountingFileExplorer(IFileExplorer inner) : IFileExplorer
+        {
+            public ConcurrentDictionary<IOUri, int> ReadCounts { get; } = new();
+
+            public IDirectoryHandle GetDirectory(IOUri uri) => inner.GetDirectory(uri);
+
+            public IFileHandle GetFile(IOUri uri)
+            {
+                var file = inner.GetFile(uri);
+                var mock = new Mock<IFileHandle>(MockBehavior.Strict);
+                mock.SetupGet(x => x.Uri).Returns(file.Uri);
+                mock.Setup(x => x.Exists()).Returns(file.Exists);
+                mock.Setup(x => x.GetParent()).Returns(file.GetParent);
+                mock.Setup(x => x.OpenRead()).Returns(() =>
+                {
+                    ReadCounts.AddOrUpdate(uri, 1, (_, count) => count + 1);
+                    return file.OpenRead();
+                });
+
+                return mock.Object;
+            }
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_BaseSharedByTwoLeaves_IsReadOnce()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("a/main.bicep", ""),
+                ("a/bicepconfig.json", """{ "extends": "../shared/bicepconfig.base.json" }"""),
+                ("b/main.bicep", ""),
+                ("b/bicepconfig.json", """{ "extends": "../shared/bicepconfig.base.json" }"""),
+                ("shared/bicepconfig.base.json", """{ "experimentalFeaturesWarning": false }"""));
+            var fileExplorer = new CountingFileExplorer(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+
+            sut.GetConfigurationChain(fileSet.GetUri("a/main.bicep")).GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse();
+            sut.GetConfigurationChain(fileSet.GetUri("b/main.bicep")).GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse();
+
+            fileExplorer.ReadCounts[fileSet.GetUri("shared/bicepconfig.base.json")].Should().Be(1);
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_InvalidCurrentProfileInBase_IsReportedAgainstBase()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
+                ("base/bicepconfig.base.json", """{ "cloud": { "currentProfile": "Missing" } }"""));
+            var baseUri = fileSet.GetUri("base/bicepconfig.base.json");
+
+            var chain = GetChain(fileSet);
+            var diagnostic = GetSingleDiagnostic(chain);
+
+            diagnostic.Code.Should().Be("BCP273");
+            diagnostic.Message.Should().StartWith($"The Bicep configuration file \"{baseUri}\" is invalid: The cloud profile \"Missing\" does not exist.");
+            chain.EnumerateDiagnosticsPerFile().Should().BeEquivalentTo(new Dictionary<IOUri, ImmutableArray<IDiagnostic>>
+            {
+                [fileSet.GetUri("bicepconfig.json")] = [],
+                [baseUri] = [diagnostic],
+            });
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_InvalidProfileWithDottedNameInBase_IsReportedAgainstBase()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json", "cloud": { "currentProfile": "my.cloud" } }"""),
+                ("base/bicepconfig.base.json", """
+                    {
+                      "cloud": {
+                        "profiles": {
+                          "my.cloud": {
+                            "resourceManagerEndpoint": "not a url",
+                            "activeDirectoryAuthority": "https://login.example.invalid"
+                          }
+                        }
+                      }
+                    }
+                    """));
+
+            var diagnostic = GetSingleDiagnostic(GetChain(fileSet));
+
+            diagnostic.Message.Should().StartWith($"The Bicep configuration file \"{fileSet.GetUri("base/bicepconfig.base.json")}\" is invalid: The cloud profile \"my.cloud\" is invalid.");
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_InvalidValueInBaseSectionAlsoSetByLeaf_IsReportedAgainstBase()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json", "formatting": { "width": 80 } }"""),
+                ("base/bicepconfig.base.json", """{ "formatting": { "indentSize": "x" } }"""));
+
+            var diagnostic = GetSingleDiagnostic(GetChain(fileSet));
+
+            diagnostic.Message.Should().StartWith($"The Bicep configuration file \"{fileSet.GetUri("base/bicepconfig.base.json")}\" is invalid: The \"formatting.indentSize\" property");
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_UntrustedProfileSelectedInBase_IsReportedAgainstBase()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """
+                    {
+                      "extends": "./base/bicepconfig.base.json",
+                      "cloud": {
+                        "profiles": {
+                          "Custom": {
+                            "resourceManagerEndpoint": "https://management.example.invalid",
+                            "activeDirectoryAuthority": "https://login.example.invalid"
+                          }
+                        }
+                      }
+                    }
+                    """),
+                ("base/bicepconfig.base.json", """{ "cloud": { "currentProfile": "Custom" } }"""));
+
+            var chain = GetChain(fileSet);
+            var diagnostic = GetSingleDiagnostic(chain);
+
+            diagnostic.Code.Should().Be("BCP458");
+            chain.EnumerateDiagnosticsPerFile().Single(entry => entry.Key.Equals(fileSet.GetUri("base/bicepconfig.base.json"))).Value.Should().Equal(diagnostic);
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_NullInLeaf_KeepsInheritedValue()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json", "cacheRootDirectory": null, "bicep": { "version": null } }"""),
+                ("base/bicepconfig.base.json", """{ "cacheRootDirectory": "/base/cache", "bicep": { "version": ">=0.1" } }"""));
+
+            var configuration = GetChain(fileSet).GetEffectiveConfiguration();
+
+            configuration.GetDiagnostics().Should().BeEmpty();
+            configuration.CacheRootDirectory.Should().Be("/base/cache");
+            configuration.Compiler.DeclaringConfigUri.Should().Be(fileSet.GetUri("base/bicepconfig.base.json"));
         }
     }
 }

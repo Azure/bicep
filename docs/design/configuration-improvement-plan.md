@@ -18,8 +18,8 @@ PRs that change user-visible behavior are marked **(behavior change)**. Everythi
 
 | PR | Summary | Files (product + test) | After | Status |
 |---|---|---|---|---|
-| 1 | Config errors become diagnostics; correct cache invalidation | ~9 + ~11 | – | In review (#20561) |
-| 2 | Loader pipeline: parse cache, one merge that records the declaring file, per-file diagnostics | ~13 + ~7 | 1 | Planned |
+| 1 | Config errors become diagnostics; correct cache invalidation | ~9 + ~11 | – | Merged (#20561) |
+| 2 | Loader pipeline: parse cache, one merge that records the declaring file, per-file diagnostics | ~13 + ~7 | 1 | In progress |
 | 3 | The declaring file is used everywhere: `bicep.version`, aliases, mocks, relative paths | ~12 + ~8 | 2 | Planned |
 | 4 | `BICEP_ARTIFACT_CACHE_DIR`; `cacheRootDirectory` deprecated | ~5 + ~5 | 2 | Planned |
 | 5 | Sections and `BicepConfiguration` become records; one source of defaults | ~18 + ~6 | 3 | Planned |
@@ -112,7 +112,7 @@ Each item was confirmed with the Debug CLI built from `main`, or by reading the 
 ```
 source file URI
   -> (1) Locate      explicit --config file, or nearest bicepconfig.json     -> leaf IOUri | none
-  -> (2) Read        per file, cached by URI                                -> ConfigurationFile
+  -> (2) Read        per file, cached by URI                                -> ConfigurationFile | diagnostic
   -> (3) Chain       follow "extends" (relative only, no cycles, depth <= 64) -> ImmutableArray<ConfigurationFile>
   -> (4) Merge       built-in + layers, recording where each value came from  -> MergedConfiguration
   -> (5) Bind        typed records, values checked, paths made absolute      -> BicepConfiguration + diagnostics
@@ -121,21 +121,21 @@ source file URI
 
 Rules:
 
-- **Every step returns `(value, diagnostics)`. No step throws for user input.** An exception that reaches the manager is a Bicep bug. The manager reports it as a BCP272 diagnostic as a last resort, and a unit test enforces that no known kind of bad input gets that far.
-- **A diagnostic names the file, and the property, that caused it.** Each config diagnostic carries the declaring file URI and a JSON path.
+- **Every step returns a value or diagnostics. No step throws for user input.** An exception that reaches the manager is a Bicep bug. The manager reports it as a BCP272 diagnostic as a last resort, and a unit test enforces that no known kind of bad input gets that far.
+- **A diagnostic names the file, and the property, that caused it.** Each config diagnostic is stored with the file it belongs to. A binding error carries the failing property as a `ConfigurationPropertyPath` (the list of property names), which is used to find the file that declared it; messages show the property as a dotted path such as `bicep.version`.
 - **Steps don't share mutable state.** The manager only coordinates them and owns the caches.
 
 Types:
 
 | Type | Role |
 |---|---|
-| `ConfigurationFile` | `Uri`, the parsed `JsonElement` root, the raw `extends` value, and read or parse diagnostics. Immutable. |
-| `ConfigurationFileReader` | Reads and parses one file (comments and trailing commas allowed, as today). Never throws. |
-| `ConfigurationChainResolver` | Follows `extends` from a leaf `ConfigurationFile`. Owns the cycle, depth, absolute-path and type checks. Reports a cycle in chain order. |
+| `ConfigurationFile` | `Uri` and the parsed `JsonElement` root (always an object), plus the raw `extends` value. Immutable. |
+| `ConfigurationFileReader` | Reads and parses one file into `ResultWithDiagnostic<ConfigurationFile>`. Comments are allowed and trailing commas aren't, as today. Never throws. |
+| `ConfigurationChainResolver` | Follows `extends` from a leaf, reading through a callback so the manager owns caching and dependency tracking. Owns the existence, cycle, depth, absolute-path and type checks. Reports a cycle in chain order. |
 | `ConfigurationMerger` | Deep-merges the built-in config and the layers in one pass over `JsonNode`, producing `MergedConfiguration(JsonElement Root, ConfigurationProvenance Provenance)`. |
-| `ConfigurationProvenance` | Maps a JSON path to the URI of the file that declared it (`null` means built-in). Lookup uses the longest matching path prefix. Replaces the three existing mechanisms. |
-| `ConfigurationBinder` | `MergedConfiguration` -> `BicepConfiguration` plus diagnostics. Each section has a binder; each binder gets the provenance so it can resolve paths and report against the right file. |
-| `ConfigurationDiagnostic` | Internal: `(IOUri? File, string JsonPath, DiagnosticLevel Level, string Code, string Message)`. Converted to `IDiagnostic` at the edge. |
+| `ConfigurationProvenance` | Maps a `ConfigurationPropertyPath` to the URI of the file that declared it (`null` means built-in). Lookup uses the longest matching prefix. Replaces the three existing mechanisms. |
+| `ConfigurationBinder` *(PR 5)* | `MergedConfiguration` -> `BicepConfiguration` plus diagnostics. Each section has a binder; each binder gets the provenance so it can resolve paths and report against the right file. Until then, `BicepConfiguration.Bind` throws `ConfigurationException` with the failing property's path and the manager turns it into a diagnostic. |
+| `ConfigurationDiagnostic` | `(IOUri? File, IDiagnostic Diagnostic)`: a diagnostic and the file it belongs to. `File` is `null` when no single file caused it, such as an invalid `BICEP_TRUSTED_CLOUDS` value. |
 
 ### 3.2 Caches and freshness
 
@@ -143,7 +143,7 @@ Types:
 |---|---|---|
 | Located leaf | directory | leaf `IOUri?` |
 | Parsed file | file `IOUri` | `ConfigurationFile` |
-| Chain | leaf `IOUri` | `BicepConfigurationChain` and its `FileDependencies` |
+| Chain | leaf `IOUri` | `BicepConfigurationChain` and its dependencies (one entry, so they can't get out of step); the dependencies become `FileDependencies` in PR 13 |
 
 **After PR 1 (interim).** The configuration manager records which files each chain read, including failed chains (fixes B5). The language server forwards every watched-file event to `InvalidateFile(uri)`, which drops each chain that read the file or anything under it (a folder event covers its contents). An event on any `bicepconfig.json` also resets discovery, because clients don't reliably say whether a file was created or changed. This works for the language server only; other hosts never call it (B6).
 
@@ -231,7 +231,7 @@ sequenceDiagram
 - Arrays and plain values are replaced wholesale.
 - **`null` is not allowed anywhere.** A `null` value gives an "ignored setting" warning (3.4) that names the file and property, and the value is ignored, so the inherited value stays. This is what already happens today, minus the warning, and it matches the schema, which allows `null` nowhere. A child changes an inherited value by setting a different one; nothing can be cleared or removed.
 - `extends` is removed before merging, and `$schema` is ignored.
-- These rules go into `docs/` and into the doc comment on `ConfigurationMerger`, and are covered by tests.
+- These rules are documented on `ConfigurationMerger` and covered by tests. User-facing documentation lives in the separate docs repository.
 
 ### 3.4 Diagnostics
 
@@ -331,17 +331,18 @@ Tests:
 Fixes B3 (for binding errors) and B4.
 
 1. Add `ConfigurationFile`, `ConfigurationFileReader`, `ConfigurationChainResolver` and the per-file parse cache (3.1, 3.2), and move the `LoadChain` logic into them. A base config shared by several leaves is parsed once.
-2. Add `ConfigurationMerger` and `ConfigurationProvenance`: one deep merge over `JsonNode` that replaces the repeated `JsonElement.Merge` calls and `StripExtendsProperty`. `null` keeps today's behavior (ignored); PR 7 adds the warning.
-3. Binding errors carry the JSON path that failed, and the diagnostic goes to the file that declared that path. `CloudConfiguration` errors go to the file that declared `cloud.currentProfile` or the profile.
-4. `BicepConfigurationChain` keeps a diagnostics list for each file, so `EnumerateDiagnosticsPerFile` returns real results and the language server stops publishing everything to the leaf.
+2. Add `ConfigurationMerger` and `ConfigurationProvenance`: one deep merge over `JsonNode` that replaces the repeated `JsonElement.Merge` calls and `StripExtendsProperty`. `null` is ignored everywhere (before, a `null` with nothing to inherit was kept); PR 7 adds the warning.
+3. Binding errors carry the failing property as a `ConfigurationPropertyPath`, and the diagnostic goes to the file that declared it. `CloudConfiguration` errors go to the file that declared `cloud.currentProfile` or the profile. `JsonException.Path` is converted with `JsonPath.Net`, so names containing dots work.
+   - Other errors: a read or parse error goes to that file; a bad `extends` value or a missing `extends` target goes to the file with the `extends`; a cycle or a chain that's too deep goes to the leaf, because the message describes the chain from there.
+4. `BicepConfigurationChain` keeps a diagnostics list for each file, so `EnumerateDiagnosticsPerFile` returns real results and the language server stops publishing everything to the leaf. Diagnostics without a file, such as an invalid `BICEP_TRUSTED_CLOUDS` value, are only shown in Bicep files, because no config file caused them.
 5. `BicepConfigurationManager` only coordinates: locate -> read -> chain -> merge -> bind -> policy.
 
 Tests:
 
-- The reader (comments, trailing commas, unreadable file) and the chain resolver (cycle, depth, absolute path, non-string value, missing file).
+- The reader (comments, trailing commas rejected, non-object, unreadable file) and the chain resolver (which file each error is reported on).
 - A counting `IFileExplorer` shows a shared base is read once for two leaves.
 - A merge table: objects, arrays, `null`, `extends` removed, `$schema` ignored, and the declaring file recorded for each.
-- An invalid `currentProfile` in a base config is reported against the base file, including in the language server.
+- An invalid `currentProfile` in a base config is reported against the base file, including in the language server; so is an invalid profile whose name contains a dot.
 
 ### PR 3 – The declaring file is used everywhere **(behavior change: inherited relative paths resolve against their own file)**
 
@@ -481,7 +482,14 @@ Tests: a CLI JSON-RPC test that edits a `loadTextContent` file between two reque
 
 ### Optional follow-ups
 
-- **Diagnostics at the property's position.** `ConfigurationFileReader` records each property's offset while reading, so the language server can underline the property instead of publishing at `Range(0,0,0,0)`. About 6 files. Measure the cost first.
+- **Diagnostics at the property's position.** Today every config diagnostic is at offset 0, so the language server publishes it at `Range(0,0,0,0)`.
+  - **Positions: a positioned JSON tree.** `JsonElement` and `JsonNode` have no position API. Instead of a second `Utf8JsonReader` pass next to the parse, `ConfigurationFileReader` reads each file once with `Utf8JsonReader` into a small tree of our own in which every value records its file and byte offset (`TokenStartIndex`). Line starts and character positions are computed from the file text only when a diagnostic is published.
+    - `ConfigurationMerger` merges these trees, so every merged value still knows where it came from. `ConfigurationProvenance` and its longest-prefix lookup go away, along with the descendant-path scan on every replaced value.
+    - Binding is unchanged: the merged tree is written to JSON once and bound with source-generated deserialization; a binding error's `JsonException.Path` leads to the value in the tree, giving the declaring file and position.
+    - Keep numbers as their raw text, decode strings with `GetString()`, keep today's reader options (comments skipped, trailing commas rejected, default depth limit), and parse the built-in config into a tree once.
+    - Expected cost is about today's: one read pass per file (cached), and the merge replaces today's copy into `JsonNode`. Measure a chain load before and after (`bicep-perf-profiling` skill).
+  - **One diagnostic per destination.** A config error is shown in two places: on the config file in the editor, and on every `.bicep` file that uses it. The `.bicep` copy is the only one the CLI, JSON-RPC and MCP report (it fails the build), and the only one the editor shows when the config file isn't open. A diagnostic has a single span, so the two can't share one object: the config file gets the positioned diagnostic, and each `.bicep` file gets one at its start that names the config file and property (as BCP273 already does). `ConfigurationDiagnostic` carries the config-file position next to `File`.
+  - **Diagnostics by file.** With line starts on both sides, source files and config files can share one small "URI + line starts" abstraction, so the config chain's `ImmutableDictionary<IOUri, ImmutableArray<IDiagnostic>>` and the compilation's `ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>` can use the same shape.
 - **Remove `IBicepCloudConfiguration` and `IBicepConfiguration`.** Rename-only changes over 51 and 58 files. Only worth doing if the extra names cause confusion.
 
 ---

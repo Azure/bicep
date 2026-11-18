@@ -6,21 +6,26 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using Bicep.Core.Configuration.LegacyModuleAliasMocks;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
-using Bicep.Core.Json;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Configuration;
 
+/// <summary>
+/// Loads configuration chains and caches them. Loading runs in steps: locate the leaf file, read each file (parsed files are cached),
+/// follow "extends" (<see cref="ConfigurationChainResolver"/>), merge (<see cref="ConfigurationMerger"/>), bind, and check cloud trust.
+/// No step throws for bad input; each problem becomes a diagnostic on the file that caused it.
+/// </summary>
 public class BicepConfigurationManager : IBicepConfigurationManager
 {
-    private const int MaxChainDepth = 64;
+    /// <param name="Chain">The loaded chain.</param>
+    /// <param name="Dependencies">Every file the chain tried to read, including missing ones, so that changing, fixing or creating any of them invalidates the chain.</param>
+    private sealed record ChainCacheEntry(IBicepConfigurationChain Chain, ImmutableHashSet<IOUri> Dependencies);
 
     private static readonly DiagnosticBuilder.DiagnosticBuilderInternal ConfigDiagnosticBuilder = DiagnosticBuilder.ForDocumentStart();
 
     private readonly ConcurrentDictionary<IDirectoryHandle, ResultWithDiagnostic<IFileHandle?>> configFileLookupCache = new();
-    private readonly ConcurrentDictionary<IFileHandle, ResultWithDiagnostic<IBicepConfigurationChain>> chainCache = new();
-    private readonly ConcurrentDictionary<IFileHandle, ImmutableHashSet<IOUri>> chainDependencies = new();
+    private readonly ConcurrentDictionary<IOUri, ResultWithDiagnostic<ConfigurationFile>> parsedFileCache = new();
+    private readonly ConcurrentDictionary<IOUri, ChainCacheEntry> chainCache = new();
     private readonly IFileExplorer fileExplorer;
     private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
     private readonly ExplicitConfigurationContext explicitConfigurationContext;
@@ -46,33 +51,26 @@ public class BicepConfigurationManager : IBicepConfigurationManager
     {
         if (!sourceFileUri.IsFile)
         {
-            return GetBuiltInChain();
+            return GetBuiltInChain([], []);
         }
 
         var sourceDirectory = this.fileExplorer.GetFile(sourceFileUri).GetParent();
 
         if (!this.configFileLookupCache.GetOrAdd(sourceDirectory, LookupConfigurationFile).IsSuccess(out var configFileHandle, out var lookupDiagnostic))
         {
-            return GetBuiltInChain(diagnostics: [lookupDiagnostic]);
+            return GetBuiltInChain([], [new(null, lookupDiagnostic)]);
         }
 
         if (configFileHandle is null)
         {
-            return GetBuiltInChain();
+            return GetBuiltInChain([], []);
         }
 
         return GetConfigurationChainForConfigFile(configFileHandle);
     }
 
-    private IBicepConfigurationChain GetConfigurationChainForConfigFile(IFileHandle leafConfigFileHandle)
-    {
-        if (!this.chainCache.GetOrAdd(leafConfigFileHandle, LoadChain).IsSuccess(out var chain, out var loadDiagnostic))
-        {
-            return GetBuiltInChain(diagnostics: [loadDiagnostic]);
-        }
-
-        return chain;
-    }
+    private IBicepConfigurationChain GetConfigurationChainForConfigFile(IFileHandle leafConfigFileHandle) =>
+        this.chainCache.GetOrAdd(leafConfigFileHandle.Uri, _ => LoadChain(leafConfigFileHandle)).Chain;
 
     public bool InvalidateFile(IOUri fileUri)
     {
@@ -80,13 +78,21 @@ public class BicepConfigurationManager : IBicepConfigurationManager
 
         // Clients may report only the folder when a folder is deleted, so the URI also covers everything under it.
         // IsBaseOf compares whole path segments, so "base" covers "base/x.json" but not "base.json".
-        foreach (var (leafHandle, dependencies) in this.chainDependencies)
+        foreach (var entry in this.chainCache)
         {
-            if (dependencies.Any(fileUri.IsBaseOf))
+            // Only removes the entry that was checked, not one a concurrent load has just added.
+            if (entry.Value.Dependencies.Any(fileUri.IsBaseOf) && this.chainCache.TryRemove(entry))
             {
-                this.chainCache.TryRemove(leafHandle, out _);
-                this.chainDependencies.TryRemove(leafHandle, out _);
                 invalidated = true;
+            }
+        }
+
+        // Parsed files are only read through chains, so dropping one doesn't make any returned configuration stale by itself.
+        foreach (var parsedFileUri in this.parsedFileCache.Keys)
+        {
+            if (fileUri.IsBaseOf(parsedFileUri))
+            {
+                this.parsedFileCache.TryRemove(parsedFileUri, out _);
             }
         }
 
@@ -116,264 +122,126 @@ public class BicepConfigurationManager : IBicepConfigurationManager
     public void InvalidateAll()
     {
         this.configFileLookupCache.Clear();
+        this.parsedFileCache.Clear();
         this.chainCache.Clear();
-        this.chainDependencies.Clear();
     }
 
-    private IBicepConfigurationChain GetBuiltInChain(IEnumerable<IDiagnostic>? diagnostics = null)
+    /// <param name="configFileUris">The files that were read before loading stopped, so their diagnostics can be published (or cleared).</param>
+    private static IBicepConfigurationChain GetBuiltInChain(ImmutableArray<IOUri> configFileUris, ImmutableArray<ConfigurationDiagnostic> diagnostics) =>
+        new BicepConfigurationChain(BicepConfiguration.BuiltIn, configFileUris, diagnostics);
+
+    private ChainCacheEntry LoadChain(IFileHandle leafFileHandle)
     {
-        var builtInConfig = GetBuiltInConfiguration(diagnostics);
-
-        return new BicepConfigurationChain(builtInConfig, [builtInConfig]);
-    }
-
-    private static IBicepConfiguration GetBuiltInConfiguration(IEnumerable<IDiagnostic>? diagnostics = null) =>
-        diagnostics is null
-            ? BicepConfiguration.BuiltIn
-            : BicepConfiguration.BuiltIn.With(diagnostics: diagnostics);
-
-    private ResultWithDiagnostic<IBicepConfigurationChain> LoadChain(IFileHandle leafFileHandle)
-    {
-        var chainFileUris = new List<IOUri>();
+        var dependencies = new List<IOUri>();
+        IBicepConfigurationChain chain;
 
         try
         {
-            return LoadChain(leafFileHandle, chainFileUris);
+            chain = LoadChain(leafFileHandle.Uri, dependencies);
         }
         catch (Exception exception)
         {
-            // Bad user input is reported by LoadChain itself; anything that escapes is a Bicep bug, but it must not crash the caller.
-            return new(ConfigDiagnosticBuilder.UnloadableBicepConfigFile(leafFileHandle.Uri, exception.Message));
+            // Bad user input is reported by the steps that load the chain; anything that escapes is a Bicep bug, but it must not crash the caller.
+            chain = GetBuiltInChain([leafFileHandle.Uri], [new(leafFileHandle.Uri, ConfigDiagnosticBuilder.UnloadableBicepConfigFile(leafFileHandle.Uri, exception.Message))]);
         }
-        finally
-        {
-            // Record the files read so far even when loading fails, so that fixing any of them invalidates the cached failure.
-            this.chainDependencies[leafFileHandle] = [.. chainFileUris];
-        }
+
+        return new(chain, [.. dependencies]);
     }
 
-    private ResultWithDiagnostic<IBicepConfigurationChain> LoadChain(IFileHandle leafFileHandle, List<IOUri> chainFileUris)
+    private IBicepConfigurationChain LoadChain(IOUri leafUri, List<IOUri> dependencies)
     {
-        var leafUri = leafFileHandle.Uri;
-        var rawLayers = new List<(IFileHandle FileHandle, JsonElement Element)>();
-        var currentFileHandle = leafFileHandle;
-
-        while (true)
+        var resolution = ConfigurationChainResolver.Resolve(leafUri, uri =>
         {
-            chainFileUris.Add(currentFileHandle.Uri);
+            dependencies.Add(uri);
+            return TryReadFile(uri);
+        });
 
-            JsonElement currentElement;
-            try
-            {
-                using var stream = currentFileHandle.OpenRead();
-                currentElement = JsonElementFactory.CreateElementFromStream(stream);
-            }
-            catch (JsonException exception)
-            {
-                return new(ConfigDiagnosticBuilder.UnparsableBicepConfigFile(currentFileHandle.Uri, exception.Message));
-            }
-            catch (Exception exception)
-            {
-                return new(ConfigDiagnosticBuilder.UnloadableBicepConfigFile(currentFileHandle.Uri, exception.Message));
-            }
+        var fileUris = resolution.Files.Select(file => file.Uri).ToImmutableArray();
 
-            if (currentElement.ValueKind != JsonValueKind.Object)
-            {
-                return new(ConfigDiagnosticBuilder.InvalidBicepConfigFile(currentFileHandle.Uri, "The configuration must be a JSON object."));
-            }
-
-            rawLayers.Add((currentFileHandle, currentElement));
-
-            if (!currentElement.TryGetProperty("extends", out var extendsElement) ||
-                extendsElement.ValueKind == JsonValueKind.Null)
-            {
-                break;
-            }
-
-            if (extendsElement.ValueKind != JsonValueKind.String)
-            {
-                return new(ConfigDiagnosticBuilder.BicepConfigExtendsMustBeRelativePath(currentFileHandle.Uri));
-            }
-
-            var extendsPath = extendsElement.GetString();
-
-            if (string.IsNullOrWhiteSpace(extendsPath))
-            {
-                break;
-            }
-
-            if (IOUri.IsAbsoluteFilePath(extendsPath))
-            {
-                return new(ConfigDiagnosticBuilder.BicepConfigExtendsMustBeRelativePath(currentFileHandle.Uri));
-            }
-
-            var nextUri = currentFileHandle.Uri.Resolve(extendsPath);
-
-            if (chainFileUris.Contains(nextUri))
-            {
-                var cycleDisplay = string.Join(" -> ", chainFileUris.Append(nextUri));
-
-                return new(ConfigDiagnosticBuilder.BicepConfigExtendsCycle(leafUri, cycleDisplay));
-            }
-
-            if (rawLayers.Count >= MaxChainDepth)
-            {
-                return new(ConfigDiagnosticBuilder.BicepConfigExtendsChainTooDeep(leafUri));
-            }
-
-            var nextFileHandle = this.fileExplorer.GetFile(nextUri);
-
-            if (!nextFileHandle.Exists())
-            {
-                // Track the missing file too, so that creating it invalidates the cached failure.
-                chainFileUris.Add(nextUri);
-
-                return new(ConfigDiagnosticBuilder.UnloadableBicepConfigFile(nextUri, "File not found."));
-            }
-
-            currentFileHandle = nextFileHandle;
+        if (resolution.Error is { } chainError)
+        {
+            return GetBuiltInChain(fileUris, [chainError]);
         }
 
-        return new(BuildChain(leafUri, rawLayers));
-    }
+        var merged = ConfigurationMerger.Merge(BicepConfiguration.BuiltInConfigurationElement, resolution.Files);
 
-    private IBicepConfigurationChain BuildChain(IOUri leafUri, List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
-    {
-        // Merge: built-in first, then base configs in reverse order, leaf last (leaf wins).
-        var accumulated = BicepConfiguration.BuiltInConfigurationElement;
-
-        foreach (var (_, element) in Enumerable.Reverse(rawLayers))
-        {
-            accumulated = accumulated.Merge(StripExtendsProperty(element));
-        }
-
-        IBicepConfiguration effectiveConfig;
+        IBicepConfiguration configuration;
         try
         {
-            effectiveConfig = BicepConfiguration.Bind(accumulated, leafUri);
+            configuration = BicepConfiguration.Bind(merged.Root, leafUri);
         }
-        catch (Exception exception) when (exception is ConfigurationException or JsonException or InvalidOperationException)
+        catch (ConfigurationException exception)
         {
-            return GetBuiltInChain(diagnostics: [ConfigDiagnosticBuilder.InvalidBicepConfigFile(leafUri, exception.Message)]);
+            var declaringFileUri = merged.Provenance.GetDeclaringFile(exception.PropertyPath) ?? leafUri;
+
+            return GetBuiltInChain(fileUris, [new(declaringFileUri, ConfigDiagnosticBuilder.InvalidBicepConfigFile(declaringFileUri, exception.Message))]);
+        }
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException)
+        {
+            return GetBuiltInChain(fileUris, [new(leafUri, ConfigDiagnosticBuilder.InvalidBicepConfigFile(leafUri, exception.Message))]);
         }
 
-        if (!cloudTrustPolicy.TryGetIsTrusted(effectiveConfig.Cloud).IsSuccess(out var isTrusted, out var diagnostic))
+        if (!cloudTrustPolicy.TryGetIsTrusted(configuration.Cloud).IsSuccess(out var isTrusted, out var trustPolicyDiagnostic))
         {
-            return GetBuiltInChain(diagnostics: [diagnostic]);
+            return GetBuiltInChain(fileUris, [new(null, trustPolicyDiagnostic)]);
         }
 
         if (!isTrusted)
         {
-            return GetBuiltInChain(diagnostics: [ConfigDiagnosticBuilder.UntrustedCloudProfile(leafUri, effectiveConfig.Cloud.CurrentProfileName)]);
+            var profileName = configuration.Cloud.CurrentProfileName;
+            var selectingFileUri =
+                merged.Provenance.GetDeclaringFile(ConfigurationPropertyPath.Create(BicepConfiguration.CloudKey, "currentProfile")) ??
+                merged.Provenance.GetDeclaringFile(ConfigurationPropertyPath.Create(BicepConfiguration.CloudKey, "profiles", profileName)) ??
+                leafUri;
+
+            return GetBuiltInChain(fileUris, [new(selectingFileUri, ConfigDiagnosticBuilder.UntrustedCloudProfile(selectingFileUri, profileName))]);
         }
 
-        // Annotate moduleAliasesMock aliases with the URI of the config file that declared each one.
-        var mockDeclaringUris = FindDeclaringUrisByKey(rawLayers, BicepConfiguration.ModuleAliasesMockKey, "br");
+        return new BicepConfigurationChain(AnnotateDeclaringFiles(configuration, merged.Provenance), fileUris, []);
+    }
+
+    private ResultWithDiagnostic<ConfigurationFile>? TryReadFile(IOUri fileUri)
+    {
+        var fileHandle = this.fileExplorer.GetFile(fileUri);
+
+        if (!fileHandle.Exists())
+        {
+            return null;
+        }
+
+        // A base file shared by several chains is read once.
+        return this.parsedFileCache.GetOrAdd(fileUri, _ => ConfigurationFileReader.Read(fileHandle));
+    }
+
+    /// <summary>
+    /// Records which file declared values whose relative paths, or error messages, depend on it.
+    /// </summary>
+    private static IBicepConfiguration AnnotateDeclaringFiles(IBicepConfiguration configuration, ConfigurationProvenance provenance)
+    {
+        var mockDeclaringUris = ImmutableDictionary.CreateBuilder<string, IOUri>(StringComparer.Ordinal);
+        foreach (var aliasName in configuration.ModuleAliasesMock.GetOciArtifactModuleAliasesMock().Keys)
+        {
+            if (provenance.GetDeclaringFile(ConfigurationPropertyPath.Create(BicepConfiguration.ModuleAliasesMockKey, "br", aliasName, "mapToFilePath")) is { } declaringUri)
+            {
+                mockDeclaringUris[aliasName] = declaringUri;
+            }
+        }
+
         if (mockDeclaringUris.Count > 0)
         {
-            var annotatedMock = ((ModuleAliasesMockConfiguration)effectiveConfig.ModuleAliasesMock)
-                .WithDeclaringUris(mockDeclaringUris);
-            effectiveConfig = effectiveConfig.With(moduleAliasesMock: annotatedMock);
+            var annotatedMock = ((ModuleAliasesMockConfiguration)configuration.ModuleAliasesMock).WithDeclaringUris(mockDeclaringUris.ToImmutable());
+            configuration = configuration.With(moduleAliasesMock: annotatedMock);
         }
 
-        // Track the config file that declared "bicep.version", so version-constraint diagnostics can point users at the exact file to edit.
-        if (FindCompilerVersionDeclaringUri(rawLayers) is { } compilerVersionDeclaringUri)
+        // Version-constraint diagnostics point users at the file that declared "bicep.version".
+        if (configuration.Compiler.Version is not null &&
+            provenance.GetDeclaringFile(ConfigurationPropertyPath.Create(BicepConfiguration.CompilerKey, "version")) is { } compilerVersionDeclaringUri)
         {
-            var annotatedCompiler = ((CompilerConfiguration)effectiveConfig.Compiler)
-                .WithDeclaringUri(compilerVersionDeclaringUri);
-            effectiveConfig = effectiveConfig.With(compiler: annotatedCompiler);
+            var annotatedCompiler = ((CompilerConfiguration)configuration.Compiler).WithDeclaringUri(compilerVersionDeclaringUri);
+            configuration = configuration.With(compiler: annotatedCompiler);
         }
 
-        // One entry per file in the chain, so the language server can publish (and clear) diagnostics for each file.
-        // Each entry only identifies its file; the file's own settings are part of the effective configuration.
-        var layers = rawLayers
-            .Select(layer => BicepConfiguration.BuiltIn.With(configFileIdentifier: layer.FileHandle.Uri))
-            .ToImmutableArray();
-
-        return new BicepConfigurationChain(effectiveConfig, layers);
-    }
-
-    /// <summary>
-    /// For the object at <paramref name="sectionPath"/>, maps each property name to the URI of the config file that declared it.
-    /// Layers are visited leaf-first so the most-derived (leaf) declaration wins.
-    /// </summary>
-    private static ImmutableDictionary<string, IOUri> FindDeclaringUrisByKey(
-        List<(IFileHandle FileHandle, JsonElement Element)> rawLayers,
-        params string[] sectionPath)
-    {
-        var map = ImmutableDictionary.CreateBuilder<string, IOUri>(StringComparer.Ordinal);
-
-        foreach (var (fileHandle, element) in rawLayers) // leaf first
-        {
-            if (!TryGetSection(element, sectionPath, out var sectionElement) || sectionElement.ValueKind != JsonValueKind.Object)
-            {
-                continue;
-            }
-
-            foreach (var property in sectionElement.EnumerateObject())
-            {
-                map.TryAdd(property.Name, fileHandle.Uri);
-            }
-        }
-
-        return map.ToImmutable();
-    }
-
-    private static bool TryGetSection(JsonElement element, string[] sectionPath, out JsonElement section)
-    {
-        section = element;
-        foreach (var key in sectionPath)
-        {
-            if (section.ValueKind != JsonValueKind.Object || !section.TryGetProperty(key, out section))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// Finds the URI of the config file layer that declares "bicep.version", walking leaf-first so the
-    /// most-derived declaration wins. Returns null if no layer declares it.
-    /// </summary>
-    private static IOUri? FindCompilerVersionDeclaringUri(
-        List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
-    {
-        foreach (var (fileHandle, element) in rawLayers) // leaf first
-        {
-            if (TryGetSection(element, [BicepConfiguration.CompilerKey, "version"], out var versionElement) &&
-                versionElement.ValueKind != JsonValueKind.Null)
-            {
-                return fileHandle.Uri;
-            }
-        }
-
-        return null;
-    }
-
-    private static JsonElement StripExtendsProperty(JsonElement element)
-    {
-        if (!element.TryGetProperty("extends", out _))
-        {
-            return element;
-        }
-
-        var bufferWriter = new System.Buffers.ArrayBufferWriter<byte>();
-        using var writer = new Utf8JsonWriter(bufferWriter);
-
-        writer.WriteStartObject();
-        foreach (var property in element.EnumerateObject())
-        {
-            if (!string.Equals(property.Name, "extends", StringComparison.Ordinal))
-            {
-                property.WriteTo(writer);
-            }
-        }
-        writer.WriteEndObject();
-        writer.Flush();
-
-        return JsonElementFactory.CreateElement(bufferWriter.WrittenMemory);
+        return configuration;
     }
 
     private ResultWithDiagnostic<IFileHandle?> LookupConfigurationFile(IDirectoryHandle? directoryToLookup)

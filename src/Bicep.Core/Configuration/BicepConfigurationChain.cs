@@ -3,58 +3,62 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Configuration;
 
 /// <summary>
-/// Represents a chain of Bicep configuration files linked via "extends".
-/// The chain is ordered from the leaf (most specific, e.g. closest bicepconfig.json)
-/// to the built-in defaults (last).
+/// Represents a chain of Bicep configuration files linked via "extends",
+/// ordered from the leaf (the most specific file, e.g. the nearest bicepconfig.json) to its most distant base.
 /// </summary>
 public class BicepConfigurationChain : IBicepConfigurationChain
 {
-    // The fully merged effective configuration constructed by BicepConfigurationManager.
     private readonly IBicepConfiguration effectiveConfiguration;
 
-    // One entry per configuration file in the chain, ordered leaf-first.
-    private readonly ImmutableArray<IBicepConfiguration> layers;
+    private readonly ImmutableArray<IOUri> configFileUris;
 
-    /// <param name="effectiveConfiguration">
-    ///   The pre-merged configuration representing the combined settings of all layers.
-    ///   Produced by <c>BicepConfigurationManager</c>.
+    private readonly ImmutableArray<ConfigurationDiagnostic> diagnostics;
+
+    /// <param name="configuration">
+    ///   The configuration produced by merging the chain, or the built-in configuration if the chain couldn't be loaded.
     /// </param>
-    /// <param name="layers">
-    ///   One entry per configuration file in the chain, leaf first. Each entry identifies its file through
-    ///   <see cref="IBicepConfiguration.ConfigFileUri"/>.
-    /// </param>
+    /// <param name="configFileUris">The configuration files in the chain that were read, leaf first.</param>
+    /// <param name="diagnostics">Every diagnostic for the chain, with the file each belongs to.</param>
     public BicepConfigurationChain(
-        IBicepConfiguration effectiveConfiguration,
-        IEnumerable<IBicepConfiguration> layers)
+        IBicepConfiguration configuration,
+        ImmutableArray<IOUri> configFileUris,
+        ImmutableArray<ConfigurationDiagnostic> diagnostics)
     {
-        this.effectiveConfiguration = effectiveConfiguration;
-        this.layers = [.. layers];
+        this.effectiveConfiguration = diagnostics.IsEmpty
+            ? configuration
+            : configuration.With(diagnostics: diagnostics.Select(diagnostic => diagnostic.Diagnostic));
+        this.configFileUris = configFileUris;
+        this.diagnostics = diagnostics;
     }
 
     /// <summary>
-    /// Returns the fully merged effective configuration.
-    /// Errors that prevented the chain from loading are reported by its <see cref="IBicepConfiguration.GetDiagnostics"/>.
+    /// Returns the fully merged effective configuration. Its <see cref="IBicepConfiguration.GetDiagnostics"/> returns
+    /// every diagnostic for the chain, whichever file it belongs to.
     /// </summary>
     public IBicepConfiguration GetEffectiveConfiguration() => this.effectiveConfiguration;
 
     /// <summary>
-    /// Returns diagnostics grouped by the config file URI they originated from.
-    /// Built-in default layers (no <see cref="IBicepConfiguration.ConfigFileUri"/>) are excluded.
+    /// Returns the diagnostics for each configuration file in the chain, including files without any,
+    /// and files that couldn't be read. Diagnostics that don't belong to a file (for example, an invalid environment variable)
+    /// are only returned by <see cref="GetEffectiveConfiguration"/>.
     /// </summary>
     public DiagnosticsPerFile EnumerateDiagnosticsPerFile()
-        => this.layers
-            .Where(layer => !layer.IsBuiltIn)
-            .Select(layer => new KeyValuePair<IOUri, ImmutableArray<IDiagnostic>>(
-                layer.ConfigFileUri!,
-                layer.GetDiagnostics().ToImmutableArray()));
+        => this.configFileUris
+            .Concat(this.diagnostics.Select(diagnostic => diagnostic.File).WhereNotNull())
+            .Distinct()
+            .Select(fileUri => new KeyValuePair<IOUri, ImmutableArray<IDiagnostic>>(
+                fileUri,
+                [.. this.diagnostics.Where(diagnostic => fileUri.Equals(diagnostic.File)).Select(diagnostic => diagnostic.Diagnostic)]));
+
 
     /// <summary>
-    /// The number of configuration files in the chain, including the built-in defaults.
+    /// The number of configuration files in the chain that were read, not counting the built-in configuration.
     /// </summary>
-    public int LayerCount => this.layers.Length;
+    public int LayerCount => this.configFileUris.Length;
 }
