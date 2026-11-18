@@ -106,7 +106,7 @@ module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'
 
 output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUrl]
 
-module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
+module passthroughPort 'br:port.invalid:5000/passthrough/port:v1' = {
   scope: rg
   name: 'port'
   params: {
@@ -114,7 +114,7 @@ module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
   }
 }
 
-module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
+module ipv4 'br:ipv4.invalid/passthrough/ipv4:v1' = {
   scope: rg
   name: 'ipv4'
   params: {
@@ -122,7 +122,7 @@ module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
   }
 }
 
-module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
+module ipv4port 'br:ipv4-port.invalid:5000/passthrough/ipv4port:v1' = {
   scope: rg
   name: 'ipv4port'
   params: {
@@ -130,7 +130,7 @@ module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
   }
 }
 
-module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
+module ipv6 'br:ipv6.invalid/passthrough/ipv6:v1' = {
   scope: rg
   name: 'ipv6'
   params: {
@@ -138,7 +138,7 @@ module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
   }
 }
 
-module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
+module ipv6port 'br:ipv6-port.invalid:5000/passthrough/ipv6port:v1' = {
   scope: rg
   name: 'ipv6port'
   params: {

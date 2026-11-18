@@ -2,159 +2,130 @@
 // Licensed under the MIT License.
 
 import type { Atom, PrimitiveAtom } from "jotai";
-import type { Box, Point } from "@/lib/math";
+import type { Box } from "@/lib/math";
 
 import { atom } from "jotai";
 import { nodeConfigAtom } from "./configs";
+import { nodePositionsAtom } from "./positions";
 
-export interface AtomicNodeState {
-  kind: "atomic";
-  id: string;
-  boxAtom: PrimitiveAtom<Box>;
-  dataAtom: PrimitiveAtom<unknown>;
-}
-
-export interface CompoundNodeState {
-  kind: "compound";
-  id: string;
-  childIdsAtom: PrimitiveAtom<string[]>;
-  boxAtom: Atom<Box>;
-  dataAtom: PrimitiveAtom<unknown>;
-}
-
-export type NodeState = AtomicNodeState | CompoundNodeState;
-
-export type NodeKind = NodeState["kind"];
-
-export const nodesByIdAtom = atom<Record<string, NodeState>>({});
-
-/**
- * The ID of the currently focused node, or `null` if nothing is focused.
- * Set after a node click; cleared after a click on the canvas background.
- */
-export const focusedNodeIdAtom = atom<string | null>(null);
-
-/**
- * Extracts the parent node ID from a composite `::` delimited ID.
- * Returns `null` for top-level nodes.
- */
-export function getParentId(nodeId: string): string | null {
-  const lastSep = nodeId.lastIndexOf("::");
-  return lastSep >= 0 ? nodeId.slice(0, lastSep) : null;
+export interface Size {
+  width: number;
+  height: number;
 }
 
 /**
- * Computes how closely related `nodeId` is to `focusedId`.
- *
- * Tier values (lower = closer):
- *  - 0: the focused node itself, or a descendant of the focused node
- *  - 1: a sibling of the focused node, or a descendant of such a sibling
- *  - 2: the parent of the focused node
- *  - 3: a sibling of the parent (or descendant thereof)
- *  - 4: the grandparent
- *  - …and so on recursively
- *  - -1: unrelated (should not happen for valid graph IDs)
+ * A node the graph draws. A node keeps its state for as long as its ID and parent stay the same, so it
+ * is not recreated when it becomes a container or stops being one.
  */
-export function computeFocusTier(nodeId: string, focusedId: string): number {
-  // Self.
-  if (nodeId === focusedId) return 0;
+export interface NodeState {
+  readonly id: string;
+  /** The container this node is drawn inside, or null at the root. */
+  readonly parentId: string | null;
+  /** The nodes drawn inside this one. A node with children is a container. */
+  readonly childIdsAtom: PrimitiveAtom<readonly string[]>;
+  readonly dataAtom: PrimitiveAtom<unknown>;
+  /** The size of the node's content, measured once it renders. Containers are sized by their children. */
+  readonly sizeAtom: PrimitiveAtom<Size | null>;
+  /**
+   * Whether the node has a position: its own, or for a container, one of its children's. A node that is not placed
+   * renders hidden, so it is still measured, and a container is drawn as a leaf until one of its children is placed.
+   */
+  readonly isPlacedAtom: Atom<boolean>;
+  /**
+   * Where the node belongs: around its position at its measured size, or around its children's target
+   * boxes plus padding. A container none of whose children has a target box yet belongs where it would as a
+   * leaf. Null until the node has both a position and a size.
+   */
+  readonly targetBoxAtom: Atom<Box | null>;
+  /** Where the node is drawn, which moves toward the target box. Only the node's motion writes it. */
+  readonly boxAtom: PrimitiveAtom<Box | null>;
+}
 
-  // Descendant of the focused node (e.g. children inside a focused module).
-  if (nodeId.startsWith(focusedId + "::")) return 0;
+export type NodeKind = "atomic" | "compound";
 
-  // Walk up the focused node's ancestor chain.
-  let ancestorId: string | null = focusedId;
-  let tier = 0;
+export const nodesByIdAtom = atom<Readonly<Record<string, NodeState>>>({});
 
-  while (ancestorId !== null) {
-    if (nodeId === ancestorId) return tier;
-
-    const parentOfAncestor = getParentId(ancestorId);
-
-    // Sibling: same parent as this ancestor.
-    if (getParentId(nodeId) === parentOfAncestor) {
-      return tier + 1;
-    }
-
-    // Descendant of a sibling of this ancestor.
-    if (parentOfAncestor !== null && nodeId.startsWith(parentOfAncestor + "::")) {
-      return tier + 1;
-    }
-
-    // Reached the root — every remaining node is a top-level peer.
-    if (parentOfAncestor === null) {
-      return tier + 1;
-    }
-
-    ancestorId = parentOfAncestor;
-    tier += 2;
+/** The smallest box enclosing `boxes`, grown by the container padding. Null when there are none. */
+export function encloseWithPadding(
+  boxes: readonly Box[],
+  padding: { top: number; right: number; bottom: number; left: number },
+): Box | null {
+  if (boxes.length === 0) {
+    return null;
   }
 
-  return -1;
-}
-
-/**
- * Returns the effective z-index for a node given the current focus state.
- *
- * Without focus every compound sits at 0 and every atomic at 2.
- * With focus the focused group is boosted highest, siblings next, then
- * parent, and so on up the ancestor chain.
- */
-export function getNodeZIndex(nodeId: string, nodeKind: NodeKind, focusedId: string | null): number {
-  const baseZ = nodeKind === "atomic" ? 2 : 0;
-
-  if (focusedId === null) return baseZ;
-
-  const tier = computeFocusTier(nodeId, focusedId);
-  if (tier < 0) return baseZ;
-
-  // Decrease boost as the relationship becomes more distant.
-  const boost = Math.max(10, 100 - tier * 15);
-  return baseZ + boost;
-}
-
-/**
- * A leaf node whose box starts as a point at `origin`; it grows to its measured size when it mounts.
- * Add it to `nodesByIdAtom`.
- */
-export function createAtomicNode(id: string, origin: Point, data: unknown): AtomicNodeState {
   return {
-    kind: "atomic",
-    id,
-    boxAtom: atom({ min: { ...origin }, max: { ...origin } }),
-    dataAtom: atom(data),
+    min: {
+      x: Math.min(...boxes.map((box) => box.min.x)) - padding.left,
+      y: Math.min(...boxes.map((box) => box.min.y)) - padding.top,
+    },
+    max: {
+      x: Math.max(...boxes.map((box) => box.max.x)) + padding.right,
+      y: Math.max(...boxes.map((box) => box.max.y)) + padding.bottom,
+    },
   };
 }
 
-/**
- * A container node whose box encloses its children's boxes plus the configured padding. Add it to
- * `nodesByIdAtom`.
- */
-export function createCompoundNode(id: string, childIds: string[], data: unknown): CompoundNodeState {
+export function createNodeState(
+  id: string,
+  parentId: string | null,
+  childIds: readonly string[],
+  data: unknown,
+): NodeState {
   const childIdsAtom = atom(childIds);
-  const boxAtom = atom((get) => {
-    const nodes = get(nodesByIdAtom);
-    const { padding } = get(nodeConfigAtom);
-    const childBoxes = get(childIdsAtom)
-      .map((childId) => nodes[childId])
-      .filter((child) => child !== undefined)
-      .map((child) => get(child.boxAtom));
+  const sizeAtom = atom<Size | null>(null);
+  const centerAtom = atom((get) => get(nodePositionsAtom).centers.get(id));
+  const isPlacedAtom: Atom<boolean> = atom((get) => {
+    const ids = get(childIdsAtom);
 
-    let minX = Math.min(...childBoxes.map((box) => box.min.x)) - padding.left;
-    let minY = Math.min(...childBoxes.map((box) => box.min.y)) - padding.top;
-    let maxX = Math.max(...childBoxes.map((box) => box.max.x)) + padding.right;
-    let maxY = Math.max(...childBoxes.map((box) => box.max.y)) + padding.bottom;
+    if (ids.length === 0) {
+      return get(centerAtom) !== undefined;
+    }
 
-    minX = isNaN(minX) ? 0 : minX;
-    minY = isNaN(minY) ? 0 : minY;
-    maxX = isNaN(maxX) ? 0 : maxX;
-    maxY = isNaN(maxY) ? 0 : maxY;
+    const nodesById = get(nodesByIdAtom);
+    return ids.some((childId) => {
+      const child = nodesById[childId];
+      return child ? get(child.isPlacedAtom) : false;
+    });
+  });
+  const targetBoxAtom: Atom<Box | null> = atom((get) => {
+    const ids = get(childIdsAtom);
+
+    if (ids.length > 0) {
+      const nodesById = get(nodesByIdAtom);
+      const childBoxes = ids.flatMap((childId) => {
+        const child = nodesById[childId];
+        const box = child ? get(child.targetBoxAtom) : null;
+        return box ? [box] : [];
+      });
+
+      const enclosing = encloseWithPadding(childBoxes, get(nodeConfigAtom).padding);
+      if (enclosing) {
+        return enclosing;
+      }
+    }
+
+    const center = get(centerAtom);
+    const size = get(sizeAtom);
+
+    if (!center || !size) {
+      return null;
+    }
 
     return {
-      min: { x: minX, y: minY },
-      max: { x: maxX, y: maxY },
+      min: { x: center.x - size.width / 2, y: center.y - size.height / 2 },
+      max: { x: center.x + size.width / 2, y: center.y + size.height / 2 },
     };
   });
 
-  return { kind: "compound", id, childIdsAtom, boxAtom, dataAtom: atom(data) };
+  return {
+    id,
+    parentId,
+    childIdsAtom,
+    dataAtom: atom(data),
+    sizeAtom,
+    isPlacedAtom,
+    targetBoxAtom,
+    boxAtom: atom<Box | null>(null),
+  };
 }

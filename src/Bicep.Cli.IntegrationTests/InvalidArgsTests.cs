@@ -34,7 +34,7 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // Missing input file (CommandLineException thrown from action)
         [DataRow(new[] { "test" }, "The input file path was not specified")]
         [DataRow(new[] { "decompile" }, "The input file path was not specified")]
@@ -166,7 +166,7 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // build: --pattern conflicts
         [DataRow(new[] { "build", "--stdout", "--pattern", "*.bicep" }, "The --stdout parameter cannot be used with the --pattern parameter")]
         [DataRow(new[] { "build", "--outfile", "foo", "--pattern", "*.bicep" }, "The --outfile parameter cannot be used with the --pattern parameter")]

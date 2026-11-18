@@ -4,12 +4,17 @@
 import type { Box } from "@/lib/math";
 import type { Graph, GraphEdge, GraphNode, MeasuredGraph } from "./api";
 
+export interface ClientGraphNode extends GraphNode {
+  /** Shown with its children hidden. A local view choice: the host graph never changes. */
+  readonly isCollapsed?: boolean;
+}
+
 /**
  * The latest graph from the host, indexed by id. Each graph update replaces it whole, so it is never
  * mutated and two updates can be compared by holding on to the previous one.
  */
 export interface ClientGraph {
-  readonly nodes: ReadonlyMap<string, GraphNode>;
+  readonly nodes: ReadonlyMap<string, ClientGraphNode>;
   readonly edges: ReadonlyMap<string, GraphEdge>;
 }
 
@@ -20,6 +25,115 @@ export function indexGraph({ nodes, edges }: Graph): ClientGraph {
     nodes: new Map(nodes.map((node) => [node.id, node])),
     edges: new Map(edges.map((edge) => [edge.id, edge])),
   };
+}
+
+/** The IDs of the nodes inside `ancestorId`, at any depth. */
+export function getDescendantIds(graph: ClientGraph, ancestorId: string): string[] {
+  return [...graph.nodes.keys()].filter((nodeId) => isDescendant(graph, nodeId, ancestorId));
+}
+
+/** Whether `nodeId` is inside `ancestorId`, at any depth. */
+export function isDescendant(graph: ClientGraph, nodeId: string, ancestorId: string): boolean {
+  for (let id = graph.nodes.get(nodeId)?.parentId ?? null; id !== null; id = graph.nodes.get(id)?.parentId ?? null) {
+    if (id === ancestorId) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/** Whether `node` is a module or resource with children to hide: the one rule for what can be collapsed. */
+export function isCollapsible(node: GraphNode | undefined): boolean {
+  return node?.hasChildren === true;
+}
+
+/** Whether expanding `node` restores its registry module: it is not restored yet, or restoring it failed. */
+export function isRestorable(node: GraphNode | undefined): boolean {
+  return node?.sourceStatus === "unrestored" || node?.sourceStatus === "error";
+}
+
+/**
+ * The modules in `next` that gained children since `previous`: remote modules that showed none, because they were
+ * not restored or their source could not be loaded, and now have some. However their children arrive, the user has
+ * not seen them, so the designer shows such a module collapsed: its node stays as it was, and nothing moves.
+ */
+export function getModulesWithNewChildren(previous: ClientGraph, next: ClientGraph): string[] {
+  return [...next.nodes.values()].flatMap((node) => {
+    const before = previous.nodes.get(node.id);
+    const wasRemoteLeaf = before?.kind === "module" && !before.hasChildren && before.sourceStatus !== null;
+
+    return wasRemoteLeaf && isCollapsible(node) ? [node.id] : [];
+  });
+}
+
+/**
+ * Project the source graph into the locally visible graph.
+ *
+ * A module listed in `collapsedModuleIds` that is collapsible is shown collapsed: its descendants are
+ * omitted, dependencies that cross its boundary terminate at the module so the relationship remains
+ * visible, and dependencies wholly inside it disappear. Other IDs in the set are ignored, so the set
+ * can hold the user's choice for modules that are absent or empty for now.
+ */
+export function projectGraph(graph: ClientGraph, collapsedModuleIds: ReadonlySet<string>): ClientGraph {
+  const validCollapsedNodeIds = new Set(
+    [...collapsedModuleIds].filter((nodeId) => isCollapsible(graph.nodes.get(nodeId))),
+  );
+
+  if (validCollapsedNodeIds.size === 0) {
+    return graph;
+  }
+
+  const visibleAncestorByNodeId = new Map<string, string>();
+
+  const getVisibleAncestor = (nodeId: string): string => {
+    const cached = visibleAncestorByNodeId.get(nodeId);
+    if (cached) {
+      return cached;
+    }
+
+    let currentId: string | null = nodeId;
+    let visibleId = nodeId;
+
+    while (currentId) {
+      if (validCollapsedNodeIds.has(currentId)) {
+        visibleId = currentId;
+      }
+      currentId = graph.nodes.get(currentId)?.parentId ?? null;
+    }
+
+    visibleAncestorByNodeId.set(nodeId, visibleId);
+    return visibleId;
+  };
+
+  const nodes = new Map<string, ClientGraphNode>();
+  for (const node of graph.nodes.values()) {
+    const visibleId = getVisibleAncestor(node.id);
+    if (visibleId !== node.id) {
+      continue;
+    }
+
+    nodes.set(node.id, validCollapsedNodeIds.has(node.id) ? { ...node, isCollapsed: true } : node);
+  }
+
+  const edges = new Map<string, GraphEdge>();
+  const endpointPairs = new Set<string>();
+
+  for (const edge of graph.edges.values()) {
+    const sourceId = getVisibleAncestor(edge.sourceId);
+    const targetId = getVisibleAncestor(edge.targetId);
+    const endpointPair = `${sourceId}\0${targetId}`;
+
+    if (sourceId === targetId || endpointPairs.has(endpointPair)) {
+      continue;
+    }
+
+    endpointPairs.add(endpointPair);
+    const id = sourceId === edge.sourceId && targetId === edge.targetId ? edge.id : `${sourceId}->${targetId}`;
+    edges.set(id, { id, sourceId, targetId });
+  }
+
+  return { nodes, edges };
 }
 
 /**
@@ -68,9 +182,14 @@ export function clientGraphsRenderEqually(left: ClientGraph, right: ClientGraph)
       leftNode.kind !== rightNode.kind ||
       leftNode.parentId !== rightNode.parentId ||
       leftNode.type !== rightNode.type ||
+      leftNode.symbolName !== rightNode.symbolName ||
       leftNode.isCollection !== rightNode.isCollection ||
       leftNode.hasChildren !== rightNode.hasChildren ||
-      leftNode.hasError !== rightNode.hasError
+      leftNode.hasError !== rightNode.hasError ||
+      leftNode.sourceStatus !== rightNode.sourceStatus ||
+      leftNode.sourceError !== rightNode.sourceError ||
+      leftNode.isRemote !== rightNode.isRemote ||
+      leftNode.isCollapsed !== rightNode.isCollapsed
     ) {
       return false;
     }

@@ -98,6 +98,55 @@ using var client = await clientFactory.DownloadAndInitialize(
     cancellationToken);
 ```
 
+### Resolving a version from project configuration
+
+Set `SourceFilePath` to opt in to version pinning from `bicepconfig.json` before downloading
+the CLI:
+
+```csharp
+using var client = await clientFactory.Initialize(
+    new BicepClientConfiguration { SourceFilePath = "./main.bicepparam" },
+    cancellationToken);
+```
+
+The resolver searches the source file's directory and its ancestors for the nearest
+`bicepconfig.json`, then follows its relative `extends` chain. The nearest layer declaring
+a non-null `bicep.version` wins. A missing or null version inherits from the next layer;
+an empty string is invalid. JSON comments and trailing commas are supported. Only `extends`
+and `bicep.version` are read; the CLI remains responsible for other configuration settings.
+
+For example:
+
+```json
+{
+  "bicep": {
+    "version": ">=0.40.0, <1.0.0"
+  }
+}
+```
+
+Exact pins (including `=0.40.1` and `>=0.40.1, <=0.40.1`) are installed directly without
+listing releases. Ranges select the highest matching published release. The supported operators
+are `=`, `>`, `>=`, `<`, and `<=`, with at most one lower and one upper bound separated by a
+comma. Omitted minor or patch components default to zero; npm operators such as `^` and `~`
+and prerelease labels are not supported.
+
+If `BicepVersion` is also specified, it must satisfy the effective constraint. Invalid
+configuration chains or constraints, conflicting explicit versions, and ranges with no matching
+release throw rather than falling back to latest. If no constraint is found, the existing
+explicit-version/latest behavior is preserved. Without `SourceFilePath`, configuration files
+are not inspected. `SourceFilePath` cannot be combined with `ExistingCliPath`.
+
+Range resolution considers only recent published releases, not the entire release history;
+exact pins can still install older versions. Successful release listings are cached for the
+factory's lifetime, including empty listings. Latest-version lookups are also cached for the
+factory's lifetime; failed or canceled fetches can be retried.
+Create a new factory to refresh the available releases.
+
+Version selection happens when a client is initialized, not separately for every RPC request.
+When using a pooled factory, clients for the same configuration are reused until idle eviction;
+create a new factory to immediately pick up changes to a project's pin.
+
 ### Using an existing Bicep installation
 
 If you already have Bicep installed locally, you can initialize the client directly from the path
@@ -257,6 +306,25 @@ if (result.Contents is not null)
 ```
 
 Template and example settings are resolved from the Bicep file's `bicepconfig.json`. Optional custom template values are supplied with the request.
+
+### Use an explicit configuration file
+
+> [!NOTE]
+> Requires Bicep CLI 0.48.0 or later. Setting `ConfigPath` with an older Bicep CLI throws an `InvalidOperationException`.
+
+By default, each Bicep file uses the nearest `bicepconfig.json` found in its directory or an ancestor directory. Every request
+that compiles files (`Compile`, `CompileParams`, `Format`, `GetMetadata`, `GetFileReferences`, `GetDeploymentGraph`,
+`GetSnapshot`, and `GenerateDocs`) accepts an optional `ConfigPath` that replaces this discovery for every file loaded by the request,
+including referenced local modules. This is equivalent to the `--config` option of the Bicep CLI. The file can have any name and can
+use `extends`. Relative paths are resolved from the Bicep CLI working directory. The following example compiles a file using a
+production configuration:
+
+```csharp
+var result = await client.Compile(new CompileRequest("./main.bicep")
+{
+    ConfigPath = "./bicepconfig.prod.json",
+});
+```
 
 ### Get version
 

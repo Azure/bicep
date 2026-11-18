@@ -2,6 +2,8 @@
 
 > [!WARNING]
 > Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.
+>
+> Microsoft customer support cannot provide assistance for issues that are caused by the use of an experimental feature, so use at your own risk.
 
 Bicep exposes experimental features as a means of previewing new functionality that hasn't yet been stabilized for general availability. This provides a valuable way for us to release functionality and collect feedback, without affecting existing users, or introducing features that may require breaking changes.
 
@@ -49,7 +51,7 @@ includes enhancements for Deployment stacks extensibility integration. This feat
 
 ### `ociEnabled`
 
-Enables publishing and restoring Bicep modules and extensions to and from non-Azure OCI-compliant registries (e.g. GitHub Container Registry, Docker Hub, self-hosted registries) using the ORAS transport. For more information, see [Using OCI Registries](./experimental/oci-registries.md).
+Switches all OCI registry operations to the ORAS transport, including Azure Container Registry (ACR), and enables Docker-based authentication for non-Azure registries (e.g. GitHub Container Registry, Docker Hub, self-hosted registries). When disabled (the default), Bicep continues to use the ACR SDK. For more information, see [Using OCI Registries](./experimental/oci-registries.md).
 
 ### `patch`
 

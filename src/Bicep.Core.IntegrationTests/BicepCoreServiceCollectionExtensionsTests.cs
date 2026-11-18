@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Artifacts.Registries;
+using Bicep.Core.Artifacts.Resolution;
+using Bicep.Core.Artifacts.Restore;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using FluentAssertions;
@@ -12,6 +16,32 @@ namespace Bicep.Core.UnitTests;
 [TestClass]
 public class BicepCoreServiceCollectionExtensionsTests : TestBase
 {
+    [TestMethod]
+    public void Registries_are_registered_once_and_share_their_concrete_instances()
+    {
+        using var services = new ServiceCollection().AddBicepCore().AddBicepCore().BuildServiceProvider();
+        var registries = services.GetServices<IRemoteArtifactRegistry>().ToArray();
+
+        registries.Should().HaveCount(2);
+        registries.Should().ContainSingle(registry => ReferenceEquals(registry, services.GetRequiredService<OciArtifactRegistry>()));
+        registries.Should().ContainSingle(registry => ReferenceEquals(registry, services.GetRequiredService<TemplateSpecArtifactRegistry>()));
+    }
+
+    [TestMethod]
+    public void Artifact_services_can_be_overridden_independently()
+    {
+        var resolver = StrictMock.Of<IArtifactReferenceResolver>().Object;
+        var restorer = StrictMock.Of<IRemoteArtifactRestorer>().Object;
+
+        using var resolverServices = new ServiceCollection().AddSingleton(resolver).AddBicepCore().BuildServiceProvider();
+        resolverServices.GetRequiredService<IArtifactReferenceResolver>().Should().BeSameAs(resolver);
+        resolverServices.GetRequiredService<IRemoteArtifactRestorer>().Should().BeOfType<RemoteArtifactRestorer>();
+
+        using var restorerServices = new ServiceCollection().AddSingleton(restorer).AddBicepCore().BuildServiceProvider();
+        restorerServices.GetRequiredService<IRemoteArtifactRestorer>().Should().BeSameAs(restorer);
+        restorerServices.GetRequiredService<IArtifactReferenceResolver>().Should().BeOfType<ArtifactReferenceResolver>();
+    }
+
     [TestMethod]
     public async Task BicepCompiler_can_be_constructed()
     {
@@ -33,4 +63,3 @@ public class BicepCoreServiceCollectionExtensionsTests : TestBase
         result.Template.Should().Contain("[parameters('foo')]");
     }
 }
-

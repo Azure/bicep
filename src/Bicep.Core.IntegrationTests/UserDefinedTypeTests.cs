@@ -818,6 +818,204 @@ param myParam string
     }
 
     [TestMethod]
+    [DataRow("string", "settings.value", "'a' | 'b'", "string")]
+    [DataRow("string?", "settings.?value", "'a' | 'b'", "null | string")]
+    [DataRow("string?", "settings.?value ?? 'a'", "'a' | 'b'", "'a' | string")]
+    [DataRow("int", "settings.value", "1", "int")]
+    [DataRow("bool", "settings.value", "true", "bool")]
+    public void Primitive_values_that_might_be_allowed_produce_warnings_when_assigned_to_literal_types(string propertyType, string expression, string targetType, string actualType)
+    {
+        var result = CompilationHelper.Compile($$"""
+            param settings { value: {{propertyType}} }
+
+            param defaulted {{targetType}} = {{expression}}
+
+            output value {{targetType}} = {{expression}}
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP033", DiagnosticLevel.Warning, $"Expected a value of type \"{targetType}\" but the provided value is of type \"{actualType}\"."),
+            ("BCP033", DiagnosticLevel.Warning, $"Expected a value of type \"{targetType}\" but the provided value is of type \"{actualType}\"."),
+        ]);
+        result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    public void Primitive_values_that_might_be_allowed_produce_warnings_when_assigned_to_module_parameters()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                param settings {
+                    protocol: string
+                    protocols: string[]
+                    mode: string?
+                }
+
+                module mod 'mod.bicep' = {
+                    name: 'mod'
+                    params: {
+                        protocol: settings.protocol
+                        protocols: settings.protocols
+                        mode: settings.?mode ?? 'a'
+                    }
+                }
+                """),
+            ("mod.bicep", """
+                @allowed(['http', 'https'])
+                param protocol string
+
+                @allowed(['http', 'https'])
+                param protocols string[]
+
+                @allowed(['a', 'b'])
+                param mode string
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP036", DiagnosticLevel.Warning, "The property \"protocol\" expected a value of type \"'http' | 'https'\" but the provided value is of type \"string\"."),
+            ("BCP036", DiagnosticLevel.Warning, "The property \"protocols\" expected a value of type \"'http' | 'https'\" but the provided value is of type \"string\"."),
+            ("BCP036", DiagnosticLevel.Warning, "The property \"mode\" expected a value of type \"'a' | 'b'\" but the provided value is of type \"'a' | string\"."),
+        ]);
+        result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    [Timeout(10_000)]
+    public void Loose_assignment_probes_do_not_expand_variable_alias_chains()
+    {
+        var aliases = string.Join('\n', Enumerable.Range(1, 24).Select(i => $"var v{i} = v{i - 1}"));
+        var result = CompilationHelper.Compile(
+            ("main.bicep", $$"""
+                param settings { value: string? }
+                var v0 = settings.?value ?? 'a'
+                {{aliases}}
+
+                module mod 'mod.bicep' = {
+                    name: 'mod'
+                    params: { value: v24 }
+                }
+                output value 'a' | 'b' = v24
+                """),
+            ("mod.bicep", "param value 'a' | 'b'"));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP036", DiagnosticLevel.Warning, "The property \"value\" expected a value of type \"'a' | 'b'\" but the provided value is of type \"'a' | string\"."),
+            ("BCP033", DiagnosticLevel.Warning, "Expected a value of type \"'a' | 'b'\" but the provided value is of type \"'a' | string\"."),
+        ]);
+        result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    [DataRow("@minLength(5)", "string", "'a' | 'b'", "string", DiagnosticLevel.Error)]
+    [DataRow("@maxLength(1)", "string", "'aa' | 'bb'", "string", DiagnosticLevel.Error)]
+    [DataRow("@minValue(5)", "int", "1", "int", DiagnosticLevel.Error)]
+    [DataRow("@maxValue(1)", "int", "5", "int", DiagnosticLevel.Error)]
+    [DataRow("", "resourceInput<'Microsoft.Storage/storageAccounts@2023-05-01'>.name", "'!!!' | '???'", "string", DiagnosticLevel.Error)]
+    [DataRow("@minLength(5)", "string", "'longer' | 'short'", "string", DiagnosticLevel.Warning)]
+    [DataRow("@minValue(5)", "int", "5", "int", DiagnosticLevel.Warning)]
+    public void Loose_assignment_probes_preserve_refinements_through_aliases(string decorator, string sourceType, string targetType, string actualType, DiagnosticLevel level)
+    {
+        var result = CompilationHelper.Compile($$"""
+            param settings {
+                {{decorator}}
+                value: {{sourceType}}
+            }
+            var first = settings.value
+            var second = first
+            output value {{targetType}} = second
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP033", level, $"Expected a value of type \"{targetType}\" but the provided value is of type \"{actualType}\"."),
+        ]);
+    }
+
+    [TestMethod]
+    public void Primitive_values_keep_errors_where_the_compiler_trusts_the_literal_type()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                param settings { path: string, kind: string, identityType: string }
+
+                // ARM doesn't check typed variables, and the literal type would let loadTextContent read the wrong file.
+                var path 'README.md' = settings.path
+                output payload string = loadTextContent(path)
+
+                module mod 'mod.bicep' = {
+                    name: 'mod'
+                    params: {
+                        // A discriminator that can't be determined turns off checking for the rest of the object.
+                        value: { kind: settings.kind, size: 1 }
+                    }
+                    // Only a module's params are checked at deployment as parameters of the nested deployment.
+                    identity: { type: settings.identityType }
+                }
+                """),
+            ("README.md", "readme"),
+            ("mod.bicep", """
+                @discriminator('kind')
+                type shape = { kind: 'a', size: int } | { kind: 'b', size: int }
+
+                param value shape
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"'README.md'\" but the provided value is of type \"string\"."),
+            ("BCP036", DiagnosticLevel.Error, "The property \"kind\" expected a value of type \"'a' | 'b'\" but the provided value is of type \"string\"."),
+            ("BCP036", DiagnosticLevel.Error, "The property \"type\" expected a value of type \"'None' | 'UserAssigned'\" but the provided value is of type \"string\"."),
+        ]);
+    }
+
+    [TestMethod]
+    [DataRow("settings.size", "'a' | 'b'", "int")]
+    [DataRow("settings.name", "1", "string")]
+    [DataRow("settings.name", "int", "string")]
+    [DataRow("condition ? settings.name : settings.size", "'a' | 'b'", "int | string")]
+    [DataRow("length(settings.name)", "-1", "int")]
+    [DataRow("settings.longName", "'a'", "string")]
+    [DataRow("condition ? settings.shortName : settings.longName", "'four'", "string | string")]
+    [DataRow("condition ? settings.shortName : settings.longName", "'a'", "string | string")]
+    [DataRow("condition ? settings.small : settings.large", "5", "int | int")]
+    [DataRow("settings.storageName", "'!!!'", "string")]
+    public void Values_that_can_never_be_allowed_produce_errors_when_assigned_to_literal_types(string expression, string targetType, string actualType)
+    {
+        var result = CompilationHelper.Compile($$"""
+            param condition bool
+            param settings {
+                name: string
+                size: int
+                @minLength(10)
+                longName: string
+                @maxLength(2)
+                shortName: string
+                @maxValue(1)
+                small: int
+                @minValue(10)
+                large: int
+                storageName: resourceInput<'Microsoft.Storage/storageAccounts@2023-05-01'>.name
+            }
+
+            output value {{targetType}} = {{expression}}
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP033", DiagnosticLevel.Error, $"Expected a value of type \"{targetType}\" but the provided value is of type \"{actualType}\"."),
+        ]);
+    }
+
+    [TestMethod]
+    public void Loosely_typed_parameters_are_assigned_to_literal_types_without_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+            param mode string
+
+            output value 'a' | 'b' = mode
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
     public void Self_reference_permitted_in_object_type_additional_properties()
     {
         var result = CompilationHelper.Compile("""
@@ -1189,7 +1387,7 @@ param myParam string
     }
 
     // https://github.com/azure/bicep/issues/12920
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test.bar", "BCP053", """The type "{ foo: { bar: string } }" does not contain property "bar". Available properties include "foo".""")]
     [DataRow("{ foo: string }.foo", "BCP391", "Type member access is only supported on a reference to a named type.")]
     public void Invalid_type_property_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
@@ -1386,7 +1584,7 @@ param myParam string
             """));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test[1]", "BCP311", """The provided index value of "1" is not valid for type "[{ bar: string }]". Indexes for this type must be between 0 and 0.""")]
     [DataRow("test[-1]", "BCP387", "Indexing into a type requires an integer greater than or equal to 0.")]
     [DataRow("[string][0]", "BCP391", "Type member access is only supported on a reference to a named type.")]
@@ -1455,7 +1653,7 @@ param myParam string
             """));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test.*", "BCP389", """The type "{ foo: string }" does not declare an additional properties type.""")]
     [DataRow("object.*", "BCP389", """The type "object" does not declare an additional properties type.""")]
     [DataRow("{ *: string }.*", "BCP391", "Type member access is only supported on a reference to a named type.")]
@@ -1564,7 +1762,7 @@ param myParam string
             """));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test[*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
     [DataRow("array[*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
     [DataRow("test[0][*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
@@ -1855,7 +2053,7 @@ param myParam string
         );
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("type resourceInput = resourceInput<'Microsoft.Compute/virtualMachines'>")] // should be caught at syntax level
     [DataRow("type resourceInput = resourceInput<'Microsoft.Compute/virtualMachines'>.properties")] // should be caught by type manager
     public void Parameterized_type_recursion_raises_diagnostic(string template)
@@ -1871,7 +2069,7 @@ param myParam string
     }
 
     // https://www.github.com/Azure/bicep/issues/15277
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("type resourceDerived = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings", "$.definitions.resourceDerived")]
     [DataRow("param resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings", "$.parameters.resourceDerived")]
     [DataRow("output resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings = 'foo'", "$.outputs.resourceDerived")]

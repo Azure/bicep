@@ -43,8 +43,8 @@ namespace Bicep.LangServer.IntegrationTests
             await DefaultServer.DisposeAsync();
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Overlapping_tokens_are_not_returned(DataSet dataSet)
         {
             var uri = DocumentUri.From($"{dataSet.Name}");
@@ -77,8 +77,8 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetParamsData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetParamsData))]
         public async Task Correct_semantic_tokens_are_returned_for_params_file(string paramFileText, TextSpan[] spans, SemanticTokenType[] tokenType)
         {
             var baseFilePath = $"file:///{TestContext.TestName}_{Guid.NewGuid():D}";

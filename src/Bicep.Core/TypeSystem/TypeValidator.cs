@@ -16,7 +16,7 @@ namespace Bicep.Core.TypeSystem
 {
     public class TypeValidator
     {
-        private delegate void TypeMismatchDiagnosticWriter(TypeSymbol targetType, TypeSymbol expressionType, SyntaxBase expression);
+        private delegate void TypeMismatchDiagnosticWriter(TypeSymbol targetType, TypeSymbol expressionType, SyntaxBase expression, bool mightBeAssignable);
 
         private readonly ITypeManager typeManager;
 
@@ -33,6 +33,9 @@ namespace Bicep.Core.TypeSystem
             SyntaxBase? OriginSyntax,
             TypeMismatchDiagnosticWriter? OnTypeMismatch,
             bool IsResourceDeclaration,
+            bool IsCheckedAtDeployment,
+            bool IsModuleBody,
+            bool IsLooseAssignmentProbe,
             HashSet<(SyntaxBase expression, TypeSymbol expressionType, TypeSymbol targetType)> currentlyProcessing);
 
         private TypeValidator(ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
@@ -200,7 +203,10 @@ namespace Bicep.Core.TypeSystem
             _ => targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch),
         };
 
-        public static TypeSymbol NarrowTypeAndCollectDiagnostics(ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter, SyntaxBase expression, TypeSymbol targetType, bool isResourceDeclaration = false)
+        /// <param name="isCheckedAtDeployment">Whether ARM checks the assigned value against the target type at deployment
+        /// (as it does for outputs and parameter defaults), so a string, int or bool that might be one of the target's literal
+        /// values can be reported as a warning instead of an error. A module's params are always treated this way.</param>
+        public static TypeSymbol NarrowTypeAndCollectDiagnostics(ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter, SyntaxBase expression, TypeSymbol targetType, bool isResourceDeclaration = false, bool isCheckedAtDeployment = false)
         {
             var config = new TypeValidatorConfig(
                 SkipTypeErrors: false,
@@ -209,6 +215,9 @@ namespace Bicep.Core.TypeSystem
                 OriginSyntax: null,
                 OnTypeMismatch: null,
                 IsResourceDeclaration: isResourceDeclaration,
+                IsCheckedAtDeployment: isCheckedAtDeployment,
+                IsModuleBody: false,
+                IsLooseAssignmentProbe: false,
                 currentlyProcessing: new());
 
             var validator = new TypeValidator(typeManager, binder, parsingErrorLookup, diagnosticWriter);
@@ -256,7 +265,7 @@ namespace Bicep.Core.TypeSystem
                     }
                 case ModuleType targetModuleType:
                     {
-                        var narrowedBody = NarrowType(config, expression, targetModuleType.Body.Type);
+                        var narrowedBody = NarrowType(config with { IsModuleBody = true }, expression, targetModuleType.Body.Type);
 
                         return new ModuleType(targetModuleType.Name, targetModuleType.ValidParentScopes, narrowedBody);
                     }
@@ -287,14 +296,22 @@ namespace Bicep.Core.TypeSystem
                     return NarrowType(config, expression, nonNullableExpressionType, targetType);
                 }
 
-                // fundamentally different types - cannot assign
+                // A string, int or bool might still hold one of the literal values the target allows. Where ARM checks the
+                // value against the target at deployment, we warn instead of blocking compilation, unless a range or length
+                // check proves the value can never be allowed. Elsewhere the compiler trusts the declared type (e.g. a typed
+                // variable's literal type can feed compile-time functions), so the mismatch stays an error. Otherwise these
+                // are fundamentally different types and cannot be assigned.
+                var mightBeAssignable = config.IsCheckedAtDeployment &&
+                    TypeHelper.WouldBeAssignableIfLoose(expressionType, targetType, out var looseExpressionType) &&
+                    !HasNarrowingErrors(config, expression, looseExpressionType, targetType);
+
                 if (config.OnTypeMismatch is not null)
                 {
-                    config.OnTypeMismatch(targetType, expressionType, expression);
+                    config.OnTypeMismatch(targetType, expressionType, expression, mightBeAssignable);
                 }
                 else
                 {
-                    diagnosticWriter.Write(config.OriginSyntax ?? expression, x => x.ExpectedValueTypeMismatch(ShouldWarn(targetType), targetType, expressionType));
+                    diagnosticWriter.Write(config.OriginSyntax ?? expression, x => x.ExpectedValueTypeMismatch(mightBeAssignable || ShouldWarn(targetType), targetType, expressionType));
                 }
 
                 return targetType;
@@ -347,7 +364,8 @@ namespace Bicep.Core.TypeSystem
                 return narrowedArray;
             }
 
-            if (expression is VariableAccessSyntax variableAccess &&
+            if (!config.IsLooseAssignmentProbe &&
+                expression is VariableAccessSyntax variableAccess &&
                 NarrowVariableAccessType(config, variableAccess, targetType) is TypeSymbol narrowedVariableAccess)
             {
                 return narrowedVariableAccess;
@@ -371,6 +389,21 @@ namespace Bicep.Core.TypeSystem
             IfConditionSyntax ifCondition => ifCondition.Body,
             _ => expression,
         };
+
+        private bool HasNarrowingErrors(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, TypeSymbol targetType)
+        {
+            // Narrowing a union to a single literal doesn't check each member's range or length, so check each member on its own.
+            IEnumerable<TypeSymbol> members = expressionType is UnionType union ? union.Members.Select(member => member.Type) : [expressionType];
+
+            return members.Any(member =>
+            {
+                var diagnostics = ToListDiagnosticWriter.Create();
+                // Expanding an alias would replace this member with the initializer's full type and repeat the probe.
+                new TypeValidator(typeManager, binder, parsingErrorLookup, diagnostics).NarrowType(config with { OnTypeMismatch = null, IsLooseAssignmentProbe = true }, expression, member, targetType);
+
+                return diagnostics.GetDiagnostics().Any(diagnostic => diagnostic.IsError());
+            });
+        }
 
         private static bool AreLambdaTypesAssignable(LambdaType source, LambdaType target)
         {
@@ -580,6 +613,14 @@ namespace Bicep.Core.TypeSystem
                         targetType.RawStringValue.Length));
                     return expressionType;
                 }
+
+                if (expressionString.Pattern is not null && !TypeHelper.MatchesPattern(expressionString.Pattern, targetType.RawStringValue))
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SuppliedStringDoesNotMatchExpectedPattern(
+                        config.IsResourceDeclaration || ShouldWarn(targetType),
+                        expressionString.Pattern));
+                    return expressionType;
+                }
             }
 
             // outside of the cases handled above, if anything was assignable to a literal target, the target will always be the most narrow type
@@ -686,7 +727,7 @@ namespace Bicep.Core.TypeSystem
                     var newConfig = config with
                     {
                         SkipTypeErrors = true,
-                        OnTypeMismatch = (expected, actual, position) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatch(ShouldWarn(targetType), expected, actual)),
+                        OnTypeMismatch = (expected, actual, position, mightBeAssignable) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatch(mightBeAssignable || ShouldWarn(targetType), expected, actual)),
                     };
 
                     var narrowedItem = NarrowType(newConfig, item.Value, itemTarget);
@@ -700,7 +741,7 @@ namespace Bicep.Core.TypeSystem
                     var newConfig = config with
                     {
                         SkipTypeErrors = true,
-                        OnTypeMismatch = (expected, actual, position) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatchSpread(ShouldWarn(targetType), expected, actual)),
+                        OnTypeMismatch = (expected, actual, position, mightBeAssignable) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatchSpread(mightBeAssignable || ShouldWarn(targetType), expected, actual)),
                     };
 
                     var narrowedSpread = NarrowType(newConfig, spread.Expression, spreadTarget);
@@ -1149,6 +1190,11 @@ namespace Bicep.Core.TypeSystem
                                 shouldWarn: (config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(declaredProperty.TypeReference.Type),
                                 propertyName: declaredProperty.Name,
                                 showTypeInaccuracyClause: config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)),
+                            // A module's params become the nested deployment's parameters, which ARM checks at deployment.
+                            // Other module properties, such as extension configs, aren't checked that way.
+                            IsCheckedAtDeployment = config.IsCheckedAtDeployment ||
+                                (config.IsModuleBody && LanguageConstants.IdentifierComparer.Equals(declaredProperty.Name, LanguageConstants.ModuleParamsPropertyName)),
+                            IsModuleBody = false,
                         };
 
                         var propertyExpression = declaredPropertySyntax?.Value ?? expression;
@@ -1247,6 +1293,7 @@ namespace Bicep.Core.TypeSystem
                             SkipTypeErrors = true,
                             DisallowAny = targetType.AdditionalProperties.Flags.HasFlag(TypePropertyFlags.DisallowAny),
                             OnTypeMismatch = GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType.AdditionalProperties.TypeReference.Type), extraProperty.Key, false),
+                            IsModuleBody = false,
                         };
 
                         // append "| null" to the type on non-required properties
@@ -1313,8 +1360,9 @@ namespace Bicep.Core.TypeSystem
 
         private TypeMismatchDiagnosticWriter GetPropertyMismatchDiagnosticWriter(TypeValidatorConfig config, bool shouldWarn, string propertyName, bool showTypeInaccuracyClause)
         {
-            return (expectedType, actualType, errorExpression) =>
+            return (expectedType, actualType, errorExpression, mightBeAssignable) =>
             {
+                var warnInsteadOfError = shouldWarn || mightBeAssignable;
                 diagnosticWriter.Write(
                     config.OriginSyntax ?? errorExpression,
                     x =>
@@ -1324,15 +1372,15 @@ namespace Bicep.Core.TypeSystem
                         if (sourceDeclaration is not null)
                         {
                             // only look up suggestions if we're not sourcing this type from another declaration.
-                            return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, propertyName, expectedType, actualType, showTypeInaccuracyClause);
+                            return x.PropertyTypeMismatch(warnInsteadOfError, sourceDeclaration, propertyName, expectedType, actualType, showTypeInaccuracyClause);
                         }
 
                         if (actualType is StringLiteralType actualStringLiteral && TryGetStringLiteralSuggestion(actualStringLiteral, expectedType) is { } suggestion)
                         {
-                            return x.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, propertyName, expectedType, actualType.Name, suggestion);
+                            return x.PropertyStringLiteralMismatchWithSuggestion(warnInsteadOfError, propertyName, expectedType, actualType.Name, suggestion);
                         }
 
-                        return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, propertyName, expectedType, actualType, showTypeInaccuracyClause);
+                        return x.PropertyTypeMismatch(warnInsteadOfError, sourceDeclaration, propertyName, expectedType, actualType, showTypeInaccuracyClause);
                     });
             };
         }

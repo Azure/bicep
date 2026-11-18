@@ -1,92 +1,69 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { EdgeAtomValue, NodeState } from "../atoms";
+import type { EdgeStacking } from "../paint-order";
+
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
-import { styled } from "styled-components";
-import { edgesAtom } from "../atoms/edges";
-import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
+import { edgesAtom, nodesByIdAtom } from "../atoms";
 import { StraightEdge } from "./StraightEdge";
 
-const $Svg = styled.svg<{ $zIndex: number }>`
-  overflow: visible;
-  position: absolute;
-  pointer-events: none;
-  z-index: ${({ $zIndex }) => $zIndex};
-`;
-
-/**
- * Outer edges sit below all nodes (z-index: -1).
- * Inner edges sit above their parent compound but below its atomic children,
- * with a per-group z-index that tracks the compound's focus elevation.
- */
-export function OuterEdgeLayer() {
-  const edges = useAtomValue(edgesAtom);
-
-  const filtered = useMemo(() => {
-    return edges.filter((edge) => {
-      const fromParent = edge.fromId.includes("::") ? edge.fromId.split("::").slice(0, -1).join("::") : null;
-      const toParent = edge.toId.includes("::") ? edge.toId.split("::").slice(0, -1).join("::") : null;
-      return !(fromParent !== null && toParent !== null && fromParent === toParent);
-    });
-  }, [edges]);
-
-  if (filtered.length === 0) {
-    return null;
-  }
-
-  return (
-    <$Svg $zIndex={-1}>
-      {filtered.map((edge) => (
-        <StraightEdge key={edge.id} {...edge} />
-      ))}
-    </$Svg>
-  );
+export interface EdgeLayerProps {
+  exitingNodes: readonly NodeState[];
+  exitingEdges: readonly EdgeAtomValue[];
+  /** An edge to a node fading in fades in with it. */
+  enteringNodeIds: ReadonlySet<string>;
 }
 
-export function InnerEdgeLayer() {
+/**
+ * Draws every edge, stacked among the children of its endpoints' parents (see `getEdgeZIndex`). An edge that is
+ * fading out with its nodes is stacked by the nearest ancestor still shown, such as a container that closed.
+ */
+export function EdgeLayer({ exitingNodes, exitingEdges, enteringNodeIds }: EdgeLayerProps) {
   const edges = useAtomValue(edgesAtom);
-  const focusedNodeId = useAtomValue(focusedNodeIdAtom);
+  const nodesById = useAtomValue(nodesByIdAtom);
 
-  // Group inner edges by their shared parent compound ID so each
-  // group can be rendered at the correct z-index relative to its
-  // parent compound (which may be elevated due to focus).
-  const groups = useMemo(() => {
-    const map = new Map<string, typeof edges>();
-
-    for (const edge of edges) {
-      const fromParent = edge.fromId.includes("::") ? edge.fromId.split("::").slice(0, -1).join("::") : null;
-      const toParent = edge.toId.includes("::") ? edge.toId.split("::").slice(0, -1).join("::") : null;
-
-      if (fromParent !== null && toParent !== null && fromParent === toParent) {
-        let group = map.get(fromParent);
-        if (!group) {
-          group = [];
-          map.set(fromParent, group);
+  return useMemo(() => {
+    const exitingById = new Map(exitingNodes.map((node) => [node.id, node]));
+    const resolve = (id: string) => nodesById[id] ?? exitingById.get(id);
+    const getShownParentId = (node: NodeState): string | null => {
+      for (let id = node.parentId; id !== null; id = resolve(id)?.parentId ?? null) {
+        if (nodesById[id]) {
+          return id;
         }
-        group.push(edge);
       }
-    }
 
-    return map;
-  }, [edges]);
+      return null;
+    };
 
-  if (groups.size === 0) {
-    return null;
-  }
+    return [
+      ...edges.map((edge) => ({ edge, isExiting: false })),
+      ...exitingEdges.map((edge) => ({ edge, isExiting: true })),
+    ].flatMap(({ edge, isExiting }) => {
+      const from = resolve(edge.fromId);
+      const to = resolve(edge.toId);
+      if (!from || !to) {
+        return [];
+      }
 
-  return (
-    <>
-      {[...groups.entries()].map(([parentId, groupEdges]) => {
-        const parentZ = getNodeZIndex(parentId, "compound", focusedNodeId);
-        return (
-          <$Svg key={parentId} $zIndex={parentZ + 1}>
-            {groupEdges.map((edge) => (
-              <StraightEdge key={edge.id} {...edge} />
-            ))}
-          </$Svg>
-        );
-      })}
-    </>
-  );
+      const stacking: EdgeStacking = {
+        parentIds: [getShownParentId(from), getShownParentId(to)],
+        endpointIds: [from.id, to.id],
+      };
+      const isEntering = enteringNodeIds.has(edge.fromId) || enteringNodeIds.has(edge.toId);
+
+      return [
+        <StraightEdge
+          key={edge.id}
+          id={edge.id}
+          from={from}
+          to={to}
+          stacking={stacking}
+          isEntering={isEntering}
+          isExiting={isExiting}
+        />,
+      ];
+    });
+  }, [edges, enteringNodeIds, exitingEdges, exitingNodes, nodesById]);
 }

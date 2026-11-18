@@ -22,9 +22,8 @@ public class PatchingConfigurationManager : IBicepConfigurationManager
     public IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri)
         => new PatchingChain(inner.GetConfigurationChain(sourceFileUri), patchFunc);
 
-    public void PurgeCacheForAffectedChains(IOUri changedFileUri) => inner.PurgeCacheForAffectedChains(changedFileUri);
-    public void PurgeAllCaches() => inner.PurgeAllCaches();
-    public void PurgeChainCache() => inner.PurgeChainCache();
+    public bool InvalidateFile(IOUri fileUri) => inner.InvalidateFile(fileUri);
+    public void InvalidateAll() => inner.InvalidateAll();
 
     private sealed class PatchingChain(IBicepConfigurationChain inner, Func<IBicepConfiguration, IBicepConfiguration> patchFunc) : IBicepConfigurationChain
     {

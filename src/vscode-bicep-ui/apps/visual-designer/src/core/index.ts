@@ -4,6 +4,7 @@
 export { GraphActionsProvider } from "./components/GraphActionsProvider";
 export { useGraphActions } from "./context/use-graph-actions";
 export { useDocumentSync } from "./hooks/use-document-sync";
+export { useIsMotionReduced } from "./hooks/use-is-motion-reduced";
 export { useSettingsSync } from "./hooks/use-settings-sync";
 export {
   canRedoAtom,
@@ -11,13 +12,24 @@ export {
   canvasElementAtom,
   documentErrorCountAtom,
   documentUriAtom,
+  focusedNodeIdAtom,
+  focusNodeAtom,
   graphHasNodesAtom,
+  graphReceivedAtom,
   isGraphChangeInProgressAtom,
   isColorThemeMatchedSettingAtom,
   isResourceEditingEnabledAtom,
   motionPolicyAtom,
   pendingResourcesAtom,
+  raisedNodeIdsAtom,
+  restoringModuleIdsAtom,
+  selectedNodeIdsAtom,
+  selectNodeAtom,
+  setSelectedNodeIdsAtom,
+  shownGraphAtom,
   targetScopeAtom,
+  toggleNodeSelectedAtom,
 } from "./atoms";
 export * from "./api";
+export type { CanvasNodeData } from "./show-graph";
 export * from "./types";

@@ -23,7 +23,7 @@ public class VisualPaletteHandlerTests
 {
     private static readonly DocumentUri DocumentUri = DocumentUri.From("file:///main.bicep");
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("", "resourceGroup")]
     [DataRow("targetScope = 'resourceGroup'", "resourceGroup")]
     [DataRow("targetScope = 'subscription'", "subscription")]
@@ -33,7 +33,7 @@ public class VisualPaletteHandlerTests
     public async Task GraphUpdate_ReturnsScopeEvenForEmptyOrInvalidDocuments(string text, string expectedScope)
     {
         var manager = CreateCompilationManager(text);
-        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object);
+        var handler = CreateGraphHandler(manager.Object);
 
         var response = await handler.Handle(new(new() { Uri = DocumentUri }), CancellationToken.None);
 
@@ -44,7 +44,7 @@ public class VisualPaletteHandlerTests
     public async Task GraphUpdate_ReportsEveryDocumentErrorEvenWithoutNodes()
     {
         var manager = CreateCompilationManager("var broken =\nvar alsoBroken =");
-        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object);
+        var handler = CreateGraphHandler(manager.Object);
 
         var response = await handler.Handle(new(new() { Uri = DocumentUri }), CancellationToken.None);
 
@@ -56,7 +56,7 @@ public class VisualPaletteHandlerTests
     public async Task GraphUpdate_ReflectsScopeOnlyChanges()
     {
         var manager = CreateCompilationManager("targetScope = 'subscription'");
-        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object);
+        var handler = CreateGraphHandler(manager.Object);
         var request = new VisualGraphParams(new() { Uri = DocumentUri });
 
         var first = await handler.Handle(request, CancellationToken.None);
@@ -74,7 +74,7 @@ public class VisualPaletteHandlerTests
     {
         var manager = new Mock<ICompilationManager>(MockBehavior.Strict);
         manager.Setup(x => x.GetCompilation(DocumentUri)).Returns((CompilationContext?)null);
-        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object);
+        var handler = CreateGraphHandler(manager.Object);
 
         var response = await handler.Handle(new(new() { Uri = DocumentUri }), CancellationToken.None);
 
@@ -97,7 +97,7 @@ public class VisualPaletteHandlerTests
             manager.Object.GetCompilation(DocumentUri)!.Compilation.GetEntrypointSemanticModel(), knownCatalogId: null).CatalogId);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
     public async Task VersionsHandler_MissingDocumentOrType_ReportsRpcFailure(bool compiled)
@@ -114,6 +114,9 @@ public class VisualPaletteHandlerTests
 
         await act.Should().ThrowAsync<RpcErrorException>();
     }
+
+    private static VisualGraphHandler CreateGraphHandler(ICompilationManager manager) =>
+        new(NullLogger<VisualGraphHandler>.Instance, manager, VisualGraphBuilderTests.CreateBuilder());
 
     private static Mock<ICompilationManager> CreateCompilationManager(string text)
     {

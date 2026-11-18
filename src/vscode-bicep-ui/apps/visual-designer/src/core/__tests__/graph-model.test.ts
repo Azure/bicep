@@ -9,9 +9,11 @@ import { describe, expect, it } from "vitest";
 import {
   clientGraphsRenderEqually,
   EMPTY_CLIENT_GRAPH,
+  getModulesWithNewChildren,
   indexGraph,
   measuredGraphsEqual,
   measureGraph,
+  projectGraph,
 } from "../graph-model";
 
 function node(overrides: Partial<GraphNode> = {}): GraphNode {
@@ -24,6 +26,9 @@ function node(overrides: Partial<GraphNode> = {}): GraphNode {
     isCollection: false,
     hasChildren: false,
     hasError: false,
+    sourceStatus: null,
+    sourceError: null,
+    isRemote: false,
     ...overrides,
   };
 }
@@ -39,6 +44,139 @@ describe("indexGraph", () => {
 
     expect([...graph.nodes.keys()]).toEqual(["a", "b"]);
     expect(graph.edges.get("a->b")).toEqual({ id: "a->b", sourceId: "a", targetId: "b" });
+  });
+});
+
+describe("getModulesWithNewChildren", () => {
+  const remote = node({ id: "remote", kind: "module", type: "<module>", sourceStatus: "unrestored" });
+  const explained = node({
+    id: "explained",
+    kind: "module",
+    type: "<module>",
+    sourceStatus: "error",
+    sourceError: "Failed.",
+  });
+  const local = node({ id: "local", kind: "module", type: "<module>" });
+  const withChildren = (module: GraphNode) => [
+    { ...module, sourceStatus: null, sourceError: null, hasChildren: true },
+    node({ id: `${module.id}::a`, parentId: module.id }),
+  ];
+
+  it("reports remote modules that showed no children and now have some", () => {
+    const previous = indexGraph({ nodes: [remote, explained, local], edges: [] });
+    const next = indexGraph({
+      nodes: [...withChildren(remote), ...withChildren(explained), ...withChildren(local)],
+      edges: [],
+    });
+
+    expect(getModulesWithNewChildren(previous, next)).toEqual(["remote", "explained"]);
+  });
+
+  it("ignores modules that are new, or still have nothing to show", () => {
+    const next = indexGraph({ nodes: withChildren(remote), edges: [] });
+
+    expect(getModulesWithNewChildren(EMPTY_CLIENT_GRAPH, next)).toEqual([]);
+    expect(
+      getModulesWithNewChildren(
+        indexGraph({ nodes: [remote], edges: [] }),
+        indexGraph({ nodes: [explained], edges: [] }),
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe("projectGraph", () => {
+  const moduleNode = node({
+    id: "module",
+    kind: "module",
+    type: "<module>",
+    hasChildren: true,
+  });
+  const childA = node({ id: "module::a", parentId: "module" });
+  const childB = node({ id: "module::b", parentId: "module" });
+  const outside = node({ id: "outside" });
+
+  it("keeps a collapse choice for a module that is empty for now, and applies it once it has children", () => {
+    const emptyModule = { ...moduleNode, hasChildren: false };
+
+    expect(projectGraph(makeClientGraph([emptyModule, outside]), new Set(["module"])).nodes.get("module")).toEqual(
+      emptyModule,
+    );
+    expect(
+      projectGraph(makeClientGraph([moduleNode, childA, outside]), new Set(["module"])).nodes.get("module"),
+    ).toMatchObject({ isCollapsed: true });
+  });
+
+  it("returns the source graph when no module is collapsed", () => {
+    const graph = makeClientGraph([moduleNode, childA]);
+
+    expect(projectGraph(graph, new Set())).toBe(graph);
+    expect(projectGraph(graph, new Set(["missing"]))).toBe(graph);
+  });
+
+  it("collapses a resource drawn around its children, ending the edges that cross into it at the resource", () => {
+    const vnet = node({ id: "vnet", type: "Microsoft.Network/virtualNetworks", hasChildren: true });
+    const subnet = node({ id: "subnet", parentId: "vnet", type: "Microsoft.Network/virtualNetworks/subnets" });
+    const nic = node({ id: "nic", type: "Microsoft.Network/networkInterfaces" });
+    const vm = node({ id: "vm", type: "Microsoft.Compute/virtualMachines" });
+    const projected = projectGraph(
+      makeClientGraph([vnet, subnet, nic, vm], [{ id: "nic->subnet", sourceId: "nic", targetId: "subnet" }]),
+      new Set(["vnet", "vm"]),
+    );
+
+    expect([...projected.nodes.keys()]).toEqual(["vnet", "nic", "vm"]);
+    expect(projected.nodes.get("vnet")).toMatchObject({ isCollapsed: true });
+    // A resource with nothing inside it cannot be collapsed.
+    expect(projected.nodes.get("vm")).toEqual(vm);
+    expect([...projected.edges.values()]).toEqual([{ id: "nic->vnet", sourceId: "nic", targetId: "vnet" }]);
+  });
+
+  it("keeps the module, hides descendants, and marks it collapsed", () => {
+    const projected = projectGraph(makeClientGraph([moduleNode, childA, childB, outside]), new Set(["module"]));
+
+    expect([...projected.nodes.keys()]).toEqual(["module", "outside"]);
+    expect(projected.nodes.get("module")).toMatchObject({ hasChildren: true, isCollapsed: true });
+  });
+
+  it("reroutes boundary edges, removes internal edges, and deduplicates visible relationships", () => {
+    const projected = projectGraph(
+      makeClientGraph(
+        [moduleNode, childA, childB, outside],
+        [
+          { id: "internal", sourceId: "module::a", targetId: "module::b" },
+          { id: "first", sourceId: "outside", targetId: "module::a" },
+          { id: "duplicate", sourceId: "outside", targetId: "module::b" },
+          { id: "outbound", sourceId: "module::b", targetId: "outside" },
+        ],
+      ),
+      new Set(["module"]),
+    );
+
+    expect([...projected.edges.values()]).toEqual([
+      { id: "outside->module", sourceId: "outside", targetId: "module" },
+      { id: "module->outside", sourceId: "module", targetId: "outside" },
+    ]);
+  });
+
+  it("projects nested collapsed modules to the outermost visible boundary", () => {
+    const nested = node({
+      id: "module::nested",
+      kind: "module",
+      parentId: "module",
+      type: "<module>",
+      hasChildren: true,
+    });
+    const nestedChild = node({ id: "module::nested::child", parentId: "module::nested" });
+    const projected = projectGraph(
+      makeClientGraph(
+        [moduleNode, nested, nestedChild, outside],
+        [{ id: "edge", sourceId: "module::nested::child", targetId: "outside" }],
+      ),
+      new Set(["module", "module::nested"]),
+    );
+
+    expect([...projected.nodes.keys()]).toEqual(["module", "outside"]);
+    expect([...projected.edges.values()]).toEqual([{ id: "module->outside", sourceId: "module", targetId: "outside" }]);
   });
 });
 
@@ -134,13 +272,6 @@ describe("clientGraphsRenderEqually", () => {
     expect(clientGraphsRenderEqually(makeClientGraph([a, b]), makeClientGraph([b, a]))).toBe(true);
   });
 
-  it("ignores fields the canvas never reads", () => {
-    const before = makeClientGraph([node({ symbolName: "before" })]);
-    const after = makeClientGraph([node({ symbolName: "after" })]);
-
-    expect(clientGraphsRenderEqually(before, after)).toBe(true);
-  });
-
   it("reports a change from or to an empty graph", () => {
     expect(clientGraphsRenderEqually(EMPTY_CLIENT_GRAPH, EMPTY_CLIENT_GRAPH)).toBe(true);
     expect(clientGraphsRenderEqually(EMPTY_CLIENT_GRAPH, makeClientGraph([node()]))).toBe(false);
@@ -150,9 +281,13 @@ describe("clientGraphsRenderEqually", () => {
   it.each([
     ["id", { id: "other" }],
     ["type", { type: "Microsoft.Web/sites" }],
+    ["symbolName", { symbolName: "other" }],
     ["isCollection", { isCollection: true }],
     ["hasChildren", { hasChildren: true }],
     ["hasError", { hasError: true }],
+    ["sourceStatus", { sourceStatus: "unrestored" }],
+    ["sourceError", { sourceError: "Failed." }],
+    ["isCollapsed", { isCollapsed: true }],
   ])("reports a change when %s differs", (_field, overrides) => {
     const before = makeClientGraph([node()]);
     const after = makeClientGraph([node(overrides as Partial<GraphNode>)]);

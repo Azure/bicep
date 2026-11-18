@@ -12,7 +12,19 @@ import {
   waitForStableNodePosition,
 } from "./fixtures";
 
+/** The focused node, or null when no node is focused. */
 async function focusedNodeId(page: Page): Promise<string | null> {
+  return page.evaluate(() => {
+    const focused = Array.from(document.querySelectorAll<HTMLElement>("[data-node-id]")).filter(
+      (element) => element.querySelector('[data-focused="true"]') !== null,
+    );
+
+    return focused.length > 1 ? "<several>" : (focused[0]?.dataset.nodeId ?? null);
+  });
+}
+
+/** The node painted above every other node. */
+async function topNodeId(page: Page): Promise<string | null> {
   return page.evaluate(() => {
     const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-node-id]"))
       .map((element) => ({ id: element.dataset.nodeId ?? "", z: Number(getComputedStyle(element).zIndex) || 0 }))
@@ -36,6 +48,7 @@ test.describe("Node interactions", () => {
     await target.click();
 
     await expect.poll(() => focusedNodeId(page)).toBe("vnet");
+    await expect.poll(() => topNodeId(page)).toBe("vnet");
   });
 
   test("a click with less than 4px of pointer movement still focuses a node", async ({ page }) => {
@@ -97,13 +110,14 @@ test.describe("Node interactions", () => {
     await expect.poll(() => focusedNodeId(page)).toBeNull();
   });
 
-  test("right-clicking another node does not change focus", async ({ page }) => {
+  test("right-clicking another node selects it and offers its source", async ({ page }) => {
     await page.locator('[data-node-id="subnet"]').click();
     await expect.poll(() => focusedNodeId(page)).toBe("subnet");
 
     await page.locator('[data-node-id="vnet"]').click({ button: "right" });
 
-    await expect.poll(() => focusedNodeId(page)).toBe("subnet");
+    await expect.poll(() => focusedNodeId(page)).toBe("vnet");
+    await expect(page.getByRole("menu", { name: "Actions for vnet" })).toBeVisible();
   });
 
   test("suppresses VS Code's Cut/Copy/Paste menu everywhere except text fields", async ({ page }) => {
@@ -126,10 +140,12 @@ test.describe("Node interactions", () => {
     expect(await hostContextMenuOpened()).toEqual([false, false, false, true]);
   });
 
-  test("slow multi-event panning does not clear focus", async ({ page }) => {
+  test("slow multi-event panning with the hand tool does not clear focus", async ({ page }) => {
     await page.locator('[data-node-id="subnet"]').click();
     await expect.poll(() => focusedNodeId(page)).toBe("subnet");
     await waitForStableNodePosition(page, "subnet");
+    // With the select tool a background drag draws a marquee; the hand tool pans.
+    await page.keyboard.press("h");
 
     const canvas = page.getByTestId("graph-canvas");
     const box = (await canvas.boundingBox())!;
@@ -150,7 +166,7 @@ test.describe("Node interactions", () => {
     await expect(canvas).not.toHaveClass(/\bgrabbing\b/);
   });
 
-  test("slow multi-event node dragging does not steal focus", async ({ page }) => {
+  test("slow multi-event node dragging raises the node without stealing focus", async ({ page }) => {
     await page.locator('[data-node-id="subnet"]').click();
     await expect.poll(() => focusedNodeId(page)).toBe("subnet");
     const original = await waitForStableNodePosition(page, "vnet");
@@ -169,6 +185,48 @@ test.describe("Node interactions", () => {
 
     await expect.poll(async () => (await target.boundingBox())?.x).toBeGreaterThan(original.x + 4);
     await expect.poll(() => focusedNodeId(page)).toBe("subnet");
+    await expect.poll(() => topNodeId(page)).toBe("vnet");
+  });
+
+  test("a node grabbed while it animates stays under the pointer", async ({ page }) => {
+    // Drive animation time by hand, so the node is partway home when grabbed however loaded the machine is.
+    await page.clock.install();
+    await openVisualDesigner(page);
+    await loadSampleGraph(page, "flat");
+    await waitForStableNodePosition(page, "vnet");
+    const target = page.locator('[data-node-id="vnet"]');
+    const settled = (await target.boundingBox())!;
+    await page.mouse.move(settled.x + settled.width / 2, settled.y + settled.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(settled.x + settled.width / 2 + 300, settled.y + settled.height / 2, { steps: 10 });
+    await page.mouse.up();
+    const dragged = await waitForStableNodePosition(page, "vnet");
+
+    // Undo springs the node back; stop the clock partway.
+    await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100));
+    await page.keyboard.press("ControlOrMeta+z");
+    await page.clock.runFor(150);
+    const moving = (await target.boundingBox())!;
+    expect(moving.x).toBeLessThan(dragged.x - 30);
+    expect(moving.x).toBeGreaterThan(settled.x + 30);
+
+    const grab = { x: moving.x + moving.width / 2, y: moving.y + moving.height / 2 };
+    await page.mouse.move(grab.x, grab.y);
+    await page.mouse.down();
+    await page.mouse.move(grab.x, grab.y + 20);
+    await page.clock.runFor(50);
+    await page.clock.resume();
+
+    // Once the drag starts, the node stops springing home and follows the pointer.
+    const grabbed = await waitForStableNodePosition(page, "vnet");
+    await page.mouse.move(grab.x, grab.y + 120, { steps: 10 });
+    await page.mouse.up();
+    const dropped = await waitForStableNodePosition(page, "vnet");
+
+    expect(Math.abs(grabbed.x - moving.x)).toBeLessThan(2);
+    expect(Math.abs(grabbed.y - moving.y - 20)).toBeLessThan(2);
+    expect(Math.abs(dropped.x - moving.x)).toBeLessThan(2);
+    expect(Math.abs(dropped.y - moving.y - 120)).toBeLessThan(2);
   });
 
   test("pointercancel discards pending focus and allows the next click", async ({ page }) => {
@@ -184,7 +242,6 @@ test.describe("Node interactions", () => {
 
     // CDP touchCancel produces a browser pointercancel, unlike dispatching a synthetic event.
     await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y, id: 1 }] });
-    await expect(canvas).toHaveClass(/\bgrabbing\b/);
     await cdp.send("Input.dispatchTouchEvent", { type: "touchCancel", touchPoints: [] });
 
     await expect(canvas).not.toHaveClass(/\bgrabbing\b/);

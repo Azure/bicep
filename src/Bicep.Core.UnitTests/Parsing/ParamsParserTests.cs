@@ -11,7 +11,7 @@ namespace Bicep.Core.UnitTests.Parsing
     [TestClass]
     public class ParamsParserTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("true", "true", typeof(BooleanLiteralSyntax))]
         [DataRow("false", "false", typeof(BooleanLiteralSyntax))]
         [DataRow("432", "432", typeof(IntegerLiteralSyntax))]
@@ -23,7 +23,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, expectedRootType);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("param myint = 12 \n")]
         [DataRow("param mystr = 'hello world' \n")]
         public void TestParsingParameterAssignment(String text)
@@ -33,7 +33,7 @@ namespace Bicep.Core.UnitTests.Parsing
             programSyntax.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("param myobj = {\nname : 'vm1'\nlocation : 'westus'\n} \n")]
         public void TestParameterObjectAssignment(String text)
         {
@@ -42,7 +42,7 @@ namespace Bicep.Core.UnitTests.Parsing
             programSyntax.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("param myarr = [ 1\n2\n3\n4\n5 ] \n")]
         public void TestParameterArrayAssignment(String text)
         {
@@ -51,7 +51,7 @@ namespace Bicep.Core.UnitTests.Parsing
             programSyntax.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("using './main.bicep' \n")]
         public void TestParsingUsingKeyword(String text)
         {

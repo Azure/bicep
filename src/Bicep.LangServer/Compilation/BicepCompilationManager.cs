@@ -5,8 +5,8 @@ using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
@@ -354,7 +354,7 @@ namespace Bicep.LanguageServer.Compilation
                         }
 
                         // this completes immediately
-                        var artifactsToRestore = ArtifactHelper.GetValidArtifactReferences(context.Compilation.SourceFileGrouping.GetArtifactsToRestore());
+                        var artifactsToRestore = context.Compilation.SourceFileGrouping.GetArtifactsToRestore().GetRemoteArtifactReferences();
                         this.scheduler.RequestModuleRestore(this, documentUri, artifactsToRestore);
 
                         var sourceFiles = context.Compilation.SourceFileGrouping.SourceFiles;

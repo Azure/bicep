@@ -499,13 +499,13 @@ output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUr
 //@[081:082) RightSquare |]|
 //@[082:084) NewLine |\n\n|
 
-module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
+module passthroughPort 'br:port.invalid:5000/passthrough/port:v1' = {
 //@[000:006) Identifier |module|
 //@[007:022) Identifier |passthroughPort|
-//@[023:062) StringComplete |'br:localhost:5000/passthrough/port:v1'|
-//@[063:064) Assignment |=|
-//@[065:066) LeftBrace |{|
-//@[066:067) NewLine |\n|
+//@[023:065) StringComplete |'br:port.invalid:5000/passthrough/port:v1'|
+//@[066:067) Assignment |=|
+//@[068:069) LeftBrace |{|
+//@[069:070) NewLine |\n|
   scope: rg
 //@[002:007) Identifier |scope|
 //@[007:008) Colon |:|
@@ -533,13 +533,13 @@ module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
+module ipv4 'br:ipv4.invalid/passthrough/ipv4:v1' = {
 //@[000:006) Identifier |module|
 //@[007:011) Identifier |ipv4|
-//@[012:046) StringComplete |'br:127.0.0.1/passthrough/ipv4:v1'|
-//@[047:048) Assignment |=|
-//@[049:050) LeftBrace |{|
-//@[050:051) NewLine |\n|
+//@[012:049) StringComplete |'br:ipv4.invalid/passthrough/ipv4:v1'|
+//@[050:051) Assignment |=|
+//@[052:053) LeftBrace |{|
+//@[053:054) NewLine |\n|
   scope: rg
 //@[002:007) Identifier |scope|
 //@[007:008) Colon |:|
@@ -567,13 +567,13 @@ module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
+module ipv4port 'br:ipv4-port.invalid:5000/passthrough/ipv4port:v1' = {
 //@[000:006) Identifier |module|
 //@[007:015) Identifier |ipv4port|
-//@[016:059) StringComplete |'br:127.0.0.1:5000/passthrough/ipv4port:v1'|
-//@[060:061) Assignment |=|
-//@[062:063) LeftBrace |{|
-//@[063:064) NewLine |\n|
+//@[016:067) StringComplete |'br:ipv4-port.invalid:5000/passthrough/ipv4port:v1'|
+//@[068:069) Assignment |=|
+//@[070:071) LeftBrace |{|
+//@[071:072) NewLine |\n|
   scope: rg
 //@[002:007) Identifier |scope|
 //@[007:008) Colon |:|
@@ -601,13 +601,13 @@ module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
+module ipv6 'br:ipv6.invalid/passthrough/ipv6:v1' = {
 //@[000:006) Identifier |module|
 //@[007:011) Identifier |ipv6|
-//@[012:042) StringComplete |'br:[::1]/passthrough/ipv6:v1'|
-//@[043:044) Assignment |=|
-//@[045:046) LeftBrace |{|
-//@[046:047) NewLine |\n|
+//@[012:049) StringComplete |'br:ipv6.invalid/passthrough/ipv6:v1'|
+//@[050:051) Assignment |=|
+//@[052:053) LeftBrace |{|
+//@[053:054) NewLine |\n|
   scope: rg
 //@[002:007) Identifier |scope|
 //@[007:008) Colon |:|
@@ -635,13 +635,13 @@ module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
+module ipv6port 'br:ipv6-port.invalid:5000/passthrough/ipv6port:v1' = {
 //@[000:006) Identifier |module|
 //@[007:015) Identifier |ipv6port|
-//@[016:055) StringComplete |'br:[::1]:5000/passthrough/ipv6port:v1'|
-//@[056:057) Assignment |=|
-//@[058:059) LeftBrace |{|
-//@[059:060) NewLine |\n|
+//@[016:067) StringComplete |'br:ipv6-port.invalid:5000/passthrough/ipv6port:v1'|
+//@[068:069) Assignment |=|
+//@[070:071) LeftBrace |{|
+//@[071:072) NewLine |\n|
   scope: rg
 //@[002:007) Identifier |scope|
 //@[007:008) Colon |:|

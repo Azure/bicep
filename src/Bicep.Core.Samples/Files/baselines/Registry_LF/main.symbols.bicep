@@ -118,8 +118,8 @@ output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUr
 //@[36:37) Local i. Type: int. Declaration start char: 36, length: 1
 //@[07:15) Output siteUrls. Type: array. Declaration start char: 0, length: 82
 
-module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
-//@[07:22) Module passthroughPort. Type: module. Declaration start char: 0, length: 128
+module passthroughPort 'br:port.invalid:5000/passthrough/port:v1' = {
+//@[07:22) Module passthroughPort. Type: module. Declaration start char: 0, length: 131
   scope: rg
   name: 'port'
   params: {
@@ -127,8 +127,8 @@ module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
   }
 }
 
-module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
-//@[07:11) Module ipv4. Type: module. Declaration start char: 0, length: 112
+module ipv4 'br:ipv4.invalid/passthrough/ipv4:v1' = {
+//@[07:11) Module ipv4. Type: module. Declaration start char: 0, length: 115
   scope: rg
   name: 'ipv4'
   params: {
@@ -136,8 +136,8 @@ module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
   }
 }
 
-module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
-//@[07:15) Module ipv4port. Type: module. Declaration start char: 0, length: 133
+module ipv4port 'br:ipv4-port.invalid:5000/passthrough/ipv4port:v1' = {
+//@[07:15) Module ipv4port. Type: module. Declaration start char: 0, length: 141
   scope: rg
   name: 'ipv4port'
   params: {
@@ -145,8 +145,8 @@ module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
   }
 }
 
-module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
-//@[07:11) Module ipv6. Type: module. Declaration start char: 0, length: 108
+module ipv6 'br:ipv6.invalid/passthrough/ipv6:v1' = {
+//@[07:11) Module ipv6. Type: module. Declaration start char: 0, length: 115
   scope: rg
   name: 'ipv6'
   params: {
@@ -154,8 +154,8 @@ module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
   }
 }
 
-module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
-//@[07:15) Module ipv6port. Type: module. Declaration start char: 0, length: 129
+module ipv6port 'br:ipv6-port.invalid:5000/passthrough/ipv6port:v1' = {
+//@[07:15) Module ipv6port. Type: module. Declaration start char: 0, length: 141
   scope: rg
   name: 'ipv6port'
   params: {

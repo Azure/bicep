@@ -36,7 +36,8 @@ public class CliJsonRpcServer(
     InputOutputArgumentsResolver inputOutputArgumentsResolver,
     IEnvironment environment,
     IBicepDocumentationGenerator documentationGenerator,
-    DocsGenerationOptionsResolver docsOptionsResolver) : ICliJsonRpcProtocol
+    DocsGenerationOptionsResolver docsOptionsResolver,
+    ExplicitConfigurationScopeFactory explicitConfigurationScopeFactory) : ICliJsonRpcProtocol
 {
     public static IJsonRpcMessageHandler CreateMessageHandler(Stream inputStream, Stream outputStream)
     {
@@ -57,6 +58,8 @@ public class CliJsonRpcServer(
     /// <inheritdoc/>
     public async Task<CompileResponse> Compile(CompileRequest request, CancellationToken cancellationToken)
     {
+        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
         var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
@@ -73,6 +76,8 @@ public class CliJsonRpcServer(
     /// <inheritdoc/>
     public async Task<CompileParamsResponse> CompileParams(CompileParamsRequest request, CancellationToken cancellationToken)
     {
+        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
         if (model.SourceFile is not BicepParamFile paramFile)
@@ -98,6 +103,8 @@ public class CliJsonRpcServer(
     /// <inheritdoc/>
     public async Task<GetFileReferencesResponse> GetFileReferences(GetFileReferencesRequest request, CancellationToken cancellationToken)
     {
+        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
         var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
@@ -120,6 +127,8 @@ public class CliJsonRpcServer(
     /// <inheritdoc/>
     public async Task<GetMetadataResponse> GetMetadata(GetMetadataRequest request, CancellationToken cancellationToken)
     {
+        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
 
@@ -175,6 +184,8 @@ public class CliJsonRpcServer(
 
     public async Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken)
     {
+        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
         var dependenciesBySymbol = ResourceDependencyVisitor.GetResourceDependencies(model)
@@ -219,6 +230,8 @@ public class CliJsonRpcServer(
 
     public async Task<GetSnapshotResponse> GetSnapshot(GetSnapshotRequest request, CancellationToken cancellationToken)
     {
+        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+
         var compilation = await GetCompilation(compiler, request.Path);
         if (compilation.Emitter.Parameters() is not { } result ||
             result.Template?.Template is not { } templateContent ||
@@ -248,6 +261,8 @@ public class CliJsonRpcServer(
     /// <inheritdoc/>
     public async Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken)
     {
+        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
 
@@ -280,6 +295,8 @@ public class CliJsonRpcServer(
     /// <inheritdoc/>
     public async Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken)
     {
+        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+
         var compilation = await GetCompilation(compiler, request.Path);
         var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
         if (compilation.GetAllDiagnosticsByBicepFile().Values

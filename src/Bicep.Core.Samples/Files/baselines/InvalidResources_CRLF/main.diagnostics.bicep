@@ -671,6 +671,7 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
 //@[004:043) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |discriminatorKeyValueMissingCompletions|
+//@[075:076) [BCP053 (Error)] The type "Microsoft.Resources/deploymentScripts" does not contain property "p". Available properties include "apiVersion", "asserts", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "placement", "plan", "properties", "scale", "sku", "systemData", "tags", "type", "zones". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |p|
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2 = discriminatorKeyValueMissing.
 //@[004:044) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |discriminatorKeyValueMissingCompletions2|
@@ -693,6 +694,7 @@ resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@
 var discriminatorKeyValueMissingCompletions_if = discriminatorKeyValueMissing_if.p
 //@[004:046) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |discriminatorKeyValueMissingCompletions_if|
 //@[080:082) [BCP318 (Warning)] The value of type "Microsoft.Resources/deploymentScripts | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.p|
+//@[081:082) [BCP053 (Error)] The type "Microsoft.Resources/deploymentScripts" does not contain property "p". Available properties include "apiVersion", "asserts", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "placement", "plan", "properties", "scale", "sku", "systemData", "tags", "type", "zones". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |p|
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2_if = discriminatorKeyValueMissing_if.
 //@[004:047) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions2_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |discriminatorKeyValueMissingCompletions2_if|
@@ -721,6 +723,7 @@ var resourceListIsNotSingleResource = discriminatorKeyValueMissing_for.kind
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_for = discriminatorKeyValueMissing_for[0].p
 //@[004:047) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions_for" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |discriminatorKeyValueMissingCompletions_for|
+//@[086:087) [BCP053 (Error)] The type "Microsoft.Resources/deploymentScripts" does not contain property "p". Available properties include "apiVersion", "asserts", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "placement", "plan", "properties", "scale", "sku", "systemData", "tags", "type", "zones". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |p|
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2_for = discriminatorKeyValueMissing_for[0].
 //@[004:048) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions2_for" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |discriminatorKeyValueMissingCompletions2_for|
@@ -748,6 +751,7 @@ var resourceListIsNotSingleResource_if = discriminatorKeyValueMissing_for_if.kin
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_for_if = discriminatorKeyValueMissing_for_if[0].p
 //@[004:050) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions_for_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |discriminatorKeyValueMissingCompletions_for_if|
+//@[092:093) [BCP053 (Error)] The type "Microsoft.Resources/deploymentScripts" does not contain property "p". Available properties include "apiVersion", "asserts", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "placement", "plan", "properties", "scale", "sku", "systemData", "tags", "type", "zones". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |p|
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2_for_if = discriminatorKeyValueMissing_for_if[0].
 //@[004:051) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions2_for_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |discriminatorKeyValueMissingCompletions2_for_if|

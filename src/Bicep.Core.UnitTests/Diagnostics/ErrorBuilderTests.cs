@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using System.Reflection;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -343,7 +343,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                        name:
                  }"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void MissingTypePropertiesHasFix(string text, string expectedFix)
         {
             ExpectDiagnosticWithFixedText(text, expectedFix);

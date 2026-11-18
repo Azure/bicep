@@ -28,41 +28,37 @@ namespace Bicep.LanguageServer.BicepConfig
             this.server = server;
         }
 
-        public void RefreshCompilationOfSourceFilesInWorkspace()
+        public void HandleFileChanges(IEnumerable<FileEvent> fileEvents)
         {
-            bicepConfigurationManager.PurgeAllCaches();
-            // We shouldn't need to reload auxiliary files if a configuration file has changed.
-            compilationManager.RefreshAllActiveCompilations(forceReloadAuxiliaryFiles: false);
+            var invalidated = false;
+            foreach (var fileEvent in fileEvents)
+            {
+                invalidated |= bicepConfigurationManager.InvalidateFile(fileEvent.Uri.ToIOUri());
+            }
+
+            if (invalidated)
+            {
+                // We shouldn't need to reload auxiliary files if a configuration file has changed.
+                compilationManager.RefreshAllActiveCompilations(forceReloadAuxiliaryFiles: false);
+            }
         }
 
         public void HandleBicepConfigOpenEvent(DocumentUri documentUri)
-        {
-            HandleBicepConfigOpenOrChangeEvent(documentUri);
-            PublishConfigDiagnostics(documentUri);
-        }
+            => PublishConfigDiagnostics(documentUri);
 
+        // Configuration is read from disk, so unsaved edits don't affect it; saving is reported as a file change.
         public void HandleBicepConfigChangeEvent(DocumentUri documentUri)
         {
-            // A change event can represent file creation, modification, or deletion.
-            // Creation and deletion change config file discovery (the lookup cache), so we
-            // must do a full purge rather than a targeted invalidation.
-            bicepConfigurationManager.PurgeAllCaches();
-            HandleBicepConfigOpenOrChangeEvent(documentUri);
         }
-
-        private void HandleBicepConfigOpenOrChangeEvent(DocumentUri documentUri)
-            => bicepConfigurationManager.PurgeCacheForAffectedChains(documentUri.ToIOUri());
 
         public void HandleBicepConfigSaveEvent(DocumentUri documentUri)
         {
-            bicepConfigurationManager.PurgeCacheForAffectedChains(documentUri.ToIOUri());
+            bicepConfigurationManager.InvalidateFile(documentUri.ToIOUri());
             PublishConfigDiagnostics(documentUri);
         }
 
         public void HandleBicepConfigCloseEvent(DocumentUri documentUri)
         {
-            bicepConfigurationManager.PurgeCacheForAffectedChains(documentUri.ToIOUri());
-
             // Clear squiggles when the file is closed.
             server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
             {

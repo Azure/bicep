@@ -118,7 +118,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         text.Should().Be(string.Empty);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("", "")]
     [DataRow("   ", "   ")]
     public void RemoveSnippetPlaceholderComments_WithInvalidInput_ReturnsInputTextAsIs(string input, string expected)

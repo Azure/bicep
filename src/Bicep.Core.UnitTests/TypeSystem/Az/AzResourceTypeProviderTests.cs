@@ -80,8 +80,8 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         public static string GetDeserializeTestDisplayName(MethodInfo info, object[] values)
             => $"{info.Name} ({string.Join(',', new[] { values[0], values[1], values[2] }.Select(x => x.ToString()))})";
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetDeserializeTestData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDeserializeTestDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetDeserializeTestData), DynamicDataDisplayName = nameof(GetDeserializeTestDisplayName))]
         public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(string providerName, string apiVersion, ResourceTypeGenerationFlags flags, IReadOnlyList<string> resourceTypes)
         {
             // We deliberately load a new instance here for each test iteration rather than re-using an instance.

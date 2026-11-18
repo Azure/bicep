@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Mock.Registry;
-using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.Mock.Artifacts.Catalog.Brm;
+using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;
 using FluentAssertions;
@@ -54,8 +54,8 @@ public class LintCommandTests : TestBase
         }
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(GetValidDataSetsWithoutWarnings), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+    [TestMethod]
+    [DynamicData(nameof(GetValidDataSetsWithoutWarnings), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
     public async Task Lint_Valid_SingleFile_WithTemplateSpecReference_ShouldSucceed(DataSet dataSet)
     {
         var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -90,7 +90,7 @@ public class LintCommandTests : TestBase
         var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
         clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);
 
-        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecClientFactory);
 
         var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         Directory.CreateDirectory(tempDirectory);
@@ -130,13 +130,13 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         }
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+    [TestMethod]
+    [DynamicData(nameof(GetInvalidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
     public async Task Lint_Invalid_SingleFile_ShouldFail_WithExpectedErrorMessage(DataSet dataSet)
     {
         var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
         var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-        var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecRepositoryFactory, InvocationSettings.Default.ModuleMetadataClient);
+        var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecClientFactory, InvocationSettings.Default.ModuleMetadataClient);
 
         var (output, error, result) = await Bicep("lint", bicepFilePath);
 
@@ -154,7 +154,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
         var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
         var configurationPath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", string.Empty, testOutputPath);
-        var settings = new InvocationSettings() { ModuleMetadataClient = PublicModuleIndexHttpClientMocks.Create([]).Object };
+        var settings = new InvocationSettings() { ModuleMetadataClient = BrmIndexHttpClientMocks.Create([]).Object };
 
         var (output, error, result) = await Bicep(settings, "lint", inputFile);
 

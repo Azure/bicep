@@ -5,22 +5,13 @@ import { aiKey } from "../package.json";
 import { App } from "./App";
 import { initializeInterop } from "./compiler/compiler-client";
 import "./index.css";
-import { handleShareLink } from "./sharing/share-link";
 import { PlaygroundTelemetry } from "./telemetry/playground-telemetry";
-import {
-  getPreferredColorMode,
-  setColorMode,
-} from "./theme/color-mode";
+import { getPreferredColorMode, setColorMode } from "./theme/color-mode";
 
 const colorModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 const updateColorMode = () => setColorMode(getPreferredColorMode());
 colorModeQuery.addEventListener("change", updateColorMode);
 updateColorMode();
-
-let initialSharedContent: string | null = null;
-handleShareLink((content) => {
-  initialSharedContent = content;
-});
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
@@ -78,11 +69,7 @@ async function start() {
     const interop = await initializeInterop();
     root.render(
       <div className="app-container">
-        <App
-          insights={insights}
-          interop={interop}
-          initialSharedContent={initialSharedContent}
-        />
+        <App insights={insights} interop={interop} />
       </div>,
     );
     void connectTelemetry();
@@ -93,9 +80,8 @@ async function start() {
 
 async function connectTelemetry(): Promise<void> {
   try {
-    const { initializeTelemetry } = await import(
-      "./telemetry/application-insights"
-    );
+    const { initializeTelemetry } =
+      await import("./telemetry/application-insights");
     activeTelemetry = initializeTelemetry(aiKey);
     for (const event of pendingTelemetryEvents.splice(0)) {
       activeTelemetry.trackEvent(...event);

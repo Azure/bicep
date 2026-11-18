@@ -11,7 +11,6 @@ using Bicep.Core;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;
 
@@ -63,53 +62,31 @@ public class BuildCommand(
         return summary;
     }
 
-    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    internal static Command CreateCommand(CommandLineBuilderContext context)
     {
-        var command = new System.CommandLine.Command(Constants.Command.Build, "Builds a .bicep file.")
-        {
-            TreatUnmatchedTokensAsErrors = true,
-        };
+        var inputFileArgument = CommonArguments.OptionalInputFile("The path to the input .bicep file.");
+        var stdoutOption = CommonOptions.Stdout();
+        var noRestoreOption = CommonOptions.NoRestore("Builds the bicep file without restoring external modules.");
+        var outDirOption = CommonOptions.OutDir();
+        var outFileOption = CommonOptions.OutFile();
+        var filePatternOption = CommonOptions.Pattern("Builds all files matching the specified glob pattern.");
+        var diagnosticsFormatOption = CommonOptions.DiagnosticsFormat();
+        var configOption = CommonOptions.Config();
 
-        var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
+        var command = new Command(CommandNames.Build, "Builds a .bicep file.")
         {
-            Description = "The path to the input .bicep file.",
-            Arity = ArgumentArity.ZeroOrOne,
+            inputFileArgument,
+            stdoutOption,
+            noRestoreOption,
+            outDirOption,
+            outFileOption,
+            filePatternOption,
+            diagnosticsFormatOption,
+            configOption,
         };
-        var stdoutOption = new System.CommandLine.Option<bool>(Option.Stdout)
-        {
-            Description = "Prints the output to stdout.",
-        };
-        var noRestoreOption = new System.CommandLine.Option<bool>(Option.NoRestore)
-        {
-            Description = "Builds the bicep file without restoring external modules.",
-        };
-        var outDirOption = new System.CommandLine.Option<string?>(Option.OutDir)
-        {
-            Description = "Saves the output at the specified directory.",
-        };
-        var outFileOption = new System.CommandLine.Option<string?>(Option.OutFile)
-        {
-            Description = "Saves the output as the specified file path.",
-        };
-        var filePatternOption = new System.CommandLine.Option<string?>(Option.Pattern)
-        {
-            Description = "Builds all files matching the specified glob pattern.",
-        };
-        var diagnosticsFormatOption = new System.CommandLine.Option<DiagnosticsFormat?>(Option.DiagnosticsFormat)
-        {
-            Description = "Sets the diagnostics format. Valid values are (Default, SARIF).",
-        };
+        command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
 
-        command.Add(inputFileArgument);
-        command.Add(stdoutOption);
-        command.Add(noRestoreOption);
-        command.Add(outDirOption);
-        command.Add(outFileOption);
-        command.Add(filePatternOption);
-        command.Add(diagnosticsFormatOption);
-        command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
-
-        command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+        command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
         {
             var outputToStdOut = result.GetValue(stdoutOption);
             var outputDir = result.GetValue(outDirOption);

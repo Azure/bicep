@@ -35,7 +35,7 @@ public class ResourceWritableScopeResolverTests
         scopes.Should().Equal(ImportedExtensionResolver.Resolve(sample));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Microsoft.Storage/storageAccounts@2023-01-01", ResourceScope.ResourceGroup)]
     [DataRow("Microsoft.Resources/resourceGroups@2022-09-01", ResourceScope.Subscription)]
     [DataRow("Microsoft.Management/managementGroups@2021-04-01", ResourceScope.Tenant)]

@@ -1,16 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { Atom } from "jotai";
 import type { PropsWithChildren } from "react";
-import type { NodeDragCallbacks } from "../context/NodeDragCallbacksContext";
+import type { GraphContextValue, GraphNodeEvents } from "../context/GraphContext";
 
 import { PanZoomTransformed } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { styled } from "styled-components";
 import { layoutReadyAtom } from "../atoms";
-import { ignoreNodeDrag, NodeDragCallbacksContext } from "../context/NodeDragCallbacksContext";
-import { InnerEdgeLayer, OuterEdgeLayer } from "./EdgeLayer";
+import { createPaintOrderAtom, GraphContext, ignoreNodeEvent } from "../context/GraphContext";
+import { usePresence } from "../hooks/use-presence";
+import { EdgeLayer } from "./EdgeLayer";
 import { EdgeMarkerDefs } from "./EdgeMarkerDefs";
 import { NodeLayer } from "./NodeLayer";
 
@@ -29,23 +31,66 @@ const $SharedDefs = styled.svg`
   pointer-events: none;
 `;
 
-export type GraphProps = PropsWithChildren<Partial<NodeDragCallbacks>>;
+export type GraphProps = PropsWithChildren<
+  Partial<GraphNodeEvents> & {
+    /**
+     * The nodes raised above their siblings, from least to most recently raised, each with its subtree. Their
+     * ancestors are raised above their siblings too.
+     */
+    raisedNodeIdsAtom?: Atom<readonly string[]>;
+    /** Snap nodes to new positions and shapes, and show and hide them without fading. */
+    reduceMotion?: boolean;
+    /** Let node presses pan (in the viewport's `hand` mode) rather than move nodes. */
+    panOnNodeDrag?: boolean;
+    /** Let an Alt, Ctrl, or Cmd press on a node draw a marquee (in the viewport's `select` mode) rather than move it. */
+    marqueeOnModifiedDrag?: boolean;
+  }
+>;
 
-export function Graph({ children, onNodeDragStart = ignoreNodeDrag, onNodeDragEnd = ignoreNodeDrag }: GraphProps) {
+export function Graph({
+  children,
+  raisedNodeIdsAtom,
+  reduceMotion = false,
+  panOnNodeDrag = false,
+  marqueeOnModifiedDrag = false,
+  onNodeDragStart = ignoreNodeEvent,
+  onNodeDrag = ignoreNodeEvent,
+  onNodeDragEnd = ignoreNodeEvent,
+  onNodeDoubleClick = ignoreNodeEvent,
+}: GraphProps) {
   const layoutReady = useAtomValue(layoutReadyAtom);
-  const nodeDragCallbacks = useMemo(() => ({ onNodeDragStart, onNodeDragEnd }), [onNodeDragEnd, onNodeDragStart]);
+  const paintOrderAtom = useMemo(() => createPaintOrderAtom(raisedNodeIdsAtom), [raisedNodeIdsAtom]);
+  const { exitingNodes, exitingEdges, enteringNodeIds } = usePresence(reduceMotion);
+  const context = useMemo<GraphContextValue>(
+    () => ({
+      events: { onNodeDragStart, onNodeDrag, onNodeDragEnd, onNodeDoubleClick },
+      reduceMotion,
+      panOnNodeDrag,
+      marqueeOnModifiedDrag,
+      paintOrderAtom,
+    }),
+    [
+      onNodeDoubleClick,
+      onNodeDrag,
+      onNodeDragEnd,
+      onNodeDragStart,
+      marqueeOnModifiedDrag,
+      paintOrderAtom,
+      panOnNodeDrag,
+      reduceMotion,
+    ],
+  );
 
   return (
-    <NodeDragCallbacksContext.Provider value={nodeDragCallbacks}>
+    <GraphContext.Provider value={context}>
       <$PanZoomTransformed $visible={layoutReady} data-export-graph="">
         <$SharedDefs>
           <EdgeMarkerDefs />
         </$SharedDefs>
         {children}
-        <OuterEdgeLayer />
-        <NodeLayer />
-        <InnerEdgeLayer />
+        <EdgeLayer exitingNodes={exitingNodes} exitingEdges={exitingEdges} enteringNodeIds={enteringNodeIds} />
+        <NodeLayer exitingNodes={exitingNodes} enteringNodeIds={enteringNodeIds} />
       </$PanZoomTransformed>
-    </NodeDragCallbacksContext.Provider>
+    </GraphContext.Provider>
   );
 }

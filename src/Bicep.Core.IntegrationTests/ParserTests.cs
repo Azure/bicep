@@ -21,21 +21,21 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void FilesShouldRoundTripSuccessfully(DataSet dataSet)
         {
             RunRoundTripTest(dataSet.Bicep);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void FileTreeNodesShouldHaveConsistentSpans(DataSet dataSet)
         {
             RunSpanConsistencyTest(dataSet.Bicep);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("")]
         [DataRow("param")]
         [DataRow("param\r\n")]
@@ -50,8 +50,8 @@ namespace Bicep.Core.IntegrationTests
             RunSpanConsistencyTest(contents);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void Parser_should_produce_expected_syntax(DataSet dataSet)
         {
@@ -71,7 +71,7 @@ namespace Bicep.Core.IntegrationTests
                 actualPath: resultsFile);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [BaselineData_Bicepparam.TestData()]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void Params_Parser_should_produce_expected_syntax(BaselineData_Bicepparam baselineData)

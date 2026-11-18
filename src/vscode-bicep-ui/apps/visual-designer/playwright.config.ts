@@ -8,7 +8,7 @@ import { defineConfig, devices } from "@playwright/test";
  *
  * Tests run against `vite dev`, which boots the React app together
  * with the {@link DevAppShell} that wires a {@link FakeMessageChannel}
- * and renders the {@link DevToolbar}.  The toolbar lets tests swap
+ * and renders the {@link DevPanel}. The panel lets tests swap
  * between named sample deployment graphs without spinning up the
  * VS Code extension host.
  */

@@ -594,7 +594,7 @@ output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUr
 //@      }
 //@    }
 
-module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
+module passthroughPort 'br:port.invalid:5000/passthrough/port:v1' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-04-01",
@@ -646,7 +646,7 @@ module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
   }
 }
 
-module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
+module ipv4 'br:ipv4.invalid/passthrough/ipv4:v1' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-04-01",
@@ -697,7 +697,7 @@ module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
   }
 }
 
-module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
+module ipv4port 'br:ipv4-port.invalid:5000/passthrough/ipv4port:v1' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-04-01",
@@ -748,7 +748,7 @@ module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
   }
 }
 
-module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
+module ipv6 'br:ipv6.invalid/passthrough/ipv6:v1' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-04-01",
@@ -799,7 +799,7 @@ module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
   }
 }
 
-module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
+module ipv6port 'br:ipv6-port.invalid:5000/passthrough/ipv6port:v1' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-04-01",

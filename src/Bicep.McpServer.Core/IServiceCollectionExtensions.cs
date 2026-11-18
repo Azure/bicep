@@ -4,8 +4,6 @@
 using System.Net;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
-using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.McpServer.Core.Extensions;
 using Bicep.McpServer.Core.ResourceProperties;

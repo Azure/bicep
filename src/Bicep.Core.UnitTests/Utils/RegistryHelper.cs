@@ -7,23 +7,25 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using Azure.Bicep.Types.Serialization;
 using Azure.Containers.ContainerRegistry;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Codecs;
+using Bicep.Core.Artifacts.Packages;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Registries;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Azure;
-using Bicep.Core.Registry.Extensions;
-using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Oci.Oras;
-using Bicep.Core.Registry.Sessions;
+using Bicep.Core.RegistryClients.Oci;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using Bicep.IO.FileSystem;
 using Bicep.IO.Utils;
 using FluentAssertions;
@@ -31,7 +33,6 @@ using Google.Protobuf;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using static Bicep.Core.UnitTests.Registry.FakeContainerRegistryClient;
 using static Bicep.Core.UnitTests.Utils.TestContainerRegistryClientFactoryBuilder;
 
 namespace Bicep.Core.UnitTests.Utils;
@@ -40,16 +41,7 @@ public static class RegistryHelper
 {
     private static ServiceBuilder ConfigureServiceBuilder(ServiceBuilder serviceBuilder)
         => serviceBuilder
-            .WithFeaturesOverridden(f => f with { RegistryEnabled = true })
-            .WithRegistration(services =>
-            {
-                services.AddSingleton<IOciRegistryTransportFactory>(sp =>
-                {
-                    var azureTransport = sp.GetRequiredService<AzureContainerRegistryManager>();
-                    var dockerCredentials = sp.GetRequiredService<DockerCredentialProvider>();
-                    return new OciRegistryTransportFactory(azureTransport, dockerCredentials);
-                });
-            });
+            .WithFeaturesOverridden(f => f with { RegistryEnabled = true });
 
     public static ServiceBuilder CreateServiceBuilderWithTransportOverride()
         => ConfigureServiceBuilder(new ServiceBuilder());
@@ -154,15 +146,15 @@ public static class RegistryHelper
             .WithDisabledAnalyzersConfiguration()
             .WithContainerRegistryClientFactory(clientFactory)
             .WithFileSystem(fileSystem)
-            .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
+            .WithTemplateSpecClientFactory(BicepTestConstants.TemplateSpecClientFactory)
             .WithFeatureProviderFactory(featureProviderFactory);
 
         var services = serviceBuilder.Build();
-        var dispatcher = services.Construct<IModuleDispatcher>();
-        var sourceFileFactory = services.Construct<ISourceFileFactory>();
-        var dummyFile = sourceFileFactory.CreateBicepFile(PathHelper.FilePathToFileUrl(fileSystem.Path.GetFullPath("main.bicep")).ToIOUri(), "");
+        var resolver = services.Construct<IArtifactReferenceResolver>();
+        var ociRegistry = services.Construct<OciArtifactRegistry>();
+        var referencingUri = PathHelper.FilePathToFileUrl(fileSystem.Path.GetFullPath("main.bicep")).ToIOUri();
 
-        var targetReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Module, module.PublishTarget).IsSuccess(out var @ref) ? @ref
+        var targetReference = resolver.TryResolve(referencingUri, ArtifactType.Module, module.PublishTarget).IsSuccess(out var @ref) && @ref is OciArtifactReference ociReference ? ociReference
             : throw new InvalidOperationException($"Module '{module.ModuleName}' has an invalid target reference '{module.PublishTarget}'. Specify a reference to an OCI artifact.");
 
         var result = await CompilationHelper.RestoreAndCompile(serviceBuilder, module.BicepSource);
@@ -172,7 +164,7 @@ public static class RegistryHelper
         }
 
         BinaryData? sourcesStream = module.WithSource ? SourceArchive.CreateFrom(result.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
-        await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri);
+        await ociRegistry.PublishModule(targetReference, ModuleArtifactPackage.FromTemplate(BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri));
     }
 
     // Creates a new registry client factory and publishes the specified modules to the registry.
@@ -268,15 +260,15 @@ public static class RegistryHelper
     }
 
     public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, BinaryData tgzData, Uri? bicepFileUri = null)
-        => await PublishExtensionToRegistryAsync(services, target, new ExtensionPackage(tgzData, false, []), bicepFileUri);
+        => await PublishExtensionToRegistryAsync(services, target, new ExtensionArtifactPackage(tgzData, []), bicepFileUri);
 
-    public static Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, ExtensionPackage package, Uri? bicepFileUri = null)
-        => PublishExtensionToRegistryAsync(services.Construct<IModuleDispatcher>(), services.Construct<ISourceFileFactory>(), target, package, bicepFileUri);
+    public static Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, ExtensionArtifactPackage package, Uri? bicepFileUri = null)
+        => PublishExtensionToRegistryAsync(services.Construct<IArtifactReferenceResolver>(), services.Construct<OciArtifactRegistry>(), target, package, bicepFileUri);
 
-    public static Task PublishExtensionToRegistryAsync(IServiceProvider services, string target, ExtensionPackage package, Uri? bicepFileUri = null)
-        => PublishExtensionToRegistryAsync(services.GetRequiredService<IModuleDispatcher>(), services.GetRequiredService<ISourceFileFactory>(), target, package, bicepFileUri);
+    public static Task PublishExtensionToRegistryAsync(IServiceProvider services, string target, ExtensionArtifactPackage package, Uri? bicepFileUri = null)
+        => PublishExtensionToRegistryAsync(services.GetRequiredService<IArtifactReferenceResolver>(), services.GetRequiredService<OciArtifactRegistry>(), target, package, bicepFileUri);
 
-    private static async Task PublishExtensionToRegistryAsync(IModuleDispatcher dispatcher, ISourceFileFactory sourceFileFactory, string target, ExtensionPackage package, Uri? bicepFileUri = null)
+    private static async Task PublishExtensionToRegistryAsync(IArtifactReferenceResolver resolver, OciArtifactRegistry ociRegistry, string target, ExtensionArtifactPackage package, Uri? bicepFileUri = null)
     {
         if (!target.StartsWith("br:"))
         {
@@ -285,16 +277,24 @@ public static class RegistryHelper
             target = Path.GetFileName(targetUri.LocalPath);
         }
 
-        var bicepFile = bicepFileUri is not null
-            ? sourceFileFactory.CreateBicepFile(bicepFileUri.ToIOUri(), "")
-            : BicepTestConstants.DummyBicepFile;
+        var referencingUri = bicepFileUri?.ToIOUri() ?? BicepTestConstants.DummyBicepFile.FileHandle.Uri;
 
-        if (!dispatcher.TryGetArtifactReference(bicepFile, ArtifactType.Extension, target).IsSuccess(out var targetReference, out var errorBuilder))
+        if (!resolver.TryResolve(referencingUri, ArtifactType.Extension, target).IsSuccess(out var targetReference, out var errorBuilder))
         {
             throw new InvalidOperationException($"Failed to get reference '{errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}'.");
         }
 
-        await dispatcher.PublishExtension(targetReference, package);
+        switch (targetReference)
+        {
+            case OciArtifactReference ociReference:
+                await ociRegistry.PublishExtension(ociReference, package);
+                break;
+            case LocalArtifactReference local:
+                local.File.Write(await LocalExtensionArtifactCodec.Encode(package));
+                break;
+            default:
+                throw new InvalidOperationException($"Extension target '{target}' must be an OCI reference or a local file.");
+        }
     }
 
     private static List<RepoTagDescriptor> ToTagDescriptors(IEnumerable<string> tags)

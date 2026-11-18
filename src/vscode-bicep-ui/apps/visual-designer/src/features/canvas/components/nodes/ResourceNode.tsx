@@ -1,31 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { CanvasNodeData } from "@/core";
+
 import { AzureIcon } from "@vscode-bicep-ui/components";
-import { useAtomValue } from "jotai";
 import { motion } from "motion/react";
 import { styled } from "styled-components";
-import { focusedNodeIdAtom } from "@/lib/graph";
 import { EXPAND_TRANSITION } from "@/ui";
 import { camelCaseToWords } from "@/utils";
+import { useIsNodeFocused, useIsNodeSelected } from "../../hooks/use-node-selection";
 import { RESOURCE_NODE_PREVIEW_HEIGHT, RESOURCE_NODE_PREVIEW_WIDTH } from "./ResourceNodePreview";
 
 export interface ResourceNodeProps {
   id: string;
-  data: {
-    symbolicName: string;
-    resourceType: string;
-    isCollection?: boolean;
-    hasError?: boolean;
-    /** Replaces the placeholder shown where the resource was dropped, so it grows from the placeholder's size. */
-    replacesPlaceholder?: boolean;
-  };
+  data: CanvasNodeData;
 }
 
 const $ResourceNode = styled(motion.div)<{
   $hasError?: boolean;
   $isCollection?: boolean;
-  $isFocused?: boolean;
+  $isSelected?: boolean;
 }>`
   position: relative;
   flex: 1;
@@ -35,28 +29,28 @@ const $ResourceNode = styled(motion.div)<{
   margin: 4px;
   box-sizing: border-box;
   border: ${({ $hasError, theme }) => ($hasError ? theme.node.errorBorderWidth : theme.node.borderWidth)} solid
-    ${({ $hasError, $isFocused, theme }) =>
-      $hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
+    ${({ $hasError, $isSelected, theme }) =>
+      $hasError ? theme.error : $isSelected ? theme.node.focusBorder : theme.node.border};
   border-radius: 8px;
   background-color: ${({ theme }) => theme.node.background};
   height: 76px;
   min-width: 220px;
-  box-shadow: ${({ $isFocused, $hasError, theme }) =>
-    $isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
+  box-shadow: ${({ $isSelected, $hasError, theme }) =>
+    $isSelected ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
   transition:
     border-color 180ms ease,
     box-shadow 180ms ease;
 
   &:hover {
-    border-color: ${({ $hasError, $isFocused, theme }) =>
-      $hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.hoverBorder};
-    box-shadow: ${({ $isFocused, $hasError, theme }) => {
-      if ($isFocused) return $hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow;
+    border-color: ${({ $hasError, $isSelected, theme }) =>
+      $hasError ? theme.error : $isSelected ? theme.node.focusBorder : theme.node.hoverBorder};
+    box-shadow: ${({ $isSelected, $hasError, theme }) => {
+      if ($isSelected) return $hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow;
       return $hasError ? theme.node.hoverErrorShadow : theme.node.hoverShadow;
     }};
   }
 
-  ${({ $isCollection, $hasError, $isFocused, theme }) => {
+  ${({ $isCollection, $hasError, $isSelected, theme }) => {
     const offset = theme.node.collectionOffset;
     return $isCollection
       ? `
@@ -69,15 +63,15 @@ const $ResourceNode = styled(motion.div)<{
       left: ${offset}px;
       right: -${offset}px;
       bottom: -${offset}px;
-      border: ${$hasError ? theme.node.errorBorderWidth : theme.node.borderWidth} solid ${$hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
+      border: ${$hasError ? theme.node.errorBorderWidth : theme.node.borderWidth} solid ${$hasError ? theme.error : $isSelected ? theme.node.focusBorder : theme.node.border};
       border-radius: 10px;
       background-color: ${theme.node.background};
       z-index: -1;
-      box-shadow: ${$isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
+      box-shadow: ${$isSelected ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
       transition: border-color 180ms ease, box-shadow 180ms ease;
     }
     &:hover::before {
-      border-color: ${$hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.hoverBorder};
+      border-color: ${$hasError ? theme.error : $isSelected ? theme.node.focusBorder : theme.node.hoverBorder};
     }
   `
       : "";
@@ -124,36 +118,33 @@ const $ResourceTypeContainer = styled.div`
 `;
 
 export function ResourceNode({ id, data }: ResourceNodeProps) {
-  const { symbolicName, resourceType, isCollection, hasError, replacesPlaceholder = false } = data;
-  const normalizedResourceType = resourceType ?? "<unknown>";
-  const resourceTypeDisplayName = camelCaseToWords(normalizedResourceType.split("/").pop());
-  // Modules demoted to atomic (no children) render here with
-  // resourceType "<module>".  Use the folder icon to match the
-  // compound module styling.
-  const iconType = normalizedResourceType === "<module>" ? "folder" : normalizedResourceType;
-  const focusedNodeId = useAtomValue(focusedNodeIdAtom);
-  const isFocused = focusedNodeId === id;
-  const initialCardScaleX = RESOURCE_NODE_PREVIEW_WIDTH / 220;
-  const initialCardScaleY = RESOURCE_NODE_PREVIEW_HEIGHT / 76;
-  const initialIconScaleX = 18 / (36 * initialCardScaleX);
-  const initialIconScaleY = 18 / (36 * initialCardScaleY);
+  const { symbolicName, resourceType, isCollection, hasError, replacesPlaceholder } = data;
+  const resourceTypeDisplayName = camelCaseToWords(resourceType.split("/").pop());
+  const isFocused = useIsNodeFocused(id);
+  const isSelected = useIsNodeSelected(id);
+  const initialScaleX = RESOURCE_NODE_PREVIEW_WIDTH / 220;
+  const initialScaleY = RESOURCE_NODE_PREVIEW_HEIGHT / 76;
+  const initialIconScaleX = 18 / (36 * initialScaleX);
+  const initialIconScaleY = 18 / (36 * initialScaleY);
 
   return (
     <$ResourceNode
       // Motion reads `initial` only on mount, so later updates to the node never replay the growth.
-      initial={replacesPlaceholder ? { scaleX: initialCardScaleX, scaleY: initialCardScaleY } : false}
+      initial={replacesPlaceholder ? { scaleX: initialScaleX, scaleY: initialScaleY } : false}
       animate={{ scaleX: 1, scaleY: 1 }}
       transition={EXPAND_TRANSITION}
       $hasError={hasError}
       $isCollection={isCollection}
-      $isFocused={isFocused}
+      $isSelected={isSelected}
+      data-focused={isFocused}
+      data-selected={isSelected}
     >
       <$ResourceIcon
         initial={replacesPlaceholder ? { scaleX: initialIconScaleX, scaleY: initialIconScaleY } : false}
         animate={{ scaleX: 1, scaleY: 1 }}
         transition={EXPAND_TRANSITION}
       >
-        <AzureIcon resourceType={iconType} size={36} />
+        <AzureIcon resourceType={resourceType} size={36} />
       </$ResourceIcon>
       <$TextContainer>
         <$SymbolicNameContainer>{symbolicName}</$SymbolicNameContainer>

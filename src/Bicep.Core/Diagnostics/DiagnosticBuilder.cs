@@ -3,11 +3,11 @@
 
 using System.Collections.Immutable;
 using System.Text;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -1004,20 +1004,12 @@ namespace Bicep.Core.Diagnostics
                 "BCP188",
                 $"The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template.");
 
-            public Diagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes)
-            {
-                string FormatSchemes() => ToQuotedString(allowedSchemes.Where(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local) && scheme != ArtifactReferenceSchemes.OciMocked));
-
-                return CoreError(
-                    "BCP189",
-                    (allowedSchemes.Contains(ArtifactReferenceSchemes.Local, StringComparer.Ordinal), allowedSchemes.Any(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local, StringComparison.Ordinal))) switch
-                    {
-                        (false, false) => "Module references are not supported in this context.",
-                        (false, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a module reference using one of the following schemes: {FormatSchemes()}",
-                        (true, false) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file.",
-                        (true, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: {FormatSchemes()}",
-                    });
-            }
+            /// <param name="allowedSchemes">The supported schemes of remote artifacts. Local paths are always supported.</param>
+            public Diagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes) => CoreError(
+                "BCP189",
+                allowedSchemes.IsEmpty
+                    ? $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file."
+                    : $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}");
 
             // TODO: This error is context sensitive:
             // - In CLI, it's permanent and only likely to occur with bicep build --no-restore.
@@ -1038,11 +1030,11 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic InvalidOciArtifactReference(string? aliasName, string badRef) => CoreError(
                 "BCP193",
-                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactReferenceSchemes.Oci}:<artifact-uri>:<tag>\", or \"{ArtifactReferenceSchemes.Oci}/<module-alias>:<module-name-or-path>:<tag>\".");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactSchemes.Oci}:<artifact-uri>:<tag>\", or \"{ArtifactSchemes.Oci}/<module-alias>:<module-name-or-path>:<tag>\".");
 
             public Diagnostic InvalidTemplateSpecReference(string? aliasName, string badRef) => CoreError(
                 "BCP194",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactReferenceSchemes.TemplateSpecs}:<subscription-ID>/<resource-group-name>/<template-spec-name>:<version>\", or \"{ArtifactReferenceSchemes.TemplateSpecs}/<module-alias>:<template-spec-name>:<version>\".");
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactSchemes.TemplateSpecs}:<subscription-ID>/<resource-group-name>/<template-spec-name>:<version>\", or \"{ArtifactSchemes.TemplateSpecs}/<module-alias>:<template-spec-name>:<version>\".");
 
             public Diagnostic InvalidOciArtifactReferenceInvalidPathSegment(string? aliasName, string badRef, string badSegment) => CoreError(
                 "BCP195",
@@ -1340,9 +1332,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP272",
                 $"Could not load the Bicep configuration file \"{configFileUri}\": {loadErrorMessage.TrimEnd('.')}.");
 
-            public Diagnostic InvalidBicepConfigFile(IOUri configFileUri, string parsingErrorMessage) => CoreError(
+            public Diagnostic InvalidBicepConfigFile(IOUri configFileUri, string errorMessage) => CoreError(
                 "BCP273",
-                $"Failed to parse the contents of the Bicep configuration file \"{configFileUri}\": {parsingErrorMessage.TrimEnd('.')}.");
+                $"The Bicep configuration file \"{configFileUri}\" is invalid: {errorMessage.TrimEnd('.')}.");
 
             public Diagnostic PotentialConfigDirectoryCouldNotBeScanned(IOUri? directoryIdentifier, string scanErrorMessage) => CoreDiagnostic(
                 DiagnosticLevel.Info, // should this be a warning instead?
@@ -2059,7 +2051,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ModuleReferenceSchemeBrFsNotSupported() => CoreError(
                 "BCP449",
-                $"The '{Registry.Oci.OciArtifactReferenceFacts.MockedScheme}' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'mapToFilePath' alias instead.");
+                $"The '{OciArtifactReferenceFacts.MockedScheme}' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'mapToFilePath' alias instead.");
 
             public Diagnostic ConfigurationFileNotFound(string featureName) => CoreError(
                 "BCP450",
@@ -2073,9 +2065,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP452",
                 @$"The imported symbol ""{symbolName}"" cannot be used in a {LanguageConstants.ParamsFileExtension} file because it depends on deployment-context functions: {ToQuotedString(functionNames)}. Imported declarations may only use functions that can be evaluated while building the parameters file.");
 
-            public Diagnostic BicepConfigExtendsAbsolutePath(IOUri configFileUri) => CoreError(
+            public Diagnostic BicepConfigExtendsMustBeRelativePath(IOUri configFileUri) => CoreError(
                 "BCP453",
-                $"The \"extends\" value in the Bicep configuration file \"{configFileUri}\" must be a relative path. Absolute paths are not allowed.");
+                $"The \"extends\" value in the Bicep configuration file \"{configFileUri}\" must be a string containing a relative path.");
 
             public Diagnostic BicepConfigExtendsCycle(IOUri configFileUri, string cycle) => CoreError(
                 "BCP454",

@@ -15,11 +15,16 @@
  * `auto` follows a change to the graph: it may skip when nothing was resized, and frames what
  * arrived. `reset` is the user asking to re-tidy the same graph, so it must run unconditionally —
  * dragging a node changes its position, never its size, so the layout input is unchanged and an
- * `auto` layout would do nothing — and must leave their viewport alone.
+ * `auto` layout would do nothing — and must leave their viewport alone. `subgraph` lays out only the
+ * subgraphs in `pendingSubgraphLayoutsAtom`, such as the children of a module the user just opened,
+ * each around its anchor, leaving every other node and the camera where they are.
  */
-export type GraphLayoutMode = "auto" | "reset";
+export type GraphLayoutMode = "subgraph" | "auto" | "reset";
 
-/** `graphChanged` means the server's graph moved on; the client must reconcile and retry. */
+/**
+ * `graphChanged` means the graph moved on while the layout was computed, on the server or because the
+ * client shows a different projection of it; the client must reconcile and retry.
+ */
 export type GraphLayoutResult = "completed" | "graphChanged";
 
 export interface GraphUpdateOperations<TUpdate> {
@@ -58,9 +63,15 @@ function pendUpdate(work: PendingWork): PendingWork {
   return { ...work, update: true };
 }
 
-/** A reset outranks an automatic layout: Reset Layout must not be downgraded by an ordinary pass. */
+/** How much of the graph each mode lays out. A wider layout places everything a narrower one would. */
+const LAYOUT_SCOPE: Record<GraphLayoutMode, number> = { subgraph: 0, auto: 1, reset: 2 };
+
+/**
+ * Keep the widest layout owed. A reset outranks an automatic layout, so Reset Layout is not downgraded by an
+ * ordinary pass, and either outranks a `subgraph` layout, which they make unnecessary.
+ */
 function pendLayout(work: PendingWork, mode: GraphLayoutMode): PendingWork {
-  return mode === "reset" || work.layout === "none" ? { ...work, layout: mode } : work;
+  return work.layout === "none" || LAYOUT_SCOPE[mode] > LAYOUT_SCOPE[work.layout] ? { ...work, layout: mode } : work;
 }
 
 /** The next thing to do, and what is still owed once it has been taken. */
@@ -119,9 +130,9 @@ export class GraphUpdateCoordinator<TUpdate> {
     this.updateGeneration++;
   }
 
-  /** Reset Layout. Runs against the reconciled graph, not whatever is displayed now. */
-  requestResetGraphLayout(): Promise<void> {
-    this.pending = pendLayout(this.pending, "reset");
+  /** Lay out the graph. Runs against the reconciled graph, not whatever is displayed now. */
+  requestGraphLayout(mode: GraphLayoutMode): Promise<void> {
+    this.pending = pendLayout(this.pending, mode);
 
     return this.drain();
   }

@@ -3,6 +3,7 @@
 
 using System.CommandLine;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
@@ -12,7 +13,6 @@ using Bicep.Core.Features;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands
 {
@@ -68,53 +68,37 @@ namespace Bicep.Cli.Commands
             return summary.HasErrors ? 1 : 0;
         }
 
-        internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+        internal static Command CreateCommand(CommandLineBuilderContext context)
         {
-            var command = new System.CommandLine.Command(Constants.Command.GenerateParamsFile, "Builds parameters file from the given bicep file, updates if there is an existing parameters file.")
-            {
-                TreatUnmatchedTokensAsErrors = true,
-            };
-
-            var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
-            {
-                Description = "The path to the input .bicep file.",
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            var stdoutOption = new System.CommandLine.Option<bool>(Option.Stdout)
-            {
-                Description = "Prints the output to stdout.",
-            };
-            var noRestoreOption = new System.CommandLine.Option<bool>(Option.NoRestore)
-            {
-                Description = "Generates the parameters file without restoring external modules.",
-            };
-            var outDirOption = new System.CommandLine.Option<string?>(Option.OutDir)
-            {
-                Description = "Saves the output at the specified directory.",
-            };
-            var outFileOption = new System.CommandLine.Option<string?>(Option.OutFile)
-            {
-                Description = "Saves the output as the specified file path.",
-            };
-            var outputFormatOption = new System.CommandLine.Option<OutputFormatOption>(Option.OutputFormat)
+            var inputFileArgument = CommonArguments.OptionalInputFile("The path to the input .bicep file.");
+            var stdoutOption = CommonOptions.Stdout();
+            var noRestoreOption = CommonOptions.NoRestore("Generates the parameters file without restoring external modules.");
+            var outDirOption = CommonOptions.OutDir();
+            var outFileOption = CommonOptions.OutFile();
+            var outputFormatOption = new Option<OutputFormatOption>(OptionNames.OutputFormat)
             {
                 Description = "Selects the output format (json, bicepparam).",
             };
-            var includeParamsOption = new System.CommandLine.Option<IncludeParamsOption>(Option.IncludeParams)
+            var includeParamsOption = new Option<IncludeParamsOption>(OptionNames.IncludeParams)
             {
                 Description = "Selects which parameters to include into output (requiredonly, all).",
             };
+            var configOption = CommonOptions.Config();
 
-            command.Add(inputFileArgument);
-            command.Add(stdoutOption);
-            command.Add(noRestoreOption);
-            command.Add(outDirOption);
-            command.Add(outFileOption);
-            command.Add(outputFormatOption);
-            command.Add(includeParamsOption);
-            command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
+            var command = new Command(CommandNames.GenerateParamsFile, "Builds parameters file from the given bicep file, updates if there is an existing parameters file.")
+            {
+                inputFileArgument,
+                stdoutOption,
+                noRestoreOption,
+                outDirOption,
+                outFileOption,
+                outputFormatOption,
+                includeParamsOption,
+                configOption,
+            };
+            command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
 
-            command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+            command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
             {
                 var outputToStdOut = result.GetValue(stdoutOption);
                 var outputDir = result.GetValue(outDirOption);

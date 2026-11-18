@@ -8,12 +8,15 @@ using System.Text.Json;
 using Azure.Core;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Constants;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Codecs;
+using Bicep.Core.Artifacts.Packages;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Registries;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Extensions;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
@@ -25,13 +28,12 @@ using Bicep.Local.Deploy.Helpers;
 using Bicep.Local.Deploy.Types;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands
 {
     public class PublishExtensionCommand(
-        IModuleDispatcher moduleDispatcher,
-        ISourceFileFactory sourceFileFactory,
+        IArtifactReferenceResolver referenceResolver,
+        OciArtifactRegistry ociRegistry,
         IFileExplorer fileExplorer,
         InputOutputArgumentsResolver inputOutputArgumentsResolver,
         ILocalExtensionFactory localExtensionFactory,
@@ -57,25 +59,55 @@ namespace Bicep.Cli.Commands
                 throw new CommandLineException($"The input file path was not specified.");
             }
 
-            logger.LogWarning($"WARNING: The '{Constants.Command.PublishExtension}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
+            logger.LogWarning($"WARNING: The '{CommandNames.PublishExtension}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
             if (args.TargetExtensionReference is null)
             {
                 throw new CommandLineException("The target extension was not specified.");
             }
-            var reference = ValidateReference(args.TargetExtensionReference);
+            OciArtifactReference? reference = null;
+            IFileHandle? fileTarget = null;
+            if (args.TargetExtensionReference.StartsWith("br:") || args.TargetExtensionReference.StartsWith("ts:"))
+            {
+                reference = ValidateReference(args.TargetExtensionReference, GetCurrentDirectoryReferencingFileUri());
+            }
+            else
+            {
+                fileTarget = fileExplorer.GetFile(inputOutputArgumentsResolver.PathToUri(args.TargetExtensionReference));
+                var fileName = fileTarget.Uri.GetFileName();
+                if (ArtifactAddress.Parse(fileName) is not ArtifactAddress.Path)
+                {
+                    // Preserve diagnostics for malformed paths whose file name is parsed as a scheme.
+                    reference = ValidateReference(fileName, fileTarget.Uri);
+                    fileTarget = null;
+                }
+                else if (!RelativePath.TryCreate(fileName).IsSuccess(out _, out var failureBuilder))
+                {
+                    throw new BicepException(failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message);
+                }
+            }
             var overwriteIfExists = args.Force;
 
-            Trace.WriteLine($"Preparing to publish extension \"{reference.FullyQualifiedReference}\" (force={overwriteIfExists}, indexFile={args.IndexFile ?? "<none>"}, binariesSpecified={args.Binaries.Count}).");
+            Trace.WriteLine($"Preparing to publish extension \"{reference?.FullyQualifiedReference ?? fileTarget?.Uri.GetFileName()}\" (force={overwriteIfExists}, indexFile={args.IndexFile ?? "<none>"}, binariesSpecified={args.Binaries.Count}).");
 
             var binaries = SupportedArchitectures.All.Select(TryGetBinary).WhereNotNull().ToImmutableArray();
             var tarPayload = await GetTypesTarPayload(args, binaries, cancellationToken);
 
-            var package = new ExtensionPackage(
+            var package = new ExtensionArtifactPackage(
                 Types: tarPayload,
-                LocalDeployEnabled: binaries.Any(),
                 Binaries: binaries);
 
-            await this.PublishExtensionAsync(reference, package, overwriteIfExists);
+            if (reference is not null)
+            {
+                await this.PublishExtensionAsync(reference, package, overwriteIfExists);
+            }
+            else if (fileTarget is not null)
+            {
+                fileTarget.Write(await LocalExtensionArtifactCodec.Encode(package));
+            }
+            else
+            {
+                throw new UnreachableException("A publish target must be a file or an OCI reference.");
+            }
             return 0;
         }
 
@@ -111,58 +143,46 @@ namespace Bicep.Cli.Commands
             return await CreateTypesTar(indexHandle);
         }
 
-        private async Task PublishExtensionAsync(ArtifactReference target, ExtensionPackage package, bool overwriteIfExists)
+        private async Task PublishExtensionAsync(OciArtifactReference target, ExtensionArtifactPackage package, bool overwriteIfExists)
         {
             try
             {
                 // If we don't want to overwrite, ensure extension doesn't exist
-                if (!overwriteIfExists && await moduleDispatcher.CheckExtensionExists(target))
+                if (!overwriteIfExists && await ociRegistry.CheckArtifactExists(target))
                 {
                     throw new BicepException($"The extension \"{target.FullyQualifiedReference}\" already exists. Use --force to overwrite the existing extension.");
                 }
                 Trace.WriteLine($"Publishing extension package to \"{target.FullyQualifiedReference}\".");
-                await moduleDispatcher.PublishExtension(target, package);
+                await ociRegistry.PublishExtension(target, package);
                 Trace.WriteLine($"Successfully published extension package to \"{target.FullyQualifiedReference}\".");
             }
-            catch (ExternalArtifactException exception)
+            catch (ArtifactException exception)
             {
                 throw new BicepException($"Unable to publish extension \"{target.FullyQualifiedReference}\": {exception.Message}");
             }
         }
 
-        private ArtifactReference ValidateReference(string targetReference)
+        private IOUri GetCurrentDirectoryReferencingFileUri()
         {
-            IOUri dummyReferencingFileUri;
+            // Configuration discovery starts in a file's containing directory. This file is never read.
+            return IOUri.FromFilePath(Path.Join(environment.CurrentDirectory, "dummy"));
+        }
 
-            if (!targetReference.StartsWith("br:") && !targetReference.StartsWith("ts:"))
+        private OciArtifactReference ValidateReference(string targetReference, IOUri referencingFileUri)
+        {
+            if (!referenceResolver.TryResolve(referencingFileUri, ArtifactType.Extension, targetReference).IsSuccess(out var extensionReference, out var failureBuilder))
             {
-                // If targetReference is a fully qualified file, we need to create a dummy artifact referencing
-                // file with the path, and change targetReference to be the file name so it is a relative reference,
-                // because absoluate reference is not supported by Bicep.
-                dummyReferencingFileUri = inputOutputArgumentsResolver.PathToUri(targetReference);
-                targetReference = dummyReferencingFileUri.GetFileName();
-            }
-            else
-            {
-                dummyReferencingFileUri = IOUri.FromFilePath(Path.Join(environment.CurrentDirectory, "dummy"));
-            }
-
-            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(dummyReferencingFileUri, "");
-
-            if (!moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Extension, targetReference).IsSuccess(out var extensionReference, out var failureBuilder))
-            {
-                // TODO: We should probably clean up the dispatcher contract so this sort of thing isn't necessary (unless we change how target module is set in this command)
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
 
                 throw new BicepException(message);
             }
 
-            if (!moduleDispatcher.GetRegistryCapabilities(ArtifactType.Extension, extensionReference).HasFlag(RegistryCapabilities.Publish))
+            if (extensionReference is not OciArtifactReference { Tag: not null } ociReference)
             {
                 throw new BicepException($"The specified extension target \"{targetReference}\" is not supported.");
             }
 
-            return extensionReference;
+            return ociReference;
         }
 
         private static void ValidateExtension(BinaryData extension)
@@ -217,42 +237,42 @@ namespace Bicep.Cli.Commands
             return indexHandle;
         }
 
-        internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+        internal static Command CreateCommand(CommandLineBuilderContext context)
         {
-            var command = new System.CommandLine.Command(Constants.Command.PublishExtension, "[Experimental] Publishes a Bicep extension to a registry.");
-
-            var indexFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.IndexFile)
+            var indexFileArgument = new Argument<string?>(ArgumentNames.IndexFile)
             {
                 Description = "The path to the index file.",
                 Arity = ArgumentArity.ZeroOrOne,
             };
-            var targetOption = new System.CommandLine.Option<string?>(Option.Target)
+            var targetOption = new Option<string?>(OptionNames.Target)
             {
                 Description = "The target extension reference.",
             };
-            var forceOption = new System.CommandLine.Option<bool>(Option.Force)
+            var forceOption = CommonOptions.Force("Force publish even if the extension already exists.");
+            var binLinuxX64Option = new Option<string?>(OptionNames.BinLinuxX64) { Description = "Path to the linux-x64 binary." };
+            var binLinuxArm64Option = new Option<string?>(OptionNames.BinLinuxArm64) { Description = "Path to the linux-arm64 binary." };
+            var binOsxX64Option = new Option<string?>(OptionNames.BinOsxX64) { Description = "Path to the osx-x64 binary." };
+            var binOsxArm64Option = new Option<string?>(OptionNames.BinOsxArm64) { Description = "Path to the osx-arm64 binary." };
+            var binWinX64Option = new Option<string?>(OptionNames.BinWinX64) { Description = "Path to the win-x64 binary." };
+            var binWinArm64Option = new Option<string?>(OptionNames.BinWinArm64) { Description = "Path to the win-arm64 binary." };
+            var configOption = CommonOptions.Config();
+
+            var command = new Command(CommandNames.PublishExtension, "[Experimental] Publishes a Bicep extension to a registry.")
             {
-                Description = "Force publish even if the extension already exists.",
+                indexFileArgument,
+                targetOption,
+                forceOption,
+                binLinuxX64Option,
+                binLinuxArm64Option,
+                binOsxX64Option,
+                binOsxArm64Option,
+                binWinX64Option,
+                binWinArm64Option,
+                configOption,
             };
-            var binLinuxX64Option = new System.CommandLine.Option<string?>(Option.BinLinuxX64) { Description = "Path to the linux-x64 binary." };
-            var binLinuxArm64Option = new System.CommandLine.Option<string?>(Option.BinLinuxArm64) { Description = "Path to the linux-arm64 binary." };
-            var binOsxX64Option = new System.CommandLine.Option<string?>(Option.BinOsxX64) { Description = "Path to the osx-x64 binary." };
-            var binOsxArm64Option = new System.CommandLine.Option<string?>(Option.BinOsxArm64) { Description = "Path to the osx-arm64 binary." };
-            var binWinX64Option = new System.CommandLine.Option<string?>(Option.BinWinX64) { Description = "Path to the win-x64 binary." };
-            var binWinArm64Option = new System.CommandLine.Option<string?>(Option.BinWinArm64) { Description = "Path to the win-arm64 binary." };
+            command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, indexFileArgument));
 
-            command.Add(indexFileArgument);
-            command.Add(targetOption);
-            command.Add(forceOption);
-            command.Add(binLinuxX64Option);
-            command.Add(binLinuxArm64Option);
-            command.Add(binOsxX64Option);
-            command.Add(binOsxArm64Option);
-            command.Add(binWinX64Option);
-            command.Add(binWinArm64Option);
-            command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidatePositionalArgument(result, indexFileArgument));
-
-            command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+            command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
             {
                 var binaries = new Dictionary<string, string>();
                 if (result.GetValue(binLinuxX64Option) is { } p1) { binaries["linux-x64"] = p1; }

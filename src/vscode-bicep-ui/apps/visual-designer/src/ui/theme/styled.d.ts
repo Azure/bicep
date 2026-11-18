@@ -17,7 +17,7 @@ declare module "styled-components" {
       background: string;
       compoundBackground: string;
       border: string;
-      /** Border width for node cards. Thicker in high-contrast themes. */
+      /** Border width for nodes. Thicker in high-contrast themes. */
       borderWidth: string;
       /** Border width for error nodes. Slightly thicker than default in normal themes. */
       errorBorderWidth: string;

@@ -2,12 +2,17 @@
 // Licensed under the MIT License.
 
 using System.IO;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.RpcClient.Helpers;
 using FluentAssertions;
+using RichardSzalay.MockHttp;
 
 namespace Bicep.RpcClient.Tests;
 
@@ -16,8 +21,119 @@ public class BicepInstallerTests
 {
     public TestContext TestContext { get; set; } = null!;
 
-    private string GetTempPath(string fileName) =>
-        Path.Combine(TestContext.TestRunDirectory!, $"{TestContext.TestName}_{fileName}");
+    private string GetTempPath(string fileName)
+    {
+        var directory = Directory.CreateDirectory(FileHelper.GetTestOutputRootPath(TestContext));
+
+        return Path.Combine(directory.FullName, $"{TestContext.TestName}_{fileName}");
+    }
+
+    [TestMethod]
+    public async Task GetLatestBicepVersion_caches_results_per_installer_independently_of_release_list()
+    {
+        using var handler = new MockHttpMessageHandler();
+        handler.Fallback.Throw(new InvalidOperationException("Unexpected HTTP request."));
+        handler.Expect(HttpMethod.Get, "https://downloads.bicep.azure.com/releases/latest")
+            .Respond("application/json", """{"tag_name":"v0.40.1"}""");
+        var installer = new BicepInstaller(new(handler));
+        var token = TestContext.CancellationTokenSource.Token;
+
+        (await installer.GetLatestBicepVersion(token)).Should().Be("v0.40.1");
+        (await installer.GetLatestBicepVersion(token)).Should().Be("v0.40.1");
+        handler.VerifyNoOutstandingExpectation();
+
+        handler.Expect(HttpMethod.Get, "https://downloads.bicep.azure.com/releases")
+            .Respond("application/json", """[{"tag_name":"v0.39.0"}]""");
+        (await installer.ListBicepVersions(token)).Should().Equal("0.39.0");
+        (await installer.GetLatestBicepVersion(token)).Should().Be("v0.40.1");
+        handler.VerifyNoOutstandingExpectation();
+
+        handler.Expect(HttpMethod.Get, "https://downloads.bicep.azure.com/releases/latest")
+            .Respond("application/json", """{"tag_name":"v0.41.0"}""");
+        var otherInstaller = new BicepInstaller(new(handler));
+
+        (await otherInstaller.GetLatestBicepVersion(token)).Should().Be("v0.41.0");
+        handler.VerifyNoOutstandingExpectation();
+    }
+
+    [TestMethod]
+    [SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "Test gating; not an issue in test code.")]
+    public async Task GetLatestBicepVersion_concurrent_calls_share_one_fetch_and_waiters_can_cancel()
+    {
+        using var handler = new MockHttpMessageHandler();
+        handler.Fallback.Throw(new InvalidOperationException("Unexpected HTTP request."));
+        var response = new TaskCompletionSource<HttpResponseMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
+        handler.Expect(HttpMethod.Get, "https://downloads.bicep.azure.com/releases/latest")
+            .Respond(_ => response.Task);
+        var installer = new BicepInstaller(new(handler));
+        var token = TestContext.CancellationTokenSource.Token;
+
+        var first = installer.GetLatestBicepVersion(token);
+        var second = installer.GetLatestBicepVersion(token);
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(token);
+        var canceledWaiter = installer.GetLatestBicepVersion(cts.Token);
+        await cts.CancelAsync();
+        var act = () => canceledWaiter;
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        response.SetResult(new(HttpStatusCode.OK)
+        {
+            Content = new StringContent("""{"tag_name":"v0.40.1"}"""),
+        });
+
+        (await Task.WhenAll(first, second).WaitAsync(token)).Should().Equal("v0.40.1", "v0.40.1");
+        var canceledCacheRead = () => installer.GetLatestBicepVersion(cts.Token);
+        await canceledCacheRead.Should().ThrowAsync<OperationCanceledException>();
+        (await installer.GetLatestBicepVersion(token)).Should().Be("v0.40.1");
+        handler.VerifyNoOutstandingExpectation();
+    }
+
+    [TestMethod]
+    [DataRow(HttpStatusCode.ServiceUnavailable, "{}", typeof(HttpRequestException))]
+    [DataRow(HttpStatusCode.OK, "{", typeof(JsonException))]
+    [DataRow(HttpStatusCode.OK, """{"tag_name":null}""", typeof(InvalidOperationException))]
+    public async Task GetLatestBicepVersion_failed_fetch_is_not_cached(HttpStatusCode status, string content, Type exceptionType)
+    {
+        using var handler = new MockHttpMessageHandler();
+        handler.Expect(HttpMethod.Get, "https://downloads.bicep.azure.com/releases/latest")
+            .Respond(status, "application/json", content);
+        var installer = new BicepInstaller(new(handler));
+        var token = TestContext.CancellationTokenSource.Token;
+        var act = () => installer.GetLatestBicepVersion(token);
+
+        var assertion = await act.Should().ThrowAsync<Exception>();
+        assertion.Which.Should().BeAssignableTo(exceptionType);
+
+        handler.Expect(HttpMethod.Get, "https://downloads.bicep.azure.com/releases/latest")
+            .Respond("application/json", """{"tag_name":"v0.40.1"}""");
+
+        (await installer.GetLatestBicepVersion(token)).Should().Be("v0.40.1");
+        handler.VerifyNoOutstandingExpectation();
+    }
+
+    [TestMethod]
+    public async Task GetLatestBicepVersion_canceled_fetch_is_not_cached()
+    {
+        using var handler = new MockHttpMessageHandler();
+        var token = TestContext.CancellationTokenSource.Token;
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(token);
+        handler.Expect(HttpMethod.Get, "https://downloads.bicep.azure.com/releases/latest")
+            .Respond(_ =>
+            {
+                cts.Cancel();
+                return Task.FromCanceled<HttpResponseMessage>(cts.Token);
+            });
+        var installer = new BicepInstaller(new(handler));
+        var act = () => installer.GetLatestBicepVersion(cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        handler.Expect(HttpMethod.Get, "https://downloads.bicep.azure.com/releases/latest")
+            .Respond("application/json", """{"tag_name":"v0.40.1"}""");
+
+        (await installer.GetLatestBicepVersion(token)).Should().Be("v0.40.1");
+        handler.VerifyNoOutstandingExpectation();
+    }
 
     [TestMethod]
     public void TryAcquireFileLock_returns_a_stream_and_creates_the_lock_file_when_not_already_locked()

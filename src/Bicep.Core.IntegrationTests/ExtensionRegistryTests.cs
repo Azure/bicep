@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions.TestingHelpers;
+using Bicep.Core.Artifacts.Codecs;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Registry.Extensions;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
@@ -15,6 +15,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;
 using Bicep.Testing.Assertions;
 using Bicep.Testing.IO;
+using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -49,7 +50,7 @@ public class ExtensionRegistryTests : TestBase
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(false, "", false)]
     [DataRow(false, "as fooExt", false)]
     [DataRow(true, "", true)]
@@ -94,7 +95,7 @@ public class ExtensionRegistryTests : TestBase
         result.Template.Should().NotBeNull();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(false, "", false)]
     [DataRow(false, "as fooExt", false)]
     [DataRow(true, "", true)]
@@ -145,11 +146,42 @@ public class ExtensionRegistryTests : TestBase
     }
 
     [TestMethod]
+    public async Task Filesystem_extensions_can_be_compiled_without_restore()
+    {
+        // Local extension packages are unpacked into the cache on first use, so no restore is needed.
+        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+        var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory));
+
+        var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+        Directory.CreateDirectory(tempDirectory);
+
+        var bicepPath = Path.Combine(tempDirectory, "main.bicep");
+        await File.WriteAllTextAsync(bicepPath, """
+            extension './extension.tgz'
+
+            resource fooRes 'fooType@v1' = {
+              identifier: 'foo'
+              properties: {
+                required: 'bar'
+              }
+            }
+            """);
+        await File.WriteAllBytesAsync(
+            Path.Combine(tempDirectory, "extension.tgz"),
+            (await LocalExtensionArtifactCodec.Encode(new(ExtensionResourceTypeHelper.GetTestTypesTgz(), []))).ToArray());
+
+        var compilation = services.Build().GetCompiler().CreateCompilationWithoutRestore(PathHelper.FilePathToFileUrl(bicepPath).ToIOUri());
+
+        CompilationHelper.GetCompilationResult(compilation).Should().NotHaveAnyDiagnostics();
+        cacheDirectory.GetDirectory("local/").EnumerateDirectories().Count().Should().Be(1);
+    }
+
+    [TestMethod]
     public async Task Filesystem_extensions_can_be_compiled()
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
         var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
-        var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
+        var extensionTgz = await LocalExtensionArtifactCodec.Encode(new(typesTgz, []));
 
         var result = await CompilationHelper.RestoreAndCompile(
           ("main.bicep", new("""
@@ -171,7 +203,7 @@ resource fooRes 'fooType@v1' = {
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
         var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
-        var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
+        var extensionTgz = await LocalExtensionArtifactCodec.Encode(new(typesTgz, []));
 
         var result = await this.compiler.Compile(
             ("main.bicep", """
@@ -400,6 +432,28 @@ output baz string = fooRes.convertBarToBaz('bar')
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().HaveValueAtPath("$.outputs['baz'].value", "[invokeResourceMethod('fooRes', 'convertBarToBaz', createArray('bar'))]");
+    }
+
+    [TestMethod]
+    // microsoftGraph pins current behavior: an explicit "extension microsoftGraph" reports that the built-in was retired instead.
+    [DataRow("notConfigured")]
+    [DataRow("microsoftGraph")]
+    public async Task Implicit_extension_without_an_extensions_entry_reports_missing_configuration(string extensionName)
+    {
+        var fileSystem = new MockFileSystem();
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ExtensionResourceTypeHelper.GetTestTypesTgz(), AllFeaturesEnabled, fileSystem);
+
+        fileSystem.File.WriteAllText("/bicepconfig.json", $$"""
+            {
+              "implicitExtensions": ["{{extensionName}}"]
+            }
+            """);
+
+        var result = await CompilationHelper.RestoreAndCompile(services, "output o string = 'x'");
+
+        var diagnostic = result.ExcludingLinterDiagnostics().Diagnostics.Should().ContainSingle().Subject;
+        diagnostic.Code.Should().Be("BCP397");
+        diagnostic.Message.Should().StartWith($"Extension {extensionName} is incorrectly configured in the Bicep configuration");
     }
 
     [TestMethod]

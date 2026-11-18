@@ -4,6 +4,7 @@
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.AssertionsTests;
@@ -30,7 +31,7 @@ public class ResultAssertionsExtensionsTests
     {
         var result = new Result<string, int>("my success");
         var func = () => result.Should().BeFailure("Simon didn't say");
-        func.Should().Throw<AssertFailedException>().WithMessage("Expected result to be a failure because Simon didn't say, but it was a success with value \"my success\"");
+        func.Should().Throw<AssertionFailedException>().WithMessage("Expected result to be a failure because Simon didn't say, but it was a success with value \"my success\"");
     }
 
     [TestMethod]
@@ -38,7 +39,7 @@ public class ResultAssertionsExtensionsTests
     {
         var result = new Result<string, int>("my success");
         var func = () => result.Should().BeFailureWithValue(501, "Simon didn't say");
-        func.Should().Throw<AssertFailedException>().WithMessage("Expected result to be a failure with value 501 because Simon didn't say, but it was a success with value \"my success\"");
+        func.Should().Throw<AssertionFailedException>().WithMessage("Expected result to be a failure with value 501 because Simon didn't say, but it was a success with value \"my success\"");
     }
 
     [TestMethod]
@@ -46,7 +47,7 @@ public class ResultAssertionsExtensionsTests
     {
         var result = new Result<string, int>(404);
         var func = () => result.Should().BeFailureWithValue(501, "Simon didn't say");
-        func.Should().Throw<AssertFailedException>().WithMessage("Expected result to be a failure with value 501 because Simon didn't say, but the failure had value 404");
+        func.Should().Throw<AssertionFailedException>().WithMessage("Expected result to be a failure with value 501 because Simon didn't say, but the failure had value 404");
     }
 
     [TestMethod]
@@ -68,7 +69,7 @@ public class ResultAssertionsExtensionsTests
     {
         var result = new Result<string, int>(404);
         var func = () => result.Should().BeSuccess("Simon said");
-        func.Should().Throw<AssertFailedException>().WithMessage("Expected result to be a success because Simon said, but it was a failure with value 404");
+        func.Should().Throw<AssertionFailedException>().WithMessage("Expected result to be a success because Simon said, but it was a failure with value 404");
     }
 
     [TestMethod]
@@ -76,7 +77,7 @@ public class ResultAssertionsExtensionsTests
     {
         var result = new Result<string, int>(404);
         var func = () => result.Should().BeSuccessWithValue("my success", "Simon said");
-        func.Should().Throw<AssertFailedException>().WithMessage("Expected result to be a success with value \"my success\" because Simon said, but it was a failure with value 404");
+        func.Should().Throw<AssertionFailedException>().WithMessage("Expected result to be a success with value \"my success\" because Simon said, but it was a failure with value 404");
     }
 
     [TestMethod]
@@ -84,6 +85,6 @@ public class ResultAssertionsExtensionsTests
     {
         var result = new Result<string, int>("your success");
         var func = () => result.Should().BeSuccessWithValue("my success", "Red Rover should come over");
-        func.Should().Throw<AssertFailedException>().WithMessage("Expected result to be a success with value \"my success\" because Red Rover should come over, but the actual value was \"your success\"");
+        func.Should().Throw<AssertionFailedException>().WithMessage("Expected result to be a success with value \"my success\" because Red Rover should come over, but the actual value was \"your success\"");
     }
 }

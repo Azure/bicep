@@ -679,6 +679,64 @@ kind: 'StorageV2'
             });
     }
 
+    [TestMethod]
+    public async Task Requests_with_config_path_use_explicit_configuration_instead_of_discovery()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = """
+                param foo string
+                module mod 'modules/mod.bicep' = {
+                name: 'mod'
+                }
+                """,
+            ["/modules/mod.bicep"] = "param bar string = 'bar'",
+            ["/modules/bicepconfig.json"] = """{ "analyzers": { "core": { "rules": { "no-unused-params": { "level": "off" } } } } }""",
+            ["/eng/bicepconfig.ci.json"] = """
+                {
+                  "analyzers": { "core": { "rules": { "no-unused-params": { "level": "error" } } } },
+                  "formatting": { "indentSize": 4 }
+                }
+                """,
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var discovered = await client.Compile(new("/main.bicep"), token);
+                discovered.Diagnostics.Where(x => x.Code == "no-unused-params").Select(x => x.Level).Should().Equal("Warning");
+
+                var explicitResponse = await client.Compile(new("/main.bicep", "/eng/bicepconfig.ci.json"), token);
+                explicitResponse.Diagnostics.Where(x => x.Code == "no-unused-params").Select(x => x.Level).Should().Equal("Error", "Error");
+
+                var formatted = await client.Format(new("/main.bicep", "/eng/bicepconfig.ci.json"), token);
+                formatted.Contents.Should().Contain("\n    name: 'mod'\n");
+
+                var references = await client.GetFileReferences(new("/main.bicep", "/eng/bicepconfig.ci.json"), token);
+                references.FilePaths.Select(Path.GetFileName).Should().Contain("bicepconfig.ci.json").And.NotContain("bicepconfig.json");
+            });
+    }
+
+    [TestMethod]
+    public async Task Requests_with_missing_config_path_fail()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = "param foo string",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var request = () => client.Compile(new("/main.bicep", "/missing.json"), token);
+
+                (await request.Should().ThrowAsync<RemoteInvocationException>())
+                    .WithMessage("Could not find configuration file \"/missing.json\".");
+            });
+    }
+
     private sealed class CancellationObservingDocumentationGenerator : IBicepDocumentationGenerator
     {
         public bool BuildObserved { get; private set; }

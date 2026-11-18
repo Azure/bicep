@@ -5,6 +5,7 @@ import { CompilationStatus } from "./BicepEditor";
 import { getBicepVersionLink } from "./version-link";
 
 interface Props {
+  editorMode: boolean;
   compilationStatus: CompilationStatus;
   durationMs: number | undefined;
   errorCount: number;
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export const StatusBar: React.FC<Props> = ({
+  editorMode,
   compilationStatus,
   durationMs,
   errorCount,
@@ -38,38 +40,45 @@ export const StatusBar: React.FC<Props> = ({
   const versionLink = getBicepVersionLink(version);
 
   return (
-    <footer className="status-bar" aria-label="Compilation status">
-      <span className="visually-hidden" role="status" aria-live="polite">
-        {status.label}
-      </span>
-      {hasProblems ? (
-        <button
-          id="compilation-status-summary"
-          type="button"
-          className={`status-section status-summary ${status.tone}`}
-          aria-expanded={problemsOpen}
-          aria-controls="problems-panel"
-          onClick={onToggleProblems}
-        >
-          {summaryContents}
-        </button>
-      ) : (
-        <div
-          className={`status-section ${status.tone}`}
-          role="status"
-          aria-live="polite"
-        >
-          {summaryContents}
-        </div>
+    <footer
+      className="status-bar"
+      aria-label={editorMode ? "Compilation status" : "Playground information"}
+    >
+      {editorMode && (
+        <>
+          <span className="visually-hidden" role="status" aria-live="polite">
+            {status.label}
+          </span>
+          {hasProblems ? (
+            <button
+              id="compilation-status-summary"
+              type="button"
+              className={`status-section status-summary ${status.tone}`}
+              aria-expanded={problemsOpen}
+              aria-controls="problems-panel"
+              onClick={onToggleProblems}
+            >
+              {summaryContents}
+            </button>
+          ) : (
+            <div
+              className={`status-section ${status.tone}`}
+              role="status"
+              aria-live="polite"
+            >
+              {summaryContents}
+            </div>
+          )}
+          <div className="status-details">
+            <span>
+              {errorCount} {errorCount === 1 ? "error" : "errors"}
+            </span>
+            <span>
+              {warningCount} {warningCount === 1 ? "warning" : "warnings"}
+            </span>
+          </div>
+        </>
       )}
-      <div className="status-details">
-        <span>
-          {errorCount} {errorCount === 1 ? "error" : "errors"}
-        </span>
-        <span>
-          {warningCount} {warningCount === 1 ? "warning" : "warnings"}
-        </span>
-      </div>
       <span className="layout-spacer" />
       <a
         className="github-link"

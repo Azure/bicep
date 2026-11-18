@@ -630,7 +630,7 @@ namespace Bicep.Core.UnitTests.Configuration
             configuration.ToUtf8Json().Should().Be(BicepConfiguration.BuiltIn.ToUtf8Json());
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("""
             {
               "cloud": {
@@ -696,7 +696,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var diagnostics = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).GetDiagnostics().ToImmutableArray();
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\": {expectedExceptionMessage}");
+            diagnostics[0].Message.Should().Be($"The Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\" is invalid: {expectedExceptionMessage}");
         }
 
         [TestMethod]
@@ -761,10 +761,10 @@ namespace Bicep.Core.UnitTests.Configuration
             // Assert.
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\": {expectedExceptionMessage}");
+            diagnostics[0].Message.Should().Be($"The Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\" is invalid: {expectedExceptionMessage}");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("repo")]
         [DataRow("re%20po")]
         public void GetConfiguration_ValidCustomConfiguration_OverridesBuiltInConfiguration(string root)

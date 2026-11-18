@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { gunzipSync } from "node:zlib";
+import { type Request } from "@playwright/test";
 import {
   createPlayground,
   expect,
@@ -218,6 +220,7 @@ test.describe("sharing", () => {
 
     await playground.copyLink.click();
     const sharedUrl = await page.evaluate(() => navigator.clipboard.readText());
+    expect(new URL(sharedUrl).hash).toMatch(/^#editor\//);
     await page.goto(sharedUrl);
 
     const reloadedPlayground = createPlayground(page);
@@ -248,7 +251,7 @@ test.describe("sharing", () => {
     await page.route(
       "https://dc.services.visualstudio.com/**",
       async (route) => {
-        telemetryPayloads.push(route.request().postData() ?? "");
+        telemetryPayloads.push(readTelemetryPayload(route.request()));
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -558,7 +561,7 @@ test.describe("native interface", () => {
       page.getByRole("navigation", { name: "Playground actions" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("main", { name: "Bicep compilation workspace" }),
+      page.getByRole("main", { name: "Playground workspace" }),
     ).toBeVisible();
     await expect(playground.bicepPane).toBeVisible();
     await expect(playground.armPane).toBeVisible();
@@ -615,14 +618,26 @@ test.describe("native interface", () => {
     const problems = page.getByRole("region", { name: "Problems" });
     await expect(problems).toBeVisible();
     await expect(problems).toHaveCSS("min-height", "140px");
-    await expect(page.getByRole("main")).toHaveCSS("padding-bottom", "0px");
+    await expect(page.locator(".workspace")).toHaveCSS("padding-bottom", "0px");
     await expect(problems).toHaveCSS("margin-bottom", "4px");
     await expect(problems.locator(".problem").first()).toContainText("BCP");
+    await page.setViewportSize({ width: 640, height: 360 });
+    const problemsBounds = await problems.boundingBox();
+    const footerBounds = await page.getByRole("contentinfo").boundingBox();
+    expect(problemsBounds!.height).toBeLessThanOrEqual(180);
+    expect(problemsBounds!.y + problemsBounds!.height).toBeLessThanOrEqual(
+      footerBounds!.y,
+    );
+    await expect(playground.bicepEditor).toBeVisible();
+    await page.setViewportSize({ width: 1280, height: 720 });
     await problems.getByRole("button", { name: "Close Problems" }).click();
     await expect(problems).toBeHidden();
-    await expect(page.getByRole("main")).toHaveCSS("padding-bottom", "4px");
+    await expect(page.locator(".workspace")).toHaveCSS("padding-bottom", "4px");
 
     await page.getByRole("button", { name: /Compilation failed/ }).click();
+    await expect(
+      page.getByRole("tab", { name: "Editor", exact: true }),
+    ).toHaveAttribute("aria-selected", "true");
     await expect(problems).toBeVisible();
     await problems.locator(".problem").first().click();
     await expect
@@ -709,6 +724,21 @@ test.describe("native interface", () => {
     );
   });
 });
+
+// Application Insights can gzip payloads, depending on remote SDK configuration.
+// Decompress them so the assertions inspect the telemetry that was actually sent.
+function readTelemetryPayload(request: Request): string {
+  const body = request.postDataBuffer();
+  if (!body) {
+    return "";
+  }
+
+  const isGzip =
+    request.headers()["content-encoding"] === "gzip" ||
+    (body[0] === 0x1f && body[1] === 0x8b);
+
+  return (isGzip ? gunzipSync(body) : body).toString("utf-8");
+}
 
 function parseTelemetryPayload(payload: string): unknown[] {
   const parsed = JSON.parse(payload) as unknown;

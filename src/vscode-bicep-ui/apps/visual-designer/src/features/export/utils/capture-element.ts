@@ -91,6 +91,9 @@ export async function captureGraphElement(
       backgroundColor,
       pixelRatio: 2,
       filter: (node: HTMLElement) => {
+        if (node.hasAttribute?.("data-export-exclude")) {
+          return false;
+        }
         // Exclude the dot-pattern background SVGs from the export.
         if (node.tagName === "svg" && node.querySelector?.("pattern")) {
           return false;

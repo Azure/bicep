@@ -21,7 +21,7 @@ public class CompilerVersionValidatorTests
         CompilerVersionValidator.Validate(constraint: null, runningVersion: "1.2.3", configFileUri: ConfigFileUri, constraintViolationLevel: DiagnosticLevel.Error).Should().BeNull();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2.3", "1.2.3")]
     [DataRow(">=1.0.0, <2.0.0", "1.2.3")]
     [DataRow(">=1.2.3", "1.2.3")]
@@ -31,7 +31,7 @@ public class CompilerVersionValidatorTests
         CompilerVersionValidator.Validate(VersionRange.Parse(constraint), runningVersion, ConfigFileUri, DiagnosticLevel.Error).Should().BeNull();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2.3", "1.2.4")]
     [DataRow(">=1.0.0, <2.0.0", "2.0.0")]
     [DataRow(">=2.0.0", "1.9.9")]

@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Registry;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Navigation;

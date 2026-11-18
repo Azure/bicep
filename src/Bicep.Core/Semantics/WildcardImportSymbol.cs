@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
 
@@ -30,8 +31,8 @@ public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
 
     public NamespaceType? TryGetNamespaceType() => this.Type as NamespaceType;
 
-    public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference()
-        => Context.ArtifactReferenceFactory.TryGetArtifactReference(this.Context.SourceFile, EnclosingDeclaration);
+    public ArtifactReference? TryGetArtifactReference()
+        => Context.SourceFileLookup.TryGetArtifactReference(EnclosingDeclaration);
 
     public override IEnumerable<Diagnostic> GetDiagnostics()
     {

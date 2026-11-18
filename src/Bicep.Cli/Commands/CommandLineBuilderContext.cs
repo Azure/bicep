@@ -3,7 +3,9 @@
 
 using System.Collections.Immutable;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Services;
 using Bicep.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,6 +15,19 @@ public class CommandLineBuilderContext(IServiceProvider services, IOContext io)
 {
     public TCommand GetCommand<TCommand>() where TCommand : class, ICommand
         => services.GetRequiredService<TCommand>();
+
+    /// <summary>
+    /// Runs <paramref name="action"/> using the configuration file at <paramref name="configPath"/>, if specified,
+    /// in place of bicepconfig.json discovery for every source file loaded by the action.
+    /// </summary>
+    /// <seealso cref="CommonOptions.Config"/>
+    public Task<int> RunCommandAsync(string? configPath, Func<Task<int>> action)
+        => RunCommandAsync(async () =>
+        {
+            using var configurationScope = services.GetRequiredService<ExplicitConfigurationScopeFactory>().CreateScope(configPath);
+
+            return await action();
+        });
 
     public async Task<int> RunCommandAsync(Func<Task<int>> action)
     {
@@ -27,7 +42,7 @@ public class CommandLineBuilderContext(IServiceProvider services, IOContext io)
         }
     }
 
-    public static void ValidatePositionalArgument(System.CommandLine.Parsing.CommandResult result, System.CommandLine.Argument<string?> argument)
+    public static void ValidatePositionalArgument(CommandResult result, Argument<string?> argument)
     {
         if (result.GetValue(argument) is { } inputValue && inputValue.StartsWith("--", StringComparison.Ordinal))
         {
@@ -35,7 +50,7 @@ public class CommandLineBuilderContext(IServiceProvider services, IOContext io)
         }
     }
 
-    public static void ValidateRequiredPositionalArgument(System.CommandLine.Parsing.CommandResult result, System.CommandLine.Argument<string> argument)
+    public static void ValidateRequiredPositionalArgument(CommandResult result, Argument<string> argument)
     {
         if (result.GetValue(argument) is { } inputValue && inputValue.StartsWith("--", StringComparison.Ordinal))
         {

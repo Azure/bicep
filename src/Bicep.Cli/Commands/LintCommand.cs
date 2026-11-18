@@ -12,7 +12,6 @@ using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;
 
@@ -47,35 +46,25 @@ public class LintCommand(
         return summary;
     }
 
-    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    internal static Command CreateCommand(CommandLineBuilderContext context)
     {
-        var command = new System.CommandLine.Command(Constants.Command.Lint, "Lints a .bicep file.");
+        var inputFileArgument = CommonArguments.OptionalInputFile("The path to the .bicep file.");
+        var filePatternOption = CommonOptions.Pattern("Lints all files matching the specified glob pattern.");
+        var noRestoreOption = CommonOptions.NoRestore("Skips restoring external modules.");
+        var diagnosticsFormatOption = CommonOptions.DiagnosticsFormat();
+        var configOption = CommonOptions.Config();
 
-        var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
+        var command = new Command(CommandNames.Lint, "Lints a .bicep file.")
         {
-            Description = "The path to the .bicep file.",
-            Arity = ArgumentArity.ZeroOrOne,
+            inputFileArgument,
+            filePatternOption,
+            noRestoreOption,
+            diagnosticsFormatOption,
+            configOption,
         };
-        var filePatternOption = new System.CommandLine.Option<string?>(Option.Pattern)
-        {
-            Description = "Lints all files matching the specified glob pattern.",
-        };
-        var noRestoreOption = new System.CommandLine.Option<bool>(Option.NoRestore)
-        {
-            Description = "Skips restoring external modules.",
-        };
-        var diagnosticsFormatOption = new System.CommandLine.Option<DiagnosticsFormat?>(Option.DiagnosticsFormat)
-        {
-            Description = "Sets the diagnostics format. Valid values are (Default, SARIF).",
-        };
+        command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
 
-        command.Add(inputFileArgument);
-        command.Add(filePatternOption);
-        command.Add(noRestoreOption);
-        command.Add(diagnosticsFormatOption);
-        command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
-
-        command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+        command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
         {
             var diagnosticsFormat = result.GetValue(diagnosticsFormatOption) ?? Arguments.DiagnosticsFormat.Default;
             var args = new LintArguments(

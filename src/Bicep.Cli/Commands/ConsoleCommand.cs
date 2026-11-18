@@ -36,11 +36,16 @@ public class ConsoleCommand(
     private Rune ReadRune(char firstChar)
         => ReadRune(firstChar, () => Console.ReadKey(intercept: true).KeyChar);
 
-    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    internal static Command CreateCommand(CommandLineBuilderContext context)
     {
-        var command = new System.CommandLine.Command(Constants.Command.Console, "Opens an interactive Bicep console.");
+        var configOption = CommonOptions.Config();
+        var command = new Command(CommandNames.Console, "Opens an interactive Bicep console.")
+        {
+            configOption,
+        };
 
         command.SetAction((result, ct) => context.RunCommandAsync(
+            result.GetValue(configOption),
             () => context.GetCommand<ConsoleCommand>().RunAsync(new ConsoleArguments())));
 
         return command;

@@ -3,7 +3,8 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics;
-using Bicep.Core.Registry;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.Compilation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -12,11 +13,11 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
 {
     public sealed class ModuleRestoreScheduler : IModuleRestoreScheduler, IAsyncDisposable
     {
-        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ArtifactReference> ModuleReferences);
+        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<RemoteArtifactReference> ModuleReferences);
 
         private record CompletionNotification(ICompilationManager CompilationManager, DocumentUri Uri);
 
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IRemoteArtifactRestorer restorer;
 
         private readonly Queue<QueueItem> queue = new();
 
@@ -29,9 +30,9 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
         private bool disposed = false;
         private Task? consumerTask;
 
-        public ModuleRestoreScheduler(IModuleDispatcher moduleDispatcher)
+        public ModuleRestoreScheduler(IRemoteArtifactRestorer restorer)
         {
-            this.moduleDispatcher = moduleDispatcher;
+            this.restorer = restorer;
         }
 
         /// <summary>
@@ -41,7 +42,7 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
         /// <param name="compilationManager"></param>
         /// <param name="artifacts">The artifacts</param>
         /// <param name="documentUri">The document URI that needs to be recompiled once restore completes asynchronously</param>
-        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ArtifactReference> artifacts)
+        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<RemoteArtifactReference> artifacts)
         {
             this.CheckDisposed();
 
@@ -115,11 +116,11 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
                 }
 
                 // this blocks until restore is completed
-                // the dispatcher stores the results internally and manages their lifecycle
+                // the distribution manager stores the results internally and manages their lifecycle
                 foreach (var item in items)
                 {
                     token.ThrowIfCancellationRequested();
-                    if (!await this.moduleDispatcher.RestoreArtifacts(item.ModuleReferences, forceRestore: false))
+                    if (!await this.restorer.RestoreAsync(item.ModuleReferences, RestoreMode.IfMissing))
                     {
                         // nothing needed to be restored
                         // no need to notify about completion
@@ -131,8 +132,6 @@ namespace Bicep.LanguageServer.Features.Custom.ModuleRestore
                     token.ThrowIfCancellationRequested();
                     item.CompilationManager.RefreshCompilation(item.Uri);
                 }
-
-                this.moduleDispatcher.PruneRestoreStatuses();
             }
         }
 

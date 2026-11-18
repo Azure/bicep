@@ -5,8 +5,8 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Catalog;
+using Bicep.Core.Artifacts.Registries;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
@@ -19,6 +19,14 @@ namespace Bicep.Wasm.UnitTests;
 [TestClass]
 public class InteropTests
 {
+    [TestMethod]
+    public void Wasm_registers_only_the_OCI_registry()
+    {
+        using var services = new ServiceCollection().AddBicepWasm().BuildServiceProvider();
+        services.GetServices<IRemoteArtifactRegistry>().Should().ContainSingle()
+            .Which.Should().BeSameAs(services.GetRequiredService<OciArtifactRegistry>());
+    }
+
     [TestMethod]
     public async Task CompileAndEmitDiagnostics_WithQuickstartModules_LoadsModulesRecursively()
     {
@@ -322,17 +330,14 @@ public class InteropTests
     {
         var services = new ServiceCollection();
 
-        services.AddSingleton(fileExplorer);
-        services.AddSingleton<IArtifactRegistryProvider, WasmModuleRegistryProvider>();
-        services.AddSingleton<IPublicModuleMetadataProvider, WasmPublicModuleMetadataProvider>();
 
         if (clientFactory is not null)
         {
             services.AddSingleton(clientFactory);
         }
 
-        services.AddBicepCore();
-        services.AddBicepDecompiler();
+        services.AddBicepWasm();
+        services.AddSingleton(fileExplorer);
 
         return services.BuildServiceProvider();
     }

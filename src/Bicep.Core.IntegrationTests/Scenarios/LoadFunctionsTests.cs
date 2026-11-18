@@ -39,7 +39,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
             _ => throw new NotSupportedException()
         };
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(FunctionCase.loadTextContent)]
         [DataRow(FunctionCase.loadFileAsBase64)]
         public void LoadFunction_inVariable(FunctionCase function)
@@ -61,7 +61,7 @@ output out string = script
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(FunctionCase.loadTextContent)]
         [DataRow(FunctionCase.loadFileAsBase64)]
         public void LoadFunction_asPartOfObject_inVariables(FunctionCase function)
@@ -86,7 +86,7 @@ output out object = script
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(FunctionCase.loadTextContent)]
         [DataRow(FunctionCase.loadFileAsBase64)]
         public void LoadFunction_InInterpolation_inVariable(FunctionCase function)
@@ -123,7 +123,7 @@ output out string = message
             return CompilationHelper.Compile(new(), fileSet, fileSet.GetUri("main.bicep"));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("utf-8")]
         [DataRow("utf-16BE")]
         [DataRow("utf-16")]
@@ -142,7 +142,7 @@ output out string = message
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("utf")]
         [DataRow("utf-32be")]
         [DataRow("utf-32le")]
@@ -159,7 +159,7 @@ output out string = message
             diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("utf")]
         [DataRow("iso-8859-2")]
         [DataRow("en-us")]
@@ -173,7 +173,7 @@ output out string = message
             diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(FunctionCase.loadTextContent, "var fileName = 'message.txt'", "fileName", DisplayName = "loadTextContent: variable")]
         [DataRow(FunctionCase.loadFileAsBase64, "var fileName = 'message.txt'", "fileName", DisplayName = "loadFileAsBase64: variable")]
         [DataRow(FunctionCase.loadTextContent, @"var fileNames = [
@@ -219,7 +219,7 @@ output out string = message
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(FunctionCase.loadTextContent, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadTextContent: parameter")]
         [DataRow(FunctionCase.loadFileAsBase64, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadFileAsBase64: parameter")]
         [DataRow(FunctionCase.loadJsonContent, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadJsonContent: parameter")]
@@ -440,8 +440,8 @@ resource logicApps 'Microsoft.Logic/workflows@2019-05-01' = [ for (app, i) in ap
                 }
             }
         }
-        [DataTestMethod]
-        [DynamicData(nameof(LoadFunction_InvalidPath_Data), DynamicDataSourceType.Property)]
+        [TestMethod]
+        [DynamicData(nameof(LoadFunction_InvalidPath_Data))]
         public void LoadFunction_InvalidPath(FunctionCase function, string invalidPath)
         {
             var (template, diags, _) = CompilationHelper.Compile(
@@ -455,7 +455,7 @@ output out string = script
             template!.Should().BeNull();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(FunctionCase.loadTextContent)]
         [DataRow(FunctionCase.loadFileAsBase64)]
         [DataRow(FunctionCase.loadJsonContent)]
@@ -600,7 +600,7 @@ var fileObj = loadJsonContent('file.json')
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("$")]
         [DataRow(".propObject")]
         [DataRow(".propArrayFloat[0]")]
@@ -664,7 +664,7 @@ var fileObj = loadJsonContent('file.json', '" + path + @"')
             return CompilationHelper.Compile(new(), fileSet, fileSet.GetUri("main.bicep"));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("utf-8")]
         [DataRow("utf-16BE")]
         [DataRow("utf-16")]
@@ -686,7 +686,7 @@ var fileObj = loadJsonContent('file.json', '" + path + @"')
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("utf")]
         [DataRow("utf-32be")]
         [DataRow("utf-32le")]
@@ -944,7 +944,7 @@ var fileObj = loadYamlContent('file.yaml')
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("$")]
         [DataRow(".propObject")]
         [DataRow(".propArrayFloat[0]")]
@@ -1008,7 +1008,7 @@ var fileObj = loadYamlContent('file.yaml', '" + path + @"')
             return CompilationHelper.Compile(new(), fileSet, fileSet.GetUri("main.bicep"));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("utf-8")]
         [DataRow("utf-16BE")]
         [DataRow("utf-16")]
@@ -1030,7 +1030,7 @@ var fileObj = loadYamlContent('file.yaml', '" + path + @"')
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("utf")]
         [DataRow("utf-32be")]
         [DataRow("utf-32le")]
@@ -1069,7 +1069,7 @@ var fileObj = loadYamlContent('file.yaml', '" + path + @"')
         // Users are likely to use "*" instead of "" as a wildcard so we test that "" and "*" behave similarly
         [DataRow(true)]
         [DataRow(false)]
-        [DataTestMethod]
+        [TestMethod]
         public void LoadDirectoryFileInfoFunction(bool withWildCard)
         {
             var (template, diags, _) = CompilationHelper.Compile(
@@ -1100,7 +1100,7 @@ var fileObj = loadYamlContent('file.yaml', '" + path + @"')
         [DataRow("ma*.bi*", "File.json")]
         [DataRow("*n.bi*", "File.json")]
         [DataRow("main?bicep", "File.json")]
-        [DataTestMethod]
+        [TestMethod]
         public void LoadDirectoryFileInfoWithPattern(string searchPattern, string fileToExclude)
         {
             var fullContent = TEST_FILES_ARM;
@@ -1183,7 +1183,7 @@ var fileObj = loadYamlContent('file.yaml', '" + path + @"')
         [DataRow("/")]
         [DataRow("/helloWorld")]
         [DataRow("/path/to")]
-        [DataTestMethod]
+        [TestMethod]
         public void LoadDirectoryFileInfoErrorWhenRootedPath(string rootedPath)
         {
             var (template, diags, _) = CompilationHelper.Compile(
@@ -1200,7 +1200,7 @@ var fileObj = loadYamlContent('file.yaml', '" + path + @"')
         [DataRow("C:/")]
         [DataRow("C:/helloworld")]
         [DataRow("C:/path/to")]
-        [DataTestMethod]
+        [TestMethod]
         public void LoadDirectoryFileInfoErrorWhenRootedPathWindows(string rootedPath)
         {
             var (template, diags, _) = CompilationHelper.Compile(
@@ -1216,7 +1216,7 @@ var fileObj = loadYamlContent('file.yaml', '" + path + @"')
 
         [DataRow(" ")]
         [DataRow(".")]
-        [DataTestMethod]
+        [TestMethod]
         public void LoadDirectoryFileInfoErrorWhenPathIsDotOrEmpty(string path)
         {
             var (template, diags, _) = CompilationHelper.Compile(

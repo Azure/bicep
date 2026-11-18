@@ -21,7 +21,8 @@ public record VersionResponse(
     string Version);
 
 public record CompileRequest(
-    string Path);
+    string Path,
+    string? ConfigPath = null);
 
 public record CompileResponse(
     bool Success,
@@ -30,7 +31,8 @@ public record CompileResponse(
 
 public record CompileParamsRequest(
     string Path,
-    Dictionary<string, JToken> ParameterOverrides);
+    Dictionary<string, JToken> ParameterOverrides,
+    string? ConfigPath = null);
 
 public record CompileParamsResponse(
     bool Success,
@@ -47,18 +49,21 @@ public record DiagnosticDefinition(
     string Message);
 
 public record GetFileReferencesRequest(
-    string Path);
+    string Path,
+    string? ConfigPath = null);
 
 public record GetFileReferencesResponse(
     ImmutableArray<string> FilePaths);
 
 public record GetMetadataRequest(
-    string Path);
+    string Path,
+    string? ConfigPath = null);
 
 public record GetSnapshotRequest(
     string Path,
     GetSnapshotRequest.MetadataDefinition Metadata,
-    ImmutableArray<GetSnapshotRequest.ExternalInputValue>? ExternalInputs)
+    ImmutableArray<GetSnapshotRequest.ExternalInputValue>? ExternalInputs,
+    string? ConfigPath = null)
 {
     public record MetadataDefinition(
         string? TenantId,
@@ -105,7 +110,8 @@ public record GetMetadataResponse(
 }
 
 public record GetDeploymentGraphRequest(
-    string Path);
+    string Path,
+    string? ConfigPath = null);
 
 public record GetDeploymentGraphResponse(
     ImmutableArray<GetDeploymentGraphResponse.Node> Nodes,
@@ -124,14 +130,16 @@ public record GetDeploymentGraphResponse(
 }
 
 public record FormatRequest(
-    string Path);
+    string Path,
+    string? ConfigPath = null);
 
 public record FormatResponse(
     string Contents);
 
 public record GenerateDocsRequest(
     string Path,
-    Dictionary<string, string>? CustomTemplateValues = null);
+    Dictionary<string, string>? CustomTemplateValues = null,
+    string? ConfigPath = null);
 
 public record GenerateDocsResponse(
     ImmutableArray<DiagnosticDefinition> Diagnostics,
@@ -142,6 +150,9 @@ public record GenerateDocsResponse(
 /// </summary>
 /// <remarks>
 /// As of Bicep 0.29, this interface is no longer "experimental". Please consider carefully whether you are making a change that may break backwards compatibility.
+///
+/// Requests that compile files accept an optional <c>configPath</c>. When specified, the configuration file at that path
+/// (absolute or relative to the current working directory) replaces bicepconfig.json discovery for every source file loaded by the request.
 /// </remarks>
 public interface ICliJsonRpcProtocol
 {

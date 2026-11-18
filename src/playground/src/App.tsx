@@ -1,7 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import type { editor } from "monaco-editor/editor/editor.api";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { version as bicepVersion } from "../package.json";
 import { DotnetInterop } from "./compiler/compiler-client";
 import type { CompilationStatus } from "./components/BicepEditor";
@@ -10,7 +16,13 @@ import { AppHeader } from "./components/AppHeader";
 import { EditorPane, StatusTone } from "./components/EditorPane";
 import { StatusBar } from "./components/StatusBar";
 import { getQuickstartsLink } from "./quickstarts/quickstarts";
-import { getShareLink, handleShareLink } from "./sharing/share-link";
+import {
+  getConsoleShareLink,
+  getShareLink,
+  parseFragment,
+  type Fragment,
+  type Workspace,
+} from "./sharing/share-link";
 import { PlaygroundTelemetry } from "./telemetry/playground-telemetry";
 import { setColorMode, useColorMode } from "./theme/color-mode";
 import "./styles/tokens.css";
@@ -29,6 +41,9 @@ const JsonEditor = React.lazy(async () => ({
 const ProblemsPanel = React.lazy(async () => ({
   default: (await import("./components/ProblemsPanel")).ProblemsPanel,
 }));
+const ConsolePanel = React.lazy(async () => ({
+  default: (await import("./components/ConsolePanel")).ConsolePanel,
+}));
 
 type Operation = {
   id: number;
@@ -40,15 +55,12 @@ type ActivePane = "bicep" | "arm";
 interface Props {
   insights: PlaygroundTelemetry;
   interop: DotnetInterop;
-  initialSharedContent: string | null;
 }
 
-export const App: React.FC<Props> = ({
-  insights,
-  interop,
-  initialSharedContent,
-}) => {
-  const initialBicepContent = initialSharedContent ?? "";
+export const App: React.FC<Props> = ({ insights, interop }) => {
+  const [initialFragment] = useState(() => parseFragment(window.location.hash));
+  const initialBicepContent =
+    initialFragment.kind === "editor" ? initialFragment.content : "";
   const [jsonContent, setJsonContent] = useState("");
   const [bicepContent, setBicepContent] = useState(initialBicepContent);
   const [initialContent, setInitialContent] = useState(initialBicepContent);
@@ -64,6 +76,16 @@ export const App: React.FC<Props> = ({
   const [compilationDurationMs, setCompilationDurationMs] = useState<number>();
   const [diagnostics, setDiagnostics] = useState<editor.IMarkerData[]>([]);
   const [problemsOpen, setProblemsOpen] = useState(false);
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace>(
+    initialFragment.workspace,
+  );
+  const [consoleOpened, setConsoleOpened] = useState(
+    initialFragment.workspace === "console",
+  );
+  const [consoleHistory, setConsoleHistory] = useState<readonly string[]>([]);
+  const [consoleBusy, setConsoleBusy] = useState(false);
+  const [sharedConsoleCommands, setSharedConsoleCommands] =
+    useState<readonly string[]>();
   const [activePane, setActivePane] = useState<ActivePane>("bicep");
   const [announcement, setAnnouncement] = useState("");
   const [editorReady, setEditorReady] = useState(false);
@@ -77,6 +99,13 @@ export const App: React.FC<Props> = ({
   const sourcePathRef = useRef(sourcePath);
   sourcePathRef.current = sourcePath;
 
+  const applyWorkspace = useCallback((workspace: Workspace) => {
+    setActiveWorkspace(workspace);
+    if (workspace === "console") {
+      setConsoleOpened(true);
+    }
+  }, []);
+
   useEffect(() => {
     let disposed = false;
     let registration: { dispose(): void } | undefined;
@@ -84,10 +113,7 @@ export const App: React.FC<Props> = ({
       .then(() => import("./components/CodeEditor"))
       .then(({ registerBicep }) => {
         if (!disposed) {
-          registration = registerBicep(
-            interop,
-            () => sourcePathRef.current,
-          );
+          registration = registerBicep(interop, () => sourcePathRef.current);
           setEditorReady(true);
         }
       })
@@ -109,26 +135,43 @@ export const App: React.FC<Props> = ({
   }, [interop]);
 
   useEffect(() => {
-    const handleHashChange = () =>
-      handleShareLink((content) => {
-        if (content !== null) {
+    const applyFragment = (fragment: Fragment) => {
+      switch (fragment.kind) {
+        case "console":
+          setSharedConsoleCommands(fragment.commands);
+          break;
+        case "editor":
           insights.trackEvent({ name: "openSharedLink" });
           setSourcePath(undefined);
-          setInitialContent(content);
+          setInitialContent(fragment.content);
           setContentRevision((revision) => revision + 1);
-        }
-      });
+          break;
+        case "invalid":
+          setOperationError(fragment.message);
+          break;
+      }
+      applyWorkspace(fragment.workspace);
+      if (fragment.kind !== "workspace" || !window.location.hash) {
+        history.replaceState(null, "", `#${fragment.workspace}`);
+      }
+    };
 
+    const handleHashChange = () =>
+      applyFragment(parseFragment(window.location.hash));
     window.addEventListener("hashchange", handleHashChange);
-
-    if (initialSharedContent !== null) {
-      insights.trackEvent({ name: "openSharedLink" });
-    }
+    applyFragment(initialFragment);
 
     return () => {
       window.removeEventListener("hashchange", handleHashChange);
     };
-  }, [initialSharedContent, insights]);
+  }, [applyWorkspace, initialFragment, insights]);
+
+  useEffect(() => {
+    setCopied(false);
+    if (copiedTimeoutRef.current !== undefined) {
+      window.clearTimeout(copiedTimeoutRef.current);
+    }
+  }, [activeWorkspace, consoleHistory]);
 
   useEffect(() => {
     if (!compilationError && diagnostics.length === 0) {
@@ -145,6 +188,13 @@ export const App: React.FC<Props> = ({
       }
     };
   }, []);
+
+  function navigateWorkspace(workspace: Workspace) {
+    applyWorkspace(workspace);
+    if (window.location.hash !== `#${workspace}`) {
+      window.location.hash = workspace;
+    }
+  }
 
   async function runOperation(label: string, action: () => Promise<void>) {
     const id = ++operationIdRef.current;
@@ -195,6 +245,7 @@ export const App: React.FC<Props> = ({
 
       insights.trackEvent({ name: "loadExample" }, { path: filePath });
       setInitialContent(bicepText);
+      navigateWorkspace("editor");
       setContentRevision((revision) => revision + 1);
       setSourcePath(filePath);
       setActivePane("bicep");
@@ -225,10 +276,23 @@ export const App: React.FC<Props> = ({
     setOperationError(undefined);
 
     try {
-      const shareLink = getShareLink(bicepContent);
+      let shareLink: string;
+      if (activeWorkspace === "console") {
+        if (!editorReady || consoleBusy) {
+          throw new Error(
+            "Wait for the console to finish before sharing its history.",
+          );
+        }
+        shareLink = getConsoleShareLink(consoleHistory);
+      } else {
+        shareLink = getShareLink(bicepContent);
+      }
       await navigator.clipboard.writeText(shareLink);
 
-      insights.trackEvent({ name: "copySharedLink" });
+      insights.trackEvent({
+        name:
+          activeWorkspace === "console" ? "copyConsoleLink" : "copySharedLink",
+      });
       setCopied(true);
       setAnnouncement("Share link copied to the clipboard.");
 
@@ -261,7 +325,8 @@ export const App: React.FC<Props> = ({
       }
 
       const jsonContents = await file.text();
-      const { entrypoint, files, error } = await interop.decompile(jsonContents);
+      const { entrypoint, files, error } =
+        await interop.decompile(jsonContents);
       const decompiledContent =
         entrypoint === null ? undefined : files?.[entrypoint];
 
@@ -272,6 +337,7 @@ export const App: React.FC<Props> = ({
       insights.trackEvent({ name: "decompileJson" });
       setSourcePath(undefined);
       setInitialContent(decompiledContent);
+      navigateWorkspace("editor");
       setContentRevision((revision) => revision + 1);
       setActivePane("bicep");
     });
@@ -331,6 +397,7 @@ export const App: React.FC<Props> = ({
   }
 
   function focusDiagnostic(diagnostic: editor.IMarkerData) {
+    navigateWorkspace("editor");
     setActivePane("bicep");
     window.requestAnimationFrame(() =>
       bicepEditorRef.current?.focusAt(
@@ -395,9 +462,13 @@ export const App: React.FC<Props> = ({
   return (
     <div className="app-shell">
       <AppHeader
+        editorMode={activeWorkspace === "editor"}
         activeOperation={activeOperation?.label}
         colorMode={colorMode}
         copied={copied}
+        copyLinkDisabled={
+          activeWorkspace === "console" && (!editorReady || consoleBusy)
+        }
         sampleSelectRef={sampleSelectRef}
         selectedSample={sampleLoadingPath ?? sourcePath}
         uploadInputRef={uploadInputRef}
@@ -407,195 +478,257 @@ export const App: React.FC<Props> = ({
         onToggleColorMode={() =>
           setColorMode(colorMode === "dark" ? "light" : "dark")
         }
+        workspaceTabs={
+          <div
+            className="workspace-tabs"
+            role="tablist"
+            aria-label="Playground workspace"
+          >
+            {(["editor", "console"] as const).map((workspace) => (
+              <button
+                key={workspace}
+                id={`${workspace}-workspace-tab`}
+                className="button workspace-tab"
+                type="button"
+                role="tab"
+                aria-selected={activeWorkspace === workspace}
+                aria-controls={`${workspace}-workspace`}
+                onClick={() => {
+                  navigateWorkspace(workspace);
+                }}
+              >
+                {workspace === "editor" ? "Editor" : "Console"}
+              </button>
+            ))}
+          </div>
+        }
       />
 
-      <div className="mobile-tabs" role="tablist" aria-label="Editor panes">
-        <button
-          id="bicep-tab"
-          className="mobile-tab"
-          type="button"
-          role="tab"
-          aria-selected={activePane === "bicep"}
-          aria-controls="bicep-pane"
-          tabIndex={activePane === "bicep" ? 0 : -1}
-          onClick={() => setActivePane("bicep")}
-          onKeyDown={handlePaneTabKeyDown}
+      <main className="workspace-content" aria-label="Playground workspace">
+        <div
+          id="editor-workspace"
+          className="editor-workspace"
+          role="tabpanel"
+          aria-labelledby="editor-workspace-tab"
+          hidden={activeWorkspace !== "editor"}
         >
-          Bicep
-        </button>
-        <button
-          id="arm-tab"
-          className="mobile-tab"
-          type="button"
-          role="tab"
-          aria-selected={activePane === "arm"}
-          aria-controls="arm-pane"
-          tabIndex={activePane === "arm" ? 0 : -1}
-          onClick={() => setActivePane("arm")}
-          onKeyDown={handlePaneTabKeyDown}
-        >
-          ARM template
-        </button>
-      </div>
+          <div className="mobile-tabs" role="tablist" aria-label="Editor panes">
+            <button
+              id="bicep-tab"
+              className="mobile-tab"
+              type="button"
+              role="tab"
+              aria-selected={activePane === "bicep"}
+              aria-controls="bicep-pane"
+              tabIndex={activePane === "bicep" ? 0 : -1}
+              onClick={() => setActivePane("bicep")}
+              onKeyDown={handlePaneTabKeyDown}
+            >
+              Bicep
+            </button>
+            <button
+              id="arm-tab"
+              className="mobile-tab"
+              type="button"
+              role="tab"
+              aria-selected={activePane === "arm"}
+              aria-controls="arm-pane"
+              tabIndex={activePane === "arm" ? 0 : -1}
+              onClick={() => setActivePane("arm")}
+              onKeyDown={handlePaneTabKeyDown}
+            >
+              ARM template
+            </button>
+          </div>
 
-      <main
-        className="workspace"
-        data-active-pane={activePane}
-        data-problems-open={problemsOpen && hasProblems}
-        aria-label="Bicep compilation workspace"
-      >
-        <EditorPane
-          id="bicep-pane"
-          labelId="bicep-pane-title"
-          pane="bicep"
-          title="Bicep"
-          subtitle={sourceSubtitle}
-          ariaBusy={sampleLoadingPath !== undefined}
-          actions={
-            sourcePath ? (
-              <button
-                type="button"
-                className="pane-action"
-                disabled={activeOperation !== null}
-                aria-label="Reload selected sample"
-                title="Restore Bicep file from selected sample"
-                onClick={() => void loadExample(sourcePath, false)}
-              >
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M19 12a7 7 0 0 1-11.8 5.1L5 15m0 4v-4h4M5 12A7 7 0 0 1 16.8 6.9L19 9m0-4v4h-4"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+          <div
+            className="workspace"
+            data-active-pane={activePane}
+            data-problems-open={problemsOpen && hasProblems}
+            aria-label="Bicep compilation workspace"
+          >
+            <EditorPane
+              id="bicep-pane"
+              labelId="bicep-pane-title"
+              pane="bicep"
+              title="Bicep"
+              subtitle={sourceSubtitle}
+              ariaBusy={sampleLoadingPath !== undefined}
+              actions={
+                sourcePath ? (
+                  <button
+                    type="button"
+                    className="pane-action"
+                    disabled={activeOperation !== null}
+                    aria-label="Reload selected sample"
+                    title="Restore Bicep file from selected sample"
+                    onClick={() => void loadExample(sourcePath, false)}
+                  >
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M19 12a7 7 0 0 1-11.8 5.1L5 15m0 4v-4h4M5 12A7 7 0 0 1 16.8 6.9L19 9m0-4v4h-4"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                ) : undefined
+              }
+            >
+              {editorReady ? (
+                <React.Suspense fallback={<EditorLoading />}>
+                  <BicepEditor
+                    ref={bicepEditorRef}
+                    interop={interop}
+                    onBicepChange={setBicepContent}
+                    onJsonChange={setJsonContent}
+                    onDiagnosticsChange={handleDiagnosticsChange}
+                    onCompilationError={handleCompilationError}
+                    onCompilationDurationChange={setCompilationDurationMs}
+                    onCompilationStatusChange={setCompilationStatus}
+                    initialContent={initialContent}
+                    contentRevision={contentRevision}
+                    sourcePath={sourcePath}
                   />
-                </svg>
-              </button>
-            ) : undefined
-          }
-        >
-          {editorReady ? (
-            <React.Suspense fallback={<EditorLoading />}>
-              <BicepEditor
-                ref={bicepEditorRef}
-                interop={interop}
-                onBicepChange={setBicepContent}
-                onJsonChange={setJsonContent}
-                onDiagnosticsChange={handleDiagnosticsChange}
-                onCompilationError={handleCompilationError}
-                onCompilationDurationChange={setCompilationDurationMs}
-                onCompilationStatusChange={setCompilationStatus}
-                initialContent={initialContent}
-                contentRevision={contentRevision}
-                sourcePath={sourcePath}
+                </React.Suspense>
+              ) : (
+                <EditorLoading />
+              )}
+            </EditorPane>
+
+            <EditorPane
+              id="arm-pane"
+              labelId="arm-pane-title"
+              pane="arm"
+              title="ARM template"
+              subtitle="Generated JSON"
+              status={armPaneStatus.label}
+              statusTone={armPaneStatus.tone}
+              isStale={compilationStatus !== "upToDate"}
+              ariaBusy={compilationStatus === "compiling"}
+              busyLabel={
+                compilationStatus === "compiling"
+                  ? "Compiling ARM template..."
+                  : undefined
+              }
+              actions={
+                <>
+                  <button
+                    type="button"
+                    className="pane-action"
+                    disabled={!armOutputIsCurrent}
+                    aria-label="Copy ARM template"
+                    title={
+                      armOutputIsCurrent
+                        ? "Copy ARM template"
+                        : "Compile the current source before copying"
+                    }
+                    onClick={() => void handleCopyArmTemplate()}
+                  >
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                      <rect
+                        x="8"
+                        y="8"
+                        width="11"
+                        height="11"
+                        rx="2"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      />
+                      <path
+                        d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    className="pane-action"
+                    disabled={!armOutputIsCurrent}
+                    aria-label="Download ARM template"
+                    title={
+                      armOutputIsCurrent
+                        ? "Download ARM template"
+                        : "Compile the current source before downloading"
+                    }
+                    onClick={handleDownloadArmTemplate}
+                  >
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </>
+              }
+            >
+              {editorReady ? (
+                <React.Suspense fallback={<EditorLoading />}>
+                  <JsonEditor content={jsonContent} />
+                </React.Suspense>
+              ) : (
+                <EditorLoading />
+              )}
+            </EditorPane>
+
+            {activeOperation && (
+              <div
+                className="operation-overlay"
+                role="status"
+                aria-live="polite"
+              >
+                <span className="spinner" aria-hidden="true" />
+                <span>{activeOperation.label}...</span>
+              </div>
+            )}
+          </div>
+
+          {problemsOpen && hasProblems && (
+            <React.Suspense fallback={null}>
+              <ProblemsPanel
+                compilationError={compilationError}
+                diagnostics={diagnostics}
+                sourceName={sourceName}
+                onClose={closeProblems}
+                onSelect={focusDiagnostic}
               />
             </React.Suspense>
-          ) : (
-            <EditorLoading />
           )}
-        </EditorPane>
-
-        <EditorPane
-          id="arm-pane"
-          labelId="arm-pane-title"
-          pane="arm"
-          title="ARM template"
-          subtitle="Generated JSON"
-          status={armPaneStatus.label}
-          statusTone={armPaneStatus.tone}
-          isStale={compilationStatus !== "upToDate"}
-          ariaBusy={compilationStatus === "compiling"}
-          busyLabel={
-            compilationStatus === "compiling"
-              ? "Compiling ARM template..."
-              : undefined
-          }
-          actions={
-            <>
-              <button
-                type="button"
-                className="pane-action"
-                disabled={!armOutputIsCurrent}
-                aria-label="Copy ARM template"
-                title={
-                  armOutputIsCurrent
-                    ? "Copy ARM template"
-                    : "Compile the current source before copying"
-                }
-                onClick={() => void handleCopyArmTemplate()}
-              >
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
-                  <rect
-                    x="8"
-                    y="8"
-                    width="11"
-                    height="11"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                  <path
-                    d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                </svg>
-              </button>
-              <button
-                type="button"
-                className="pane-action"
-                disabled={!armOutputIsCurrent}
-                aria-label="Download ARM template"
-                title={
-                  armOutputIsCurrent
-                    ? "Download ARM template"
-                    : "Compile the current source before downloading"
-                }
-                onClick={handleDownloadArmTemplate}
-              >
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </>
-          }
+        </div>
+        <div
+          id="console-workspace"
+          className="console-workspace"
+          role="tabpanel"
+          aria-labelledby="console-workspace-tab"
+          hidden={activeWorkspace !== "console"}
         >
-          {editorReady ? (
-            <React.Suspense fallback={<EditorLoading />}>
-              <JsonEditor content={jsonContent} />
+          {consoleOpened && editorReady && (
+            <React.Suspense
+              fallback={<div role="status">Loading console...</div>}
+            >
+              <ConsolePanel
+                interop={interop}
+                open={activeWorkspace === "console"}
+                initialCommands={sharedConsoleCommands}
+                history={consoleHistory}
+                setHistory={setConsoleHistory}
+                busy={consoleBusy}
+                setBusy={setConsoleBusy}
+              />
             </React.Suspense>
-          ) : (
-            <EditorLoading />
           )}
-        </EditorPane>
-
-        {activeOperation && (
-          <div className="operation-overlay" role="status" aria-live="polite">
-            <span className="spinner" aria-hidden="true" />
-            <span>{activeOperation.label}...</span>
-          </div>
-        )}
+        </div>
       </main>
 
-      {problemsOpen && hasProblems && (
-        <React.Suspense fallback={null}>
-          <ProblemsPanel
-            compilationError={compilationError}
-            diagnostics={diagnostics}
-            sourceName={sourceName}
-            onClose={closeProblems}
-            onSelect={focusDiagnostic}
-          />
-        </React.Suspense>
-      )}
-
       <StatusBar
+        editorMode={activeWorkspace === "editor"}
         compilationStatus={compilationStatus}
         durationMs={compilationDurationMs}
         errorCount={errorCount}
@@ -603,7 +736,10 @@ export const App: React.FC<Props> = ({
         problemsOpen={problemsOpen}
         version={bicepVersion}
         warningCount={warningCount}
-        onToggleProblems={() => setProblemsOpen((open) => !open)}
+        onToggleProblems={() => {
+          navigateWorkspace("editor");
+          setProblemsOpen((open) => !open);
+        }}
       />
 
       {operationError && (

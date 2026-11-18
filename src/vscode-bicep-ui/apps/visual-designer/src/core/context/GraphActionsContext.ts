@@ -12,8 +12,17 @@ export interface GraphActions {
   resetGraphLayout: () => Promise<void>;
   /** Create a resource at a graph-coordinate point. */
   createResourceAt: (resourceType: ResourceTypeReference, origin: Point) => Promise<void>;
-  /** Called by `Graph` when a node drag starts moving and when it ends, to record the move. */
+  /** Toggle a module's session-local collapsed state without editing Bicep source. */
+  toggleModuleCollapsed: (nodeId: string) => void;
+  /**
+   * Expand a registry module that is not restored yet, or whose restore failed: restore it without editing Bicep
+   * source, then open it once its children are laid out. The module shows progress meanwhile. Settles once the module
+   * shows its children or why it has none. Never throws.
+   */
+  restoreModule: (nodeId: string) => Promise<void>;
+  /** Called by `Graph` as a node is dragged: moves the node with its descendants and records the move. */
   handleNodeDragStart: (nodeId: string) => void;
+  handleNodeDrag: (nodeId: string, dx: number, dy: number) => void;
   handleNodeDragEnd: (nodeId: string) => void;
   /** Undo the most recent action: a resource creation, node move, or Reset Layout. Never throws. */
   undo: () => Promise<void>;

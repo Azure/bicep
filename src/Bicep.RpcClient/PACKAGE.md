@@ -35,6 +35,24 @@ using var bicep = await factory.Initialize(new() {
 });
 ```
 
+### Use version pinning
+
+Set `SourceFilePath` to use the project's version constraint before downloading the CLI.
+See [Bicep version pinning](https://learn.microsoft.com/azure/azure-resource-manager/bicep/bicep-config-version)
+for configuration and supported syntax.
+
+```csharp
+using var bicep = await factory.Initialize(new() {
+    SourceFilePath = "./main.bicepparam"
+}, CancellationToken.None);
+```
+
+Range resolution considers recent releases, not the full release history. Successful release
+listings and latest-version lookups are cached for the factory's lifetime; create a new factory
+to refresh them. Failed or canceled fetches are not cached.
+Version selection is performed at client initialization; pooled clients retain their selected
+version until idle eviction or factory disposal.
+
 ### Use an existing Bicep installation
 
 ```csharp

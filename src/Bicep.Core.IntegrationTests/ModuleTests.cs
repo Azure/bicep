@@ -3,10 +3,12 @@
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Artifacts.Redirects;
+using Bicep.Core.Artifacts.Resolution;
+using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
@@ -193,9 +195,10 @@ module main 'main.bicep' = {
             var fileExplorerMock = StrictMock.Of<IFileExplorer>();
             fileExplorerMock.Setup(x => x.GetFile(fileUri)).Returns(fileHandleMock.Object);
 
-            var mockDispatcher = StrictMock.Of<IModuleDispatcher>().Object;
+            var mockResolver = new RedirectingArtifactResolver(StrictMock.Of<IArtifactReferenceResolver>().Object, []);
+            var mockRestorer = StrictMock.Of<IRemoteArtifactRestorer>().Object;
 
-            Action buildAction = () => SourceFileGroupingBuilder.Build(fileExplorerMock.Object, mockDispatcher, new ActiveSourceFileSet(), BicepTestConstants.SourceFileFactory, fileUri);
+            Action buildAction = () => SourceFileGroupingBuilder.Build(fileExplorerMock.Object, mockResolver, mockRestorer, new ActiveSourceFileSet(), BicepTestConstants.SourceFileFactory, fileUri);
             buildAction.Should().Throw<DiagnosticException>()
                 .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred reading file. Mock read failure!");
         }
@@ -484,7 +487,7 @@ output out string = p.properties.accessTier
         // Regression test for https://github.com/Azure/bicep/issues/6038
         //
         // Object-typed parameters should work the same way regardless of whether resource-typed parameters are enabled.
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
         public void Module_can_pass_resource_body_as_object_typed_parameter(bool enableResourceTypeParameters)
@@ -704,7 +707,7 @@ module mod './foo.bicepparam' = {
         [DataRow("this______has_________fifty_____________characters", "this______has_________fifty_____________characters")]
         [DataRow("this______has_________fifty_one__________characters", "this______has_________fifty_one__________character")]
         [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_that_h")]
-        [DataTestMethod]
+        [TestMethod]
         public void Module_name_is_generated_correctly_when_optional_module_names_enabled(string symbolicName, string symbolicNamePrefix)
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
@@ -725,7 +728,7 @@ module {symbolicName} 'mod.bicep' = {{}}
         [DataRow("this______has_______forty_six_______characters", "this______has_______forty_six_______characters")]
         [DataRow("this______has_______forty_seven______characters", "this______has_______forty_seven______character")]
         [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_th")]
-        [DataTestMethod]
+        [TestMethod]
         public void Module_collection_name_is_generated_correctly_when_optional_module_names_enabled(string symbolicName, string symbolicNamePrefix)
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
@@ -747,7 +750,7 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
         [DataRow("this______has_________fifty_____________characters", "this______has_________fifty_____________characters")]
         [DataRow("this______has_________fifty_one__________characters", "this______has_________fifty_one__________character")]
         [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_that_h")]
-        [DataTestMethod]
+        [TestMethod]
         public void Module_with_generated_name_can_be_referenced_correctly(string symbolicName, string symbolicNamePrefix)
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
@@ -769,7 +772,7 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
         [DataRow("this______has_______forty_six_______characters", "this______has_______forty_six_______characters")]
         [DataRow("this______has_______forty_seven______characters", "this______has_______forty_seven______character")]
         [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_th")]
-        [DataTestMethod]
+        [TestMethod]
         public void Module_collection_with_generated_name_can_be_referenced_correctly(string symbolicName, string symbolicNamePrefix)
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
@@ -1054,6 +1057,48 @@ output runtimevalue string = 'runtime'
            {
                 ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"identity\" property of the \"module\" type, which requires a value that can be calculated at the start of the deployment. Properties of outputModule which can be calculated at the start include \"name\".")
             });
+        }
+
+        [TestMethod]
+        public void Module_identity_property_access_raises_write_only_diagnostic()
+        {
+            var result = CompilationHelper.Compile(
+                Services,
+                ("main.bicep", """
+module mod './module.bicep' = {
+    scope: resourceGroup()
+}
+
+module modWithIdentity './module.bicep' = {
+    name: 'modWithIdentity'
+    identity: {
+        type: 'None'
+    }
+}
+
+module modLoop './module.bicep' = [for i in range(0, 2): {
+    name: 'modLoop-${i}'
+    identity: {
+        type: 'None'
+    }
+}]
+
+output identityType string = mod.identity.type
+output identityObj object = modWithIdentity.identity
+output identityIndexer object = modWithIdentity['identity']
+output loopIdentity object = modLoop[0].identity
+"""),
+                ("module.bicep", """
+output out string = 'val'
+"""));
+
+            result.Template.Should().BeNull();
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+                ("BCP077", DiagnosticLevel.Error, "The property \"identity\" on type \"module\" is write-only. Write-only properties cannot be accessed."),
+                ("BCP077", DiagnosticLevel.Error, "The property \"identity\" on type \"module\" is write-only. Write-only properties cannot be accessed."),
+                ("BCP077", DiagnosticLevel.Error, "The property \"identity\" on type \"module\" is write-only. Write-only properties cannot be accessed."),
+                ("BCP077", DiagnosticLevel.Error, "The property \"identity\" on type \"module\" is write-only. Write-only properties cannot be accessed."),
+            ]);
         }
 
         private static void ModuleTemplateHashValidator(Compilation compilation, string expectedTemplateHash)

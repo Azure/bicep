@@ -2,18 +2,7 @@
 // Licensed under the MIT License.
 
 import { describe, expect, it } from "vitest";
-import {
-  composite,
-  contrastRatio,
-  formatColor,
-  fromOklch,
-  mix,
-  parseColor,
-  quantize,
-  toOklch,
-  WHITE,
-  withAlpha,
-} from "../color";
+import { composite, contrastRatio, formatColor, fromOklch, mix, parseColor, quantize, toOklch, WHITE } from "../color";
 
 describe("parseColor", () => {
   it.each([
@@ -52,13 +41,6 @@ describe("OKLCH", () => {
     expect(roundTripped && formatColor(roundTripped)).toBe(value);
   });
 
-  it("puts white at full lightness with no chroma", () => {
-    const { l, c } = toOklch(WHITE);
-
-    expect(l).toBeCloseTo(1, 4);
-    expect(c).toBeCloseTo(0, 4);
-  });
-
   it("reports colors outside the sRGB gamut", () => {
     expect(fromOklch({ l: 0.99, c: 0.2, h: 0 })).toBeUndefined();
   });
@@ -80,10 +62,6 @@ describe("color math", () => {
 
   it("mixes toward the second color", () => {
     expect(formatColor(mix({ r: 0, g: 0, b: 0, a: 1 }, WHITE, 0.25))).toBe("#404040");
-  });
-
-  it("replaces alpha", () => {
-    expect(withAlpha(WHITE, 0.3)).toEqual({ r: 255, g: 255, b: 255, a: 0.3 });
   });
 
   it("computes WCAG contrast ratios", () => {

@@ -164,7 +164,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 ITypeReference GetItemType(ForSyntax @for)
-                    => GetIterationTargetType(@for)?.Item ?? LanguageConstants.Any;
+                    => TypeHelper.GetArrayItemTypeOrAny(typeManager.GetTypeInfo(@for.Expression));
 
                 long GetEnumerationTargetLength(ForSyntax @for) => GetIterationTargetType(@for)?.MaxLength switch
                 {
@@ -228,6 +228,14 @@ namespace Bicep.Core.TypeSystem
         // e.g. `unrelatedFlag ? input + 1 : 0` also returns true. A precise check requires flow-sensitive typing
         // (tracked by https://github.com/Azure/bicep/issues/12121).
         private bool IsInsideTernaryBranch(SyntaxBase syntax)
+            => GetEnclosingTernaryBranches(syntax).Any();
+
+        private bool IsInDeadTernaryBranch(SyntaxBase syntax)
+            => GetEnclosingTernaryBranches(syntax).Any(pair =>
+                typeManager.GetTypeInfo(pair.ternary.ConditionExpression) is BooleanLiteralType condition &&
+                ReferenceEquals(pair.branch, condition.Value ? pair.ternary.FalseExpression : pair.ternary.TrueExpression));
+
+        private IEnumerable<(TernaryOperationSyntax ternary, SyntaxBase branch)> GetEnclosingTernaryBranches(SyntaxBase syntax)
         {
             var current = syntax;
             while (binder.GetParent(current) is { } parent)
@@ -235,12 +243,19 @@ namespace Bicep.Core.TypeSystem
                 if (parent is TernaryOperationSyntax ternary &&
                     (ReferenceEquals(current, ternary.TrueExpression) || ReferenceEquals(current, ternary.FalseExpression)))
                 {
-                    return true;
+                    yield return (ternary, current);
                 }
                 current = parent;
             }
-            return false;
         }
+
+        private static bool ShouldWarnForSafeAccess(AccessExpressionSyntax syntax, TypeSymbol baseType)
+            => syntax.IsSafeAccess &&
+                TypeHelper.SatisfiesCondition(baseType, x => x is not ModuleType);
+
+        private bool ShouldWarnForDeadBranchPropertyAccess(SyntaxBase syntax, TypeSymbol baseType)
+            => baseType is not ResourceType and not ModuleType and not NamespaceType &&
+                IsInDeadTernaryBranch(syntax);
 
         public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
@@ -1209,7 +1224,7 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
-                diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
+                diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value, isCheckedAtDeployment: true));
 
                 base.VisitOutputDeclarationSyntax(syntax);
 
@@ -1370,7 +1385,10 @@ namespace Bicep.Core.TypeSystem
 
                 // normally we would also do an assignability check, but we allow "any" type in string interpolation expressions
                 // so the assignability check cannot possibly fail (we already collected type errors from the inner expressions at this point)
-                return TypeFactory.CreateStringType(maxLength: maxLength, minLength: minLength switch
+                return TypeFactory.CreateStringType(
+                    // Interpolated strings contain their embedded values, so preserve any security those values carry.
+                    validationFlags: expressionTypes.Any(TypeHelper.IsOrContainsSecureType) ? TypeSymbolValidationFlags.IsSecure : default,
+                    maxLength: maxLength, minLength: minLength switch
                 {
                     <= 0 => null,
                     _ => minLength,
@@ -1794,12 +1812,13 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(errors);
             }
 
+            var originalBaseType = baseType;
             baseType = UnwrapType(baseType);
 
             // if the index type is nullable but otherwise valid, emit a fixable warning
             if (TypeHelper.TryRemoveNullability(indexType) is { } nonNullableIndex)
             {
-                var withNonNullableIndex = GetArrayItemType(syntax, diagnostics, baseType, baseSymbol, nonNullableIndex);
+                var withNonNullableIndex = GetArrayItemType(syntax, diagnostics, originalBaseType, baseSymbol, nonNullableIndex);
 
                 if (withNonNullableIndex is not ErrorType)
                 {
@@ -1834,7 +1853,7 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare))
                         .DereferenceOfPossiblyNullReference(TypeHelper.CreateTypeUnion(baseType, LanguageConstants.Null).Name, syntax));
 
-                    return GetArrayItemType(syntax, diagnostics, baseType, baseSymbol: null, indexType);
+                    return GetArrayItemType(syntax, diagnostics, originalBaseType, baseSymbol: null, indexType);
 
                 case AnyType:
                     // base expression is of type any
@@ -1924,7 +1943,8 @@ namespace Bicep.Core.TypeSystem
                                     syntax.IndexExpression,
                                     literalIndex.RawStringValue,
                                     syntax.IsSafeAccess,
-                                    shouldWarn: syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(baseObject),
+                                    shouldWarn: ShouldWarnForSafeAccess(syntax, originalBaseType) || TypeValidator.ShouldWarnForPropertyMismatch(baseObject) ||
+                                        ShouldWarnForDeadBranchPropertyAccess(syntax, originalBaseType),
                                     diagnostics);
                             }
 
@@ -2077,28 +2097,34 @@ namespace Bicep.Core.TypeSystem
                     => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, original, nonNullable, diagnostics),
 
                 TypeSymbol original when IsPotentiallyDisabledResourceOrModule(baseSymbol) && !IsResourceInfoProperty(baseSymbol, syntax.PropertyName.IdentifierName)
-                    => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, TypeHelper.CreateTypeUnion(original, LanguageConstants.Null), original, diagnostics),
+                    => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, TypeHelper.CreateTypeUnion(original, LanguageConstants.Null), baseType, diagnostics),
 
                 // the property is not valid
                 // there's already a parse error for it, so we don't need to add a type error as well
-                ObjectType when !syntax.PropertyName.IsValid => ErrorType.Empty(),
+                ObjectLikeType when !syntax.PropertyName.IsValid => ErrorType.Empty(),
 
                 ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType,
                     syntax.PropertyName,
                     syntax.PropertyName.IdentifierName,
                     syntax.IsSafeAccess,
-                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType),
+                    ShouldWarnForSafeAccess(syntax, baseType) || TypeValidator.ShouldWarnForPropertyMismatch(objectType) ||
+                        ShouldWarnForDeadBranchPropertyAccess(syntax, baseType),
                     diagnostics),
 
                 UnionType unionType when syntax.PropertyName.IsValid => TypeHelper.GetNamedPropertyType(unionType,
                     syntax.PropertyName,
                     syntax.PropertyName.IdentifierName,
                     syntax.IsSafeAccess,
-                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(unionType),
+                    ShouldWarnForSafeAccess(syntax, baseType) || TypeValidator.ShouldWarnForPropertyMismatch(unionType) ||
+                        ShouldWarnForDeadBranchPropertyAccess(syntax, baseType),
                     diagnostics),
 
-                // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
-                DiscriminatedObjectType => LanguageConstants.Any,
+                DiscriminatedObjectType discriminated => TypeHelper.GetNamedPropertyType(discriminated,
+                    syntax.PropertyName,
+                    syntax.PropertyName.IdentifierName,
+                    syntax.IsSafeAccess,
+                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(discriminated),
+                    diagnostics),
 
                 // We can assign to an object, but we don't have a type for that object.
                 // The best we can do is allow it and return the 'any' type.
@@ -2712,7 +2738,7 @@ namespace Bicep.Core.TypeSystem
         private IEnumerable<TypeSymbol> GetRecoveredArgumentTypes(IEnumerable<FunctionArgumentSyntax> argumentSyntaxes) =>
             this.GetArgumentTypes(argumentSyntaxes).Select(argumentType => argumentType.TypeKind == TypeKind.Error ? LanguageConstants.Any : argumentType);
 
-        private IEnumerable<IDiagnostic> GetDeclarationAssignmentDiagnostics(TypeSymbol declaredType, SyntaxBase value)
+        private IEnumerable<IDiagnostic> GetDeclarationAssignmentDiagnostics(TypeSymbol declaredType, SyntaxBase value, bool isCheckedAtDeployment = false)
         {
             var valueType = typeManager.GetTypeInfo(value);
 
@@ -2730,7 +2756,7 @@ namespace Bicep.Core.TypeSystem
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, value, declaredType);
+            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, value, declaredType, isCheckedAtDeployment: isCheckedAtDeployment);
 
             return diagnosticWriter.GetDiagnostics();
         }
@@ -2748,7 +2774,7 @@ namespace Bicep.Core.TypeSystem
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, defaultValueSyntax.DefaultValue, assignedType);
+            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, defaultValueSyntax.DefaultValue, assignedType, isCheckedAtDeployment: true);
 
             return diagnosticWriter.GetDiagnostics();
         }

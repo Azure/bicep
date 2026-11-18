@@ -73,7 +73,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var sum = 1 + 3
             output sub int = sum
             ")]
-        [DataTestMethod]
+        [TestMethod]
         public void TestRule(string text, params string[] unusedVars)
         {
             CompileAndTest(text, unusedVars);
@@ -96,7 +96,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             resource abc 'Microsoft.AAD/domainServices@2021-03-01'
                     ",
             "a")]
-        [DataTestMethod]
+        [TestMethod]
         public void SyntaxErrors(string text, params string[] unusedVars)
         {
             CompileAndTest(text, new(OnCompileErrors.Ignore), unusedVars);
@@ -104,7 +104,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         [DataRow(@"var")] // Don't show as unused - no param name
         [DataRow(@"var // whoops")] // Don't show as unused - no param name
-        [DataTestMethod]
+        [TestMethod]
         public void Errors(string text, params string[] unusedVars)
         {
             CompileAndTest(text, new(OnCompileErrors.Ignore), unusedVars);

@@ -3,11 +3,30 @@
 
 import type { Box } from "@/lib/math";
 
-import { useGetPanZoomDimensions, usePanZoomControl } from "@vscode-bicep-ui/components";
+import { useGetPanZoomDimensions, useGetPanZoomTransform, usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useAtomCallback } from "jotai/utils";
-import { useCallback } from "react";
+import { animate } from "motion";
+import { useCallback, useEffect, useRef } from "react";
 import { getBoxCenter, getBoxHeight, getBoxWidth } from "@/lib/math";
 import { graphBoundsAtom } from "../atoms";
+import { NODE_MOVE_TRANSITION } from "../motion";
+
+/** The furthest the camera zooms out. */
+export const MINIMUM_ZOOM = 1 / 4;
+
+/**
+ * How the camera moves to frame the bounds:
+ * - `animate`: the camera's own transition.
+ * - `instant`: at once.
+ * - `follow-nodes`: in step with nodes that start moving to those bounds now, from the center of the view.
+ */
+export type FitViewMotion = "animate" | "instant" | "follow-nodes";
+
+type CameraTransform = { x: number; y: number; scale: number };
+
+function transformsEqual(a: CameraTransform, b: CameraTransform): boolean {
+  return Math.abs(a.x - b.x) < 0.01 && Math.abs(a.y - b.y) < 0.01 && Math.abs(a.scale - b.scale) < 1e-6;
+}
 
 /**
  * Returns a callback that applies a pan-zoom transform to center the
@@ -17,10 +36,17 @@ import { graphBoundsAtom } from "../atoms";
  */
 export function useFitViewToBounds() {
   const getPanZoomDimensions = useGetPanZoomDimensions();
+  const getPanZoomTransform = useGetPanZoomTransform();
   const { transform } = usePanZoomControl();
+  const followRef = useRef<ReturnType<typeof animate> | null>(null);
+
+  useEffect(() => () => followRef.current?.stop(), []);
 
   return useCallback(
-    (bounds: Box) => {
+    (bounds: Box, motion: FitViewMotion = "animate") => {
+      followRef.current?.stop();
+      followRef.current = null;
+
       const graphWidth = getBoxWidth(bounds);
       const graphHeight = getBoxHeight(bounds);
       const { x: graphCenterX, y: graphCenterY } = getBoxCenter(bounds);
@@ -31,17 +57,55 @@ export function useFitViewToBounds() {
       const padding = 100;
       const scaleX = (viewportWidth - padding * 2) / graphWidth;
       const scaleY = (viewportHeight - padding * 2) / graphHeight;
-      const scale = Math.min(scaleX, scaleY, 1); // Don't zoom in beyond 1:1
+      // Don't zoom in beyond 1:1
+      const scale = Math.max(Math.min(scaleX, scaleY, 1), MINIMUM_ZOOM);
 
       // Calculate translation to center the content
       const viewportCenterX = viewportWidth / 2;
       const viewportCenterY = viewportHeight / 2;
-      const translateX = viewportCenterX - graphCenterX * scale;
-      const translateY = viewportCenterY - graphCenterY * scale;
 
-      transform(translateX, translateY, scale);
+      if (motion !== "follow-nodes") {
+        transform(
+          viewportCenterX - graphCenterX * scale,
+          viewportCenterY - graphCenterY * scale,
+          scale,
+          motion === "animate",
+        );
+        return;
+      }
+
+      // Nodes spread from the center of the view, so the camera zooms around it in step with them. The zoom is
+      // front-loaded: zoomed out at the pace the nodes spread, the graph would grow past its final size on screen and
+      // then shrink back.
+      const start = getPanZoomTransform();
+      const startCenterX = (viewportCenterX - start.x) / start.scale;
+      const startCenterY = (viewportCenterY - start.y) / start.scale;
+      let applied: CameraTransform = start;
+
+      followRef.current = animate(0, 1, {
+        ...NODE_MOVE_TRANSITION,
+        onUpdate: (progress) => {
+          if (!transformsEqual(getPanZoomTransform(), applied)) {
+            // The user, or another fit, moved the camera.
+            followRef.current?.stop();
+            return;
+          }
+
+          // The nodes bounce as they settle. The camera does not.
+          const zoom = 1 - (1 - Math.min(progress, 1)) ** 2;
+          const nextScale = start.scale * (scale / start.scale) ** zoom;
+          const centerX = startCenterX + (graphCenterX - startCenterX) * zoom;
+          const centerY = startCenterY + (graphCenterY - startCenterY) * zoom;
+          applied = {
+            x: viewportCenterX - centerX * nextScale,
+            y: viewportCenterY - centerY * nextScale,
+            scale: nextScale,
+          };
+          transform(applied.x, applied.y, applied.scale, false);
+        },
+      });
     },
-    [getPanZoomDimensions, transform],
+    [getPanZoomDimensions, getPanZoomTransform, transform],
   );
 }
 

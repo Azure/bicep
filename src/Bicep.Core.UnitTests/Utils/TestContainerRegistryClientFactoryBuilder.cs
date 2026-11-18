@@ -4,9 +4,9 @@
 using System.Collections.Immutable;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.RegistryClients.Oci.AzureSdk;
 using FluentAssertions;
 using Moq;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;

@@ -7,6 +7,7 @@ using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Text.Json;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
@@ -14,7 +15,6 @@ using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
 using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
-using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;
 
@@ -116,13 +116,13 @@ public class DocsGenerateCommand(
 
             if (token.Value.Equals(customTemplateValueOption.Name, StringComparison.Ordinal))
             {
-                SetValue(customValues, GetOptionValue(tokens, ref index, Option.CustomTemplateValue));
+                SetValue(customValues, GetOptionValue(tokens, ref index, OptionNames.CustomTemplateValue));
             }
             else if (token.Value.Equals(customTemplateValueFilePathOption.Name, StringComparison.Ordinal))
             {
                 LoadValuesFile(
                     customValues,
-                    GetOptionValue(tokens, ref index, Option.CustomTemplateValueFilePath));
+                    GetOptionValue(tokens, ref index, OptionNames.CustomTemplateValueFilePath));
             }
         }
 
@@ -150,7 +150,7 @@ public class DocsGenerateCommand(
         if (separatorIndex <= 0)
         {
             throw new CommandLineException(
-                $"The {Option.CustomTemplateValue} value \"{value}\" must use the format key=value.");
+                $"The {OptionNames.CustomTemplateValue} value \"{value}\" must use the format key=value.");
         }
 
         customValues[value[..separatorIndex]] = value[(separatorIndex + 1)..];
@@ -163,7 +163,7 @@ public class DocsGenerateCommand(
         if (string.IsNullOrWhiteSpace(path))
         {
             throw new CommandLineException(
-                $"The {Option.CustomTemplateValueFilePath} parameter expects a nonempty path.");
+                $"The {OptionNames.CustomTemplateValueFilePath} parameter expects a nonempty path.");
         }
 
         string fullPath;
@@ -233,70 +233,51 @@ public class DocsGenerateCommand(
     internal static Command CreateCommand(CommandLineBuilderContext context)
     {
         var command = new Command(
-            Constants.Command.Docs,
-            "[Experimental] Generates documentation for Bicep modules.");
-        command.Add(CreateGenerateCommand(context));
+            CommandNames.Docs,
+            "[Experimental] Generates documentation for Bicep modules.")
+        {
+            CreateGenerateCommand(context),
+        };
 
         return command;
     }
 
     private static Command CreateGenerateCommand(CommandLineBuilderContext context)
     {
-        var command = new Command(Constants.Command.DocsGenerate, "[Experimental] Generates documentation files for Bicep modules.")
-        {
-            TreatUnmatchedTokensAsErrors = true,
-        };
-        var inputFileArgument = new Argument<string?>(Constants.Argument.InputFile)
-        {
-            Description = "The path to an input .bicep file.",
-            Arity = ArgumentArity.ZeroOrOne,
-        };
-        var stdoutOption = new Option<bool>(Option.Stdout)
-        {
-            Description = "Prints the generated documentation to stdout.",
-        };
-        var customTemplateValueOption = new Option<string[]>(Option.CustomTemplateValue)
+        var inputFileArgument = CommonArguments.OptionalInputFile("The path to an input .bicep file.");
+        var stdoutOption = CommonOptions.Stdout("Prints the generated documentation to stdout.");
+        var customTemplateValueOption = new Option<string[]>(OptionNames.CustomTemplateValue)
         {
             Description = "Supplies a custom template value in key=value form. May be repeated.",
             Arity = ArgumentArity.ZeroOrMore,
             AllowMultipleArgumentsPerToken = false,
         };
-        var customTemplateValueFilePathOption = new Option<string[]>(Option.CustomTemplateValueFilePath)
+        var customTemplateValueFilePathOption = new Option<string[]>(OptionNames.CustomTemplateValueFilePath)
         {
             Description = "Loads custom template string values from a JSON object file. May be repeated.",
             Arity = ArgumentArity.ZeroOrMore,
             AllowMultipleArgumentsPerToken = false,
         };
-        var outDirOption = new Option<string?>(Option.OutDir)
-        {
-            Description = "Saves the generated README.md files beneath the specified directory.",
-        };
-        var outFileOption = new Option<string?>(Option.OutFile)
-        {
-            Description = "Saves the generated documentation as the specified file path.",
-        };
-        var patternOption = new Option<string?>(Option.Pattern)
-        {
-            Description = "Generates documentation for all files matching the glob pattern. Cannot be used with the input path.",
-        };
-        var noRestoreOption = new Option<bool>(Option.NoRestore)
-        {
-            Description = "Skips restoring external modules.",
-        };
-        var diagnosticsFormatOption = new Option<DiagnosticsFormat?>(Option.DiagnosticsFormat)
-        {
-            Description = "Sets the diagnostics format. Valid values are (Default, SARIF).",
-        };
+        var outDirOption = CommonOptions.OutDir("Saves the generated README.md files beneath the specified directory.");
+        var outFileOption = CommonOptions.OutFile("Saves the generated documentation as the specified file path.");
+        var patternOption = CommonOptions.Pattern("Generates documentation for all files matching the glob pattern. Cannot be used with the input path.");
+        var noRestoreOption = CommonOptions.NoRestore("Skips restoring external modules.");
+        var diagnosticsFormatOption = CommonOptions.DiagnosticsFormat();
+        var configOption = CommonOptions.Config();
 
-        command.Add(inputFileArgument);
-        command.Add(stdoutOption);
-        command.Add(customTemplateValueOption);
-        command.Add(customTemplateValueFilePathOption);
-        command.Add(outDirOption);
-        command.Add(outFileOption);
-        command.Add(patternOption);
-        command.Add(noRestoreOption);
-        command.Add(diagnosticsFormatOption);
+        var command = new Command(CommandNames.DocsGenerate, "[Experimental] Generates documentation files for Bicep modules.")
+        {
+            inputFileArgument,
+            stdoutOption,
+            customTemplateValueOption,
+            customTemplateValueFilePathOption,
+            outDirOption,
+            outFileOption,
+            patternOption,
+            noRestoreOption,
+            diagnosticsFormatOption,
+            configOption,
+        };
         command.Validators.Add(result =>
         {
             CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument);
@@ -306,7 +287,7 @@ public class DocsGenerateCommand(
             }
         });
 
-        command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+        command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
         {
             var handler = context.GetCommand<DocsGenerateCommand>();
             var customValues = handler.ParseCustomValues(

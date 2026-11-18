@@ -3,11 +3,11 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
+using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Mock.Artifacts.Catalog.Brm;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Helpers;
@@ -89,10 +89,10 @@ param foo: string
                     .WithContainerRegistryClientFactory(clientFactory)
                     .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
 
-                // Using a mock IPublicModuleIndexHttpClient since this test doesn't require public registry modules. 
+                // Using a mock IBrmIndexHttpClient since this test doesn't require public registry modules. 
                 // This prevents downloading public registry metadata on each run, avoiding potential flakiness 
                 // or test timeouts caused by slow internet connections.
-                services.AddHttpClient<IPublicModuleIndexHttpClient, MockPublicModuleIndexHttpClient>();
+                services.AddHttpClient<IBrmIndexHttpClient, MockBrmIndexHttpClient>();
             });
 
         // the published module has the wrong param type - this should cause an error

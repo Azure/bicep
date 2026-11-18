@@ -13,7 +13,6 @@ using Bicep.Core.Emit;
 using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
@@ -58,9 +57,8 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, BicepSourceFile sourceFile, CompilerVersionCheckOptions compilerVersionCheckOptions)
+        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, BicepSourceFile sourceFile, CompilerVersionCheckOptions compilerVersionCheckOptions)
         {
-            this.ArtifactReferenceFactory = artifactReferenceFactory;
             this.ModelLookup = modelLookup;
             this.SourceFileGrouping = sourceFileGrouping;
             this.SourceFile = sourceFile;
@@ -73,7 +71,7 @@ namespace Bicep.Core.Semantics
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
-            var symbolContext = new SymbolContext(this, sourceFileGrouping, modelLookup, artifactReferenceFactory, sourceFile);
+            var symbolContext = new SymbolContext(this, sourceFileGrouping, modelLookup, sourceFile);
             // Because import cycles would have been detected and blocked earlier in the compilation, it's fine to allow
             // access to *other* models in the compilation while the symbol context is locked.
             // This allows the binder to create the right kind of symbol for compile-time imports.
@@ -246,8 +244,6 @@ namespace Bicep.Core.Semantics
         public IBinder Binder { get; }
 
         public ISymbolContext SymbolContext { get; }
-
-        public IArtifactReferenceFactory ArtifactReferenceFactory { get; }
 
         public ISemanticModelLookup ModelLookup { get; }
 

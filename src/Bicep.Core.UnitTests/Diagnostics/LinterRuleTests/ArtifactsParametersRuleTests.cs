@@ -395,7 +395,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                           name: 'creatingVM'
                           params: {
                             _artifactsLocation: 'my artifactsLocation'
+                            #disable-next-line use-secure-value-for-secure-inputs
                             _artifactsLocationSasToken: 'my artifactsLocationSasToken'
+                            #disable-next-line use-secure-value-for-secure-inputs
                             adminPasswordOrKey: 'adminPasswordOrKey'
                             adminUsername: 'adminUsername'
                           }

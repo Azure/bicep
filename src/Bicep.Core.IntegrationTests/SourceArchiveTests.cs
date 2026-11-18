@@ -7,7 +7,6 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Text;
@@ -431,7 +430,7 @@ namespace Bicep.Core.IntegrationTests
                 ("files/_cache_/br/mockregistry.io/test$module1/v1$/main.json", moduleTemplateText));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("main.bicep", "files/main.bicep", ArchivedSourceFileKind.Bicep, null)]
         [DataRow("local1.bicep", "files/local1.bicep", ArchivedSourceFileKind.Bicep, null)]
         [DataRow("modules/local2.bicep", "files/modules/local2.bicep", ArchivedSourceFileKind.Bicep, null)]
@@ -451,7 +450,7 @@ namespace Bicep.Core.IntegrationTests
             file.Metadata.SourceArtifactId.Should().Be(expectedSourceArtifactId);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("foo.bicep")]
         [DataRow("bar.bicep")]
         public async Task FindSourceFile_NonexistentPath_Throws(string path)

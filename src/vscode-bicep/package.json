@@ -327,7 +327,7 @@
         "command": "bicep.forceModulesRestore",
         "key": "ctrl+m r",
         "mac": "cmd+m r",
-        "when": "resourceLangId == bicep"
+        "when": "resourceLangId == bicep || resourceLangId == bicep-params"
       },
       {
         "command": "bicep.showVisualizerToSide",
@@ -390,7 +390,7 @@
         },
         {
           "command": "bicep.forceModulesRestore",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_1_edit"
         },
         {
@@ -462,7 +462,7 @@
         },
         {
           "command": "bicep.forceModulesRestore",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_1_edit"
         },
         {
@@ -529,7 +529,7 @@
         },
         {
           "command": "bicep.forceModulesRestore",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_1_edit"
         },
         {
@@ -785,22 +785,22 @@
     "@eslint/compat": "^2.1.1",
     "@eslint/js": "^10.0.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.2",
-    "@types/node": "^26.6.4",
+    "@types/node": "^26.6.6",
     "@types/semver": "^7.8.0",
     "@types/vscode": "^1.125.0",
-    "@vitest/coverage-v8": "^5.0.3",
-    "@vitest/eslint-plugin": "^1.6.27",
+    "@vitest/coverage-v8": "^5.1.0",
+    "@vitest/eslint-plugin": "^1.6.28",
     "@vscode/test-electron": "^3.1.0",
-    "@vscode/vsce": "^4.0.0",
-    "eslint": "^10.11.0",
+    "@vscode/vsce": "^4.1.0",
+    "eslint": "^10.14.0",
     "eslint-plugin-notice": "^1.0.0",
     "jsonc-parser": "^3.3.1",
     "nerdbank-gitversioning": "^3.10.94",
-    "prettier": "^3.9.9",
-    "semver": "^7.8.5",
+    "prettier": "^3.9.10",
+    "semver": "^7.8.6",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.71.0",
-    "vite": "^8.3.2",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.6",
     "vitest": "^5.0.0"
   },
   "dependencies": {
@@ -808,7 +808,7 @@
     "@azure/arm-resources": "^8.0.0",
     "@azure/arm-resources-subscriptions": "^3.0.0",
     "@azure/core-auth": "^1.11.0",
-    "vscode-languageclient": "^10.1.2"
+    "vscode-languageclient": "^11.0.0"
   },
   "extensionDependencies": [
     "ms-dotnettools.vscode-dotnet-runtime"

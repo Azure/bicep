@@ -3,7 +3,7 @@
 using System.Collections.Frozen;
 using System.Diagnostics;
 using Azure.Bicep.Types;
-using Bicep.Core.Registry;
+using Bicep.Core.Artifacts;
 using Bicep.IO.Abstraction;
 using Bicep.IO.Utils;
 

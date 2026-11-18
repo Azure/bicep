@@ -8,6 +8,7 @@ import type { PaletteContentProps } from "./PaletteContent";
 import { Accordion, Codicon, useAccordionItem } from "@vscode-bicep-ui/components";
 import { memo } from "react";
 import styled from "styled-components";
+import { POINTER_CURSOR } from "@/ui";
 import { useProgressiveBudget } from "../hooks/use-progressive-budget";
 import { allocateProgressiveRows } from "../progressive-rows";
 import { ResourceTypeItem } from "./ResourceTypeItem";
@@ -25,6 +26,11 @@ const $MoreSentinel = styled.div`
 `;
 
 const $Group = styled.div`
+  /* The accordion's header button sets the system pointer itself. */
+  & > button {
+    cursor: ${POINTER_CURSOR};
+  }
+
   & > button:focus-visible {
     border-radius: 4px;
     outline: 1px solid ${({ theme }) => theme.focusBorder};
@@ -87,7 +93,7 @@ export const PaletteAction = styled.button`
   border-radius: 2px;
   color: var(--vscode-button-foreground);
   background: var(--vscode-button-background);
-  cursor: pointer;
+  cursor: ${POINTER_CURSOR};
 
   &:hover {
     background: var(--vscode-button-hoverBackground);

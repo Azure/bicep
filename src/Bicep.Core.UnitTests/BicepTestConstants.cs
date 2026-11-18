@@ -6,17 +6,17 @@ using Azure.Bicep.Types.Az;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts.Registries;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Oci.Oras;
-using Bicep.Core.Registry.Sessions;
+using Bicep.Core.RegistryClients.Oci;
+using Bicep.Core.RegistryClients.Oci.AzureSdk;
+using Bicep.Core.RegistryClients.TemplateSpecs;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
@@ -33,6 +33,7 @@ using Bicep.IO.InMemory;
 using Bicep.Testing;
 using Bicep.Testing.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
 using OnDiskFileSystem = System.IO.Abstractions.FileSystem;
@@ -70,7 +71,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
-        public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
+        public static readonly ITemplateSpecClientFactory TemplateSpecClientFactory = StrictMock.Of<ITemplateSpecClientFactory>().Object;
 
         // Rules that are currently skipped due to configuration for ProgramsShouldProduceExpectedDiagnostics
         public static readonly string[] TestAnalyzersToSkip = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedLocationRule.Code, ExplicitValuesForLocationParamsRule.Code, NoLocationExprOutsideParamsRule.Code, NoModuleNameRule.Code, NoHardcodedOutputsRule.Code, UseDescriptionParametersRule.Code, UseDescriptionVarsRule.Code, UseDescriptionOutputRule.Code, UseDescriptionTypeRule.Code, UseDescriptionTypePropertyRule.Code];
@@ -81,25 +82,26 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration, FileExplorer), FeatureOverrides);
 
+        public static readonly OciArtifactContext OciArtifactContext = OciArtifactContext.Create(BuiltInConfiguration, Features);
+
         public static readonly INamespaceProvider NamespaceProvider = new NamespaceProvider(ResourceTypeProviderFactory);
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
-        public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services)
+        public static IRemoteArtifactRegistry[] CreateRegistries()
         {
-            var transport = new AzureContainerRegistryManager(ClientFactory);
-            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new System.IO.Abstractions.TestingHelpers.MockFileSystem());
-            var transportFactory = new OciRegistryTransportFactory(transport, dockerCredentials);
-            var publicMetadataProvider = (services.GetService(typeof(IPublicModuleMetadataProvider)) as IPublicModuleMetadataProvider)
-                ?? StrictMock.Of<IPublicModuleMetadataProvider>().Object;
-            return new DefaultArtifactRegistryProvider(TestRegistryConfiguration, transportFactory, publicMetadataProvider, TemplateSpecRepositoryFactory, FileExplorer);
+            var transportFactory = new ServiceBuilder()
+                .WithContainerRegistryClientFactory(ClientFactory)
+                .Build().Construct<IOciRegistryTransportFactory>();
+            return [
+                new OciArtifactRegistry(TestRegistryConfiguration, transportFactory, NullLogger<OciArtifactRegistry>.Instance),
+                new TemplateSpecArtifactRegistry(TemplateSpecClientFactory),
+            ];
         }
 
         public static readonly RegistryConfiguration TestRegistryConfiguration = new(PermitUntrustedRegistries: true);
 
         public static readonly CloudConfigurationTrustPolicy TestCloudConfigurationTrustPolicy = new();
-
-        public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));
 
         public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
             new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzResourceTypeProvider, BicepSourceFileKind.BicepFile), null),

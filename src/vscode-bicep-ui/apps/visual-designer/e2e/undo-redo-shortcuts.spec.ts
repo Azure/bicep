@@ -53,6 +53,29 @@ test.describe("Undo/Redo shortcuts", () => {
     }
   });
 
+  test("wait for a node drag to end", async ({ page }) => {
+    const { node: subnet, moved } = await dragSubnet(page);
+    const vnet = page.locator('[data-node-id="vnet"]');
+    const start = await waitForStableNodePosition(page, "vnet");
+    const box = (await vnet.boundingBox())!;
+
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 + 40, box.y + box.height / 2, { steps: 5 });
+    await page.keyboard.press("ControlOrMeta+z");
+    await page.mouse.move(box.x + box.width / 2 + 80, box.y + box.height / 2, { steps: 5 });
+    await page.mouse.up();
+
+    // The shortcut did not undo the earlier subnet move while vnet was being dragged.
+    expect((await subnet.boundingBox())?.x).toBeCloseTo(moved.x, 0);
+    await expect.poll(async () => (await vnet.boundingBox())?.x ?? 0).toBeGreaterThan(start.x + 50);
+
+    // Afterwards, Undo reverts the vnet drag first.
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect.poll(async () => (await vnet.boundingBox())?.x ?? 0).toBeCloseTo(start.x, 0);
+    expect((await subnet.boundingBox())?.x).toBeCloseTo(moved.x, 0);
+  });
+
   test("keep working after focus moves to a control button", async ({ page }) => {
     const { node, original, moved } = await dragSubnet(page);
     const zoomIn = page.getByTestId("control-zoom-in");

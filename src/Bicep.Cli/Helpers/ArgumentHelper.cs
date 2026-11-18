@@ -18,23 +18,23 @@ public class ArgumentHelper
     {
         if (filePattern is not null && outputToStdOut)
         {
-            throw new CommandLineException($"The {Option.Stdout} parameter cannot be used with the {Option.Pattern} parameter");
+            throw new CommandLineException($"The {OptionNames.Stdout} parameter cannot be used with the {OptionNames.Pattern} parameter");
         }
         if (filePattern is not null && outputFile is not null)
         {
-            throw new CommandLineException($"The {Option.OutFile} parameter cannot be used with the {Option.Pattern} parameter");
+            throw new CommandLineException($"The {OptionNames.OutFile} parameter cannot be used with the {OptionNames.Pattern} parameter");
         }
         if (outputToStdOut && outputDir is not null)
         {
-            throw new CommandLineException($"The {Option.OutDir} and {Option.Stdout} parameters cannot both be used");
+            throw new CommandLineException($"The {OptionNames.OutDir} and {OptionNames.Stdout} parameters cannot both be used");
         }
         if (outputToStdOut && outputFile is not null)
         {
-            throw new CommandLineException($"The {Option.OutFile} and {Option.Stdout} parameters cannot both be used");
+            throw new CommandLineException($"The {OptionNames.OutFile} and {OptionNames.Stdout} parameters cannot both be used");
         }
         if (outputDir is not null && outputFile is not null)
         {
-            throw new CommandLineException($"The {Option.OutDir} and {Option.OutFile} parameters cannot both be used");
+            throw new CommandLineException($"The {OptionNames.OutDir} and {OptionNames.OutFile} parameters cannot both be used");
         }
     }
 

@@ -773,12 +773,10 @@ namespace Bicep.Decompiler
                 _ => throw new NotImplementedException($"Unrecognized expression {ExpressionsEngine.SerializeExpression(expression)}"),
             };
 
-        private SyntaxBase ParseString(string? value, IJsonLineInfo lineInfo)
+        private SyntaxBase ParseString(string value, IJsonLineInfo lineInfo)
         {
             try
             {
-                ArgumentNullException.ThrowIfNull(value);
-
                 if (ExpressionsEngine.IsLanguageExpression(value))
                 {
                     var expression = ExpressionsEngine.ParseLanguageExpression(value);

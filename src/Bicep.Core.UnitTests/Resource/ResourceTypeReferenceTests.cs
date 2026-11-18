@@ -9,7 +9,7 @@ namespace Bicep.Core.UnitTests.Resource
     [TestClass]
     public class ResourceTypeReferenceTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("")]
         [DataRow("+-")]
         [DataRow("-/abc")]
@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Resource
             ResourceTypeReference.TryParse(value).Should().BeNull();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "2019-06-01", "Microsoft.Compute", "virtualMachines")]
         [DataRow("Microsoft.Compute/virtualMachines/networkInterfaces@2019-06-01-alpha", "2019-06-01-alpha", "Microsoft.Compute", "virtualMachines", "networkInterfaces")]
         [DataRow("Microsoft.Blueprint/blueprints/versions/artifacts@2018-11-01-preview", "2018-11-01-preview", "Microsoft.Blueprint", "blueprints", "versions", "artifacts")]
@@ -48,7 +48,7 @@ namespace Bicep.Core.UnitTests.Resource
             AssertExpectations(actual);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.Compute/virtualMachines")]
         [DataRow("Microsoft.Blueprint/blueprints/versions/artifacts@2018-11-01-preview", "Microsoft.Blueprint/blueprints/versions/artifacts")]
         public void ValidType_FullyQualifiedTypeShouldBeCorrect(string value, string expectedFullyQualifiedType)
@@ -69,7 +69,7 @@ namespace Bicep.Core.UnitTests.Resource
             actual.FormatName().Should().BeSameAs(value);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("virtualMachines", "virtualMachines", (string?)null)]
         [DataRow("virtualMachines@2019-06-01", "virtualMachines", "2019-06-01")]
         [DataRow("artifacts@2018-11-01-preview", "artifacts", "2018-11-01-preview")]
@@ -80,7 +80,7 @@ namespace Bicep.Core.UnitTests.Resource
             result.ApiVersion.Should().BeEquivalentTo(expectedVersion);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("My.RP/someType@2020-01-01", "childType", "My.RP/someType/childType@2020-01-01")]
         [DataRow("My.RP/someType@2020-01-01", "childType/grandchildType", "My.RP/someType/childType/grandchildType@2020-01-01")]
         [DataRow("My.RP/someType@2020-01-01", "childType/grandchildType/greatGrandchildType", "My.RP/someType/childType/grandchildType/greatGrandchildType@2020-01-01")]
@@ -95,7 +95,7 @@ namespace Bicep.Core.UnitTests.Resource
             actual.Should().NotBeNull();
             actual!.FormatName().Should().BeEquivalentTo(expected);
         }
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.Compute/virtualMachines@2019-06-01")] // same string
         [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.Compute/vIrTuAlMaChiNeS@2019-06-01")] // different type casing
         [DataRow("Microsoft.Compute/virtualMachines@2019-06-01-preview", "Microsoft.Compute/vIrTuAlMaChiNeS@2019-06-01-PREVIEW")] // different api version casing
@@ -110,7 +110,7 @@ namespace Bicep.Core.UnitTests.Resource
             firstReference.GetHashCode().Should().Be(secondReference.GetHashCode(), $"calculated hash codes of '{firstReference}' and '{secondReference}' should be equal");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.Compute/virtualMachines@2019-07-01")] // different api version
         [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.Compute/virtualMachineScaleSets@2019-06-01")] // different type
         [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.Copmute/virtualMachines@2019-06-01")] // different provider name

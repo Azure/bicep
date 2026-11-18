@@ -32,7 +32,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithValidBicepConfigFile_ShouldRefreshCompilation()
+        public void HandleFileChanges_WithValidBicepConfigFile_ShouldRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -50,7 +50,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
               }
             }";
 
-            RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
+            HandleBicepConfigFileChange(bicepFileContents,
                                                        bicepConfigFileContents,
                                                        saveBicepConfigFile: true,
                                                        out Mock<ITextDocumentLanguageServer> document,
@@ -75,7 +75,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithInvalidBicepConfigFile_ShouldRefreshCompilation()
+        public void HandleFileChanges_WithInvalidBicepConfigFile_ShouldRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -89,7 +89,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                       ""level"": ""warning""
             }";
 
-            RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
+            HandleBicepConfigFileChange(bicepFileContents,
                                                        bicepConfigFileContents,
                                                        saveBicepConfigFile: true,
                                                        out Mock<ITextDocumentLanguageServer> document,
@@ -123,7 +123,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldRefreshCompilation()
+        public void HandleFileChanges_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -143,7 +143,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 }
                 """;
 
-            RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
+            HandleBicepConfigFileChange(bicepFileContents,
                                                        bicepConfigFileContents,
                                                        saveBicepConfigFile: true,
                                                        out Mock<ITextDocumentLanguageServer> document,
@@ -168,7 +168,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithEmptySourceFile_ShouldNotRefreshCompilation()
+        public void HandleFileChanges_WithEmptySourceFile_ShouldNotRefreshCompilation()
         {
             var bicepConfigFileContents = @"{
               ""analyzers"": {
@@ -184,7 +184,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
               }
             }";
 
-            RefreshCompilationOfSourceFilesInWorkspace(string.Empty,
+            HandleBicepConfigFileChange(string.Empty,
                                                        bicepConfigFileContents,
                                                        saveBicepConfigFile: true,
                                                        out _,
@@ -230,11 +230,11 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithoutBicepConfigFile_ShouldUseDefaultConfigAndRefreshCompilation()
+        public void HandleFileChanges_WithoutBicepConfigFile_ShouldUseDefaultConfigAndRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
-            RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
+            HandleBicepConfigFileChange(bicepFileContents,
                                                        string.Empty,
                                                        saveBicepConfigFile: false,
                                                        out Mock<ITextDocumentLanguageServer> document,
@@ -258,7 +258,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 });
         }
 
-        private void RefreshCompilationOfSourceFilesInWorkspace(string bicepFileContents, string bicepConfigFileContents, bool saveBicepConfigFile, out Mock<ITextDocumentLanguageServer> document, out string? bicepConfigFilePath, out Container<Diagnostic>? diagnostics)
+        private void HandleBicepConfigFileChange(string bicepFileContents, string bicepConfigFileContents, bool saveBicepConfigFile, out Mock<ITextDocumentLanguageServer> document, out string? bicepConfigFilePath, out Container<Diagnostic>? diagnostics)
         {
             PublishDiagnosticsParams? receivedParams = null;
             document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
@@ -298,7 +298,12 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 bicepConfigManager,
                 server);
 
-            bicepConfigLifecycleManager.RefreshCompilationOfSourceFilesInWorkspace();
+            // Report the configuration file as created, or as deleted when the test runs without one.
+            bicepConfigLifecycleManager.HandleFileChanges([new FileEvent
+            {
+                Uri = DocumentUri.FromFileSystemPath(mockFileSystem.Path.GetFullPath("/bicepconfig.json")),
+                Type = saveBicepConfigFile ? FileChangeType.Created : FileChangeType.Deleted,
+            }]);
 
             diagnostics = receivedParams?.Diagnostics;
         }
