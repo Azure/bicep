@@ -187,7 +187,7 @@ public sealed class ArtifactReferenceResolver : IArtifactReferenceResolver
         {
             case ArtifactSchemes.Br:
             case ArtifactSchemes.Oci:
-                return OciArtifactReference.TryParse(this.remoteArtifactContextFactory.GetOciArtifactContext(referencingUri), artifactType, aliasContext, body, scheme).Transform(x => (ArtifactReference)x);
+                return OciArtifactReference.TryParse(this.remoteArtifactContextFactory.GetOciArtifactContext(referencingUri), artifactType, aliasContext, scheme, body).Transform(x => (ArtifactReference)x);
             case ArtifactSchemes.TemplateSpecs:
                 if (artifactType != ArtifactType.Module)
                 {

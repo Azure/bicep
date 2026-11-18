@@ -36,7 +36,7 @@ namespace Bicep.Core.SourceLink
 
             if (Artifacts.Resolution.ArtifactAddress.Parse(sourceArtifactId) is Artifacts.Resolution.ArtifactAddress.SchemeQualified { Scheme: ArtifactSchemes.Br, Body: var body })
             {
-                return OciArtifactAddressComponents.TryParse(body).TryUnwrap();
+                return OciArtifactAddressComponents.TryParse(ArtifactSchemes.Br, body).TryUnwrap();
             }
 
             // Skip unknown schemes for possible future compatibility

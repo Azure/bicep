@@ -38,7 +38,7 @@ public static class ExtensionTestHelper
 
     public static async Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionArtifactPackage package, string target, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
     {
-        var reference = OciArtifactReference.TryParse(OciArtifactContext.Create(BicepTestConstants.DummyBicepFile.LoadConfiguration(), BicepTestConstants.DummyBicepFile.LoadFeatures()), ArtifactType.Module, null, target).Unwrap();
+        var reference = OciArtifactReference.TryParse(OciArtifactContext.Create(BicepTestConstants.DummyBicepFile.LoadConfiguration(), BicepTestConstants.DummyBicepFile.LoadFeatures()), ArtifactType.Module, null, ArtifactSchemes.Br, target).Unwrap();
 
         fileSystem ??= new MockFileSystem();
         var services = GetServiceBuilder(fileSystem, reference.Registry, reference.Repository, features);

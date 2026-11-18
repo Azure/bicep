@@ -233,7 +233,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void GetExternalSourceLinkUri_WithExternalModuleFromCache_TitlesShouldBeCorrect()
         {
-            var components = OciArtifactAddressComponents.TryParse("myregistry.azurecr.io/myrepo/bicep/module1:v1")
+            var components = OciArtifactAddressComponents.TryParse(ArtifactSchemes.Br, "myregistry.azurecr.io/myrepo/bicep/module1:v1")
                 .Unwrap();
             var ext = new ExternalSourceReference(components, null)
                 .WithRequestForSourceFile("<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json");
@@ -245,7 +245,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void GetExternalSourceLinkUri_WithRequestedFileInSubfolder_TitlesShouldBeCorrect()
         {
-            var components = OciArtifactAddressComponents.TryParse("myregistry.azurecr.io/myrepo/bicep/module1:v1")
+            var components = OciArtifactAddressComponents.TryParse(ArtifactSchemes.Br, "myregistry.azurecr.io/myrepo/bicep/module1:v1")
                 .Unwrap();
             var ext = new ExternalSourceReference(components, null)
                 .WithRequestForSourceFile("subfolder1/subfolder 2/my file.bicep");
@@ -462,7 +462,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 throw new ArgumentException("Module reference is not fully qualified.");
             }
 
-            return OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(remoteArtifactContextFactory), ArtifactType.Module, aliasName, fullyQualifiedReference[3..]).Unwrap();
+            return OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(remoteArtifactContextFactory), ArtifactType.Module, aliasName, ArtifactSchemes.Br, fullyQualifiedReference[3..]).Unwrap();
         }
     }
 }

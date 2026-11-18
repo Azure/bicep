@@ -73,7 +73,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
         {
             DiagnosticBuilderDelegate? error = null;
             if (ArtifactAddress.Parse(fullyQualifiedModuleReference) is not ArtifactAddress.SchemeQualified { Scheme: ArtifactSchemes.Br, Body: var body } ||
-                !OciArtifactAddressComponents.TryParse(body).IsSuccess(out var components, out error))
+                !OciArtifactAddressComponents.TryParse(ArtifactSchemes.Br, body).IsSuccess(out var components, out error))
             {
                 string? innerMessage = null;
                 if (error is { })
@@ -149,7 +149,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
         public Result<OciArtifactReference, string> ToArtifactReference(OciArtifactContext context)
         {
-            if (OciArtifactAddressComponents.TryParse(Components.ArtifactId).IsSuccess(out var components, out var failureBuilder))
+            if (OciArtifactAddressComponents.TryParse(ArtifactSchemes.Br, Components.ArtifactId).IsSuccess(out var components, out var failureBuilder))
             { // No parent file template is available or needed because these are absolute references
                 return new(new OciArtifactReference(context, ArtifactType.Module, components));
             }

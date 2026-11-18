@@ -44,7 +44,7 @@ public record WellKnownExtension(string Name, string Description, string Registr
             return null;
         }
 
-        if (!OciArtifactAddressComponents.TryParse(withoutScheme).IsSuccess(out var components, out _))
+        if (!OciArtifactAddressComponents.TryParse(ArtifactSchemes.Br, withoutScheme).IsSuccess(out var components, out _))
         {
             return null;
         }

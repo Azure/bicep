@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Artifacts.Restore;
@@ -121,7 +122,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         /// <param name="displayedModuleTarget">E.g. mockregistry.io/test/module1:v1</param>
         private static TextDocumentIdentifier GetDocumentIdForExternalModuleSource(string displayedModuleTarget)
         {
-            var moduleReferenceComponents = OciArtifactAddressComponents.TryParse(displayedModuleTarget).Unwrap();
+            var moduleReferenceComponents = OciArtifactAddressComponents.TryParse(ArtifactSchemes.Br, displayedModuleTarget).Unwrap();
             var moduleExtRef = new ExternalSourceReference(moduleReferenceComponents, null).WithRequestForSourceFile("main.bicep");
             var moduleId = new TextDocumentIdentifier(moduleExtRef.ToUri());
             return moduleId;

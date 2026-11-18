@@ -84,9 +84,9 @@ namespace Bicep.Core.Artifacts.References
         /// </summary>
         /// <param name="aliasContext">The scheme-qualified alias the body was expanded from, if any. Only used in diagnostics.</param>
         /// <param name="scheme">The scheme the reference was written with (<c>br</c> or <c>oci</c>). Only used in diagnostics.</param>
-        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(OciArtifactContext context, ArtifactType type, string? aliasContext, string unqualifiedReference, string scheme = ArtifactSchemes.Br)
+        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(OciArtifactContext context, ArtifactType type, string? aliasContext, string scheme, string unqualifiedReference)
         {
-            if (OciArtifactAddressComponents.TryParse(unqualifiedReference, aliasContext, scheme).IsSuccess(out var components, out var errorBuilder))
+            if (OciArtifactAddressComponents.TryParse(scheme, unqualifiedReference, aliasContext).IsSuccess(out var components, out var errorBuilder))
             {
                 return new(new OciArtifactReference(context, type, components.Registry, components.Repository, components.Tag, components.Digest));
             }

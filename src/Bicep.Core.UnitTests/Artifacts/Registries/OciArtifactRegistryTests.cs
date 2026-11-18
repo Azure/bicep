@@ -758,7 +758,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Registries
 
         private OciArtifactReference CreateModuleReference(BicepSourceFile referencingFile, string registry, string repository, string? tag, string? digest)
         {
-            OciArtifactReference.TryParse(OciArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), ArtifactType.Module, null, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(OciArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), ArtifactType.Module, null, ArtifactSchemes.Br, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 

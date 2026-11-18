@@ -78,7 +78,7 @@ namespace Bicep.Core.RegistryClients.Oci
         private const string UriValidationScheme = "oci";
 
         /// <param name="scheme">The scheme the reference was written with. Only used in diagnostics.</param>
-        public static ResultWithDiagnosticBuilder<OciArtifactAddressComponents> TryParse(string unqualifiedReference, string? aliasName = null, string scheme = ArtifactSchemes.Br)
+        public static ResultWithDiagnosticBuilder<OciArtifactAddressComponents> TryParse(string scheme, string unqualifiedReference, string? aliasName = null)
         {
             string GetBadReference(string referenceValue) => $"{scheme}:{referenceValue}";
 

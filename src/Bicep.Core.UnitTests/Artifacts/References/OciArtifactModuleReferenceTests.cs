@@ -272,7 +272,7 @@ namespace Bicep.Core.UnitTests.Artifacts.References
                 value = expanded;
             }
 
-            return OciArtifactReference.TryParse(OciArtifactContext.Create(bicepFile.LoadConfiguration(), bicepFile.LoadFeatures()), ArtifactType.Module, aliasName, value);
+            return OciArtifactReference.TryParse(OciArtifactContext.Create(bicepFile.LoadConfiguration(), bicepFile.LoadFeatures()), ArtifactType.Module, aliasName, ArtifactSchemes.Br, value);
         }
 
         private static IEnumerable<object[]> GetValidCases()

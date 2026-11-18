@@ -145,7 +145,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
             var data = request.Data;
 
-            if (!OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(remoteArtifactContextFactory), ArtifactType.Module, null, data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
+            if (!OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(remoteArtifactContextFactory), ArtifactType.Module, null, ArtifactSchemes.Br, data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
             {
                 server.Window.ShowWarning($"Unable to parse the module source ID '{data.TargetArtifactId}': {error(DiagnosticBuilder.ForDocumentStart()).Message}");
                 return GetAlternateLink();
