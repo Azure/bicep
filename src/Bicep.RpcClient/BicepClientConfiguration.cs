@@ -36,6 +36,12 @@ public record BicepClientConfiguration
     public string? BicepVersion { get; init; }
 
     /// <summary>
+    /// An optional source file path used to discover bicepconfig.json and its inherited bicep.version constraint.
+    /// If BicepVersion is set it must satisfy this constraint; otherwise the highest matching release is selected.
+    /// </summary>
+    public string? SourceFilePath { get; init; }
+
+    /// <summary>
     /// The path to a pre-installed existing Bicep CLI executable. If specified, the factory will skip the download and installation steps and directly initialize the client with the provided CLI path. This is useful for scenarios where the caller wants to manage the Bicep CLI installation separately or use a custom-built version of the CLI.
     /// </summary>
     public string? ExistingCliPath { get; init; }
@@ -68,6 +74,11 @@ public record BicepClientConfiguration
 
         if (config.ExistingCliPath is { })
         {
+            if (config.SourceFilePath is not null)
+            {
+                throw new ArgumentException($"The {nameof(ExistingCliPath)} property cannot be used in conjunction with {nameof(SourceFilePath)}.");
+            }
+
             if (config.InstallBasePath is not null)
             {
                 throw new ArgumentException($"The {nameof(ExistingCliPath)} property cannot be used in conjunction with {nameof(InstallBasePath)}.");
