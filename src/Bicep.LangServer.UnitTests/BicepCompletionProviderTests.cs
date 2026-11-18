@@ -58,7 +58,7 @@ namespace Bicep.LangServer.UnitTests
 
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("targetScope = |")]
         [DataRow("targetScope = '|'")]
         [DataRow("targetScope = 'management|'")]
