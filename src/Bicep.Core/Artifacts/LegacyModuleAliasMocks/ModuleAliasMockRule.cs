@@ -42,7 +42,7 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
     /// </summary>
     public override ResultWithDiagnosticBuilder<ArtifactReference>? TryRedirect(IOUri referencingUri, ArtifactType artifactType, ArtifactAddress address)
     {
-        if (address is not ArtifactAddress.SchemeAndAliasQualified { Scheme: ArtifactSchemes.Oci, Alias: var aliasName, Body: var unqualifiedReference })
+        if (address is not ArtifactAddress.SchemeAndAliasQualified { Scheme: ArtifactSchemes.Br, Alias: var aliasName, Body: var unqualifiedReference })
         {
             return null;
         }
@@ -151,6 +151,6 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
         var moduleFileUri = baseUri.Resolve(modulePath + ".bicep");
 
         // Diagnostics show the module path as an OCI reference without a registry, tag or digest.
-        return new(new LocalArtifactReference(ArtifactType.Module, fileExplorer.GetFile(moduleFileUri), $"{OciArtifactReferenceFacts.Scheme}:{modulePath}"));
+        return new(new LocalArtifactReference(ArtifactType.Module, fileExplorer.GetFile(moduleFileUri), $"{ArtifactSchemes.Br}:{modulePath}"));
     }
 }

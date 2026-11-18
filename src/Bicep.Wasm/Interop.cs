@@ -239,9 +239,6 @@ namespace Bicep.Wasm
             => GetModulePathRegex().Matches(sourceContent)
                 .Select(match => match.Groups["path"].Value)
                 .Where(path => !string.IsNullOrWhiteSpace(path))
-                .Where(path => !path.StartsWith("br:", StringComparison.OrdinalIgnoreCase))
-                .Where(path => !path.StartsWith("ts:", StringComparison.OrdinalIgnoreCase))
-                .Where(path => !path.StartsWith("az:", StringComparison.OrdinalIgnoreCase))
                 .Where(path => !HasAbsoluteSchemePrefix(path));
 
         private static bool HasAbsoluteSchemePrefix(string path) => GetAbsoluteSchemePrefixRegex().IsMatch(path);

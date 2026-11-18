@@ -10,6 +10,7 @@ using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Extensions;
 using Azure.Deployments.Templates.Expressions;
 using Bicep.Core;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
@@ -1101,7 +1102,7 @@ namespace Bicep.Decompiler
             {
                 throw new ConversionFailedException($"Unable to interpret \"{templateID}\" as a valid template spec resource id under property {resource["name"]}.properties.templateLink.id", resource);
             }
-            var templateSpec = $"ts:{id.SubscriptionId}/{id.ResourceGroup}/{id.NameHierarchy.First()}:{id.NameHierarchy.Last()}";
+            var templateSpec = $"{ArtifactSchemes.TemplateSpecs}:{id.SubscriptionId}/{id.ResourceGroup}/{id.NameHierarchy.First()}:{id.NameHierarchy.Last()}";
             return SyntaxFactory.CreateStringLiteral(templateSpec);
         }
 

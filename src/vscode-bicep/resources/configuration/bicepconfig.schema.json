@@ -1046,6 +1046,10 @@
         "azExtensionConfig": {
           "type": "boolean",
           "description": "Enables configuration for the built-in 'az' extension to register additional resource providers at the start of a deployment. (Note: This feature will not work until the backend service support has been deployed) See https://aka.ms/bicep/experimental-features#azextensionconfig"
+        },
+        "artifactAliasesAndRedirects": {
+          "type": "boolean",
+          "description": "Enables the 'oci:' and 'file:' artifact reference schemes from REP 0022 (artifact aliases and redirects). See https://aka.ms/bicep/experimental-features#artifactaliasesandredirects"
         }
       },
       "additionalProperties": false

@@ -72,8 +72,8 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
         public ExternalSourceReference(string? fullTitle, string fullyQualifiedModuleReference, string? requestedFile)
         {
             DiagnosticBuilderDelegate? error = null;
-            if (!fullyQualifiedModuleReference.StartsWith($"{OciArtifactReferenceFacts.Scheme}:", StringComparison.Ordinal) ||
-                !OciArtifactAddressComponents.TryParse(fullyQualifiedModuleReference[(OciArtifactReferenceFacts.Scheme.Length + 1)..]).IsSuccess(out var components, out error))
+            if (ArtifactAddress.Parse(fullyQualifiedModuleReference) is not ArtifactAddress.SchemeQualified { Scheme: ArtifactSchemes.Br, Body: var body } ||
+                !OciArtifactAddressComponents.TryParse(body).IsSuccess(out var components, out error))
             {
                 string? innerMessage = null;
                 if (error is { })
@@ -140,7 +140,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             //
             var uri = new UriBuilder($"{LangServerConstants.ExternalSourceFileScheme}:{Uri.EscapeDataString(this.FullTitle)}")
             {
-                Query = Uri.EscapeDataString($"{OciArtifactReferenceFacts.Scheme}:{Components.ArtifactId}"),
+                Query = Uri.EscapeDataString($"{ArtifactSchemes.Br}:{Components.ArtifactId}"),
                 Fragment = this.RequestedFile is null ? null : Uri.EscapeDataString(this.RequestedFile),
             };
 
@@ -177,7 +177,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             var repositoryBasePath = Path.GetDirectoryName(Components.Repository) ?? string.Empty;
 
             // Example: br:mockregistry.io/test/modules/module1:v1 -> localpath>main.bicep
-            var fullDocumentTitle = $"{OciArtifactReferenceFacts.Scheme}:{Components.Registry}/{Path.Join(repositoryBasePath, shortTitle).Replace('\\', '/')}";
+            var fullDocumentTitle = $"{ArtifactSchemes.Br}:{Components.Registry}/{Path.Join(repositoryBasePath, shortTitle).Replace('\\', '/')}";
 
             return fullDocumentTitle;
         }

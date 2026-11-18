@@ -27,7 +27,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
 
             if (request.TextDocument.Uri.Scheme == LangServerConstants.ExternalSourceFileScheme)
             {
-                if (request.TextDocument.Uri.Query.StartsWith("ts:", StringComparison.Ordinal))
+                if (request.TextDocument.Uri.Query.StartsWith($"{ArtifactSchemes.TemplateSpecs}:", StringComparison.Ordinal))
                 {
                     yield break;
                 }
@@ -91,7 +91,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
                                 var artifactId = externalReference.Components.ArtifactId;
                                 yield return CreateCodeLens(
                                     DocumentStart,
-                                    $"Show the compiled JSON for module \"{moduleName}\" ({OciArtifactReferenceFacts.Scheme}:{artifactId})",
+                                    $"Show the compiled JSON for module \"{moduleName}\" ({ArtifactSchemes.Br}:{artifactId})",
                                     "bicep.internal.showModuleSourceFile",
                                     new ExternalSourceReference(request.TextDocument.Uri).WithRequestForCompiledJson().ToUri().ToString());
                             }

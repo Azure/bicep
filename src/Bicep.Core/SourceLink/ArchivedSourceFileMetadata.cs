@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text.Json.Serialization;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.RegistryClients.Oci;
 
@@ -33,11 +34,9 @@ namespace Bicep.Core.SourceLink
                 return null;
             }
 
-            if (sourceArtifactId.StartsWith(OciArtifactReferenceFacts.SchemeWithColon))
+            if (Artifacts.Resolution.ArtifactAddress.Parse(sourceArtifactId) is Artifacts.Resolution.ArtifactAddress.SchemeQualified { Scheme: ArtifactSchemes.Br, Body: var body })
             {
-                sourceArtifactId = sourceArtifactId[OciArtifactReferenceFacts.SchemeWithColon.Length..];
-
-                return OciArtifactAddressComponents.TryParse(sourceArtifactId).TryUnwrap();
+                return OciArtifactAddressComponents.TryParse(body).TryUnwrap();
             }
 
             // Skip unknown schemes for possible future compatibility

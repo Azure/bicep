@@ -18,7 +18,7 @@ public sealed class LocalArtifactReference : ArtifactReference
 
     /// <param name="displayReference">How the reference is shown to the user, for example in diagnostics.</param>
     public LocalArtifactReference(ArtifactType type, IFileHandle file, string displayReference)
-        : base(ArtifactSchemes.Local, type)
+        : base(type)
     {
         this.File = file;
         this.displayReference = displayReference;

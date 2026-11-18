@@ -3,7 +3,8 @@
 
 using System.Collections.Immutable;
 using Bicep.Core;
-using Bicep.Core.Artifacts.References;
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.RegistryClients.Oci;
 
 namespace Bicep.McpServer.Core.Extensions;
@@ -13,7 +14,7 @@ public record WellKnownExtension(string Name, string Description, string Registr
     /// <summary>
     /// The OCI artifact reference path without a tag (e.g., "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0").
     /// </summary>
-    public string OciReference => $"br:{Registry}/{Repository}";
+    public string OciReference => $"{ArtifactSchemes.Br}:{Registry}/{Repository}";
 
     public static ImmutableArray<WellKnownExtension> All { get; } =
     [
@@ -37,13 +38,12 @@ public record WellKnownExtension(string Name, string Description, string Registr
     /// <returns>The matching extension and tag, or null if the reference is invalid or not in the allowlist.</returns>
     public static (WellKnownExtension Extension, string Tag)? TryParseExtensionReference(string extensionReference)
     {
-        if (!extensionReference.StartsWith(OciArtifactReferenceFacts.SchemeWithColon, StringComparison.OrdinalIgnoreCase))
+        if (ArtifactAddress.Parse(extensionReference) is not ArtifactAddress.SchemeQualified { Scheme: var scheme, Body: var withoutScheme } ||
+            !scheme.Equals(ArtifactSchemes.Br, StringComparison.OrdinalIgnoreCase))
         {
             return null;
         }
 
-        // Strip "br:" prefix and parse using the standard OCI reference parser
-        var withoutScheme = extensionReference[OciArtifactReferenceFacts.SchemeWithColon.Length..];
         if (!OciArtifactAddressComponents.TryParse(withoutScheme).IsSuccess(out var components, out _))
         {
             return null;

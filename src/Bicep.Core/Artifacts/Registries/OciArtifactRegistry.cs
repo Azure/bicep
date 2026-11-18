@@ -45,7 +45,7 @@ namespace Bicep.Core.Artifacts.Registries
             this.logger = logger;
         }
 
-        public override string Scheme => ArtifactSchemes.Oci;
+        public override ImmutableArray<string> Schemes { get; } = [ArtifactSchemes.Br, ArtifactSchemes.Oci];
 
         protected override OciArtifactCacheEntry GetCacheEntry(OciArtifactReference reference) => reference.Type switch
         {

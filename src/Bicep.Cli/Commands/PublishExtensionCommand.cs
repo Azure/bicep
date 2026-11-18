@@ -66,7 +66,7 @@ namespace Bicep.Cli.Commands
             }
             OciArtifactReference? reference = null;
             IFileHandle? fileTarget = null;
-            if (args.TargetExtensionReference.StartsWith("br:") || args.TargetExtensionReference.StartsWith("ts:"))
+            if (ArtifactAddress.Parse(args.TargetExtensionReference) is ArtifactAddress.SchemeQualified { Scheme: ArtifactSchemes.Br or ArtifactSchemes.Oci or ArtifactSchemes.TemplateSpecs or ArtifactSchemes.File })
             {
                 reference = ValidateReference(args.TargetExtensionReference, GetCurrentDirectoryReferencingFileUri());
             }

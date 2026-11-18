@@ -11,6 +11,13 @@ Bicep exposes experimental features as a means of previewing new functionality t
 
 The following features can be optionally enabled through your `bicepconfig.json` file. For information on how to enable them, see [Configure your Bicep environment](https://aka.ms/bicep/config).
 
+### `artifactAliasesAndRedirects`
+
+Enables the artifact reference features from [REP 0022: artifact aliases and redirects](https://github.com/Azure/bicep/issues/19883), which are being implemented in stages. Currently:
+
+- `oci:` is another spelling of `br:`, for example `module storage 'oci:contoso.azurecr.io/bicep/modules/storage:1.0.0'`.
+- `file:` references a local module or extension, for example `module network 'file:../shared/network.bicep'` or `extension 'file:./extensions/foo.tgz' as foo`. In the `extensions` section of `bicepconfig.json`, a `file:` path is relative to the configuration file.
+
 ### `assertions`
 
 Should be enabled in tandem with `testFramework` experimental feature flag for expected functionality. Allows you to author boolean assertions using the `assert` keyword comparing the actual value of a parameter, variable, or resource name to an expected value. Assert statements can only be written directly within the Bicep file whose resources they reference. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).

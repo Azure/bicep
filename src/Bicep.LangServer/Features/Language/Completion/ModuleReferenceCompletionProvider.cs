@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.Catalog;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Configuration;
@@ -265,7 +266,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             }
 
             // Top-level Bicep registry completions
-            AddCompletionItem(OciArtifactReferenceFacts.SchemeWithColon, null, "Bicep registry", ModuleCompletionPriority.FullPath, "module registry completion");
+            AddCompletionItem($"{ArtifactSchemes.Br}:", null, "Bicep registry", ModuleCompletionPriority.FullPath, "module registry completion");
             if (!bicepModuleAliases.IsEmpty)
             {
                 // br/<alias>

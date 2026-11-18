@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
@@ -52,10 +54,26 @@ public static class ArtifactReferenceText
                 }
 
                 var referenceText = extensionEntry.Value;
-                if (referenceText.Contains(':'))
+                string pathPrefix;
+                string path;
+                switch (ArtifactAddress.Parse(referenceText))
                 {
-                    // The extension path contains a scheme.
-                    return new(referenceText);
+                    case ArtifactAddress.Path:
+                        pathPrefix = "";
+                        path = referenceText;
+                        break;
+                    case ArtifactAddress.SchemeQualified { Scheme: ArtifactSchemes.File, Body: var body } when referencingFile.LoadFeatures().ArtifactAliasesAndRedirectsEnabled:
+                        if (!RelativePath.TryCreate(body).IsSuccess(out _, out var pathError))
+                        {
+                            return new(pathError);
+                        }
+
+                        pathPrefix = $"{ArtifactSchemes.File}:";
+                        path = body;
+                        break;
+                    default:
+                        // A reference to a remote artifact.
+                        return new(referenceText);
                 }
 
                 if (config.ConfigFileUri is null)
@@ -63,10 +81,10 @@ public static class ArtifactReferenceText
                     throw new InvalidOperationException("The configuration file URI must be set when trying to resolve an extension reference.");
                 }
 
-                // A bare path is relative to the configuration file; rewrite it relative to the referencing file.
-                var extensionUri = config.ConfigFileUri.Resolve(referenceText);
+                // A path, bare or with "file:", is relative to the configuration file; rewrite it relative to the referencing file.
+                var extensionUri = config.ConfigFileUri.Resolve(path);
 
-                return new(extensionUri.GetPathRelativeTo(referencingFile.FileHandle.Uri));
+                return new(pathPrefix + extensionUri.GetPathRelativeTo(referencingFile.FileHandle.Uri));
             default:
                 return new(x => x.ExpectedExtensionSpecification());
         }

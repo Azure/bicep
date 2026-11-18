@@ -75,13 +75,33 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Publish_LocalTarget_ShouldProduceExpectedError()
+        [DataRow("./test.bicep")]
+        [DataRow("file:test.bicep")]
+        public async Task Publish_LocalTarget_ShouldProduceExpectedError(string target)
         {
-            var (output, error, result) = await Bicep("publish", "WrongFile.bicep", "--target", "./test.bicep");
+            var settings = new InvocationSettings(new(TestContext, ArtifactAliasesAndRedirectsEnabled: true));
+            var (output, error, result) = await Bicep(settings, "publish", "WrongFile.bicep", "--target", target);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().Contain("The specified module target \"./test.bicep\" is not supported.");
+            error.Should().Contain($"The specified module target \"{target}\" is not supported.");
+        }
+
+        [TestMethod]
+        public async Task Publish_OciTarget_ShouldPublishToTheRegistry()
+        {
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", "output myOutput string = 'hello!'");
+
+            var clientFactory = CreateMockRegistryClient(new RepoDescriptor("example.com", "modules/hello", ["v1"]));
+            var testClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, new Uri("https://example.com"), "modules/hello");
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, ArtifactAliasesAndRedirectsEnabled: true), clientFactory, BicepTestConstants.TemplateSpecClientFactory);
+            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "oci:example.com/modules/hello:v1");
+
+            result.Should().Be(0);
+            output.Should().BeEmpty();
+            AssertNoErrors(error);
+            testClient.ManifestTags.Should().ContainKey("v1");
         }
 
         private const string AliasedPublishTargetConfig = """

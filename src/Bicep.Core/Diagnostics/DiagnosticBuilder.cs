@@ -1030,7 +1030,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic InvalidOciArtifactReference(string? aliasName, string badRef) => CoreError(
                 "BCP193",
-                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactSchemes.Oci}:<artifact-uri>:<tag>\", or \"{ArtifactSchemes.Oci}/<module-alias>:<module-name-or-path>:<tag>\".");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactSchemes.Br}:<artifact-uri>:<tag>\", or \"{ArtifactSchemes.Br}/<module-alias>:<module-name-or-path>:<tag>\".");
 
             public Diagnostic InvalidTemplateSpecReference(string? aliasName, string badRef) => CoreError(
                 "BCP194",
@@ -2093,6 +2093,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic InvalidTrustedCloudsEnvironmentVariable(string parsingError) => CoreWarning(
                 "BCP459",
                 $"The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid and custom cloud trust entries were ignored: {parsingError}");
+
+            public Diagnostic SchemeQualifiedAliasNotSupported(string scheme) => CoreError(
+                "BCP460",
+                $"The \"{scheme}\" scheme does not support aliases. Aliases in the form \"<scheme>/<alias>:\" are only supported for the \"{ArtifactSchemes.Br}\" and \"{ArtifactSchemes.TemplateSpecs}\" schemes.");
+
+            public Diagnostic LocalModuleFileExtensionNotSupported(string reference) => CoreError(
+                "BCP461",
+                $"The reference \"{reference}\" is not valid. A file referenced with the \"{ArtifactSchemes.File}\" scheme must be a Bicep file (\"{LanguageConstants.LanguageFileExtension}\" or \"{LanguageConstants.ParamsFileExtension}\") or an ARM template (\"{LanguageConstants.JsonFileExtension}\", \"{LanguageConstants.JsoncFileExtension}\" or \"{LanguageConstants.ArmTemplateFileExtension}\").");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
