@@ -125,7 +125,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "deployCommands": false,
           "patch": false,
           "runtimeValuesInTagsAndSku": false,
-          "azExtensionConfig": false
+          "azExtensionConfig": false,
+          "deploymentModules": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -237,7 +238,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "deployCommands": false,
           "patch": false,
           "runtimeValuesInTagsAndSku": false,
-          "azExtensionConfig": false
+          "azExtensionConfig": false,
+          "deploymentModules": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -371,7 +373,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "deployCommands": false,
           "patch": false,
           "runtimeValuesInTagsAndSku": false,
-          "azExtensionConfig": false
+          "azExtensionConfig": false,
+          "deploymentModules": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -479,7 +482,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 DeployCommands: false,
                 Patch: false,
                 RuntimeValuesInTagsAndSku: false,
-                AzExtensionConfig: false);
+                AzExtensionConfig: false,
+                DeploymentModules: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -572,7 +576,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "deployCommands": false,
                 "patch": false,
                 "runtimeValuesInTagsAndSku": false,
-                "azExtensionConfig": false
+                "azExtensionConfig": false,
+                "deploymentModules": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -960,7 +965,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "deployCommands": false,
                     "patch": false,
                     "runtimeValuesInTagsAndSku": false,
-                    "azExtensionConfig": false
+                    "azExtensionConfig": false,
+                    "deploymentModules": false
                   },
                   "formatting": {
                     "indentKind": "Space",

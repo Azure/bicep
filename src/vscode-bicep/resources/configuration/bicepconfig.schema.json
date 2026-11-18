@@ -1046,7 +1046,11 @@
         "azExtensionConfig": {
           "type": "boolean",
           "description": "Enables configuration for the built-in 'az' extension to register additional resource providers at the start of a deployment. (Note: This feature will not work until the backend service support has been deployed) See https://aka.ms/bicep/experimental-features#azextensionconfig"
-        }
+                  },
+                  "deploymentModules": {
+                    "type": "boolean",
+                    "description": "Emits Bicep modules as deployment modules (Microsoft.Resources/deployments/modules) that do not count against the 800 deployments per scope limit. Requires service support. See https://aka.ms/bicep/experimental-features#deploymentmodules"
+                  }
       },
       "additionalProperties": false
     },
