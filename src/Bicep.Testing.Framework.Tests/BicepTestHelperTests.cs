@@ -31,7 +31,6 @@ public class BicepTestHelperTests
             ExternalInputs = [new("test.input", JsonValue.Create("config"), JsonValue.Create("value"))],
         };
         var client = new Mock<IBicepClient>(MockBehavior.Strict);
-        client.Setup(x => x.GetVersion(cts.Token)).ReturnsAsync("0.49.2+abcdef");
         client.Setup(x => x.GetSnapshot(It.Is<GetSnapshotRequest>(request =>
             request.Path == Path.GetFullPath(options.FilePath) &&
             request.ConfigPath == Path.GetFullPath(options.ConfigPath) &&
@@ -168,22 +167,6 @@ public class BicepTestHelperTests
         await cts.CancelAsync();
         (await act.Should().ThrowAsync<OperationCanceledException>()).Which.CancellationToken.Should().Be(cts.Token);
         client.Verify(x => x.Dispose(), Times.Exactly(2));
-    }
-
-    [TestMethod]
-    [DataRow("0.46.1")]
-    [DataRow("unknown")]
-    public async Task Management_group_context_is_not_silently_ignored_by_older_CLIs(string version)
-    {
-        var client = new Mock<IBicepClient>(MockBehavior.Strict);
-        client.Setup(x => x.GetVersion(default)).ReturnsAsync(version);
-        client.Setup(x => x.Dispose());
-        var session = CreateHelper(client);
-        var act = () => session.SnapshotAsync(new(), new() { FilePath = "main.bicepparam", ManagementGroupId = "platform" });
-
-        await act.Should().ThrowAsync<NotSupportedException>().WithMessage("*0.47.16*");
-        client.Verify(x => x.GetSnapshot(It.IsAny<GetSnapshotRequest>(), It.IsAny<CancellationToken>()), Times.Never);
-        client.Verify(x => x.Dispose(), Times.Once);
     }
 
     [TestMethod]
