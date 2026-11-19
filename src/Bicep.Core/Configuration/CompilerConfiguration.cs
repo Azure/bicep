@@ -44,7 +44,7 @@ public sealed class CompilerConfiguration : ConfigurationSection<CompilerOptions
         {
             if (!VersionRange.TryParse(versionString, out version))
             {
-                throw new ConfigurationException($"The bicep.version property \"{versionString}\" is not a valid Bicep version or version range.");
+                throw new ConfigurationException($"The bicep.version property \"{versionString}\" is not a valid Bicep version or version range.", ConfigurationPropertyPath.Create("version"));
             }
         }
 

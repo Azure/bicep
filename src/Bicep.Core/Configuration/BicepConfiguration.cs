@@ -145,6 +145,7 @@ namespace Bicep.Core.Configuration
         /// <summary>
         /// Binds the <paramref name="key"/> property of <paramref name="element"/>. A value of the wrong shape becomes a
         /// <see cref="ConfigurationException"/> that names the property, instead of a JSON exception about .NET types.
+        /// Every <see cref="ConfigurationException"/> thrown carries the path of the failing property from the configuration root.
         /// </summary>
         private static T BindSection<T>(JsonElement element, string key, Func<JsonElement, T> bind)
         {
@@ -152,18 +153,23 @@ namespace Bicep.Core.Configuration
             {
                 return bind(element.GetProperty(key));
             }
+            catch (ConfigurationException exception)
+            {
+                throw new ConfigurationException(exception.Message, ConfigurationPropertyPath.Create(key).Append(exception.PropertyPath));
+            }
             catch (JsonException exception)
             {
-                // Deserialization errors carry the failing path within the section, e.g. "$.version".
-                var path = exception.Path is { Length: > 1 } innerPath && innerPath.StartsWith("$.", StringComparison.Ordinal)
-                    ? $"{key}.{innerPath[2..]}"
-                    : key;
+                // Deserialization errors carry the failing path within the section, e.g. "$.version" or "$['my.name']".
+                var innerPath = exception.Path?.TrimStart('$').TrimStart('.') ?? "";
+                var displayPath = innerPath.Length == 0 ? key : innerPath[0] == '[' ? key + innerPath : $"{key}.{innerPath}";
 
-                throw new ConfigurationException($"The \"{path}\" property has an invalid value.");
+                throw new ConfigurationException(
+                    $"The \"{displayPath}\" property has an invalid value.",
+                    ConfigurationPropertyPath.Create(key).Append(ConfigurationPropertyPath.FromJsonPath(exception.Path)));
             }
             catch (InvalidOperationException)
             {
-                throw new ConfigurationException($"The \"{key}\" property has an invalid value.");
+                throw new ConfigurationException($"The \"{key}\" property has an invalid value.", ConfigurationPropertyPath.Create(key));
             }
         }
 

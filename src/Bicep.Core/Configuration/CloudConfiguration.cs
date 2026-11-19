@@ -34,6 +34,8 @@ namespace Bicep.Core.Configuration
 
     public class CloudConfiguration : ConfigurationSection<Cloud>, IBicepCloudConfiguration, IEquatable<CloudConfiguration>
     {
+        private static readonly ConfigurationPropertyPath ManagedIdentityPath = ConfigurationPropertyPath.Create("credentialOptions", "managedIdentity");
+
         public CloudConfiguration(Cloud data, Uri resourceManagerEndpointUri, Uri activeDirectoryAuthorityUri)
             : base(data)
         {
@@ -82,22 +84,22 @@ namespace Bicep.Core.Configuration
 
             if (clientId is null && resourceId is null)
             {
-                throw new ConfigurationException($@"The managed-identity configuration is invalid. Either ""{nameof(clientId)}"" or ""{nameof(resourceId)}"" must be set for user-assigned identity.");
+                throw new ConfigurationException($@"The managed-identity configuration is invalid. Either ""{nameof(clientId)}"" or ""{nameof(resourceId)}"" must be set for user-assigned identity.", ManagedIdentityPath);
             }
 
             if (clientId is not null && resourceId is not null)
             {
-                throw new ConfigurationException($@"The managed-identity configuration is invalid. ""{nameof(clientId)}"" and ""{nameof(resourceId)}"" cannot be set at the same time for user-assigned identity.");
+                throw new ConfigurationException($@"The managed-identity configuration is invalid. ""{nameof(clientId)}"" and ""{nameof(resourceId)}"" cannot be set at the same time for user-assigned identity.", ManagedIdentityPath);
             }
 
             if (clientId is not null && !Guid.TryParse(clientId, out _))
             {
-                throw new ConfigurationException($@"The managed-identity configuration is invalid. ""{nameof(clientId)}"" must be a GUID.");
+                throw new ConfigurationException($@"The managed-identity configuration is invalid. ""{nameof(clientId)}"" must be a GUID.", ManagedIdentityPath.Append(nameof(clientId)));
             }
 
             if (resourceId is not null && !ResourceIdentifier.TryParse(resourceId, out _))
             {
-                throw new ConfigurationException($@"The managed-identity configuration is invalid. ""{nameof(resourceId)}"" must be a valid Azure resource identifier.");
+                throw new ConfigurationException($@"The managed-identity configuration is invalid. ""{nameof(resourceId)}"" must be a valid Azure resource identifier.", ManagedIdentityPath.Append(nameof(resourceId)));
             }
         }
 
@@ -109,13 +111,13 @@ namespace Bicep.Core.Configuration
             {
                 if (value is null)
                 {
-                    throw new ConfigurationException($"The cloud profile \"{cloud.CurrentProfileName}\" is invalid. The \"{propertyName}\" property cannot be null or undefined.");
+                    throw new ConfigurationException($"The cloud profile \"{cloud.CurrentProfileName}\" is invalid. The \"{propertyName}\" property cannot be null or undefined.", ConfigurationPropertyPath.Create("profiles", cloud.CurrentProfileName, propertyName));
                 }
 
                 if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) ||
                     (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
                 {
-                    throw new ConfigurationException($"The cloud profile \"{cloud.CurrentProfileName}\" is invalid. The value of the \"{propertyName}\" property \"{value}\" is not a valid URL.");
+                    throw new ConfigurationException($"The cloud profile \"{cloud.CurrentProfileName}\" is invalid. The value of the \"{propertyName}\" property \"{value}\" is not a valid URL.", ConfigurationPropertyPath.Create("profiles", cloud.CurrentProfileName, propertyName));
                 }
 
                 return uri;
@@ -123,7 +125,7 @@ namespace Bicep.Core.Configuration
 
             if (!cloud.Profiles.TryGetValue(cloud.CurrentProfileName, out var currentProfile))
             {
-                throw new ConfigurationException($"The cloud profile \"{cloud.CurrentProfileName}\" does not exist. Available profiles include {BuildAvailableProfileNamesClause()}.");
+                throw new ConfigurationException($"The cloud profile \"{cloud.CurrentProfileName}\" does not exist. Available profiles include {BuildAvailableProfileNamesClause()}.", ConfigurationPropertyPath.Create("currentProfile"));
             }
 
             var endpointUri = ValidateUri(currentProfile.ResourceManagerEndpoint, StringUtils.ToCamelCase(nameof(currentProfile.ResourceManagerEndpoint)));

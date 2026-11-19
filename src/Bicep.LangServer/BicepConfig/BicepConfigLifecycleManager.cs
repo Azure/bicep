@@ -69,15 +69,29 @@ namespace Bicep.LanguageServer.BicepConfig
 
         private void PublishConfigDiagnostics(DocumentUri documentUri)
         {
-            var chain = bicepConfigurationManager.GetConfigurationChain(documentUri.ToIOUri());
+            var documentFileUri = documentUri.ToIOUri();
+            var chain = bicepConfigurationManager.GetConfigurationChain(documentFileUri);
+            var diagnosticsPerFile = chain.EnumerateDiagnosticsPerFile().ToList();
 
-            // Always publish to documentUri first — covers chain-level errors (cycle, too deep)
-            // stored on the built-in fallback layer, and clears stale squiggles on the active file.
-            var effectiveDiagnostics = chain.GetEffectiveConfiguration().GetDiagnostics();
-            server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
+            // Publish for every file in the chain, including files without diagnostics, so the client clears stale squiggles.
+            // Diagnostics that don't belong to a file (for example, an invalid environment variable) are shown in Bicep files instead.
+            foreach (var (fileUri, diagnostics) in diagnosticsPerFile)
+            {
+                Publish(DocumentUri.From(fileUri.ToUri()), diagnostics);
+            }
+
+            // The opened document may not be part of the chain (for example, a base file opened on its own); clear its squiggles too.
+            if (!diagnosticsPerFile.Any(entry => entry.Key.Equals(documentFileUri)))
+            {
+                Publish(documentUri, []);
+            }
+        }
+
+        private void Publish(DocumentUri documentUri, IEnumerable<IDiagnostic> diagnostics)
+            => server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
             {
                 Uri = documentUri,
-                Diagnostics = new Container<LspDiagnostic>(effectiveDiagnostics.Select(d => new LspDiagnostic
+                Diagnostics = new Container<LspDiagnostic>(diagnostics.Select(d => new LspDiagnostic
                 {
                     Severity = ToLspSeverity(d.Level),
                     Code = new DiagnosticCode(d.Code),
@@ -86,25 +100,6 @@ namespace Bicep.LanguageServer.BicepConfig
                     Source = "bicep"
                 }))
             });
-
-            // Publish diagnostics for every user-layer config file in the chain — including empty
-            // arrays so the client clears stale squiggles for files that no longer have errors.
-            foreach (var (fileUri, diagnostics) in chain.EnumerateDiagnosticsPerFile())
-            {
-                server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
-                {
-                    Uri = DocumentUri.From(fileUri.ToUri()),
-                    Diagnostics = new Container<LspDiagnostic>(diagnostics.Select(d => new LspDiagnostic
-                    {
-                        Severity = ToLspSeverity(d.Level),
-                        Code = new DiagnosticCode(d.Code),
-                        Message = d.Message,
-                        Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(0, 0, 0, 0),
-                        Source = "bicep"
-                    }))
-                });
-            }
-        }
 
         private static DiagnosticSeverity ToLspSeverity(DiagnosticLevel level) => level switch
         {
