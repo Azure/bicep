@@ -59,7 +59,7 @@ Each item was confirmed with the Debug CLI built from `main`, or by reading the 
 | # | Problem | Evidence | Fixed in |
 |---|---|---|---|
 | B1 | Invalid values crash the compiler instead of producing a diagnostic (regression) | `{"experimentalFeaturesWarning": "yes"}`, `{"bicep": "1.0"}` and `{"extends": 5}` each make `bicep build` exit with an unhandled exception. `BuildChain` only catches `ConfigurationException`; before `d6d06cb66`, `ConfigurationManager` also caught `JsonException` and `Exception`. | PR 1 |
-| B2 | Relative paths in an inherited config are resolved against the leaf (the nearest `bicepconfig.json`) | A base config with `"extensions": {"foo": "./ext/foo.tgz"}` resolves the path from `child\ext\foo.tgz`. The same is true for documentation paths (`DocsGenerationOptionsResolver`). Only `moduleAliasesMock` uses the file that declared the value. | PR 3 |
+| B2 | Relative `extensions` and documentation paths resolve against the wrong file | (a) Inherited: a base config with `"extensions": {"foo": "./ext/foo.tgz"}` resolves the path from `child\ext\foo.tgz`. The same is true for documentation paths (`DocsGenerationOptionsResolver`). Only `moduleAliasesMock` uses the file that declared the value. (b) Implicit extensions, even with a single config: with `"implicitExtensions": ["foo"]`, `apps\web\main.bicep` reports BCP091 for `apps\web\ext\foo.tgz`. `SourceFileGroupingBuilder.GetImplicitExtension` passes the raw `extensions` value to the resolver, which resolves it against the referencing file; only `extension foo` goes through `ArtifactReferenceText`, which uses the config file. | PR 3 |
 | B3 | Errors are blamed on the wrong file | An invalid `currentProfile` in a base config reports BCP273 against the child's `bicepconfig.json`. Module alias errors (`ModuleAliasesConfiguration.configFileUri`) also always name the leaf. | PRs 2, 3 |
 | B4 | Per-file config diagnostics are always empty (code reading) | `BicepConfiguration.Bind` passes `diagnostics: null`, so every layer has none. `EnumerateDiagnosticsPerFile` only ever returns empty arrays. The doc comments on `IBicepConfiguration.GetDiagnostics` and `BicepConfigurationChain.GetEffectiveConfiguration` describe aggregation that doesn't happen. | PR 2 |
 | B5 | A failed chain stays cached after the file is fixed (code reading) | `LoadChain` records a chain's files only when loading succeeds. After a parse error or a missing base file, `PurgeCacheForAffectedChains(base)` finds nothing to purge. In the language server this is hidden because the change event purges everything. | PR 1 |
@@ -343,7 +343,7 @@ Tests:
 - A merge table: objects, arrays, `null`, `extends` removed, `$schema` ignored, and the declaring file recorded for each.
 - An invalid `currentProfile` in a base config is reported against the base file, including in the language server.
 
-### PR 3 – The declaring file is used everywhere **(behavior change: inherited relative paths resolve against their own file)**
+### PR 3 – The declaring file is used everywhere **(behavior change: relative paths resolve against the file that declares them)**
 
 Fixes B2 and the rest of B3.
 
@@ -353,15 +353,16 @@ Fixes B2 and the rest of B3.
    - `extensions` local paths
    - `documentation.template.file` and `includeRoot`
    - `moduleAliasesMock.br.*.mapToFilePath`
-4. `ArtifactReferenceText` and `DocsGenerationOptionsResolver` use those absolute URIs and stop using `ConfigFileUri`.
+4. `ArtifactReferenceText`, `SourceFileGroupingBuilder.GetImplicitExtension` and `DocsGenerationOptionsResolver` use those absolute URIs and stop using `ConfigFileUri`. `extension foo` and `implicitExtensions: ["foo"]` share one helper, so they can't disagree again.
 
 Tests:
 
 - An extension and a docs template declared in a base config, with relative paths, used from a child folder.
+- An implicit local extension used from a subfolder of the folder that holds `bicepconfig.json`, with and without `extends`. Flip `ArtifactReferenceResolutionTests.Implicit_extension_with_a_bare_path_is_resolved_relative_to_the_referencing_file`, which pins today's behavior.
 - Regression tests for mock paths and `bicep.version`, which already use the declaring file.
 - A CLI test in `ConfigurationInheritanceTests`.
 
-This is the only PR where an inherited config can resolve to a different file than before. Mention it in the release notes. For anyone who copied files into the child folder to work around the bug, the base config's path now wins.
+This is the only PR where a relative path can resolve to a different file than before: an inherited one, or an `extensions` entry used through `implicitExtensions` from a subfolder. Mention it in the release notes. For anyone who copied files into the child folder to work around the bug, the declaring config's path now wins.
 
 ### PR 4 – `BICEP_ARTIFACT_CACHE_DIR` **(behavior change: deprecation warning)**
 
@@ -505,7 +506,7 @@ Tests: a CLI JSON-RPC test that edits a `loadTextContent` file between two reque
 
 | Risk | Mitigation |
 |---|---|
-| PR 3 changes which file an inherited relative path points to | Release notes; a test for each kind of path value; only inherited values change, so leaf configs behave the same |
+| PR 3 changes which file a relative path points to | Release notes; a test for each kind of path value; only inherited values and implicit extensions used from subfolders change, and both currently point to the wrong file |
 | New warnings (PRs 4, 6, 7) break CI pipelines that treat warnings as errors | Warnings only; JSON paths in messages; release notes |
 | Per-section fallback (PR 9) could restore artifacts with the built-in cloud when the user's cloud config is invalid | Cloud stays strict: an invalid or untrusted cloud is an error, and restore doesn't run while it's present |
 | Removing `cacheRootDirectory` (PR 12) moves caches for users who set it | At least one release with a deprecation warning naming the variable; the variable takes precedence as soon as PR 4 ships |

@@ -17,14 +17,14 @@ namespace Bicep.Core.Artifacts.References
     public class OciArtifactReference : RemoteArtifactReference, IOciArtifactReference
     {
         public OciArtifactReference(OciArtifactContext context, ArtifactType type, IOciArtifactAddressComponents artifactIdParts) :
-            base(context, OciArtifactReferenceFacts.Scheme, type)
+            base(context, type)
         {
             OciContext = context;
             AddressComponents = artifactIdParts;
         }
 
         public OciArtifactReference(OciArtifactContext context, ArtifactType type, string registry, string repository, string? tag, string? digest) :
-            base(context, OciArtifactReferenceFacts.Scheme, type)
+            base(context, type)
         {
             switch (tag, digest)
             {
@@ -75,15 +75,18 @@ namespace Bicep.Core.Artifacts.References
         /// </summary>
         public string ArtifactId => AddressComponents.ArtifactId;
 
+        public override string FullyQualifiedReference => $"{ArtifactSchemes.Br}:{ArtifactId}";
+
         public override string UnqualifiedReference => ArtifactId;
 
         /// <summary>
         /// Parses a fully qualified OCI reference body without the scheme, e.g. <c>example.azurecr.invalid/foo/bar:v3</c>.
         /// </summary>
         /// <param name="aliasContext">The scheme-qualified alias the body was expanded from, if any. Only used in diagnostics.</param>
-        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(OciArtifactContext context, ArtifactType type, string? aliasContext, string unqualifiedReference)
+        /// <param name="scheme">The scheme the reference was written with (<c>br</c> or <c>oci</c>). Only used in diagnostics.</param>
+        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(OciArtifactContext context, ArtifactType type, string? aliasContext, string scheme, string unqualifiedReference)
         {
-            if (OciArtifactAddressComponents.TryParse(unqualifiedReference, aliasContext).IsSuccess(out var components, out var errorBuilder))
+            if (OciArtifactAddressComponents.TryParse(scheme, unqualifiedReference, aliasContext).IsSuccess(out var components, out var errorBuilder))
             {
                 return new(new OciArtifactReference(context, type, components.Registry, components.Repository, components.Tag, components.Digest));
             }

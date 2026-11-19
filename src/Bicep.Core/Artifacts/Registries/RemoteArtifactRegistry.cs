@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Core.Artifacts.Cache;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Restore;
@@ -15,7 +16,7 @@ namespace Bicep.Core.Artifacts.Registries
     public abstract class RemoteArtifactRegistry<TArtifactReference> : IRemoteArtifactRegistry
         where TArtifactReference : RemoteArtifactReference
     {
-        public abstract string Scheme { get; }
+        public abstract ImmutableArray<string> Schemes { get; }
 
         public bool CanHandle(RemoteArtifactReference reference) => reference is TArtifactReference;
 

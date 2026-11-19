@@ -264,7 +264,7 @@ namespace Bicep.Core.UnitTests.Artifacts.References
             var bicepFile = BicepTestConstants.CreateDummyBicepFile(configuration);
             if (aliasName is not null)
             {
-                if (!ArtifactReferenceResolver.TryExpandSchemeQualifiedAlias(bicepFile.LoadConfiguration(), ArtifactType.Module, ArtifactSchemes.Oci, aliasName, value).IsSuccess(out var expanded, out var errorBuilder))
+                if (!ArtifactReferenceResolver.TryExpandSchemeQualifiedAlias(bicepFile.LoadConfiguration(), ArtifactType.Module, ArtifactSchemes.Br, aliasName, value).IsSuccess(out var expanded, out var errorBuilder))
                 {
                     return new(errorBuilder);
                 }
@@ -272,7 +272,7 @@ namespace Bicep.Core.UnitTests.Artifacts.References
                 value = expanded;
             }
 
-            return OciArtifactReference.TryParse(OciArtifactContext.Create(bicepFile.LoadConfiguration(), bicepFile.LoadFeatures()), ArtifactType.Module, aliasName, value);
+            return OciArtifactReference.TryParse(OciArtifactContext.Create(bicepFile.LoadConfiguration(), bicepFile.LoadFeatures()), ArtifactType.Module, aliasName, ArtifactSchemes.Br, value);
         }
 
         private static IEnumerable<object[]> GetValidCases()

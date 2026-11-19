@@ -12,8 +12,8 @@ namespace Bicep.Core.Artifacts.References;
 /// </remarks>
 public abstract class RemoteArtifactReference : ArtifactReference
 {
-    protected RemoteArtifactReference(RemoteArtifactContext context, string scheme, ArtifactType type)
-        : base(scheme, type)
+    protected RemoteArtifactReference(RemoteArtifactContext context, ArtifactType type)
+        : base(type)
     {
         this.Context = context;
     }

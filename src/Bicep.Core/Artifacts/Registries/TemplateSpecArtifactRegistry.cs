@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Core.Artifacts.Cache;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Diagnostics;
@@ -20,7 +21,7 @@ namespace Bicep.Core.Artifacts.Registries
             this.clientFactory = clientFactory;
         }
 
-        public override string Scheme => ArtifactSchemes.TemplateSpecs;
+        public override ImmutableArray<string> Schemes { get; } = [ArtifactSchemes.TemplateSpecs];
 
         protected override TemplateSpecArtifactCacheEntry GetCacheEntry(TemplateSpecArtifactReference reference) =>
             new(reference.SubscriptionId, reference.ResourceGroupName, reference.TemplateSpecName, reference.Version, reference.Context.CacheRootDirectory);

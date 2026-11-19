@@ -83,7 +83,7 @@ namespace Bicep.Core.Artifacts.Cache
                 _ => throw new InvalidOperationException("Either tag or digest must be set."),
             };
 
-            return rootCacheDirectory.GetDirectory($"{OciArtifactReferenceFacts.Scheme}/{registry}/{repository}/{tagOrDigest}");
+            return rootCacheDirectory.GetDirectory($"{ArtifactSchemes.Br}/{registry}/{repository}/{tagOrDigest}");
         }
     }
 }

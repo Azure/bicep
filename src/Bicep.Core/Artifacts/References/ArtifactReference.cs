@@ -9,13 +9,10 @@ namespace Bicep.Core.Artifacts.References
     /// </summary>
     public abstract class ArtifactReference
     {
-        protected ArtifactReference(string scheme, ArtifactType type)
+        protected ArtifactReference(ArtifactType type)
         {
-            Scheme = scheme;
             Type = type;
         }
-
-        public string Scheme { get; }
 
         /// <summary>
         /// Gets the type of the referenced artifact.
@@ -25,7 +22,7 @@ namespace Bicep.Core.Artifacts.References
         /// <summary>
         /// Gets the fully qualified artifact reference, which includes the scheme.
         /// </summary>
-        public virtual string FullyQualifiedReference => $"{Scheme}:{UnqualifiedReference}";
+        public abstract string FullyQualifiedReference { get; }
 
         /// <summary>
         /// Gets the unqualified artifact reference, which does not include the scheme.

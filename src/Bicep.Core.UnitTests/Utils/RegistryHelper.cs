@@ -85,7 +85,7 @@ public static class RegistryHelper
         {
             get
             {
-                if (OciArtifactAddressComponents.TryParse(TargetWithoutScheme).IsSuccess(out var parsedTarget, out var errorBuilder))
+                if (OciArtifactAddressComponents.TryParse(ArtifactSchemes.Br, TargetWithoutScheme).IsSuccess(out var parsedTarget, out var errorBuilder))
                 {
                     return parsedTarget;
                 }

@@ -58,8 +58,8 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                     $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests."));
             }
 
-            if (address is not ArtifactAddress.SchemeQualified { Scheme: OciArtifactReferenceFacts.Scheme, Body: var body } ||
-                !OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(this.remoteArtifactContextFactory), ArtifactType.Module, aliasContext: null, body).IsSuccess(out var ociModuleReference))
+            if (address is not ArtifactAddress.SchemeQualified { Scheme: ArtifactSchemes.Br, Body: var body } ||
+                !OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(this.remoteArtifactContextFactory), ArtifactType.Module, aliasContext: null, ArtifactSchemes.Br, body).IsSuccess(out var ociModuleReference))
             {
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"The client specified an invalid module reference '{request.Target}'."));

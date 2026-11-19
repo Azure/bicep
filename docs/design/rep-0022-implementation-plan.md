@@ -2,10 +2,7 @@
 
 Source: Azure/bicep-reps `active/0022-artifact-aliases-and-redirects.md`. Tracking issue: #19883.
 
-The work has two parts:
-
-- **Phase 0** refactors how Bicep resolves, restores, stores and loads artifacts. It changes no behavior, except for the few bug fixes noted below, so that the REP's features can be added without rework.
-- **Feature PRs 1–10** implement the REP itself: `oci:`, `file:`, `<alias>::`, the `artifacts` configuration section, redirects, and the `artifact-redirect` rule.
+Phase 0 (PRs #20496–#20575) refactored how Bicep resolves, restores, stores and loads artifacts, so that the REP's features can be added without rework. What remains are **feature PRs 1–6**: `oci:`, `file:`, `<alias>::`, the `artifacts` configuration section, redirects, and the `artifact-redirect` rule.
 
 ---
 
@@ -13,50 +10,36 @@ The work has two parts:
 
 | Phase | Summary | PR | Status |
 |---|---|---|---|
-| 0.1 + 0.3a | Resolution characterization tests; `ArtifactAddress` parser and `ArtifactReferenceResolver` | #20498 | Merged |
-| 0.2 | Compiler and language server read resolved references from the source graph | #20496 | Merged |
-| 0.3b | Alias expansion in the resolver; `moduleAliasesMock` isolated | #20502 | Merged |
-| 0.4 | `ModuleDispatcher` split into resolver, restorer and publisher | #20515 | Merged |
-| 0.5 | Artifact service APIs cleaned up; compiler-only redirect layer | #20518 | Merged |
-| 0.6 | One `LocalArtifactReference`; local references are never restored | #20519 | Merged |
-| 0.7 | External artifact context on remote references | #20523 | Merged |
-| 0.8a | Registry, publish and cache cuts (includes the former 0.8c) | #20528 | Merged |
-| 0.8b | Vocabulary and folders: renames and moves only | #20530 | Merged |
-| 0.9a | OCI payload and codecs | #20554 | Merged |
-| 0.9b | Cache entries store packages | #20560 | Merged |
-| 0.9c | The compiler gets artifacts, not files | #20575 | In review |
-| 1–10 | REP 0022 features (section 5) | – | Next |
-
-Restructuring the source file grouping into per-file nodes is a separate effort, outside this plan.
+| 0 | Resolution, restore, cache and artifact-model refactoring | #20496–#20575 | Done |
+| 1 | `oci:`, `file:` and `<alias>::` parsing | – | In progress |
+| 2–6 | Remaining REP 0022 features (section 5.7) | – | Planned |
 
 ---
 
 ## 2. Vocabulary
 
-**Rule:** unqualified "artifact" always means a **Bicep artifact**: a module or an extension, the thing an `ArtifactReference` names and an `ArtifactType` classifies. Every other type that relates to artifacts says what role it plays with a suffix: `[Location][Kind]Artifact[Role]`. A prefix such as `Oci` or `Local` says where the artifact lives, not that it's a different kind of artifact. Generic types that only handle remote artifacts (interfaces, shared base classes, services) start with `Remote`. Concrete types start with their location (`Oci`, `TemplateSpec`, `Local`), which already says whether they're remote or local. Types that handle both have no prefix (`ArtifactCacheEntry`, `ArtifactException`, `IArtifactReferenceResolver`).
+Unqualified "artifact" always means a **Bicep artifact**: a module or an extension, the thing an `ArtifactReference` names and an `ArtifactType` classifies. Other artifact-related types name their role with a suffix: `[Location][Kind]Artifact[Role]`. A location prefix (`Oci`, `TemplateSpec`, `Local`) says where the artifact lives; generic remote-only types start with `Remote`; types that handle both have no prefix. This is a review convention, not an architecture test.
 
-| Term | Means | Types (after 0.9) |
+| Term | Means | Types |
 |---|---|---|
 | **Artifact** | A module or extension, as the compiler, language server and local deploy use it | `Artifact`, `ModuleArtifact`, `ExtensionArtifact` |
 | **Artifact reference** | Which artifact, and where it lives. Identity only, no I/O | `ArtifactReference`, `RemoteArtifactReference`, `OciArtifactReference`, `TemplateSpecArtifactReference`, `LocalArtifactReference` |
 | **Artifact package** | An artifact's content in memory, independent of any container | `ModuleArtifactPackage`, `ExtensionArtifactPackage` |
-| **Artifact codec** | Converts a package to and from one container (an OCI payload, a `.tgz`), both ways; tested by round trip | `OciModuleArtifactCodec`, `OciExtensionArtifactCodec`, `LocalExtensionArtifactCodec` |
-| **Artifact payload** | An OCI manifest and the blobs it references, as pushed or pulled | `OciArtifactPayload` |
-| **Artifact cache entry** | Where an artifact is stored on this machine; owns the on-disk layout (the two extension entries share `ExtensionArtifactCacheLayout`) | `ArtifactCacheEntry`, `OciModuleArtifactCacheEntry`, `OciExtensionArtifactCacheEntry`, `TemplateSpecArtifactCacheEntry`, `LocalExtensionArtifactCacheEntry` |
+| **Artifact codec** | Converts a package to and from one container (OCI payload, `.tgz`) | `OciModuleArtifactCodec`, `OciExtensionArtifactCodec`, `LocalExtensionArtifactCodec` |
+| **Artifact payload** | An OCI manifest and the blobs it references | `OciArtifactPayload` |
+| **Artifact cache entry** | Where an artifact is stored on this machine; owns the on-disk layout | `ArtifactCacheEntry`, `OciModuleArtifactCacheEntry`, `OciExtensionArtifactCacheEntry`, `TemplateSpecArtifactCacheEntry`, `LocalExtensionArtifactCacheEntry`, `ExtensionArtifactCacheLayout` |
 | **Remote artifact registry** | Restores remote artifacts; the OCI registry also publishes | `IRemoteArtifactRegistry`, `RemoteArtifactRegistry<TReference>`, `OciArtifactRegistry`, `TemplateSpecArtifactRegistry` |
-| **Remote artifact restorer** | Restores remote artifacts across registries and remembers recent failures | `IRemoteArtifactRestorer`, `RemoteArtifactRestorer`, `RemoteArtifactRestoreState` |
+| **Remote artifact restorer** | Restores across registries and remembers recent failures | `IRemoteArtifactRestorer`, `RemoteArtifactRestorer`, `RemoteArtifactRestoreState` |
 
-The rule is a review convention, not an architecture test: a test strict enough to catch a new `FooArtifact` would also reject legitimate names such as `ArtifactAddress`, `RedirectingArtifactResolver` and `RemoteArtifactContextFactory`. 0.8b applied it to the types that survive 0.9; the types 0.9 deletes keep their names until then.
-
-The user-facing term "artifact" stays: it appears in diagnostics (BCP190–BCP192 and others), in the docs, and in REP 0022 itself (`artifacts`, `artifact-redirect`). A Bicep module stored in OCI is also an OCI artifact (`artifactType` = `application/vnd.ms.bicep.module.artifact`), so the two meanings agree.
+The user-facing term "artifact" (diagnostics, docs, `artifacts`, `artifact-redirect`) agrees with this meaning.
 
 ---
 
-## 3. Target architecture
+## 3. Architecture
 
 ### 3.1 Resolution pipeline
 
-Every reference the compiler loads goes through this pipeline: declarations, values in the `extensions` configuration, implicit extensions, and data-file loads. The language server reads the results from the source graph instead of resolving them again (0.2).
+Every reference the compiler loads goes through this pipeline: declarations, `extensions` configuration values, implicit extensions, and (from PR 3) data-file loads. The language server reads the results from the source graph (`SourceFileGrouping`) instead of resolving again.
 
 ```
 reference text
@@ -66,185 +49,77 @@ reference text
   -> (2) redirect: capture match on the source spelling (most literal characters wins; a tie is an error)
   -> (3) br/<alias> with a moduleAliasesMock.br entry -> ModuleAliasMockRule -> local file (stop)
   -> (4) AliasQualified -> expand through artifacts.aliases and the predefined mar/avm (no I/O)
-  ->     canonicalize through the scheme's parser (OCI, Template Spec, local) -> canonical identity
-  -> (5) redirect: exact match on the canonical identity
-  -> (6) redirect: capture match on the canonical identity
+  ->     resolve through the scheme's parser (OCI, Template Spec) -> remote reference
+  -> (5) redirect: exact match on the reference's normalized text
+  -> (6) redirect: capture match on the reference's normalized text
   -> (7) no redirect -> ArtifactReference (OciArtifactReference, TemplateSpecArtifactReference, LocalArtifactReference)
 ```
 
-The pipeline is split in two:
+- **`IArtifactReferenceResolver`** parses, expands aliases and builds the reference (steps 4 and 7). One method: `TryResolve(IOUri referencingUri, ArtifactType type, string text)`.
+- **`RedirectingArtifactResolver`** (compiler only) wraps it and applies redirects and the legacy mock (steps 1–3, 5, 6).
 
-- **`IArtifactReferenceResolver`** parses, expands aliases and builds the reference (steps 4 and 7).
-- **`RedirectingArtifactResolver`**, used only by the compiler, wraps it and applies redirects and the legacy mock (steps 1–3, 5 and 6).
+Publish targets go straight to the resolver, so redirects can never apply to them. The one exception: `bicep publish` applies `ModuleAliasMockRule` to its target only so that a mocked alias stays an invalid target. Stored ext-src references are fully qualified and are parsed, not resolved.
 
-Publish targets go straight to the resolver, so redirects can never apply to them. That holds by construction, with no flag. Otherwise `publish-extension --target oci:…` with a matching redirect would overwrite the local file. The one exception is the legacy mock: `bicep publish` applies `ModuleAliasMockRule` to its target only so that a mocked alias stays an invalid target, as before. Stored ext-src references are fully qualified and are parsed, not resolved.
+Steps 5 and 6 match the REP's *canonical identity*: `oci:` or `ts:` text that the redirect engine (PR 4) builds privately from the reference's parts. It isn't a property of `ArtifactReference`. Local references have none; `file:` and file-alias spellings are matched at steps 1 and 2.
 
-PR 1 makes `RedirectingArtifactResolver` return an `ArtifactResolution`: `{ SourceText, Address, CanonicalIdentity?, Reference, Redirect? }`, where `Redirect = { MatchedKey, Phase (Source | Canonical), DeclaringConfigUri, TargetUri }`.
+**Redirect provenance (PR 4).** The artifact-redirect rule, `--verbose` and hover need to know which redirect selected a local file. Until PR 4, `RedirectingArtifactResolver.TryResolve` returns an `ArtifactReference`. PR 4 changes it to return an `ArtifactResolution`:
 
-**Parsing rules** for `ArtifactAddress.Parse`, which is total (it never fails). The checks run in order on the raw string:
+```csharp
+public enum RedirectPhase { Source, Canonical }
 
-1. `^(?<alias>[A-Za-z0-9_-]+)::(?<body>.*)$` gives `AliasQualified`. This is checked first, so `br::x` is the alias `br`, not the scheme `br`.
-2. `^(?<scheme>br|ts)/(?<alias>[^:]+):(?<body>.*)$` gives `SchemeAndAliasQualified`. This form is permanent and resolves only through `moduleAliases`. Any other `<scheme>/<x>:` form (`oci/…`, `file/…`) gets a new diagnostic: "scheme-qualified aliases are not supported for this scheme; use `<alias>::`".
+public sealed record ArtifactRedirect(
+    string MatchedKey,           // the key in artifacts.redirects
+    string MatchedText,          // the text it matched: the source spelling or the canonical identity
+    RedirectPhase Phase,
+    IOUri DeclaringConfigUri);   // the bicepconfig.json that declared the redirect
+
+public sealed record ArtifactResolution(ArtifactReference Reference, ArtifactRedirect? Redirect);
+```
+
+- The target isn't a field: a redirect always produces a `LocalArtifactReference`, whose `File.Uri` is the target.
+- A `moduleAliasesMock` hit isn't a redirect and has no `ArtifactRedirect`, so the rule never reports it.
+- **Modules and extensions:** `ArtifactDependency` gets `ArtifactRedirect? Redirect` on its base type, because both `Loaded` and `Failed` (missing or invalid target, cycle) can be redirected; `NotRestored` never is. `SourceFileGroupingBuilder` passes `resolution.Redirect` into the dependency, and `ReportFailuresForCycles` carries it over when it replaces a dependency with `Failed`. Implicit extensions get it through their `ArtifactDependency`.
+- **Data-file loads** aren't in the source graph: `SystemNamespaceType` resolves them during type checking. Their redirects are recorded per compilation in `SemanticModel.DataFileRedirects` (`FunctionCallSyntaxBase -> ArtifactRedirect`), written by the load result builders. Not on `BicepSourceFile`: a redirect depends on configuration, and a source file can outlive a configuration change.
+- **Readers:** the `artifact-redirect` rule reads `ArtifactLookup`, `ImplicitExtensions` and `DataFileRedirects` for its file (forcing the load calls to be type-checked first, since type checking is lazy). Hover reads `ArtifactLookup[syntax].Redirect`. `--verbose` reads every redirected dependency in the grouping.
+
+**Parsing rules** for `ArtifactAddress.Parse`, which is total (it never fails), checked in order:
+
+1. `^(?<alias>[A-Za-z0-9_-]+)::(?<body>.*)$` gives `AliasQualified`. Checked first, so `br::x` is the alias `br`, not the scheme `br`.
+2. `^(?<scheme>br|ts)/(?<alias>[^:]+):(?<body>.*)$` gives `SchemeAndAliasQualified`, resolved only through `moduleAliases`. Any other `<scheme>/<x>:` form (`oci/…`, `file/…`) gets a new diagnostic: "scheme-qualified aliases are not supported for this scheme; use `<alias>::`".
 3. `^(?<scheme>[a-z-]+):(?<body>.*)$` gives `SchemeQualified` (`oci`, `br`, `ts`, `file`). `br-mock` stays rejected (BCP449).
 4. Anything else gives `Path`.
 
-An empty body is allowed only for an OCI alias whose body starts with `:` or `@` (the `storage:::0.32.1` form). That's validated after expansion; other alias types require a non-empty path.
+An empty body is allowed only for an OCI alias whose body starts with `:` or `@` (the `storage:::0.32.1` form), validated after expansion.
 
-**Reference types and identity**
+**Reference types**
 
-| Spelling | Reference type | Restored? | Canonical identity |
+| Spelling | Reference type | Restored? | Canonical identity for redirects (PR 4) |
 |---|---|---|---|
-| `oci:`, `br:`, `br/alias:`, OCI alias | `OciArtifactReference` | Yes, into `~/.bicep/br/…` | `oci:<registry>/<repo>(:<tag>|@<digest>)` |
-| `ts:`, `ts/alias:`, Template Spec alias | `TemplateSpecArtifactReference` | Yes | `ts:<sub>/<rg>/<name>:<version>` |
-| Relative path, `file:`, file alias, redirect target, mock hit | `LocalArtifactReference` | Never | Normalized absolute URI |
+| `oci:`, `br:`, `br/alias:`, OCI alias | `OciArtifactReference` | Yes, into `~/.bicep/br/…` | `oci:<registry>/<repo>(:<tag>|@<digest>)`, registry lowercase |
+| `ts:`, `ts/alias:`, Template Spec alias | `TemplateSpecArtifactReference` | Yes | `ts:<sub>/<rg>/<name>:<version>`, lowercase |
+| Relative path, `file:`, file alias, redirect target, mock hit | `LocalArtifactReference` | Never | – |
 
-- Every local file uses one reference type, however it's spelled. The spellings differ only in what the path is relative to (the referencing file, a file alias root, or the declaring configuration file), and resolving that is the resolver's job. Redirects and mocks are recorded as provenance on `ArtifactResolution`, not as reference types.
-- `OciArtifactReference.FullyQualifiedReference` stays `br:…`. It's persisted in source archives, ext-src URIs and cache paths, which older Bicep versions read. `ArtifactReference.CanonicalIdentity` is added instead (PR 1), and the resolver parses both `br:` and `oci:` into `OciArtifactReference`.
-- Diagnostics that print a reference prefer the user's spelling (`LocalArtifactReference.SourceText`, `ArtifactResolution.SourceText`).
-- `LocalArtifactReference` equality is `(File, Type)`. So `./a.bicep` and `file:./a.bicep` are the same artifact, while `./a.bicep` written in two different folders are different artifacts.
-- Allowed file types: modules must be `.bicep` or `.json` (and `.bicepparam` only where `using`/`extends` already allows it). Extensions have no file-type requirement; a file is valid if it decodes as an extension archive.
+- Every local file uses one reference type, however it's spelled; redirects are provenance on `ArtifactDependency` (above), not reference types. `LocalArtifactReference` equality is `(File, Type)`.
+- `OciArtifactReference.FullyQualifiedReference` stays `br:…` (persisted in source archives, ext-src URIs and cache paths that older Bicep versions read). PR 1 makes the resolver parse both `br:` and `oci:` into `OciArtifactReference`.
+- Diagnostics that print a reference prefer the user's spelling (`LocalArtifactReference.SourceText`, or the text from `ArtifactDependency.Syntax`).
+- A `file:` module must have an extension the compiler recognizes: `.bicep`, `.bicepparam` (where `using`/`extends` allows it) or an ARM template (`.json`, `.jsonc`, `.arm`). Bare paths keep today's behavior (no extension check). Extensions are valid if they decode as an extension archive.
 
-### 3.2 Services: one question, one owner
+### 3.2 Services
 
-| Question | Owner | Callers | State |
-|---|---|---|---|
-| What artifact does this text name? | `IArtifactReferenceResolver` | The redirect layer, CLI publish commands, test helpers | None |
-| What should the compiler load for this dependency? | `RedirectingArtifactResolver` (compiler only) | `SourceFileGroupingBuilder`; later the `load*()` functions (PR 6) | None |
-| Is this remote artifact cached, and can we download it? | `IRemoteArtifactRestorer` over `IEnumerable<IRemoteArtifactRegistry>` | Compiler, source graph, language server, MCP | Recent restore failures (30 minutes) |
-| Can we push it? | `OciArtifactRegistry` (`CheckArtifactExists`, `PublishModule`, `PublishExtension`) | CLI publish commands, test helpers | None |
-| What's in the cache, and where? | Artifact cache entries | Registries, local-extension loading | None (the files on disk) |
-
-Design rules:
-
-- **Resolution has one method:** `TryResolve(IOUri referencingUri, ArtifactType type, string text)`. It doesn't read Bicep syntax; the source graph extracts the text. It doesn't read stored `br:` references; those are parsed directly. And it doesn't apply redirects or mocks; those live in the compiler-only layer.
-- **Acquiring and loading are separate.** Only `RemoteArtifactReference`s are ever restored, and the restorer's signatures enforce it. Local references never reach the restorer; a local extension `.tgz` is extracted into the cache on first use.
-- **Restore and publish are separate operations.** Publishing only targets OCI, so it's three `OciArtifactRegistry` members with no publisher service. `publish-extension --target <path>` writes the archive itself.
-- **Objects carry their own facts.** Every reference knows its `ArtifactType`, and whether it's local or remote is its type, not a flag. Module/extension method pairs exist only where the payload differs (publish).
-- **Variation is modeled with types:** restore states, the module and extension families, and redirect rules. The legacy mock and redirect patterns are subclasses of one redirect-rule type, so deleting the mock means deleting one class.
-
-`IRemoteArtifactRegistry` (`IArtifactRegistry` until 0.8b) has `Scheme` (`Schemes` from PR 2), `CanHandle`, `TryOpen` (`TryGetEntryPoint` until 0.9c) and `RestoreAsync(references, RestoreMode)`. Each has one job: `Schemes` lists the text spellings the registry supports (for BCP189); `CanHandle` routes references by type, so the cast in `RemoteArtifactRegistry<TReference>` can't fail. Routing by scheme was removed on purpose in 0.6, and after PR 2 `oci:` and `br:` share one reference type whose persisted scheme stays `br`. A forced restore deletes the cached copies first. The restorer starts the public module catalog download alongside a restore, so that linter rules read cached metadata. Hover reads OCI metadata from `OciArtifactRegistry` and gets other modules' descriptions from their semantic models.
-
-### 3.3 Artifact model (Phase 0.9)
-
-**Problem.** An artifact's content has no single model. Each place it lives has its own shape, and the conversions between them are written by hand:
-
-| Where the content is | Shape today | Conversion today |
+| Question | Owner | Callers |
 |---|---|---|
-| In memory, to publish | `ModulePackage` / `ExtensionPackage` | – |
-| In OCI | `OciArtifactResult` + subclasses, built inside the transports by `OciArtifactResultFactory` | Push encoding in `OciArtifactRegistry.PublishModule`/`PublishExtension`; pull validation in the result classes |
-| In a local `.tgz` | Extension archive | `ExtensionV1Archive.Build` / `Read` (the only real round trip) |
-| In the cache | Cache entry classes | `WriteLayers(OciArtifactResult)` and `LocalExtensionArtifact.WriteContent(ExtensionPackage)`, which pick this machine's binary in two places |
-| What the compiler gets | `ArtifactResolutionInfo.Result` is a bare `IFileHandle` | Each consumer works out what kind of file it is |
+| What artifact does this text name? | `IArtifactReferenceResolver` | The redirect layer, CLI publish commands, test helpers |
+| What should the compiler load for this dependency? | `RedirectingArtifactResolver` | `SourceFileGroupingBuilder`; later the `load*()` functions (PR 3) |
+| Is this remote artifact cached, and can we download it? | `IRemoteArtifactRestorer` over `IEnumerable<IRemoteArtifactRegistry>` | Compiler, source graph, language server, MCP |
+| Can we push it? | `OciArtifactRegistry` (`CheckArtifactExists`, `PublishModule`, `PublishExtension`) | CLI publish commands, test helpers |
+| What's in the cache, and where? | Artifact cache entries | Registries, `LocalArtifactLoader` |
 
-Because the compiler gets only a file, consumers reach back for the rest:
+- Only `RemoteArtifactReference`s are restored; local references go through `LocalArtifactLoader` (a local extension `.tgz` is extracted into the cache on first use).
+- `IRemoteArtifactRegistry` has `Scheme` (`Schemes` from PR 1), `CanHandle` (routes by reference type), `TryOpen` and `RestoreAsync(references, RestoreMode)`.
+- The source graph stores each dependency as an `ArtifactDependency`: `Loaded(Artifact)`, `NotRestored(RemoteArtifactReference)` or `Failed(ArtifactReference?, Error)`. It picks the parser from `ModuleArtifact.Kind`.
+- Redirect rules are subclasses of one type; the legacy mock is one of them, so deleting the mock means deleting one class.
 
-- The source graph checks `reference is TemplateSpecModuleReference` to choose a parser.
-- Local deploy goes back through `NamespaceType.ExtensionArtifactReference.ResolveExtensionArtifact()`.
-- The language server reads `source.tgz` through `TryLoadSourceArchive()`, skipping the restore state.
-- `LocalArtifactReference` extracts extensions into the cache inside a `Lazy`. That's I/O in a value object used as a dictionary key.
-
-**Design.**
-
-- **Packages** are the content, used both ways.
-- **Codecs** encode a package into one container (an OCI payload, a `.tgz`) and decode it back, and are tested by round trip. As in Netty or gRPC codecs, encoding means framing: the parts are not transformed, only the container around them changes.
-- **Transports** move an `OciArtifactPayload` that knows nothing about Bicep.
-- **Cache entries** write a package and open an artifact.
-- **The compiler** gets the artifact.
-
-```csharp
-// Content. Immutable, independent of any container.
-public sealed record ModuleArtifactPackage(BinaryData Template, BinaryData? Sources, string? DocumentationUri, string? Description = null)
-{
-    // Publishing derives the description from the template, as PublishModule does today.
-    public static ModuleArtifactPackage FromTemplate(BinaryData template, BinaryData? sources, string? documentationUri) => …;
-}
-
-// LocalDeployEnabled is dropped: it was always Binaries.Any().
-public sealed record ExtensionArtifactPackage(BinaryData Types, ImmutableArray<ExtensionBinary> Binaries);
-
-// One model for both directions, shaped like ORAS: a manifest plus the content it references, keyed by digest.
-// The manifest bytes are the truth. A pulled payload keeps the exact bytes (digest checks; the cache stores them
-// as-is); a created payload serializes once. A pulled payload has no blob for an empty config.
-public sealed class OciArtifactPayload
-{
-    public OciArtifactPayload(BinaryData manifestData, ImmutableDictionary<string, BinaryData> blobsByDigest);
-    public OciManifest Manifest { get; }           // parsed from ManifestData
-    public string ManifestDigest { get; }          // sha256 of ManifestData
-    public BinaryData? Config { get; }
-    public BinaryData GetLayer(OciDescriptor layer);
-    public BinaryData? TryGetLayer(string mediaType);
-    public static OciArtifactPayload Create(string? artifactType, OciBlob config, IEnumerable<OciBlob> layers, ImmutableDictionary<string, string> annotations, …);
-}
-
-public sealed record OciBlob(string MediaType, BinaryData Data, ImmutableDictionary<string, string>? Annotations = null);
-
-public interface IRegistrySession : IAsyncDisposable   // the Azure SDK and ORAS transports: no Bicep media types
-{
-    Task PushAsync(IOciArtifactReference target, OciArtifactPayload payload, CancellationToken cancellationToken);
-    Task<OciArtifactPayload> PullAsync(IOciArtifactReference reference, CancellationToken cancellationToken);
-    Task<(string Digest, OciManifest Manifest)> ResolveAsync(IOciArtifactReference reference, CancellationToken cancellationToken);
-}
-
-// Codecs: they know Bicep's OCI layout and own its validation errors. The registry picks the codec from the
-// manifest's artifactType (a missing one means a module), the one other place that reads Bicep media types.
-public static class OciModuleArtifactCodec
-{
-    public static OciArtifactPayload Encode(ModuleArtifactPackage package);    // config, template layer, optional sources layer, annotations
-    public static ModuleArtifactPackage Decode(OciArtifactPayload payload);    // the former OciModuleArtifactResult validation
-}
-
-public static class OciExtensionArtifactCodec
-{
-    public static OciArtifactPayload Encode(ExtensionArtifactPackage package); // config, types layer, one layer per binary
-    public static ExtensionArtifactPackage Decode(OciArtifactPayload payload); // keeps every architecture's binary
-}
-
-// LocalExtensionArtifactCodec (formerly ExtensionV1Archive, then ExtensionArtifactArchiveCodec) encodes and decodes the local .tgz.
-
-// Cache entries: write a package once, open it as an artifact. OCI entries also store the original manifest
-// bytes and the metadata file, which older Bicep versions and hover read. WriteAsync exists since 0.9a; Open since 0.9c.
-// Every entry overrides ArtifactCacheEntry.Open(ArtifactReference) with its own artifact type, so registries open
-// any complete entry without a switch.
-public sealed class OciModuleArtifactCacheEntry : OciArtifactCacheEntry
-{
-    public Task WriteAsync(ModuleArtifactPackage package, OciArtifactPayload pulled);
-    public override ModuleArtifact Open(ArtifactReference reference);
-}
-
-// The extension layout shared by OCI and local extension cache entries (since 0.9b), and its one writer:
-// picks this machine's binary before writing anything (the two existing error messages), then writes types.tgz last.
-public sealed class ExtensionArtifactCacheLayout
-{
-    public ExtensionArtifactCacheLayout(IDirectoryHandle directory);
-    public IFileHandle TypesTgzFile { get; }
-    public IFileHandle BinaryFile { get; }
-    public void Write(ExtensionArtifactPackage package, ArtifactReference reference);
-    public ExtensionArtifact Open(ArtifactReference reference);
-}
-
-// What the compiler, language server and local deploy get. Backed by files and read lazily
-// (extension binaries can be large). ExtensionArtifact exists since 0.9b; Artifact and ModuleArtifact since 0.9c.
-public abstract class Artifact(ArtifactReference reference) { public ArtifactReference Reference { get; } = reference; }
-
-public enum ModuleTemplateKind { SourceFile, ArmTemplate, TemplateSpec }
-
-public sealed class ModuleArtifact : Artifact
-{
-    public IFileHandle EntryPoint { get; }
-    public ModuleTemplateKind Kind { get; }
-    // Fails with SourceNotAvailableException if the module was published without sources (or can't have any: local
-    // files and Template Specs). The language server already handles that exception as "no sources", not as an error.
-    public ResultWithException<SourceArchive> TryGetSources();
-}
-
-public sealed class ExtensionArtifact : Artifact
-{
-    public IFileHandle Types { get; }
-    public IFileHandle? Binary { get; }                             // this machine's binary, if any (looked up on first use)
-}
-```
-
-The flows:
+### 3.3 Artifact model
 
 ```
 publish:          ModuleArtifactPackage -> OciModuleArtifactCodec.Encode -> OciArtifactPayload -> push
@@ -254,300 +129,48 @@ local module:     LocalArtifactReference -> ModuleArtifact(file, SourceFile)
 local extension:  .tgz -> LocalExtensionArtifactCodec.Decode -> package -> LocalExtensionArtifactCacheEntry.Write -> Open -> ExtensionArtifact
 ```
 
-Consumers after 0.9c:
+Template Specs have no package or codec; their cache entry opens a `ModuleArtifact` with `Kind = TemplateSpec`. The cache layout is pinned by `ArtifactCacheLayoutTests` and must not change.
 
-- **Restore state:** `RemoteArtifactRestoreState.Restored(Artifact)`.
-- **Source graph:** each declaration's `ArtifactDependency` is `Loaded(Artifact)`, `NotRestored` or `Failed`, and the source graph chooses the parser from `ModuleArtifact.Kind`.
-- **Extensions:** `NamespaceProvider` reads `ExtensionArtifact.Types`.
-- **Local deploy:** `NamespaceType.ExtensionArtifact?.Binary` gives the binary.
-- **Language server:** it calls `ModuleArtifact.TryGetSources()`, from the source graph when it has a compilation (go to definition, source archives) and from the restorer when it doesn't (ext-src requests, document links, code lenses, the visualizer).
-- **Local extensions:** extracting them into the cache moves into a small `LocalArtifactLoader`, leaving `LocalArtifactReference` a pure value.
+### 3.4 File structure
 
-Deliberately not done:
+- **`Bicep.Core/Artifacts/`**: the artifact model and services (`References`, `Resolution`, `Redirects`, `LegacyModuleAliasMocks`, `Restore`, `Registries`, `Packages`, `Codecs`, `Cache`, `Catalog`).
+- **`Bicep.Core/RegistryClients/`**: OCI distribution protocol (`Oci`, `Oci/AzureSdk`, `Oci/Oras`) and the Template Spec client. Knows nothing about Bicep artifacts, except a few remaining exceptions (`OciArtifactReferenceFacts` grammar, `BicepMediaTypes`, client exceptions deriving from `ArtifactException`).
+- New feature code goes in: `Configuration/ArtifactsConfiguration.cs` (PR 2), `Artifacts/Redirects/PatternRedirectRule.cs` and `Analyzers/Linter/Rules/ArtifactRedirectRule.cs` (PR 4).
 
-- **No eager content loading.** Reading from the cache stays file-backed and lazy.
-- **No merging the artifact and package types.** They model content on disk and content in memory.
-- **No package or codec for Template Specs.** They're never published, and their cached `main.json` (the Template Spec resource JSON) is read by older Bicep versions. A Template Spec cache entry writes the string and opens a `ModuleArtifact` with `Kind = TemplateSpec`.
-- **No cache layout change.** `ArtifactCacheLayoutTests` pins it.
-- **No generic kind framework.** There are exactly two kinds, so there's one `switch` on `reference.Type` per registry.
-- **No ORAS types in our model (yet).** The Azure SDK transport is still the default, and ORAS's `Descriptor`/`Manifest` are mutable. Because `OciArtifactPayload` is shaped like ORAS, the sessions could later become `CopyAsync` between a `MemoryStore` and the repository.
-
-### 3.4 Target file structure
-
-There are two top-level folders, with a one-way dependency between them:
-
-- **`Bicep.Core/Artifacts/`** holds the Bicep artifact model and its services: naming, resolving, restoring, publishing, storing, loading and discovering artifacts.
-- **`Bicep.Core/RegistryClients/`** holds the clients that talk to remote registries: the OCI distribution protocol (wire types, sessions and the Azure SDK and ORAS transports) and the Template Spec client. It knows nothing about Bicep artifacts.
-
-The names state the relationship: an artifact registry (`OciArtifactRegistry`, a Bicep service) uses a registry client (`RegistryClients.Oci`) to reach the wire. 0.8b replaced the former `Bicep.Core.Registry`, whose name clashed with `Artifacts.Registries`, and moved the module catalog to `Artifacts/Catalog`: it lists published Bicep modules (the public MCR index and private ACRs) for completion, the linter and the MCP server.
-
-`Artifacts` depends on `RegistryClients`, never the other way around. Exceptions remain where client code still uses artifact types (0.9a removed `IOciRegistryTransportFactory.CreateSession(OciArtifactReference)` and the result classes): `OciDescriptor` and `OciArtifactAddressComponents`, which use the address grammar and comparers in `OciArtifactReferenceFacts` (those wire-level facts should move to `RegistryClients/Oci`, leaving the `br` scheme in `Artifacts`); `BicepMediaTypes` (Bicep encoding knowledge, which belongs with the codecs), and the exceptions the clients throw (`TemplateSpecException : ArtifactException`, and `OciArtifactRegistryException`/`InvalidArtifactException` from the transports), which need client-level exception types. Once they're gone, a test can enforce the direction.
-
-Annotations: `<-` gives where a file came from (moved in 0.8b unless marked); `(0.9x)` marks a new file. Namespaces follow the folders (`Bicep.Core.Artifacts.References` and so on).
-
-```
-Bicep.Core/
-  Artifacts/
-    Artifact.cs                                (0.9c) Artifact
-    ModuleArtifact.cs                          (0.9c) ModuleArtifact, ModuleTemplateKind
-    ExtensionArtifact.cs                       (0.9b)
-    LocalArtifactLoader.cs                     (0.9b) loads local modules; decodes local extension archives and extracts them into the cache
-    ArtifactType.cs                            <- Registry/
-    ArtifactSchemes.cs                         <- Modules/ModuleReferenceSchemes.cs (ArtifactReferenceSchemes)
-    ArtifactException.cs                       <- Registry/ExternalArtifactException.cs
-    InvalidArtifactException.cs                <- Registry/
-    References/
-      ArtifactReference.cs                     <- Registry/
-      RemoteArtifactReference.cs               <- Registry/ExternalArtifactReference.cs
-      RemoteArtifactContext.cs                 <- Registry/ExternalArtifactContext.cs
-      LocalArtifactReference.cs                <- Registry/   (0.9b: a pure value, no I/O)
-      OciArtifactReference.cs                  <- Registry/Oci/
-      OciArtifactContext.cs                    <- Registry/Oci/
-      OciArtifactReferenceFacts.cs             <- Registry/Oci/
-      TemplateSpecArtifactReference.cs         <- Modules/TemplateSpecModuleReference.cs
-      TemplateSpecArtifactContext.cs           <- Registry/
-    Resolution/
-      ArtifactAddress.cs                       <- Registry/
-      IArtifactReferenceResolver.cs            <- Registry/
-      ArtifactReferenceResolver.cs             <- Registry/
-      IRemoteArtifactContextFactory.cs         <- Registry/IExternalArtifactContextFactory.cs
-      RemoteArtifactContextFactory.cs          <- Registry/ExternalArtifactContextFactory.cs
-    Redirects/                                 unchanged: ArtifactRedirectRule, RedirectingArtifactResolver (+ PatternRedirectRule in PR 7)
-    LegacyModuleAliasMocks/                    unchanged: ModuleAliasMockRule
-    Restore/
-      IRemoteArtifactRestorer.cs               <- Registry/IArtifactRestorer.cs
-      RemoteArtifactRestorer.cs                <- Registry/ArtifactRestorer.cs
-      RemoteArtifactRestoreState.cs            <- Registry/ArtifactRestoreState.cs
-      RestoreMode.cs                           <- Registry/
-      RestoreFailureCache.cs                   <- Registry/
-      RestoreExtensions.cs                     <- Registry/ArtifactHelper.cs (GetRemoteArtifactReferences)
-    Registries/
-      IRemoteArtifactRegistry.cs               <- Registry/IArtifactRegistry.cs
-      RemoteArtifactRegistry.cs                <- Registry/ArtifactRegistry.cs   RemoteArtifactRegistry<TReference>
-      OciArtifactRegistry.cs                   <- Registry/
-      OciArtifactRegistryException.cs          <- Registry/
-      TemplateSpecArtifactRegistry.cs          <- Registry/TemplateSpecModuleRegistry.cs
-    Packages/
-      ModuleArtifactPackage.cs                 <- Registry/ModulePackage.cs
-      ExtensionArtifactPackage.cs              <- Registry/ExtensionPackage.cs (with ExtensionBinary)
-    Codecs/
-      LocalExtensionArtifactCodec.cs           <- Registry/Providers/ExtensionV1Archive.cs (ExtensionArtifactArchiveCodec until 0.9a)
-      TypesV1Archive.cs                        <- Registry/Providers/ (packs a types index into types.tgz)
-      OciExtensionV1Config.cs                  <- Registry/Oci/
-      OciModuleArtifactCodec.cs                (0.9a)
-      OciExtensionArtifactCodec.cs             (0.9a)
-    Cache/
-      ArtifactCacheEntry.cs                    <- SourceGraph/Artifacts/ExternalArtifact.cs
-      OciArtifactCacheEntry.cs                 <- SourceGraph/Artifacts/BicepRegistryArtifact.cs
-      OciModuleArtifactCacheEntry.cs           <- SourceGraph/Artifacts/BicepRegistryModuleArtifact.cs
-      OciExtensionArtifactCacheEntry.cs        <- SourceGraph/Artifacts/BicepRegistryExtensionArtifact.cs
-      TemplateSpecArtifactCacheEntry.cs        <- SourceGraph/Artifacts/TemplateSpecModuleArtifact.cs
-      LocalExtensionArtifactCacheEntry.cs      <- SourceGraph/Artifacts/LocalExtensionArtifact.cs
-      ExtensionArtifactCacheLayout.cs          (0.9b) the extension layout (types.tgz, extension.bin) both extension entries share
-      ModuleMetadata.cs                        <- Registry/Oci/ (the cache's "metadata" file)
-      TagEncoder.cs                            <- Registry/Oci/ (the cache directory name of a tag)
-    Catalog/                                   <- Registry/Catalog/: published modules for completion, the linter and MCP
-                                                  (the Implementation level is folded in; Implementation/PublicRegistries became Brm/,
-                                                  with Brm* type names, and Implementation/PrivateRegistries became PrivateRegistries/)
-  RegistryClients/
-    Oci/
-      OciArtifactPayload.cs                    (0.9a) a manifest and its blobs, pushed or pulled (with OciBlob)
-      BicepMediaTypes.cs                       <- Registry/Oci/
-      OciAnnotationKeys.cs                     <- Registry/Oci/
-      OciDescriptor.cs                         <- Registry/Oci/ (0.9a: Data removed)
-      OciManifest.cs                           <- Registry/Oci/
-      OciManifestAnnotationsBuilder.cs         <- Registry/Oci/
-      OciSerialization.cs                      <- Registry/Oci/
-      IOciArtifactAddressComponents.cs         <- Registry/Oci/ (the wire address: registry, repository, tag or digest)
-      OciArtifactAddressComponents.cs          <- Registry/Oci/
-      IOciArtifactReference.cs                 <- Registry/Oci/
-      IRegistrySession.cs                      <- Registry/Sessions/ (0.9a: pushes and pulls OciArtifactPayload)
-      IOciRegistryTransport.cs                 <- Registry/Oci/
-      IOciRegistryTransportFactory.cs          <- Registry/Oci/ (0.9a: no OciArtifactReference parameter)
-      OciRegistryTransportFactory.cs           <- Registry/Oci/
-      RegistryConfiguration.cs                 <- Registry/ (trusted registries)
-      AzureSdk/                                <- Registry/AzureContainerRegistryManager.cs, (I)ContainerRegistryClientFactory.cs, Azure/AcrRegistrySession.cs
-      Oras/                                    <- Registry/Oci/Oras/
-    TemplateSpecs/                             <- Registry/: (I)TemplateSpecClient(Factory) (was (I)TemplateSpecRepository(Factory)),
-                                                  TemplateSpecVersion (was TemplateSpecEntity, split out of TemplateSpecModuleRegistry.cs),
-                                                  TemplateSpecException
-  Configuration/
-    LegacyModuleAliasMocks/                    <- Configuration/IBicepModuleAliasesMockConfiguration.cs, ModuleAliasesMockConfiguration.cs
-  SourceGraph/
-    ArtifactReferenceText.cs                   unchanged (syntax -> reference text belongs to the source graph)
-```
-
-Files and folders that disappear:
-
-| Removed | When | Where it goes |
-|---|---|---|
-| `Modules/` (the whole folder) | 0.8b + 0.9a | Moved to `Artifacts/`; `OciModuleArtifactResult.cs` deleted in 0.9a |
-| `Registry/` (the whole folder) | 0.8b | Split between `Artifacts/` and `RegistryClients/` (above) |
-| `Registry/Providers/` | 0.8b | Both archives move to `Artifacts/Codecs/` |
-| `Registry/ArtifactHelper.cs` | 0.8b | Its one method became the `GetRemoteArtifactReferences()` extension method in `Artifacts/Restore/RestoreExtensions.cs` |
-| `RegistryClients/Oci/OciArtifactResult.cs`, `OciExtensionArtifactResult.cs`, `OciArtifactResultFactory.cs` | 0.9a | `OciArtifactPayload` and the codecs |
-| `SourceGraph/Artifacts/` | 0.9b | `IExtensionArtifact` (the last file left in that folder after 0.8b) replaced by `ExtensionArtifact` |
-| `SourceGraph/ArtifactReferences/` | 0.9b | `IExtensionArtifactReference` replaced by `NamespaceType.ExtensionArtifact` |
-| `SourceLink/OciModuleReferenceExtensions.cs` | 0.9c | `ModuleArtifact.TryGetSources()` |
-
-Tests mirror the product folders and namespaces under `Bicep.Core.UnitTests/Artifacts/` (`References`, `Resolution`, `Restore`, `Registries`, `Codecs`, `Cache`, `Catalog`, `LegacyModuleAliasMocks`) and `Bicep.Core.UnitTests/RegistryClients/`; catalog mocks are in `Mock/Artifacts/Catalog`. `ArtifactCacheLayoutTests` stays an integration test.
+Tests mirror the product folders under `Bicep.Core.UnitTests/Artifacts/` and `Bicep.Core.UnitTests/RegistryClients/`.
 
 ### 3.5 Permanent and deletable reference formats
 
-Every reference syntax customers have written is supported permanently, because a migration can't realistically be required. Only `moduleAliasesMock` is deletable.
+Every reference syntax customers have written is supported permanently. Only `moduleAliasesMock` is deletable.
 
 | Format or feature | Status |
 |---|---|
-| `br:<registry>/<repo>:<tag>` | Permanent. Persisted in source archives, ext-src URIs and the `~/.bicep/br` cache; another spelling of `oci:`. |
+| `br:<registry>/<repo>:<tag>` | Permanent; another spelling of `oci:`. |
 | `ts:<sub>/<rg>/<name>:<version>` | Permanent. |
-| `br/public:`, `br/<alias>:` and `ts/<alias>:` with `moduleAliases` | Permanent: scheme-qualified aliases. |
+| `br/public:`, `br/<alias>:`, `ts/<alias>:` with `moduleAliases` | Permanent: scheme-qualified aliases. |
 | `oci:`, `file:`, `<alias>::`, `artifacts.*` | Permanent: new in REP 0022. |
-| Relative paths; `extensions` values (with a scheme or a bare path) | Permanent. |
+| Relative paths; `extensions` values | Permanent. |
 | `moduleAliasesMock` | Deletable; superseded by `artifacts.redirects`. |
-| `br-mock:` | Removed in 0.6; the text is still rejected (BCP449). |
+| `br-mock:` | Removed; still rejected (BCP449). |
 
-Terminology: the permanent forms are never called "legacy". The `Legacy` prefix is used only for the code location of the deletable mock (`LegacyModuleAliasMocks` folders and namespaces). The two alias namespaces stay independent, as the REP requires:
+The permanent forms are never called "legacy"; the `Legacy` prefix marks only the mock's code (`LegacyModuleAliasMocks`). The two alias namespaces stay independent: scheme-qualified aliases resolve through `moduleAliases`; artifact aliases (`<alias>::`) through `artifacts.aliases` and the predefined `mar`/`avm`. The resolver never falls back from one to the other.
 
-- **Scheme-qualified aliases** (`br/<alias>:`, `ts/<alias>:`) resolve through `moduleAliases`.
-- **Artifact aliases** (`<alias>::`) resolve through `artifacts.aliases` and the predefined `mar`/`avm`.
-
-The resolver has two separate lookups and never falls back from one to the other. Both feed the same "…after resolving alias "X" is not valid" diagnostics through `aliasContext`.
-
-**Mock isolation (done in 0.3b, 0.5 and 0.8a).** `ModuleAliasMockRule` owns all mock behavior. It is the only rule in `RedirectingArtifactResolver` until PR 7, and it is evaluated at step 3. A hit is terminal and produces a `LocalArtifactReference` whose display text is `br:<modulePath>`. `ModuleAliasMockIsolationTests` checks that only these places mention the mock:
-
-- the `LegacyModuleAliasMocks` folder
-- its registration in `RedirectingArtifactResolver`
-- the CLI `publish` command
-- the configuration binding and its declaring-URI annotation
-
-Since 0.8b, the mock configuration types live in `Configuration/LegacyModuleAliasMocks/`.
-
-To delete the mock (this checklist is also in a comment on `ModuleAliasMockRule`), remove:
-
-- the `LegacyModuleAliasMocks` folders in product code and tests
-- its registration in `RedirectingArtifactResolver`
-- the call in the CLI `publish` command
-- the `ModuleAliasesMock` configuration property, with its bind, `With` and `WriteTo` code and its declaring-URI registration
-- the `moduleAliasesMock` placeholder in the built-in `bicepconfig.json` and in the schema
-- diagnostic methods that become unused (their BCP codes stay reserved)
-- optionally, add a "`moduleAliasesMock` is no longer supported; use `artifacts.redirects`" configuration diagnostic
-
-Deprecating the mock (warnings, a timeline) is a product decision outside REP 0022, which requires mocks to keep working without new warnings.
+`ModuleAliasMockRule` owns all mock behavior, and `ModuleAliasMockIsolationTests` enforces where it's referenced. The deletion checklist is in a comment on `ModuleAliasMockRule`.
 
 ---
 
-## 4. Phase 0: refactoring
+## 4. Conventions and notes
 
-Every Phase 0 PR leaves all baselines unchanged. Diagnostic text isn't frozen: a phase that touches an error should make it clear and understandable to users, and lists the reworded messages. `Azure.Bicep.Core` is published to nuget.org but explicitly unsupported, so public API renames are fine. Bicep.Core types stay `public`, by convention.
-
-### 4.1 Completed phases
-
-- **0.1: characterization tests.** `ArtifactReferenceResolutionTests` pins end-to-end resolution through the real stack. It covers relative paths, `br:`, `br/public:`, `br/<alias>:`, `moduleAliasesMock`, `br-mock:`, `ts:`, `ts/<alias>:`, extension text, the `extensions` map, implicit extensions, and how the REP 0022 spellings (`oci:`, `file:`, `avm::`, `br::`, `oci/x:`) fail today.
-- **0.2: one source of truth.** The compiler and the language server read resolved references from `SourceFileGrouping.ArtifactLookup` instead of resolving them again. `IArtifactReferenceFactory` left `Compilation`, `SemanticModel` and `SymbolContext`.
-- **0.3a: parser and resolver.** The total `ArtifactAddress.Parse` replaced the string splitting in `ModuleDispatcher`, and `ArtifactReferenceResolver` took over turning text into references.
-- **0.3b: alias expansion and mock isolation.**
-  - The resolver expands `moduleAliases` and builds the references itself, so registries stop parsing.
-  - The OCI and Template Spec body parsers take an `aliasContext` used only in diagnostics.
-  - The mock moved into `Artifacts/LegacyModuleAliasMocks`, guarded by an architecture test.
-  - The declaring-URI annotation was generalized.
-- **0.4: split `ModuleDispatcher`.** It became `IArtifactReferenceResolver`, `IArtifactRestorer` (which owns the restore-failure cache) and `IArtifactPublisher`.
-- **0.5: cleaner service APIs.**
-  - `ArtifactReference.Type` moved to the base class, and an `ExternalArtifactReference` base was added.
-  - The resolver has one `TryResolve` method, and the source graph extracts the reference text from syntax.
-  - The compiler-only `RedirectingArtifactResolver` was added, with `ModuleAliasMockRule`.
-  - The restorer returns an `ArtifactRestoreState` and has `RestoreAsync(references, RestoreMode)`, backed by a `RestoreFailureCache`.
-  - `bicep publish` applies the mock rule only to keep rejecting mocked targets.
-- **0.6: local references.**
-  - One `LocalArtifactReference(File, Type, SourceText)`, equal by `(File, Type)`, replaced `LocalModuleReference` and `OciArtifactMockedReference`.
-  - The resolver takes an `IOUri`, and registries are routed by reference type.
-  - `LocalModuleRegistry`, `OciArtifactMockedRegistry` and the `br-mock` scheme were deleted.
-  - Behavior changes:
-    - Local extensions are extracted into the cache on first use, so `--no-restore` builds and the language server load them.
-    - The language server's force-restore summary lists only remote artifacts.
-    - References from different folders are no longer equal just because the text matches.
-- **0.7: external artifact context.**
-  - `OciArtifactContext` (cloud, cache root, `UseOrasSdk`) and `TemplateSpecArtifactContext` replaced the configuration and features carried by references. The context is part of a reference's equality.
-  - The dummy referencing files are gone.
-  - `ArtifactRestoreState.Restored` carries the entry point.
-  - Bug fix: an artifact reached with two different clouds is restored once per cloud.
-- **0.8a: registry, publish and cache cuts** (includes the former 0.8c).
-  - `IEnumerable<IArtifactRegistry>` replaced the registry-provider layer; Wasm registers only OCI.
-  - `IArtifactRegistry` keeps only restore operations.
-  - `IArtifactPublisher`, `ArtifactPublisher` and `ArtifactPackage` were removed; the CLI calls `OciArtifactRegistry` directly, and `publish-extension` writes local archives itself.
-  - Hover reads OCI metadata from `OciArtifactRegistry`.
-  - `ArtifactRedirectTable` was folded into `RedirectingArtifactResolver`.
-  - `OnRestoreArtifacts` was removed: the restorer now starts the BRM catalog download itself.
-  - Cache invalidation is part of a forced `RestoreAsync`.
-  - Cache entries own every cache path, the completeness check, writes, deletes and the single lock loop. `ArtifactCacheLayoutTests` pins the layout; it passed before and after the move.
-  - The one on-disk difference: a pulled artifact of the wrong type no longer leaves a directory containing only its manifest.
-- **0.8b: vocabulary and folders** (renames and moves only).
-  - The artifact model and services moved to `Artifacts/{References,Resolution,Restore,Registries,Packages,Codecs,Cache}` (section 3.4), with namespaces that follow the folders. The rest of `Bicep.Core.Registry` became `Bicep.Core.RegistryClients` (`Oci`, `Oci/AzureSdk`, `Oci/Oras`, `TemplateSpecs`), and the module catalog moved to `Artifacts/Catalog`, so that "registry" no longer names two layers. The catalog's `Implementation` namespace level is folded into `Artifacts.Catalog`, and the public catalog became `Artifacts.Catalog.Brm` (`IBrmMetadataProvider`, `BrmMetadataProvider`, `IBrmIndexHttpClient`, `BrmIndexHttpClient`, `BrmIndexEntry`), because it lists Bicep Registry Modules rather than everything on the Microsoft Artifact Registry. The ORAS `AzureCredentialProvider` became `AcrCredentialProvider`, since it only exchanges Entra tokens for ACR refresh tokens. The mock configuration types moved to `Configuration/LegacyModuleAliasMocks/`, and `TemplateSpecEntity` got its own file. Unit tests moved to the matching `Bicep.Core.UnitTests/Artifacts/` and `RegistryClients/` folders.
-  - Types that survive 0.9 took the section 2 names: the cache entries (`ArtifactCacheEntry`, `Oci*ArtifactCacheEntry`, `TemplateSpecArtifactCacheEntry`, `LocalExtensionArtifactCacheEntry`), `*ArtifactPackage`, `ExtensionArtifactArchiveCodec` (`Encode`/`Decode`), `TemplateSpecArtifact{Reference,Registry}`, `RemoteArtifact{Reference,Context,ContextFactory}`, `(I)RemoteArtifactRegistry`, `(I)RemoteArtifactRestorer`, `RemoteArtifactRestoreState`, `ArtifactException` and `ArtifactSchemes`. The Template Spec repository, which wraps one ARM call, became a client: `(I)TemplateSpecClient(Factory)`, `TemplateSpecVersion` and `GetTemplateSpecVersionAsync`. `ArtifactHelper` became `RestoreExtensions.GetRemoteArtifactReferences()`.
-  - The types that 0.9 deletes kept their names and folders. No naming architecture test was added (see section 2).
-  - Two commits (moves, then renames), so that git shows both as renames.
-- **0.9a: OCI payload and codecs.**
-  - `OciArtifactPayload` (a manifest and its blobs by digest) replaced `OciArtifactResult` and its subclasses, `OciArtifactResultFactory`, `OciArtifactLayer` and `OciDescriptor.Data`. Both transports and `IRegistrySession` push and pull payloads and know nothing about Bicep artifacts. `IOciRegistryTransportFactory.CreateSession` takes the cloud, registry, repository and ORAS setting instead of an `OciArtifactReference`, and `GetTransport(OciArtifactReference)` is gone. The `Modules/` folder is gone.
-  - `OciModuleArtifactCodec` and `OciExtensionArtifactCodec` own push encoding (from `OciArtifactRegistry`) and pull validation (from the result classes). Restore picks the codec from the artifact type the manifest declares, and reports a mismatch with the reference before decoding anything. The private ACR catalog decodes only modules.
-  - `ModuleArtifactPackage` gained `Description` and `FromTemplate`; `ExtensionArtifactPackage` dropped `LocalDeployEnabled`. OCI cache entries `WriteAsync(package, payload)`, pulled forward from 0.9b because nothing else could write the result classes' replacement.
-  - `ExtensionArtifactArchiveCodec` became `LocalExtensionArtifactCodec`, which follows the section 2 rule and pairs with `OciExtensionArtifactCodec` and `LocalExtensionArtifactCacheEntry`.
-  - Reworded restore errors (all follow BCP192's "The OCI artifact is not a valid Bicep artifact."):
-    - "Expected a module, but the artifact is an extension." and the reverse (was "…but retrieved an extension.").
-    - "The artifact type "…" is not supported by this version of Bicep. A newer version of Bicep might be required to reference this artifact." (was "artifacts of type: '…' are not supported by this Bicep version.").
-    - "The module has no compiled template layer (media type "…")." and "The module has more than one compiled template layer (…)." (were "Expected to find a layer with media type …, but found none." and "Did not expect to find multiple layer media types of …").
-    - "The module's config media type "…" is not supported by this version of Bicep." and "The extension's config media type "…" is not supported…" (were "Did not expect config media type …" and "Unknown config.mediaType: '…'.").
-    - "Expected an extension, but the artifact type is "…"." (was "Unknown artifactType: '…'.").
-    - "The manifest refers to a blob that does not exist in the registry (digest "…")." (was "Module manifest refers to a non-existent blob…", also for extensions).
-    - New: "The extension has no types layer (…)." and "The extension has more than one types layer (…).", and "The extension's config is not valid JSON." Before, these surfaced as "Unhandled exception: …" with a stack trace.
-  - Behavior changes, all edge cases:
-    - A wrong-kind artifact always reports "Expected a module, but the artifact is an extension." (or the reverse), even when it's also malformed; before, the malformation error won. The private ACR catalog likewise labels an unknown artifact type or a broken extension as an unexpected type rather than an invalid module.
-    - The Azure SDK session's `ResolveAsync` (existence checks before publish, hover's manifest fallback) no longer validates Bicep content, as the ORAS session already didn't. Publishing without `--force` over an invalid artifact now reports that it exists.
-    - An extension whose config lists an architecture with no matching layer now decodes without that binary. Restore still fails on a machine of that architecture if the extension has other binaries; if it has none, it restores without a binary.
-  - Round-trip tests per codec (with and without sources, documentation, description and binaries).
-- **0.9b: cache entries store packages.**
-  - `ExtensionArtifactCacheLayout` is the extension layout both extension entries share, and the one writer of `types.tgz` and `extension.bin`: `OciExtensionArtifactCacheEntry.WriteAsync(package, payload, reference)` and `LocalExtensionArtifactCacheEntry.Write(package, reference)` (was `Unpack`) delegate to it. It picks this machine's binary before writing anything, then writes `types.tgz` last. The writers take the `ArtifactReference` for their error messages instead of a string.
-  - `LocalArtifactLoader.TryGetEntryPoint` (named to pair with `IRemoteArtifactRegistry.TryGetEntryPoint`; both become `TryOpen` in 0.9c) loads local artifacts: a module is its file, and an extension package is decoded and extracted into the referencing file's cache. The source graph passes `BicepSourceFile.LoadFeatures().CacheRootDirectory`, the same root the resolver used to get from the feature provider. `LocalArtifactReference(Type, File, SourceText)` is now a pure value with no cache root, `Lazy` or I/O, so `ArtifactReferenceResolver`, `ModuleAliasMockRule`, `RedirectingArtifactResolver.Create` and the CLI `publish` command no longer take `IFeatureProviderFactory`.
-  - References no longer expose cache entries (`OciArtifactReference.CacheEntry` and `ModuleCacheEntry`, `TemplateSpecArtifactReference.CacheEntry`); registries create entries from references. `TryLoadSourceArchive` and the language server's ext-src handler build the module entry themselves until 0.9c replaces them.
-  - Pulled forward from 0.9c: `ExtensionArtifact` (`Types`, and `Binary`, looked up on first use), without the `Artifact` base class or `Reference`, which nothing would use yet. `NamespaceType.ExtensionArtifact` replaced `ExtensionArtifactReference`, and `IExtensionArtifact`, `IExtensionArtifactReference` and `ResolveExtensionArtifact` were deleted. Without a cache root, a local reference can't find its extracted files, so local deploy can't ask it for the binary. Instead, `NamespaceProvider` opens the extension through `ExtensionArtifactCacheLayout` in its types file's directory, which is always the extension's cache entry.
-  - The one on-disk difference: an OCI extension with no binary for this machine no longer leaves `types.tgz` in its incomplete cache entry.
-  - `LocalArtifactLoaderTests` cover modules, extraction, this machine's binary, an unsupported architecture and concurrent loads on a real file system. `LocalArtifactReferenceTests` keeps only the identity tests.
-- **0.9c: the compiler gets artifacts.**
-  - `Artifact` (with `Reference`) and `ModuleArtifact` (`EntryPoint`, `Kind`, `TryGetSources()`) were added, and `ExtensionArtifact` derives from `Artifact`. Each cache entry overrides `ArtifactCacheEntry.Open(ArtifactReference)` with its own artifact type: OCI modules open as `ArmTemplate` with their `source.tgz`, Template Specs as `TemplateSpec`, and both extension entries through `ExtensionArtifactCacheLayout.Open(reference)`.
-  - `IRemoteArtifactRegistry.TryOpen` and `LocalArtifactLoader.TryOpen` replaced `TryGetEntryPoint`. `RemoteArtifactRestoreState.Restored` carries the `Artifact`, and the source graph stores it in `ArtifactDependency.Loaded` (below); the new `IArtifactFileLookup.TryGetArtifact()` extension method reads it.
-  - `ArtifactCacheEntry.EntryPoint` was removed: callers get the file from the opened artifact (`ModuleArtifact.EntryPoint`, `ExtensionArtifact.Types`). OCI entries keep a protected `ContentFile` for their completeness check.
-  - The source graph recurses into `ModuleArtifact.EntryPoint` and chooses the parser from `ModuleArtifact.Kind` instead of the reference type. `NamespaceProvider` reads `ExtensionArtifact.Types` and passes the source graph's `ExtensionArtifact` to `NamespaceType`, so it no longer opens the extension from its types file's directory. The MCP server reads restored extensions' `Types`.
-  - `TryLoadSourceArchive` (`SourceLink/OciModuleReferenceExtensions.cs`) was deleted; only the registries and `LocalArtifactLoader` create cache entries. `ModuleArtifact.TryGetSources()` keeps the old result type and fails with `SourceNotAvailableException` for a module without sources, which every caller already handles. Go to definition and source archives use the source graph's artifact; ext-src requests, document links, code lenses and the visualizer ask the restorer, so the code-lens and document-link handlers now take `IRemoteArtifactRestorer`.
-  - Reworded language server messages:
-    - An ext-src request for a module whose restore failed returns the restore error (was "Unable to obtain the entry point URI for module '…'.").
-    - New: "The module '…' has not been restored." for an ext-src request or a code lens on a module that isn't in the cache.
-  - Behavior changes, all in the language server: ext-src requests, document links, code lenses and the visualizer read sources only from restored modules. Before, they read the cache directly, so they showed a cached module even if its registry was no longer trusted or its cache entry was incomplete.
-  - `OciArtifactRegistryTryOpenTests` (was `OciArtifactRegistryEntryPointTests`) and `LocalArtifactLoaderTests` check the artifact types, kinds and references. New tests cover the ext-src handler and code lenses on a module that isn't restored.
-  - **`ArtifactDependency` replaced `ArtifactResolutionInfo`.** The old record's `Reference`, `Result` and `RequiresRestore` had to agree with each other. `ArtifactDependency` has one nested type per state: `Loaded(Artifact)`, `NotRestored(RemoteArtifactReference)` and `Failed(ArtifactReference?, Error)`, the reference being `null` when the text didn't resolve. `Reference` and `TryGetArtifact()` are derived from the state, `RequiresRestore` is gone (`ShouldRestore` is `force || dependency is NotRestored`), and the builder's `(result, requiresRestore)` tuples and the cycle override (`info with { Result = … }`) construct states instead. `ImplicitExtension.Artifact` became `Dependency`.
-  - **`ImplicitExtension.Config` was removed.** For an implicit extension with no `extensions` entry, the builder stored the configuration's error while `NamespaceProvider` reported BCP397 from its own `Config is null` check, so the stored error was never read. The builder now stores BCP397 in the `Failed` dependency, and implicit extensions take the same path as declared ones. The reported errors don't change; a new `ExtensionRegistryTests` case pins BCP397, which no test covered.
-
-### 4.2 Remaining phases
-
-None: Phase 0 ended with 0.9c.
-
-### 4.3 Why rename (0.8b) before simplifying (0.9)
-
-- **Review.** A PR that mixes moves and logic changes is hard to review: git can lose the rename, and every changed line looks new. With the moves done first, 0.9's diffs contain only logic changes.
-- **Writing the new code.** 0.9's new code is written directly in its final folders and namespaces, under its final names.
-- **No double renaming.** Only types that survive 0.9 are renamed. The types 0.9 deletes stay where they are until they're deleted, so nothing is renamed twice.
-- **Mechanical is mechanical.** 0.8b keeps only renames and moves. Anything with logic (the completion split, `CancellationToken`) moves to the PRs that need it.
-
-### 4.4 Validation notes
-
-- **Last full run (0.9c):** `dotnet build Bicep.slnx --no-restore` with 0 warnings; `dotnet test --solution Bicep.slnx --no-build` with 16,506 passed, 3 skipped and 0 failed. No baseline changes. 0.9b: 16,471 passed and 3 skipped. 0.9a: 16,395 passed, 3 skipped and 9 failed (`Bicep.LangServer.IntegrationTests` and `Bicep.RpcClient.Tests`, which then passed on their own). 0.8b: 16,108 passed and 1 skipped. Each earlier phase ran the full suite; its results are in the PR description.
-- **Disk space:** the integration tests leave about 18 GB in `bin/Debug/net10.0/TestOutput` folders across runs. When the disk fills, about a hundred tests fail with "There is not enough space on the disk"; deleting those folders fixes it.
-- **Test runner flags:** these test runners use Microsoft.Testing.Platform and don't accept `--blame-hang-timeout` or `--output Minimal`. A run with either flag executes zero tests.
-- **Wasm DI:** `AddBicepDecompiler` calls `AddBicepCore` again, so Wasm removes the default registries after both calls.
-- **Mock test case:** `RemoteArtifactRestorerTests`' mock reference includes its context in equality, as real references do.
+- Existing baselines stay byte-identical through PRs 1–4. Diagnostic text isn't frozen: when touching an error, make it clear to users and list the reworded messages in the PR.
+- `Azure.Bicep.Core` is published but unsupported, so public API renames are fine. Bicep.Core types stay `public`.
+- Full validation: `dotnet build Bicep.slnx --no-restore`, then `dotnet test --solution Bicep.slnx --no-build` (~16,500 tests). Don't pass `--blame-hang-timeout` or `--output Minimal` (zero tests run). Integration tests leave ~18 GB in `bin/Debug/net10.0/TestOutput`; delete those folders if the disk fills.
+- Wasm: `AddBicepDecompiler` calls `AddBicepCore` again, so Wasm removes the default registries after both calls.
 
 ---
 
 ## 5. REP 0022 features
 
-After Phase 0, PR 1 shrinks to adding the `AliasQualified` address form, the canonical identity and provenance. The resolver, the parser, URI-anchored local references and routing by reference type already exist.
+The resolver, the parser, URI-anchored local references and routing by reference type already exist (Phase 0).
 
 ### 5.1 Configuration model
 
@@ -558,7 +181,7 @@ record ArtifactsConfigData {
   ImmutableSortedDictionary<string, ArtifactAlias> Aliases;     // polymorphic on "type"
   ImmutableDictionary<string, string> Redirects;                 // key pattern -> relative target
 }
-abstract record ArtifactAlias { IOUri? DeclaringConfigUri }      // [JsonIgnore], set by the chain builder
+abstract record ArtifactAlias;                                  // file alias paths resolved against the declaring file (see below)
 record OciArtifactAlias(string Registry, string? RepositoryPrefix);
 record TemplateSpecArtifactAlias(string SubscriptionId, string ResourceGroup);
 record FileArtifactAlias(string Path);
@@ -567,7 +190,7 @@ record FileArtifactAlias(string Path);
 - **Binding never throws on semantic errors.** A bad alias would otherwise invalidate the whole configuration through `InvalidBicepConfigFile`. Errors are stored per entry and reported when the entry is used, as `moduleAliases` errors are today. An unknown `type` is a per-entry error.
 - **Alias names** use the `ModuleAliasesConfiguration.ModuleAliasNameRegex()` grammar and are case-sensitive.
 - **The predefined `mar`/`avm` are defined in code**, not in the built-in `bicepconfig.json`. The configuration chain deep-merges JSON, so a user override would silently inherit the built-in `repositoryPrefix`; defaults defined in code are replaced as a whole entry. Overriding them with `type != "oci"` is an error. The defaults don't depend on the cloud profile.
-- **Declaring URIs:** `artifacts.aliases.*` (file aliases) and `artifacts.redirects.*` are annotated with the leaf-most layer that declares them. Relative paths resolve against that file's directory.
+- **Declaring URIs:** relative paths in file aliases and redirect targets resolve against the `bicepconfig.json` that declares the entry. Use the per-value declaring-file record from `configuration-improvement-plan.md` (its PRs 2 and 3, which delete `FindDeclaringUrisByKey`) rather than adding another `FindDeclaringUrisByKey` lookup. If PR 2 lands first, it uses that lookup temporarily, and the configuration plan's PR 3 moves it over with the other paths.
 - **Serialization:** `IBicepConfiguration.Artifacts` and `BicepConfigurationExtensions.With`/`WriteTo` are updated, so configuration dumping still round-trips.
 
 ### 5.2 Redirect engine (`PatternRedirectRule`s in `RedirectingArtifactResolver`)
@@ -586,16 +209,17 @@ record FileArtifactAlias(string Path);
 
 ### 5.3 Data-file loads
 
-- In the `SystemNamespaceType` load helpers, a literal containing `:` resolves through `RedirectingArtifactResolver`, so redirects apply. Otherwise the existing relative-path behavior is unchanged. This applies to `loadTextContent`, `loadJsonContent`, `loadYamlContent` and `loadFileAsBase64`, but not `loadDirectoryFileInfo`. A `:` can't appear in a relative path, so this isn't a breaking change.
+- In the `SystemNamespaceType` load helpers, a literal containing `:` resolves through a data-file entry point on `RedirectingArtifactResolver`, so redirects apply (from PR 4). Otherwise the existing relative-path behavior is unchanged. This applies to `loadTextContent`, `loadJsonContent`, `loadYamlContent` and `loadFileAsBase64`, but not `loadDirectoryFileInfo`. A `:` can't appear in a relative path, so this isn't a breaking change.
+- The entry point is separate because data files have no `ArtifactType`: `TryResolveDataFile(IOUri referencingUri, string text)` returns the file's URI (and, from PR 4, the `ArtifactRedirect`), supporting only `file:`, file aliases and redirects.
 - Allowed sources are `file:`, file aliases, and redirects on those spellings. An `oci:`, `ts:`, OCI alias or Template Spec alias in a data load gets a new "artifact reference not supported for file loading" error (question 7).
 - Add a `BicepSourceFile.TryLoadAuxiliaryFile(IOUri)` overload that shares the cache and the tracking of referenced auxiliary files, so language server invalidation keeps working. The resolver is plumbed through `BicepSourceFileFactory`.
 
 ### 5.4 `artifact-redirect` linter rule
 
 - `Analyzers/Linter/Rules/ArtifactRedirectRule.cs`, code `artifact-redirect`, default level `Warning`.
-- **Sources:** the source graph's resolution results for the model's file (modules, `using`, `extends`, imports, explicit, config-named and implicit extensions), plus load-function literals.
+- **Sources:** the source graph's `ArtifactDependency.Redirect` for the model's file (modules, `using`, `extends`, imports, explicit, config-named and implicit extensions), plus `SemanticModel.DataFileRedirects`.
 - **Span:** the reference string, or the identifier for `extension foo`. **Message:** `"<source>" was redirected to local file "<path>" by "<config>"`.
-- **Emitted once per (file, canonical identity)**, at the first occurrence (question 6). **Not** emitted for `moduleAliasesMock` hits.
+- **Emitted once per (file, `Redirect.MatchedText`)**, at the first occurrence (question 6). **Not** emitted for `moduleAliasesMock` hits.
 - **`UseRecentModuleVersionsRule`** skips redirected references and recognizes `avm::`/`mar::`; its code fix keeps the source spelling.
 
 ### 5.5 CLI
@@ -603,7 +227,7 @@ record FileArtifactAlias(string Path);
 - Add `--verbose` (or reuse logging) to `build`, `build-params`, `lint`, `restore`, `publish` and `generate-params`. It prints one stderr line per applied redirect, whatever the analyzer level (question 2).
 - `publish` and `publish-extension` accept `oci:` and `alias::` targets and reject `file:` for modules. Targets go through `IArtifactReferenceResolver`, so redirects can't apply. Update `publish-extension`'s `br:`/`ts:` prefix check.
 - `restore`: redirected references are local, so there's nothing to restore.
-- The filters in `Bicep.Wasm/Interop.cs` and the MCP `BicepTools.cs` also accept `oci:` and the alias forms.
+- The MCP extension tools accept `oci:` as well as `br:` once the experimental flag is removed (PR 6): the MCP server has no `bicepconfig.json` to read the flag from. `Bicep.Wasm/Interop.cs` already skips every scheme-qualified module path, so it needs no change.
 
 ### 5.6 Language server and VS Code
 
@@ -621,31 +245,26 @@ record FileArtifactAlias(string Path);
 
 ### 5.7 PR sequence
 
-Each PR can ship on its own; user-visible syntax lands only once its resolution path is complete. If releases are cut mid-sequence, new syntax is gated behind a temporary hidden flag that PR 10 removes (question 1).
+Each PR is complete when it ships: new syntax lands together with its resolution path. All of it is gated behind the `artifactAliasesAndRedirects` experimental feature, so users can try it and give feedback before it becomes the default (question 1). With the flag off, behavior and messages match the release before REP 0022; PR 6 removes the flag.
 
 | # | PR | Main files | Tests |
 |---|---|---|---|
-| 1 | **Canonical identity and provenance.** `ArtifactReference.CanonicalIdentity`; `ArtifactResolution` with provenance, returned by `RedirectingArtifactResolver`; the `AliasQualified` form, parsed but rejected until PR 4. | `Artifacts/References`, `Artifacts/Resolution` | Parser tests for `oci:localhost:5000/x:v1`, `br::x`, `storage:::1.0` and the `oci/mar:x` error; baselines unchanged. |
-| 2 | **`oci:` scheme.** Resolution, publish targets, Wasm and MCP filters. `IRemoteArtifactRegistry.Scheme` becomes `Schemes` (`br` and `oci` for OCI), because the resolver derives the supported schemes from the registries. | `ArtifactSchemes`, resolver, `PublishExtensionCommand`, `Interop` | `oci:` and `br:` are equal and deduplicated in restore; publish to `oci:`; source archives still write `br:`. |
-| 3 | **`artifacts` configuration section** (5.1). | `ArtifactsConfiguration`, `BicepConfiguration*`, `BicepConfigurationManager`, schema | Binding; inheritance (an alias declared in a base configuration resolves from its directory); predefined-override type error; whole-entry replacement. |
-| 4 | **`<alias>::` references** for OCI and Template Specs, including `mar`, `avm` and the empty-path OCI form. Independent of `moduleAliases`. | Resolver, parser, `ArtifactsConfiguration`, `DiagnosticBuilder` | Expansion matrix; `br/x:` with only `artifacts.aliases.x` still gives the unknown-alias error; the same name in both maps with different targets. |
-| 5 | **`file:` scheme and file aliases** for modules, `using`, `extends`, imports and extensions (direct and the `extensions` map). All of them resolve to `LocalArtifactReference`. | Resolver, `ArtifactsConfiguration`, `SourceFileGroupingBuilder` | The REP's monorepo scenario; transitive references use each file's own configuration; cycles through file aliases; invalid or unsafe `.tgz`. |
-| 6 | **Data-file loads** (5.3). | `SystemNamespaceType`, `BicepSourceFile`, `BicepSourceFileFactory` | Loads through aliases; size and encoding limits unchanged; language server invalidation. |
-| 7 | **Redirect engine** (5.2), for modules, extensions, Template Specs and data files. | `PatternRedirectRule`, `RedirectingArtifactResolver` | Precedence matrix including mock vs. redirect; tags, digests and nested paths; `{...path}`; rejecting a captured `..`; missing target; path normalization on Windows and Linux; publish ignores redirects. |
-| 8 | **`artifact-redirect` rule and `--verbose`** (5.4, 5.5). | `ArtifactRedirectRule`, CLI, schema | Rule levels (an error blocks emit); suppression; once per artifact; verbose output even when the rule is `off`; no diagnostic for mocks. |
-| 9 | **Language server UX** (5.6). | Completion, hover and definition handlers | Language server unit and integration tests. |
-| 10 | **Docs, samples, cleanup**: remove the temporary flag (if used), baseline datasets, Learn docs, linter rule docs, changelog. | `Bicep.Core.Samples/Files/baselines/ArtifactAliases_*`, docs | Baselines for alias, redirect and file scenarios. |
+| 1 | **Configuration-free spellings: `oci:`, `file:` and `<alias>::` parsing.** `oci:` resolves to `OciArtifactReference` (equal to the `br:` spelling) and is accepted as a publish target; `IRemoteArtifactRegistry.Scheme` becomes `Schemes`. `file:` resolves to `LocalArtifactReference` relative to the referencing file, for modules, `using`, `extends`, imports and extensions; in the `extensions` map, relative to the configuration, like bare paths (question 3). Absolute `file:` paths are rejected (question 4). A module must be a file whose extension the compiler recognizes: `.bicep`, `.bicepparam`, or an ARM template (`.json`, `.jsonc`, `.arm`) (BCP461). `oci/x:` and `file/x:` get "the scheme does not support aliases" (BCP460). `ArtifactAddress.AliasQualified` is parsed but rejected until PR 2. OCI parse errors show the scheme as written. BCP189 lists the new schemes. Adds the `artifactAliasesAndRedirects` experimental feature, which gates `oci:`, `file:` and BCP460. | `ArtifactSchemes`, `ArtifactAddress`, `ArtifactReferenceResolver`, `ArtifactReferenceText`, `IRemoteArtifactRegistry`, `PublishExtensionCommand`, feature flag plumbing | Parser tests for `oci:localhost:5000/x:v1`, `br::x`, `storage:::1.0`; `oci:` and `br:` are equal and deduplicated in restore; publish to `oci:`; source archives still write `br:`; `file:` for each declaration kind and the `extensions` map; absolute and wrong-extension `file:` errors; every new spelling fails as before with the flag off. |
+| 2 | **`artifacts.aliases`** (5.1): OCI, Template Spec and file aliases, the predefined `mar`/`avm`, the empty-path OCI form, and a "use `<alias>::`" hint added to BCP460. Independent of `moduleAliases`. The schema gets `artifacts.aliases` only. | `ArtifactsConfiguration`, `BicepConfiguration*`, resolver, `DiagnosticBuilder`, schema | Binding; inheritance (an alias declared in a base configuration resolves from its directory); predefined-override type error; whole-entry replacement; expansion matrix; `br/x:` with only `artifacts.aliases.x` still gives the unknown-alias error; the same name in both maps; the REP's monorepo scenario; transitive references use each file's own configuration. |
+| 3 | **Data-file loads** (5.3) through `file:` and file aliases. | `SystemNamespaceType`, `BicepSourceFile`, `BicepSourceFileFactory`, resolver | Loads through aliases; size and encoding limits unchanged; language server invalidation; remote spellings rejected. |
+| 4 | **Redirects with disclosure** (5.2, 5.4): `artifacts.redirects` and its schema, the redirect engine for modules, extensions, Template Specs and data files, redirect provenance (3.1), and the `artifact-redirect` rule. Shipped together so a redirect is never applied without the diagnostic. | `PatternRedirectRule`, `RedirectingArtifactResolver`, `ArtifactDependency`, `SourceFileGroupingBuilder`, `SemanticModel`, `ArtifactRedirectRule`, schema | Precedence matrix including mock vs. redirect; tags, digests and nested paths; `{...path}`; rejecting a captured `..`; missing target; path normalization on Windows and Linux; publish ignores redirects; provenance kept on `Failed` and cycle dependencies; rule levels (an error blocks emit); suppression; no diagnostic for mocks. |
+| 5 | **`--verbose` and language server UX** (5.5, 5.6). `ModuleReferenceCompletionProvider` builds its items from `ArtifactSchemes` instead of `"br:"`/`"ts:"` literals. | CLI, completion, hover and definition handlers | Verbose output even when the rule is `off`; language server unit and integration tests. |
+| 6 | **Docs, samples and removing the flag**: drop `artifactAliasesAndRedirects` (its schema entry and docs), accept `oci:` in the MCP extension tools, baseline datasets, Learn docs, linter rule docs, changelog. | `Bicep.Core.Samples/Files/baselines/ArtifactAliases_*`, docs | Baselines for alias, redirect and file scenarios. |
 
-PRs 2 and 3 can proceed in parallel after PR 1. PR 4 depends on 3; PR 5 depends on 1 (and 3 for file aliases); PR 6 on 5; PR 7 on 3 to 6; PR 8 on 7; PR 9 on 4 to 7.
-
-### 5.8 Diagnostics to add (next free BCP codes; BCP459 is currently the highest)
+Each PR depends on the one before it, except PR 5, which needs only PRs 2 and 4.
+### 5.8 Diagnostics to add (next free BCP codes; BCP461 is currently the highest)
 
 - Unknown artifact alias.
 - Invalid alias definition (missing or unknown `type`, missing required property).
 - Predefined alias `mar`/`avm` must have type `oci`.
-- Scheme-qualified alias form (`oci/x:`) not supported.
+- Scheme-qualified alias form (`oci/x:`) not supported (BCP460, PR 1).
 - Empty artifact path not allowed for the alias type, or an OCI empty path requires a full repository.
-- A module `file:` reference must end in `.bicep` or `.json`.
+- A module `file:` reference must be a Bicep file or an ARM template (BCP461, PR 1).
 - Artifact reference type not supported for data-file loading.
 - Invalid redirect key (capture syntax, duplicate or invalid capture names, more than one `{...}`, glob characters).
 - Invalid redirect target (not `./` or `../`, absolute, an artifact reference, an undeclared placeholder, a captured `.` or `..`).
@@ -659,20 +278,20 @@ PRs 2 and 3 can proceed in parallel after PR 1. PR 4 depends on 3; PR 5 depends 
 - `moduleAliases` and `moduleAliasesMock` are unchanged, including absolute `mapToFilePath`, digest references, inherited relative roots and existing diagnostics.
 - `artifacts.aliases` is never used for the `br/`/`ts/` forms, and vice versa.
 - Persisted `br:` strings and the cache layout are unchanged (`ArtifactCacheLayoutTests`).
-- All existing baselines are byte-identical after PRs 1–7.
+- All existing baselines are byte-identical after PRs 1–4.
 
 ---
 
 ## 6. Open questions
 
-1. **A temporary experimental flag** during the rollout, vs. the REP's "no flag". Recommendation: a hidden flag, removed in PR 10.
+1. **A temporary experimental flag** *(decided)*: yes, `artifactAliasesAndRedirects`, so the feature can collect feedback before it becomes the default (requested in review of #20580). The REP's rollout plan says "no flag"; update it when the flag is removed.
 2. **`--verbose` doesn't exist.** Add a global option, or use a log level?
-3. **`file:` values in the `extensions` map:** relative to the declaring `bicepconfig.json`, consistent with today's bare paths? The REP says "relative to the file containing the reference"; the recommendation is to treat the configuration file as that file. Also: bare-path extension entries use the *leaf* configuration URI, not the declaring layer. Fix that at the same time?
-4. **Absolute `file:` paths** (`file:C:/x.bicep`, `file:/x.bicep`): reject them, consistent with the relative-path rules? The REP implies relative paths only.
+3. **`file:` values in the `extensions` map** *(decided)*: relative to the `bicepconfig.json` that declares the entry, the same as bare paths. Until the configuration plan's PR 3 lands, both use the leaf configuration (bug B2 in `configuration-improvement-plan.md`); `file:` values get the fix with bare paths, not separately.
+4. **Absolute `file:` paths** *(decided)*: rejected, with the same error as other absolute paths.
 5. **Ambiguous redirect detection:** an error at resolution time, or static configuration validation?
 6. **Rule granularity:** once per redirected artifact per compilation, or per occurrence (for `#disable-next-line`)?
 7. **Redirecting remote identities for data loads** (an `oci:` key in `loadTextContent`): out of scope, or an error?
 8. **Alias names equal to scheme names** (`br::`, `oci::`, `file::`): allowed (they're unambiguous) or reserved?
 9. **Diagnostic display:** in existing restore-failure messages for `oci:` and alias references, show the source spelling or the fully qualified `br:` reference?
 10. **REP wording:** the REP's "Future deprecation of `moduleAliases`" section could state that `br/<alias>:`, `ts/<alias>:` and `br/public:` are permanent and only `moduleAliasesMock` may be deprecated.
-11. **Bare paths for implicit extensions:** `extension <name>` resolves a bare path from the `extensions` map relative to `bicepconfig.json`, but the same entry in `implicitExtensions` resolves relative to the referencing file (pinned in `ArtifactReferenceResolutionTests`). Unify on config-relative (a behavior change for implicit extensions), or keep both?
+11. **Bare paths for implicit extensions** *(out of scope)*: an `extensions` entry used through `implicitExtensions` resolves its bare path relative to the referencing file instead of `bicepconfig.json` (pinned in `ArtifactReferenceResolutionTests`). It's a configuration bug, fixed separately from REP 0022.

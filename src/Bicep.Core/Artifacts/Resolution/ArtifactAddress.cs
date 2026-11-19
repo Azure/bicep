@@ -29,9 +29,14 @@ public abstract record ArtifactAddress(string Text)
     /// </summary>
     public sealed record SchemeAndAliasQualified(string Text, string Scheme, string Alias, string Body) : ArtifactAddress(Text);
 
+    /// <summary>
+    /// A body qualified by an artifact alias, which is resolved through <c>artifacts.aliases</c>, e.g. <c>avm::res/storage/storage-account:0.32.1</c>.
+    /// </summary>
+    public sealed record AliasQualified(string Text, string Alias, string Body) : ArtifactAddress(Text);
+
     public static ArtifactAddress Parse(string text)
     {
-        // The first ':' separates the scheme (optionally followed by "/<alias>") from the body.
+        // The first ':' separates the scheme (optionally followed by "/<alias>") or the alias (followed by "::") from the body.
         var colonIndex = text.IndexOf(':');
         if (colonIndex < 0)
         {
@@ -39,6 +44,13 @@ public abstract record ArtifactAddress(string Text)
         }
 
         var prefix = text[..colonIndex];
+
+        // Checked before schemes, so that "br::x" is the alias "br", not the scheme "br".
+        if (text.AsSpan(colonIndex + 1).StartsWith(':') && IsAliasName(prefix))
+        {
+            return new AliasQualified(text, prefix, text[(colonIndex + 2)..]);
+        }
+
         var body = text[(colonIndex + 1)..];
 
         var slashIndex = prefix.IndexOf('/');
@@ -49,4 +61,7 @@ public abstract record ArtifactAddress(string Text)
 
         return new SchemeAndAliasQualified(text, prefix[..slashIndex], prefix[(slashIndex + 1)..], body);
     }
+
+    private static bool IsAliasName(string value) =>
+        value.Length > 0 && value.All(c => char.IsAsciiLetterOrDigit(c) || c is '_' or '-');
 }

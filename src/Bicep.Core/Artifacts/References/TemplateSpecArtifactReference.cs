@@ -20,13 +20,15 @@ namespace Bicep.Core.Artifacts.References
         private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         private TemplateSpecArtifactReference(TemplateSpecArtifactContext context, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
-            : base(context, ArtifactSchemes.TemplateSpecs, ArtifactType.Module)
+            : base(context, ArtifactType.Module)
         {
             this.SubscriptionId = subscriptionId;
             this.ResourceGroupName = resourceGroupName;
             this.TemplateSpecName = templateSpecName;
             this.Version = version;
         }
+
+        public override string FullyQualifiedReference => $"{ArtifactSchemes.TemplateSpecs}:{this.UnqualifiedReference}";
 
         public override string UnqualifiedReference => $"{this.SubscriptionId}/{this.ResourceGroupName}/{this.TemplateSpecName}:{this.Version}";
 

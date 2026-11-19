@@ -7,14 +7,10 @@ namespace Bicep.Core.Artifacts.References
 {
     public static partial class OciArtifactReferenceFacts
     {
-        public const string Scheme = "br";
-
         /// <summary>
         /// A scheme that earlier Bicep versions used internally for <c>moduleAliasesMock</c> hits. References that use it are rejected.
         /// </summary>
         public const string MockedScheme = "br-mock";
-
-        public const string SchemeWithColon = Scheme + ":";
 
         public const int MaxRegistryLength = 255;
 

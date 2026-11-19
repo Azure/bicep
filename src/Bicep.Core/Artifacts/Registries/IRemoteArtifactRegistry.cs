@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Diagnostics;
@@ -13,9 +14,9 @@ namespace Bicep.Core.Artifacts.Registries
     public interface IRemoteArtifactRegistry
     {
         /// <summary>
-        /// Gets the scheme used by this registry in artifact references.
+        /// Gets the schemes that name this registry's artifacts in artifact references.
         /// </summary>
-        string Scheme { get; }
+        ImmutableArray<string> Schemes { get; }
 
         /// <summary>
         /// Returns true if this registry handles the specified reference.

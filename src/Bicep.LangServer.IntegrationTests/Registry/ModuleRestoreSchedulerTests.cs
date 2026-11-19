@@ -161,7 +161,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
         {
             public ConcurrentStack<IEnumerable<RemoteArtifactReference>> ModuleRestores { get; } = new();
 
-            public string Scheme => "mock";
+            public ImmutableArray<string> Schemes { get; } = ["mock"];
 
             public bool CanHandle(RemoteArtifactReference reference) => reference is MockArtifactRef;
 
@@ -177,12 +177,14 @@ namespace Bicep.LangServer.IntegrationTests.Registry
         private class MockArtifactRef : RemoteArtifactReference
         {
             public MockArtifactRef(BicepSourceFile referencingFile, string value)
-                : base(TemplateSpecArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), "mock", ArtifactType.Module)
+                : base(TemplateSpecArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), ArtifactType.Module)
             {
                 this.Value = value;
             }
 
             public string Value { get; }
+
+            public override string FullyQualifiedReference => $"mock:{this.Value}";
 
             public override string UnqualifiedReference => this.Value;
         }

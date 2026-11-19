@@ -5,6 +5,7 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Registries;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.RegistryClients.Oci;
@@ -32,11 +33,11 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static OciArtifactReference ParseModuleReference(string moduleId /* with or without br: */, Uri? parentModuleUri = null)
         {
-            if (moduleId.StartsWith(OciArtifactReferenceFacts.SchemeWithColon))
+            if (ArtifactAddress.Parse(moduleId) is ArtifactAddress.SchemeQualified { Scheme: ArtifactSchemes.Br, Body: var body })
             {
-                moduleId = moduleId[OciArtifactReferenceFacts.SchemeWithColon.Length..];
+                moduleId = body;
             }
-            OciArtifactReference.TryParse(OciArtifactContext.Create(BicepTestConstants.DummyBicepFile.LoadConfiguration(), BicepTestConstants.DummyBicepFile.LoadFeatures()), ArtifactType.Module, null, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(OciArtifactContext.Create(BicepTestConstants.DummyBicepFile.LoadConfiguration(), BicepTestConstants.DummyBicepFile.LoadFeatures()), ArtifactType.Module, null, ArtifactSchemes.Br, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 
