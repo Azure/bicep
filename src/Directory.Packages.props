@@ -16,12 +16,12 @@
     <PackageVersion Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
     <PackageVersion Include="Azure.Containers.ContainerRegistry" Version="1.4.0" />
     <PackageVersion Include="Azure.Deployments.Engine" Version="1.812.0" />
-    <PackageVersion Include="Azure.Deployments.Extensibility.Core" Version="0.1.246" />
+    <PackageVersion Include="Azure.Deployments.Extensibility.Core" Version="0.1.67" />
     <PackageVersion Include="Azure.Deployments.Internal.GenerateNotice" Version="0.1.60" />
     <PackageVersion Include="Azure.Deployments.Templates" Version="1.812.0" />
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
     <PackageVersion Include="Azure.ResourceManager.ResourceGraph" Version="1.1.1" />
-    <PackageVersion Include="Azure.ResourceManager.Resources" Version="1.12.0" />
+    <PackageVersion Include="Azure.ResourceManager.Resources" Version="1.11.2" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
     <PackageVersion Include="DiffPlex" Version="1.9.0" />
@@ -56,7 +56,7 @@
     <PackageVersion Include="Microsoft.Extensions.Http" Version="11.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="11.0.0" />
     <PackageVersion Include="Microsoft.IO.Redist" Version="6.1.0" />
-    <PackageVersion Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="10.0.14" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
     <PackageVersion Include="Microsoft.Net.Compilers.Toolset" Version="4.12.0" />
     <PackageVersion Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2129" />
@@ -80,11 +80,11 @@
     <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="1.2.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Msagl" Version="1.2.1" />
-    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageVersion Include="Newtonsoft.Json.Schema" Version="4.0.2" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="Newtonsoft.Json.Schema" Version="4.0.1" />
     <PackageVersion Include="NuGet.CommandLine" Version="6.6.2" />
-    <PackageVersion Include="OmniSharp.Extensions.LanguageClient" Version="0.19.11" />
-    <PackageVersion Include="OmniSharp.Extensions.LanguageServer" Version="0.19.11" />
+    <PackageVersion Include="OmniSharp.Extensions.LanguageClient" Version="0.19.9" />
+    <PackageVersion Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
     <PackageVersion Include="OrasProject.Oras" Version="0.9.0" />
     <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
     <PackageVersion Include="RichardSzalay.MockHttp" Version="7.1.0" />
@@ -97,7 +97,7 @@
     <PackageVersion Include="SharpYaml" Version="3.17.0" />
     <PackageVersion Include="Spectre.Console" Version="0.57.2" />
     <PackageVersion Include="Spectre.Console.Testing" Version="0.57.2" />
-    <PackageVersion Include="StreamJsonRpc" Version="2.26.150" />
+    <PackageVersion Include="StreamJsonRpc" Version="2.20.20" />
     <PackageVersion Include="System.CommandLine" Version="3.0.0" />
     <PackageVersion Include="System.Collections.Immutable" Version="11.0.0" />
     <PackageVersion Include="TestableIO.System.IO.Abstractions.Wrappers" Version="23.0.0" />

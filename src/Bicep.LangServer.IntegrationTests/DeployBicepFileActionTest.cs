@@ -342,7 +342,7 @@ namespace Bicep.LangServer.IntegrationTests
                 It.IsAny<string>(),
                 It.IsAny<JsonElement>(),
                 It.IsAny<IDeploymentOperationsCache>()
-            ).Result).Returns(new BicepDeploymentStartResponse(true, "", null)); ;
+            )).ReturnsAsync(new BicepDeploymentStartResponse(true, "", null));
 
             using var helper = await LanguageServerHelper.StartServerWithText(
                 TestContext,
