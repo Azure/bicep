@@ -46,6 +46,7 @@ export class DeployPaneView extends Disposable {
 
   private readyToRender = false;
   private document?: TextDocument;
+  private deploymentDocumentUri: Uri;
 
   private constructor(
     private readonly extensionContext: ExtensionContext,
@@ -58,6 +59,7 @@ export class DeployPaneView extends Disposable {
   ) {
     super();
 
+    this.deploymentDocumentUri = documentUri;
     this.onDidDisposeEmitter = new EventEmitter<void>();
     this.onDidChangeViewStateEmitter = this.register(new EventEmitter<WebviewPanelOnDidChangeViewStateEvent>());
     this.ready = new Promise((resolve) => (this.resolveReady = resolve));
@@ -159,7 +161,7 @@ export class DeployPaneView extends Disposable {
     }
 
     try {
-      this.document = await workspace.openTextDocument(this.documentUri);
+      this.document = await workspace.openTextDocument(this.deploymentDocumentUri);
     } catch {
       this.webviewPanel.webview.html = this.createDocumentNotFoundHtml();
       return;
@@ -180,7 +182,7 @@ export class DeployPaneView extends Disposable {
     try {
       await this.webviewPanel.webview.postMessage(
         createDeploymentDataMessage(
-          this.documentUri.fsPath,
+          this.deploymentDocumentUri.fsPath,
           deploymentData.localDeployEnabled,
           deploymentData.templateJson,
           deploymentData.parametersJson,
@@ -223,8 +225,27 @@ export class DeployPaneView extends Disposable {
         const parametersFileUri = await this.prompts.showOpenDialog({
           canSelectMany: false,
           openLabel: "Select Parameters file",
-          filters: { "Parameters files": ["json"] },
+          filters: { "Parameters files": ["json", "bicepparam"] },
         });
+        if (parametersFileUri[0].fsPath.endsWith(".bicepparam")) {
+          const document = await workspace.openTextDocument(parametersFileUri[0]);
+          this.deploymentDocumentUri = parametersFileUri[0];
+          const deploymentData = await this.languageClient.sendRequest(getDeploymentDataRequestType, {
+            textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+          });
+
+          await this.webviewPanel.webview.postMessage(
+            createDeploymentDataMessage(
+              parametersFileUri[0].fsPath,
+              deploymentData.localDeployEnabled,
+              deploymentData.templateJson,
+              deploymentData.parametersJson,
+              deploymentData.errorMessage,
+            ),
+          );
+          return;
+        }
+
         const parameterFile = await readFile(parametersFileUri[0].fsPath, "utf-8");
         await this.webviewPanel.webview.postMessage(
           createPickParamsFileResultMessage(parametersFileUri[0].fsPath, parameterFile),
@@ -247,8 +268,9 @@ export class DeployPaneView extends Disposable {
         return;
       }
       case "LOCAL_DEPLOY": {
+        const document = await workspace.openTextDocument(this.deploymentDocumentUri);
         const result = await this.languageClient.sendRequest(localDeployRequestType, {
-          textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(this.document!),
+          textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
         });
 
         await this.webviewPanel.webview.postMessage(createLocalDeployResultMessage(result));
