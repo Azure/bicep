@@ -230,7 +230,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
         // Expecting errors
         [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.unexpected", null,
             // expected error:
-            "Error BCP192: Unable to restore.* artifacts of type: 'application/vnd.ms.bicep.module.unexpected'.*newer version of Bicep might be required to reference this artifact.")]
+            "Error BCP192: Unable to restore.* The artifact type \"application/vnd.ms.bicep.module.unexpected\" is not supported by this version of Bicep. A newer version of Bicep might be required to reference this artifact.")]
         public async Task Restore_Artifacts_BackwardsAndForwardsCompatibility(string? mediaType, string? artifactType, string? configContents, string? expectedErrorRegex = null)
         {
             var registry = "example.com";
@@ -294,23 +294,19 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         // *** Negative Cases ***
         [DataRow(
             new string[] { BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip },
-            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+            ".*The module has no compiled template layer \\(media type \"application\\/vnd.ms.bicep.module.layer.v1\\+json\"\\).*")]
         [DataRow(
             new string[] { },
-            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+            ".*The module has no compiled template layer \\(media type \"application\\/vnd.ms.bicep.module.layer.v1\\+json\"\\).*")]
         [DataRow(
             new string[] { "unknown", BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip },
-            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+            ".*The module has no compiled template layer \\(media type \"application\\/vnd.ms.bicep.module.layer.v1\\+json\"\\).*")]
         [DataRow(
             new string[] { "unknown2", "unknown1" },
-            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+            ".*The module has no compiled template layer \\(media type \"application\\/vnd.ms.bicep.module.layer.v1\\+json\"\\).*")]
         [DataRow(
             new string[] { BicepMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepModuleLayerV1Json },
-            $".*Did not expect to find multiple layer media types of application\\/vnd.ms.bicep.module.layer.v1\\+json")]
-        // TODO: doesn't work because extension error handling is still coupled with module error handling.
-        [DataRow(
-            new string[] { BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip, BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip },
-            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+            ".*The module has more than one compiled template layer \\(media type \"application\\/vnd.ms.bicep.module.layer.v1\\+json\"\\).*")]
         public async Task Restore_Artifacts_LayerMediaTypes(string[] layerMediaTypes, string expectedErrorRegex)
         {
             var registry = "example.com";

@@ -6,7 +6,6 @@ using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.LegacyModuleAliasMocks;
@@ -30,13 +29,11 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
 {
     private readonly IFileExplorer fileExplorer;
     private readonly IBicepConfigurationManager configurationManager;
-    private readonly IFeatureProviderFactory featureProviderFactory;
 
-    public ModuleAliasMockRule(IFileExplorer fileExplorer, IBicepConfigurationManager configurationManager, IFeatureProviderFactory featureProviderFactory)
+    public ModuleAliasMockRule(IFileExplorer fileExplorer, IBicepConfigurationManager configurationManager)
     {
         this.fileExplorer = fileExplorer;
         this.configurationManager = configurationManager;
-        this.featureProviderFactory = featureProviderFactory;
     }
 
     /// <summary>
@@ -45,7 +42,7 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
     /// </summary>
     public override ResultWithDiagnosticBuilder<ArtifactReference>? TryRedirect(IOUri referencingUri, ArtifactType artifactType, ArtifactAddress address)
     {
-        if (address is not ArtifactAddress.SchemeAndAliasQualified { Scheme: ArtifactSchemes.Oci, Alias: var aliasName, Body: var unqualifiedReference })
+        if (address is not ArtifactAddress.SchemeAndAliasQualified { Scheme: ArtifactSchemes.Br, Alias: var aliasName, Body: var unqualifiedReference })
         {
             return null;
         }
@@ -75,8 +72,7 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
         // config is resolved from that base config's directory, not the leaf's.
         var resolveBaseUri = mockAlias.DeclaringConfigUri ?? configFileUri;
 
-        var cacheRootDirectory = this.featureProviderFactory.GetFeatureProvider(referencingUri).CacheRootDirectory;
-        if (!TryCreateReference(cacheRootDirectory, mockAlias.MapToFilePath, resolveBaseUri, unqualifiedReference, this.fileExplorer, aliasName).IsSuccess(out var mockedReference, out var failureBuilder))
+        if (!TryCreateReference(mockAlias.MapToFilePath, resolveBaseUri, unqualifiedReference, this.fileExplorer, aliasName).IsSuccess(out var mockedReference, out var failureBuilder))
         {
             return new(failureBuilder);
         }
@@ -109,7 +105,6 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
     /// <paramref name="mapToFilePath"/> is resolved against <paramref name="configFileUri"/>.
     /// </summary>
     public static ResultWithDiagnosticBuilder<LocalArtifactReference> TryCreateReference(
-        IDirectoryHandle cacheRootDirectory,
         string mapToFilePath,
         IOUri configFileUri,
         string unqualifiedReference,
@@ -156,6 +151,6 @@ public sealed class ModuleAliasMockRule : ArtifactRedirectRule
         var moduleFileUri = baseUri.Resolve(modulePath + ".bicep");
 
         // Diagnostics show the module path as an OCI reference without a registry, tag or digest.
-        return new(new LocalArtifactReference(cacheRootDirectory, ArtifactType.Module, fileExplorer.GetFile(moduleFileUri), $"{OciArtifactReferenceFacts.Scheme}:{modulePath}"));
+        return new(new LocalArtifactReference(ArtifactType.Module, fileExplorer.GetFile(moduleFileUri), $"{ArtifactSchemes.Br}:{modulePath}"));
     }
 }

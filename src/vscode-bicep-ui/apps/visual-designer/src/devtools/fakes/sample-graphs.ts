@@ -4,7 +4,7 @@
 import type { GraphNodeSourceStatus } from "@/core";
 
 /**
- * The dev playground's stand-in for the document a language server would compile. The toolbar
+ * The dev playground's stand-in for the document a language server would compile. The dev panel
  * switches between and mutates these, and `toGraph` turns one into the graph the protocol carries.
  *
  * Only the fields the graph needs are modelled; the rest are derived from the id and type.
@@ -652,7 +652,7 @@ const NESTED_RESOURCE_CONTAINER_GRAPH: SampleGraph = {
 };
 
 /**
- * Named sample graphs available in the dev toolbar.
+ * Named sample graphs available in the dev panel.
  */
 export const SAMPLE_GRAPHS: Record<string, SampleGraph | null> = {
   "Module graph": MODULE_GRAPH,
@@ -675,7 +675,14 @@ function getScope(id: string): string {
 }
 
 export interface GraphMutation {
+  /** Where the dev panel lists the mutation. */
+  group: "Nodes" | "Modules" | "Edges";
+  /** The whole name, such as "Add node", for screen readers and test IDs. */
   label: string;
+  /** What the dev panel shows within its group, such as "Add". */
+  action: string;
+  /** The Codicon shown with the action. */
+  icon: string;
   description: string;
   apply: (graph: SampleGraph) => SampleGraph;
 }
@@ -683,7 +690,10 @@ export interface GraphMutation {
 /** All available mutations for testing incremental updates. */
 export const GRAPH_MUTATIONS: GraphMutation[] = [
   {
-    label: "+\u00a0Add node",
+    group: "Nodes",
+    label: "Add node",
+    action: "Add",
+    icon: "add",
     description: "Append a new top-level resource node and an edge to the first top-level node",
     apply: (graph) => {
       const index = graph.nodes.filter((n) => !n.hasChildren).length + 1;
@@ -707,7 +717,10 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
     },
   },
   {
-    label: "+ Add module",
+    group: "Modules",
+    label: "Add module",
+    action: "Add",
+    icon: "add",
     description: "Add a new module with a child resource",
     apply: (graph) => {
       const index = graph.nodes.filter((n) => n.type === "<module>").length + 1;
@@ -736,7 +749,10 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
     },
   },
   {
-    label: "− Remove last node",
+    group: "Nodes",
+    label: "Remove last node",
+    action: "Remove last",
+    icon: "trash",
     description: "Remove the last atomic node and any edges referencing it",
     apply: (graph) => {
       const atomicNodes = graph.nodes.filter((n) => !n.hasChildren);
@@ -750,7 +766,10 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
     },
   },
   {
-    label: "− Remove first node",
+    group: "Nodes",
+    label: "Remove first node",
+    action: "Remove first",
+    icon: "trash",
     description: "Remove the first atomic node and any edges referencing it",
     apply: (graph) => {
       const target = graph.nodes.find((n) => !n.hasChildren);
@@ -763,7 +782,10 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
     },
   },
   {
-    label: "− Remove module",
+    group: "Modules",
+    label: "Remove module",
+    action: "Remove",
+    icon: "trash",
     description: "Remove the last module and all its children, plus any edges referencing them",
     apply: (graph) => {
       const modules = graph.nodes.filter((n) => n.type === "<module>");
@@ -780,7 +802,10 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
     },
   },
   {
+    group: "Nodes",
     label: "Rename node",
+    action: "Rename",
+    icon: "edit",
     description: "Rename the first atomic node's ID (simulating a symbolic name change)",
     apply: (graph) => {
       const target = graph.nodes.find((n) => !n.hasChildren);
@@ -797,7 +822,10 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
     },
   },
   {
+    group: "Nodes",
     label: "Toggle error",
+    action: "Error",
+    icon: "error",
     description: "Toggle hasError on the first atomic node",
     apply: (graph) => {
       const target = graph.nodes.find((n) => !n.hasChildren);
@@ -810,7 +838,10 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
     },
   },
   {
+    group: "Nodes",
     label: "Toggle collection",
+    action: "Collection",
+    icon: "layers",
     description: "Toggle isCollection on the first atomic node",
     apply: (graph) => {
       const target = graph.nodes.find((n) => !n.hasChildren);
@@ -822,7 +853,10 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
     },
   },
   {
-    label: "+\u00a0Add edge",
+    group: "Edges",
+    label: "Add edge",
+    action: "Add",
+    icon: "add",
     description: "Add an edge between two unconnected nodes in the same scope",
     apply: (graph) => {
       const nodeIds = graph.nodes.filter((n) => !n.hasChildren).map((n) => n.id);
@@ -845,7 +879,10 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
     },
   },
   {
-    label: "− Remove edge",
+    group: "Edges",
+    label: "Remove edge",
+    action: "Remove",
+    icon: "trash",
     description: "Remove the last edge",
     apply: (graph) => ({
       ...graph,

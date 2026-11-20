@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Core.Artifacts.Cache;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Tracing;
-using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Artifacts.Registries
 {
@@ -16,11 +16,11 @@ namespace Bicep.Core.Artifacts.Registries
     public abstract class RemoteArtifactRegistry<TArtifactReference> : IRemoteArtifactRegistry
         where TArtifactReference : RemoteArtifactReference
     {
-        public abstract string Scheme { get; }
+        public abstract ImmutableArray<string> Schemes { get; }
 
         public bool CanHandle(RemoteArtifactReference reference) => reference is TArtifactReference;
 
-        public IFileHandle? TryGetEntryPoint(RemoteArtifactReference reference) => this.TryGetEntryPoint(ConvertReference(reference));
+        public Artifact? TryOpen(RemoteArtifactReference reference) => this.TryOpen(ConvertReference(reference));
 
         public async Task<IDictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreAsync(IEnumerable<RemoteArtifactReference> references, RestoreMode mode)
         {
@@ -44,8 +44,8 @@ namespace Bicep.Core.Artifacts.Registries
 
         protected abstract ArtifactCacheEntry GetCacheEntry(TArtifactReference reference);
 
-        protected virtual IFileHandle? TryGetEntryPoint(TArtifactReference reference) =>
-            this.GetCacheEntry(reference) is { IsComplete: true } cacheEntry ? cacheEntry.EntryPoint : null;
+        protected virtual Artifact? TryOpen(TArtifactReference reference) =>
+            this.GetCacheEntry(reference) is { IsComplete: true } cacheEntry ? cacheEntry.Open(reference) : null;
 
         protected abstract Task<IDictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<TArtifactReference> references);
 

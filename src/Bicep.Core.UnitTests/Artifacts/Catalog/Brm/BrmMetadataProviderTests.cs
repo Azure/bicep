@@ -1148,6 +1148,20 @@ namespace Bicep.Core.UnitTests.Artifacts.Catalog.Brm
         }
 
         [TestMethod]
+        [DataRow("1.9.0,1.10.0,1.10.0-preview", "1.9.0,1.10.0-preview,1.10.0")]
+        [DataRow("Zoo,alpha,BETA,2.0.0,10.0.0", "10.0.0,2.0.0,alpha,BETA,Zoo")]
+        [DataRow("", "")]
+        public void GetModuleVersions_UsesRegistryTagOrdering(string tags, string expectedTags)
+        {
+            var entry = new BrmIndexEntry(
+                "bicep/modules",
+                [.. tags.Split(',', StringSplitOptions.RemoveEmptyEntries)],
+                []);
+
+            entry.Versions.Should().Equal(expectedTags.Split(',', StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        [TestMethod]
         public async Task GetModuleVersions_SortsBySemver()
         {
             BrmMetadataProvider provider = new(CreateTypedClient());

@@ -24,6 +24,10 @@ export interface GraphContextValue {
   events: GraphNodeEvents;
   /** Whether nodes snap to new positions and shapes rather than animating. */
   reduceMotion: boolean;
+  /** Let node presses reach the viewport's pan gesture instead of moving nodes. */
+  panOnNodeDrag: boolean;
+  /** Let an Alt, Ctrl, or Cmd press on a node reach the viewport's marquee instead of moving the node. */
+  marqueeOnModifiedDrag: boolean;
   /** Back-to-front order of nodes and edges. */
   paintOrderAtom: Atom<PaintOrder>;
 }
@@ -57,5 +61,7 @@ export function createPaintOrderAtom(raisedNodeIdsAtom: Atom<readonly string[]> 
 export const GraphContext = createContext<GraphContextValue>({
   events: IGNORE_NODE_EVENTS,
   reduceMotion: false,
+  panOnNodeDrag: false,
+  marqueeOnModifiedDrag: false,
   paintOrderAtom: createPaintOrderAtom(undefined),
 });

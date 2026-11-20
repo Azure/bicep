@@ -10,7 +10,6 @@ using Bicep.Core.Artifacts.Catalog;
 using Bicep.Core.Artifacts.Catalog.PrivateRegistries;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
-using Bicep.Core.Modules;
 using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.RegistryClients.Oci.Oras;
 using Bicep.Core.UnitTests.Mock;
@@ -38,15 +37,15 @@ public class OrasOciRegistryTransportTests
     public async Task PublicRegistriesDoNotRequireAzureCredentials(string registry)
     {
         using var http = new MockHttpMessageHandler();
-        var layer = new OciDescriptor("{}", BicepMediaTypes.BicepModuleLayerV1Json);
+        var (layer, layerData) = CreateBlob("{}", BicepMediaTypes.BicepModuleLayerV1Json);
         http.When($"https://{registry}/v2/{Repository}/manifests/v1").Respond(_ => ManifestResponse(CreateManifest(layer)));
-        http.When($"https://{registry}/v2/{Repository}/blobs/{layer.Digest}").Respond(_ => BlobResponse(layer.Data!));
+        http.When($"https://{registry}/v2/{Repository}/blobs/{layer.Digest}").Respond(_ => BlobResponse(layerData));
         var transport = CreateTransport(http);
 
         var result = await transport.PullArtifactAsync(Cloud, new OciArtifactAddressComponents(registry, Repository, "v1", null));
 
-        result.Should().BeOfType<OciModuleArtifactResult>();
-        result.GetMainLayer().Data.ToString().Should().Be("{}");
+        result.Manifest.ArtifactType.Should().Be(BicepMediaTypes.BicepModuleArtifactType);
+        result.TryGetLayer(BicepMediaTypes.BicepModuleLayerV1Json)!.ToString().Should().Be("{}");
     }
 
     [TestMethod]
@@ -137,7 +136,7 @@ public class OrasOciRegistryTransportTests
         http.When($"https://{Registry}/v2/_catalog*").Respond("application/json", """{"repositories":["modules/test"]}""");
         http.When($"https://{Registry}/v2/{Repository}/tags/list*")
             .Respond("application/json", """{"name":"modules/test","tags":["v2","v10","v1"]}""");
-        var layer = new OciDescriptor("{}", BicepMediaTypes.BicepModuleLayerV1Json);
+        var (layer, layerData) = CreateBlob("{}", BicepMediaTypes.BicepModuleLayerV1Json);
         foreach (var tag in new[] { "v1", "v2", "v10" })
         {
             var manifest = BinaryData.FromObjectAsJson(new OciManifest(
@@ -147,7 +146,7 @@ public class OrasOciRegistryTransportTests
                 OciManifestSerializationContext.Default.Options);
             http.When($"https://{Registry}/v2/{Repository}/manifests/{tag}").Respond(_ => ManifestResponse(manifest));
         }
-        http.When($"https://{Registry}/v2/{Repository}/blobs/{layer.Digest}").Respond(_ => BlobResponse(layer.Data!));
+        http.When($"https://{Registry}/v2/{Repository}/blobs/{layer.Digest}").Respond(_ => BlobResponse(layerData));
         var factory = StrictMock.Of<IOciRegistryTransportFactory>();
         factory.Setup(x => x.GetTransport(Registry, true)).Returns(CreateTransport(http));
         var provider = new PrivateAcrModuleMetadataProvider(Cloud, Registry, factory.Object, useOrasSdk: true);
@@ -165,7 +164,7 @@ public class OrasOciRegistryTransportTests
     public async Task ResolveDoesNotDownloadLayers()
     {
         using var http = new MockHttpMessageHandler();
-        var layer = new OciDescriptor("{}", BicepMediaTypes.BicepModuleLayerV1Json);
+        var (layer, layerData) = CreateBlob("{}", BicepMediaTypes.BicepModuleLayerV1Json);
         http.Expect(HttpMethod.Get, ManifestUrl).Respond(_ => ManifestResponse(CreateManifest(layer)));
         var transport = CreateTransport(http);
         await using var session = transport.CreateSession(Cloud, Registry, Repository);
@@ -184,7 +183,7 @@ public class OrasOciRegistryTransportTests
     public async Task PullValidatesBlobsAgainstManifestDescriptors(string corruptContent)
     {
         using var http = new MockHttpMessageHandler();
-        var layer = new OciDescriptor("{}", BicepMediaTypes.BicepModuleLayerV1Json);
+        var (layer, layerData) = CreateBlob("{}", BicepMediaTypes.BicepModuleLayerV1Json);
         http.When(ManifestUrl).Respond(_ => ManifestResponse(CreateManifest(layer)));
         http.When($"https://{Registry}/v2/{Repository}/blobs/{layer.Digest}")
             .Respond(_ => BlobResponse(BinaryData.FromString(corruptContent)));
@@ -205,14 +204,14 @@ public class OrasOciRegistryTransportTests
     public async Task PullRejectsMismatchedDescriptorSizesWithoutPreallocating(long size, bool isConfig)
     {
         using var http = new MockHttpMessageHandler();
-        var layer = new OciDescriptor("{}", isConfig ? BicepMediaTypes.BicepModuleConfigV1 : BicepMediaTypes.BicepModuleLayerV1Json);
+        var (layer, layerData) = CreateBlob("{}", isConfig ? BicepMediaTypes.BicepModuleConfigV1 : BicepMediaTypes.BicepModuleLayerV1Json);
         var descriptor = new OciDescriptor(layer.MediaType, layer.Digest, size, null);
         var manifest = BinaryData.FromObjectAsJson(new OciManifest(
             2, BicepMediaTypes.OciImageManifest, BicepMediaTypes.BicepModuleArtifactType,
             isConfig ? descriptor : new OciDescriptor("{}", BicepMediaTypes.BicepModuleConfigV1),
             isConfig ? [] : [descriptor], []), OciManifestSerializationContext.Default.Options);
         http.When(ManifestUrl).Respond(_ => ManifestResponse(manifest));
-        http.When($"https://{Registry}/v2/{Repository}/blobs/{layer.Digest}").Respond(_ => BlobResponse(layer.Data!));
+        http.When($"https://{Registry}/v2/{Repository}/blobs/{layer.Digest}").Respond(_ => BlobResponse(layerData));
 
         var action = () => CreateTransport(http).PullArtifactAsync(Cloud, new OciArtifactAddressComponents(Registry, Repository, "v1", null));
 
@@ -223,10 +222,10 @@ public class OrasOciRegistryTransportTests
     public async Task PullDoesNotPreallocateDeclaredLayerSize()
     {
         using var http = new MockHttpMessageHandler();
-        var layer = new OciDescriptor("{}", BicepMediaTypes.BicepModuleLayerV1Json);
+        var (layer, layerData) = CreateBlob("{}", BicepMediaTypes.BicepModuleLayerV1Json);
         var descriptor = new OciDescriptor(layer.MediaType, layer.Digest, Array.MaxLength, null);
         http.When(ManifestUrl).Respond(_ => ManifestResponse(CreateManifest(descriptor)));
-        http.When($"https://{Registry}/v2/{Repository}/blobs/{layer.Digest}").Respond(_ => BlobResponse(layer.Data!));
+        http.When($"https://{Registry}/v2/{Repository}/blobs/{layer.Digest}").Respond(_ => BlobResponse(layerData));
 
         var action = () => CreateTransport(http).PullArtifactAsync(Cloud, new OciArtifactAddressComponents(Registry, Repository, "v1", null));
 
@@ -237,27 +236,27 @@ public class OrasOciRegistryTransportTests
     public async Task PullValidatesContentAcrossBufferBoundaries()
     {
         using var http = new MockHttpMessageHandler();
-        var layer = new OciDescriptor(new string('a', 200000), BicepMediaTypes.BicepModuleLayerV1Json);
+        var (layer, layerData) = CreateBlob(new string('a', 200000), BicepMediaTypes.BicepModuleLayerV1Json);
         http.When(ManifestUrl).Respond(_ => ManifestResponse(CreateManifest(layer)));
-        http.When($"https://{Registry}/v2/{Repository}/blobs/{layer.Digest}").Respond(_ => BlobResponse(layer.Data!));
+        http.When($"https://{Registry}/v2/{Repository}/blobs/{layer.Digest}").Respond(_ => BlobResponse(layerData));
 
         var result = await CreateTransport(http).PullArtifactAsync(Cloud, new OciArtifactAddressComponents(Registry, Repository, "v1", null));
 
-        result.GetMainLayer().Data.ToMemory().Span.SequenceEqual(layer.Data!.ToMemory().Span).Should().BeTrue();
+        result.TryGetLayer(BicepMediaTypes.BicepModuleLayerV1Json)!.ToMemory().Span.SequenceEqual(layerData.ToMemory().Span).Should().BeTrue();
     }
 
     [TestMethod]
     public async Task PullReportsMissingBlobsAsInvalidArtifact()
     {
         using var http = new MockHttpMessageHandler();
-        var layer = new OciDescriptor("{}", BicepMediaTypes.BicepModuleLayerV1Json);
+        var (layer, layerData) = CreateBlob("{}", BicepMediaTypes.BicepModuleLayerV1Json);
         http.When(ManifestUrl).Respond(_ => ManifestResponse(CreateManifest(layer)));
         http.When($"https://{Registry}/v2/{Repository}/blobs/{layer.Digest}").Respond(HttpStatusCode.NotFound);
         var transport = CreateTransport(http);
 
         var action = () => transport.PullArtifactAsync(Cloud, new OciArtifactAddressComponents(Registry, Repository, "v1", null));
 
-        await action.Should().ThrowAsync<InvalidArtifactException>().WithMessage("*non-existent blob*");
+        await action.Should().ThrowAsync<InvalidArtifactException>().WithMessage("*blob that does not exist in the registry*");
     }
 
     [TestMethod]
@@ -341,13 +340,13 @@ public class OrasOciRegistryTransportTests
     {
         using var http = new MockHttpMessageHandler();
         var layers = Enumerable.Range(0, 11).Select(i =>
-            new OciDescriptor($"layer-{i}", i == 0 ? BicepMediaTypes.BicepModuleLayerV1Json : "application/octet-stream")).ToArray();
-        http.When(ManifestUrl).Respond(_ => ManifestResponse(CreateManifest(layers)));
+            CreateBlob($"layer-{i}", i == 0 ? BicepMediaTypes.BicepModuleLayerV1Json : "application/octet-stream")).ToArray();
+        http.When(ManifestUrl).Respond(_ => ManifestResponse(CreateManifest([.. layers.Select(layer => layer.Descriptor)])));
         var active = 0;
         var maximum = 0;
         var count = 0;
         var sync = new object();
-        foreach (var layer in layers)
+        foreach (var (layer, layerData) in layers)
         {
             http.When($"https://{Registry}/v2/{Repository}/blobs/{layer.Digest}").Respond(async _ =>
             {
@@ -364,7 +363,7 @@ public class OrasOciRegistryTransportTests
                     active--;
                 }
 
-                return BlobResponse(layer.Data!);
+                return BlobResponse(layerData);
             });
         }
 
@@ -372,7 +371,8 @@ public class OrasOciRegistryTransportTests
 
         maximum.Should().Be(5);
         count.Should().Be(11);
-        result.Layers.Select(layer => layer.Digest).Should().Equal(layers.Select(layer => layer.Digest));
+        result.Manifest.Layers.Select(layer => layer.Digest).Should().Equal(layers.Select(layer => layer.Descriptor.Digest));
+        result.BlobsByDigest.Should().HaveCount(11);
     }
 
     [TestMethod]
@@ -439,13 +439,17 @@ public class OrasOciRegistryTransportTests
             response.Headers.Add("Docker-Content-Digest", Digest(data));
             return response;
         });
-        var config = new OciDescriptor("{}", configType);
-        var layer = new OciDescriptor("payload", layerType);
+        var payload = OciArtifactPayload.Create(
+            artifactType,
+            new(configType, BinaryData.FromString("{}")),
+            [new(layerType, BinaryData.FromString("payload"))],
+            new OciManifestAnnotationsBuilder().WithDescription("description").Build());
+        var config = payload.Manifest.Config;
+        var layer = payload.Manifest.Layers.Single();
         var transport = CreateTransport(http);
         var reference = OciRegistryHelper.CreateModuleReference(Registry, Repository, "v1", null);
 
-        await transport.PushArtifactAsync(Cloud, reference, BicepMediaTypes.OciImageManifest, artifactType, config, [layer],
-            new OciManifestAnnotationsBuilder().WithDescription("description"));
+        await transport.PushArtifactAsync(Cloud, reference, payload);
 
         uploaded.Keys.Should().BeEquivalentTo(config.Digest, layer.Digest);
         uploaded[layer.Digest].ToString().Should().Be("payload");
@@ -475,6 +479,9 @@ public class OrasOciRegistryTransportTests
             2, BicepMediaTypes.OciImageManifest, BicepMediaTypes.BicepModuleArtifactType,
             new OciDescriptor("{}", BicepMediaTypes.BicepModuleConfigV1), [.. layers], []),
             OciManifestSerializationContext.Default.Options);
+
+    private static (OciDescriptor Descriptor, BinaryData Data) CreateBlob(string content, string mediaType) =>
+        (new OciDescriptor(content, mediaType), BinaryData.FromString(content));
 
     private static string Digest(BinaryData data) => OciDescriptor.ComputeDigest(OciDescriptor.AlgorithmIdentifierSha256, data);
 

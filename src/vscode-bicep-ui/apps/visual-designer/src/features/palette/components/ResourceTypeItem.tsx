@@ -7,6 +7,7 @@ import type { PaletteContentProps } from "./PaletteContent";
 import { AzureIcon } from "@vscode-bicep-ui/components";
 import { useCallback } from "react";
 import styled from "styled-components";
+import { GRABBING_CURSOR, HAND_CURSOR } from "@/ui";
 import { useResourceTypeVersions } from "../hooks/use-resource-type-versions";
 import { ApiVersionPicker } from "./ApiVersionPicker";
 
@@ -19,12 +20,12 @@ const $DragHandle = styled.div`
   align-self: stretch;
   gap: 8px;
   padding: 4px 0 4px 8px;
-  cursor: grab;
+  cursor: ${HAND_CURSOR};
   touch-action: none;
   user-select: none;
 
   &:active {
-    cursor: grabbing;
+    cursor: ${GRABBING_CURSOR};
   }
 `;
 

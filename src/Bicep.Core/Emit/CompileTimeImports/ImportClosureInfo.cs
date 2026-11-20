@@ -8,7 +8,6 @@ using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -126,7 +125,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
 
         return new([.. importedTypes.Values.OrderBy(dte => dte.Name)],
             [.. importedVariables.Values.OrderBy(dve => dve.Name)],
-            [.. importedFunctions.Values.OrderBy(dfe => dfe.Name)],
+            [.. importedFunctions.Values.OrderBy(dfe => dfe.Name).ThenBy(dfe => dfe.Namespace, StringComparer.Ordinal)],
             importedSymbolNames,
             wildcardImportPropertyNames,
             importedSymbolMetadata.ToImmutable());

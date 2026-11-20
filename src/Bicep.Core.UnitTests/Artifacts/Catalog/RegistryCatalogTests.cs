@@ -8,6 +8,7 @@ using System.Text.Json;
 using Bicep.Core.Artifacts.Catalog;
 using Bicep.Core.Artifacts.Catalog.Brm;
 using Bicep.Core.Artifacts.Catalog.PrivateRegistries;
+using Bicep.Core.Artifacts.Codecs;
 using Bicep.Core.Configuration;
 using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.RegistryClients.Oci.AzureSdk;
@@ -138,9 +139,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Catalog
             var reference = OciRegistryHelper.CreateModuleReference("example.azurecr.io", "modules/foo", "v1", null);
             var clientFactory = RegistryHelper.CreateMockRegistryClient(new RegistryHelper.RepoDescriptor(reference.Registry, reference.Repository, ["v1"]));
             var registryManager = new AzureContainerRegistryManager(clientFactory);
-            await registryManager.PushArtifactAsync(cloud, reference, BicepMediaTypes.OciImageManifest, BicepMediaTypes.BicepModuleArtifactType,
-                new("{}", BicepMediaTypes.BicepModuleConfigV1),
-                [new("{}", BicepMediaTypes.BicepModuleLayerV1Json)], new(), CancellationToken.None);
+            await registryManager.PushArtifactAsync(cloud, reference, OciModuleArtifactCodec.Encode(new(BinaryData.FromString("{}"), null, null)), CancellationToken.None);
             var artifact = await registryManager.PullArtifactAsync(cloud, reference, CancellationToken.None);
             var transport = StrictMock.Of<IOciRegistryTransport>();
             transport.Setup(x => x.GetRepositoryNamesAsync(cloud, reference.Registry, 10000, It.IsAny<CancellationToken>()))

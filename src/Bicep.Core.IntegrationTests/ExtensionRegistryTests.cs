@@ -168,7 +168,7 @@ public class ExtensionRegistryTests : TestBase
             """);
         await File.WriteAllBytesAsync(
             Path.Combine(tempDirectory, "extension.tgz"),
-            (await ExtensionArtifactArchiveCodec.Encode(new(ExtensionResourceTypeHelper.GetTestTypesTgz(), false, []))).ToArray());
+            (await LocalExtensionArtifactCodec.Encode(new(ExtensionResourceTypeHelper.GetTestTypesTgz(), []))).ToArray());
 
         var compilation = services.Build().GetCompiler().CreateCompilationWithoutRestore(PathHelper.FilePathToFileUrl(bicepPath).ToIOUri());
 
@@ -181,7 +181,7 @@ public class ExtensionRegistryTests : TestBase
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
         var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
-        var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, false, []));
+        var extensionTgz = await LocalExtensionArtifactCodec.Encode(new(typesTgz, []));
 
         var result = await CompilationHelper.RestoreAndCompile(
           ("main.bicep", new("""
@@ -203,7 +203,7 @@ resource fooRes 'fooType@v1' = {
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
         var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
-        var extensionTgz = await ExtensionArtifactArchiveCodec.Encode(new(typesTgz, false, []));
+        var extensionTgz = await LocalExtensionArtifactCodec.Encode(new(typesTgz, []));
 
         var result = await this.compiler.Compile(
             ("main.bicep", """
@@ -432,6 +432,28 @@ output baz string = fooRes.convertBarToBaz('bar')
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().HaveValueAtPath("$.outputs['baz'].value", "[invokeResourceMethod('fooRes', 'convertBarToBaz', createArray('bar'))]");
+    }
+
+    [TestMethod]
+    // microsoftGraph pins current behavior: an explicit "extension microsoftGraph" reports that the built-in was retired instead.
+    [DataRow("notConfigured")]
+    [DataRow("microsoftGraph")]
+    public async Task Implicit_extension_without_an_extensions_entry_reports_missing_configuration(string extensionName)
+    {
+        var fileSystem = new MockFileSystem();
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ExtensionResourceTypeHelper.GetTestTypesTgz(), AllFeaturesEnabled, fileSystem);
+
+        fileSystem.File.WriteAllText("/bicepconfig.json", $$"""
+            {
+              "implicitExtensions": ["{{extensionName}}"]
+            }
+            """);
+
+        var result = await CompilationHelper.RestoreAndCompile(services, "output o string = 'x'");
+
+        var diagnostic = result.ExcludingLinterDiagnostics().Diagnostics.Should().ContainSingle().Subject;
+        diagnostic.Code.Should().Be("BCP397");
+        diagnostic.Message.Should().StartWith($"Extension {extensionName} is incorrectly configured in the Bicep configuration");
     }
 
     [TestMethod]

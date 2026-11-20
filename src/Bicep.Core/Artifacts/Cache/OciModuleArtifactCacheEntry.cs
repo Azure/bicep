@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Artifacts.Packages;
+using Bicep.Core.Artifacts.References;
 using Bicep.Core.Extensions;
 using Bicep.Core.RegistryClients.Oci;
 using Bicep.IO.Abstraction;
@@ -18,16 +20,21 @@ namespace Bicep.Core.Artifacts.Cache
 
         public IFileHandle SourceTgzFile => this.GetFile("source.tgz");
 
-        public override IFileHandle EntryPoint => this.MainTemplateFile;
+        protected override IFileHandle ContentFile => this.MainTemplateFile;
 
-        protected override void WriteLayers(OciArtifactResult result, string artifactReference)
+        public override ModuleArtifact Open(ArtifactReference reference) => new(reference, this.MainTemplateFile, ModuleTemplateKind.ArmTemplate, this.SourceTgzFile);
+
+        /// <summary>
+        /// Writes a pulled module into the cache, unless another compilation already has.
+        /// </summary>
+        public Task WriteAsync(ModuleArtifactPackage package, OciArtifactPayload payload) => this.WriteAsync(payload, () =>
         {
-            this.MainTemplateFile.Write(result.GetMainLayer().Data);
+            this.MainTemplateFile.Write(package.Template);
 
-            if (result.TryGetSingleLayerByMediaType(BicepMediaTypes.BicepSourceV1Layer) is { } sourceData)
+            if (package.Sources is { } sources)
             {
-                this.SourceTgzFile.Write(sourceData);
+                this.SourceTgzFile.Write(sources);
             }
-        }
+        });
     }
 }

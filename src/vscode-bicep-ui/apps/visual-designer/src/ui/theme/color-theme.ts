@@ -207,6 +207,11 @@ export function createColorTheme(base: DefaultTheme, tokens: ColorThemeTokens): 
     edge: {
       color: isHighContrast ? formatColor(contrastBorder) : towardText(base.edge.color),
     },
+    // The marquee is drawn in the accent that rings the nodes it selects.
+    marquee: {
+      border: formatColor(accent),
+      background: formatColor(withAlpha(accent, isDark ? 0.12 : 0.08)),
+    },
     panel: {
       ...base.panel,
       // Floating chrome shares the node surface, as in the curated palettes.

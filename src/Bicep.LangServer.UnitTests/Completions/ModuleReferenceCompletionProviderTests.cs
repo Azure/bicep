@@ -728,6 +728,68 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [TestMethod]
+        [DataRow("br:contoso.azurecr.io/bicep/modules:", "1.9.0,10.0.0,1.10.0,2.0.0", "10.0.0,2.0.0,1.10.0,1.9.0")]
+        [DataRow("br/test:bicep/modules:", "v9.0.0,v10.0.0,v2.0.0,v100.0.0", "v100.0.0,v10.0.0,v9.0.0,v2.0.0")]
+        [DataRow("br:contoso.azurecr.io/bicep/modules:", "1.1.1-preview,1.1.0,1.1.1,1.1.1-preview.2,1.1.1-preview.10", "1.1.1,1.1.1-preview.10,1.1.1-preview.2,1.1.1-preview,1.1.0")]
+        [DataRow("br/test:bicep/modules:", "1.0.0-rc.1,1.0.0-alpha.beta,1.0.0,1.0.0-beta.11,1.0.0-beta.2,1.0.0-alpha.1,1.0.0-beta,1.0.0-alpha", "1.0.0,1.0.0-rc.1,1.0.0-beta.11,1.0.0-beta.2,1.0.0-beta,1.0.0-alpha.beta,1.0.0-alpha.1,1.0.0-alpha")]
+        [DataRow("br/public:bicep/modules:", "latest,1.9.0,1.10.0,dev", "latest,dev,1.9.0,1.10.0")]
+        [DataRow("br/test:bicep/modules:", "1.9,2,1.10,10", "2,10,1.9,1.10")]
+        [DataRow("br/test:bicep/modules:", "v9,v10,v2,v100", "v9,v2,v100,v10")]
+        [DataRow("br/test:bicep/modules:", "Zoo,alpha,BETA,2.0.0,10.0.0", "Zoo,BETA,alpha,2.0.0,10.0.0")]
+        [DataRow("br:mcr.microsoft.com/bicep/modules:", "1.9.0,1.10.0,1.10.0-preview", "1.10.0,1.10.0-preview,1.9.0")]
+        [DataRow("br:mcr.microsoft.com/bicep/modules:", "Zoo,alpha,BETA,2.0.0,10.0.0", "Zoo,BETA,alpha,2.0.0,10.0.0")]
+        [DataRow("br:contoso.azurecr.io/bicep/modules:", "", "")]
+        public async Task GetFilteredCompletions_WithVersionCompletionContext_SortsRegistryTagsDescending(
+            string reference,
+            string tags,
+            string expectedTags)
+        {
+            var bicepConfigFileContents = """
+                {
+                  "moduleAliases": {
+                    "br": {
+                      "test": {
+                        "registry": "contoso.azurecr.io"
+                      },
+                      "public": {
+                        "registry": "contoso.azurecr.io",
+                        "modulePath": ""
+                      }
+                    }
+                  }
+                }
+                """;
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
+                RegistryCatalogMocks.MockPublicMetadataProvider([
+                    ("bicep/modules", null, null, tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(tag => (tag, (string?)$"Description for {tag}", (string?)null)))
+                ]),
+                RegistryCatalogMocks.MockPrivateMetadataProvider(
+                    "contoso.azurecr.io",
+                    [("bicep/modules", null, null, tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(tag => new RegistryHelper.RepoTagDescriptor(tag, $"Description for {tag}")))]));
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext($"module test '{reference}|'", bicepConfigFileContents);
+            var provider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalog,
+                settingsProvider,
+                BicepTestConstants.TestRegistryConfiguration);
+            var completions = (await GetAndResolveCompletionItems(sourceFile, completionContext, provider))
+                .OrderBy(c => c.SortText, StringComparer.Ordinal)
+                .ToArray();
+
+            completions.Select(c => c.Label).Should().Equal(expectedTags.Split(',', StringSplitOptions.RemoveEmptyEntries));
+            for (int i = 0; i < completions.Length; i++)
+            {
+                var completion = completions[i];
+                completion.SortText.Should().Be(i.ToString().PadLeft(4, '0'));
+                completion.TextEdit!.TextEdit!.NewText.Should().Be($"'{reference}{completion.Label}'$0");
+                completion.Detail.Should().Be($"Description for {completion.Label}");
+            }
+        }
+
+        [TestMethod]
         public async Task GetFilteredCompletions_WithMcrVersionCompletionContext_AndNoMatchingModuleName_ReturnsEmptyListOfCompletionItems()
         {
             var catalog = new RegistryModuleCatalog(

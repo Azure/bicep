@@ -77,28 +77,24 @@ public class OrasOciRegistryTransport(
             return tags;
         }, cancellationToken, anonymousFirst: false, allowAnonymousFallback: true);
 
-    public async Task<OciArtifactResult> PullArtifactAsync(IBicepCloudConfiguration cloud, IOciArtifactAddressComponents artifactReference, CancellationToken cancellationToken = default)
+    public async Task<OciArtifactPayload> PullArtifactAsync(IBicepCloudConfiguration cloud, IOciArtifactAddressComponents artifactReference, CancellationToken cancellationToken = default)
     {
         Trace.WriteLine($"Pulling artifact {artifactReference.ArtifactId} using ORAS SDK.");
-        var result = await CreateSession(cloud, artifactReference.Registry, artifactReference.Repository).PullArtifactAsync(artifactReference, cancellationToken);
+        var payload = await CreateSession(cloud, artifactReference.Registry, artifactReference.Repository).PullArtifactAsync(artifactReference, cancellationToken);
         Trace.WriteLine($"Pulled artifact {artifactReference.ArtifactId} using ORAS SDK.");
- 
-        return result;
+
+        return payload;
     }
 
     public async Task PushArtifactAsync(
         IBicepCloudConfiguration cloud,
         IOciArtifactReference artifactReference,
-        string? mediaType,
-        string? artifactType,
-        OciDescriptor config,
-        IEnumerable<OciDescriptor> layers,
-        OciManifestAnnotationsBuilder annotations,
+        OciArtifactPayload payload,
         CancellationToken cancellationToken = default)
     {
         Trace.WriteLine($"Publishing artifact {artifactReference.ArtifactId} using ORAS SDK.");
         await CreateSession(cloud, artifactReference.Registry, artifactReference.Repository)
-            .PushAsync(artifactReference, mediaType, artifactType, config, layers, annotations, cancellationToken);
+            .PushAsync(artifactReference, payload, cancellationToken);
         Trace.WriteLine($"Published artifact {artifactReference.ArtifactId} using ORAS SDK.");
     }
 

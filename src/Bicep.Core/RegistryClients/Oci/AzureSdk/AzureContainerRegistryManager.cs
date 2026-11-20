@@ -13,7 +13,6 @@ using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.Registries;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
-using Bicep.Core.Modules;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OciDescriptor = Bicep.Core.RegistryClients.Oci.OciDescriptor;
 using OciManifest = Bicep.Core.RegistryClients.Oci.OciManifest;
@@ -141,12 +140,12 @@ namespace Bicep.Core.RegistryClients.Oci.AzureSdk
             }
         }
 
-        public async Task<OciArtifactResult> PullArtifactAsync(
+        public async Task<OciArtifactPayload> PullArtifactAsync(
             IBicepCloudConfiguration cloud,
             IOciArtifactAddressComponents artifactReference,
             CancellationToken cancellationToken = default)
         {
-            async Task<OciArtifactResult> DownloadManifestInternalAsync(bool anonymousAccess, CancellationToken cancellationToken)
+            async Task<OciArtifactPayload> DownloadManifestInternalAsync(bool anonymousAccess, CancellationToken cancellationToken)
             {
                 var client = CreateBlobClient(cloud, artifactReference, anonymousAccess);
                 return await DownloadManifestAndLayersAsync(artifactReference, client, cancellationToken);
@@ -179,23 +178,20 @@ namespace Bicep.Core.RegistryClients.Oci.AzureSdk
         public async Task PushArtifactAsync(
             IBicepCloudConfiguration cloud,
             IOciArtifactReference artifactReference,
-            string? mediaType,
-            string? artifactType,
-            OciDescriptor config,
-            IEnumerable<OciDescriptor> layers,
-            OciManifestAnnotationsBuilder annotations,
+            OciArtifactPayload payload,
             CancellationToken cancellationToken = default)
         {
             // push is not supported anonymously
             var blobClient = this.CreateBlobClient(cloud, artifactReference, anonymousAccess: false);
 
-            _ = await blobClient.UploadBlobAsync(config.Data, cancellationToken);
-
-            var layerDescriptors = layers.ToImmutableArray();
-            foreach (var layer in layerDescriptors)
+            if (payload.Config is { } config)
             {
-                layerDescriptors.Add(layer);
-                _ = await blobClient.UploadBlobAsync(layer.Data, cancellationToken);
+                _ = await blobClient.UploadBlobAsync(config, cancellationToken);
+            }
+
+            foreach (var layer in payload.Manifest.Layers)
+            {
+                _ = await blobClient.UploadBlobAsync(payload.GetLayer(layer), cancellationToken);
             }
 
             /* Sample artifact manifest:
@@ -221,12 +217,7 @@ namespace Bicep.Core.RegistryClients.Oci.AzureSdk
                 }
              */
 
-            var manifest = new OciManifest(2, mediaType, artifactType, config, layerDescriptors, annotations.Build());
-
-#pragma warning disable IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
-            var manifestBinaryData = BinaryData.FromObjectAsJson(manifest, OciManifestSerializationContext.Default.Options);
-#pragma warning restore IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
-            _ = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest, cancellationToken: cancellationToken);
+            _ = await blobClient.SetManifestAsync(payload.ManifestData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest, cancellationToken: cancellationToken);
         }
 
         private static Uri GetRegistryUri(IOciArtifactAddressComponents artifactReference) => GetRegistryUri(artifactReference.Registry);
@@ -246,7 +237,7 @@ namespace Bicep.Core.RegistryClients.Oci.AzureSdk
             ? this.clientFactory.CreateAnonymousContainerClient(cloud, registryUri)
             : this.clientFactory.CreateAuthenticatedContainerClient(cloud, registryUri);
 
-        private static async Task<OciArtifactResult> DownloadManifestAndLayersAsync(IOciArtifactAddressComponents artifactReference, ContainerRegistryContentClient client, CancellationToken cancellationToken)
+        private static async Task<OciArtifactPayload> DownloadManifestAndLayersAsync(IOciArtifactAddressComponents artifactReference, ContainerRegistryContentClient client, CancellationToken cancellationToken)
         {
             GetManifestResult manifestResult;
             try
@@ -278,28 +269,27 @@ namespace Bicep.Core.RegistryClients.Oci.AzureSdk
             ValidateManifestResponse(manifestResult);
 
             var deserializedManifest = OciManifest.FromBinaryData(manifestResult.Manifest) ?? throw new InvalidOperationException("the manifest is not a valid OCI manifest");
-            var layers = await PullLayersAsync(client, deserializedManifest.Layers);
-
-            var config = !deserializedManifest.Config.IsEmpty() ?
-                new OciArtifactLayer(deserializedManifest.Config.Digest, deserializedManifest.Config.MediaType, await PullLayerAsync(client, deserializedManifest.Config, cancellationToken)) :
-                null;
-
-            return deserializedManifest.ArtifactType switch
+            var blobsByDigest = ImmutableDictionary.CreateBuilder<string, BinaryData>();
+            foreach (var (layer, data) in await PullLayersAsync(client, deserializedManifest.Layers))
             {
-                BicepMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestResult.Manifest, manifestResult.Digest, layers),
-                BicepMediaTypes.BicepExtensionArtifactType => new OciExtensionArtifactResult(manifestResult.Manifest, manifestResult.Digest, layers, config),
-                _ => throw new InvalidArtifactException($"artifacts of type: \'{deserializedManifest.ArtifactType}\' are not supported by this Bicep version. {OciModuleArtifactResult.NewerVersionMightBeRequired}")
-            };
+                blobsByDigest[layer.Digest] = data;
+            }
+
+            if (!deserializedManifest.Config.IsEmpty())
+            {
+                blobsByDigest[deserializedManifest.Config.Digest] = await PullLayerAsync(client, deserializedManifest.Config, cancellationToken);
+            }
+
+            return new OciArtifactPayload(manifestResult.Manifest, blobsByDigest.ToImmutable());
         }
 
-        private static async Task<OciArtifactLayer[]> PullLayersAsync(ContainerRegistryContentClient client, IEnumerable<OciDescriptor> layers)
+        private static async Task<(OciDescriptor Layer, BinaryData Data)[]> PullLayersAsync(ContainerRegistryContentClient client, IEnumerable<OciDescriptor> layers)
         {
-            var pulledLayers = new List<OciArtifactLayer>();
+            var pulledLayers = new List<(OciDescriptor, BinaryData)>();
 
             foreach (var batch in layers.Chunk(MaxConcurrentLayerDownloads))
             {
-                var pulledBatch = await Task.WhenAll(batch.Select(async layer =>
-                    new OciArtifactLayer(layer.Digest, layer.MediaType, await PullLayerAsync(client, layer))));
+                var pulledBatch = await Task.WhenAll(batch.Select(async layer => (layer, await PullLayerAsync(client, layer))));
 
                 pulledLayers.AddRange(pulledBatch);
             }
@@ -316,7 +306,7 @@ namespace Bicep.Core.RegistryClients.Oci.AzureSdk
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
-                throw new InvalidArtifactException($"Module manifest refers to a non-existent blob with digest \"{layer.Digest}\".", exception);
+                throw new InvalidArtifactException($"The manifest refers to a blob that does not exist in the registry (digest \"{layer.Digest}\").", exception);
             }
 
             ValidateBlobResponse(blobResult, layer);

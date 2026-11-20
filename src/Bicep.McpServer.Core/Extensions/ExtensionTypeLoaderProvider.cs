@@ -93,15 +93,15 @@ public class ExtensionTypeLoaderProvider
         // RestoreAsync is a no-op if already cached on disk
         await restorer.RestoreAsync([reference], RestoreMode.IfMissing);
 
-        var fileHandle = restorer.GetRestoreState(reference) switch
+        var typesFile = restorer.GetRestoreState(reference) switch
         {
-            RemoteArtifactRestoreState.Restored restored => restored.EntryPoint,
+            RemoteArtifactRestoreState.Restored { Artifact: ExtensionArtifact artifact } => artifact.Types,
             RemoteArtifactRestoreState.RestoreFailed failed => throw new InvalidOperationException(
                 $"Failed to load extension '{extension.Name}:{tag}': {failed.Error(DiagnosticBuilder.ForDocumentStart()).Message}"),
             _ => throw new InvalidOperationException($"Failed to load extension '{extension.Name}:{tag}': the extension was not restored."),
         };
 
-        var typeLoader = ArchivedTypeLoader.FromFileHandle(fileHandle);
+        var typeLoader = ArchivedTypeLoader.FromFileHandle(typesFile);
         loaderCache.TryAdd(cacheKey, typeLoader);
 
         return typeLoader;

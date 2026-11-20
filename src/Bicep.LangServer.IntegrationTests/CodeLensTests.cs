@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive.Linq;
 using System.Reflection;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Restore;
 using Bicep.Core.Samples;
@@ -16,6 +17,7 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Features.Language.CodeLens;
 using Bicep.LanguageServer.Features.Language.DocumentLink;
@@ -55,7 +57,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         // If entrypointSource is not null, then a source archive will be created with the given entrypointSource, otherwise no source archive will be created.
-        private SharedLanguageHelperManager CreateServer(string? bicepModuleEntrypointPath, string? entrypointSource, string? sourceArchiveError = null)
+        private SharedLanguageHelperManager CreateServer(string? bicepModuleEntrypointPath, string? entrypointSource, string? sourceArchiveError = null, bool restored = true)
         {
             var sourceTgzFileMock = StrictMock.Of<IFileHandle>();
             sourceTgzFileMock.Setup(x => x.Exists()).Returns(false);
@@ -76,23 +78,18 @@ namespace Bicep.LangServer.IntegrationTests
                 }
             }
 
-            var cacheDirectoryMock = StrictMock.Of<IDirectoryHandle>();
-            cacheDirectoryMock.Setup(x => x.GetFile("source.tgz")).Returns(sourceTgzFileMock.Object);
-
-            var cacheRootDirectoryMock = StrictMock.Of<IDirectoryHandle>();
-            cacheRootDirectoryMock.Setup(x => x.GetDirectory(It.IsAny<string>())).Returns(cacheDirectoryMock.Object);
-
             var restorer = StrictMock.Of<IRemoteArtifactRestorer>();
             restorer.Setup(x => x.RestoreAsync(It.IsAny<ImmutableArray<RemoteArtifactReference>>(), It.IsAny<RestoreMode>())).
                 ReturnsAsync(true);
+            restorer.Setup(x => x.GetRestoreState(It.IsAny<RemoteArtifactReference>())).Returns((RemoteArtifactReference reference) => restored
+                ? new RemoteArtifactRestoreState.Restored(new ModuleArtifact(reference, DummyFileHandle.Default, ModuleTemplateKind.ArmTemplate, sourceTgzFileMock.Object))
+                : new RemoteArtifactRestoreState.NotRestored());
 
             var defaultServer = new SharedLanguageHelperManager();
             defaultServer.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     TestContext,
-                    services => services
-                        .WithRemoteArtifactRestorer(restorer.Object)
-                        .WithFeatureOverrides(new(cacheRootDirectoryMock.Object))));
+                    services => services.WithRemoteArtifactRestorer(restorer.Object)));
             return defaultServer;
         }
 
@@ -223,6 +220,25 @@ namespace Bicep.LangServer.IntegrationTests
             lens.Should().HaveRange(new Range(0, 0, 0, 0));
             lens.Should().HaveCommandName("");
             lens.Should().HaveCommandTitle("No source code is available for this module");
+            lens.Should().HaveNoCommandArguments();
+        }
+
+        [TestMethod]
+        public async Task DisplayingModuleCompiledJsonFile_AndModuleNotRestored_ShouldHaveCodeLens_ToExplainWhyNoSources()
+        {
+            var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
+
+            await using var server = CreateServer("module entrypoint.bicep", "// module entrypoint", restored: false);
+            var helper = await server.GetAsync();
+            await helper.OpenFileOnceAsync(this.TestContext, string.Empty, uri);
+
+            var externalSourceUri = new ExternalSourceReference("title", "br:myregistry.azurecr.io/myrepo/bicep/module1:v1", null /* main.json */).ToUri();
+            var lenses = await GetExternalSourceCodeLenses(helper, externalSourceUri);
+
+            lenses.Should().HaveCount(1);
+            var lens = lenses.First();
+            lens.Should().HaveCommandName("");
+            lens.Should().HaveCommandTitle("The module 'br:myregistry.azurecr.io/myrepo/bicep/module1:v1' has not been restored.");
             lens.Should().HaveNoCommandArguments();
         }
 

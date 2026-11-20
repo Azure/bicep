@@ -7,7 +7,7 @@ import type { GraphNodeSourceStatus } from "./api";
 import type { ClientGraph, ClientGraphNode } from "./graph-model";
 
 import { layoutReadyAtom, setGraphAtom } from "@/lib/graph";
-import { pendingSubgraphLayoutsAtom, shownGraphAtom } from "./atoms";
+import { pendingSubgraphLayoutsAtom, selectedNodeIdsAtom, shownGraphAtom } from "./atoms";
 import { isCollapsible, isDescendant } from "./graph-model";
 import { getCentroid, getNodePositions, getPositionedNodeIds, setNodePositions } from "./node-positions";
 
@@ -79,6 +79,10 @@ export function showGraph(
   { origins = new Map(), getDefaultOrigin, placeholderNodeIds = new Set() }: ShowGraphOptions,
 ): string[] {
   store.set(shownGraphAtom, graph);
+  const selection = store.get(selectedNodeIdsAtom);
+  if ([...selection].some((id) => !graph.nodes.has(id))) {
+    store.set(selectedNodeIdsAtom, new Set([...selection].filter((id) => graph.nodes.has(id))));
+  }
 
   if (graph.nodes.size === 0) {
     // Hide the canvas again, so the next graph does not flash at its spawn point.

@@ -5,9 +5,9 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Artifacts.Registries;
+using Bicep.Core.Artifacts.Resolution;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
-using Bicep.Core.Modules;
 using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.SourceGraph;
@@ -33,11 +33,11 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static OciArtifactReference ParseModuleReference(string moduleId /* with or without br: */, Uri? parentModuleUri = null)
         {
-            if (moduleId.StartsWith(OciArtifactReferenceFacts.SchemeWithColon))
+            if (ArtifactAddress.Parse(moduleId) is ArtifactAddress.SchemeQualified { Scheme: ArtifactSchemes.Br, Body: var body })
             {
-                moduleId = moduleId[OciArtifactReferenceFacts.SchemeWithColon.Length..];
+                moduleId = body;
             }
-            OciArtifactReference.TryParse(OciArtifactContext.Create(BicepTestConstants.DummyBicepFile.LoadConfiguration(), BicepTestConstants.DummyBicepFile.LoadFeatures()), ArtifactType.Module, null, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(OciArtifactContext.Create(BicepTestConstants.DummyBicepFile.LoadConfiguration(), BicepTestConstants.DummyBicepFile.LoadFeatures()), ArtifactType.Module, null, ArtifactSchemes.Br, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 
@@ -104,18 +104,14 @@ namespace Bicep.Core.UnitTests.Utils
             var containerRegistryManager = new AzureContainerRegistryManager(clientFactory.Object);
             var configuration = BicepConfiguration.BuiltIn;
 
-            using var compiledStream = new BufferedMemoryStream();
-
             var moduleReference = CreateModuleReference(registry, repository, "v1", null);
-            await containerRegistryManager.PushArtifactAsync(
-                configuration.Cloud,
-                artifactReference: moduleReference,
-                mediaType: mediaType,
-                artifactType: artifactType,
-                config: new OciDescriptor(configContents ?? string.Empty, BicepMediaTypes.BicepModuleConfigV1),
-                layers: layers.Select(layer => new OciDescriptor(layer.contents, layer.mediaType)),
-                new OciManifestAnnotationsBuilder()
-            );
+            var payload = OciArtifactPayload.Create(
+                artifactType,
+                new(BicepMediaTypes.BicepModuleConfigV1, BinaryData.FromString(configContents ?? string.Empty)),
+                layers.Select(layer => new OciBlob(layer.mediaType, BinaryData.FromString(layer.contents))),
+                annotations: [],
+                mediaType);
+            await containerRegistryManager.PushArtifactAsync(configuration.Cloud, moduleReference, payload);
 
             return (client, clientFactory);
         }

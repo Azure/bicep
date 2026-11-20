@@ -22,32 +22,36 @@ namespace Bicep.Core.Artifacts.Cache
 
         public IFileHandle MetadataFile => this.GetFile("metadata");
 
+        /// <summary>
+        /// Gets the file that holds the artifact's content: the module's template, or the extension's types.
+        /// </summary>
+        protected abstract IFileHandle ContentFile { get; }
+
         // The manifest and the metadata are written first and last, so all three files exist only once the entry is complete.
-        public override bool IsComplete => this.EntryPoint.Exists() && this.ManifestFile.Exists() && this.MetadataFile.Exists();
+        public override bool IsComplete => this.ContentFile.Exists() && this.ManifestFile.Exists() && this.MetadataFile.Exists();
 
         /// <summary>
         /// Writes a pulled artifact into the cache, unless another compilation already has.
         /// </summary>
-        /// <param name="artifactReference">The reference, for error messages.</param>
-        public Task WriteAsync(OciArtifactResult result, string artifactReference) => this.WriteAsync(() =>
+        /// <param name="payload">The pulled payload, whose manifest is stored as-is.</param>
+        /// <param name="writeContent">Writes the decoded package's files.</param>
+        // CONSIDER: Write all layers as separate binary files instead of the files we know about (main.json, source.tgz, ...),
+        // so that every version can restore every layer, even optional layers added later. The manifest says what each layer is.
+        // (https://github.com/Azure/bicep/issues/11900)
+        protected Task WriteAsync(OciArtifactPayload payload, Action writeContent) => this.WriteAsync(() =>
         {
             // Write the original manifest bytes rather than a serialized manifest object, so that the manifest hash matches.
-            this.ManifestFile.Write(result.ManifestData);
+            this.ManifestFile.Write(payload.ManifestData);
 
-            this.WriteLayers(result, artifactReference);
+            writeContent();
 
-            var metadata = new ModuleMetadata(result.ManifestDigest);
+            var metadata = new ModuleMetadata(payload.ManifestDigest);
             using var metadataStream = new MemoryStream();
             OciSerialization.Serialize(metadataStream, metadata);
             metadataStream.Position = 0;
 
             this.MetadataFile.Write(metadataStream);
         });
-
-        // CONSIDER: Write all layers as separate binary files instead of the files we know about (main.json, source.tgz, ...),
-        // so that every version can restore every layer, even optional layers added later. The manifest says what each layer is.
-        // (https://github.com/Azure/bicep/issues/11900)
-        protected abstract void WriteLayers(OciArtifactResult result, string artifactReference);
 
         private static IDirectoryHandle ResolveCacheDirectory(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
         {
@@ -79,7 +83,7 @@ namespace Bicep.Core.Artifacts.Cache
                 _ => throw new InvalidOperationException("Either tag or digest must be set."),
             };
 
-            return rootCacheDirectory.GetDirectory($"{OciArtifactReferenceFacts.Scheme}/{registry}/{repository}/{tagOrDigest}");
+            return rootCacheDirectory.GetDirectory($"{ArtifactSchemes.Br}/{registry}/{repository}/{tagOrDigest}");
         }
     }
 }

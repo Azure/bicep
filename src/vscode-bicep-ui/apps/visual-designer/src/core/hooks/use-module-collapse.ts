@@ -19,6 +19,7 @@ import {
   pendingSubgraphLayoutsAtom,
   raiseNodeAtom,
   restoringModuleIdsAtom,
+  selectedNodeIdsAtom,
   shownGraphAtom,
   sourceGraphAtom,
   undoHistoryAtom,
@@ -92,6 +93,13 @@ export function useModuleCollapse(
         const focusedNodeId = store.get(focusedNodeIdAtom);
         if (focusedNodeId !== null && isDescendant(source, focusedNodeId, moduleId)) {
           store.set(focusNodeAtom, moduleId);
+        }
+        const selected = store.get(selectedNodeIdsAtom);
+        if ([...selected].some((id) => isDescendant(source, id, moduleId))) {
+          store.set(
+            selectedNodeIdsAtom,
+            new Set([...selected].filter((id) => !isDescendant(source, id, moduleId)).concat(moduleId)),
+          );
         }
       } else {
         collapsedModuleIds.delete(moduleId);

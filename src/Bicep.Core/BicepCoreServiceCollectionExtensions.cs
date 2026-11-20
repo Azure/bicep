@@ -60,8 +60,7 @@ public static class BicepCoreServiceCollectionExtensions
         services.TryAddSingleton(sp => RedirectingArtifactResolver.Create(
             sp.GetRequiredService<IArtifactReferenceResolver>(),
             sp.GetRequiredService<IFileExplorer>(),
-            sp.GetRequiredService<IBicepConfigurationManager>(),
-            sp.GetRequiredService<IFeatureProviderFactory>()));
+            sp.GetRequiredService<IBicepConfigurationManager>()));
         services.TryAddSingleton<IRemoteArtifactRestorer, RemoteArtifactRestorer>();
         services.TryAddSingleton<RegistryConfiguration>(serviceProvider =>
         {

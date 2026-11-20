@@ -32,7 +32,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithValidBicepConfigFile_ShouldRefreshCompilation()
+        public void HandleFileChanges_WithValidBicepConfigFile_ShouldRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -50,7 +50,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
               }
             }";
 
-            RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
+            HandleBicepConfigFileChange(bicepFileContents,
                                                        bicepConfigFileContents,
                                                        saveBicepConfigFile: true,
                                                        out Mock<ITextDocumentLanguageServer> document,
@@ -75,7 +75,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithInvalidBicepConfigFile_ShouldRefreshCompilation()
+        public void HandleFileChanges_WithInvalidBicepConfigFile_ShouldRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -89,7 +89,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                       ""level"": ""warning""
             }";
 
-            RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
+            HandleBicepConfigFileChange(bicepFileContents,
                                                        bicepConfigFileContents,
                                                        saveBicepConfigFile: true,
                                                        out Mock<ITextDocumentLanguageServer> document,
@@ -123,7 +123,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldRefreshCompilation()
+        public void HandleFileChanges_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -143,7 +143,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 }
                 """;
 
-            RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
+            HandleBicepConfigFileChange(bicepFileContents,
                                                        bicepConfigFileContents,
                                                        saveBicepConfigFile: true,
                                                        out Mock<ITextDocumentLanguageServer> document,
@@ -168,7 +168,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithEmptySourceFile_ShouldNotRefreshCompilation()
+        public void HandleFileChanges_WithEmptySourceFile_ShouldNotRefreshCompilation()
         {
             var bicepConfigFileContents = @"{
               ""analyzers"": {
@@ -184,7 +184,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
               }
             }";
 
-            RefreshCompilationOfSourceFilesInWorkspace(string.Empty,
+            HandleBicepConfigFileChange(string.Empty,
                                                        bicepConfigFileContents,
                                                        saveBicepConfigFile: true,
                                                        out _,
@@ -201,12 +201,47 @@ namespace Bicep.LangServer.UnitTests.Configuration
             mockFileSystem.AddFile("/a/bicepconfig.json", """{ "extends": "./b/bicepconfig.json" }""");
             mockFileSystem.AddFile("/a/b/bicepconfig.json", """{ "extends": "../bicepconfig.json" }""");
 
-            PublishDiagnosticsParams? receivedParams = null;
-            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var published = OpenConfigFile(mockFileSystem, "/a/bicepconfig.json");
+
+            published[DocumentUri.From(InMemoryFileResolver.GetFileUri("/a/bicepconfig.json"))].Should().ContainSingle(d => d.Code!.Value.String == "BCP454");
+            published[DocumentUri.From(InMemoryFileResolver.GetFileUri("/a/b/bicepconfig.json"))].Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void HandleBicepConfigOpenEvent_WithInvalidValueInBase_PublishesToBase()
+        {
+            var mockFileSystem = new MockFileSystem();
+            mockFileSystem.AddFile("/bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }""");
+            mockFileSystem.AddFile("/base/bicepconfig.base.json", """{ "cloud": { "currentProfile": "Missing" } }""");
+
+            var published = OpenConfigFile(mockFileSystem, "/bicepconfig.json");
+
+            published[DocumentUri.From(InMemoryFileResolver.GetFileUri("/bicepconfig.json"))].Should().BeEmpty();
+            published[DocumentUri.From(InMemoryFileResolver.GetFileUri("/base/bicepconfig.base.json"))].Should().ContainSingle(d => d.Code!.Value.String == "BCP273");
+        }
+
+        [TestMethod]
+        public void HandleBicepConfigOpenEvent_WithDiagnosticWithoutFile_DoesNotPublishItToConfigFiles()
+        {
+            var mockFileSystem = new MockFileSystem();
+            mockFileSystem.AddFile("/base/bicepconfig.base.json", """{ "cloud": { "currentProfile": "Custom", "profiles": { "Custom": { "resourceManagerEndpoint": "https://management.example.invalid", "activeDirectoryAuthority": "https://login.example.invalid" } } } }""");
+            mockFileSystem.AddFile("/bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }""");
+
+            var published = OpenConfigFile(mockFileSystem, "/bicepconfig.json", CloudConfigurationTrustPolicy.FromEnvironmentValue("{ not json"));
+
+            // An invalid environment variable isn't caused by either file; Bicep files show it instead.
+            published[DocumentUri.From(InMemoryFileResolver.GetFileUri("/bicepconfig.json"))].Should().BeEmpty();
+            published[DocumentUri.From(InMemoryFileResolver.GetFileUri("/base/bicepconfig.base.json"))].Should().BeEmpty();
+        }
+
+        private static Dictionary<DocumentUri, Container<Diagnostic>> OpenConfigFile(MockFileSystem mockFileSystem, string configFilePath, CloudConfigurationTrustPolicy? trustPolicy = null)
+        {
+            var published = new Dictionary<DocumentUri, Container<Diagnostic>>();
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => published[p.Uri] = p.Diagnostics);
             ILanguageServerFacade server = BicepCompilationManagerHelper.CreateMockServer(document).Object;
 
             var fileExplorer = new FileSystemFileExplorer(mockFileSystem);
-            var bicepConfigManager = new BicepConfigurationManager(fileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            var bicepConfigManager = new BicepConfigurationManager(fileExplorer, trustPolicy ?? BicepTestConstants.TestCloudConfigurationTrustPolicy);
             var configurationManager = bicepConfigManager;
             var workspace = new ActiveSourceFileSet();
             var bicepCompilationManager = new BicepCompilationManager(
@@ -222,19 +257,17 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 bicepConfigManager,
                 server);
 
-            var configUri = DocumentUri.From(InMemoryFileResolver.GetFileUri("/a/bicepconfig.json"));
-            lifecycleManager.HandleBicepConfigOpenEvent(configUri);
+            lifecycleManager.HandleBicepConfigOpenEvent(DocumentUri.From(InMemoryFileResolver.GetFileUri(configFilePath)));
 
-            receivedParams.Should().NotBeNull();
-            receivedParams!.Diagnostics.Should().ContainSingle(d => d.Code!.Value.String == "BCP454");
+            return published;
         }
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithoutBicepConfigFile_ShouldUseDefaultConfigAndRefreshCompilation()
+        public void HandleFileChanges_WithoutBicepConfigFile_ShouldUseDefaultConfigAndRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
-            RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
+            HandleBicepConfigFileChange(bicepFileContents,
                                                        string.Empty,
                                                        saveBicepConfigFile: false,
                                                        out Mock<ITextDocumentLanguageServer> document,
@@ -258,7 +291,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 });
         }
 
-        private void RefreshCompilationOfSourceFilesInWorkspace(string bicepFileContents, string bicepConfigFileContents, bool saveBicepConfigFile, out Mock<ITextDocumentLanguageServer> document, out string? bicepConfigFilePath, out Container<Diagnostic>? diagnostics)
+        private void HandleBicepConfigFileChange(string bicepFileContents, string bicepConfigFileContents, bool saveBicepConfigFile, out Mock<ITextDocumentLanguageServer> document, out string? bicepConfigFilePath, out Container<Diagnostic>? diagnostics)
         {
             PublishDiagnosticsParams? receivedParams = null;
             document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
@@ -298,7 +331,12 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 bicepConfigManager,
                 server);
 
-            bicepConfigLifecycleManager.RefreshCompilationOfSourceFilesInWorkspace();
+            // Report the configuration file as created, or as deleted when the test runs without one.
+            bicepConfigLifecycleManager.HandleFileChanges([new FileEvent
+            {
+                Uri = DocumentUri.FromFileSystemPath(mockFileSystem.Path.GetFullPath("/bicepconfig.json")),
+                Type = saveBicepConfigFile ? FileChangeType.Created : FileChangeType.Deleted,
+            }]);
 
             diagnostics = receivedParams?.Diagnostics;
         }

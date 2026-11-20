@@ -249,6 +249,10 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
+        private static bool ShouldWarnForSafeAccess(AccessExpressionSyntax syntax, TypeSymbol baseType)
+            => syntax.IsSafeAccess &&
+                TypeHelper.SatisfiesCondition(baseType, x => x is not ModuleType);
+
         private bool ShouldWarnForDeadBranchPropertyAccess(SyntaxBase syntax, TypeSymbol baseType)
             => baseType is not ResourceType and not ModuleType and not NamespaceType &&
                 IsInDeadTernaryBranch(syntax);
@@ -1939,7 +1943,7 @@ namespace Bicep.Core.TypeSystem
                                     syntax.IndexExpression,
                                     literalIndex.RawStringValue,
                                     syntax.IsSafeAccess,
-                                    shouldWarn: syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(baseObject) ||
+                                    shouldWarn: ShouldWarnForSafeAccess(syntax, originalBaseType) || TypeValidator.ShouldWarnForPropertyMismatch(baseObject) ||
                                         ShouldWarnForDeadBranchPropertyAccess(syntax, originalBaseType),
                                     diagnostics);
                             }
@@ -2103,7 +2107,7 @@ namespace Bicep.Core.TypeSystem
                     syntax.PropertyName,
                     syntax.PropertyName.IdentifierName,
                     syntax.IsSafeAccess,
-                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType) ||
+                    ShouldWarnForSafeAccess(syntax, baseType) || TypeValidator.ShouldWarnForPropertyMismatch(objectType) ||
                         ShouldWarnForDeadBranchPropertyAccess(syntax, baseType),
                     diagnostics),
 
@@ -2111,7 +2115,7 @@ namespace Bicep.Core.TypeSystem
                     syntax.PropertyName,
                     syntax.PropertyName.IdentifierName,
                     syntax.IsSafeAccess,
-                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(unionType) ||
+                    ShouldWarnForSafeAccess(syntax, baseType) || TypeValidator.ShouldWarnForPropertyMismatch(unionType) ||
                         ShouldWarnForDeadBranchPropertyAccess(syntax, baseType),
                     diagnostics),
 

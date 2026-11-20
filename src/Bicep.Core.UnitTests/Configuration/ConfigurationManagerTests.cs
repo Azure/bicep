@@ -125,7 +125,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "deployCommands": false,
           "patch": false,
           "runtimeValuesInTagsAndSku": false,
-          "azExtensionConfig": false
+          "azExtensionConfig": false,
+          "artifactAliasesAndRedirects": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -237,7 +238,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "deployCommands": false,
           "patch": false,
           "runtimeValuesInTagsAndSku": false,
-          "azExtensionConfig": false
+          "azExtensionConfig": false,
+          "artifactAliasesAndRedirects": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -371,7 +373,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "deployCommands": false,
           "patch": false,
           "runtimeValuesInTagsAndSku": false,
-          "azExtensionConfig": false
+          "azExtensionConfig": false,
+          "artifactAliasesAndRedirects": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -479,7 +482,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 DeployCommands: false,
                 Patch: false,
                 RuntimeValuesInTagsAndSku: false,
-                AzExtensionConfig: false);
+                AzExtensionConfig: false,
+                ArtifactAliasesAndRedirects: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -572,7 +576,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "deployCommands": false,
                 "patch": false,
                 "runtimeValuesInTagsAndSku": false,
-                "azExtensionConfig": false
+                "azExtensionConfig": false,
+                "artifactAliasesAndRedirects": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -696,7 +701,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var diagnostics = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).GetDiagnostics().ToImmutableArray();
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\": {expectedExceptionMessage}");
+            diagnostics[0].Message.Should().Be($"The Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\" is invalid: {expectedExceptionMessage}");
         }
 
         [TestMethod]
@@ -761,7 +766,7 @@ namespace Bicep.Core.UnitTests.Configuration
             // Assert.
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\": {expectedExceptionMessage}");
+            diagnostics[0].Message.Should().Be($"The Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\" is invalid: {expectedExceptionMessage}");
         }
 
         [TestMethod]
@@ -960,7 +965,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "deployCommands": false,
                     "patch": false,
                     "runtimeValuesInTagsAndSku": false,
-                    "azExtensionConfig": false
+                    "azExtensionConfig": false,
+                    "artifactAliasesAndRedirects": false
                   },
                   "formatting": {
                     "indentKind": "Space",

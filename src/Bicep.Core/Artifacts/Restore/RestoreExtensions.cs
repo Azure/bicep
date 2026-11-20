@@ -13,8 +13,8 @@ public static class RestoreExtensions
     /// <summary>
     /// Gets the distinct remote artifacts to restore. Local artifacts are never restored.
     /// </summary>
-    public static ImmutableHashSet<RemoteArtifactReference> GetRemoteArtifactReferences(this IEnumerable<ArtifactResolutionInfo> artifacts)
-        => [.. artifacts
+    public static ImmutableHashSet<RemoteArtifactReference> GetRemoteArtifactReferences(this IEnumerable<ArtifactDependency> dependencies)
+        => [.. dependencies
             .Select(t => t.Reference)
             .OfType<RemoteArtifactReference>()];
 }

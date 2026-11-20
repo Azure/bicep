@@ -4,7 +4,6 @@
 using System.Collections.Concurrent;
 using Azure;
 using Azure.Containers.ContainerRegistry;
-using Bicep.Core.Modules;
 using Bicep.Core.RegistryClients.Oci;
 using Bicep.Core.UnitTests.Mock;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;

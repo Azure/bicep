@@ -15,6 +15,7 @@ export {
   focusedNodeIdAtom,
   focusNodeAtom,
   graphHasNodesAtom,
+  graphReceivedAtom,
   isGraphChangeInProgressAtom,
   isColorThemeMatchedSettingAtom,
   isResourceEditingEnabledAtom,
@@ -22,7 +23,12 @@ export {
   pendingResourcesAtom,
   raisedNodeIdsAtom,
   restoringModuleIdsAtom,
+  selectedNodeIdsAtom,
+  selectNodeAtom,
+  setSelectedNodeIdsAtom,
+  shownGraphAtom,
   targetScopeAtom,
+  toggleNodeSelectedAtom,
 } from "./atoms";
 export * from "./api";
 export type { CanvasNodeData } from "./show-graph";

@@ -25,7 +25,8 @@ const $BaseNode = styled(motion.div)<{ $isExiting: boolean }>`
   display: flex;
   position: absolute;
   box-sizing: border-box;
-  cursor: default;
+  /* The canvas or tool decides the cursor. */
+  cursor: inherit;
   transform-origin: 0 0;
   /* Shown once the node has a box to be drawn at. */
   visibility: hidden;

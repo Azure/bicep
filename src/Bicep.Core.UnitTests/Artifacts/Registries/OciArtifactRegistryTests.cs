@@ -725,7 +725,8 @@ namespace Bicep.Core.UnitTests.Artifacts.Registries
                 modules.Should().AllSatisfy(m => m.HasSourceLayer.Should().Be(publishSource));
             }
 
-            var actualSourceResult = moduleReference.TryLoadSourceArchive();
+            var restoredModule = ociRegistry.TryOpen(moduleReference).Should().BeOfType<ModuleArtifact>().Subject;
+            var actualSourceResult = restoredModule.TryGetSources();
 
             if (sourceArchive is { })
             {
@@ -757,7 +758,7 @@ namespace Bicep.Core.UnitTests.Artifacts.Registries
 
         private OciArtifactReference CreateModuleReference(BicepSourceFile referencingFile, string registry, string repository, string? tag, string? digest)
         {
-            OciArtifactReference.TryParse(OciArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), ArtifactType.Module, null, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(OciArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), ArtifactType.Module, null, ArtifactSchemes.Br, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 

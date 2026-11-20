@@ -247,4 +247,16 @@ describe("keepFocusedNodeInPlace", () => {
     expect(keepFocusedNodeInPlace(layout, hiddenNearFocus, { x: 0, y: 0 }).get("a")).toEqual({ x: 300, y: 300 });
     expect(keepFocusedNodeInPlace(layout, new Map(), { x: 0, y: 0 })).toEqual(layout);
   });
+
+  it("does not anchor on a node outside the given anchors, such as one waiting at its spawn point", () => {
+    const newNodeAtFocus = new Map([
+      ["a", { x: 300, y: 300 }],
+      ["b", { x: 0, y: 0 }],
+    ]);
+
+    expect(keepFocusedNodeInPlace(layout, newNodeAtFocus, { x: 0, y: 0 }, new Set(["a"])).get("a")).toEqual({
+      x: 300,
+      y: 300,
+    });
+  });
 });

@@ -13,6 +13,35 @@ import { sourceGraphAtom } from "./graph";
 export const focusedNodeIdAtom = atom<string | null>(null);
 
 /**
+ * The selected nodes, in experimental editing mode. Selection is independent of focus and paint order, and is
+ * not an undo step.
+ */
+export const selectedNodeIdsAtom = atom<ReadonlySet<string>>(new Set<string>());
+
+/** Select only this node, which also focuses it, or clear the selection with null. */
+export const selectNodeAtom = atom(null, (_get, set, nodeId: string | null) => {
+  set(selectedNodeIdsAtom, new Set(nodeId === null ? [] : [nodeId]));
+  set(focusNodeAtom, nodeId);
+});
+
+/** Add a node to the selection, focusing it, or remove it if it is already selected. */
+export const toggleNodeSelectedAtom = atom(null, (get, set, nodeId: string) => {
+  const selected = new Set(get(selectedNodeIdsAtom));
+  if (selected.delete(nodeId)) {
+    set(selectedNodeIdsAtom, selected);
+    return;
+  }
+
+  set(selectedNodeIdsAtom, selected.add(nodeId));
+  set(focusNodeAtom, nodeId);
+});
+
+/** Replace the selection, as a marquee does. Focus is left alone. */
+export const setSelectedNodeIdsAtom = atom(null, (_get, set, nodeIds: Iterable<string>) => {
+  set(selectedNodeIdsAtom, new Set(nodeIds));
+});
+
+/**
  * The nodes painted above their siblings, from least to most recently raised, as windows are stacked: those the
  * user focused, dragged, or opened. Dragging a node raises it without focusing it. Write it only through
  * `raiseNodeAtom`.

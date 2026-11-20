@@ -3,6 +3,7 @@
 
 using System.Text;
 using System.Web;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Diagnostics;
 
@@ -73,15 +74,19 @@ namespace Bicep.Core.RegistryClients.Oci
             return hash.ToHashCode();
         }
 
-        public static ResultWithDiagnosticBuilder<OciArtifactAddressComponents> TryParse(string unqualifiedReference, string? aliasName = null)
+        // Any URI scheme works: it's only prepended so that System.Uri validates the rest of the reference.
+        private const string UriValidationScheme = "oci";
+
+        /// <param name="scheme">The scheme the reference was written with. Only used in diagnostics.</param>
+        public static ResultWithDiagnosticBuilder<OciArtifactAddressComponents> TryParse(string scheme, string unqualifiedReference, string? aliasName = null)
         {
-            static string GetBadReference(string referenceValue) => $"{OciArtifactReferenceFacts.Scheme}:{referenceValue}";
+            string GetBadReference(string referenceValue) => $"{scheme}:{referenceValue}";
 
             static string DecodeSegment(string segment) => HttpUtility.UrlDecode(segment);
 
             // the set of valid OCI artifact refs is a subset of the set of valid URIs if you remove the scheme portion from each URI
             // manually prepending any valid URI scheme allows to get free validation via the built-in URI parser
-            if (!Uri.TryCreate($"{OciArtifactReferenceFacts.Scheme}://{unqualifiedReference}", UriKind.Absolute, out var artifactUri) ||
+            if (!Uri.TryCreate($"{UriValidationScheme}://{unqualifiedReference}", UriKind.Absolute, out var artifactUri) ||
                 artifactUri.Segments.Length <= 1 ||
                 !string.Equals(artifactUri.Segments[0], "/", StringComparison.Ordinal))
             {
@@ -98,7 +103,7 @@ namespace Bicep.Core.RegistryClients.Oci
                     OciArtifactReferenceFacts.MaxRegistryLength));
             }
 
-            // for "br://example.azurecr.io/foo/bar:v1", the segments are "/", "foo/", and "bar:v1"
+            // for "oci://example.azurecr.io/foo/bar:v1", the segments are "/", "foo/", and "bar:v1"
             // iterate only over middle segments
             var repoBuilder = new StringBuilder();
             for (int i = 1; i < artifactUri.Segments.Length - 1; i++)

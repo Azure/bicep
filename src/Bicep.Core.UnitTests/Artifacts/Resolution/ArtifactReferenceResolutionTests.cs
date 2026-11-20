@@ -33,6 +33,7 @@ public class ArtifactReferenceResolutionTests
 
     private const string BicepConfig = """
         {
+          "experimentalFeaturesEnabled": { "artifactAliasesAndRedirects": true },
           "moduleAliases": {
             "br": {
               "contoso": { "registry": "contoso.azurecr.io", "modulePath": "bicep/modules" },
@@ -52,7 +53,10 @@ public class ArtifactReferenceResolutionTests
           "extensions": {
             "localExt": "./extensions/local.tgz",
             "ociExt": "br:contoso.azurecr.io/extensions/foo:1.0.0",
-            "ociAliasExt": "br/contoso:foo:1.0.0"
+            "ociAliasExt": "br/contoso:foo:1.0.0",
+            "ociSchemeExt": "oci:contoso.azurecr.io/extensions/foo:1.0.0",
+            "fileExt": "file:./extensions/local.tgz",
+            "absoluteFileExt": "file:/extensions/local.tgz"
           }
         }
         """;
@@ -60,7 +64,7 @@ public class ArtifactReferenceResolutionTests
     private static readonly IOUri ConfigUri = CreateUri("/repo/bicepconfig.json");
 
     [TestMethod]
-    [DataRow("fakeScheme:fakeModule", "BCP189: The specified module reference scheme \"fakeScheme\" is not recognized. Specify a path to a local module file.")]
+    [DataRow("fakeScheme:fakeModule", "BCP189: The specified module reference scheme \"fakeScheme\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"file\"")]
     [DataRow("test.bicep", "LocalArtifactReference test.bicep -> /repo/sub/test.bicep")]
     public void NoRegistries_ValidateModuleReference_ShouldOnlyResolveLocalPaths(string referenceText, string expected)
     {
@@ -102,14 +106,14 @@ public class ArtifactReferenceResolutionTests
     private static string Describe(ResultWithDiagnosticBuilder<ArtifactReference> result) =>
         result.IsSuccess(out var reference, out var errorBuilder) ? Describe(reference) : Describe(errorBuilder);
 
-    private static string Describe(ArtifactResolutionInfo resolutionInfo)
+    private static string Describe(ArtifactDependency dependency)
     {
-        if (resolutionInfo.Reference is { } reference)
+        if (dependency.Reference is { } reference)
         {
             return Describe(reference);
         }
 
-        resolutionInfo.Result.IsSuccess(out _, out var errorBuilder).Should().BeFalse();
+        dependency.TryGetArtifact().IsSuccess(out _, out var errorBuilder).Should().BeFalse();
         return Describe(errorBuilder!);
     }
 
@@ -142,7 +146,7 @@ public class ArtifactReferenceResolutionTests
     [DataRow("../mod.bicep", "LocalArtifactReference ../mod.bicep -> /repo/mod.bicep")]
     [DataRow("nested\\mod.bicep", "BCP098: The specified file path contains a \"\\\" character. Use \"/\" instead as the directory separator character.")]
     [DataRow("/abs/mod.bicep", "BCP051: The specified path seems to reference an absolute path. Files must be referenced using relative paths.")]
-    [DataRow("C:/abs/mod.bicep", "BCP189: The specified module reference scheme \"C\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    [DataRow("C:/abs/mod.bicep", "BCP189: The specified module reference scheme \"C\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"file\", \"oci\", \"ts\"")]
     [DataRow("", "BCP050: The specified path is empty.")]
     // fully qualified OCI references
     [DataRow("br:contoso.azurecr.io/bicep/modules/storage:1.0.0", "OciArtifactReference br:contoso.azurecr.io/bicep/modules/storage:1.0.0")]
@@ -172,18 +176,32 @@ public class ArtifactReferenceResolutionTests
     [DataRow("ts/missing:webapp:v1", "BCP212: The Template Spec module alias name \"missing\" does not exist in the Bicep configuration \"<bicepconfig>\".")]
     [DataRow("ts/noSubscription:webapp:v1", "BCP214: The Template Spec module alias \"noSubscription\" in the Bicep configuration \"<bicepconfig>\" is in valid. The \"subscription\" property cannot be null or undefined.")]
     [DataRow("ts:not-a-guid/specs-rg/webapp:v1", "BCP217: The specified Template Spec reference \"ts:not-a-guid/specs-rg/webapp:v1\" is not valid. The subscription ID \"not-a-guid\" in is not a GUID.")]
-    // unsupported schemes and syntax introduced by REP 0022
-    [DataRow("unknown:foo", "BCP189: The specified module reference scheme \"unknown\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
-    [DataRow("oci:contoso.azurecr.io/storage:1.0.0", "BCP189: The specified module reference scheme \"oci\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
-    [DataRow("file:mod.bicep", "BCP189: The specified module reference scheme \"file\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
-    [DataRow("avm::res/storage/storage-account:0.32.1", "BCP189: The specified module reference scheme \"avm\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    // the oci scheme: another spelling of br, persisted as br
+    [DataRow("oci:contoso.azurecr.io/storage:1.0.0", "OciArtifactReference br:contoso.azurecr.io/storage:1.0.0")]
+    [DataRow("oci:localhost:5000/storage@" + Digest, "OciArtifactReference br:localhost:5000/storage@" + Digest)]
+    [DataRow("oci:contoso.azurecr.io/Storage:v1", "BCP195: The specified OCI artifact reference \"oci:contoso.azurecr.io/Storage:v1\" is not valid. The artifact path segment \"Storage\" is not valid. Each artifact name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".")]
+    [DataRow("oci/contoso:storage:1.0.0", "BCP460: The \"oci\" scheme does not support aliases. Aliases in the form \"<scheme>/<alias>:\" are only supported for the \"br\" and \"ts\" schemes.")]
+    // the file scheme: a path relative to the referencing file
+    [DataRow("file:mod.bicep", "LocalArtifactReference file:mod.bicep -> /repo/sub/mod.bicep")]
+    [DataRow("file:../nested/mod.json", "LocalArtifactReference file:../nested/mod.json -> /repo/nested/mod.json")]
+    [DataRow("file:main.bicepparam", "LocalArtifactReference file:main.bicepparam -> /repo/sub/main.bicepparam")]
+    [DataRow("file:template.arm", "LocalArtifactReference file:template.arm -> /repo/sub/template.arm")]
+    [DataRow("file:mod", "BCP461: The reference \"file:mod\" is not valid. A file referenced with the \"file\" scheme must be a Bicep file (\".bicep\" or \".bicepparam\") or an ARM template (\".json\", \".jsonc\" or \".arm\").")]
+    [DataRow("file:mod.txt", "BCP461: The reference \"file:mod.txt\" is not valid. A file referenced with the \"file\" scheme must be a Bicep file (\".bicep\" or \".bicepparam\") or an ARM template (\".json\", \".jsonc\" or \".arm\").")]
+    [DataRow("file:/abs/mod.bicep", "BCP051: The specified path seems to reference an absolute path. Files must be referenced using relative paths.")]
+    [DataRow("file:C:/abs/mod.bicep", "BCP051: The specified path seems to reference an absolute path. Files must be referenced using relative paths.")]
+    [DataRow("file:", "BCP050: The specified path is empty.")]
+    [DataRow("file/contoso:mod.bicep", "BCP460: The \"file\" scheme does not support aliases. Aliases in the form \"<scheme>/<alias>:\" are only supported for the \"br\" and \"ts\" schemes.")]
+    // unknown schemes, and artifact aliases, which are parsed but not supported yet
+    [DataRow("unknown:foo", "BCP189: The specified module reference scheme \"unknown\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"file\", \"oci\", \"ts\"")]
+    [DataRow("avm::res/storage/storage-account:0.32.1", "BCP189: The specified module reference scheme \"avm\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"file\", \"oci\", \"ts\"")]
     [DataRow("br::storage:1.0.0", "BCP193: The specified OCI artifact reference \"br::storage:1.0.0\" is not valid. Specify a reference in the format of \"br:<artifact-uri>:<tag>\", or \"br/<module-alias>:<module-name-or-path>:<tag>\".")]
-    [DataRow("oci/contoso:storage:1.0.0", "BCP189: The specified module reference scheme \"oci\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    [DataRow("oci::storage:1.0.0", "BCP193: The specified OCI artifact reference \"oci::storage:1.0.0\" is not valid. Specify a reference in the format of \"br:<artifact-uri>:<tag>\", or \"br/<module-alias>:<module-name-or-path>:<tag>\".")]
     // splitting edge cases
-    [DataRow(":storage:1.0.0", "BCP189: The specified module reference scheme \"\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    [DataRow(":storage:1.0.0", "BCP189: The specified module reference scheme \"\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"file\", \"oci\", \"ts\"")]
     [DataRow("br/contoso/nested:storage:1.0.0", "BCP211: The module alias name \"contoso/nested\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".")]
-    [DataRow("../mod:1.bicep", "BCP189: The specified module reference scheme \"..\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
-    [DataRow("unknown/alias:storage:1.0.0", "BCP189: The specified module reference scheme \"unknown\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    [DataRow("../mod:1.bicep", "BCP189: The specified module reference scheme \"..\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"file\", \"oci\", \"ts\"")]
+    [DataRow("unknown/alias:storage:1.0.0", "BCP189: The specified module reference scheme \"unknown\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"file\", \"oci\", \"ts\"")]
     public void Module_reference_text_resolves_to_expected_reference(string referenceText, string expected)
     {
         var (entryPoint, _, resolver, _) = Setup();
@@ -194,11 +212,14 @@ public class ArtifactReferenceResolutionTests
     [TestMethod]
     [DataRow("./extensions/local.tgz", "LocalArtifactReference ./extensions/local.tgz -> /repo/sub/extensions/local.tgz")]
     [DataRow("br:contoso.azurecr.io/extensions/foo:1.0.0", "OciArtifactReference br:contoso.azurecr.io/extensions/foo:1.0.0")]
+    [DataRow("oci:contoso.azurecr.io/extensions/foo:1.0.0", "OciArtifactReference br:contoso.azurecr.io/extensions/foo:1.0.0")]
+    [DataRow("file:./extensions/local.tgz", "LocalArtifactReference file:./extensions/local.tgz -> /repo/sub/extensions/local.tgz")]
+    [DataRow("file:./extensions/local", "LocalArtifactReference file:./extensions/local -> /repo/sub/extensions/local")]
     [DataRow("br/public:foo:1.0.0", "BCP380: Artifacts of type: \"Extension\" are not supported.")]
     [DataRow("br/contoso:foo:1.0.0", "BCP380: Artifacts of type: \"Extension\" are not supported.")]
     [DataRow("br/mocked:foo:1.0.0", "BCP448: The OCI artifact module alias \"mocked\" has a \"mapToFilePath\" property which is only supported for modules, not extensions.")]
     [DataRow("ts:00000000-0000-0000-0000-000000000000/specs-rg/webapp:v1", "BCP380: Artifacts of type: \"Extension\" are not supported.")]
-    [DataRow("builtin:", "BCP189: The specified module reference scheme \"builtin\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    [DataRow("builtin:", "BCP189: The specified module reference scheme \"builtin\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"file\", \"oci\", \"ts\"")]
     public void Extension_reference_text_resolves_to_expected_reference(string referenceText, string expected)
     {
         var (entryPoint, _, resolver, _) = Setup();
@@ -211,6 +232,11 @@ public class ArtifactReferenceResolutionTests
     [DataRow("extension localExt", "LocalArtifactReference ../extensions/local.tgz -> /repo/extensions/local.tgz")]
     [DataRow("extension ociExt", "OciArtifactReference br:contoso.azurecr.io/extensions/foo:1.0.0")]
     [DataRow("extension ociAliasExt", "BCP380: Artifacts of type: \"Extension\" are not supported.")]
+    [DataRow("extension ociSchemeExt", "OciArtifactReference br:contoso.azurecr.io/extensions/foo:1.0.0")]
+    // A file: path in the "extensions" map is relative to bicepconfig.json, like a bare path.
+    [DataRow("extension fileExt", "LocalArtifactReference file:../extensions/local.tgz -> /repo/extensions/local.tgz")]
+    [DataRow("extension absoluteFileExt", "BCP051: The specified path seems to reference an absolute path. Files must be referenced using relative paths.")]
+    [DataRow("extension 'file:./extensions/local.tgz'", "LocalArtifactReference file:./extensions/local.tgz -> /repo/sub/extensions/local.tgz")]
     [DataRow("extension unknownExt", "BCP204: Extension \"unknownExt\" is not recognized.")]
     [DataRow("extension 'br:contoso.azurecr.io/extensions/foo:1.0.0'", "OciArtifactReference br:contoso.azurecr.io/extensions/foo:1.0.0")]
     public void Extension_declaration_resolves_to_expected_reference(string declaration, string expected)
@@ -238,7 +264,7 @@ public class ArtifactReferenceResolutionTests
 
         var implicitExtension = grouping.ImplicitExtensions[entryPoint].Single(x => x.Name == "localExt");
 
-        Describe(implicitExtension.Artifact!).Should().Be("LocalArtifactReference ./extensions/local.tgz -> /repo/sub/extensions/local.tgz");
+        Describe(implicitExtension.Dependency!).Should().Be("LocalArtifactReference ./extensions/local.tgz -> /repo/sub/extensions/local.tgz");
     }
 
     [TestMethod]
@@ -313,5 +339,36 @@ public class ArtifactReferenceResolutionTests
 
         templateSpecReference.Should().Be(orasTemplateSpecReference);
         templateSpecReference.GetHashCode().Should().Be(orasTemplateSpecReference.GetHashCode());
+    }
+
+    [TestMethod]
+    public void Oci_and_br_spellings_name_the_same_artifact()
+    {
+        var (entryPoint, _, resolver, _) = Setup();
+
+        var brReference = resolver.TryResolve(entryPoint.FileHandle.Uri, ArtifactType.Module, "br:contoso.azurecr.io/bicep/modules/storage:1.0.0").Unwrap();
+        var ociReference = resolver.TryResolve(entryPoint.FileHandle.Uri, ArtifactType.Module, "oci:CONTOSO.azurecr.io/bicep/modules/storage:1.0.0").Unwrap();
+        var aliasReference = resolver.TryResolve(entryPoint.FileHandle.Uri, ArtifactType.Module, "br/contoso:storage:1.0.0").Unwrap();
+
+        // Equal references are restored and cached once, and persisted with the br scheme.
+        ociReference.Should().Be(brReference).And.Be(aliasReference);
+        ociReference.GetHashCode().Should().Be(brReference.GetHashCode());
+        ociReference.FullyQualifiedReference.Should().Be("br:contoso.azurecr.io/bicep/modules/storage:1.0.0");
+    }
+
+    [TestMethod]
+    // With the experimental feature off, every REP 0022 spelling fails as it does without the feature.
+    [DataRow("module foo 'oci:contoso.azurecr.io/storage:1.0.0' = {}", "BCP189: The specified module reference scheme \"oci\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    [DataRow("module foo 'file:mod.bicep' = {}", "BCP189: The specified module reference scheme \"file\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    [DataRow("module foo 'oci/contoso:storage:1.0.0' = {}", "BCP189: The specified module reference scheme \"oci\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    [DataRow("module foo 'avm::res/storage/storage-account:0.32.1' = {}", "BCP189: The specified module reference scheme \"avm\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    [DataRow("extension fileExt", "BCP189: The specified module reference scheme \"file\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")]
+    [DataRow("module foo 'br:contoso.azurecr.io/storage:1.0.0' = {}", "OciArtifactReference br:contoso.azurecr.io/storage:1.0.0")]
+    public void Experimental_spellings_are_rejected_when_the_feature_is_disabled(string declaration, string expected)
+    {
+        var (entryPoint, grouping, _, _) = Setup(entryContents: declaration, bicepConfig: BicepConfig.Replace("\"artifactAliasesAndRedirects\": true", "\"artifactAliasesAndRedirects\": false"));
+        var syntax = entryPoint.ProgramSyntax.Declarations.OfType<IArtifactReferenceSyntax>().Single();
+
+        Describe(grouping.ArtifactLookup[syntax]).Should().Be(expected);
     }
 }

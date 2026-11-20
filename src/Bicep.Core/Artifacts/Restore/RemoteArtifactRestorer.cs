@@ -30,8 +30,8 @@ public class RemoteArtifactRestorer : IRemoteArtifactRestorer
             return new RemoteArtifactRestoreState.RestoreFailed(error);
         }
 
-        return this.GetRegistry(reference).TryGetEntryPoint(reference) is { } entryPoint
-            ? new RemoteArtifactRestoreState.Restored(entryPoint)
+        return this.GetRegistry(reference).TryOpen(reference) is { } artifact
+            ? new RemoteArtifactRestoreState.Restored(artifact)
             : new RemoteArtifactRestoreState.NotRestored();
     }
 

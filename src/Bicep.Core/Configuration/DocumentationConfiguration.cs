@@ -157,7 +157,7 @@ public sealed class DocumentationConfiguration : ConfigurationSection<Documentat
             template.TryGetProperty("values", out _))
         {
             throw new ConfigurationException(
-                "The documentation template.values property is not supported. Supply custom template values through the docs command or JSON-RPC request.");
+                "The documentation template.values property is not supported. Supply custom template values through the docs command or JSON-RPC request.", ConfigurationPropertyPath.Create("template", "values"));
         }
 
         var data = Normalize(element.ToNonNullObject<Documentation>());
@@ -191,7 +191,7 @@ public sealed class DocumentationConfiguration : ConfigurationSection<Documentat
         {
             if (source is null)
             {
-                throw new ConfigurationException("The documentation examples.sources property cannot contain null values.");
+                throw new ConfigurationException("The documentation examples.sources property cannot contain null values.", ConfigurationPropertyPath.Create("examples", "sources"));
             }
             normalized.Add(source);
         }
@@ -207,7 +207,7 @@ public sealed class DocumentationConfiguration : ConfigurationSection<Documentat
         {
             if (reassignment is null || reassignment.From is null)
             {
-                throw new ConfigurationException("The documentation examples.reassignments property cannot contain null values.");
+                throw new ConfigurationException("The documentation examples.reassignments property cannot contain null values.", ConfigurationPropertyPath.Create("examples", "reassignments"));
             }
             normalized.Add(reassignment);
         }
@@ -244,7 +244,7 @@ public sealed class DocumentationConfiguration : ConfigurationSection<Documentat
             ValidatePatterns(reassignment.From.Include, reassignment.From.Exclude, "examples.reassignments[].from");
             if (reassignment.From.Include.IsDefaultOrEmpty)
             {
-                throw new ConfigurationException("The documentation examples.reassignments[].from.include property must contain at least one pattern.");
+                throw new ConfigurationException("The documentation examples.reassignments[].from.include property must contain at least one pattern.", ToPropertyPath("examples.reassignments[].from.include"));
             }
 
             ValidateRelativePath(reassignment.To, "examples.reassignments[].to", allowNested: false);
@@ -278,14 +278,14 @@ public sealed class DocumentationConfiguration : ConfigurationSection<Documentat
             (value.Length > 1 && value[1] == ':') ||
             FilePathFacts.IsWindowsDosDevicePath(value))
         {
-            throw new ConfigurationException($"The documentation {path} property must be a relative path.");
+            throw new ConfigurationException($"The documentation {path} property must be a relative path.", ToPropertyPath(path));
         }
 
         var segments = value.Split(['/', '\\'], StringSplitOptions.RemoveEmptyEntries);
         if (segments.Any(segment => segment is "." or "..") ||
             (!allowNested && segments.Length != 1))
         {
-            throw new ConfigurationException($"The documentation {path} property cannot traverse directories.");
+            throw new ConfigurationException($"The documentation {path} property cannot traverse directories.", ToPropertyPath(path));
         }
     }
 
@@ -296,15 +296,36 @@ public sealed class DocumentationConfiguration : ConfigurationSection<Documentat
             FilePathFacts.IsForbiddenPathTerminatorCharacter(value[^1]) ||
             FilePathFacts.ContainsWindowsReservedFileName(value))
         {
-            throw new ConfigurationException($"The documentation {path} property must be a portable file name.");
+            throw new ConfigurationException($"The documentation {path} property must be a portable file name.", ToPropertyPath(path));
         }
+    }
+
+    /// <summary>
+    /// Converts a property description such as "examples.sources[].path" to a path. The path stops at the first array,
+    /// because arrays are replaced as a whole.
+    /// </summary>
+    private static ConfigurationPropertyPath ToPropertyPath(string path)
+    {
+        var names = new List<string>();
+        foreach (var name in path.Split('.'))
+        {
+            if (name.IndexOf('[') is var arrayStart and >= 0)
+            {
+                names.Add(name[..arrayStart]);
+                break;
+            }
+
+            names.Add(name);
+        }
+
+        return ConfigurationPropertyPath.Create([.. names]);
     }
 
     private static void ValidateNonempty(string value, string path)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new ConfigurationException($"The documentation {path} property cannot be empty.");
+            throw new ConfigurationException($"The documentation {path} property cannot be empty.", ToPropertyPath(path));
         }
     }
 }

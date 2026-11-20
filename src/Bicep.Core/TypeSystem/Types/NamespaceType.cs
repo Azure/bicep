@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Artifacts;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceGraph.ArtifactReferences;
 using Bicep.Core.TypeSystem.Providers;
 
 namespace Bicep.Core.TypeSystem.Types
@@ -24,12 +24,12 @@ namespace Bicep.Core.TypeSystem.Types
             IEnumerable<BannedFunction> bannedFunctions,
             IEnumerable<Decorator> decorators,
             IResourceTypeProvider resourceTypeProvider,
-            IExtensionArtifactReference? extensionArtifactReference = null)
+            ExtensionArtifact? extensionArtifact = null)
             : base(aliasName, TypeSymbolValidationFlags.PreventAssignment, properties, null, obj => new FunctionResolver(obj, functionOverloads, bannedFunctions))
         {
             Settings = settings;
             ResourceTypeProvider = resourceTypeProvider;
-            ExtensionArtifactReference = extensionArtifactReference;
+            ExtensionArtifact = extensionArtifact;
             DecoratorResolver = new DecoratorResolver(this, decorators);
         }
 
@@ -41,7 +41,10 @@ namespace Bicep.Core.TypeSystem.Types
 
         public IResourceTypeProvider ResourceTypeProvider { get; }
 
-        public IExtensionArtifactReference? ExtensionArtifactReference { get; }
+        /// <summary>
+        /// Gets the extension artifact the namespace was loaded from, if any.
+        /// </summary>
+        public ExtensionArtifact? ExtensionArtifact { get; }
 
         public string ExtensionName => Settings.BicepExtensionName;
 

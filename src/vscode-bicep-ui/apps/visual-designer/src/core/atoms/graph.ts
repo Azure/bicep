@@ -18,5 +18,8 @@ export const sourceGraphRevisionAtom = atom<string | null>(null);
 /** What the canvas shows: the source graph with collapsed modules projected. */
 export const shownGraphAtom = atom<ClientGraph>(EMPTY_CLIENT_GRAPH);
 
+/** Whether the host has answered a graph request, so an empty canvas means an empty document. */
+export const graphReceivedAtom = atom(false);
+
 /** Whether the canvas shows any nodes. */
 export const graphHasNodesAtom = atom((get) => get(shownGraphAtom).nodes.size > 0);

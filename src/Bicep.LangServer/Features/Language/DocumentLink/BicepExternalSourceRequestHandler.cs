@@ -58,8 +58,8 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                     $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests."));
             }
 
-            if (address is not ArtifactAddress.SchemeQualified { Scheme: OciArtifactReferenceFacts.Scheme, Body: var body } ||
-                !OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(this.remoteArtifactContextFactory), ArtifactType.Module, aliasContext: null, body).IsSuccess(out var ociModuleReference))
+            if (address is not ArtifactAddress.SchemeQualified { Scheme: ArtifactSchemes.Br, Body: var body } ||
+                !OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(this.remoteArtifactContextFactory), ArtifactType.Module, aliasContext: null, ArtifactSchemes.Br, body).IsSuccess(out var ociModuleReference))
             {
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"The client specified an invalid module reference '{request.Target}'."));
@@ -67,13 +67,20 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
             var moduleReference = ociModuleReference;
 
-            if (restorer.GetRestoreState(moduleReference) is RemoteArtifactRestoreState.RestoreFailed)
+            ModuleArtifact artifact;
+            switch (restorer.GetRestoreState(moduleReference))
             {
-                return Task.FromResult(new BicepExternalSourceResponse(null,
-                    $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'."));
+                case RemoteArtifactRestoreState.Restored { Artifact: ModuleArtifact restored }:
+                    artifact = restored;
+                    break;
+                case RemoteArtifactRestoreState.RestoreFailed failed:
+                    return Task.FromResult(new BicepExternalSourceResponse(null, failed.Error(DiagnosticBuilder.ForDocumentStart()).Message));
+                default:
+                    return Task.FromResult(new BicepExternalSourceResponse(null,
+                        $"The module '{moduleReference.FullyQualifiedReference}' has not been restored."));
             }
 
-            var success = ociModuleReference.TryLoadSourceArchive().IsSuccess(out var sourceArchive, out var ex);
+            var success = artifact.TryGetSources().IsSuccess(out var sourceArchive, out var ex);
 
             if (request.requestedSourceFile is { })
             {
@@ -96,7 +103,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
             // No sources available, or specifically requesting the compiled main.json (requestedSourceFile=null).
             // Return the compiled JSON (main.json).
-            var mainTemplateFile = ociModuleReference.ModuleCacheEntry.MainTemplateFile;
+            var mainTemplateFile = artifact.EntryPoint;
             if (!mainTemplateFile.TryReadAllText().IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;

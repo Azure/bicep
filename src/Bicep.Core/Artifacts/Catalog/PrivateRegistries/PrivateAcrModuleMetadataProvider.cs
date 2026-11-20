@@ -9,6 +9,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Bicep.Core.Artifacts;
+using Bicep.Core.Artifacts.Codecs;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.RegistryClients.Oci;
@@ -61,13 +62,16 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         try
         {
             var transport = transportFactory.GetTransport(Registry, useOrasSdk);
-            var artifactResult = await transport.PullArtifactAsync(cloud, new OciArtifactAddressComponents(Registry, modulePath, version, null));
-            var manifest = artifactResult.Manifest;
+            var payload = await transport.PullArtifactAsync(cloud, new OciArtifactAddressComponents(Registry, modulePath, version, null));
+            var manifest = payload.Manifest;
 
             if (manifest.ArtifactType != BicepMediaTypes.BicepModuleArtifactType)
             {
                 return RegistryModuleVersionMetadata.UnexpectedArtifactType(version, manifest.ArtifactType ?? "(null)");
             }
+
+            // Decoding validates the module; an invalid one is reported below.
+            OciModuleArtifactCodec.Decode(payload);
 
             string? description = null;
             string? documentationUri = null;

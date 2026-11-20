@@ -18,8 +18,7 @@ namespace Bicep.Core.RegistryClients.Oci
             MediaType = mediaType;
             Annotations = annotations?.ToImmutableDictionary() ?? [];
             Digest = ComputeDigest(AlgorithmIdentifierSha256, data);
-            Size = data.ToArray().Length;
-            Data = data;
+            Size = data.ToMemory().Length;
         }
 
         public OciDescriptor(string data, string mediaType, IDictionary<string, string>? annotations = null)
@@ -36,8 +35,6 @@ namespace Bicep.Core.RegistryClients.Oci
             Annotations = annotations ?? [];
         }
 
-        [JsonIgnore]
-        public BinaryData? Data { get; }
         public string MediaType { get; }
         public string Digest { get; }
         public long Size { get; }

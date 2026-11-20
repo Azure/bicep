@@ -6,8 +6,8 @@ criteria. Uncompleted stages are not a commitment to a particular release. See
 
 ## Product principles
 
-- Preserve the graph-viewing experience when editing is disabled: pan, zoom, local node repositioning,
-  focus, double-click-to-source, reset layout, and export must continue to work.
+- Preserve the graph-viewing experience when editing is disabled: pan, zoom, selection, local node
+  repositioning, double-click-to-source, reset layout, and export must continue to work.
 - Keep Bicep source as the source of truth for resources and modules. Visual graph positions and
   transient creation previews must not silently modify it.
 - Keep creation **drag-first**. Do not add click-to-create as an alternate mouse gesture; a dragged
@@ -20,21 +20,23 @@ criteria. Uncompleted stages are not a commitment to a particular release. See
 
 ## Current baseline
 
-- `bicep.visualizer.experimental.enableResourceEditing` defaults to false and currently hides the
-  creation dock. Viewer interactions remain available; resource creation is the only implemented
-  resource-editing feature so far.
+- `bicep.visualizer.experimental.enableResourceEditing` defaults to false and controls only the
+  dock's Resources tool; resource creation is the only implemented resource-editing feature so far.
 - The dock has only a working Resources tool; unimplemented tools are not shown. The resource palette is
   drag-only, with a type catalog, API-version choice, and Featured, Recent (session-local), and All
   browsing views; search covers the whole catalog.
+- The dock also offers Select (`V`) and Hand (`H`), whatever the setting: click, modifier-click,
+  and marquee multi-selection, moving a selection together, right-drag and hold-Space panning, and
+  a node context menu with Go to Source. Hand pans from nodes without moving or selecting them.
 - The visualizer follows the VS Code theme **kind** (light, dark, high contrast) using curated graph
   palettes by default. The optional `bicep.visualizer.matchColorTheme` setting instead derives the
   colors from the active color theme, falling back to the curated palette where a theme color is
   missing or lacks contrast. Export offers Current and explicit theme choices.
 - A correlated resource drop and undo of its independent creation preserve the other
   nodes' positions and the camera. Edge changes and other topology changes can still reflow the
-  graph; automatic layout currently fits the viewport.
+  graph; automatic layout frames a newly opened graph but keeps the camera for one already shown.
 - Node clicks use total pointer travel to distinguish dragging, and cancellation does not change
-  focus. With resource editing off, the creation dock is absent without disabling viewer gestures.
+  focus or selection.
 - Bicep source edits use a version-checked `WorkspaceEdit` and VS Code's dirty-file/undo behavior;
   the host also rejects resource creation when editing is disabled. Resource creation, node drags,
   and Reset Layout share a session-local **Undo/Redo** timeline through the history-bar buttons
@@ -57,7 +59,7 @@ These details are documented in [Architecture](./architecture.md), the
 
 ## Recommended delivery order
 
-Stages 0 through 3 are complete. Dependencies, not calendar dates, gate the remaining stages. Stage 4
+Stages 0 through 5 are complete. Dependencies, not calendar dates, gate the remaining stages. Stage 4
 is viewer-only: it makes no source edits, does not depend on the editing setting, and benefits
 everyone who views a graph, so it comes first.
 
@@ -66,34 +68,33 @@ the camera or unaffected nodes, and keeps the positions of hidden nodes, which s
 stage 7 also need; they still need layout that keeps placed nodes fixed, which stage 2 does not
 provide. A collapsed module also gives module drops (stages 7 and 8) a compact initial form that
 avoids a large reflow (a module can be marked collapsed before its node arrives), and lets rename
-(stage 6) preserve collapsed state from the start. Stage 4 is implemented and awaits review; the editing stages do not
-wait for it.
+(stage 6) preserve collapsed state from the start. Stage 4 is merged.
 
 Resource placeholders in stage 7 depend only on the stage 0 mutation and layout rules, so they can
 proceed alongside stages 5 and 6; module references also build on stage 2. The order within stages
 6 and 7 can respond to user feedback.
 
-| Stage                                 | Deliverable                                                                    | Depends on | Exit criterion                                                                                    |
-| ------------------------------------- | ------------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------- |
-| 0. Foundations (complete)             | Viewer regression coverage, gesture fix, mutation rules, undo/layout rules     | —          | Disabled editing still behaves as before; every source mutation is version-checked and reversible |
-| 1. Low-risk discovery (complete)      | Optional VS Code theme matching; Featured/All and then Recent palette views    | —          | Theme and palette changes do not create source edits or surprise existing viewers                 |
-| 2. Module presentation (complete)     | Distinct collapsed-module styling and manual collapse/expand                   | 0          | Local modules toggle without source edits or loss of graph context                                |
-| 3. Remote-module expansion (complete) | Linked-source remote modules with child resources                              | 2          | Remote children and source links work; unavailable source is explicit                             |
-| 4. Resource containers                | Source-defined RG/MG/VNet/subnet containers                                    | 2          | Agreed containment rules yield readable nested containers in themes and exports                   |
-| 5. Interaction model                  | Experimental Select/Hand, selection state, contextual toolbar and context menu | 0          | Gestures and shortcuts are predictable without changing the default viewer mode                   |
-| 6. Focused source edits               | LSP-backed rename, then Convert to existing                                    | 5          | Edits preview/validate correctly, preserve graph context, and undo/redo in the editor             |
-| 7. Drag-first creation                | Placeholder-first resources; references to existing local modules              | 0, 2       | Cancel does not edit or lay out the graph; commit honors the placement/layout contract            |
-| 8. Module authoring                   | New local module files                                                         | 7          | The new file and parent declaration are one previewed, undoable operation                         |
-| 9. Module refactoring                 | Multi-select and Extract to Module                                             | 5, 8       | A language-server refactoring safely rewrites files and references in one operation               |
+| Stage                                 | Deliverable                                                                 | Depends on | Exit criterion                                                                                    |
+| ------------------------------------- | --------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------- |
+| 0. Foundations (complete)             | Viewer regression coverage, gesture fix, mutation rules, undo/layout rules  | —          | Disabled editing still behaves as before; every source mutation is version-checked and reversible |
+| 1. Low-risk discovery (complete)      | Optional VS Code theme matching; Featured/All and then Recent palette views | —          | Theme and palette changes do not create source edits or surprise existing viewers                 |
+| 2. Module presentation (complete)     | Distinct collapsed-module styling and manual collapse/expand                | 0          | Local modules toggle without source edits or loss of graph context                                |
+| 3. Remote-module expansion (complete) | Linked-source remote modules with child resources                           | 2          | Remote children and source links work; unavailable source is explicit                             |
+| 4. Resource containers (complete)     | Source-defined RG/MG/VNet/subnet containers                                 | 2          | Agreed containment rules yield readable nested containers in themes and exports                   |
+| 5. Interaction model (complete)       | Select/Hand, multi-selection, and node context menu                         | 0          | Gestures and shortcuts are predictable, and every viewing action keeps a gesture                  |
+| 6. Focused source edits               | LSP-backed rename, then Convert to existing                                 | 5          | Edits preview/validate correctly, preserve graph context, and undo/redo in the editor             |
+| 7. Drag-first creation                | Placeholder-first resources; references to existing local modules           | 0, 2       | Cancel does not edit or lay out the graph; commit honors the placement/layout contract            |
+| 8. Module authoring                   | New local module files                                                      | 7          | The new file and parent declaration are one previewed, undoable operation                         |
+| 9. Module refactoring                 | Extract to Module from a multiple selection                                 | 5, 8       | A language-server refactoring safely rewrites files and references in one operation               |
 
 ### Stage 0: viewer safety and undo foundation (complete)
 
 1. Click-versus-drag detection uses **total pointer travel since pointer-down** and a four-pixel
    threshold. A `pointercancel` does not focus or select a node. Regression tests cover slow,
    multi-event drags and true clicks.
-2. Preserve the flag-off experience: no editing dock or editing-only shortcut interception; existing
-   focus, local drag, background pan, zoom, double-click-to-source, status, and export stay usable.
-3. Editing controls and gestures are not rendered or bound when the setting is off. The extension
+2. Preserve the flag-off experience: no resource creation UI; local drag, pan, zoom,
+   double-click-to-source, status, and export stay usable.
+3. Resource creation is not rendered when the setting is off. The extension
    rechecks the setting before applying a resource edit, preserves document-version validation,
    and logs failures without showing canvas notifications.
 4. The resource-editing opt-in gates resource actions. Module source editing is not implicitly
@@ -138,7 +139,7 @@ Favorites, waits on the same user-wide versus workspace decision.
 **Collapsed appearance.** A collapsed module is laid out like a resource node: the colored
 folder icon, the symbolic name, and a `MODULE` type label. The expanded container's header shows
 the smaller folder icon, the name, and the same `MODULE` label inline, the pattern every container
-header follows (see [stage 4](#stage-4-resource-containers-implemented-pending-review)). An expanded frame is a region rather
+header follows (see [stage 4](#stage-4-resource-containers-complete)). An expanded frame is a region rather
 than an object, so it casts no shadow: only nodes and collapsed containers stand above the canvas.
 A trailing toggle uses VS Code's `unfold` (expand) and `fold` (collapse) codicons, the same vocabulary as
 editor folding. The toggle appears while the module is hovered or selected, or when it has keyboard focus, so
@@ -182,7 +183,7 @@ icon, collapsed or expanded, so it can be told from a local module at a glance. 
 with `isRemote`. The cloud is drawn in a darker gold from the folder itself, like the folder's tab, so
 it reads as one icon in every theme rather than as a badge added on top.
 
-### Stage 4: resource containers (implemented, pending review)
+### Stage 4: resource containers (complete)
 
 Draw a resource as a container around the declarations the source places inside it, such as a
 resource group (RG) around its modules or a virtual network (VNet) around its subnets. Containment
@@ -290,23 +291,51 @@ covers crossing-edge paint order, projection and collapse of resource containers
 invalidation on reparenting. Playwright or manual checks cover nesting depth, both
 high-contrast themes, theme matching, and exports.
 
-### Stage 5: navigation and selection
+### Stage 5: navigation and selection (complete)
 
-- In experimental editing mode, Select (`V`) selects nodes and permits node repositioning; Hand
-  (`H`) pans even when the pointer starts on a node. Retain empty-canvas panning in Select until a
-  marquee interaction is deliberately designed. Consider Space as a temporary Hand override.
-- Scope shortcuts to the focused designer webview, not the whole VS Code window. Do not intercept text input
-  in palette search, inline names, or the source editor. Show the active mode and an appropriate
-  cursor.
-- Separate _selected nodes_ from the current single-node focus/z-order state as multi-selection
-  becomes necessary. Add a compact contextual toolbar and a node-specific context menu
-  with Go to Source before adding edit actions.
-- With editing enabled, double-clicking a node, or clicking a node that is already selected, enters
-  inline rename (stage 6), and Go to Source moves to the contextual toolbar and context menu. With
-  editing disabled, double-click keeps revealing source. A second click that starts a drag moves the
-  node instead of entering rename, using the stage 0 total-travel threshold.
-- Roll out mode switching without changing the existing gestures for people who have not opted into
-  editing. Fix the accidental selection problem in stage 0 rather than relying on modes to hide it.
+- The dock offers Select (`V`) and Hand (`H`), whether or not resource editing is enabled; the
+  setting only adds the Resources tool after them. In
+  Select, a click selects one node, Shift/Ctrl/Cmd+click toggles a node in the selection, and a
+  drag on the background draws a marquee selecting the nodes it touches (a container only when
+  enclosed, and then together with everything inside it); a modified marquee adds to the
+  selection. Dragging a node moves it, or every selected node when it belongs to a multiple
+  selection, as one undo step; a node moves once even when its container is selected too. In
+  Hand, a left drag pans even when it starts on a node, and never changes selection or moves
+  nodes. A right drag pans in either tool. The designer draws its own cursors, styled like a node
+  (a filled shape with a thin outline and a soft shadow) and colored like the dock's icons: the
+  outline in the icon color and the fill in the dock's surface, in every theme including matched
+  ones. They are the Codicon `cursor` arrow for Select
+  and as the default everywhere in the designer, a pointing hand over buttons and other clickable
+  controls, and an outlined open hand for Hand and the palette's drag handles that closes while
+  panning or dragging. Text fields keep the text cursor. A pan shows the closed hand, and
+  pressing or dragging a node with Select shows no indicator at all. The active tool is marked without an accent color. Holding
+  Space switches to Hand until it is released (the dock shows Hand meanwhile), so trackpads can
+  pan without changing tools; Space keeps its usual meaning while a button or other control has
+  focus, and in text fields.
+- A module's frame is a drag handle, so a plain marquee cannot start on it. Alt/Option+drag, or
+  Ctrl/Cmd+drag, starts a marquee anywhere, including on a node or inside a module's frame, so
+  selecting some of a module's nodes is a modified drag inside it. Together: click a module to select
+  it alone, modified-drag inside it to select some of its nodes, and drag a marquee around it to
+  select it and everything inside. Shift/Ctrl/Cmd+click also adds individual children. Several Linux
+  window managers (KDE, Xfce, and some GNOME setups) take Alt+drag to move windows, so it may never
+  reach the designer there; Ctrl+drag is the alternative. A Ctrl/Cmd marquee adds to the selection,
+  as other modified marquees do.
+- Shortcuts are scoped to the designer webview. Text fields, composition, and modified shortcuts
+  are not intercepted. A left drag on the background now draws a marquee rather than panning, for
+  everyone: pan with Hand, hold Space, right-drag, or the wheel.
+- Selection is separate from focus and paint order. Dragging an unselected node raises it without
+  selecting it. Blank-canvas clicks and Escape clear selection. Refreshes preserve surviving
+  selections; collapsing a container replaces its selected descendants with the container, and
+  removed nodes are forgotten.
+- A right click that leaves exactly one node selected opens that node's context menu with Go to
+  Source; right-clicking an unselected node selects it first, and no menu opens while several
+  nodes are selected. Shift+F10 or the Context Menu key opens the menu for a single selected node,
+  Escape dismisses it without clearing selection, and keyboard focus returns to the canvas. There
+  is no floating node toolbar until there are actions beyond Go to Source.
+- Double-click still reveals source in Select; Hand does not reveal source.
+  Stage 6 will replace double-click and a second click on an already selected node with inline rename
+  in editing mode, retaining Go to Source in the context menu. A second click that becomes a drag
+  must continue to move the node rather than rename it, using the stage 0 total-travel threshold.
 
 ### Stage 6: focused Bicep edits
 
@@ -316,7 +345,7 @@ instead of replacing text, validate the document version, and apply the result a
 edit. Enter commits; Escape cancels; a failed blur commit keeps the draft and explains the error.
 Preserve selection and placement across the graph ID change, including descendants and collapsed
 state when a module's symbolic name changes and edges whose IDs embed the renamed node, so a rename is not treated as a
-topology change. Go to Source from the toolbar or context menu must still work.
+topology change. Go to Source from the context menu must still work.
 
 **Convert a resource to `existing`.** Offer an explicit selected-resource action, not a change of
 node appearance alone: `existing` stops this declaration from deploying the resource. Show a
@@ -358,8 +387,8 @@ workspace operation. Registry-module authoring and Extract to Module are separat
 | Reset/Tidy Layout requested by the user                     | Recompute layout as requested, with the existing viewport-preservation contract                                 |
 
 Layout invalidation already exempts a correlated `addNode` and the matching independent resource
-removal on undo. Edges can still trigger reflow, and automatic structural layout fits
-the viewport. Review those cases before introducing placeholders or module drops; do not
+removal on undo. Edges can still trigger reflow, which moves nodes
+under a fixed camera. Review those cases before introducing placeholders or module drops; do not
 present the entire policy as shipped behavior.
 
 ### Stage 8: new module files
@@ -402,11 +431,11 @@ refactoring.
 
 ## Validation and release gates
 
-- **Viewer:** with editing off, dock/edit actions are absent, and existing navigation, graph
-  interactions, export, and double-click-to-source still work.
+- **Viewer:** with editing off, the Resources tool and resource edits are absent, and navigation,
+  selection, graph interactions, export, and double-click-to-source still work.
 - **Gestures:** one-pixel pointer moves accumulating past the threshold do not select; true
-  clicks select; cancelled drags do not; Hand never moves nodes; V/H/Space do not fire while typing.
-  With editing on, double-click and a second click on a selected node enter rename, while a second
+  clicks select; cancelled drags do not; Hand never moves nodes; V/H do not fire while typing.
+  Once stage 6 ships, double-click and a second click on a selected node enter rename, while a second
   click that becomes a drag only moves the node.
 - **Creation/layout:** a placeholder cancelled under pan/zoom creates no file edit, graph node, or
   layout request. An independent placed resource does not move the camera; module children and
@@ -441,6 +470,5 @@ interactions, theme/export, and source/visual undo scenarios.
    explicit Tidy Layout prompt?
 4. Should Recent persist beyond the designer session, and if Favorites are added, are both
    user-wide or workspace-specific?
-5. Resource containers (stage 4): are the proposed parent and RG/MG scope rules and their
-   exclusions right? Should extension resources scoped to a resource (role assignments, locks,
-   diagnostic settings) ever be contained?
+5. Resource containers follow the shipped parent and RG/MG scope rules. Should extension resources
+   scoped to a resource (role assignments, locks, diagnostic settings) ever be contained?

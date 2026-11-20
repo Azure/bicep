@@ -66,7 +66,7 @@ namespace Bicep.Cli.Commands
             }
             OciArtifactReference? reference = null;
             IFileHandle? fileTarget = null;
-            if (args.TargetExtensionReference.StartsWith("br:") || args.TargetExtensionReference.StartsWith("ts:"))
+            if (ArtifactAddress.Parse(args.TargetExtensionReference) is ArtifactAddress.SchemeQualified { Scheme: ArtifactSchemes.Br or ArtifactSchemes.Oci or ArtifactSchemes.TemplateSpecs or ArtifactSchemes.File })
             {
                 reference = ValidateReference(args.TargetExtensionReference, GetCurrentDirectoryReferencingFileUri());
             }
@@ -94,7 +94,6 @@ namespace Bicep.Cli.Commands
 
             var package = new ExtensionArtifactPackage(
                 Types: tarPayload,
-                LocalDeployEnabled: binaries.Any(),
                 Binaries: binaries);
 
             if (reference is not null)
@@ -103,7 +102,7 @@ namespace Bicep.Cli.Commands
             }
             else if (fileTarget is not null)
             {
-                fileTarget.Write(await ExtensionArtifactArchiveCodec.Encode(package));
+                fileTarget.Write(await LocalExtensionArtifactCodec.Encode(package));
             }
             else
             {

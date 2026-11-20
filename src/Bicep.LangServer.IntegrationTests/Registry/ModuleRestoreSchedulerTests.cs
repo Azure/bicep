@@ -13,7 +13,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
@@ -162,11 +161,11 @@ namespace Bicep.LangServer.IntegrationTests.Registry
         {
             public ConcurrentStack<IEnumerable<RemoteArtifactReference>> ModuleRestores { get; } = new();
 
-            public string Scheme => "mock";
+            public ImmutableArray<string> Schemes { get; } = ["mock"];
 
             public bool CanHandle(RemoteArtifactReference reference) => reference is MockArtifactRef;
 
-            public IFileHandle? TryGetEntryPoint(RemoteArtifactReference _) => null;
+            public Artifact? TryOpen(RemoteArtifactReference _) => null;
 
             public Task<IDictionary<RemoteArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreAsync(IEnumerable<RemoteArtifactReference> references, RestoreMode mode)
             {
@@ -178,12 +177,14 @@ namespace Bicep.LangServer.IntegrationTests.Registry
         private class MockArtifactRef : RemoteArtifactReference
         {
             public MockArtifactRef(BicepSourceFile referencingFile, string value)
-                : base(TemplateSpecArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), "mock", ArtifactType.Module)
+                : base(TemplateSpecArtifactContext.Create(referencingFile.LoadConfiguration(), referencingFile.LoadFeatures()), ArtifactType.Module)
             {
                 this.Value = value;
             }
 
             public string Value { get; }
+
+            public override string FullyQualifiedReference => $"mock:{this.Value}";
 
             public override string UnqualifiedReference => this.Value;
         }

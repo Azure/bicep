@@ -23,61 +23,56 @@ internal sealed class OrasRegistrySession(
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
-    public async Task PushAsync(
-        IOciArtifactReference target,
-        string? mediaType,
-        string? artifactType,
-        OciDescriptor config,
-        IEnumerable<OciDescriptor> layers,
-        OciManifestAnnotationsBuilder annotations,
-        CancellationToken cancellationToken)
+    public async Task PushAsync(IOciArtifactReference target, OciArtifactPayload payload, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(target.Tag))
         {
             throw new InvalidOperationException("Push operations require a tag.");
         }
 
-        var layerDescriptors = layers.ToImmutableArray();
-        var manifest = new OciManifest(2, mediaType, artifactType, config, layerDescriptors, annotations.Build());
-#pragma warning disable IL2026
-        var manifestData = BinaryData.FromObjectAsJson(manifest, OciManifestSerializationContext.Default.Options);
-#pragma warning restore IL2026
         var manifestDescriptor = new Descriptor
         {
-            Digest = OciDescriptor.ComputeDigest(OciDescriptor.AlgorithmIdentifierSha256, manifestData),
+            Digest = payload.ManifestDigest,
             MediaType = BicepMediaTypes.OciImageManifest,
-            Size = manifestData.ToMemory().Length,
+            Size = payload.ManifestData.ToMemory().Length,
         };
 
         await ExecuteAsync(async client =>
         {
-            await PushDescriptorAsync(client, config, cancellationToken);
-            foreach (var layer in layerDescriptors)
+            await PushBlobAsync(client, payload, payload.Manifest.Config, cancellationToken);
+            foreach (var layer in payload.Manifest.Layers)
             {
-                await PushDescriptorAsync(client, layer, cancellationToken);
+                await PushBlobAsync(client, payload, layer, cancellationToken);
             }
 
-            await using var stream = manifestData.ToStream();
+            await using var stream = payload.ManifestData.ToStream();
             await client.PushAsync(manifestDescriptor, stream, target.Tag, cancellationToken);
             return true;
         }, cancellationToken, anonymousFirst: false);
     }
 
-    public Task<OciArtifactResult> PullAsync(IOciArtifactReference reference, CancellationToken cancellationToken) =>
+    public Task<OciArtifactPayload> PullAsync(IOciArtifactReference reference, CancellationToken cancellationToken) =>
         PullArtifactAsync(reference, cancellationToken);
 
-    internal Task<OciArtifactResult> PullArtifactAsync(IOciArtifactAddressComponents reference, CancellationToken cancellationToken) =>
+    internal Task<OciArtifactPayload> PullArtifactAsync(IOciArtifactAddressComponents reference, CancellationToken cancellationToken) =>
         ExecuteAsync(async client =>
         {
-            var (manifestData, digest, manifest) = await ResolveManifestAsync(client, reference, cancellationToken);
-            var layers = ImmutableArray.CreateBuilder<OciArtifactLayer>();
+            var (manifestData, _, manifest) = await ResolveManifestAsync(client, reference, cancellationToken);
+            var blobsByDigest = ImmutableDictionary.CreateBuilder<string, BinaryData>();
             foreach (var batch in manifest.Layers.Chunk(MaxConcurrentLayerDownloads))
             {
-                layers.AddRange(await Task.WhenAll(batch.Select(layer => FetchLayerAsync(client, layer, cancellationToken))));
+                foreach (var (layer, data) in await Task.WhenAll(batch.Select(layer => FetchBlobAsync(client, layer, cancellationToken))))
+                {
+                    blobsByDigest[layer.Digest] = data;
+                }
             }
 
-            var config = !manifest.Config.IsEmpty() ? await FetchLayerAsync(client, manifest.Config, cancellationToken) : null;
-            return OciArtifactResultFactory.Create(manifest, manifestData, digest, layers.ToImmutable(), config);
+            if (!manifest.Config.IsEmpty())
+            {
+                blobsByDigest[manifest.Config.Digest] = (await FetchBlobAsync(client, manifest.Config, cancellationToken)).Data;
+            }
+
+            return new OciArtifactPayload(manifestData, blobsByDigest.ToImmutable());
         }, cancellationToken);
 
     public Task<(string Digest, OciManifest Manifest)> ResolveAsync(IOciArtifactReference reference, CancellationToken cancellationToken) =>
@@ -115,7 +110,7 @@ internal sealed class OrasRegistrySession(
         }
     }
 
-    private static async Task<OciArtifactLayer> FetchLayerAsync(OrasRepositoryClient client, OciDescriptor descriptor, CancellationToken cancellationToken)
+    private static async Task<(OciDescriptor Descriptor, BinaryData Data)> FetchBlobAsync(OrasRepositoryClient client, OciDescriptor descriptor, CancellationToken cancellationToken)
     {
         try
         {
@@ -123,11 +118,11 @@ internal sealed class OrasRegistrySession(
             await using var content = stream;
             // Validate against the manifest, not a descriptor supplied by the blob response.
             var data = await ReadContentAsync(content, ToOrasDescriptor(descriptor), cancellationToken);
-            return new OciArtifactLayer(descriptor.Digest, descriptor.MediaType, data);
+            return (descriptor, data);
         }
         catch (NotFoundException exception)
         {
-            throw new InvalidArtifactException($"Module manifest refers to a non-existent blob with digest \"{descriptor.Digest}\".", exception);
+            throw new InvalidArtifactException($"The manifest refers to a blob that does not exist in the registry (digest \"{descriptor.Digest}\").", exception);
         }
     }
 
@@ -149,9 +144,9 @@ internal sealed class OrasRegistrySession(
         return data;
     }
 
-    private static async Task PushDescriptorAsync(OrasRepositoryClient client, OciDescriptor descriptor, CancellationToken cancellationToken)
+    private static async Task PushBlobAsync(OrasRepositoryClient client, OciArtifactPayload payload, OciDescriptor descriptor, CancellationToken cancellationToken)
     {
-        if (descriptor.Data is { } data)
+        if (payload.TryGetBlob(descriptor) is { } data)
         {
             await using var stream = data.ToStream();
             await client.Blobs.PushAsync(ToOrasDescriptor(descriptor), stream, cancellationToken);

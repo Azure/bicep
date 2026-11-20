@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Artifacts;
 using Bicep.Core.Artifacts.References;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
@@ -32,7 +33,7 @@ public static class MockRegistry
         var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true).ToArray();
         var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryCatalog>();
 
-        foreach (var (registryPath, filePath) in index.modules.Where(x => x.Key.StartsWith(OciArtifactReferenceFacts.SchemeWithColon)))
+        foreach (var (registryPath, filePath) in index.modules.Where(x => x.Key.StartsWith($"{ArtifactSchemes.Br}:")))
         {
             var sourceFile = registryFiles.First(x => x.StreamPath == $"Files/mockregistry/{filePath}");
 

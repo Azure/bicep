@@ -86,7 +86,7 @@ test("dock shows only available tools and does not move the graph", async ({ pag
   await expect(dockLocator).toHaveCSS("caret-color", "rgba(0, 0, 0, 0)");
   await expect(dockLocator).toHaveCSS("user-select", "none");
 
-  await expect(dockLocator.getByRole("button")).toHaveCount(1);
+  await expect(dockLocator.getByRole("button")).toHaveCount(3);
   await expect(page.getByRole("button", { name: /coming soon/i })).toHaveCount(0);
   expect(await creations(page)).toEqual([]);
   const launcher = page.getByRole("button", { name: "Add Resources" });
@@ -106,13 +106,30 @@ test("dock shows only available tools and does not move the graph", async ({ pag
   await expect(page.getByTestId("graph-canvas").getByTestId("target-scope")).toHaveCount(0);
 });
 
-test("dock keeps its minimum width and centers the Resources tool", async ({ page }) => {
+test("dock holds Select and Hand, a divider, then the Resources tool", async ({ page }) => {
   await openVisualDesigner(page);
-  const dock = (await page.getByTestId("creation-dock").boundingBox())!;
-  const resources = (await page.getByRole("button", { name: "Add Resources" }).boundingBox())!;
+  const dock = page.getByTestId("creation-dock");
+  const buttons = dock.getByRole("button");
 
-  expect(dock.width).toBe(120);
-  expect(resources.x + resources.width / 2).toBeCloseTo(dock.x + dock.width / 2, 0);
+  expect(
+    await buttons.evaluateAll((elements) => elements.map((element) => element.getAttribute("aria-label"))),
+  ).toEqual(["Select (V)", "Hand (H)", "Add Resources"]);
+  await expect(dock.getByRole("separator")).toHaveCount(1);
+  await expect(page.getByTestId("control-bar").getByRole("button", { name: "Hand (H)" })).toHaveCount(0);
+});
+
+test("the designer shows its own cursors rather than system ones, including in the palette", async ({ page }) => {
+  await openVisualDesigner(page);
+  await page.getByRole("button", { name: "Add Resources" }).click();
+  await showView(page, "All");
+  await page.getByRole("button", { name: /^Microsoft\.Network/ }).click();
+
+  const systemCursors = await page.getByTestId("app-root").evaluate((root) =>
+    Array.from(root.querySelectorAll("*"))
+      .map((element) => getComputedStyle(element).cursor)
+      .filter((cursor) => !cursor.startsWith("url(") && cursor !== "auto" && cursor !== "text"),
+  );
+  expect(systemCursors).toEqual([]);
 });
 
 test("browse opens on featured providers, and All lists every provider alphabetically", async ({ page }) => {
@@ -450,9 +467,9 @@ test("changing the target scope while the palette is open refreshes its types", 
   await expect(dragHandle(page, STORAGE_TYPE)).toHaveCount(0);
 });
 
-test("scope remains when the entire creation dock is disabled", async ({ page }) => {
+test("scope remains when the Resources tool is disabled", async ({ page }) => {
   await openVisualDesigner(page, { resourceEditing: "false", targetScope: "tenant" });
-  await expect(page.getByTestId("creation-dock")).toHaveCount(0);
+  await expect(page.getByTestId("open-resource-palette")).toHaveCount(0);
   await expect(page.getByTestId("target-scope")).toHaveAccessibleName("Target scope: Tenant");
   await page.getByRole("combobox", { name: "Document target scope" }).selectOption("subscription");
   await expect(page.getByTestId("target-scope")).toHaveAccessibleName("Target scope: Subscription");
@@ -531,7 +548,7 @@ test("Escape cancels an in-progress drag without closing the palette", async ({ 
   await expect(page.getByRole("complementary")).toHaveCount(0);
 });
 
-test("disabling creation during a drag removes the dock and cancels the pending drag", async ({ page }) => {
+test("disabling creation during a drag removes the Resources tool and cancels the pending drag", async ({ page }) => {
   await recordCreations(page);
   await openVisualDesigner(page);
   await openStorage(page);
@@ -546,7 +563,7 @@ test("disabling creation during a drag removes the dock and cancels the pending 
       "*",
     ),
   );
-  await expect(page.getByTestId("creation-dock")).toHaveCount(0);
+  await expect(page.getByTestId("open-resource-palette")).toHaveCount(0);
   await expect(page.getByRole("complementary")).toHaveCount(0);
   await expect(page.getByTestId("palette-drag-preview-resource")).toHaveCount(0);
   await page.mouse.move(100, 300);
@@ -709,7 +726,8 @@ test("popover stays above the dock, viewport-clamped with pinned search", async 
   await expect(popover).toBeVisible();
   expect((await popover.boundingBox())!.width).toBe(400);
   expect((await popover.boundingBox())!.height).toBe(360);
-  await page.setViewportSize({ width: 380, height: 500 });
+  // Short enough that the palette is clamped and its list scrolls.
+  await page.setViewportSize({ width: 380, height: 340 });
   const filter = page.getByRole("textbox", { name: "Filter resource types" });
   await filter.fill("Microsoft");
   await expect(page.getByTestId("resource-type-row")).toHaveCount(3);

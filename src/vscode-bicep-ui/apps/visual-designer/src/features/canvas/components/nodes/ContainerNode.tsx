@@ -12,10 +12,10 @@ import { useCallback, useId, useLayoutEffect, useRef } from "react";
 import { keyframes, styled, useTheme } from "styled-components";
 import { useGraphActions, useIsMotionReduced } from "@/core";
 import { graphInteractiveProps, NODE_MORPH_TRANSITION } from "@/lib/graph";
-import { ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
+import { ARROW_CURSOR, ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
 import { camelCaseToWords } from "@/utils";
 import { useIsModuleRestoring } from "../../hooks/use-is-module-restoring";
-import { useIsNodeFocused } from "../../hooks/use-is-node-focused";
+import { useIsNodeFocused, useIsNodeSelected } from "../../hooks/use-node-selection";
 
 /** Matches `ResourceNode`, so a collapsed container reads as one more node on the graph. */
 const ATOMIC_HEIGHT = 76;
@@ -39,7 +39,7 @@ export interface ContainerNodeProps {
 type FrameProps = {
   $hasError?: boolean;
   $isCollection?: boolean;
-  $isFocused?: boolean;
+  $isSelected?: boolean;
   $kind: NodeKind;
 };
 
@@ -56,16 +56,16 @@ function isFlat(kind: NodeKind, theme: DefaultTheme) {
   return kind !== "atomic" && theme.node.shadow !== "none";
 }
 
-function getRestingShadow({ $kind, $isFocused, $hasError, theme }: FrameProps & { theme: DefaultTheme }) {
-  if ($isFocused) {
+function getRestingShadow({ $kind, $isSelected, $hasError, theme }: FrameProps & { theme: DefaultTheme }) {
+  if ($isSelected) {
     return $hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow;
   }
 
   return $kind === "atomic" ? theme.node.shadow : "none";
 }
 
-function getHoverShadow({ $kind, $isFocused, $hasError, theme }: FrameProps & { theme: DefaultTheme }) {
-  if ($isFocused) {
+function getHoverShadow({ $kind, $isSelected, $hasError, theme }: FrameProps & { theme: DefaultTheme }) {
+  if ($isSelected) {
     return $hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow;
   }
 
@@ -87,8 +87,8 @@ const $Frame = styled.div<FrameProps>`
   /* An atomic node's height is fixed by its design, so it measures the same while its header animates. */
   min-height: ${({ $kind }) => ($kind === "atomic" ? `${ATOMIC_HEIGHT}px` : "0")};
   border: ${({ $hasError, theme }) => ($hasError ? theme.node.errorBorderWidth : theme.node.borderWidth)} solid
-    ${({ $hasError, $isFocused, theme }) =>
-      $hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
+    ${({ $hasError, $isSelected, theme }) =>
+      $hasError ? theme.error : $isSelected ? theme.node.focusBorder : theme.node.border};
   border-radius: 8px;
   background-color: ${({ $kind, theme }) => getFrameBackground($kind, theme)};
   box-shadow: ${getRestingShadow};
@@ -97,12 +97,12 @@ const $Frame = styled.div<FrameProps>`
     box-shadow 180ms ease;
 
   &:hover {
-    border-color: ${({ $hasError, $isFocused, theme }) =>
-      $hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.hoverBorder};
+    border-color: ${({ $hasError, $isSelected, theme }) =>
+      $hasError ? theme.error : $isSelected ? theme.node.focusBorder : theme.node.hoverBorder};
     box-shadow: ${getHoverShadow};
   }
 
-  ${({ $isCollection, $hasError, $isFocused, $kind, theme }) => {
+  ${({ $isCollection, $hasError, $isSelected, $kind, theme }) => {
     const offset = theme.node.collectionOffset;
     return $isCollection
       ? `
@@ -115,15 +115,15 @@ const $Frame = styled.div<FrameProps>`
       left: ${offset}px;
       right: -${offset}px;
       bottom: -${offset}px;
-      border: ${$hasError ? theme.node.errorBorderWidth : theme.node.borderWidth} solid ${$hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
+      border: ${$hasError ? theme.node.errorBorderWidth : theme.node.borderWidth} solid ${$hasError ? theme.error : $isSelected ? theme.node.focusBorder : theme.node.border};
       border-radius: 10px;
       background-color: ${getFrameBackground($kind, theme)};
       z-index: -1;
-      box-shadow: ${getRestingShadow({ $kind, $isFocused, $hasError, theme })};
+      box-shadow: ${getRestingShadow({ $kind, $isSelected, $hasError, theme })};
       transition: border-color 180ms ease, box-shadow 180ms ease;
     }
     &:hover::before {
-      border-color: ${$hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.hoverBorder};
+      border-color: ${$hasError ? theme.error : $isSelected ? theme.node.focusBorder : theme.node.hoverBorder};
     }
   `
       : "";
@@ -234,7 +234,7 @@ const $ToggleButton = styled(IconButton)<{ $isRevealed: boolean; $isError: boole
   }
 
   &[aria-disabled="true"] {
-    cursor: default;
+    cursor: ${ARROW_CURSOR};
     background-color: transparent;
     transform: none;
   }
@@ -329,6 +329,7 @@ export function ContainerNode({ id, kind, data }: ContainerNodeProps) {
   const frameRef = useRef<HTMLDivElement>(null);
   const iconRef = useRef<HTMLDivElement>(null);
   const isFocused = useIsNodeFocused(id);
+  const isSelected = useIsNodeSelected(id);
   const reduceMotion = useIsMotionReduced();
   const { toggleModuleCollapsed, restoreModule } = useGraphActions();
   const isRestoring = useIsModuleRestoring(id);
@@ -391,9 +392,10 @@ export function ContainerNode({ id, kind, data }: ContainerNodeProps) {
       ref={frameRef}
       $hasError={hasError}
       $isCollection={isCollection}
-      $isFocused={isFocused}
+      $isSelected={isSelected}
       $kind={kind}
       data-focused={isFocused}
+      data-selected={isSelected}
       data-module-collapsed={isCollapsed}
     >
       <$Row initial={false} animate={{ height: rowHeight }} transition={transition}>
@@ -426,7 +428,7 @@ export function ContainerNode({ id, kind, data }: ContainerNodeProps) {
             title={toggle.title}
             data-export-exclude=""
             data-source-status={canCollapse || isRestoring ? undefined : (sourceStatus ?? undefined)}
-            $isRevealed={isFocused || isRestoring || toggle.isError === true}
+            $isRevealed={isSelected || isRestoring || toggle.isError === true}
             $isError={toggle.isError === true}
             onClick={handleToggle}
           >

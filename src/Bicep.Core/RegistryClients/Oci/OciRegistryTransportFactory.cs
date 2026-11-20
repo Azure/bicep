@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Immutable;
-using Bicep.Core.Artifacts.References;
+using Bicep.Core.Configuration;
 using Bicep.Core.RegistryClients.Oci.AzureSdk;
 using Bicep.Core.RegistryClients.Oci.Oras;
 
@@ -29,24 +29,12 @@ public class OciRegistryTransportFactory : IOciRegistryTransportFactory
         this.azureManager = azureManager;
     }
 
-    public IOciRegistryTransport GetTransport(OciArtifactReference reference) =>
-        GetTransport(reference.Registry, reference.UseOrasSdk);
+    public IOciRegistryTransport GetTransport(string registry, bool useOrasSdk) => useOrasSdk ? transport : azureManager;
 
-    public IOciRegistryTransport GetTransport(string registry, bool useOrasSdk)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(registry);
-        return useOrasSdk ? transport : azureManager;
-    }
-
-    public IRegistrySession CreateSession(OciArtifactReference reference)
-    {
-        ArgumentNullException.ThrowIfNull(reference);
-        var cloud = reference.Context.Cloud;
-
-        return reference.UseOrasSdk
-            ? transport.CreateSession(cloud, reference.Registry, reference.Repository)
+    public IRegistrySession CreateSession(IBicepCloudConfiguration cloud, string registry, string repository, bool useOrasSdk) =>
+        useOrasSdk
+            ? transport.CreateSession(cloud, registry, repository)
             : new AcrRegistrySession(azureManager, cloud);
-    }
 
     /// <summary>
     /// Returns true for hosts that use Azure credentials rather than Docker credentials.

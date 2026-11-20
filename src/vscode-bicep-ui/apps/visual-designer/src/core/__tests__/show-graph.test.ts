@@ -6,7 +6,13 @@ import type { GraphNode } from "../api";
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
 import { layoutReadyAtom, nodesByIdAtom } from "@/lib/graph";
-import { pendingSubgraphLayoutsAtom, shownGraphAtom } from "../atoms";
+import {
+  focusNodeAtom,
+  pendingSubgraphLayoutsAtom,
+  selectedNodeIdsAtom,
+  selectNodeAtom,
+  shownGraphAtom,
+} from "../atoms";
 import { indexGraph, projectGraph } from "../graph-model";
 import { getNodePositions, setNodePositions } from "../node-positions";
 import { isMostlyNewGraph, showGraph } from "../show-graph";
@@ -41,6 +47,26 @@ const source = indexGraph({
 const getDefaultOrigin = () => ({ x: -1, y: -1 });
 
 describe("showGraph", () => {
+  it("keeps selection through refresh and focus changes, but forgets removed or hidden nodes", () => {
+    const store = createStore();
+    showGraph(store, source, { getDefaultOrigin });
+    store.set(selectNodeAtom, "module::a");
+    store.set(focusNodeAtom, "other");
+
+    showGraph(store, source, { getDefaultOrigin });
+    expect([...store.get(selectedNodeIdsAtom)]).toEqual(["module::a"]);
+
+    showGraph(store, projectGraph(source, new Set(["module"])), { getDefaultOrigin });
+    expect(store.get(selectedNodeIdsAtom).size).toBe(0);
+
+    showGraph(store, source, { getDefaultOrigin });
+    expect(store.get(selectedNodeIdsAtom).size).toBe(0);
+
+    store.set(selectNodeAtom, "other");
+    showGraph(store, indexGraph({ nodes: [], edges: [] }), { getDefaultOrigin });
+    expect(store.get(selectedNodeIdsAtom).size).toBe(0);
+  });
+
   it("places new nodes at their origin or among the others, and reports them", () => {
     const store = createStore();
     setNodePositions(store, new Map([["module::a", { x: 10, y: 10 }]]), "instant");

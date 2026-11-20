@@ -146,6 +146,38 @@ resource fooRes 'fooType@v1' = {
     }
 
     [TestMethod]
+    public async Task Publish_extension_should_fail_for_file_scheme_target()
+    {
+        // A file: target is a reference to a local file, not a path to write to.
+        const string target = "file:extension.tgz";
+        var settings = new InvocationSettings(new(TestContext, ArtifactAliasesAndRedirectsEnabled: true));
+        var result = await Bicep(settings, "publish-extension", "index.json", "--target", target);
+        result.Should().Fail().And.HaveStderrMatch($"*The specified extension target \"{target}\" is not supported.*");
+    }
+
+    [TestMethod]
+    public async Task Publish_extension_should_succeed_to_an_oci_target()
+    {
+        var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
+            TestContext,
+            typeof(PublishExtensionCommandTests).Assembly,
+            "Files/PublishExtensionCommandTests/TestExtension");
+
+        var registryStr = "example.com";
+        var repository = "test/extension";
+        var version = "0.0.1";
+
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor(registryStr, repository, ["tag"]));
+        var fakeBlobClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, new Uri($"https://{registryStr}"), repository);
+        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, ArtifactAliasesAndRedirectsEnabled: true), clientFactory, BicepTestConstants.TemplateSpecClientFactory);
+
+        var result = await Bicep(settings, "publish-extension", Path.Combine(outputDirectory, "index.json"), "--target", $"oci:{registryStr}/{repository}:{version}");
+
+        result.Should().Succeed().And.NotHaveStdout();
+        fakeBlobClient.Should().HaveExtension(version, out _);
+    }
+
+    [TestMethod]
     public async Task Publish_extension_should_fail_for_missing_index_path()
     {
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);

@@ -50,7 +50,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var links = GetDocumentLinks(remoteArtifactContextFactory, request, cancellationToken);
+            var links = GetDocumentLinks(restorer, remoteArtifactContextFactory, request, cancellationToken);
             return Task.FromResult(new DocumentLinkContainer<ExternalSourceDocumentLinkData>(links));
         }
 
@@ -67,7 +67,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             ResolveProvider = true,
         };
 
-        public static IEnumerable<DocumentLink<ExternalSourceDocumentLinkData>> GetDocumentLinks(IRemoteArtifactContextFactory remoteArtifactContextFactory, DocumentLinkParams request, CancellationToken cancellationToken)
+        public static IEnumerable<DocumentLink<ExternalSourceDocumentLinkData>> GetDocumentLinks(IRemoteArtifactRestorer restorer, IRemoteArtifactContextFactory remoteArtifactContextFactory, DocumentLinkParams request, CancellationToken cancellationToken)
         {
             var currentDocument = request.TextDocument;
             if (currentDocument.Uri.Scheme == LangServerConstants.ExternalSourceFileScheme)
@@ -87,13 +87,19 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                 var currentDocumentRelativeFile = currentDocumentReference.RequestedFile;
                 if (currentDocumentRelativeFile is { })
                 {
-                    if (!currentDocumentReference.ToArtifactReference(ExternalSourceReference.GetOciArtifactContext(remoteArtifactContextFactory)).IsSuccess(out var currentDocumentArtifact, out var message))
+                    if (!currentDocumentReference.ToArtifactReference(ExternalSourceReference.GetOciArtifactContext(remoteArtifactContextFactory)).IsSuccess(out var currentDocumentReferenceValue, out var message))
                     {
                         Trace.WriteLine(message);
                         yield break;
                     }
 
-                    if (!currentDocumentArtifact.TryLoadSourceArchive().IsSuccess(out var currentDocumentSourceArchive, out var ex))
+                    if (restorer.GetRestoreState(currentDocumentReferenceValue) is not RemoteArtifactRestoreState.Restored { Artifact: ModuleArtifact currentDocumentArtifact })
+                    {
+                        Trace.WriteLine($"The module '{currentDocumentReferenceValue.FullyQualifiedReference}' has not been restored.");
+                        yield break;
+                    }
+
+                    if (!currentDocumentArtifact.TryGetSources().IsSuccess(out var currentDocumentSourceArchive, out var ex))
                     {
                         Trace.WriteLine(ex.Message);
                         yield break;
@@ -139,7 +145,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
 
             var data = request.Data;
 
-            if (!OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(remoteArtifactContextFactory), ArtifactType.Module, null, data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
+            if (!OciArtifactReference.TryParse(ExternalSourceReference.GetOciArtifactContext(remoteArtifactContextFactory), ArtifactType.Module, null, ArtifactSchemes.Br, data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
             {
                 server.Window.ShowWarning($"Unable to parse the module source ID '{data.TargetArtifactId}': {error(DiagnosticBuilder.ForDocumentStart()).Message}");
                 return GetAlternateLink();
@@ -173,7 +179,13 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             }
 
             // If we get here, the module *should* have sources available (since we are going through delayed resolution), so show a message if we can't for some reason
-            if (!targetArtifactReference.TryLoadSourceArchive().IsSuccess(out var sourceArchive, out var ex))
+            if (restoreState is not RemoteArtifactRestoreState.Restored { Artifact: ModuleArtifact targetArtifact })
+            {
+                server.Window.ShowWarning($"Unable to retrieve source code for module {targetArtifactReference.FullyQualifiedReference}. The module has not been restored.");
+                return GetAlternateLink();
+            }
+
+            if (!targetArtifact.TryGetSources().IsSuccess(out var sourceArchive, out var ex))
             {
                 server.Window.ShowWarning($"Unable to retrieve source code for module {targetArtifactReference.FullyQualifiedReference}. {ex.Message}");
                 return GetAlternateLink();
