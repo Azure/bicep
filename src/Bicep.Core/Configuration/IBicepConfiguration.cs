@@ -21,6 +21,8 @@ namespace Bicep.Core.Configuration
 
         IBicepModuleAliasesMockConfiguration ModuleAliasesMock { get; }
 
+        IBicepArtifactsConfiguration Artifacts { get; }
+
         IBicepExtensionsConfiguration Extensions { get; }
 
         IBicepImplicitExtensionsConfiguration ImplicitExtensions { get; }

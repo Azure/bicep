@@ -24,6 +24,8 @@ namespace Bicep.Core.Configuration
 
         public const string ModuleAliasesMockKey = "moduleAliasesMock";
 
+        public const string ArtifactsKey = "artifacts";
+
         public const string ExtensionsKey = "extensions";
 
         public const string ImplicitExtensionsKey = "implicitExtensions";
@@ -66,6 +68,7 @@ namespace Bicep.Core.Configuration
             IBicepCloudConfiguration cloud,
             IBicepModuleAliasesConfiguration moduleAliases,
             IBicepModuleAliasesMockConfiguration moduleAliasesMock,
+            IBicepArtifactsConfiguration artifacts,
             IBicepExtensionsConfiguration extensions,
             IBicepImplicitExtensionsConfiguration implicitExtensions,
             IBicepAnalyzersConfiguration analyzers,
@@ -81,6 +84,7 @@ namespace Bicep.Core.Configuration
             Cloud = cloud;
             ModuleAliases = moduleAliases;
             ModuleAliasesMock = moduleAliasesMock;
+            Artifacts = artifacts;
             Extensions = extensions;
             ImplicitExtensions = implicitExtensions;
             Analyzers = analyzers;
@@ -105,6 +109,10 @@ namespace Bicep.Core.Configuration
             var moduleAliasesMock = element.TryGetProperty(ModuleAliasesMockKey, out _)
                 ? BindSection(element, ModuleAliasesMockKey, x => ModuleAliasesMockConfiguration.Bind(x, configFileUri))
                 : ModuleAliasesMockConfiguration.Bind(JsonElementFactory.CreateElement(new ModuleAliasesMock()), configFileUri);
+            // Never fails: invalid aliases are reported when they're used.
+            var artifacts = element.TryGetProperty(ArtifactsKey, out var artifactsElement)
+                ? ArtifactsConfiguration.Bind(artifactsElement, configFileUri)
+                : ArtifactsConfiguration.Empty;
             var analyzers = BindSection(element, AnalyzersKey, x => x.ValueKind == JsonValueKind.Object
                 ? new AnalyzersConfiguration(x)
                 : throw new ConfigurationException($"The \"{AnalyzersKey}\" property has an invalid value."));
@@ -129,6 +137,7 @@ namespace Bicep.Core.Configuration
                 cloud: cloud,
                 moduleAliases: moduleAliases,
                 moduleAliasesMock: moduleAliasesMock,
+                artifacts: artifacts,
                 extensions: extensions,
                 implicitExtensions: implicitExtensions,
                 analyzers: analyzers,
@@ -178,6 +187,8 @@ namespace Bicep.Core.Configuration
         public IBicepModuleAliasesConfiguration ModuleAliases { get; }
 
         public IBicepModuleAliasesMockConfiguration ModuleAliasesMock { get; }
+
+        public IBicepArtifactsConfiguration Artifacts { get; }
 
         public IBicepExtensionsConfiguration Extensions { get; }
 

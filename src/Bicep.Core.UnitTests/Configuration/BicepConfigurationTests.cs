@@ -54,6 +54,29 @@ public class BicepConfigurationTests
     }
 
     [TestMethod]
+    public void ToUtf8Json_ArtifactsSection_WrittenOnlyWhenDeclaredAndRoundTrips()
+    {
+        BicepConfiguration.BuiltIn.ToUtf8Json().Should().NotContain("\"artifacts\"");
+
+        var element = BicepConfiguration.BuiltInConfigurationElement.Merge(
+            JsonElementFactory.CreateElement("""
+                {
+                  "artifacts": {
+                    "aliases": {
+                      "company": { "type": "oci", "registry": "contoso.azurecr.io" }
+                    }
+                  }
+                }
+                """));
+
+        var serialized = BicepConfiguration.Bind(element).ToUtf8Json();
+        var roundTripped = BicepConfiguration.Bind(JsonElementFactory.CreateElement(serialized));
+
+        roundTripped.Artifacts.TryGetAlias("company").Unwrap().Should().Be(new OciArtifactAlias("company", "contoso.azurecr.io", null));
+        roundTripped.ToUtf8Json().Should().Be(serialized);
+    }
+
+    [TestMethod]
     [DataRow("1.2.3")]
     [DataRow(">=1.0.0")]
     [DataRow(">=1.0.0, <2.0.0")]

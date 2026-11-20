@@ -433,6 +433,26 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
+        [DataRow("""{ "company": { "type": "oci", "registry": "contoso.azurecr.io", "repositoryPrefix": "bicep/modules" } }""", true)]
+        [DataRow("""{ "specs": { "type": "ts", "subscriptionId": "00000000-0000-0000-0000-000000000000", "resourceGroup": "specs-rg" } }""", true)]
+        [DataRow("""{ "modules": { "type": "file", "path": "../modules" } }""", true)]
+        [DataRow("""{ "avm": { "type": "oci", "registry": "contoso.azurecr.io" } }""", true)]
+        [DataRow("""{ "avm": { "type": "file", "path": "./avm" } }""", false)]
+        [DataRow("""{ "company": { "type": "oci" } }""", false)]
+        [DataRow("""{ "company": { "type": "blob" } }""", false)]
+        [DataRow("""{ "modules": { "type": "file", "path": "/modules" } }""", false)]
+        [DataRow("""{ "bad/name": { "type": "oci", "registry": "contoso.azurecr.io" } }""", false)]
+        [DataRow("""{ "oci": { "type": "oci", "registry": "contoso.azurecr.io" } }""", false)]
+        [DataRow("""{ "BR": { "type": "oci", "registry": "contoso.azurecr.io" } }""", false)]
+        [DataRow("""{ "files": { "type": "file", "path": "./files" } }""", true)]
+        public void UserConfig_ArtifactAliasDefinition_IsValidatedBySchema(string aliases, bool expectedValid)
+        {
+            var bicepConfigJson = JObject.Parse($$"""{ "artifacts": { "aliases": {{aliases}} } }""");
+
+            bicepConfigJson.IsValid(BicepConfigSchemaAsJSchema, out IList<ValidationError> _).Should().Be(expectedValid);
+        }
+
+        [TestMethod]
         [RuleAndSchemaTestData]
         public void RuleConfigs_DefaultLevelShouldMatchRuleDefinition(string id, IBicepAnalyzerRule rule, JObject ruleSchema)
         {
