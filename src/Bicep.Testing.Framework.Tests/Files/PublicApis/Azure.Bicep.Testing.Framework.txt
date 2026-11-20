@@ -20,9 +20,11 @@ namespace Bicep.Testing.Framework
         public static System.Collections.Generic.IEnumerable<Bicep.Testing.Framework.ArmSnapshotResource> GetArmResources(this Bicep.Testing.Framework.SnapshotResult snapshot) { }
         public static bool? GetBoolProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
         public static int? GetIntProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
+        public static long? GetLongProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
         public static System.Text.Json.JsonElement GetProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
         public static bool GetRequiredBoolProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
         public static int GetRequiredIntProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
+        public static long GetRequiredLongProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
         public static string GetRequiredStringProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
         public static string? GetStringProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
     }

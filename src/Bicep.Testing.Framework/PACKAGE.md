@@ -148,12 +148,13 @@ version for the latest snapshot fixes.
   JSON Pointer. The empty pointer selects the whole body; `~0` escapes `~` and
   `~1` escapes `/` in property names. Malformed pointers throw `ArgumentException`;
   missing paths throw `KeyNotFoundException`. JSON null is returned as a value.
-- `GetStringProperty`, `GetIntProperty`, and `GetBoolProperty` return the
+- `GetStringProperty`, `GetIntProperty`, `GetLongProperty`, and `GetBoolProperty` return the
   corresponding nullable value. They return null only for JSON null, not for
   missing properties. Wrong JSON types throw `InvalidOperationException`.
-  Integers must fit in a 32-bit signed integer; fractional and out-of-range
+  Integers must fit in a 32-bit signed integer for `GetIntProperty`, or a 64-bit
+  signed integer for `GetLongProperty`; fractional and out-of-range
   numbers throw `FormatException`. Strings are not coerced into numbers or booleans.
-- `GetRequiredStringProperty`, `GetRequiredIntProperty`, and
+- `GetRequiredStringProperty`, `GetRequiredIntProperty`, `GetRequiredLongProperty`, and
   `GetRequiredBoolProperty` use the same JSON Pointer and conversion rules,
   but additionally throw `JsonException` for JSON null.
 - `Outputs` maps output names to resolved JSON values.

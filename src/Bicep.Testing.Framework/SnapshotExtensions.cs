@@ -107,6 +107,21 @@ public static class SnapshotExtensions
         => resource.GetIntProperty(pointer) ?? throw new JsonException($"Expected the value at JSON Pointer '{pointer}' to be a non-null integer.");
 
     /// <summary>
+    /// Reads a 64-bit integer, returning null for JSON null.
+    /// Missing paths, invalid pointers, other JSON types, fractional values, and out-of-range numbers throw.
+    /// </summary>
+    public static long? GetLongProperty(this SnapshotResource resource, string pointer)
+        => resource.GetProperty(pointer) is { ValueKind: not JsonValueKind.Null } element
+            ? element.GetInt64()
+            : null;
+
+    /// <summary>
+    /// Reads a non-null 64-bit integer. Throws for JSON null or any value rejected by <see cref="GetLongProperty"/>.
+    /// </summary>
+    public static long GetRequiredLongProperty(this SnapshotResource resource, string pointer)
+        => resource.GetLongProperty(pointer) ?? throw new JsonException($"Expected the value at JSON Pointer '{pointer}' to be a non-null 64-bit integer.");
+
+    /// <summary>
     /// Reads a boolean, returning null for JSON null. Missing paths, invalid pointers, and other JSON types throw.
     /// </summary>
     public static bool? GetBoolProperty(this SnapshotResource resource, string pointer)

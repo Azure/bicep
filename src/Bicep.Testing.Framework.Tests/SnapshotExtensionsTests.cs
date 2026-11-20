@@ -114,10 +114,13 @@ public class SnapshotExtensionsTests
 
         resource.GetStringProperty("/value").Should().BeNull();
         resource.GetIntProperty("/value").Should().BeNull();
+        resource.GetLongProperty("/value").Should().BeNull();
         resource.GetBoolProperty("/value").Should().BeNull();
 
         var requiredInt = () => resource.GetRequiredIntProperty("/value");
         requiredInt.Should().Throw<JsonException>().WithMessage("*/value*non-null integer*");
+        var requiredLong = () => resource.GetRequiredLongProperty("/value");
+        requiredLong.Should().Throw<JsonException>().WithMessage("*/value*non-null 64-bit integer*");
         var requiredBool = () => resource.GetRequiredBoolProperty("/value");
         requiredBool.Should().Throw<JsonException>().WithMessage("*/value*non-null boolean*");
 
@@ -125,6 +128,8 @@ public class SnapshotExtensionsTests
         missingString.Should().Throw<KeyNotFoundException>();
         var missingInt = () => resource.GetIntProperty("/missing");
         missingInt.Should().Throw<KeyNotFoundException>();
+        var missingLong = () => resource.GetLongProperty("/missing");
+        missingLong.Should().Throw<KeyNotFoundException>();
         var missingBool = () => resource.GetBoolProperty("/missing");
         missingBool.Should().Throw<KeyNotFoundException>();
     }
@@ -170,6 +175,52 @@ public class SnapshotExtensionsTests
         var nullable = () => resource.GetIntProperty("");
         nullable.Should().Throw<InvalidOperationException>();
         var required = () => resource.GetRequiredIntProperty("");
+        required.Should().Throw<InvalidOperationException>();
+    }
+
+    [TestMethod]
+    [DataRow(long.MinValue)]
+    [DataRow(-2147483649L)]
+    [DataRow(0L)]
+    [DataRow(2147483648L)]
+    [DataRow(long.MaxValue)]
+    public void Long_accessors_read_64_bit_integers(long expected)
+    {
+        using var document = JsonDocument.Parse($$"""{"value":{{expected.ToString(System.Globalization.CultureInfo.InvariantCulture)}}}""");
+        var resource = new SnapshotResource { Body = document.RootElement };
+
+        resource.GetLongProperty("/value").Should().Be(expected);
+        resource.GetRequiredLongProperty("/value").Should().Be(expected);
+    }
+
+    [TestMethod]
+    [DataRow("1.5")]
+    [DataRow("9223372036854775808")]
+    [DataRow("-9223372036854775809")]
+    public void Long_accessors_reject_fractional_and_out_of_range_values(string json)
+    {
+        using var document = JsonDocument.Parse(json);
+        var resource = new SnapshotResource { Body = document.RootElement };
+
+        var nullable = () => resource.GetLongProperty("");
+        nullable.Should().Throw<FormatException>();
+        var required = () => resource.GetRequiredLongProperty("");
+        required.Should().Throw<FormatException>();
+    }
+
+    [TestMethod]
+    [DataRow("\"1\"")]
+    [DataRow("true")]
+    [DataRow("{}")]
+    [DataRow("[]")]
+    public void Long_accessors_reject_other_JSON_types(string json)
+    {
+        using var document = JsonDocument.Parse(json);
+        var resource = new SnapshotResource { Body = document.RootElement };
+
+        var nullable = () => resource.GetLongProperty("");
+        nullable.Should().Throw<InvalidOperationException>();
+        var required = () => resource.GetRequiredLongProperty("");
         required.Should().Throw<InvalidOperationException>();
     }
 
