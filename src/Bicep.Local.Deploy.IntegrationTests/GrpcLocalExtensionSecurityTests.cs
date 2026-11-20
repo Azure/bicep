@@ -806,7 +806,6 @@ public class GrpcLocalExtensionSecurityTests : TestBase
         var architecture = SupportedArchitectures.TryGetCurrent() ?? throw new InvalidOperationException("Unsupported test architecture.");
         var package = new ExtensionArtifactPackage(
             ExtensionResourceTypeHelper.GetHttpExtensionTypesTgz(),
-            true,
             [new ExtensionBinary(architecture, BinaryData.FromBytes([]))]);
         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(package, new(LocalDeployEnabled: true));
         var compilation = await RestoreAndCompileParams(services,
