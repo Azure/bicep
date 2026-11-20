@@ -2096,11 +2096,31 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic SchemeQualifiedAliasNotSupported(string scheme) => CoreError(
                 "BCP460",
-                $"The \"{scheme}\" scheme does not support aliases. Aliases in the form \"<scheme>/<alias>:\" are only supported for the \"{ArtifactSchemes.Br}\" and \"{ArtifactSchemes.TemplateSpecs}\" schemes.");
+                $"The \"{scheme}\" scheme does not support aliases in the form \"<scheme>/<alias>:\", which only the \"{ArtifactSchemes.Br}\" and \"{ArtifactSchemes.TemplateSpecs}\" schemes support. To use an alias defined in \"{BicepConfiguration.ArtifactsKey}.{ArtifactsConfiguration.AliasesKey}\", write \"<alias>::\".");
 
             public Diagnostic LocalModuleFileExtensionNotSupported(string reference) => CoreError(
                 "BCP461",
-                $"The reference \"{reference}\" is not valid. A file referenced with the \"{ArtifactSchemes.File}\" scheme must be a Bicep file (\"{LanguageConstants.LanguageFileExtension}\" or \"{LanguageConstants.ParamsFileExtension}\") or an ARM template (\"{LanguageConstants.JsonFileExtension}\", \"{LanguageConstants.JsoncFileExtension}\" or \"{LanguageConstants.ArmTemplateFileExtension}\").");
+                $"The reference \"{reference}\" is not valid. A module referenced with the \"{ArtifactSchemes.File}\" scheme or a file alias must be a Bicep file (\"{LanguageConstants.LanguageFileExtension}\" or \"{LanguageConstants.ParamsFileExtension}\") or an ARM template (\"{LanguageConstants.JsonFileExtension}\", \"{LanguageConstants.JsoncFileExtension}\" or \"{LanguageConstants.ArmTemplateFileExtension}\").");
+
+            public Diagnostic ArtifactAliasNotFound(string aliasName, IOUri? configFileUri) => CoreError(
+                "BCP462",
+                $"The artifact alias \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}. Define it in \"{BicepConfiguration.ArtifactsKey}.{ArtifactsConfiguration.AliasesKey}\".");
+
+            /// <param name="propertyPath">The invalid property, as a dotted path such as <c>artifacts.aliases.contoso</c>.</param>
+            public Diagnostic InvalidArtifactAlias(string propertyPath, IOUri? configFileUri, string reason) => CoreError(
+                "BCP463",
+                $"The \"{propertyPath}\" property in the {BuildBicepConfigurationClause(configFileUri)} is invalid. {reason}");
+
+            /// <param name="versionOnly">True if the reference names only a tag or digest after the alias, but the alias doesn't name a complete repository.</param>
+            public Diagnostic ArtifactAliasPathMissing(string reference, string aliasName, bool versionOnly) => CoreError(
+                "BCP464",
+                versionOnly
+                    ? $"The reference \"{reference}\" is not valid. A tag or digest can only follow \"{aliasName}::\" directly if the alias sets \"repositoryPrefix\" to a complete repository."
+                    : $"The reference \"{reference}\" is not valid. Specify an artifact path after \"{aliasName}::\".");
+
+            public Diagnostic ReservedArtifactAliasName(string aliasName) => CoreError(
+                "BCP465",
+                $"\"{aliasName}\" can't be used as an artifact alias because the name is reserved for a scheme. A fully qualified reference has a single \":\" after the scheme, as in \"{ArtifactSchemes.Oci}:<registry>/<repository>:<tag>\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

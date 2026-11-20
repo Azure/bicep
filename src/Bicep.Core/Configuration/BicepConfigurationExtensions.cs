@@ -21,6 +21,7 @@ namespace Bicep.Core.Configuration
             IBicepCloudConfiguration? cloud = null,
             IBicepModuleAliasesConfiguration? moduleAliases = null,
             IBicepModuleAliasesMockConfiguration? moduleAliasesMock = null,
+            IBicepArtifactsConfiguration? artifacts = null,
             IBicepExtensionsConfiguration? extensions = null,
             IBicepImplicitExtensionsConfiguration? implicitExtensions = null,
             IBicepAnalyzersConfiguration? analyzers = null,
@@ -37,6 +38,7 @@ namespace Bicep.Core.Configuration
                 cloud: cloud ?? configuration.Cloud,
                 moduleAliases: moduleAliases ?? configuration.ModuleAliases,
                 moduleAliasesMock: moduleAliasesMock ?? configuration.ModuleAliasesMock,
+                artifacts: artifacts ?? configuration.Artifacts,
                 extensions: extensions ?? configuration.Extensions,
                 implicitExtensions: implicitExtensions ?? configuration.ImplicitExtensions,
                 analyzers: analyzers ?? configuration.Analyzers,
@@ -68,6 +70,13 @@ namespace Bicep.Core.Configuration
 
                 writer.WritePropertyName(BicepConfiguration.ModuleAliasesMockKey);
                 ((IWritableConfigurationSection)configuration.ModuleAliasesMock).WriteTo(writer);
+
+                // Only written when configured, like "cacheRootDirectory". The predefined aliases are defined in code.
+                if (configuration.Artifacts.IsDeclared)
+                {
+                    writer.WritePropertyName(BicepConfiguration.ArtifactsKey);
+                    ((IWritableConfigurationSection)configuration.Artifacts).WriteTo(writer);
+                }
 
                 writer.WritePropertyName(BicepConfiguration.ExtensionsKey);
                 ((IWritableConfigurationSection)configuration.Extensions).WriteTo(writer);

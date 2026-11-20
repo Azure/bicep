@@ -106,6 +106,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 original.Cloud,
                 original.ModuleAliases,
                 original.ModuleAliasesMock,
+                original.Artifacts,
                 original.Extensions,
                 original.ImplicitExtensions,
                 new AnalyzersConfiguration(
