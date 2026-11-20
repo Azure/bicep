@@ -217,7 +217,7 @@ namespace Bicep.Cli.Commands
 
         private async Task<IFileHandle> GetTypesFromExtension(IOUri binaryUri, CancellationToken cancellationToken)
         {
-            await using var extension = await localExtensionFactory.Start(binaryUri);
+            await using var extension = await localExtensionFactory.Start(binaryUri, cancellationToken);
 
             Trace.WriteLine($"Requesting extension type definitions from binary \"{binaryUri.Path}\" via gRPC.");
             var typeFiles = await extension.GetTypeFiles(cancellationToken);

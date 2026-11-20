@@ -5,9 +5,13 @@ using System.Collections.Immutable;
 using System.IO.Pipes;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.Security;
 using System.Runtime.CompilerServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using Bicep.Local.Rpc;
 using Grpc.Core;
 using Grpc.Net.Client;
 
@@ -42,23 +46,24 @@ public static class GrpcChannelHelper
         }
     }
 
-    public static GrpcChannel CreateDomainSocketChannel(string socketPath)
+    public static GrpcChannel CreateDomainSocketChannel(string socketPath, LocalExtensionAuthentication authentication)
     {
         var udsEndPoint = new UnixDomainSocketEndPoint(socketPath);
         var connectionFactory = new UnixDomainSocketsConnectionFactory(udsEndPoint);
         var socketsHttpHandler = new SocketsHttpHandler
         {
-            ConnectCallback = connectionFactory.ConnectAsync
+            ConnectCallback = connectionFactory.ConnectAsync,
+            SslOptions = CreateTlsOptions(authentication),
         };
 
-        // The URL is not used, but it must be a valid URI.
-        return GrpcChannel.ForAddress("http://localhost", new GrpcChannelOptions
+        return GrpcChannel.ForAddress("https://localhost", new GrpcChannelOptions
         {
-            HttpHandler = socketsHttpHandler
+            HttpHandler = socketsHttpHandler,
+            DisposeHttpClient = true,
         });
     }
 
-    public static GrpcChannel CreateNamedPipeChannel(string pipeName)
+    public static GrpcChannel CreateNamedPipeChannel(string pipeName, LocalExtensionAuthentication authentication)
     {
         static async ValueTask<Stream> connectPipe(string pipeName, CancellationToken cancellationToken)
         {
@@ -84,29 +89,54 @@ public static class GrpcChannelHelper
         var socketsHttpHandler = new SocketsHttpHandler
         {
             ConnectCallback = (context, cancellationToken) => connectPipe(pipeName, cancellationToken),
+            SslOptions = CreateTlsOptions(authentication),
         };
 
-        return GrpcChannel.ForAddress("http://localhost", new GrpcChannelOptions
+        return GrpcChannel.ForAddress("https://localhost", new GrpcChannelOptions
         {
-            HttpHandler = socketsHttpHandler
+            HttpHandler = socketsHttpHandler,
+            DisposeHttpClient = true,
         });
     }
 
+    private static SslClientAuthenticationOptions CreateTlsOptions(LocalExtensionAuthentication authentication)
+        => new()
+        {
+            EnabledSslProtocols = SslProtocols.None,
+            CertificateRevocationCheckMode = X509RevocationMode.NoCheck,
+            ClientCertificates = [authentication.ClientCertificate],
+            // These are self-signed, per-launch identities, not certificates from the machine trust store.
+            RemoteCertificateValidationCallback = (_, certificate, _, _) =>
+                LocalExtensionAuthentication.MatchesCertificate(certificate, authentication.ServerCertificate),
+        };
+
     public static async Task WaitForConnectionAsync(Rpc.BicepExtension.BicepExtensionClient client, CancellationToken cancellationToken)
     {
-        var connected = false;
-        while (!connected)
+        RpcException? lastConnectionError = null;
+        try
         {
-            try
+            var connected = false;
+            while (!connected)
             {
-                await Task.Delay(50, cancellationToken);
-                await client.PingAsync(new(), cancellationToken: cancellationToken);
-                connected = true;
-            }
-            catch (RpcException ex) when (ex.StatusCode == StatusCode.Unavailable)
-            {
-                // ignore
+                try
+                {
+                    await Task.Delay(50, cancellationToken);
+                    await client.PingAsync(new(), cancellationToken: cancellationToken);
+                    connected = true;
+                }
+                catch (RpcException ex) when (ex.StatusCode == StatusCode.Unavailable && !IsAuthenticationFailure(ex))
+                {
+                    lastConnectionError = ex;
+                }
             }
         }
+        catch (Exception) when (cancellationToken.IsCancellationRequested && lastConnectionError is not null)
+        {
+            throw new InvalidOperationException("The authenticated extension endpoint did not become ready.", lastConnectionError);
+        }
     }
+
+    internal static bool IsAuthenticationFailure(Exception exception)
+        => exception is AuthenticationException ||
+            (exception.InnerException is { } inner && IsAuthenticationFailure(inner));
 }

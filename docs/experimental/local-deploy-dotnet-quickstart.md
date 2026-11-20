@@ -2,11 +2,13 @@
 
 A quickstart guide to creating your own Bicep Local Extension using .NET.
 
-This guide assumes you have the [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) installed locally, and the Bicep [0.37.4](https://github.com/Azure/bicep/releases/tag/v0.37.4) (or higher) CLI and VSCode extension installed.
+This guide requires the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) and compatible Bicep CLI, VS Code extension, and extension SDK builds. If you are updating an existing extension, see [Authenticated extension hosts](./local-deploy.md#authenticated-extension-hosts).
+
+Until compatible releases are available, this example references the extension SDK source directly. Use a Bicep checkout that supports authenticated extension hosts and CLI and VS Code extension builds from the same revision. See [installing build artifacts](../installing-nightly.md#manual) for setup instructions. Once a compatible SDK package is published, you can replace the source reference with that package.
 
 ## Project Scaffolding
 
-1. Create a project file named `MyExtension.csproj` with the following contents:
+1. Create a directory named `MyExtension` alongside your Bicep checkout directory, which must be named `bicep` for the relative path below. Inside `MyExtension`, create a project file named `MyExtension.csproj` with the following contents:
     ```xml
     <Project Sdk="Microsoft.NET.Sdk">
       <PropertyGroup>
@@ -17,13 +19,13 @@ This guide assumes you have the [.NET 9 SDK](https://dotnet.microsoft.com/en-us/
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>true</SelfContained>
         <InvariantGlobalization>true</InvariantGlobalization>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
       </PropertyGroup>
     
       <ItemGroup>
-        <PackageReference Include="Azure.Bicep.Local.Extension" Version="0.37.4" />
+        <ProjectReference Include="..\bicep\src\Bicep.Local.Extension\Bicep.Local.Extension.csproj" />
       </ItemGroup>
     </Project>
     ```

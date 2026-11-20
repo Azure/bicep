@@ -7,6 +7,6 @@ namespace Bicep.Local.Deploy.Extensibility;
 
 public class GrpcLocalExtensionFactory : ILocalExtensionFactory
 {
-    Task<ILocalExtension> ILocalExtensionFactory.Start(IOUri binaryUri)
-        => GrpcLocalExtension.Start(binaryUri);
+    Task<ILocalExtension> ILocalExtensionFactory.Start(IOUri binaryUri, CancellationToken cancellationToken)
+        => GrpcLocalExtension.Start(binaryUri, cancellationToken);
 }
