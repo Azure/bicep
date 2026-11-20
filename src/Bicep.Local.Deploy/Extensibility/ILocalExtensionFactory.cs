@@ -7,5 +7,5 @@ namespace Bicep.Local.Deploy.Extensibility;
 
 public interface ILocalExtensionFactory
 {
-    Task<ILocalExtension> Start(IOUri pathToBinary);
+    Task<ILocalExtension> Start(IOUri pathToBinary, CancellationToken cancellationToken = default);
 }

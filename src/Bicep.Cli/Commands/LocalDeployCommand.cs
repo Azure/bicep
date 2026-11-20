@@ -69,7 +69,7 @@ public class LocalDeployCommand(
         {
             await using var dispatcher = dispatcherFactory.Create();
 
-            await dispatcher.InitializeExtensions(compilation);
+            await dispatcher.InitializeExtensions(compilation, cancellationToken);
             await dispatcher.Deploy(templateString, parametersString, result => onUpdate(new(DeploymentProcessor.GetDeploymentView(result), null)), cancellationToken);
         }
         catch (Exception exception)

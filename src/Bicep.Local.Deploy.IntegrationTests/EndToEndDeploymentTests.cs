@@ -579,7 +579,7 @@ using 'main.bicep'
         var templateFile = result.Compilation.Emitter.Parameters().Template!.Template!;
 
         var mockExtensionFactory = StrictMock.Of<ILocalExtensionFactory>();
-        mockExtensionFactory.Setup(x => x.Start(It.IsAny<IOUri>())).ReturnsAsync(extension);
+        mockExtensionFactory.Setup(x => x.Start(It.IsAny<IOUri>(), It.IsAny<CancellationToken>())).ReturnsAsync(extension);
         var serviceProvider = services.Build().Construct<IServiceProvider>();
 
         await using LocalExtensionDispatcher extensionDispatcher = new(

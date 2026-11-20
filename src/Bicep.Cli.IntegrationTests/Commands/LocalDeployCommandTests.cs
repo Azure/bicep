@@ -59,7 +59,7 @@ public class LocalDeployCommandTests : TestBase
         armDeploymentProvider ??= StrictMock.Of<IArmDeploymentProvider>().Object;
 
         var mockExtensionFactory = StrictMock.Of<ILocalExtensionFactory>();
-        mockExtensionFactory.Setup(x => x.Start(It.IsAny<IOUri>())).ReturnsAsync(localExtension);
+        mockExtensionFactory.Setup(x => x.Start(It.IsAny<IOUri>(), It.IsAny<CancellationToken>())).ReturnsAsync(localExtension);
 
         services
             .AddSingleton(mockExtensionFactory.Object)

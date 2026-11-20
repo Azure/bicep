@@ -2,6 +2,9 @@
 
 Debug Bicep extensions locally using gRPC reflection and HTTP mode.
 
+> [!IMPORTANT]
+> Current Bicep builds require [authenticated extension hosts](./local-deploy.md#authenticated-extension-hosts). Bicep supplies authentication information when it launches the extension, so use the [Debugging Workflow](#debugging-workflow) below. The standalone launch profiles, plaintext tool commands, and automation scripts elsewhere in this guide are legacy examples and do not work with authenticated hosts. Do not disable authentication to use them.
+
 ## Quick Start
 
 ```bash
@@ -397,18 +400,23 @@ grpcurl -plaintext -d '{
 ## Debugging Workflow
 
 1. **Set breakpoints** in handler methods
-2. **Start debugger** (F5) with HTTP profile
-3. **Send request** via grpcui or grpcurl
-4. **Step through code**:
+2. **Build and publish** your extension with debug symbols, then configure your template to reference it. See the [extension quickstart](./local-deploy-dotnet-quickstart.md).
+3. **Launch the template** with `bicep local-deploy <parameters.bicepparam>`. Bicep starts the extension and handles authentication.
+4. **Attach the debugger** to the launched extension process. Use an attach configuration in VS Code, or **Debug > Attach to Process** in Visual Studio.
+5. **Step through code**:
    - **F10** - Step Over
    - **F11** - Step Into
    - **Shift+F11** - Step Out
    - **F5** - Continue
-5. **Inspect variables**:
+6. **Inspect variables**:
    - `request.Type` - Resource type
    - `request.Properties` - JSON properties string
    - `request.Config` - Extension configuration
    - `context.CancellationToken` - Timeout handling
+
+Bicep allows 30 seconds for the extension to become ready, including startup authentication. Pausing startup under a debugger can cause a timeout. For startup code or deployments that finish before you can attach, debug an in-process test instead. See the [unit testing guide](./local-deploy-dotnet-unittesting-guide.md) for handler tests, or the [provider integration tests](../../src/Bicep.Local.Deploy.IntegrationTests/ProviderExtensionTests.cs) for tests that exercise an authenticated connection.
+
+For the legacy standalone examples in this guide, start the debugger with the HTTP profile (**F5**) and send requests through grpcui or grpcurl.
 
 ### Discovering Services
 
