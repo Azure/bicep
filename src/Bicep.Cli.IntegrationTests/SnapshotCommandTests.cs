@@ -123,6 +123,259 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
     }
 
     [TestMethod]
+    [DataRow(false, false)]
+    [DataRow(false, true)]
+    [DataRow(true, false)]
+    [DataRow(true, true)]
+    public async Task Snapshot_with_custom_output_should_generate_and_validate_snapshot_file(bool useOutputDir, bool useRelativePath)
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = Path.Combine(outputPath, "parameters", "main.bicepparam");
+        var bicepPath = Path.ChangeExtension(bicepparamPath, ".bicep");
+        var outputDir = Path.Combine(outputPath, "snapshots");
+        var snapshotPath = Path.Combine(outputDir, useOutputDir ? "main.snapshot.json" : "custom.json");
+        var outputOption = useOutputDir ? "--outdir" : "--outfile";
+        var outputArgument = useOutputDir ? outputDir : snapshotPath;
+        if (useRelativePath)
+        {
+            outputArgument = Path.GetRelativePath(outputPath, outputArgument);
+        }
+
+        var subscriptionId = Guid.Empty.ToString();
+
+        var template = """
+            targetScope = 'subscription'
+
+            resource rg 'Microsoft.Resources/resourceGroups@2024-11-01' = {
+              name: 'myRg'
+              location: 'eastus'
+            }
+            """;
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [bicepparamPath] = new("using './main.bicep'"),
+            [bicepPath] = new(template),
+        });
+        fileSystem.Directory.SetCurrentDirectory(outputPath);
+
+        var missingResult = await Bicep(
+            services => services.WithFileSystem(fileSystem),
+            "snapshot", bicepparamPath, "--mode", "validate", outputOption, outputArgument, "--subscription-id", subscriptionId);
+        missingResult.Should().Fail();
+        missingResult.Stderr.Should().Contain($"Error opening file {snapshotPath}:");
+        fileSystem.File.Exists(snapshotPath).Should().BeFalse();
+        fileSystem.Directory.Exists(outputDir).Should().BeFalse();
+
+        var overwriteResult = await Bicep(
+            services => services.WithFileSystem(fileSystem),
+            "snapshot", bicepparamPath, outputOption, outputArgument, "--subscription-id", subscriptionId);
+        overwriteResult.Should().Succeed();
+        overwriteResult.Stderr.Should().BeEmpty();
+        fileSystem.File.Exists(Path.ChangeExtension(bicepparamPath, ".snapshot.json")).Should().BeFalse();
+
+        var snapshotContents = fileSystem.File.ReadAllText(snapshotPath);
+        snapshotContents.FromJson<JToken>().Should().DeepEqual(JObject.Parse("""
+            {
+              "predictedResources": [
+                {
+                  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg",
+                  "type": "Microsoft.Resources/resourceGroups",
+                  "name": "myRg",
+                  "apiVersion": "2024-11-01",
+                  "location": "eastus"
+                }
+              ],
+              "diagnostics": [],
+              "outputs": {}
+            }
+            """));
+
+        var validateResult = await Bicep(
+            services => services.WithFileSystem(fileSystem),
+            "snapshot", bicepparamPath, "--mode", "validate", outputOption, outputArgument, "--subscription-id", subscriptionId);
+        validateResult.Should().Succeed();
+        validateResult.Stderr.Should().BeEmpty();
+        fileSystem.File.ReadAllText(snapshotPath).Should().Be(snapshotContents);
+
+        fileSystem.File.WriteAllText(bicepPath, template.Replace("'eastus'", "'westus'"));
+        var changedResult = await Bicep(
+            services => services.WithFileSystem(fileSystem),
+            "snapshot", bicepparamPath, "--mode", "validate", outputOption, outputArgument, "--subscription-id", subscriptionId);
+        changedResult.Should().Fail();
+        changedResult.Stderr.Should().Contain("Snapshot validation failed.");
+        fileSystem.File.ReadAllText(snapshotPath).Should().Be(snapshotContents);
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task Snapshot_with_custom_output_should_overwrite_only_selected_snapshot(bool useOutputDir)
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = Path.Combine(outputPath, "parameters", "production.bicepparam");
+        var outputDir = Path.Combine(outputPath, "snapshot files", "nested");
+        var snapshotPath = Path.Combine(outputDir, useOutputDir ? "production.snapshot.json" : "custom snapshot");
+        var adjacentSnapshotPath = Path.ChangeExtension(bicepparamPath, ".snapshot.json");
+        var siblingSnapshotPath = Path.Combine(outputDir, "unrelated.snapshot.json");
+        const string unrelatedContents = "Leave this snapshot unchanged.";
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [bicepparamPath] = new("using './main.bicep'"),
+            [Path.Combine(outputPath, "parameters", "main.bicep")] = new("output message string = 'hello'"),
+            [snapshotPath] = new("Replace this snapshot."),
+            [adjacentSnapshotPath] = new(unrelatedContents),
+            [siblingSnapshotPath] = new(unrelatedContents),
+        });
+        fileSystem.Directory.SetCurrentDirectory(outputPath);
+
+        var outputOption = useOutputDir ? "--outdir" : "--outfile";
+        var outputArgument = Path.GetRelativePath(outputPath, useOutputDir ? outputDir : snapshotPath);
+        var overwriteResult = await Bicep(
+            services => services.WithFileSystem(fileSystem),
+            "snapshot", bicepparamPath, "--mode", "overwrite", outputOption, outputArgument);
+        overwriteResult.Should().Succeed();
+        overwriteResult.Stderr.Should().BeEmpty();
+
+        var snapshotContents = fileSystem.File.ReadAllText(snapshotPath);
+        snapshotContents.FromJson<JToken>().Should().DeepEqual(JObject.Parse("""
+            {
+              "predictedResources": [],
+              "diagnostics": [],
+              "outputs": {
+                "message": "hello"
+              }
+            }
+            """));
+
+        var validateResult = await Bicep(
+            services => services.WithFileSystem(fileSystem),
+            "snapshot", bicepparamPath, "--mode", "validate", outputOption, outputArgument);
+        validateResult.Should().Succeed();
+        validateResult.Stderr.Should().BeEmpty();
+        fileSystem.File.ReadAllText(snapshotPath).Should().Be(snapshotContents);
+        fileSystem.File.ReadAllText(adjacentSnapshotPath).Should().Be(unrelatedContents);
+        fileSystem.File.ReadAllText(siblingSnapshotPath).Should().Be(unrelatedContents);
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task Snapshot_validate_with_custom_output_should_not_fall_back_to_adjacent_snapshot(bool useOutputDir)
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = Path.Combine(outputPath, "parameters", "main.bicepparam");
+        var adjacentSnapshotPath = Path.ChangeExtension(bicepparamPath, ".snapshot.json");
+        var outputDir = Path.Combine(outputPath, "snapshots", "missing");
+        var snapshotPath = Path.Combine(outputDir, useOutputDir ? "main.snapshot.json" : "custom.json");
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [bicepparamPath] = new("using './main.bicep'"),
+            [Path.ChangeExtension(bicepparamPath, ".bicep")] = new("output message string = 'hello'"),
+        });
+        fileSystem.Directory.SetCurrentDirectory(outputPath);
+
+        var overwriteResult = await Bicep(
+            services => services.WithFileSystem(fileSystem),
+            "snapshot", bicepparamPath);
+        overwriteResult.Should().Succeed();
+        overwriteResult.Stderr.Should().BeEmpty();
+        var adjacentSnapshotContents = fileSystem.File.ReadAllText(adjacentSnapshotPath);
+
+        var outputOption = useOutputDir ? "--outdir" : "--outfile";
+        var outputArgument = Path.GetRelativePath(outputPath, useOutputDir ? outputDir : snapshotPath);
+        var validateResult = await Bicep(
+            services => services.WithFileSystem(fileSystem),
+            "snapshot", bicepparamPath, "--mode", "validate", outputOption, outputArgument);
+        validateResult.Should().Fail();
+        validateResult.Stderr.Should().Contain($"Error opening file {snapshotPath}:");
+        validateResult.Stdout.Should().BeEmpty();
+        fileSystem.File.Exists(snapshotPath).Should().BeFalse();
+        fileSystem.Directory.Exists(outputDir).Should().BeFalse();
+        fileSystem.File.ReadAllText(adjacentSnapshotPath).Should().Be(adjacentSnapshotContents);
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task Snapshot_with_outdir_should_keep_distinct_filenames(bool includeTrailingSeparator)
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var parametersDir = Path.Combine(outputPath, "parameters");
+        var outputDir = Path.Combine(outputPath, "snapshot files", "nested");
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [Path.Combine(parametersDir, "main.bicep")] = new("param message string\noutput result string = message"),
+        });
+        fileSystem.Directory.SetCurrentDirectory(outputPath);
+
+        var outputArgument = Path.GetRelativePath(outputPath, outputDir);
+        if (includeTrailingSeparator)
+        {
+            outputArgument += Path.DirectorySeparatorChar;
+        }
+
+        (string InputFile, string SnapshotFile, string Value)[] parameterFiles =
+        [
+            ("development.bicepparam", "development.snapshot.json", "dev"),
+            ("production.params.bicepparam", "production.params.snapshot.json", "prod"),
+            ("staging environment.bicepparam", "staging environment.snapshot.json", "staging"),
+        ];
+
+        foreach (var (inputFile, _, value) in parameterFiles)
+        {
+            var inputPath = Path.Combine(parametersDir, inputFile);
+            fileSystem.AddFile(inputPath, $"using './main.bicep'\nparam message = '{value}'");
+
+            var result = await Bicep(
+                services => services.WithFileSystem(fileSystem),
+                "snapshot", inputPath, "--outdir", outputArgument);
+            result.Should().Succeed();
+            result.Stderr.Should().BeEmpty();
+        }
+
+        foreach (var (inputFile, snapshotFile, value) in parameterFiles)
+        {
+            var snapshotContents = fileSystem.File.ReadAllText(Path.Combine(outputDir, snapshotFile)).FromJson<JToken>();
+            ((string?)snapshotContents.SelectToken("outputs.result")).Should().Be(value);
+            fileSystem.File.Exists(Path.ChangeExtension(Path.Combine(parametersDir, inputFile), ".snapshot.json")).Should().BeFalse();
+        }
+
+        fileSystem.Directory.GetFiles(outputDir).Should().BeEquivalentTo(
+            parameterFiles.Select(file => Path.Combine(outputDir, file.SnapshotFile)));
+    }
+
+    [TestMethod]
+    [DataRow(false, "overwrite")]
+    [DataRow(false, "validate")]
+    [DataRow(true, "overwrite")]
+    [DataRow(true, "validate")]
+    public async Task Snapshot_with_custom_output_should_preserve_existing_snapshot_on_compilation_error(bool useOutputDir, string mode)
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = Path.Combine(outputPath, "parameters", "main.bicepparam");
+        var outputDir = Path.Combine(outputPath, "snapshots");
+        var snapshotPath = Path.Combine(outputDir, useOutputDir ? "main.snapshot.json" : "custom.json");
+        const string snapshotContents = "Leave this snapshot unchanged.";
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [bicepparamPath] = new("using './main.bicep'"),
+            [Path.ChangeExtension(bicepparamPath, ".bicep")] = new("param value string ="),
+            [snapshotPath] = new(snapshotContents),
+        });
+        fileSystem.Directory.SetCurrentDirectory(outputPath);
+
+        var outputOption = useOutputDir ? "--outdir" : "--outfile";
+        var outputArgument = useOutputDir ? outputDir : snapshotPath;
+        var result = await Bicep(
+            services => services.WithFileSystem(fileSystem),
+            "snapshot", bicepparamPath, "--mode", mode, outputOption, outputArgument);
+        result.Should().Fail();
+        result.Stderr.Should().Contain("Error BCP");
+        fileSystem.File.ReadAllText(snapshotPath).Should().Be(snapshotContents);
+        fileSystem.File.Exists(Path.ChangeExtension(bicepparamPath, ".snapshot.json")).Should().BeFalse();
+    }
+
+    [TestMethod]
     [EmbeddedFilesTestData(@"Files/SnapshotCommandTests/.*/main\.bicepparam")]
     [TestCategory(BaselineHelper.BaselineTestCategory)]
     public async Task Snapshot_generates_correct_format(EmbeddedFile paramFile)
