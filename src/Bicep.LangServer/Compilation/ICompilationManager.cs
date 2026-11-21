@@ -14,7 +14,6 @@ namespace Bicep.LanguageServer.Compilation
 
         void RefreshCompilation(DocumentUri uri, bool forceReloadAuxiliaryFiles = false);
 
-        void RefreshAllActiveCompilations(bool forceReloadAuxiliaryFiles = false);
 
         void OpenCompilation(DocumentUri uri, int? version, string text, string languageId);
 

@@ -44,5 +44,7 @@ namespace Bicep.IO.InMemory
         public Task WriteAllTextAsync(string text, CancellationToken cancellationToken = default) => throw new UnreachableException();
 
         public IFileLock? TryLock() => throw new UnreachableException();
+
+        public FileVersion? TryGetVersion() => throw new UnreachableException();
     }
 }

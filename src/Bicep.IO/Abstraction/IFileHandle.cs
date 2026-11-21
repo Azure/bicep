@@ -33,5 +33,11 @@ namespace Bicep.IO.Abstraction
         void MakeExecutable();
 
         IFileLock? TryLock();
+
+        /// <summary>
+        /// Returns the current version of the file, or <see langword="null"/> if the file doesn't exist.
+        /// Checking the version once tells whether the file exists and whether it changed.
+        /// </summary>
+        FileVersion? TryGetVersion();
     }
 }

@@ -20,6 +20,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
@@ -204,6 +205,9 @@ namespace Bicep.Cli
                 .AddSingleton(CreateLoggerFactory(io).CreateLogger("bicep"))
                 .AddSingleton<InputOutputArgumentsResolver>()
                 .AddSingleton<ExplicitConfigurationScopeFactory>()
+                // One-shot commands never start a new epoch, so cached files aren't checked against the file system again.
+                // The JSON-RPC server starts one for each request.
+                .AddSingleton<FileChangeEpoch>()
                 .AddSingleton<DiagnosticLogger>()
                 .AddSingleton<OutputWriter>()
                 .AddSingleton<DocsGenerationOptionsResolver>()

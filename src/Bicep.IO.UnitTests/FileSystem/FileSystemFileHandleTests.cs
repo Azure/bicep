@@ -73,6 +73,45 @@ namespace Bicep.IO.UnitTests.FileSystem
             fileSystem.File.ReadAllText("/dir/subdir/file.txt").Should().Be("Hello, World!");
         }
 
+        [TestMethod]
+        public void TryGetVersion_FileDoesNotExist_ReturnsNull()
+        {
+            var fileSystem = new MockFileSystem();
+            var fileHandle = CreateFileSystemFileHandle(fileSystem, "/file");
+
+            fileHandle.TryGetVersion().Should().BeNull();
+        }
+
+        [TestMethod]
+        public void TryGetVersion_FileRewritten_ReturnsDifferentVersion()
+        {
+            var fileSystem = new MockFileSystem();
+            fileSystem.AddFile("/file", new MockFileData("content") { LastWriteTime = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc) });
+            var fileHandle = CreateFileSystemFileHandle(fileSystem, "/file");
+            var version = fileHandle.TryGetVersion();
+
+            fileHandle.WriteAllText("content");
+
+            version.Should().Be(new FileVersion(new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks, "content".Length));
+            fileHandle.TryGetVersion().Should().NotBe(version);
+        }
+
+        [TestMethod]
+        public void TryGetVersion_SymbolicLinkTargetChanged_ReturnsDifferentVersion()
+        {
+            var fileSystem = new MockFileSystem();
+            fileSystem.AddFile("/target.json", new MockFileData("{}"));
+            fileSystem.File.CreateSymbolicLink(fileSystem.Path.GetFullPath("/link.json"), fileSystem.Path.GetFullPath("/target.json"));
+            var link = CreateFileSystemFileHandle(fileSystem, "/link.json");
+            var version = link.TryGetVersion();
+
+            // Reading the link reads the target, so editing the target changes the link's version.
+            fileSystem.File.WriteAllText(fileSystem.Path.GetFullPath("/target.json"), """{ "changed": true }""");
+
+            version.Should().NotBeNull();
+            link.TryGetVersion().Should().NotBe(version);
+        }
+
         private static FileSystemFileHandle CreateFileSystemFileHandle(MockFileSystem fileSystem, string path)
         {
             path = fileSystem.Path.GetFullPath(path);

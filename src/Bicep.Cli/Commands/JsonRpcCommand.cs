@@ -14,6 +14,7 @@ using Bicep.Core;
 using Bicep.Core.Documentation;
 using Bicep.Core.Features;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using StreamJsonRpc;
 
@@ -25,7 +26,8 @@ public class JsonRpcCommand(
     IEnvironment environment,
     IBicepDocumentationGenerator documentationGenerator,
     DocsGenerationOptionsResolver docsOptionsResolver,
-    ExplicitConfigurationScopeFactory explicitConfigurationScopeFactory) : ICommand
+    ExplicitConfigurationScopeFactory explicitConfigurationScopeFactory,
+    FileChangeEpoch fileChangeEpoch) : ICommand
 {
     public async Task<int> RunAsync(JsonRpcArguments args, CancellationToken cancellationToken)
     {
@@ -72,7 +74,8 @@ public class JsonRpcCommand(
             environment,
             documentationGenerator,
             docsOptionsResolver,
-            explicitConfigurationScopeFactory);
+            explicitConfigurationScopeFactory,
+            fileChangeEpoch);
         jsonRpc.AddLocalRpcTarget<ICliJsonRpcProtocol>(server, null);
 
         jsonRpc.StartListening();

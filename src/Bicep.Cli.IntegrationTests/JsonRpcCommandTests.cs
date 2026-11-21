@@ -20,6 +20,7 @@ using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -734,6 +735,29 @@ kind: 'StorageV2'
 
                 (await request.Should().ThrowAsync<RemoteInvocationException>())
                     .WithMessage("Could not find configuration file \"/missing.json\".");
+            });
+    }
+
+    [TestMethod]
+    public async Task Compile_AfterBicepConfigIsEdited_UsesNewConfiguration()
+    {
+        var fileSet = MockFileSystemTestFileSet.Create(
+            ("main.bicep", "param foo string"),
+            ("bicepconfig.json", """{ "analyzers": { "core": { "rules": { "no-unused-params": { "level": "off" } } } } }"""));
+        var mainPath = fileSet.GetUri("main.bicep").GetFilePath();
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSet.FileSystem),
+            async (client, token) =>
+            {
+                var before = await client.Compile(new(mainPath), token);
+                before.Diagnostics.Should().NotContain(x => x.Code == "no-unused-params");
+
+                // The server is long-running, so it must see edits without being told about them.
+                fileSet.AddFile("bicepconfig.json", """{ "analyzers": { "core": { "rules": { "no-unused-params": { "level": "error" } } } } }""");
+
+                var after = await client.Compile(new(mainPath), token);
+                after.Diagnostics.Where(x => x.Code == "no-unused-params").Select(x => x.Level).Should().Equal("Error");
             });
     }
 

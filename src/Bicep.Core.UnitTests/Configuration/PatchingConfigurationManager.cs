@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.IO.Abstraction;
@@ -13,6 +14,10 @@ public class PatchingConfigurationManager : IBicepConfigurationManager
     private readonly IBicepConfigurationManager inner;
     private readonly Func<IBicepConfiguration, IBicepConfiguration> patchFunc;
 
+    // Patches each configuration once, so this returns the same instance until the inner manager's configuration changes,
+    // as IBicepConfigurationManager callers expect.
+    private readonly ConditionalWeakTable<IBicepConfiguration, IBicepConfiguration> patchedConfigurations = new();
+
     public PatchingConfigurationManager(IBicepConfigurationManager inner, Func<IBicepConfiguration, IBicepConfiguration> patchFunc)
     {
         this.inner = inner;
@@ -20,16 +25,13 @@ public class PatchingConfigurationManager : IBicepConfigurationManager
     }
 
     public IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri)
-        => new PatchingChain(inner.GetConfigurationChain(sourceFileUri), patchFunc);
+        => new PatchingChain(inner.GetConfigurationChain(sourceFileUri), this);
 
-    public bool InvalidateFile(IOUri fileUri) => inner.InvalidateFile(fileUri);
-    public void InvalidateAll() => inner.InvalidateAll();
-
-    private sealed class PatchingChain(IBicepConfigurationChain inner, Func<IBicepConfiguration, IBicepConfiguration> patchFunc) : IBicepConfigurationChain
+    private sealed class PatchingChain(IBicepConfigurationChain inner, PatchingConfigurationManager manager) : IBicepConfigurationChain
     {
-        public IBicepConfiguration GetEffectiveConfiguration() => patchFunc(inner.GetEffectiveConfiguration());
+        public IBicepConfiguration GetEffectiveConfiguration() =>
+            manager.patchedConfigurations.GetValue(inner.GetEffectiveConfiguration(), configuration => manager.patchFunc(configuration));
         public IEnumerable<KeyValuePair<IOUri, ImmutableArray<IDiagnostic>>> EnumerateDiagnosticsPerFile() => inner.EnumerateDiagnosticsPerFile();
         public int LayerCount => inner.LayerCount;
     }
 }
-

@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.LanguageServer.BicepConfig;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Compilation;
 using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -14,11 +14,11 @@ namespace Bicep.LanguageServer.Features.Workspace.DidChangeWatchedFiles
     public sealed class BicepDidChangeWatchedFilesHandler : DidChangeWatchedFilesHandlerBase
     {
         private readonly ICompilationManager compilationManager;
-        private readonly IBicepConfigLifecycleManager bicepConfigLifecycleManager;
+        private readonly FileChangeEpoch fileChangeEpoch;
 
-        public BicepDidChangeWatchedFilesHandler(ICompilationManager compilationManager, IBicepConfigLifecycleManager bicepConfigLifecycleManager)
+        public BicepDidChangeWatchedFilesHandler(ICompilationManager compilationManager, FileChangeEpoch fileChangeEpoch)
         {
-            this.bicepConfigLifecycleManager = bicepConfigLifecycleManager;
+            this.fileChangeEpoch = fileChangeEpoch;
             this.compilationManager = compilationManager;
         }
 
@@ -26,8 +26,9 @@ namespace Bicep.LanguageServer.Features.Workspace.DidChangeWatchedFiles
         {
             Container<FileEvent> fileEvents = request.Changes;
 
-            // Configuration files can have any name when they're extended, so let the configuration manager decide which events matter.
-            bicepConfigLifecycleManager.HandleFileChanges(fileEvents);
+            // Caches (such as the configuration manager) check their entries against the file system again in the new epoch,
+            // so the compilation manager finds the compilations whose configuration changed.
+            fileChangeEpoch.StartNew();
 
             compilationManager.HandleFileChanges(fileEvents);
 

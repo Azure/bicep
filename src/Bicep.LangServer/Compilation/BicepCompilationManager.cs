@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core;
 using Bicep.Core.Artifacts.Restore;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
@@ -29,6 +30,7 @@ namespace Bicep.LanguageServer.Compilation
         private readonly IModuleRestoreScheduler scheduler;
         private readonly ISourceFileFactory sourceFileFactory;
         private readonly IAuxiliaryFileCache auxiliaryfileCache;
+        private readonly IBicepConfigurationManager configurationManager;
 
         // represents compilations of open bicep or param files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContextBase> activeContexts = new();
@@ -39,7 +41,8 @@ namespace Bicep.LanguageServer.Compilation
             IActiveSourceFileSet activeSourceFileSet,
             IModuleRestoreScheduler scheduler,
             ISourceFileFactory sourceFileFactory,
-            IAuxiliaryFileCache auxiliaryFileCache)
+            IAuxiliaryFileCache auxiliaryFileCache,
+            IBicepConfigurationManager configurationManager)
         {
             this.server = server;
             this.provider = provider;
@@ -47,6 +50,7 @@ namespace Bicep.LanguageServer.Compilation
             this.scheduler = scheduler;
             this.sourceFileFactory = sourceFileFactory;
             this.auxiliaryfileCache = auxiliaryFileCache;
+            this.configurationManager = configurationManager;
         }
 
         public void RefreshCompilation(DocumentUri documentUri, bool forceReloadAuxiliaryFiles)
@@ -84,13 +88,6 @@ namespace Bicep.LanguageServer.Compilation
             UpsertCompilationInternal(documentUri, null, shallowCopy);
         }
 
-        public void RefreshAllActiveCompilations(bool forceReloadAuxiliaryFiles)
-        {
-            foreach (var sourceFile in activeSourceFileSet)
-            {
-                RefreshCompilation(sourceFile.FileHandle.Uri.ToDocumentUri(), forceReloadAuxiliaryFiles);
-            }
-        }
 
         public void OpenCompilation(DocumentUri documentUri, int? version, string fileContents, string languageId)
         {
@@ -199,9 +196,12 @@ namespace Bicep.LanguageServer.Compilation
             {
                 foreach (var sourceFile in context.Compilation.SourceFileGrouping.EnumerateBicepSourceFiles())
                 {
-                    if (modifiedAuxiliaryFileUris.Any(sourceFile.IsReferencingAuxiliaryFile))
+                    // Ensure we refresh any source files that reference a modified auxiliary file, or whose configuration changed.
+                    // The caller starts a new file change epoch, so the configuration manager checks the files each configuration
+                    // was loaded from, and returns a new instance for a configuration that changed.
+                    if (modifiedAuxiliaryFileUris.Any(sourceFile.IsReferencingAuxiliaryFile) ||
+                        !ReferenceEquals(context.Compilation.GetSemanticModel(sourceFile).Configuration, this.configurationManager.GetEffectiveConfiguration(sourceFile.FileHandle.Uri)))
                     {
-                        // Ensure we refresh any source files that reference a modified auxiliary file
                         modifiedSourceFiles.Add(sourceFile);
                     }
                 }

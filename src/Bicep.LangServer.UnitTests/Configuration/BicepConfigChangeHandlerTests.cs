@@ -6,6 +6,7 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
+using Bicep.IO.Abstraction;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
@@ -242,19 +243,9 @@ namespace Bicep.LangServer.UnitTests.Configuration
 
             var fileExplorer = new FileSystemFileExplorer(mockFileSystem);
             var bicepConfigManager = new BicepConfigurationManager(fileExplorer, trustPolicy ?? BicepTestConstants.TestCloudConfigurationTrustPolicy);
-            var configurationManager = bicepConfigManager;
-            var workspace = new ActiveSourceFileSet();
-            var bicepCompilationManager = new BicepCompilationManager(
-                server,
-                BicepCompilationManagerHelper.CreateEmptyCompilationProvider(configurationManager),
-                workspace,
-                BicepCompilationManagerHelper.CreateMockScheduler().Object,
-                new SourceFileFactory(configurationManager, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer),
-                BicepTestConstants.AuxiliaryFileCache);
-
             var lifecycleManager = new BicepConfigLifecycleManager(
-                bicepCompilationManager,
                 bicepConfigManager,
+                new FileChangeEpoch(),
                 server);
 
             lifecycleManager.HandleBicepConfigOpenEvent(DocumentUri.From(InMemoryFileResolver.GetFileUri(configFilePath)));
@@ -302,6 +293,23 @@ namespace Bicep.LangServer.UnitTests.Configuration
             var bicepFilePath = "/input.bicep";
             mockFileSystem.AddFile(bicepFilePath, bicepFileContents);
 
+            var workspace = new ActiveSourceFileSet();
+            var fileExplorer = new FileSystemFileExplorer(mockFileSystem);
+            var fileChangeEpoch = new FileChangeEpoch();
+            var bicepConfigManager = new BicepConfigurationManager(fileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: fileChangeEpoch);
+            var configurationManager = bicepConfigManager;
+            var sourceFileFactory = new SourceFileFactory(configurationManager, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer);
+            var bicepCompilationManager = new BicepCompilationManager(
+                server,
+                BicepCompilationManagerHelper.CreateEmptyCompilationProvider(configurationManager),
+                workspace,
+                BicepCompilationManagerHelper.CreateMockScheduler().Object,
+                sourceFileFactory,
+                BicepTestConstants.AuxiliaryFileCache,
+                configurationManager);
+            bicepCompilationManager.OpenCompilation(DocumentUri.From(InMemoryFileResolver.GetFileUri(bicepFilePath)), null, bicepFileContents, LanguageConstants.LanguageId);
+
+            // The configuration file is created after the compilation, so handling the file event is what makes the compilation use it.
             if (saveBicepConfigFile)
             {
                 bicepConfigFilePath = mockFileSystem.Path.GetFullPath("/bicepconfig.json");
@@ -312,33 +320,50 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 bicepConfigFilePath = null;
             }
 
-            var workspace = new ActiveSourceFileSet();
-            var fileExplorer = new FileSystemFileExplorer(mockFileSystem);
-            var bicepConfigManager = new BicepConfigurationManager(fileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
-            var configurationManager = bicepConfigManager;
-            var sourceFileFactory = new SourceFileFactory(configurationManager, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer);
-            var bicepCompilationManager = new BicepCompilationManager(
-                server,
-                BicepCompilationManagerHelper.CreateEmptyCompilationProvider(configurationManager),
-                workspace,
-                BicepCompilationManagerHelper.CreateMockScheduler().Object,
-                sourceFileFactory,
-                BicepTestConstants.AuxiliaryFileCache);
-            bicepCompilationManager.OpenCompilation(DocumentUri.From(InMemoryFileResolver.GetFileUri(bicepFilePath)), null, bicepFileContents, LanguageConstants.LanguageId);
-
-            var bicepConfigLifecycleManager = new BicepConfigLifecycleManager(
-                bicepCompilationManager,
-                bicepConfigManager,
-                server);
-
-            // Report the configuration file as created, or as deleted when the test runs without one.
-            bicepConfigLifecycleManager.HandleFileChanges([new FileEvent
+            fileChangeEpoch.StartNew();
+            bicepCompilationManager.HandleFileChanges([new FileEvent
             {
                 Uri = DocumentUri.FromFileSystemPath(mockFileSystem.Path.GetFullPath("/bicepconfig.json")),
                 Type = saveBicepConfigFile ? FileChangeType.Created : FileChangeType.Deleted,
             }]);
 
             diagnostics = receivedParams?.Diagnostics;
+        }
+
+        [TestMethod]
+        public void HandleFileChanges_WithUnchangedConfiguration_DoesNotRefreshCompilation()
+        {
+            var publishCount = 0;
+            var document = BicepCompilationManagerHelper.CreateMockDocument(_ => publishCount++);
+            ILanguageServerFacade server = BicepCompilationManagerHelper.CreateMockServer(document).Object;
+
+            var mockFileSystem = new MockFileSystem();
+            mockFileSystem.AddFile("/input.bicep", "param p string");
+            mockFileSystem.AddFile("/bicepconfig.json", "{}");
+
+            var fileChangeEpoch = new FileChangeEpoch();
+            var configurationManager = new BicepConfigurationManager(new FileSystemFileExplorer(mockFileSystem), BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: fileChangeEpoch);
+            var bicepCompilationManager = new BicepCompilationManager(
+                server,
+                BicepCompilationManagerHelper.CreateEmptyCompilationProvider(configurationManager),
+                new ActiveSourceFileSet(),
+                BicepCompilationManagerHelper.CreateMockScheduler().Object,
+                new SourceFileFactory(configurationManager, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer),
+                BicepTestConstants.AuxiliaryFileCache,
+                configurationManager);
+            bicepCompilationManager.OpenCompilation(DocumentUri.From(InMemoryFileResolver.GetFileUri("/input.bicep")), null, "param p string", LanguageConstants.LanguageId);
+            var publishCountAfterOpen = publishCount;
+
+            // For example, a .bicep file was saved: nothing the configuration was loaded from changed.
+            mockFileSystem.AddFile("/other.bicep", "");
+            fileChangeEpoch.StartNew();
+            bicepCompilationManager.HandleFileChanges([new FileEvent
+            {
+                Uri = DocumentUri.FromFileSystemPath(mockFileSystem.Path.GetFullPath("/other.bicep")),
+                Type = FileChangeType.Created,
+            }]);
+
+            publishCount.Should().Be(publishCountAfterOpen);
         }
     }
 }

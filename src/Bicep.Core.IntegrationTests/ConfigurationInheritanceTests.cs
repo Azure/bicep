@@ -30,10 +30,15 @@ public class ConfigurationInheritanceTests
         return (compiler, fileExplorer);
     }
 
-    private static IBicepConfigurationManager CreateConfigManager(InMemoryFileExplorer fileExplorer)
+    private static IBicepConfigurationManager CreateConfigManager(InMemoryFileExplorer fileExplorer, FileChangeEpoch? fileChangeEpoch = null)
     {
-        var services = new ServiceCollection()
-            .AddSingleton<IFileExplorer>(fileExplorer)
+        var serviceCollection = new ServiceCollection().AddSingleton<IFileExplorer>(fileExplorer);
+        if (fileChangeEpoch is not null)
+        {
+            serviceCollection.AddSingleton(fileChangeEpoch);
+        }
+
+        var services = serviceCollection
             .AddBicepCore()
             .BuildServiceProvider();
         return services.GetRequiredService<IBicepConfigurationManager>();
@@ -433,13 +438,14 @@ public class ConfigurationInheritanceTests
         }
         """);
 
-        var configManager = CreateConfigManager(fileExplorer);
+        var fileChangeEpoch = new FileChangeEpoch();
+        var configManager = CreateConfigManager(fileExplorer, fileChangeEpoch);
 
         // Act 1 — initial compilation should suppress the diagnostic.
         var chain1 = configManager.GetConfigurationChain(BicepUri("/main.bicep"));
         chain1.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
 
-        // Simulate editing the base config to re-enable the rule.
+        // Simulate editing the base config to re-enable the rule. Hosts start a new epoch when files may have changed, so the next request sees the change.
         WriteFile(fileExplorer, "/base/bicepconfig.base.json", """
         {
           "analyzers": {
@@ -451,9 +457,7 @@ public class ConfigurationInheritanceTests
           }
         }
         """);
-
-        // Purge the cache for the changed file.
-        configManager.InvalidateFile(BicepUri("/base/bicepconfig.base.json"));
+        fileChangeEpoch.StartNew();
 
         // Act 2 — reloaded chain should reflect the updated base config.
         var chain2 = configManager.GetConfigurationChain(BicepUri("/main.bicep"));

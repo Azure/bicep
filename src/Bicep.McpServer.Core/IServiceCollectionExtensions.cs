@@ -5,6 +5,7 @@ using System.Net;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.IO.Abstraction;
 using Bicep.McpServer.Core.Extensions;
 using Bicep.McpServer.Core.ResourceProperties;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +19,12 @@ public static class IServiceCollectionExtensions
 {
     public static IMcpServerBuilder AddBicepMcpServer(this IServiceCollection services)
     {
+        // The server is long-running and doesn't watch the file system, so each tool call starts a new file change epoch,
+        // and caches check what they've cached once per call.
+        var fileChangeEpoch = new FileChangeEpoch();
+
         services
+            .AddSingleton(fileChangeEpoch)
             .AddSingleton(NullLoggerFactory.Instance.CreateLogger<ResourceVisitor>())
             .AddSingleton<ITypeLoader>(new AzTypeLoader())
             .AddSingleton<AzResourceTypeLoader>(provider => new(provider.GetRequiredService<ITypeLoader>()))
@@ -45,6 +51,8 @@ public static class IServiceCollectionExtensions
         {
             filters.AddCallToolFilter(next => async (context, cancellationToken) =>
             {
+                fileChangeEpoch.StartNew();
+
                 try
                 {
                     return await next(context, cancellationToken);

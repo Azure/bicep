@@ -72,6 +72,8 @@ namespace Bicep.IO.InMemory
 
         public IFileLock? TryLock() => DummyFileLock.Instance;
 
+        public FileVersion? TryGetVersion() => this.FileStore.TryGetFileVersion(this);
+
         private static IOUri EnsureNoTrailingSlash(IOUri uri)
         {
             if (uri.Path.EndsWith('/'))
