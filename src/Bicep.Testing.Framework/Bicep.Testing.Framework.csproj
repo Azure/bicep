@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Azure.Bicep.Testing.Framework</AssemblyName>
+    <RootNamespace>Bicep.Testing.Framework</RootNamespace>
+    <EnableNuget>true</EnableNuget>
+    <PackageTags>Testing;Snapshots;ResourceManager;ARM</PackageTags>
+    <Description>
+      Test Bicep infrastructure with evaluated snapshots of resources and outputs.
+      Includes resource selection and typed property accessors for use with your preferred .NET test framework.
+    </Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Azure.Deployments.Core" />
+    <ProjectReference Include="..\Bicep.RpcClient\Bicep.RpcClient.csproj" />
+  </ItemGroup>
+</Project>

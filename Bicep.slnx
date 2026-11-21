@@ -54,6 +54,10 @@
     <Project Path="src/Bicep.RpcClient/Bicep.RpcClient.csproj" />
     <Project Path="src/Bicep.Testing/Bicep.Testing.csproj" />
   </Folder>
+  <Folder Name="/TestingFramework/">
+    <Project Path="src/Bicep.Testing.Framework/Bicep.Testing.Framework.csproj" />
+    <Project Path="src/Bicep.Testing.Framework.Tests/Bicep.Testing.Framework.Tests.csproj" />
+  </Folder>
   <Folder Name="/TestFixtures/" />
   <Folder Name="/Tools/">
     <Project Path="src/Bicep.Tools.Benchmark/Bicep.Tools.Benchmark.csproj" />

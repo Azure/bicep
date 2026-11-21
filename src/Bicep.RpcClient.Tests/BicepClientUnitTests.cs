@@ -101,6 +101,58 @@ public class BicepClientUnitTests
     }
 
     [TestMethod]
+    [DataRow("0.46.1")]
+    [DataRow("0.47.15")]
+    [DataRow("0.47.15+abcdef")]
+    public async Task GetSnapshot_with_management_group_throws_when_cli_version_is_below_minimum(string version)
+    {
+        var rpc = new FakeJsonRpcClient();
+        rpc.SetResponse("bicep/version", new VersionResponse(version));
+        using var client = new BicepClient(rpc);
+
+        await FluentActions.Invoking(() => client.GetSnapshot(
+                new("main.bicepparam", new(null, "platform", null, null, null, null), null), Token))
+            .Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage($"*GetSnapshot with ManagementGroupId*requires Bicep CLI version '0.47.16' or later*{version}*");
+
+        rpc.CallCount("bicep/getSnapshot").Should().Be(0);
+    }
+
+    [TestMethod]
+    [DataRow("0.47.16")]
+    [DataRow("0.47.16+abcdef")]
+    [DataRow("0.49.2")]
+    public async Task GetSnapshot_with_management_group_succeeds_when_cli_version_meets_minimum(string version)
+    {
+        var rpc = new FakeJsonRpcClient();
+        rpc.SetResponse("bicep/version", new VersionResponse(version));
+        rpc.SetResponse("bicep/getSnapshot", new GetSnapshotResponse("snapshot-contents"));
+        using var client = new BicepClient(rpc);
+
+        var result = await client.GetSnapshot(
+            new("main.bicepparam", new(null, "platform", null, null, null, null), null), Token);
+
+        result.Snapshot.Should().Be("snapshot-contents");
+        rpc.CallCount("bicep/getSnapshot").Should().Be(1);
+        rpc.CallCount("bicep/version").Should().Be(1);
+    }
+
+    [TestMethod]
+    public async Task GetSnapshot_with_management_group_rejects_unknown_cli_versions()
+    {
+        var rpc = new FakeJsonRpcClient();
+        rpc.SetResponse("bicep/version", new VersionResponse("unknown"));
+        using var client = new BicepClient(rpc);
+
+        await FluentActions.Invoking(() => client.GetSnapshot(
+                new("main.bicepparam", new(null, "platform", null, null, null, null), null), Token))
+            .Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*requires Bicep CLI version*unknown*");
+
+        rpc.CallCount("bicep/getSnapshot").Should().Be(0);
+    }
+
+    [TestMethod]
     public async Task Compile_forwards_request_to_the_expected_method()
     {
         var rpc = new FakeJsonRpcClient();

@@ -164,6 +164,11 @@ internal class BicepClient : IBicepClient
     public async Task<GetSnapshotResponse> GetSnapshot(GetSnapshotRequest request, CancellationToken cancellationToken)
     {
         await EnsureMinimumVersion("0.36.1", nameof(GetSnapshot), cancellationToken).ConfigureAwait(false);
+        if (request.Metadata.ManagementGroupId is not null)
+        {
+            await EnsureMinimumVersion("0.47.16", $"{nameof(GetSnapshot)} with ManagementGroupId", cancellationToken).ConfigureAwait(false);
+        }
+
         return await SendRequest<GetSnapshotRequest, GetSnapshotResponse>("bicep/getSnapshot", request, request.ConfigPath, cancellationToken).ConfigureAwait(false);
     }
 
@@ -195,7 +200,7 @@ internal class BicepClient : IBicepClient
     private async Task EnsureMinimumVersion(string requiredVersion, string operationName, CancellationToken cancellationToken)
     {
         var actualVersion = await GetVersion(cancellationToken).ConfigureAwait(false);
-        if (Version.Parse(actualVersion) < Version.Parse(requiredVersion))
+        if (!Version.TryParse(actualVersion.Split('+')[0], out var parsedVersion) || parsedVersion < Version.Parse(requiredVersion))
         {
             throw new InvalidOperationException($"Operation '{operationName}' requires Bicep CLI version '{requiredVersion}' or later, whereas '{actualVersion}' is currently installed.");
         }

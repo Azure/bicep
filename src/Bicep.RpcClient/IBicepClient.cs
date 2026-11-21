@@ -45,7 +45,9 @@ public interface IBicepClient : IDisposable
 
     /// <summary>
     /// Gets a snapshot of a Bicep parameters file.
+    /// Requires CLI 0.36.1 or later, or 0.47.16 or later when ManagementGroupId is supplied.
     /// </summary>
+    /// <exception cref="InvalidOperationException">The CLI version does not support the requested operation.</exception>
     Task<GetSnapshotResponse> GetSnapshot(GetSnapshotRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>

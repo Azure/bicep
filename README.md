@@ -30,6 +30,13 @@ Also, there's a rich library of [Bicep modules in Azure Verified Modules](https:
 
 If you're looking for production-ready and tested Bicep templates, you can find them in the [bicep-registry-modules](https://github.com/Azure/bicep-registry-modules) repo. Learn more about these templates on the Azure Verified Modules website: [https://aka.ms/avm](https://aka.ms/avm).
 
+## Test Bicep with C#
+
+The experimental [Azure.Bicep.Testing.Framework](src/Bicep.Testing.Framework/PACKAGE.md)
+package lets you assert on evaluated resources and outputs from a `.bicepparam`
+file using your preferred .NET test framework, without deploying to Azure.
+See the package guide for setup, examples, and support limitations.
+
 ## How does Bicep work?
 
 First, author your Bicep code by using the Bicep language service as part of the [Bicep VS Code extension](https://learn.microsoft.com/azure/azure-resource-manager/bicep/install#vs-code-and-bicep-extension).

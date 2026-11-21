@@ -1,0 +1,56 @@
+[assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/Azure/bicep")]
+[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v10.0", FrameworkDisplayName=".NET 10.0")]
+namespace Bicep.Testing.Framework
+{
+    public sealed class ArmSnapshotResource : Bicep.Testing.Framework.SnapshotResource, System.IEquatable<Bicep.Testing.Framework.ArmSnapshotResource>
+    {
+        public ArmSnapshotResource() { }
+        public required Azure.Deployments.Core.Definitions.Identifiers.ResourceId Id { get; init; }
+        public string Name { get; }
+        public string Type { get; }
+    }
+    public sealed class BicepTestHelper
+    {
+        public BicepTestHelper(Bicep.RpcClient.IBicepClientFactory clientFactory) { }
+        public System.Threading.Tasks.Task<Bicep.Testing.Framework.SnapshotResult> GetSnapshot(Bicep.RpcClient.BicepClientConfiguration configuration, Bicep.Testing.Framework.SnapshotOptions options, System.Threading.CancellationToken cancellationToken = default) { }
+    }
+    public static class SnapshotExtensions
+    {
+        public static System.Collections.Generic.IEnumerable<Bicep.Testing.Framework.ArmSnapshotResource> GetArmResourceOfType(this Bicep.Testing.Framework.SnapshotResult snapshot, string type) { }
+        public static System.Collections.Generic.IEnumerable<Bicep.Testing.Framework.ArmSnapshotResource> GetArmResources(this Bicep.Testing.Framework.SnapshotResult snapshot) { }
+        public static bool? GetBoolProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
+        public static int? GetIntProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
+        public static long? GetLongProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
+        public static System.Text.Json.JsonElement GetProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
+        public static bool GetRequiredBoolProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
+        public static int GetRequiredIntProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
+        public static long GetRequiredLongProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
+        public static string GetRequiredStringProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
+        public static string? GetStringProperty(this Bicep.Testing.Framework.SnapshotResource resource, string pointer) { }
+    }
+    public sealed class SnapshotOptions : System.IEquatable<Bicep.Testing.Framework.SnapshotOptions>
+    {
+        public SnapshotOptions() { }
+        public string? ConfigPath { get; init; }
+        public string? DeploymentName { get; init; }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.GetSnapshotRequest.ExternalInputValue>? ExternalInputs { get; init; }
+        public required string FilePath { get; init; }
+        public string? Location { get; init; }
+        public string? ManagementGroupId { get; init; }
+        public string? ResourceGroup { get; init; }
+        public string? SubscriptionId { get; init; }
+        public string? TenantId { get; init; }
+    }
+    public class SnapshotResource : System.IEquatable<Bicep.Testing.Framework.SnapshotResource>
+    {
+        public SnapshotResource() { }
+        public required System.Text.Json.JsonElement Body { get; init; }
+    }
+    public sealed class SnapshotResult : System.IEquatable<Bicep.Testing.Framework.SnapshotResult>
+    {
+        public SnapshotResult() { }
+        public required System.Collections.Immutable.ImmutableArray<string> Diagnostics { get; init; }
+        public required System.Collections.Immutable.ImmutableDictionary<string, System.Text.Json.JsonElement> Outputs { get; init; }
+        public required System.Collections.Immutable.ImmutableArray<Bicep.Testing.Framework.SnapshotResource> PredictedResources { get; init; }
+    }
+}
