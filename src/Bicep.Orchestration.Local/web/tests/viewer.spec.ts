@@ -50,17 +50,31 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await page.goto(`http://127.0.0.1:${port}?clawpilotTheme=dark`);
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await expect(page.locator("footer")).toHaveCount(0);
-    const checkNeutralAccent = async () => {
+    const checkThemeContrast = async () => {
       const colors = await page.evaluate(() => ({
         accent: getComputedStyle(document.documentElement).getPropertyValue("--cp-accent").trim(),
         link: getComputedStyle(document.documentElement).getPropertyValue("--cp-link").trim(),
-        primary: getComputedStyle(document.querySelector(".primary")!).backgroundColor,
         navigation: getComputedStyle(document.querySelector('nav button[aria-pressed="true"]')!).color,
+        background: getComputedStyle(document.querySelector("header")!).backgroundColor,
+        panelText: getComputedStyle(document.querySelector(".deployment-controls")!).color,
+        panelBackground: getComputedStyle(document.querySelector(".deployment-controls")!).backgroundColor,
       }));
+      const luminance = (color: string) => {
+        const channels = color.match(/\d+/g)!.slice(0, 3).map(value => {
+          const channel = Number(value) / 255;
+          return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+        });
+        return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+      };
+      const contrast = (foreground: string, background: string) => {
+        const values = [luminance(foreground), luminance(background)].sort((a, b) => a - b);
+        return (values[1] + 0.05) / (values[0] + 0.05);
+      };
       expect(colors.accent).toBe(colors.link);
-      expect(colors.primary).toBe(colors.navigation);
+      expect(contrast(colors.navigation, colors.background)).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(colors.panelText, colors.panelBackground)).toBeGreaterThanOrEqual(4.5);
     };
-    await checkNeutralAccent();
+    await checkThemeContrast();
     const navigation = page.getByRole("navigation", { name: "Views" });
     const deployView = navigation.getByRole("button", { name: "Deploy", exact: true });
     const approvalsView = navigation.getByRole("button", { name: "Approvals", exact: true });
@@ -68,6 +82,9 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     const healthView = navigation.getByRole("button", { name: "Service Health", exact: true });
     await expect(navigation.getByRole("button")).toHaveText(["Deploy", "Approvals", "Active Deployments", "Service Health"]);
     await expect(page.locator("header")).not.toContainText("Simulation");
+    const logo = page.getByRole("heading", { name: "Bicep Orchestration" }).locator("img");
+    await expect(logo).toHaveAttribute("alt", "");
+    await expect.poll(() => logo.evaluate(image => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
     await approvalsView.click();
     await expect(page.getByRole("region", { name: "Pending approvals", exact: true })).toContainText("No plans pending approval.");
     await deployView.click();
@@ -485,7 +502,7 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await expect(matrix.locator("button.stack")).toHaveCount(5);
     await page.goto(`http://127.0.0.1:${port}?clawpilotTheme=light`);
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-    await checkNeutralAccent();
+    await checkThemeContrast();
     await expect(page.locator("button.stack")).toHaveCount(5);
     await page.locator('button.stack[data-stack="cluster[1]"]').click();
     await checkSelection();

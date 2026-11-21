@@ -14,6 +14,8 @@ import { PredictionSummary } from "./predictionSummary";
 import { operationScope } from "./operationScope";
 import "./style.css";
 
+const bicepLogo = new URL("../../../icons/bicep-logo-256.png", import.meta.url).href;
+
 function sameTarget(a: Target, b: Target) {
   return a.targetInstance === b.targetInstance && a.targetRevision === b.targetRevision;
 }
@@ -221,7 +223,7 @@ function App() {
       (s.observed.length ? "Observed" : "Not deployed");
   }
   return <main>
-    <header><h1>Bicep Orchestration</h1>
+    <header><h1><img src={bicepLogo} alt="" />Bicep Orchestration</h1>
       <nav aria-label="Views">{views.map(name =>
         <button key={name} aria-pressed={view === name} onClick={() => setView(name)}>{name}</button>)}</nav>
     </header>
