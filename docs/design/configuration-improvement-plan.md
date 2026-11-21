@@ -30,7 +30,7 @@ PRs that change user-visible behavior are marked **(behavior change)**. Everythi
 | 10 | One configuration snapshot per file | – | – | Handed off to the source graph redesign |
 | 11 | Explicit config path passed in; `ExplicitConfigurationContext` removed | – | – | Handed off to the source graph redesign |
 | 12 | *(later release)* Remove the `cacheRootDirectory` property | ~3 + ~3 | 4 | Later |
-| 13 | Configuration cache checks its own dependencies once per file change epoch | ~12 + ~10 | 2 | In progress |
+| 13 | Configuration cache checks its own dependencies once per file change epoch | ~12 + ~10 | 2 | In review (#20587) |
 | 14 | Auxiliary file cache (`load*()` files) uses the same mechanism | ~5 + ~4 | 13 | Waiting on the source graph redesign |
 
 File counts are estimates from today's call sites. PR 5 is larger, but most of its edits are the same change repeated (noted in the PR). PRs 13 and 14 were added after PR 1 showed that the CLI JSON-RPC and MCP servers never see file changes (B6).
