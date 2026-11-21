@@ -190,14 +190,15 @@ Each node captures `Configuration` and `Features` when it's built, so one compil
 
 The services the builder calls to resolve a dependency (`ArtifactReferenceResolver`, `RemoteArtifactContextFactory`, `ModuleAliasMockRule`, `FeatureProviderFactory`) take the referencing node's configuration instead of looking it up by URI, so the explicit configuration reaches them without ambient state.
 
-The configuration manager keeps its caches current by itself (configuration plan PR 13): each cached chain records the files it read and their versions. When an `IFileChangeNotifier` reports changed files, it drops the chains those changes made stale and raises `ConfigurationChanged`, which `WithConfiguration` consumes:
+The configuration manager keeps its caches current by itself (configuration plan PR 13): each cached chain records the files it read and their versions, and is checked against them at most once per `FileChangeEpoch`. Hosts start a new epoch when files may have changed: the language server for each batch of watched-file events, `bicep jsonrpc` and the MCP server for each request; one-shot CLI commands never do. Nothing is pushed. The manager returns the same configuration instance until a file it was loaded from changes, so "did this node's configuration change?" is an instance comparison:
 
-| `ConfigurationChangedEventArgs` | Meaning | Nodes to recreate |
-|---|---|---|
-| `ConfigFileUris` | Leaf configuration files whose chains were dropped (the leaf, or a file it `extends`, changed) | Nodes whose configuration came from one of them |
-| `DirectoryUris` | Folders where a `bicepconfig.json` was created or deleted at or above them, so discovery must run again | Nodes whose file is in one of them; they may now use a different configuration |
+```csharp
+// WithConfiguration, after the host starts a new epoch: rebuild the nodes whose configuration instance changed.
+var stale = graph.Nodes.OfType<BicepSourceNode>()
+    .Where(node => !ReferenceEquals(node.Configuration, configurationManager.GetEffectiveConfiguration(node.Uri)));
+```
 
-Hosts without a file watcher (`bicep jsonrpc`, the MCP server) report that any file may have changed at the start of each request, and the manager checks each cached chain once on its next read; one-shot CLI commands report nothing. With configuration captured per node, that's one check per node per graph build.
+That covers both kinds of change: a leaf or a file it `extends` was edited (the chain is reloaded), and a `bicepconfig.json` was created or deleted between a node's folder and the configuration file it used (discovery finds a different file). With configuration captured per node, it's one check per node per graph build.
 
 ### Snapshot and compilation
 
@@ -210,7 +211,7 @@ public sealed class SourceGraph
     public IEnumerable<SourceNode> GetDependents(SourceNode node);   // reverse edges
 
     public SourceGraph WithFile(IOUri uri, string text);
-    public SourceGraph WithConfiguration(ConfigurationChangedEventArgs change);
+    public SourceGraph WithConfiguration();                          // after the host starts a new FileChangeEpoch
     public SourceGraph WithRestoredArtifacts(IEnumerable<RemoteArtifactReference> restored);
     public SourceGraph WithRoots(IEnumerable<IOUri> roots);          // documents opened or closed
 }
@@ -410,7 +411,7 @@ sequenceDiagram
 
 - `WithFile(uri, text)`: a new node for `uri` (reparsed, dependencies re-resolved); dependents recreated with their trees passed through.
 - `WithRestoredArtifacts(references)`: nodes with matching `NotRestored` dependencies re-resolved; dependents recreated.
-- `WithConfiguration(change)`: nodes using a dropped configuration (`ConfigFileUris`) or in a folder where discovery must run again (`DirectoryUris`) are rebuilt with their new configuration and re-resolved; dependents recreated. The language server calls it from `IBicepConfigurationManager.ConfigurationChanged` (section 3, Configuration).
+- `WithConfiguration()`: nodes whose configuration instance changed (section 3, Configuration) are rebuilt with their new configuration and re-resolved; dependents recreated. The language server calls it after starting a new `FileChangeEpoch` for a batch of watched-file events.
 - `WithRoots(roots)`: nodes added for newly opened documents; unreachable nodes dropped.
 
 ## 6. Migration (R4)
@@ -422,7 +423,7 @@ Each step leaves a working build.
 3. **Unreadable targets become `Failed`.** `SourceFileLookup` maps URIs to nodes.
 4. **Built-in implicit extensions leave the graph.** `ImplicitExtension` is deleted.
 5. **Nodes own their models.** `node.GetSemanticModel()`; `SemanticModel` reaches dependencies through nodes instead of `SourceFileGrouping` and `ModelLookup`; `referencedAuxiliaryFileUris` moves from `BicepSourceFile` to `SemanticModel.GetReferencedAuxiliaryFiles()`; `Compilation` thins out and takes the entry-point-only rules.
-6. **Workspace-wide snapshot in the language server.** One `SourceGraph` with the update operations; `modelLookup` and `ShallowClone()` retire. `ConfigurationChanged` calls `WithConfiguration` instead of `BicepCompilationManager.RefreshAllActiveCompilations`.
+6. **Workspace-wide snapshot in the language server.** One `SourceGraph` with the update operations; `modelLookup` and `ShallowClone()` retire. Watched-file events call `WithConfiguration()` instead of `BicepCompilationManager.HandleFileChanges` comparing each file's configuration.
 7. **Split the parse layer.** `BicepSourceFile` becomes `BicepSyntaxTree` plus node members; JSON parsing moves into the JSON semantic models; the `ISourceFile` family retires. Mechanical but wide (`BicepFile` alone is on about 660 lines).
 
 ## 7. Open questions
