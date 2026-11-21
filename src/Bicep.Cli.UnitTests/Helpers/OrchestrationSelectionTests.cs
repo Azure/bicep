@@ -47,6 +47,7 @@ public class OrchestrationSelectionTests
             OrchestrationSelection.ParseLabels(["kind=app", "region=westus"]), false, CancellationToken.None);
 
         selection.Selected.Should().BeEquivalentTo("apps[0]", "clusters[0]", "foundation");
+        selection.Matched.Should().BeEquivalentTo("apps[0]");
         selection.Dependencies["apps[0]"].Should().BeEquivalentTo("clusters[0]");
         var filtered = await SnapshotHelper.GetSnapshot(ResourceScope.Orchestrator, selection.Template, parameters,
             null, null, null, null, null, null, [], true, CancellationToken.None);
@@ -75,6 +76,7 @@ public class OrchestrationSelectionTests
             OrchestrationSelection.ParseLabels(["kind=app", "region=westus,eastus"]), false, CancellationToken.None);
         selection.Selected.Should().NotContain("global");
         selection.Selected.Should().Contain("apps[0]").And.Contain("apps[1]");
+        selection.Matched.Should().BeEquivalentTo("apps[0]", "apps[1]");
 
         var repeated = OrchestrationSelection.ParseLabels(["region=westus", "region=eastus"]);
         repeated["region"].Should().BeEquivalentTo("westus", "eastus");

@@ -4,13 +4,16 @@
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
 export type Resource = { id: string; type: string; name?: string; tags?: Record<string, string>; properties?: unknown };
-export type Stack = { name: string; region: string; labels: Record<string, string>; dependencies: string[]; observed: Resource[] };
+export type SourceLocation = { uri: string; line: number };
+export type StackSource = { declaration: SourceLocation; requires?: SourceLocation | null };
+export type Stack = { name: string; region: string; stage?: string; stageOrder?: number; labels: Record<string, string>; dependencies: string[]; observed: Resource[]; source?: StackSource | null };
 export type Target = { target: "JSON SIMULATION"; targetInstance: string; targetRevision: number };
 export type Topology = Target & { stacks: Stack[] };
 export type Change = { resourceId: string; changeType: string; delta?: unknown; before?: unknown; after?: unknown };
-export type Plan = Target & { id: string; fingerprint: string; source: string; sourceFingerprint: string; parametersFingerprint: string; observedFingerprint: string; selectors: string[]; stacks: { name: string; changes: Change[] }[] };
+export type PlannedStack = { name: string; changes: Change[]; selectionReason?: "Selected" | "Prerequisite"; requiredBy?: string[] };
+export type Plan = Target & { id: string; fingerprint: string; source: string; sourceFingerprint: string; parametersFingerprint: string; observedFingerprint: string; selectors: string[]; stacks: PlannedStack[] };
 export type Progress = { sequence: number; time: string; stack: string | null; status: string };
-export type Operation = Target & { id: string; planId: string; status: string; events: Progress[] };
+export type Operation = Target & { id: string; planId: string; status: string; stacks?: string[]; events: Progress[] };
 export type PendingApproval = { plan: Plan; submittedAt: string };
 export type Activity = Target & { plan?: Plan | null; operation?: Operation | null; pendingApprovals: PendingApproval[] };
 

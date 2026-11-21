@@ -17,7 +17,8 @@ public record OrchestrationSelection(
     string Template,
     ImmutableArray<JsonElement> Resources,
     ImmutableDictionary<string, ImmutableHashSet<string>> Dependencies,
-    ImmutableHashSet<string> Selected)
+    ImmutableHashSet<string> Selected,
+    ImmutableHashSet<string> Matched)
 {
     private const string DependenciesProperty = "__bicepOrchestrationDependencies";
     private const string LabelsLengthProperty = "__bicepOrchestrationLabelsLength";
@@ -78,6 +79,7 @@ public record OrchestrationSelection(
         {
             throw new CommandLineException("No stacks match the supplied label selectors.");
         }
+        var matched = selected;
 
         if (teardown)
         {
@@ -129,7 +131,7 @@ public record OrchestrationSelection(
 
         return new(template.ToString(),
             [.. predictedResources.Where(resource => selected.Contains(resource.GetProperty("symbolicName").GetString() ?? ""))],
-            dependencies, selected);
+            dependencies, selected, matched);
     }
 
     public static async Task ValidateGroupLabels(JObject template, string parametersContent, CancellationToken cancellationToken)

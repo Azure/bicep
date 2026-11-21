@@ -59,6 +59,8 @@ dotnet src/Bicep.Orchestration.Local/bin/Debug/net10.0/Bicep.Orchestration.Local
 The header navigation switches between **Deploy**, **Approvals**, **Active Deployments**, and
 **Service Health**. Switching views preserves the current plan, selectors, stack
 selection, and operation; polling continues in every view.
+The viewer uses local JSON simulation, not Azure deployments. Stage grouping is
+illustrative; batching, health checks, and policy validation are not enforced.
 The inspector is closed initially. Selecting a stack opens it; **Close** reclaims
 the canvas without clearing the selection. **Inspect selected stack** reopens it.
 
@@ -86,6 +88,12 @@ The basic sample sets every stack's version from a `version` parameter
 (default `1.0.0`). The Deployments RP sample uses `artifacts.version` for every
 stack. Existing untagged simulation state needs a newly approved deployment to record it.
 
+When the entry point provides `stageMappings` (directly or under `config`) as
+ordered `{ name, regions }` groups, the matrix groups region rows under those
+stage names. Unmapped regions appear under **Unassigned**. The Deployments RP
+sample's `Batching` rule and parameter file are the authoring example; the local
+viewer displays these stages but does not enforce rollout batching.
+
 1. **Source:** edit Bicep in VS Code; use existing Copilot chat there.
 2. **Predict (Deploy):** predict changes against the automatically refreshed topology, optionally using
    **Add filter** to select a label and search its distinct values. Choose one or
@@ -104,10 +112,30 @@ stack. Existing untagged simulation state needs a newly approved deployment to r
    The matrix scrolls with sticky headers; no sample-specific groups are inferred.
    Observed resources are separate from the desired topology.
    Predicted changes are always shown in Deploy; unaffected cells remain as muted context, and
-   stacks outside the predicted plan are explicitly marked.
+   stacks outside the predicted plan have a dashed border and explain that they are not in the
+   deployment scope. Selecting one explains how to adjust the filters and predict again.
+   The prediction summary reports the number of resource changes across planned stacks, with
+   create/modify/delete counts and unchanged results. Ignored, unsupported, or other uncertain
+   results are called out separately rather than presented as a clean prediction.
+   The plan distinguishes stacks selected directly by labels from prerequisites, and identifies
+   the in-plan stacks that directly require each prerequisite. These reasons are captured in the
+   plan and remain available during approval, even if source or topology subsequently changes.
+   After predicting, **Hide stacks outside deployment scope** limits the Deploy view to the
+   predicted stacks, including prerequisites, in both layouts. It is a visual filter only;
+   it does not change the plan, and resets when the prediction is cleared.
+   Switch from **Regions** to **Dependencies** for a zoomed-out diagram grouped by stack
+   declaration. Arrows point from prerequisites to dependents; a grouped arrow means at least
+   one instance has that dependency, not that every instance does. Select a group and then an
+   instance to inspect its exact dependencies, status, version, and resources. The relationship
+   list provides a text alternative to the diagram. Group details and the stack inspector link
+   to the `requires` expression in local VS Code when present.
+   Links refer to the current source, not a stored copy of an earlier plan.
    Select cells for prerequisite links, managed resource IDs, and property-level
    delta inspection. Create, modify, delete, and no-change are distinct from
-   execution status. Click a stack label in the inspector to add it to the label
+   execution status. Predicted creates, modifications, and deletions use green,
+   amber, and red accents respectively; labels still identify each change. A cell
+   with multiple types uses the most prominent accent: delete, then modify, then create.
+   Click a stack label in the inspector to add it to the label
    selectors, preserving other keys and replacing the value for the same key.
    Editing selectors invalidates the displayed plan; predict again before apply.
    Type in the **Region** column header to filter rows by a case-insensitive
@@ -132,6 +160,14 @@ stack. Existing untagged simulation state needs a newly approved deployment to r
    prediction reports no changes. In JSON simulation, each stack remains Running
    for a random 5,000–10,000 milliseconds before applying its predicted state;
    independent stacks run concurrently and dependents wait for prerequisites.
+   Running badges show a small spinner, with animation disabled for reduced motion.
+   **Hide stacks outside deployment scope** filters both topology layouts to the
+   latest operation's submitted stack scope, including prerequisites, even while
+   stacks are queued or after it completes. It does not change execution or the
+   timeline. Stacks no longer present in the current topology are reported separately.
+   The toggle starts off for each new operation.
+   When connected to an older host, the toggle becomes available once a stack
+   starts, after the complete scope has been queued.
    These cancellable delays apply only to the local viewer, not CLI simulation
    or Azure deployment providers. On failure, failed stacks are marked Failed and unstarted
    stacks Skipped instead of remaining Queued; shutdown marks unfinished stacks

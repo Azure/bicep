@@ -3,6 +3,8 @@
 
 import type { PendingApproval } from "./api";
 import { WhatIfDiff } from "./whatif";
+import { PlanScope, SelectionReason } from "./planScope";
+import { PredictionSummary } from "./predictionSummary";
 
 export function Approvals({ pending, selectedId, onSelect, onApprove, onReject, busy, active }: {
   pending: PendingApproval[];
@@ -35,6 +37,8 @@ export function Approvals({ pending, selectedId, onSelect, onApprove, onReject, 
         <p><code>{selected.plan.id}</code></p>
         <p>Source: <code>{selected.plan.source}</code></p>
         <p>Scope: {selected.plan.selectors.join(" · ") || "All stacks"} · {selected.plan.stacks.length} stacks, including prerequisites</p>
+        <PlanScope plan={selected.plan} />
+        <PredictionSummary plan={selected.plan} />
         <p>Target: {selected.plan.target}</p>
         <p>Approval revalidates source, parameters, and observed state. Stale plans cannot deploy; reject them and predict a new plan.</p>
         <div className="approval-actions">
@@ -45,6 +49,7 @@ export function Approvals({ pending, selectedId, onSelect, onApprove, onReject, 
         <h3>Submitted resource changes</h3>
         {selected.plan.stacks.map(stack => <details key={stack.name} open={selected.plan.stacks.length === 1}>
           <summary>{stack.name}</summary>
+          <SelectionReason stack={stack} selectors={selected.plan.selectors} />
           <WhatIfDiff changes={stack.changes} />
         </details>)}
       </section>}

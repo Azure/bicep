@@ -7,11 +7,12 @@ import { client, type Target, type Topology, type Plan, type Operation, type Sta
 import { WhatIfDiff } from "./whatif";
 import { LabelFilters } from "./labelFilters";
 import { Approvals } from "./approvals";
+import { declaration, TopologyGraph } from "./topologyGraph";
+import { PlanScope, SelectionReason } from "./planScope";
+import { SourceLinks } from "./sourceLinks";
+import { PredictionSummary } from "./predictionSummary";
+import { operationScope } from "./operationScope";
 import "./style.css";
-
-function declaration(name: string) {
-  return name.replace(/\[\d+\]/g, "[*]");
-}
 
 function sameTarget(a: Target, b: Target) {
   return a.targetInstance === b.targetInstance && a.targetRevision === b.targetRevision;
@@ -54,6 +55,9 @@ function App() {
   const [selected, setSelected] = useState<string>();
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [region, setRegion] = useState("");
+  const [topologyLayout, setTopologyLayout] = useState<"matrix" | "dependencies">("matrix");
+  const [hideOutsidePlan, setHideOutsidePlan] = useState(false);
+  const [filteredOperationId, setFilteredOperationId] = useState<string>();
   const [labels, setLabels] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -65,19 +69,39 @@ function App() {
   const currentTarget = useRef<Target | undefined>(undefined);
   const retiredInstances = useRef(new Set<string>());
   const active = operation?.status === "Running" || operation?.status === "Queued";
+  const operationStacks = useMemo(() => operationScope(operation), [operation]);
+  const scopeFilterActive = (view === "Deploy" && !!plan && hideOutsidePlan) ||
+    (view === "Active Deployments" && !!operationStacks && filteredOperationId === operation?.id);
+  const visibleStacks = useMemo(() => {
+    const stacks = topology?.stacks ?? [];
+    if (!scopeFilterActive) return stacks;
+    const included = new Set(view === "Deploy" ? plan?.stacks.map(stack => stack.name) : operationStacks);
+    return stacks.filter(stack => included.has(stack.name));
+  }, [topology, plan, operationStacks, scopeFilterActive, view]);
+  const missingOperationStacks = useMemo(() => {
+    if (!scopeFilterActive || view !== "Active Deployments" || !operationStacks || !topology) return 0;
+    const names = new Set(topology.stacks.map(stack => stack.name));
+    return operationStacks.filter(name => !names.has(name)).length;
+  }, [scopeFilterActive, view, operationStacks, topology]);
   const matrix = useMemo(() => {
-    const columns = [...new Set(topology?.stacks.map(s => declaration(s.name)))];
+    const columns = [...new Set(visibleStacks.map(s => declaration(s.name)))];
     const rows = new Map<string, Map<string, Stack[]>>();
-    for (const stack of topology?.stacks ?? []) {
+    const stages = new Map<string, { name: string; order: number; regions: string[] }>();
+    for (const stack of visibleStacks) {
       let row = rows.get(stack.region);
       if (!row) { row = new Map(); rows.set(stack.region, row); }
       const key = declaration(stack.name);
       const cell = row.get(key) ?? [];
       cell.push(stack);
       row.set(key, cell);
+      const stageName = stack.stage ?? "Unassigned";
+      const stageOrder = stack.stageOrder ?? Number.MAX_SAFE_INTEGER;
+      const stage = stages.get(stageName) ?? { name: stageName, order: stageOrder, regions: [] };
+      if (!stage.regions.includes(stack.region)) stage.regions.push(stack.region);
+      stages.set(stageName, stage);
     }
-    return { columns, rows };
-  }, [topology]);
+    return { columns, rows, stages: [...stages.values()].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name)) };
+  }, [visibleStacks]);
   function selectStack(name: string) {
     setSelected(name);
     setInspectorOpen(true);
@@ -117,6 +141,7 @@ function App() {
         setTopology(undefined);
         setPlan(undefined);
         setOperation(undefined);
+        setFilteredOperationId(undefined);
         setPendingApprovals([]);
         setReviewPlanId(undefined);
         setSelected(undefined);
@@ -146,6 +171,9 @@ function App() {
       }
     });
   }, [api]);
+  useEffect(() => {
+    if (!plan) setHideOutsidePlan(false);
+  }, [plan]);
   useEffect(() => {
     let disposed = false;
     let inFlight = false;
@@ -181,11 +209,9 @@ function App() {
     }, 1000);
     return () => { disposed = true; clearInterval(timer); };
   }, [api, busy]);
-  const stack = topology?.stacks.find(s => s.name === selected);
+  const stack = visibleStacks.find(s => s.name === selected);
+  const plannedStack = plan?.stacks.find(item => item.name === selected);
   const changes = (name: string) => plan?.stacks.find(s => s.name === name)?.changes ?? [];
-  const counts = plan?.stacks.flatMap(s => s.changes).reduce<Record<string, number>>((acc, c) => {
-    acc[c.changeType] = (acc[c.changeType] ?? 0) + 1; return acc;
-  }, {}) ?? {};
   function status(s: Stack) {
     if (view === "Service Health") {
       const count = managedResources(s).length;
@@ -214,6 +240,13 @@ function App() {
           await api.reject(id);
           setPendingApprovals(current => current.filter(item => item.plan.id !== id));
         })} /> : <>
+      <div className={view === "Deploy" ? "deployment-controls" : undefined}>
+      {view === "Deploy" && <div className="section-heading">
+        <h2>Deployment scope</h2><small>Choose labels, then predict and review changes.</small>
+      </div>}
+      {view === "Deploy" && <LabelFilters key={`${target?.targetInstance}:${target?.targetRevision}`}
+        stacks={topology?.stacks ?? []} selectors={labels} disabled={busy || active}
+        onChange={next => { setLabels(next); setPlan(undefined); }} />}
       <section className="toolbar">
         {!inspectorOpen && stack && <button onClick={() => setInspectorOpen(true)}>Inspect selected stack</button>}
         {view === "Deploy" && <><button disabled={!target || busy || active} onClick={() => void act(async () => {
@@ -244,26 +277,50 @@ function App() {
             }
           })}>Submit deployment</button></>}
       </section>
-      {view === "Deploy" && <LabelFilters key={`${target?.targetInstance}:${target?.targetRevision}`}
-        stacks={topology?.stacks ?? []} selectors={labels} disabled={busy || active}
-        onChange={next => { setLabels(next); setPlan(undefined); }} />}
+      </div>
+      <div className={view === "Deploy" ? "deployment-overview" : undefined}>
+      {view === "Deploy" && <h2>Deployment plan</h2>}
       <section className="summary">
-        {topology && <span>{matrix.rows.size} regions · {topology.stacks.length} stacks</span>}
+        {topology && <span>{matrix.rows.size} {matrix.rows.size === 1 ? "region" : "regions"} · {scopeFilterActive
+          ? `${visibleStacks.length} of ${topology.stacks.length} stacks`
+          : `${topology.stacks.length} stacks`}</span>}
         {view === "Deploy" && <>
-          {Object.entries(counts).map(([kind, count]) => <span className={`badge ${kind}`} key={kind}>{count} {kind}</span>)}
           <span>{plan ? `Plan ${plan.id.slice(0, 8)}` : "No prediction yet"}</span>
           {plan && <code className="source-path">{plan.source}</code>}
           <small>Prediction is not a safety guarantee. Submitting queues this plan for approval; it does not deploy.</small>
         </>}
-        {view === "Active Deployments" && <span className="badge">{operation?.status ?? "Idle"}</span>}
+        {view === "Active Deployments" && <span className={`badge ${operation?.status ?? ""}`}>{operation?.status ?? "Idle"}</span>}
         {view === "Service Health" && <span className="badge">Health not assessed</span>}
       </section>
+      {view === "Deploy" && plan && <><PredictionSummary plan={plan} /><PlanScope plan={plan} /></>}
+      </div>
+      {missingOperationStacks > 0 && <p className="plan-scope">
+        {missingOperationStacks} {missingOperationStacks === 1 ? "stack in this deployment is" : "stacks in this deployment are"} absent from the current topology.
+      </p>}
       {view === "Service Health" && <section className="view-notice" aria-label="Health monitoring limitations">
         <h2>Observed resources, not health checks</h2>
         <p>Resource observation does not establish health. Health checks, bake times, and rollout validation gates are not implemented.</p>
         <p>Showing simulated state, not observations from real Azure. Updates automatically every second.</p>
       </section>}
+      <div className="topology-controls">
+        <div className="topology-layout" role="group" aria-label="Topology layout">
+          <button aria-pressed={topologyLayout === "matrix"} onClick={() => setTopologyLayout("matrix")}>Regions</button>
+          <button aria-pressed={topologyLayout === "dependencies"} onClick={() => setTopologyLayout("dependencies")}>Dependencies</button>
+        </div>
+        {view === "Deploy" && <button className="scope-visibility" disabled={!plan}
+          aria-pressed={scopeFilterActive} onClick={() => setHideOutsidePlan(current => !current)}>
+          Hide stacks outside deployment scope
+        </button>}
+        {view === "Active Deployments" && <button className="scope-visibility" disabled={!operationStacks}
+          aria-pressed={scopeFilterActive}
+          title={operation && !operationStacks ? "The complete deployment scope is not available yet." : undefined}
+          onClick={() => setFilteredOperationId(scopeFilterActive ? undefined : operation?.id)}>
+          Hide stacks outside deployment scope
+        </button>}
+      </div>
       <div className={`workspace ${inspectorOpen && stack ? "with-inspector" : ""}`}>
+        {topologyLayout === "dependencies" ? <TopologyGraph stacks={visibleStacks} selected={selected}
+          onSelect={selectStack} status={status} version={currentVersion} /> :
         <div className="matrix-scroll" tabIndex={0} role="region" aria-label="Stack topology matrix">
           <table className="topology-matrix">
             <thead><tr><th scope="col"><label className="region-filter">Region
@@ -271,51 +328,74 @@ function App() {
             </label></th>{matrix.columns.map(column =>
               <th scope="col" key={column} title={column}>{matrix.columns.filter(other => other.split("::").at(-1) === column.split("::").at(-1)).length === 1
                 ? column.split("::").at(-1) : column}</th>)}</tr></thead>
-            <tbody>{[...matrix.rows].filter(([r]) => r.toLowerCase().includes(region.trim().toLowerCase())).map(([r, row]) =>
-              <tr key={r}><th scope="row">{r}</th>{matrix.columns.map(column =>
+            <tbody>{matrix.stages.flatMap(stage => {
+              const regions = stage.regions.filter(r => matrix.rows.has(r) && r.toLowerCase().includes(region.trim().toLowerCase()));
+              if (!regions.length) return [];
+              return [
+                <tr className="stage-heading" data-stage={stage.name} key={`stage:${stage.name}`}>
+                  <th scope="rowgroup" colSpan={matrix.columns.length + 1}>{stage.name}</th>
+                </tr>,
+                ...regions.flatMap(r => {
+                  const row = matrix.rows.get(r);
+                  if (!row) return [];
+                  return [<tr data-region={r} data-stage={stage.name} key={r}><th scope="row">{r}</th>{matrix.columns.map(column =>
                 <td key={column}>{row.get(column)?.map((s, _, instances) => {
                   const delta = changes(s.name);
                   const affected = delta.some(c => !["Ignore", "NoChange", "NoEffect"].includes(c.changeType));
                   const included = plan?.stacks.some(stack => stack.name === s.name);
+                  const excluded = view === "Deploy" && !!plan && !included;
+                  const significantChange = ["Delete", "Modify", "Create"].find(kind => delta.some(change => change.changeType === kind));
                   const totals = delta.reduce<Record<string, number>>((acc, change) => {
                     acc[change.changeType] = (acc[change.changeType] ?? 0) + 1; return acc;
                   }, {});
                   return <button data-stack={s.name} key={s.name}
-                    className={`stack ${selected === s.name ? "selected" : ""} ${view === "Deploy" && plan && !affected ? "unchanged" : ""}`}
-                    title={s.name} aria-label={`${s.name}: ${status(s)}; Current version: ${currentVersion(s)}`} aria-pressed={selected === s.name} onClick={() => selectStack(s.name)}>
+                    className={`stack ${selected === s.name ? "selected" : ""} ${excluded ? "outside-plan" : view === "Deploy" && plan && !affected ? "unchanged" : ""} ${view === "Deploy" && !excluded && significantChange ? `change-${significantChange}` : ""}`}
+                    title={excluded ? `${s.name} is not included in the predicted deployment scope.` : s.name}
+                    aria-label={`${s.name}: ${status(s)}; Current version: ${currentVersion(s)}${excluded ? "; Not included in predicted deployment scope" : ""}`}
+                    aria-pressed={selected === s.name} onClick={() => selectStack(s.name)}>
                     {instances.length > 1 && <span className="cell-instance">{s.name}</span>}
                     <span className={`stack-status ${status(s)}`}>{status(s)}</span>
                     <span className="stack-version">Version: {currentVersion(s)}</span>
                     {view === "Deploy" && plan && <span className="cell-changes">{included
                       ? delta.length ? Object.entries(totals).map(([kind, count]) => <span className={`badge ${kind}`} key={kind}>{count} {kind}</span>)
                         : <span className="badge">No change</span>
-                      : <span className="badge">Outside plan</span>}</span>}
+                      : <span className="badge">Not in deployment scope</span>}</span>}
                   </button>;
                 }) ?? <span className="empty-cell" aria-label="No stack">—</span>}</td>
-              )}</tr>)}</tbody>
+              )}</tr>];
+                }),
+              ];
+            })}</tbody>
           </table>
-        </div>
+        </div>}
         {inspectorOpen && stack && <aside aria-label="Property inspector">
           <div className="inspector-heading"><h2>{stack.name}</h2><button aria-label="Close inspector" onClick={() => setInspectorOpen(false)}>Close</button></div>
           <p>{stack.region} · {status(stack)}</p>
           <p>Current version: <code>{currentVersion(stack)}</code></p>
+          <SourceLinks source={stack.source} />
             {view === "Deploy" && <div className="chips" aria-label="Stack labels">{Object.entries(stack.labels).map(([key, value]) =>
               <button key={key} disabled={busy || active} onClick={() => addLabel(key, value)} title="Add to label selectors">{key}={value}</button>)}</div>}
-            {view !== "Service Health" && <><h3>Desired dependencies</h3>
+            {(view !== "Service Health" || topologyLayout === "dependencies") && <><h3>Desired dependencies</h3>
             {stack.dependencies.length ? <ul className="chips dependency-badges" aria-label="Desired dependencies">
               {stack.dependencies.map(dependency => <li key={dependency}>
                 <button className="badge" onClick={() => selectStack(dependency)}>{dependency}</button>
               </li>)}
             </ul> : <p className="empty-dependencies">No prerequisites.</p>}</>}
-            {view === "Deploy" && <><h3>Plan · property changes</h3>{plan ? <WhatIfDiff changes={changes(stack.name)} /> : <pre>Predict to inspect changes.</pre>}</>}
+            {view === "Deploy" && <><h3>Plan · property changes</h3>{plan
+              ? plannedStack ? <>
+                <SelectionReason stack={plannedStack} selectors={plan.selectors} />
+                <WhatIfDiff changes={changes(stack.name)} />
+              </>
+                : <p className="empty-dependencies">Not included in the predicted deployment scope. Adjust the label filters and predict again to include this stack.</p>
+              : <pre>Predict to inspect changes.</pre>}</>}
             <h3>Managed resources</h3>
             <ManagedResources stack={stack} />
         </aside>}
       </div>
-      {view === "Active Deployments" && <section className="timeline"><h2>Execution timeline <span className="badge">{operation?.status ?? "Idle"}</span></h2>
+      {view === "Active Deployments" && <section className="timeline"><h2>Execution timeline <span className={`badge ${operation?.status ?? ""}`}>{operation?.status ?? "Idle"}</span></h2>
         <small>Stack-level progress only · resource health checks and bake gates are unavailable.</small>
         {operation && <p>Operation <code>{operation.id}</code></p>}
-        {operation ? <ol>{operation.events.map(e => <li key={e.sequence}><time>{new Date(e.time).toLocaleTimeString()}</time><strong>{e.stack ?? "Operation"}</strong><span>{e.status}</span></li>)}</ol>
+        {operation ? <ol>{operation.events.map(e => <li key={e.sequence}><time>{new Date(e.time).toLocaleTimeString()}</time><strong>{e.stack ?? "Operation"}</strong><span className={`event-status ${e.status}`}>{e.status}</span></li>)}</ol>
           : <p>No deployment has been started for this target.</p>}
       </section>}
       </>}

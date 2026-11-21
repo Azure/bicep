@@ -8,13 +8,14 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve, join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { createServer } from "node:net";
-import type { Activity, Plan } from "../src/api";
+import type { Activity, Plan, Topology } from "../src/api";
 
 test("matrix selects labels, predicts, explicitly applies, monitors, and inspects stacks", async ({ page }) => {
   test.setTimeout(180_000);
   const root = resolve(import.meta.dirname, "../../../..");
-  const folder = mkdtempSync(join(tmpdir(), "bicep-viewer-"));
+  const folder = mkdtempSync(join(tmpdir(), "bicep viewer-"));
   cpSync(join(root, "docs/experimental/orchestration-samples/basic"), join(folder, "basic"), { recursive: true });
   const sourcePath = join(folder, "basic/main.bicep");
   writeFileSync(sourcePath, readFileSync(sourcePath, "utf8")
@@ -66,20 +67,53 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     const deploymentView = navigation.getByRole("button", { name: "Active Deployments", exact: true });
     const healthView = navigation.getByRole("button", { name: "Service Health", exact: true });
     await expect(navigation.getByRole("button")).toHaveText(["Deploy", "Approvals", "Active Deployments", "Service Health"]);
+    await expect(page.locator("header")).not.toContainText("Simulation");
     await approvalsView.click();
     await expect(page.getByRole("region", { name: "Pending approvals", exact: true })).toContainText("No plans pending approval.");
     await deployView.click();
     await expect(page.locator("header nav")).toBeVisible();
     await expect(page.getByRole("button", { name: /Target:|^Simulated$|^Refresh$/ })).toHaveCount(0);
     await expect(deployView).toHaveAttribute("aria-pressed", "true");
+    const controls = page.locator(".deployment-controls");
+    await expect(controls.locator(":scope > .label-filters + .toolbar")).toHaveCount(1);
     await expect(page.getByText("1 · Source in VS Code", { exact: true })).toHaveCount(0);
     await expect(page.locator(".timeline")).toHaveCount(0);
     await expect(page.getByLabel("Access token")).toHaveCount(0);
     await expect(page.getByText("JSON SIMULATION", { exact: true })).toHaveCount(0);
     await expect(page.locator("button.stack")).toHaveCount(5);
+    const hideOutsideScope = page.getByRole("button", { name: "Hide stacks outside deployment scope" });
+    await expect(hideOutsideScope).toBeDisabled();
     await expect(page.locator(".topology-matrix thead th")).toHaveText(["Region", "cluster[*]", "clusterApp[*]", "global"]);
-    await expect(page.locator(".topology-matrix tbody tr")).toHaveCount(2);
-    await expect(page.locator(".topology-matrix tbody tr").first().locator("button.stack")).toHaveCount(3);
+    await expect(page.locator(".topology-matrix tbody tr.stage-heading")).toHaveText(["stage0", "stage1"]);
+    await expect(page.locator(".topology-matrix tbody tr[data-region]")).toHaveCount(2);
+    await expect(page.locator('.topology-matrix tbody tr[data-region="eastus"]')).toHaveAttribute("data-stage", "stage0");
+    await expect(page.locator('.topology-matrix tbody tr[data-region="westus"]')).toHaveAttribute("data-stage", "stage1");
+    await expect(page.locator(".topology-matrix tbody tr[data-region]").first().locator("button.stack")).toHaveCount(3);
+    const layout = page.getByRole("group", { name: "Topology layout" });
+    await layout.getByRole("button", { name: "Dependencies" }).click();
+    const graph = page.getByRole("region", { name: "Stack dependency overview" });
+    await expect(graph.getByText("cluster[*] → clusterApp[*]")).toHaveCount(1);
+    await expect(graph.getByText("clusterApp[*] → global")).toHaveCount(1);
+    await graph.getByRole("button", { name: /clusterApp\[\*\]/ }).click();
+    await expect(graph.getByRole("region", { name: "clusterApp[*] instances" })).toContainText("eastus");
+    const topology = toolValue<Topology>(await mcp.callTool({ name: "get_topology", arguments: {} }));
+    const appSource = topology.stacks.find(stack => stack.name === "clusterApp[0]")?.source;
+    expect(appSource?.declaration.uri).toBe(pathToFileURL(sourcePath).href);
+    const sourceLines = readFileSync(sourcePath, "utf8").split("\n");
+    expect(sourceLines[(appSource?.declaration.line ?? 0) - 1]).toContain("stack clusterApp");
+    expect(sourceLines[(appSource?.requires?.line ?? 0) - 1]).toContain("requires:");
+    const sourceHref = `vscode://file/${pathToFileURL(sourcePath).href.slice("file:///".length)}`;
+    await expect(graph.getByRole("link", { name: "Open stack declaration in VS Code" })).toHaveCount(0);
+    await expect(graph.getByRole("link", { name: "Open requires in VS Code" }))
+      .toHaveAttribute("href", `${sourceHref}:${appSource?.requires?.line}`);
+    await graph.getByRole("button", { name: /clusterApp\[0\]/ }).click();
+    await expect(page.getByRole("complementary", { name: "Property inspector" })).toContainText("cluster[0]");
+    await expect(page.getByRole("complementary", { name: "Property inspector" }).getByRole("link", { name: "Open stack declaration in VS Code" }))
+      .toHaveCount(0);
+    await expect(page.getByRole("complementary", { name: "Property inspector" }).getByRole("link", { name: "Open requires in VS Code" }))
+      .toHaveAttribute("href", `${sourceHref}:${appSource?.requires?.line}`);
+    await layout.getByRole("button", { name: "Regions" }).click();
+    await page.getByRole("button", { name: "Close inspector" }).click();
     const checkSelection = async () => {
       const cell = page.locator("button.stack.selected");
       await expect(cell).toHaveCount(1);
@@ -153,6 +187,7 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await expect(filterChips).toHaveText(["region equals eastus", "kind equals cluster"]);
     await deploymentView.click();
     await expect(deploymentView).toHaveAttribute("aria-pressed", "true");
+    await expect(hideOutsideScope).toBeDisabled();
     await expect(selectors).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Predict changes" })).toHaveCount(0);
     await expect(page.locator(".timeline")).toContainText("No deployment has been started");
@@ -169,10 +204,40 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await expect(firstCell).toHaveAttribute("aria-pressed", "true");
     await page.getByRole("button", { name: "Predict changes" }).click();
     await expect(page.getByRole("button", { name: "Submit deployment" })).toBeEnabled({ timeout: 60_000 });
-    await expect(page.locator('button.stack[data-stack="cluster[1]"]')).toContainText("Outside plan");
+    const excluded = page.locator('button.stack[data-stack="cluster[1]"]');
+    await expect(excluded).toHaveClass(/outside-plan/);
+    await expect(excluded).toContainText("Not in deployment scope");
+    await expect(excluded).toHaveAccessibleName(/Not included in predicted deployment scope/);
+    await excluded.click();
+    await expect(inspector).toContainText("Not included in the predicted deployment scope.");
+    const beforeFiltering = toolValue<Activity>(await mcp.callTool({ name: "get_activity", arguments: {} }));
+    await hideOutsideScope.click();
+    await expect(hideOutsideScope).toHaveAttribute("aria-pressed", "true");
+    await expect(inspector).toHaveCount(0);
+    await expect(matrix.locator("button.stack")).toHaveCount(1);
+    await expect(page.locator(".topology-matrix thead th")).toHaveText(["Region", "cluster[*]"]);
+    await expect(page.locator(".topology-matrix tbody tr[data-region]")).toHaveCount(1);
+    await expect(page.getByText("1 region · 1 of 5 stacks")).toBeVisible();
+    await layout.getByRole("button", { name: "Dependencies" }).click();
+    await expect(graph.locator(".graph-node")).toHaveCount(1);
+    await expect(graph.locator(".graph-node")).toContainText("cluster[*]");
+    await deploymentView.click();
+    await expect(graph.locator(".graph-node")).toHaveCount(3);
+    await deployView.click();
+    await expect(graph.locator(".graph-node")).toHaveCount(1);
+    await layout.getByRole("button", { name: "Regions" }).click();
+    await hideOutsideScope.click();
+    await expect(matrix.locator("button.stack")).toHaveCount(5);
+    const afterFiltering = toolValue<Activity>(await mcp.callTool({ name: "get_activity", arguments: {} }));
+    expect(afterFiltering.plan?.id).toBe(beforeFiltering.plan?.id);
+    await hideOutsideScope.click();
+    await firstCell.click();
     await inspector.getByRole("button", { name: "kind=cluster", exact: true }).click();
     await expect(filterChips).toHaveText(["region equals eastus", "kind equals cluster"]);
     await expect(page.getByRole("button", { name: "Submit deployment" })).toBeDisabled();
+    await expect(hideOutsideScope).toBeDisabled();
+    await expect(hideOutsideScope).toHaveAttribute("aria-pressed", "false");
+    await expect(matrix.locator("button.stack")).toHaveCount(5);
     await page.locator('button.stack[data-stack="clusterApp[0]"]').click();
     await inspector.getByRole("button", { name: "kind=app", exact: true }).click();
     await expect(filterChips).toHaveText(["region equals eastus", "kind equals app"]);
@@ -182,12 +247,22 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
       await mcp.callTool({ name: "get_activity", arguments: {} }));
     expect(selectedPlan.plan.selectors).toEqual(["region=eastus", "kind=app"]);
     expect(selectedPlan.plan.stacks.map(s => s.name).sort()).toEqual(["clusterApp[0]", "cluster[0]"]);
-    await expect(firstCell).not.toContainText("Outside plan");
+    await expect(page.getByText("1 directly selected · 1 included as a prerequisite")).toBeVisible();
+    await expect(inspector).toContainText("Directly selected by the label filters.");
+    await expect(firstCell).not.toHaveClass(/outside-plan/);
+    await hideOutsideScope.click();
+    await expect(matrix.locator("button.stack")).toHaveCount(2);
+    await expect(firstCell).toBeVisible();
+    await expect(page.locator('button.stack[data-stack="clusterApp[0]"]')).toBeVisible();
+    await firstCell.click();
+    await expect(inspector).toContainText("Included as a prerequisite of clusterApp[0].");
     await selectors.getByRole("button", { name: "Clear filters" }).click();
     await expect(page.getByRole("button", { name: "Submit deployment" })).toBeDisabled();
     await page.getByRole("button", { name: "Predict changes" }).click();
     await expect(page.getByRole("button", { name: "Submit deployment" })).toBeEnabled({ timeout: 60_000 });
     await expect(page.locator(".badge.Create").first()).toBeVisible();
+    await expect(firstCell).toHaveClass(/change-Create/);
+    await expect(page.getByRole("region", { name: "Prediction summary" })).toContainText(/predicted resource changes across 5 stacks/);
     await firstCell.click();
     await checkSelection();
     await expect(inspector.getByRole("heading", { name: "Desired dependencies" })).toBeVisible();
@@ -227,10 +302,13 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     expect(JSON.stringify(duplicateSubmission.content)).toContain("already awaiting approval");
 
     // Independent predictions remain reviewable alongside the submitted plan.
-    const anotherPlan = toolValue<Plan>(await mcp.callTool({ name: "plan_deployment", arguments: { selectors: ["kind=cluster", "region=eastus"] } }));
+    const anotherPlan = toolValue<Plan>(await mcp.callTool({ name: "plan_deployment", arguments: { selectors: ["kind=app", "region=eastus"] } }));
     await mcp.callTool({ name: "submit_deployment", arguments: { planId: anotherPlan.id } });
     await expect(approvals.locator(".approval-list > li")).toHaveCount(2);
     await approvals.getByRole("button", { name: `Review plan ${anotherPlan.id.slice(0, 8)}` }).click();
+    await expect(approvals.getByRole("region", { name: "Plan review" })).toContainText("1 directly selected · 1 included as a prerequisite");
+    await approvals.locator("details").filter({ hasText: "cluster[0]" }).locator("summary").click();
+    await expect(approvals.locator("details").filter({ hasText: "cluster[0]" })).toContainText("Included as a prerequisite of clusterApp[0].");
     const originalSource = readFileSync(sourcePath, "utf8");
     writeFileSync(sourcePath, `${originalSource}\n// Changed after submission.\n`);
     await approvals.getByRole("button", { name: "Approve & deploy" }).click();
@@ -247,9 +325,25 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await approvals.getByRole("button", { name: "Approve & deploy" }).click();
     await expect(deploymentView).toHaveAttribute("aria-pressed", "true");
     await deploymentView.click();
+    await expect(hideOutsideScope).toBeEnabled();
+    await hideOutsideScope.click();
+    await expect(hideOutsideScope).toHaveAttribute("aria-pressed", "true");
     await expect(page.getByRole("button", { name: "Submit deployment" })).toHaveCount(0);
     await expect(page.getByLabel("What-if changes")).toHaveCount(0);
     await expect(page.locator(".stack-status.Running").first()).toBeVisible();
+    const runningBadge = page.locator(".timeline .badge.Running");
+    await expect(runningBadge).toBeVisible();
+    const spinner = await runningBadge.evaluate(badge => {
+      const style = getComputedStyle(badge, "::before");
+      return { content: style.content, animation: style.animationName, width: parseFloat(style.width) };
+    });
+    expect(spinner.content).not.toBe("none");
+    expect(spinner.animation).not.toBe("none");
+    expect(spinner.width).toBeGreaterThan(0);
+    expect(spinner.width).toBeLessThanOrEqual(12);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    expect(await runningBadge.evaluate(badge => getComputedStyle(badge, "::before").animationName)).toBe("none");
+    await page.emulateMedia({ reducedMotion: "no-preference" });
     await expect(appCell.locator(".stack-status")).toHaveText("Queued");
     const activeOperation = toolValue<{ operation: { planId: string } }>(
       await mcp.callTool({ name: "get_activity", arguments: {} }));
@@ -294,9 +388,9 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await expect(page.getByRole("combobox", { name: "Region" })).toHaveCount(0);
     await regionFilter.fill("  WEST  ");
     await expect(matrix.locator("button.stack")).toHaveCount(2);
-    await expect(matrix.locator("tbody tr")).toHaveCount(1);
+    await expect(matrix.locator("tbody tr[data-region]")).toHaveCount(1);
     await regionFilter.fill("no-such-region");
-    await expect(matrix.locator("tbody tr")).toHaveCount(0);
+    await expect(matrix.locator("tbody tr[data-region]")).toHaveCount(0);
     await regionFilter.fill("us");
     await expect(matrix.locator("button.stack")).toHaveCount(5);
     await regionFilter.clear();
@@ -319,10 +413,11 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await expect(page.getByRole("alert")).toHaveCount(0);
     await expect(page.locator(".badge.Create")).toHaveCount(0);
     await expect(page.locator("button.unchanged")).toHaveCount(5);
+    await expect(page.getByRole("region", { name: "Prediction summary" })).toContainText("0 predicted resource changes across 5 stacks");
     await checkSelection();
     await regionFilter.fill("west");
     await expect(page.locator("button.stack")).toHaveCount(2);
-    await expect(page.locator(".topology-matrix tbody tr")).toHaveCount(1);
+    await expect(page.locator(".topology-matrix tbody tr[data-region]")).toHaveCount(1);
     await deploymentView.click();
     await expect(regionFilter).toHaveValue("west");
     await expect(matrix.locator("button.stack")).toHaveCount(2);
@@ -361,14 +456,31 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await expect(approvals.locator(".approval-list > li")).toHaveCount(1);
     await expect(approvals.getByRole("region", { name: "Plan review" })).toContainText(externalPlan.id);
     expect(readFileSync(join(folder, "state.json"), "utf8")).toBe(versionBeforeApproval);
-    const externalOperation = toolValue<{ id: string }>(await mcp!.callTool({
+    const externalOperation = toolValue<{ id: string; stacks: string[] }>(await mcp!.callTool({
       name: "approve_deployment",
       arguments: { planId: externalPlan.id, approved: true },
     }));
+    expect(externalOperation.stacks).toEqual(["cluster[0]"]);
     await deploymentView.click();
     await expect(page.locator(".timeline code")).toHaveText(externalOperation.id);
+    await expect(hideOutsideScope).toBeEnabled();
+    await expect(hideOutsideScope).toHaveAttribute("aria-pressed", "false");
+    await hideOutsideScope.click();
+    await expect(matrix.locator("button.stack")).toHaveCount(1);
+    await expect(firstCell).toBeVisible();
+    await expect(page.getByText("1 region · 1 of 5 stacks")).toBeVisible();
+    await layout.getByRole("button", { name: "Dependencies" }).click();
+    await expect(graph.locator(".graph-node")).toHaveCount(1);
+    await expect(graph.locator(".graph-node")).toContainText("cluster[*]");
+    await healthView.click();
+    await expect(graph.locator(".graph-node")).toHaveCount(3);
+    await deploymentView.click();
+    await expect(graph.locator(".graph-node")).toHaveCount(1);
+    await layout.getByRole("button", { name: "Regions" }).click();
     await expect(page.locator(".timeline h2")).toContainText("Succeeded", { timeout: 60_000 });
     await expect(firstCell.locator(".stack-version")).toHaveText("Version: 2.0.0");
+    await expect(matrix.locator("button.stack")).toHaveCount(1);
+    await hideOutsideScope.click();
     await expect(page.locator('button.stack[data-stack="cluster[1]"] .stack-version')).toHaveText("Version: 1.0.1");
     await expect(matrix.locator("button.stack")).toHaveCount(5);
     await page.goto(`http://127.0.0.1:${port}?clawpilotTheme=light`);
@@ -383,7 +495,7 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     // Multiple instances in one region/declaration must remain individually selectable.
     const parametersPath = join(folder, "basic/main.bicepparam");
     writeFileSync(parametersPath, readFileSync(parametersPath, "utf8").replace("regions: ['eastus', 'westus']", "regions: ['eastus', 'eastus']"));
-    await expect(page.locator(".topology-matrix tbody tr")).toHaveCount(1);
+    await expect(page.locator(".topology-matrix tbody tr[data-region]")).toHaveCount(1);
     await expect(page.locator(".topology-matrix tbody td").first().locator("button.stack")).toHaveCount(2);
     await expect(page.locator("button.stack")).toHaveCount(5);
     await page.locator('button.stack[data-stack="cluster[1]"]').click();

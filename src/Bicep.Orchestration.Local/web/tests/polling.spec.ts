@@ -72,7 +72,7 @@ test("simulation-only viewer refreshes every second, serializes slow reads, and 
     }
     const parameters = join(folder, "basic/main.bicepparam");
     writeFileSync(parameters, readFileSync(parameters, "utf8").replace("regions: ['eastus', 'westus']", "regions: ['eastus', 'eastus']"));
-    await expect(page.locator(".topology-matrix tbody tr")).toHaveCount(1, { timeout: 10000 });
+    await expect(page.locator(".topology-matrix tbody tr[data-region]")).toHaveCount(1, { timeout: 10000 });
     failNext = true;
     await expect(page.getByRole("alert")).toContainText("Temporary simulation read failure.");
     await expect(page.getByRole("alert")).toHaveCount(0, { timeout: 10000 });
