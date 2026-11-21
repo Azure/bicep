@@ -181,6 +181,24 @@ public abstract record ArtifactDependency(DependencyOrigin Origin)
 - Built-in implicit extensions aren't dependencies; `NamespaceProvider` reads their names from configuration. `ImplicitExtension` and the fabricated `sys` entry go away.
 - A target that can't be read (missing local file) is a `Failed` dependency, not a node. The builder reads the target before choosing the state.
 
+### Configuration
+
+Each node captures `Configuration` and `Features` when it's built, so one compilation sees one configuration even if it changes partway through (today a purge in the middle of a compile can give one compilation two). Two inputs decide which configuration that is:
+
+- **The explicit configuration file, if any.** The CLI `--config` option and the JSON-RPC `configPath` field replace `bicepconfig.json` discovery for every file in the build. It becomes a graph-build input (`BuildAsync(roots, explicitConfigUri)`), and every node in that graph captures it. This replaces `ExplicitConfigurationContext`, which carries the path as ambient `AsyncLocal` state, so work done after the scope ends silently falls back to discovery (configuration plan PR 11, handed off here). The language server never sets it.
+- **Otherwise, discovery** through `IBicepConfigurationManager`, as today.
+
+The services the builder calls to resolve a dependency (`ArtifactReferenceResolver`, `RemoteArtifactContextFactory`, `ModuleAliasMockRule`, `FeatureProviderFactory`) take the referencing node's configuration instead of looking it up by URI, so the explicit configuration reaches them without ambient state.
+
+The configuration manager keeps its caches current by itself (configuration plan PR 13): each cached chain records the files it read and their versions. When an `IFileChangeNotifier` reports changed files, it drops the chains those changes made stale and raises `ConfigurationChanged`, which `WithConfiguration` consumes:
+
+| `ConfigurationChangedEventArgs` | Meaning | Nodes to recreate |
+|---|---|---|
+| `ConfigFileUris` | Leaf configuration files whose chains were dropped (the leaf, or a file it `extends`, changed) | Nodes whose configuration came from one of them |
+| `DirectoryUris` | Folders where a `bicepconfig.json` was created or deleted at or above them, so discovery must run again | Nodes whose file is in one of them; they may now use a different configuration |
+
+Hosts without a file watcher (`bicep jsonrpc`, the MCP server) report that any file may have changed at the start of each request, and the manager checks each cached chain once on its next read; one-shot CLI commands report nothing. With configuration captured per node, that's one check per node per graph build.
+
 ### Snapshot and compilation
 
 ```csharp
@@ -192,7 +210,7 @@ public sealed class SourceGraph
     public IEnumerable<SourceNode> GetDependents(SourceNode node);   // reverse edges
 
     public SourceGraph WithFile(IOUri uri, string text);
-    public SourceGraph WithConfiguration(IOUri configUri);
+    public SourceGraph WithConfiguration(ConfigurationChangedEventArgs change);
     public SourceGraph WithRestoredArtifacts(IEnumerable<RemoteArtifactReference> restored);
     public SourceGraph WithRoots(IEnumerable<IOUri> roots);          // documents opened or closed
 }
@@ -235,8 +253,8 @@ public sealed class Compilation(SourceGraph graph, BicepSourceNode entryPoint)
 ### Usage
 
 ```csharp
-// CLI: one root, one compilation.
-var graph = await graphBuilder.BuildAsync(roots: [entryUri]);   // resolve, restore, re-resolve
+// CLI: one root, one compilation. explicitConfigUri is the --config file, or null to discover bicepconfig.json.
+var graph = await graphBuilder.BuildAsync(roots: [entryUri], explicitConfigUri);   // resolve, restore, re-resolve
 var compilation = new Compilation(graph, graph.GetRoot(entryUri));
 compilation.Emit(stream);
 
@@ -296,7 +314,8 @@ flowchart LR
 |---|---|---|---|
 | Edit a leaf module | That file | It and its dependents | It and its dependents |
 | Restore finishes | Nothing | Nodes with matching `NotRestored` dependencies, and their dependents | Same |
-| `bicepconfig.json` edit | Nothing | Nodes under that configuration, and their dependents | Same |
+| `bicepconfig.json` (or a file it `extends`) edited | Nothing | Nodes using that configuration, and their dependents | Same |
+| `bicepconfig.json` created or deleted | Nothing | Nodes in folders at or below it, and their dependents | Same |
 | Same module in two open entry points | Once | One node, shared | One model, shared |
 
 The objects recreated are exactly those whose models are invalid. This replaces the language server's hand-written `modelLookup` and `ShallowClone()`.
@@ -391,7 +410,7 @@ sequenceDiagram
 
 - `WithFile(uri, text)`: a new node for `uri` (reparsed, dependencies re-resolved); dependents recreated with their trees passed through.
 - `WithRestoredArtifacts(references)`: nodes with matching `NotRestored` dependencies re-resolved; dependents recreated.
-- `WithConfiguration(configUri)`: nodes under that configuration re-resolved; dependents recreated.
+- `WithConfiguration(change)`: nodes using a dropped configuration (`ConfigFileUris`) or in a folder where discovery must run again (`DirectoryUris`) are rebuilt with their new configuration and re-resolved; dependents recreated. The language server calls it from `IBicepConfigurationManager.ConfigurationChanged` (section 3, Configuration).
 - `WithRoots(roots)`: nodes added for newly opened documents; unreachable nodes dropped.
 
 ## 6. Migration (R4)
@@ -399,18 +418,18 @@ sequenceDiagram
 Each step leaves a working build.
 
 1. **Read-only node view.** Add `SourceNode` built from today's `ArtifactLookup` (grouped by `ReferencingFile`) plus `ImplicitExtensions`, and move consumers to it. The builder doesn't change.
-2. **The builder produces nodes.** `ReferencingFile` and `Syntax` leave `ArtifactDependency`; `DependencyOrigin` arrives. `IArtifactFileLookup` is replaced by node access.
+2. **The builder produces nodes.** `ReferencingFile` and `Syntax` leave `ArtifactDependency`; `DependencyOrigin` arrives. `IArtifactFileLookup` is replaced by node access. Nodes capture their configuration when they're built; the builder takes the explicit configuration file as an input and passes each node's configuration to the services it calls, and `ExplicitConfigurationContext` is deleted.
 3. **Unreadable targets become `Failed`.** `SourceFileLookup` maps URIs to nodes.
 4. **Built-in implicit extensions leave the graph.** `ImplicitExtension` is deleted.
 5. **Nodes own their models.** `node.GetSemanticModel()`; `SemanticModel` reaches dependencies through nodes instead of `SourceFileGrouping` and `ModelLookup`; `referencedAuxiliaryFileUris` moves from `BicepSourceFile` to `SemanticModel.GetReferencedAuxiliaryFiles()`; `Compilation` thins out and takes the entry-point-only rules.
-6. **Workspace-wide snapshot in the language server.** One `SourceGraph` with the update operations; `modelLookup` and `ShallowClone()` retire.
+6. **Workspace-wide snapshot in the language server.** One `SourceGraph` with the update operations; `modelLookup` and `ShallowClone()` retire. `ConfigurationChanged` calls `WithConfiguration` instead of `BicepCompilationManager.RefreshAllActiveCompilations`.
 7. **Split the parse layer.** `BicepSourceFile` becomes `BicepSyntaxTree` plus node members; JSON parsing moves into the JSON semantic models; the `ISourceFile` family retires. Mechanical but wide (`BicepFile` alone is on about 660 lines).
 
 ## 7. Open questions
 
 - Which error does an unconfigured implicit `microsoftGraph` report: BCP397, or the retired message with its code fix, as the explicit declaration does?
 - Does namespace order (declared, implicit, built-in) affect diagnostics or the emitted `imports`? The node's ordered `Dependencies` should preserve it.
-- REP 0022 PR 6 sends data-file loads through the resolver. If those become graph edges, they need their own edge type (for example `AuxiliaryFileDependency`); they aren't artifacts.
+- REP 0022 PR 6 sends data-file loads through the resolver. If those become graph edges, they need their own edge type (for example `AuxiliaryFileDependency`); they aren't artifacts, and their freshness is the graph's. Otherwise `AuxiliaryFileCache` keeps itself current the way the configuration manager does (configuration plan PR 14).
 - How services reach nodes and models without a graph back-reference: passed when the builder creates the node, or held by a small shared context object.
 - How diagnostics for restore failures are reported per node (today `BicepCompiler` uses `ReferencingFile` and `Syntax`; after step 2, the node plus `DependencyOrigin`).
 
