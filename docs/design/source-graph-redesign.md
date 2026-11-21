@@ -105,9 +105,13 @@ public abstract class SourceNode
 
     // Captured when the node is built (replacing BicepSourceFile.LoadConfiguration/LoadFeatures, which
     // query the configuration manager on every call). The graph builder needs them to resolve dependencies,
-    // so they can't belong to the semantic model; WithConfiguration recreates the affected nodes.
+    // so they can't belong to the semantic model. See "Configuration" below.
     public IBicepConfiguration Configuration { get; }
     public IFeatureProvider Features { get; }
+
+    // What the configuration was built from: the configuration file nodes in its chain (leaf first), and the
+    // bicepconfig.json paths searched without finding one. Changed URIs map to the nodes to rebuild through these.
+    public ConfigurationInputs ConfigurationInputs { get; }
     public IOUri Uri => this.FileHandle.Uri;
 
     public abstract ISemanticModel GetSemanticModel();   // computed on first call, cached on the node
@@ -190,16 +194,23 @@ Each node captures `Configuration` and `Features` when it's built, so one compil
 
 The services the builder calls to resolve a dependency (`ArtifactReferenceResolver`, `RemoteArtifactContextFactory`, `ModuleAliasMockRule`, `FeatureProviderFactory`) take the referencing node's configuration instead of looking it up by URI, so the explicit configuration reaches them without ambient state.
 
-The configuration manager keeps its caches current by itself (configuration plan PR 13): each cached chain records the files it read and their versions, and is checked against them at most once per `FileChangeEpoch`. Hosts start a new epoch when files may have changed: the language server for each batch of watched-file events, `bicep jsonrpc` and the MCP server for each request; one-shot CLI commands never do. Nothing is pushed. The manager returns the same configuration instance until a file it was loaded from changes, so "did this node's configuration change?" is an instance comparison:
+**Configuration is part of the graph.** Each configuration file is a node too (`ConfigurationNode`: URI, text, parsed file), shared by every source node whose chain includes it, so a shared base is parsed once per snapshot. Each source node records its `ConfigurationInputs`: the configuration file nodes in its chain, and the paths where discovery looked for a `bicepconfig.json` and found none, like TypeScript's "failed lookup locations". The effective configuration is computed from the chain's nodes, so it changes exactly when one of them does.
 
 ```csharp
-// WithConfiguration, after the host starts a new epoch: rebuild the nodes whose configuration instance changed.
-var stale = graph.Nodes.OfType<BicepSourceNode>()
-    .Where(node => !ReferenceEquals(node.Configuration, configurationManager.GetEffectiveConfiguration(node.Uri)));
+public sealed record ConfigurationInputs(
+    ImmutableArray<ConfigurationNode> Chain,         // leaf first, then each file it extends; empty for the built-in configuration
+    ImmutableArray<IOUri> MissingLookupPaths);       // bicepconfig.json paths checked between the node's folder and the leaf
 ```
 
-That covers both kinds of change: a leaf or a file it `extends` was edited (the chain is reloaded), and a `bicepconfig.json` was created or deleted between a node's folder and the configuration file it used (discovery finds a different file). With configuration captured per node, it's one check per node per graph build.
+How a snapshot learns that configuration changed depends on the host:
 
+| Host | Model | How it works |
+|---|---|---|
+| Language server | Push | A batch of watched-file events becomes `WithChangedFiles(uris)`. A changed URI that is a configuration file node, or a missing lookup path (or a folder containing either), selects the source nodes to rebuild, and their dependents are recreated. Nothing is checked against the file system and nothing else is rebuilt. This is how Roslyn (analyzer config documents in the `Solution`) and gopls (snapshots invalidated by watched files) handle it. |
+| `bicep jsonrpc`, MCP server | Pull | No watcher and no workspace root, so nothing pushes changes. Reusing the previous request's graph goes through `Revalidate()`, which checks each node's recorded files once (`FileDependencies` from configuration plan PR 13) and rebuilds the stale ones. Until these hosts reuse graphs, they build one per request, and the configuration manager's per-request checks keep configuration current. |
+| One-shot CLI | Neither | The graph is built once. |
+
+**Until then (configuration plan PR 13).** The configuration manager keeps its caches current by itself: each cached chain records the files it read and their versions, and is checked against them once per `FileChangeEpoch`. Hosts start a new epoch when files may have changed: the language server for each batch of watched-file events, `bicep jsonrpc` and the MCP server for each request; one-shot CLI commands never do. The manager returns the same configuration instance until a file it was loaded from changes, so the language server finds changed configuration by comparing each file's semantic model's configuration with the manager's. Migration step 6 replaces that comparison, and the language server's epoch, with `WithChangedFiles`. `FileDependencies` stays for `Revalidate()`.
 ### Snapshot and compilation
 
 ```csharp
@@ -211,7 +222,8 @@ public sealed class SourceGraph
     public IEnumerable<SourceNode> GetDependents(SourceNode node);   // reverse edges
 
     public SourceGraph WithFile(IOUri uri, string text);
-    public SourceGraph WithConfiguration();                          // after the host starts a new FileChangeEpoch
+    public SourceGraph WithChangedFiles(IEnumerable<IOUri> uris);    // files or folders changed on disk (watched-file events): push
+    public SourceGraph Revalidate();                                 // check each node's recorded files: pull, for hosts without a watcher
     public SourceGraph WithRestoredArtifacts(IEnumerable<RemoteArtifactReference> restored);
     public SourceGraph WithRoots(IEnumerable<IOUri> roots);          // documents opened or closed
 }
@@ -326,6 +338,7 @@ The objects recreated are exactly those whose models are invalid. This replaces 
 LSP doesn't constrain how a server models state: it sends text (`didOpen`, `didChange`, `didClose`) and receives diagnostics per URI. Roslyn's server keeps one `Solution` snapshot for the whole workspace; Bicep would do the same.
 
 - One current `SourceGraph`, replaced atomically on every notification. Handlers take the current snapshot and use it without locks.
+- Watched-file events become `WithChangedFiles(uris)`: source files that aren't open, configuration files, lookup paths, and deleted folders all map to nodes through the graph, so there's no separate configuration cache to keep in step.
 - Open documents are the roots. When a document closes, nodes nothing reaches are dropped.
 - Each open document is an entry point. Its diagnostics come from its own `Compilation`.
 - The workspace stores each open document's text and version; parsing happens in the node.
@@ -411,7 +424,8 @@ sequenceDiagram
 
 - `WithFile(uri, text)`: a new node for `uri` (reparsed, dependencies re-resolved); dependents recreated with their trees passed through.
 - `WithRestoredArtifacts(references)`: nodes with matching `NotRestored` dependencies re-resolved; dependents recreated.
-- `WithConfiguration()`: nodes whose configuration instance changed (section 3, Configuration) are rebuilt with their new configuration and re-resolved; dependents recreated. The language server calls it after starting a new `FileChangeEpoch` for a batch of watched-file events.
+- `WithChangedFiles(uris)`: nodes whose file, configuration file nodes, or missing lookup paths match a URI (a folder covers everything under it) are rebuilt and re-resolved; changed configuration file nodes are reread; dependents recreated.
+- `Revalidate()`: like `WithChangedFiles`, for every node whose recorded files are no longer current (section 3, Configuration).
 - `WithRoots(roots)`: nodes added for newly opened documents; unreachable nodes dropped.
 
 ## 6. Migration (R4)
@@ -423,7 +437,7 @@ Each step leaves a working build.
 3. **Unreadable targets become `Failed`.** `SourceFileLookup` maps URIs to nodes.
 4. **Built-in implicit extensions leave the graph.** `ImplicitExtension` is deleted.
 5. **Nodes own their models.** `node.GetSemanticModel()`; `SemanticModel` reaches dependencies through nodes instead of `SourceFileGrouping` and `ModelLookup`; `referencedAuxiliaryFileUris` moves from `BicepSourceFile` to `SemanticModel.GetReferencedAuxiliaryFiles()`; `Compilation` thins out and takes the entry-point-only rules.
-6. **Workspace-wide snapshot in the language server.** One `SourceGraph` with the update operations; `modelLookup` and `ShallowClone()` retire. Watched-file events call `WithConfiguration()` instead of `BicepCompilationManager.HandleFileChanges` comparing each file's configuration.
+6. **Workspace-wide snapshot in the language server.** One `SourceGraph` with the update operations; `modelLookup` and `ShallowClone()` retire. Watched-file events call `WithChangedFiles(uris)`, which replaces `BicepCompilationManager.HandleFileChanges` comparing each file's configuration, and the language server stops using `FileChangeEpoch`. Configuration file nodes and `ConfigurationInputs` arrive in this step (until then, nodes capture `Configuration` from the configuration manager).
 7. **Split the parse layer.** `BicepSourceFile` becomes `BicepSyntaxTree` plus node members; JSON parsing moves into the JSON semantic models; the `ISourceFile` family retires. Mechanical but wide (`BicepFile` alone is on about 660 lines).
 
 ## 7. Open questions
@@ -432,6 +446,7 @@ Each step leaves a working build.
 - Does namespace order (declared, implicit, built-in) affect diagnostics or the emitted `imports`? The node's ordered `Dependencies` should preserve it.
 - REP 0022 PR 6 sends data-file loads through the resolver. If those become graph edges, they need their own edge type (for example `AuxiliaryFileDependency`); they aren't artifacts, and their freshness is the graph's. Otherwise `AuxiliaryFileCache` keeps itself current the way the configuration manager does (configuration plan PR 14).
 - How services reach nodes and models without a graph back-reference: passed when the builder creates the node, or held by a small shared context object.
+- Pushing changes only works if every file a node depends on is recorded: its own file, its configuration chain, its missing lookup paths, and (depending on the data-file question above) files read by `load*()`. Anything read outside the graph needs a pull check, as the configuration manager has today.
 - How diagnostics for restore failures are reported per node (today `BicepCompiler` uses `ReferencingFile` and `Syntax`; after step 2, the node plus `DependencyOrigin`).
 
 ## 8. Already done (REP 0022 Phase 0.9c, #20575)
