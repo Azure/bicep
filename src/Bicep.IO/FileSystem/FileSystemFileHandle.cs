@@ -80,6 +80,28 @@ namespace Bicep.IO.FileSystem
 
         public IFileLock? TryLock() => FileSystemStreamLock.TryCreate(this.FileSystem, this.FilePath);
 
+        public FileVersion? TryGetVersion()
+        {
+            IFileSystemInfo fileInfo = this.FileSystem.FileInfo.New(this.FilePath);
+
+            // A link's own metadata doesn't change when its target is edited, but reading the file reads the target,
+            // so the version must describe the target.
+            if (fileInfo.LinkTarget is not null)
+            {
+                try
+                {
+                    fileInfo = fileInfo.ResolveLinkTarget(returnFinalTarget: true) ?? fileInfo;
+                }
+                catch (IOException)
+                {
+                    // A link cycle can't be read either.
+                    return null;
+                }
+            }
+
+            return fileInfo is IFileInfo { Exists: true } file ? new FileVersion(file.LastWriteTimeUtc.Ticks, file.Length) : null;
+        }
+
         private static IOUri EnsureNoTrailingSlash(IOUri uri)
         {
             if (uri.Path.EndsWith('/'))

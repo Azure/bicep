@@ -424,6 +424,11 @@ namespace Bicep.LangServer.IntegrationTests
                     })
                 });
 
+                // The new file doesn't change the configuration main.bicep uses, so its compilation isn't refreshed.
+                await diagsListener.EnsureNoMessageSent(timeout: 5000);
+
+                client.TextDocument.DidChangeTextDocument(TextDocumentParamHelper.CreateDidChangeTextDocumentParams(mainUri, bicepFileContents, 2));
+
                 await VerifyDiagnosticsAsync(diagsListener, mainUri, (@"Parameter ""storageAccountName"" is declared but never used.",
                     DiagnosticSeverity.Information,
                     new Position(0, 6),

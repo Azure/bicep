@@ -6,14 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.BicepConfig
 {
+    /// <summary>
+    /// Publishes diagnostics for open configuration files. Cached configuration keeps itself current
+    /// (see <see cref="Bicep.Core.Configuration.BicepConfigurationManager"/>), and compilations are refreshed when it changes.
+    /// </summary>
     public interface IBicepConfigLifecycleManager
     {
-        /// <summary>
-        /// Invalidates cached configuration affected by files created, changed or deleted on disk, and refreshes
-        /// active compilations if any configuration they use may have changed.
-        /// </summary>
-        void HandleFileChanges(IEnumerable<FileEvent> fileEvents);
-
         void HandleBicepConfigOpenEvent(DocumentUri documentUri);
 
         void HandleBicepConfigChangeEvent(DocumentUri documentUri);

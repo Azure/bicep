@@ -285,7 +285,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 }
                 """));
 
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
 
             // Act — load chain once.
             var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
@@ -308,8 +309,9 @@ namespace Bicep.Core.UnitTests.Configuration
             chain2.Should().BeSameAs(chain1);
             chain2.LayerCount.Should().Be(2);
 
-            // Assert — after base file changes, chain is invalidated but structure and values are still correct.
-            sut.InvalidateFile(fileSet.GetUri("base/bicepconfig.base.json"));
+            // Assert — after base file is saved, chain is reloaded but structure and values are still correct.
+            fileSet.AddFile("base/bicepconfig.base.json", fileSet.FileExplorer.GetFile(fileSet.GetUri("base/bicepconfig.base.json")).ReadAllText());
+            epoch.StartNew();
             var chain3 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
             chain3.Should().NotBeSameAs(chain1);
 
@@ -530,50 +532,23 @@ namespace Bicep.Core.UnitTests.Configuration
             chain1.Should().BeSameAs(chain2);
         }
 
-        [TestMethod]
-        public void GetConfigurationChain_AfterInvalidateAll_ReturnsNewInstance()
-        {
-            // Arrange.
-            var fileSet = InMemoryTestFileSet.Create(
-                ("main.bicep", ""),
-                ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
-
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
-
-            // Act.
-            var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-            sut.InvalidateAll();
-            var chain2 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-
-            // Assert — different instance after purge.
-            chain1.Should().NotBeSameAs(chain2);
-        }
-
-        // ── Real content change after purge ───────────────────────────────────
+        // ── Freshness: entries are checked again in a new file change epoch ──
 
         [TestMethod]
-        public void InvalidateFile_AfterBaseFileContentChanges_PicksUpNewValues()
+        public void GetConfigurationChain_AfterBaseFileContentChanges_PicksUpNewValues()
         {
-            // Arrange — base starts with experimentalFeaturesWarning: false.
             var fileSet = InMemoryTestFileSet.Create(
                 ("main.bicep", ""),
                 ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
                 ("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": false }"""));
-
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
-
-            // Load chain — should reflect base value (false).
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
             var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
             chain1.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse();
-            chain1.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
 
-            // Simulate base file being updated.
             fileSet.AddFile("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": true }""");
 
-            // Purge the chain cache for the changed file.
-            sut.InvalidateFile(fileSet.GetUri("base/bicepconfig.base.json"));
-
-            // Reload — must pick up the NEW value from the updated base file.
+            epoch.StartNew();
             var chain2 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
             chain2.Should().NotBeSameAs(chain1);
             chain2.LayerCount.Should().Be(2);
@@ -581,33 +556,8 @@ namespace Bicep.Core.UnitTests.Configuration
             chain2.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
         }
 
-        // ── InvalidateFile ───────────────────────────────────────────────────
-
         [TestMethod]
-        public void InvalidateFile_BaseFileChanges_InvalidatesAffectedChain()
-        {
-            var fileSet = InMemoryTestFileSet.Create(
-                ("main.bicep", ""),
-                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
-                ("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
-            var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-
-            // Verify chain1 has correct content before purge.
-            chain1.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
-            chain1.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
-
-            sut.InvalidateFile(fileSet.GetUri("base/bicepconfig.base.json"));
-            var chain2 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-
-            // Chain was rebuilt (different instance) but content is still correct.
-            chain1.Should().NotBeSameAs(chain2);
-            chain2.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
-            chain2.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
-        }
-
-        [TestMethod]
-        public void InvalidateFile_UnrelatedFileChanges_DoesNotInvalidateChain()
+        public void GetConfigurationChain_UnrelatedConfigFileChanges_ReturnsCachedChain()
         {
             var fileSet = InMemoryTestFileSet.Create(
                 ("main.bicep", ""),
@@ -617,41 +567,29 @@ namespace Bicep.Core.UnitTests.Configuration
             var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
 
-            // Verify chain1 has correct content before purge.
-            chain1.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
+            fileSet.AddFile("other/bicepconfig.json", """{ "experimentalFeaturesWarning": true }""");
 
-            sut.InvalidateFile(fileSet.GetUri("other/bicepconfig.json"));
-            var chain2 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-
-            // Unrelated change — chain must NOT be invalidated (same instance, same values).
-            chain1.Should().BeSameAs(chain2);
-            chain2.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
-            chain2.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
+            sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).Should().BeSameAs(chain1);
         }
 
         [TestMethod]
-        public void InvalidateFile_LeafFileChanges_InvalidatesItsOwnChain()
+        public void GetConfigurationChain_AfterLeafFileChanges_ReloadsChain()
         {
             var fileSet = InMemoryTestFileSet.Create(
                 ("main.bicep", ""),
                 ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
-            var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
+            sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).ExperimentalFeaturesWarning.Should().BeTrue();
 
-            // Verify chain1 has correct content before purge.
-            chain1.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
+            fileSet.AddFile("bicepconfig.json", """{ "experimentalFeaturesWarning": false }""");
 
-            sut.InvalidateFile(fileSet.GetUri("bicepconfig.json"));
-            var chain2 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-
-            // Chain was rebuilt — different instance, but correct content.
-            chain1.Should().NotBeSameAs(chain2);
-            chain2.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
-            chain2.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
+            epoch.StartNew();
+            sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).ExperimentalFeaturesWarning.Should().BeFalse();
         }
 
         [TestMethod]
-        public void InvalidateFile_DeepChainBaseChanges_InvalidatesEntireChain()
+        public void GetConfigurationChain_AfterDeepestBaseChanges_ReloadsChain()
         {
             // A extends B extends C — deepest file C changes.
             var fileSet = InMemoryTestFileSet.Create(
@@ -659,168 +597,262 @@ namespace Bicep.Core.UnitTests.Configuration
                 ("bicepconfig.json", """{ "extends": "./b/bicepconfig.b.json" }"""),
                 ("b/bicepconfig.b.json", """{ "extends": "../c/bicepconfig.c.json" }"""),
                 ("c/bicepconfig.c.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
-            var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
+            sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).ExperimentalFeaturesWarning.Should().BeTrue();
 
-            // Verify chain1 has correct content — value inherited from deepest C.
-            chain1.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
+            fileSet.AddFile("c/bicepconfig.c.json", """{ "experimentalFeaturesWarning": false }""");
 
-            sut.InvalidateFile(fileSet.GetUri("c/bicepconfig.c.json"));
-            var chain2 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-
-            // Chain was rebuilt — value from C still flows through correctly.
-            chain1.Should().NotBeSameAs(chain2);
-            chain2.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
-            chain2.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
+            epoch.StartNew();
+            var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep"));
+            configuration.ExperimentalFeaturesWarning.Should().BeFalse();
+            configuration.GetDiagnostics().Should().BeEmpty();
         }
 
         [TestMethod]
-        public void InvalidateFile_SharedBase_InvalidatesOnlyAffectedLeaf()
+        public void GetConfigurationChain_SharedBaseChanges_ReloadsOnlyChainsThatReadIt()
         {
-            // main extends shared; other does not — only main's chain should be purged.
             var fileSet = InMemoryTestFileSet.Create(
                 ("main.bicep", ""),
                 ("bicepconfig.json", """{ "extends": "./shared/bicepconfig.shared.json" }"""),
                 ("other/other.bicep", ""),
                 ("other/bicepconfig.json", """{ "experimentalFeaturesWarning": false }"""),
                 ("shared/bicepconfig.shared.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
             var chainMain = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
             var chainOther = sut.GetConfigurationChain(fileSet.GetUri("other/other.bicep"));
 
-            // Verify initial content.
-            chainMain.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();   // from shared
-            chainOther.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse(); // its own value
+            fileSet.AddFile("shared/bicepconfig.shared.json", """{ "experimentalFeaturesWarning": false }""");
 
-            sut.InvalidateFile(fileSet.GetUri("shared/bicepconfig.shared.json"));
+            epoch.StartNew();
             var chainMainAfter = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-            var chainOtherAfter = sut.GetConfigurationChain(fileSet.GetUri("other/other.bicep"));
-
-            // main's chain was rebuilt — different instance, correct content.
-            chainMain.Should().NotBeSameAs(chainMainAfter);
-            chainMainAfter.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
-            chainMainAfter.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
-
-            // other's chain was untouched — same instance, correct content.
-            chainOther.Should().BeSameAs(chainOtherAfter);
-            chainOtherAfter.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse();
-            chainOtherAfter.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
+            chainMainAfter.Should().NotBeSameAs(chainMain);
+            chainMainAfter.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse();
+            sut.GetConfigurationChain(fileSet.GetUri("other/other.bicep")).Should().BeSameAs(chainOther);
         }
 
         [TestMethod]
-        public void InvalidateFile_FileNotReadByAnyChain_ReturnsFalse()
-        {
-            var fileSet = InMemoryTestFileSet.Create(
-                ("main.bicep", ""),
-                ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""),
-                ("unrelated.json", "{}"));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
-            var chain = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-
-            sut.InvalidateFile(fileSet.GetUri("unrelated.json")).Should().BeFalse();
-            sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).Should().BeSameAs(chain);
-        }
-
-        [TestMethod]
-        public void InvalidateFile_DeletedFolderContainingBaseConfig_InvalidatesChain()
+        public void GetConfigurationChain_AfterBaseIsDeleted_ReportsMissingBase()
         {
             var fileSet = InMemoryTestFileSet.Create(
                 ("main.bicep", ""),
                 ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
                 ("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": false }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
             sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
 
             fileSet.RemoveFile("base/bicepconfig.base.json");
 
-            // Only the folder is reported, as some clients do for folder deletions.
-            sut.InvalidateFile(fileSet.GetUri("base")).Should().BeTrue();
+            epoch.StartNew();
             GetSingleDiagnostic(sut.GetConfigurationChain(fileSet.GetUri("main.bicep"))).Code.Should().Be("BCP272");
         }
 
         [TestMethod]
-        public void InvalidateFile_FolderRecreatedWithoutConfig_DiscoversParentConfig()
+        public void GetConfigurationChain_AfterLeafIsDeleted_DiscoversParentConfig()
         {
             var fileSet = InMemoryTestFileSet.Create(
                 ("src/main.bicep", ""),
                 ("src/bicepconfig.json", """{ "experimentalFeaturesWarning": false }"""),
                 ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
             sut.GetEffectiveConfiguration(fileSet.GetUri("src/main.bicep")).ConfigFileUri.Should().Be(fileSet.GetUri("src/bicepconfig.json"));
 
-            // The folder is deleted and recreated without its configuration file, and only the folder is reported.
             fileSet.RemoveFile("src/bicepconfig.json");
 
-            sut.InvalidateFile(fileSet.GetUri("src")).Should().BeTrue();
+            epoch.StartNew();
             var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("src/main.bicep"));
             configuration.GetDiagnostics().Should().BeEmpty();
             configuration.ConfigFileUri.Should().Be(fileSet.GetUri("bicepconfig.json"));
         }
 
         [TestMethod]
-        public void InvalidateFile_PathThatOnlySharesAPrefix_DoesNotInvalidateChain()
-        {
-            var fileSet = InMemoryTestFileSet.Create(
-                ("main.bicep", ""),
-                ("bicepconfig.json", """{ "extends": "./base.json" }"""),
-                ("base.json", "{}"));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
-            var chain = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
-
-            sut.InvalidateFile(fileSet.GetUri("base")).Should().BeFalse();
-            sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).Should().BeSameAs(chain);
-        }
-
-        [TestMethod]
-        public void InvalidateFile_AfterBrokenBaseIsFixed_ReloadsChain()
+        public void GetConfigurationChain_AfterBrokenBaseIsFixed_ReloadsChain()
         {
             var fileSet = InMemoryTestFileSet.Create(
                 ("main.bicep", ""),
                 ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
                 ("base/bicepconfig.base.json", "not json"));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
             GetSingleDiagnostic(sut.GetConfigurationChain(fileSet.GetUri("main.bicep"))).Code.Should().Be("BCP271");
 
             fileSet.AddFile("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": false }""");
 
-            sut.InvalidateFile(fileSet.GetUri("base/bicepconfig.base.json")).Should().BeTrue();
+            epoch.StartNew();
             var configuration = sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).GetEffectiveConfiguration();
             configuration.GetDiagnostics().Should().BeEmpty();
             configuration.ExperimentalFeaturesWarning.Should().BeFalse();
         }
 
         [TestMethod]
-        public void InvalidateFile_AfterMissingBaseIsCreated_ReloadsChain()
+        public void GetConfigurationChain_AfterMissingBaseIsCreated_ReloadsChain()
         {
             var fileSet = InMemoryTestFileSet.Create(
                 ("main.bicep", ""),
                 ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
             GetSingleDiagnostic(sut.GetConfigurationChain(fileSet.GetUri("main.bicep"))).Code.Should().Be("BCP272");
 
             fileSet.AddFile("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": false }""");
 
-            sut.InvalidateFile(fileSet.GetUri("base/bicepconfig.base.json")).Should().BeTrue();
+            epoch.StartNew();
             var configuration = sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).GetEffectiveConfiguration();
             configuration.GetDiagnostics().Should().BeEmpty();
             configuration.ExperimentalFeaturesWarning.Should().BeFalse();
         }
 
         [TestMethod]
-        public void InvalidateFile_ConfigFileCreatedCloserToSource_ChangesDiscoveredConfiguration()
+        public void GetConfigurationChain_ConfigFileCreatedCloserToSource_ChangesDiscoveredConfiguration()
         {
             var fileSet = InMemoryTestFileSet.Create(
                 ("src/main.bicep", ""),
                 ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
             sut.GetEffectiveConfiguration(fileSet.GetUri("src/main.bicep")).ConfigFileUri.Should().Be(fileSet.GetUri("bicepconfig.json"));
 
             fileSet.AddFile("src/bicepconfig.json", """{ "experimentalFeaturesWarning": false }""");
 
-            sut.InvalidateFile(fileSet.GetUri("src/bicepconfig.json")).Should().BeTrue();
+            epoch.StartNew();
             sut.GetEffectiveConfiguration(fileSet.GetUri("src/main.bicep")).ConfigFileUri.Should().Be(fileSet.GetUri("src/bicepconfig.json"));
         }
 
+        // ── Freshness with a file change epoch: entries are checked once per epoch ──
+
+        /// <summary>
+        /// Wraps the files the manager reads, so a test can act when one is opened.
+        /// </summary>
+        private sealed class ReadHookingFileExplorer(IFileExplorer inner, Action<IOUri> onOpenRead) : IFileExplorer
+        {
+            public IDirectoryHandle GetDirectory(IOUri uri) => inner.GetDirectory(uri);
+
+            public IFileHandle GetFile(IOUri uri)
+            {
+                var file = inner.GetFile(uri);
+                var mock = new Mock<IFileHandle>(MockBehavior.Strict);
+                mock.SetupGet(x => x.Uri).Returns(file.Uri);
+                mock.Setup(x => x.Exists()).Returns(file.Exists);
+                mock.Setup(x => x.TryGetVersion()).Returns(file.TryGetVersion);
+                mock.Setup(x => x.GetParent()).Returns(file.GetParent);
+                mock.Setup(x => x.OpenRead()).Returns(() =>
+                {
+                    onOpenRead(uri);
+                    return file.OpenRead();
+                });
+
+                return mock.Object;
+            }
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_AfterLockedConfigIsUnlocked_LoadsItInNextEpoch()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
+            var locked = true;
+            var epoch = new FileChangeEpoch();
+            var fileExplorer = new ReadHookingFileExplorer(fileSet.FileExplorer, _ =>
+            {
+                if (locked)
+                {
+                    throw new IOException("The file is locked.");
+                }
+            });
+            var sut = new BicepConfigurationManager(fileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
+
+            GetSingleDiagnostic(sut.GetConfigurationChain(fileSet.GetUri("main.bicep"))).Code.Should().Be("BCP272");
+
+            // Unlocking doesn't change the file's version, but a failed read is retried in the next epoch.
+            locked = false;
+            epoch.StartNew();
+
+            var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep"));
+            configuration.GetDiagnostics().Should().BeEmpty();
+            configuration.ExperimentalFeaturesWarning.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public async Task GetConfigurationChain_ConcurrentLoads_ReturnSameInstance()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
+            using var bothLoading = new Barrier(2);
+            var fileExplorer = new ReadHookingFileExplorer(fileSet.FileExplorer, _ => bothLoading.SignalAndWait(TimeSpan.FromSeconds(10)));
+            var sut = new BicepConfigurationManager(fileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+
+            // Both calls load the chain at the same time; callers compare instances, so they must get the same one.
+            var configurations = await Task.WhenAll(
+                Task.Run(() => sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep"))),
+                Task.Run(() => sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep"))));
+
+            configurations[0].Should().BeSameAs(configurations[1]);
+            sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).Should().BeSameAs(configurations[0]);
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_WithEpoch_ChecksEachEntryOncePerEpoch()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "experimentalFeaturesWarning": false }"""));
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
+            sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).ExperimentalFeaturesWarning.Should().BeFalse();
+
+            // Within an epoch, cached entries are trusted.
+            fileSet.AddFile("bicepconfig.json", """{ "experimentalFeaturesWarning": true }""");
+            sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).ExperimentalFeaturesWarning.Should().BeFalse();
+
+            epoch.StartNew();
+            sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).ExperimentalFeaturesWarning.Should().BeTrue();
+
+            fileSet.AddFile("bicepconfig.json", """{ "experimentalFeaturesWarning": false }""");
+            sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).ExperimentalFeaturesWarning.Should().BeTrue();
+
+            epoch.StartNew();
+            sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).ExperimentalFeaturesWarning.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_NewEpochWithNothingChanged_ReturnsSameConfiguration()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base.json" }"""),
+                ("base.json", "{}"),
+                ("unrelated.json", "{}"));
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
+            var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep"));
+
+            fileSet.AddFile("unrelated.json", """{ "changed": true }""");
+            epoch.StartNew();
+
+            // Callers compare instances to find out whether a configuration changed.
+            sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).Should().BeSameAs(configuration);
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_NewEpochAfterConfigFileCreatedCloserToSource_ChangesDiscoveredConfiguration()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("src/main.bicep", ""),
+                ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, fileChangeEpoch: epoch);
+            sut.GetEffectiveConfiguration(fileSet.GetUri("src/main.bicep")).ConfigFileUri.Should().Be(fileSet.GetUri("bicepconfig.json"));
+
+            fileSet.AddFile("src/bicepconfig.json", """{ "experimentalFeaturesWarning": false }""");
+            epoch.StartNew();
+
+            sut.GetEffectiveConfiguration(fileSet.GetUri("src/main.bicep")).ConfigFileUri.Should().Be(fileSet.GetUri("src/bicepconfig.json"));
+        }
         // ── moduleAliasesMock relative path provenance ────────────────────────
 
         [TestMethod]
@@ -1073,7 +1105,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 ("eng/bicepconfig.prod.json", """{ "extends": "./shared/bicepconfig.base.json" }"""),
                 ("eng/shared/bicepconfig.base.json", """{ "experimentalFeaturesWarning": false }"""));
             var context = new ExplicitConfigurationContext();
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, context);
+            var epoch = new FileChangeEpoch();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, context, epoch);
 
             using var scope = context.Enter(fileSet.GetUri("eng/bicepconfig.prod.json"));
             var chain = sut.GetConfigurationChain(fileSet.GetUri("src/main.bicep"));
@@ -1081,7 +1114,11 @@ namespace Bicep.Core.UnitTests.Configuration
             chain.LayerCount.Should().Be(2);
             chain.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse();
             chain.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
-            sut.InvalidateFile(fileSet.GetUri("eng/shared/bicepconfig.base.json")).Should().BeTrue();
+
+            fileSet.AddFile("eng/shared/bicepconfig.base.json", """{ "experimentalFeaturesWarning": true }""");
+
+            epoch.StartNew();
+            sut.GetConfigurationChain(fileSet.GetUri("src/main.bicep")).GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
         }
 
         [TestMethod]
@@ -1150,47 +1187,6 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         // ── Loader pipeline ───────────────────────────────────────────────────
-
-        private sealed class CountingFileExplorer(IFileExplorer inner) : IFileExplorer
-        {
-            public ConcurrentDictionary<IOUri, int> ReadCounts { get; } = new();
-
-            public IDirectoryHandle GetDirectory(IOUri uri) => inner.GetDirectory(uri);
-
-            public IFileHandle GetFile(IOUri uri)
-            {
-                var file = inner.GetFile(uri);
-                var mock = new Mock<IFileHandle>(MockBehavior.Strict);
-                mock.SetupGet(x => x.Uri).Returns(file.Uri);
-                mock.Setup(x => x.Exists()).Returns(file.Exists);
-                mock.Setup(x => x.GetParent()).Returns(file.GetParent);
-                mock.Setup(x => x.OpenRead()).Returns(() =>
-                {
-                    ReadCounts.AddOrUpdate(uri, 1, (_, count) => count + 1);
-                    return file.OpenRead();
-                });
-
-                return mock.Object;
-            }
-        }
-
-        [TestMethod]
-        public void GetConfigurationChain_BaseSharedByTwoLeaves_IsReadOnce()
-        {
-            var fileSet = InMemoryTestFileSet.Create(
-                ("a/main.bicep", ""),
-                ("a/bicepconfig.json", """{ "extends": "../shared/bicepconfig.base.json" }"""),
-                ("b/main.bicep", ""),
-                ("b/bicepconfig.json", """{ "extends": "../shared/bicepconfig.base.json" }"""),
-                ("shared/bicepconfig.base.json", """{ "experimentalFeaturesWarning": false }"""));
-            var fileExplorer = new CountingFileExplorer(fileSet.FileExplorer);
-            var sut = new BicepConfigurationManager(fileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
-
-            sut.GetConfigurationChain(fileSet.GetUri("a/main.bicep")).GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse();
-            sut.GetConfigurationChain(fileSet.GetUri("b/main.bicep")).GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse();
-
-            fileExplorer.ReadCounts[fileSet.GetUri("shared/bicepconfig.base.json")].Should().Be(1);
-        }
 
         [TestMethod]
         public void GetConfigurationChain_InvalidCurrentProfileInBase_IsReportedAgainstBase()

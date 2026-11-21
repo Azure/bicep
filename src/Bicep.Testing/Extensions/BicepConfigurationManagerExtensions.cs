@@ -24,8 +24,6 @@ public static class BicepConfigurationManagerExtensions
         }
 
         public IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri) => new ConstantChain(this.configuration);
-        public bool InvalidateFile(IOUri fileUri) => false;
-        public void InvalidateAll() { }
     }
 
     private sealed class ConstantChain(IBicepConfiguration configuration) : IBicepConfigurationChain

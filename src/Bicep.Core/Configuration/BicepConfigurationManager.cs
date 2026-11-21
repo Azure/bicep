@@ -11,35 +11,43 @@ using Bicep.IO.Abstraction;
 namespace Bicep.Core.Configuration;
 
 /// <summary>
-/// Loads configuration chains and caches them. Loading runs in steps: locate the leaf file, read each file (parsed files are cached),
+/// Loads configuration chains and caches them. Loading runs in steps: locate the leaf file, read each file,
 /// follow "extends" (<see cref="ConfigurationChainResolver"/>), merge (<see cref="ConfigurationMerger"/>), bind, and check cloud trust.
 /// No step throws for bad input; each problem becomes a diagnostic on the file that caused it.
 /// </summary>
+/// <remarks>
+/// Each cache entry records the files it was built from (<see cref="FileDependencies"/>) and is checked against them the first time it's read
+/// in each <see cref="FileChangeEpoch"/>; a stale entry is reloaded. Without an epoch, entries are never checked again, as in a one-shot command.
+/// The manager returns the same configuration instance until it's reloaded, so callers can compare instances to find out whether a configuration changed.
+/// </remarks>
 public class BicepConfigurationManager : IBicepConfigurationManager
 {
-    /// <param name="Chain">The loaded chain.</param>
-    /// <param name="Dependencies">Every file the chain tried to read, including missing ones, so that changing, fixing or creating any of them invalidates the chain.</param>
-    private sealed record ChainCacheEntry(IBicepConfigurationChain Chain, ImmutableHashSet<IOUri> Dependencies);
+    /// <param name="Value">For the lookup cache, the nearest configuration file, or <see langword="null"/> if there's none. For the chain cache, the loaded chain.</param>
+    /// <param name="Dependencies">For the lookup cache, the configuration file path checked in each folder searched.
+    /// For the chain cache, every file the chain tried to read, including missing ones.</param>
+    /// <param name="CheckedInEpoch">The <see cref="FileChangeEpoch"/> in which the entry was last known to be current.</param>
+    private sealed record CacheEntry<TValue>(TValue Value, FileDependencies Dependencies, long CheckedInEpoch);
 
     private static readonly DiagnosticBuilder.DiagnosticBuilderInternal ConfigDiagnosticBuilder = DiagnosticBuilder.ForDocumentStart();
 
-    private readonly ConcurrentDictionary<IDirectoryHandle, ResultWithDiagnostic<IFileHandle?>> configFileLookupCache = new();
-    private readonly ConcurrentDictionary<IOUri, ResultWithDiagnostic<ConfigurationFile>> parsedFileCache = new();
-    private readonly ConcurrentDictionary<IOUri, ChainCacheEntry> chainCache = new();
+    // Keyed by the folder of the source file.
+    private readonly ConcurrentDictionary<IOUri, CacheEntry<ResultWithDiagnostic<IFileHandle?>>> configFileLookupCache = new();
+    private readonly ConcurrentDictionary<IOUri, CacheEntry<IBicepConfigurationChain>> chainCache = new();
     private readonly IFileExplorer fileExplorer;
     private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
     private readonly ExplicitConfigurationContext explicitConfigurationContext;
+    private readonly FileChangeEpoch? fileChangeEpoch;
 
-    public BicepConfigurationManager(IFileExplorer fileExplorer, CloudConfigurationTrustPolicy cloudTrustPolicy)
-        : this(fileExplorer, cloudTrustPolicy, new ExplicitConfigurationContext())
-    {
-    }
-
-    public BicepConfigurationManager(IFileExplorer fileExplorer, CloudConfigurationTrustPolicy cloudTrustPolicy, ExplicitConfigurationContext explicitConfigurationContext)
+    public BicepConfigurationManager(
+        IFileExplorer fileExplorer,
+        CloudConfigurationTrustPolicy cloudTrustPolicy,
+        ExplicitConfigurationContext? explicitConfigurationContext = null,
+        FileChangeEpoch? fileChangeEpoch = null)
     {
         this.fileExplorer = fileExplorer;
         this.cloudTrustPolicy = cloudTrustPolicy;
-        this.explicitConfigurationContext = explicitConfigurationContext;
+        this.explicitConfigurationContext = explicitConfigurationContext ?? new();
+        this.fileChangeEpoch = fileChangeEpoch;
     }
 
     public IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri) =>
@@ -55,8 +63,9 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         }
 
         var sourceDirectory = this.fileExplorer.GetFile(sourceFileUri).GetParent();
+        var lookup = GetOrLoad(this.configFileLookupCache, sourceDirectory.Uri, () => LookupConfigurationFile(sourceDirectory));
 
-        if (!this.configFileLookupCache.GetOrAdd(sourceDirectory, LookupConfigurationFile).IsSuccess(out var configFileHandle, out var lookupDiagnostic))
+        if (!lookup.IsSuccess(out var configFileHandle, out var lookupDiagnostic))
         {
             return GetBuiltInChain([], [new(null, lookupDiagnostic)]);
         }
@@ -70,69 +79,48 @@ public class BicepConfigurationManager : IBicepConfigurationManager
     }
 
     private IBicepConfigurationChain GetConfigurationChainForConfigFile(IFileHandle leafConfigFileHandle) =>
-        this.chainCache.GetOrAdd(leafConfigFileHandle.Uri, _ => LoadChain(leafConfigFileHandle)).Chain;
+        GetOrLoad(this.chainCache, leafConfigFileHandle.Uri, () => LoadChain(leafConfigFileHandle));
 
-    public bool InvalidateFile(IOUri fileUri)
+    private TValue GetOrLoad<TValue>(ConcurrentDictionary<IOUri, CacheEntry<TValue>> cache, IOUri key, Func<(TValue Value, FileDependencies Dependencies)> load)
     {
-        var invalidated = false;
+        // Read before loading, so an entry loaded while a new epoch starts is checked again in that epoch.
+        var epoch = this.fileChangeEpoch?.Current ?? 0;
 
-        // Clients may report only the folder when a folder is deleted, so the URI also covers everything under it.
-        // IsBaseOf compares whole path segments, so "base" covers "base/x.json" but not "base.json".
-        foreach (var entry in this.chainCache)
+        if (cache.TryGetValue(key, out var cachedEntry))
         {
-            // Only removes the entry that was checked, not one a concurrent load has just added.
-            if (entry.Value.Dependencies.Any(fileUri.IsBaseOf) && this.chainCache.TryRemove(entry))
+            if (cachedEntry.CheckedInEpoch == epoch)
             {
-                invalidated = true;
+                return cachedEntry.Value;
+            }
+
+            if (cachedEntry.Dependencies.IsCurrent())
+            {
+                // Losing a race with a concurrent update only means the entry is checked again.
+                cache.TryUpdate(key, cachedEntry with { CheckedInEpoch = epoch }, cachedEntry);
+
+                return cachedEntry.Value;
             }
         }
 
-        // Parsed files are only read through chains, so dropping one doesn't make any returned configuration stale by itself.
-        foreach (var parsedFileUri in this.parsedFileCache.Keys)
-        {
-            if (fileUri.IsBaseOf(parsedFileUri))
-            {
-                this.parsedFileCache.TryRemove(parsedFileUri, out _);
-            }
-        }
+        var (value, dependencies) = load();
+        var loadedEntry = new CacheEntry<TValue>(value, dependencies, epoch);
 
-        // Clients don't reliably report whether a file was created or changed, so any event on a bicepconfig.json resets discovery.
-        if (string.Equals(fileUri.GetFileName(), LanguageConstants.BicepConfigurationFileName, StringComparison.OrdinalIgnoreCase))
-        {
-            this.configFileLookupCache.Clear();
-            invalidated = true;
-        }
-        else
-        {
-            // A deleted folder can be recreated without its configuration file, so forget what was found under it.
-            // This doesn't count as invalidation: if the folder still exists, discovery finds the same files, and
-            // chains that read files under the folder were already invalidated above.
-            foreach (var directory in this.configFileLookupCache.Keys)
-            {
-                if (fileUri.IsBaseOf(directory.Uri))
-                {
-                    this.configFileLookupCache.TryRemove(directory, out _);
-                }
-            }
-        }
+        // Callers compare instances to find out whether a configuration changed, so concurrent loads must agree:
+        // only one entry replaces the one that was read (or fills the empty slot), and every caller returns that one.
+        var publishedEntry = cachedEntry is not null && cache.TryUpdate(key, loadedEntry, cachedEntry)
+            ? loadedEntry
+            : cache.GetOrAdd(key, loadedEntry);
 
-        return invalidated;
-    }
-
-    public void InvalidateAll()
-    {
-        this.configFileLookupCache.Clear();
-        this.parsedFileCache.Clear();
-        this.chainCache.Clear();
+        return publishedEntry.Value;
     }
 
     /// <param name="configFileUris">The files that were read before loading stopped, so their diagnostics can be published (or cleared).</param>
     private static IBicepConfigurationChain GetBuiltInChain(ImmutableArray<IOUri> configFileUris, ImmutableArray<ConfigurationDiagnostic> diagnostics) =>
         new BicepConfigurationChain(BicepConfiguration.BuiltIn, configFileUris, diagnostics);
 
-    private ChainCacheEntry LoadChain(IFileHandle leafFileHandle)
+    private (IBicepConfigurationChain, FileDependencies) LoadChain(IFileHandle leafFileHandle)
     {
-        var dependencies = new List<IOUri>();
+        var dependencies = new FileDependencies.Builder();
         IBicepConfigurationChain chain;
 
         try
@@ -143,18 +131,15 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         {
             // Bad user input is reported by the steps that load the chain; anything that escapes is a Bicep bug, but it must not crash the caller.
             chain = GetBuiltInChain([leafFileHandle.Uri], [new(leafFileHandle.Uri, ConfigDiagnosticBuilder.UnloadableBicepConfigFile(leafFileHandle.Uri, exception.Message))]);
+            dependencies.AddFailedRead();
         }
 
-        return new(chain, [.. dependencies]);
+        return (chain, dependencies.Build());
     }
 
-    private IBicepConfigurationChain LoadChain(IOUri leafUri, List<IOUri> dependencies)
+    private IBicepConfigurationChain LoadChain(IOUri leafUri, FileDependencies.Builder dependencies)
     {
-        var resolution = ConfigurationChainResolver.Resolve(leafUri, uri =>
-        {
-            dependencies.Add(uri);
-            return TryReadFile(uri);
-        });
+        var resolution = ConfigurationChainResolver.Resolve(leafUri, uri => TryReadFile(uri, dependencies));
 
         var fileUris = resolution.Files.Select(file => file.Uri).ToImmutableArray();
 
@@ -200,17 +185,27 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         return new BicepConfigurationChain(AnnotateDeclaringFiles(configuration, merged.Provenance), fileUris, []);
     }
 
-    private ResultWithDiagnostic<ConfigurationFile>? TryReadFile(IOUri fileUri)
+    private ResultWithDiagnostic<ConfigurationFile>? TryReadFile(IOUri fileUri, FileDependencies.Builder dependencies)
     {
         var fileHandle = this.fileExplorer.GetFile(fileUri);
 
-        if (!fileHandle.Exists())
+        // The version is recorded before the file is read, so a change made while reading makes the chain stale.
+        if (dependencies.AddFile(fileHandle) is null)
         {
             return null;
         }
 
-        // A base file shared by several chains is read once.
-        return this.parsedFileCache.GetOrAdd(fileUri, _ => ConfigurationFileReader.Read(fileHandle));
+        var file = ConfigurationFileReader.Read(fileHandle);
+
+        // BCP272 here can only mean the file couldn't be read (for example, while it's locked). That may be temporary and
+        // doesn't change the file's version, so the chain is retried in the next epoch. A file that was read but is invalid
+        // isn't retried: fixing it changes its version.
+        if (!file.IsSuccess(out _, out var diagnostic) && diagnostic.Code == "BCP272")
+        {
+            dependencies.AddFailedRead();
+        }
+
+        return file;
     }
 
     /// <summary>
@@ -244,17 +239,20 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         return configuration;
     }
 
-    private ResultWithDiagnostic<IFileHandle?> LookupConfigurationFile(IDirectoryHandle? directoryToLookup)
+    private static (ResultWithDiagnostic<IFileHandle?>, FileDependencies) LookupConfigurationFile(IDirectoryHandle? directoryToLookup)
     {
+        var dependencies = new FileDependencies.Builder();
+
         try
         {
             while (directoryToLookup is not null)
             {
                 var configFileHandle = directoryToLookup.GetFile(LanguageConstants.BicepConfigurationFileName);
 
-                if (configFileHandle.Exists())
+                // Only whether the file exists matters here; the chain records its content.
+                if (dependencies.AddExistence(configFileHandle))
                 {
-                    return new(configFileHandle);
+                    return (new(configFileHandle), dependencies.Build());
                 }
 
                 directoryToLookup = directoryToLookup.GetParent();
@@ -262,9 +260,11 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         }
         catch (IOException exception)
         {
-            return new(ConfigDiagnosticBuilder.PotentialConfigDirectoryCouldNotBeScanned(directoryToLookup?.Uri, exception.Message));
+            dependencies.AddFailedRead();
+
+            return (new(ConfigDiagnosticBuilder.PotentialConfigDirectoryCouldNotBeScanned(directoryToLookup?.Uri, exception.Message)), dependencies.Build());
         }
 
-        return new((IFileHandle?)null);
+        return (new((IFileHandle?)null), dependencies.Build());
     }
 }

@@ -42,6 +42,8 @@ internal sealed class ThrowingFileExplorer(Exception exceptionToThrow) : IFileEx
         public void MakeExecutable() => throw new NotSupportedException();
 
         public IFileLock? TryLock() => throw new NotSupportedException();
+
+        public FileVersion? TryGetVersion() => new FileVersion(0, 0);
     }
 }
 

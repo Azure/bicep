@@ -44,7 +44,8 @@ namespace Bicep.LangServer.UnitTests
                 workspace,
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.SourceFileFactory,
-                BicepTestConstants.AuxiliaryFileCache);
+                BicepTestConstants.AuxiliaryFileCache,
+                BicepTestConstants.ConfigurationManager);
         }
 
         [NotNull]
@@ -297,7 +298,8 @@ namespace Bicep.LangServer.UnitTests
                 new ActiveSourceFileSet(),
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.SourceFileFactory,
-                BicepTestConstants.AuxiliaryFileCache);
+                BicepTestConstants.AuxiliaryFileCache,
+                BicepTestConstants.ConfigurationManager);
 
             var uri = DocumentUri.File($"{TestContext.TestName}.bicep");
 
@@ -355,7 +357,8 @@ namespace Bicep.LangServer.UnitTests
                 new ActiveSourceFileSet(),
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.SourceFileFactory,
-                BicepTestConstants.AuxiliaryFileCache);
+                BicepTestConstants.AuxiliaryFileCache,
+                BicepTestConstants.ConfigurationManager);
 
             // upsert should fail because of the mock fatal exception
             manager.OpenCompilation(uri, BaseVersion, "fake", languageId);
@@ -425,7 +428,8 @@ namespace Bicep.LangServer.UnitTests
                 workspace,
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.SourceFileFactory,
-                BicepTestConstants.AuxiliaryFileCache);
+                BicepTestConstants.AuxiliaryFileCache,
+                BicepTestConstants.ConfigurationManager);
 
             // upsert should fail because of the mock fatal exception
             manager.OpenCompilation(uri, version, "fake", languageId);
@@ -533,7 +537,8 @@ module moduleB './moduleB.bicep' = {
                 new ActiveSourceFileSet(),
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.SourceFileFactory,
-                BicepTestConstants.AuxiliaryFileCache);
+                BicepTestConstants.AuxiliaryFileCache,
+                BicepTestConstants.ConfigurationManager);
 
             diagsReceived.Should().BeEmpty();
 

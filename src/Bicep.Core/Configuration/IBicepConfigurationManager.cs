@@ -19,21 +19,7 @@ public interface IBicepConfigurationManager
     /// Walks the "extends" chain starting from the leaf configuration,
     /// detects cycles, enforces depth limits, and merges all layers.
     /// Falls back to the built-in configuration if no bicepconfig.json is found.
+    /// Returns the same chain until a file it was loaded from changes, checked as described on <see cref="FileChangeEpoch"/>.
     /// </summary>
     IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri);
-
-    /// <summary>
-    /// Drops cached state affected by a change to <paramref name="fileUri"/> on disk (created, changed or deleted).
-    /// The URI may also be a folder, which covers everything under it, because clients may report only the folder when one is deleted.
-    /// Every cached chain that read an affected file is invalidated, including chains that failed to load because of it.
-    /// If the file is a bicepconfig.json, configuration file discovery is also reset, because creating or deleting one
-    /// can change which configuration file a source file uses.
-    /// </summary>
-    /// <returns>True if any cached state was dropped, meaning configurations returned before the call may be stale.</returns>
-    bool InvalidateFile(IOUri fileUri);
-
-    /// <summary>
-    /// Drops all cached configuration state.
-    /// </summary>
-    void InvalidateAll();
 }

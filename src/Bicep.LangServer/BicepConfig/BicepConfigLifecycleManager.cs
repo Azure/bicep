@@ -3,7 +3,7 @@
 
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.LanguageServer.Compilation;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -15,32 +15,17 @@ namespace Bicep.LanguageServer.BicepConfig
 {
     public class BicepConfigLifecycleManager : IBicepConfigLifecycleManager
     {
-        private readonly ICompilationManager compilationManager;
         private readonly IBicepConfigurationManager bicepConfigurationManager;
+        private readonly FileChangeEpoch fileChangeEpoch;
         private readonly ILanguageServerFacade server;
 
-        public BicepConfigLifecycleManager(ICompilationManager compilationManager,
-                           IBicepConfigurationManager bicepConfigurationManager,
+        public BicepConfigLifecycleManager(IBicepConfigurationManager bicepConfigurationManager,
+                           FileChangeEpoch fileChangeEpoch,
                            ILanguageServerFacade server)
         {
-            this.compilationManager = compilationManager;
             this.bicepConfigurationManager = bicepConfigurationManager;
+            this.fileChangeEpoch = fileChangeEpoch;
             this.server = server;
-        }
-
-        public void HandleFileChanges(IEnumerable<FileEvent> fileEvents)
-        {
-            var invalidated = false;
-            foreach (var fileEvent in fileEvents)
-            {
-                invalidated |= bicepConfigurationManager.InvalidateFile(fileEvent.Uri.ToIOUri());
-            }
-
-            if (invalidated)
-            {
-                // We shouldn't need to reload auxiliary files if a configuration file has changed.
-                compilationManager.RefreshAllActiveCompilations(forceReloadAuxiliaryFiles: false);
-            }
         }
 
         public void HandleBicepConfigOpenEvent(DocumentUri documentUri)
@@ -53,7 +38,9 @@ namespace Bicep.LanguageServer.BicepConfig
 
         public void HandleBicepConfigSaveEvent(DocumentUri documentUri)
         {
-            bicepConfigurationManager.InvalidateFile(documentUri.ToIOUri());
+            // The client may report the save before the watched-file event, so start a new epoch now to publish current diagnostics.
+            // Compilations are refreshed when the watched-file event arrives.
+            fileChangeEpoch.StartNew();
             PublishConfigDiagnostics(documentUri);
         }
 

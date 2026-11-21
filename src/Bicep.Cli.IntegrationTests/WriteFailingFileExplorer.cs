@@ -54,5 +54,7 @@ internal sealed class WriteFailingFileExplorer(
         public void MakeExecutable() => inner.MakeExecutable();
 
         public IFileLock? TryLock() => inner.TryLock();
+
+        public FileVersion? TryGetVersion() => inner.TryGetVersion();
     }
 }

@@ -32,7 +32,8 @@ namespace Bicep.IO.InMemory
         public class FileStore
         {
             private readonly ConcurrentDictionary<InMemoryDirectoryHandle, bool> directoryEntries = new();
-            private readonly ConcurrentDictionary<InMemoryFileHandle, BinaryData?> fileEntries = new();
+            private readonly ConcurrentDictionary<InMemoryFileHandle, FileEntry> fileEntries = new();
+            private long writeCounter;
 
             public bool DirectoryExists(InMemoryDirectoryHandle directory) => this.directoryEntries.GetValueOrDefault(directory);
 
@@ -56,21 +57,16 @@ namespace Bicep.IO.InMemory
                 }
             }
 
-            public bool FileExists(InMemoryFileHandle file) => this.fileEntries.GetValueOrDefault(file) is not null;
+            public bool FileExists(InMemoryFileHandle file) => this.fileEntries.ContainsKey(file);
 
-            public void CreateFileIfNotExists(InMemoryFileHandle file) => this.fileEntries.TryAdd(file, BinaryData.Empty);
+            public void CreateFileIfNotExists(InMemoryFileHandle file) => this.fileEntries.TryAdd(file, this.CreateEntry(BinaryData.Empty));
 
             public void DeleteFile(InMemoryFileHandle file) => this.fileEntries.TryRemove(file, out _);
 
             public IEnumerable<InMemoryFileHandle> FindFiles(Predicate<InMemoryFileHandle> predicate)
             {
-                foreach (var (fileHandle, fileText) in this.fileEntries)
+                foreach (var fileHandle in this.fileEntries.Keys)
                 {
-                    if (fileText is null)
-                    {
-                        continue;
-                    }
-
                     if (predicate(fileHandle))
                     {
                         yield return fileHandle;
@@ -80,9 +76,18 @@ namespace Bicep.IO.InMemory
 
             public void WriteFile(InMemoryFileHandle file, string text) => this.WriteFile(file, BinaryData.FromString(text));
 
-            public void WriteFile(InMemoryFileHandle file, BinaryData data) => this.fileEntries.AddOrUpdate(file, data, (_, _) => data);
+            public void WriteFile(InMemoryFileHandle file, BinaryData data) => this.fileEntries[file] = this.CreateEntry(data);
 
-            public BinaryData ReadFile(InMemoryFileHandle file) => this.fileEntries.GetValueOrDefault(file) ?? throw new FileNotFoundException($"File '{file.Uri}' does not exist.");
+            public BinaryData ReadFile(InMemoryFileHandle file) => this.fileEntries.TryGetValue(file, out var entry)
+                ? entry.Data
+                : throw new FileNotFoundException($"File '{file.Uri}' does not exist.");
+
+            public FileVersion? TryGetFileVersion(InMemoryFileHandle file) => this.fileEntries.TryGetValue(file, out var entry) ? entry.Version : null;
+
+            // The counter is shared by all files, so a file that is deleted and written again gets a new version.
+            private FileEntry CreateEntry(BinaryData data) => new(data, new(Interlocked.Increment(ref this.writeCounter), data.ToMemory().Length));
+
+            private sealed record FileEntry(BinaryData Data, FileVersion Version);
         }
     }
 }
