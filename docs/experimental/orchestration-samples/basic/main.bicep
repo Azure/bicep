@@ -79,7 +79,7 @@ stack global './global/main.bicepparam' = {
   ]
 }
 
-rule stages 'Batching' = {
+rule stages 'StagedRollout' = {
   groups: [for (mapping, i) in config.stageMappings: {
     order: i
     name: mapping.name

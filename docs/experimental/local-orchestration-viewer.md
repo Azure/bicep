@@ -91,7 +91,7 @@ stack. Existing untagged simulation state needs a newly approved deployment to r
 When the entry point provides `stageMappings` (directly or under `config`) as
 ordered `{ name, regions }` groups, the matrix groups region rows under those
 stage names. Unmapped regions appear under **Unassigned**. The Deployments RP
-sample's `Batching` rule and parameter file are the authoring example; the local
+sample's `StagedRollout` rule and parameter file are the authoring example; the local
 viewer displays these stages but does not enforce rollout batching.
 
 1. **Source:** edit Bicep in VS Code; use existing Copilot chat there.
