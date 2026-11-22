@@ -10,13 +10,13 @@
     "@vitest/eslint-plugin": "^1.6.28",
     "cross-env": "^10.1.0",
     "cross-spawn": "^7.0.6",
-    "eslint": "^10.14.0",
+    "eslint": "^10.15.0",
     "prettier": "^3.10.1",
     "rimraf": "^6.1.4",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.72.2",
+    "typescript-eslint": "^8.73.0",
     "uuid": "^14.0.3",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   },
   "scripts": {
     "check-types": "tsc --noEmit",
