@@ -11,8 +11,9 @@ Phase 0 (PRs #20496–#20575) refactored how Bicep resolves, restores, stores an
 | Phase | Summary | PR | Status |
 |---|---|---|---|
 | 0 | Resolution, restore, cache and artifact-model refactoring | #20496–#20575 | Done |
-| 1 | `oci:`, `file:` and `<alias>::` parsing | – | In progress |
-| 2–6 | Remaining REP 0022 features (section 5.7) | – | Planned |
+| 1 | `oci:`, `file:` and `<alias>::` parsing | #20580 | Done |
+| 2 | `artifacts.aliases` | – | In progress |
+| 3–6 | Remaining REP 0022 features (section 5.7) | – | Planned |
 
 ---
 
@@ -84,7 +85,7 @@ public sealed record ArtifactResolution(ArtifactReference Reference, ArtifactRed
 
 **Parsing rules** for `ArtifactAddress.Parse`, which is total (it never fails), checked in order:
 
-1. `^(?<alias>[A-Za-z0-9_-]+)::(?<body>.*)$` gives `AliasQualified`. Checked first, so `br::x` is the alias `br`, not the scheme `br`.
+1. `^(?<alias>[A-Za-z0-9_-]+)::(?<body>.*)$` gives `AliasQualified`. Checked first, so `br::x` is the alias `br`, not the scheme `br`; the resolver then rejects it because scheme names are reserved (question 8).
 2. `^(?<scheme>br|ts)/(?<alias>[^:]+):(?<body>.*)$` gives `SchemeAndAliasQualified`, resolved only through `moduleAliases`. Any other `<scheme>/<x>:` form (`oci/…`, `file/…`) gets a new diagnostic: "scheme-qualified aliases are not supported for this scheme; use `<alias>::`".
 3. `^(?<scheme>[a-z-]+):(?<body>.*)$` gives `SchemeQualified` (`oci`, `br`, `ts`, `file`). `br-mock` stays rejected (BCP449).
 4. Anything else gives `Path`.
@@ -177,21 +178,20 @@ The resolver, the parser, URI-anchored local references and routing by reference
 New `Configuration/ArtifactsConfiguration.cs`, bound from the top-level `artifacts` key:
 
 ```csharp
-record ArtifactsConfigData {
-  ImmutableSortedDictionary<string, ArtifactAlias> Aliases;     // polymorphic on "type"
-  ImmutableDictionary<string, string> Redirects;                 // key pattern -> relative target
-}
-abstract record ArtifactAlias;                                  // file alias paths resolved against the declaring file (see below)
-record OciArtifactAlias(string Registry, string? RepositoryPrefix);
-record TemplateSpecArtifactAlias(string SubscriptionId, string ResourceGroup);
-record FileArtifactAlias(string Path);
+abstract record ArtifactAlias(string Name);
+record OciArtifactAlias(string Name, string Registry, string? RepositoryPrefix);
+record TemplateSpecArtifactAlias(string Name, string SubscriptionId, string ResourceGroup);
+record FileArtifactAlias(string Name, RelativePath Path, IOUri DeclaringConfigUri);   // Path is relative to DeclaringConfigUri
 ```
 
-- **Binding never throws on semantic errors.** A bad alias would otherwise invalidate the whole configuration through `InvalidBicepConfigFile`. Errors are stored per entry and reported when the entry is used, as `moduleAliases` errors are today. An unknown `type` is a per-entry error.
+`IBicepArtifactsConfiguration.TryGetAlias(name)` returns an alias or a diagnostic. PR 4 adds `artifacts.redirects` to the same section.
+
+- **Binding never throws.** A bad alias would otherwise invalidate the whole configuration through `InvalidBicepConfigFile`. The section keeps the merged JSON and checks an alias when it's used, as `moduleAliases` errors are reported today. That includes an unknown `type` and an `artifacts` or `aliases` value that isn't an object.
+- **Nothing is reported for an alias that isn't used.** Configuration diagnostics are copied into every Bicep file that uses the configuration, so a load-time warning would reach files the alias can't affect, and fail warnings-as-errors builds across a monorepo. The schema flags bad definitions while the configuration is edited. Revisit if configuration plan PRs 6 and 7 add warnings that are shown only on the configuration file.
 - **Alias names** use the `ModuleAliasesConfiguration.ModuleAliasNameRegex()` grammar and are case-sensitive.
 - **The predefined `mar`/`avm` are defined in code**, not in the built-in `bicepconfig.json`. The configuration chain deep-merges JSON, so a user override would silently inherit the built-in `repositoryPrefix`; defaults defined in code are replaced as a whole entry. Overriding them with `type != "oci"` is an error. The defaults don't depend on the cloud profile.
-- **Declaring URIs:** relative paths in file aliases and redirect targets resolve against the `bicepconfig.json` that declares the entry. Use the per-value declaring-file record from `configuration-improvement-plan.md` (its PRs 2 and 3, which delete `FindDeclaringUrisByKey`) rather than adding another `FindDeclaringUrisByKey` lookup. If PR 2 lands first, it uses that lookup temporarily, and the configuration plan's PR 3 moves it over with the other paths.
-- **Serialization:** `IBicepConfiguration.Artifacts` and `BicepConfigurationExtensions.With`/`WriteTo` are updated, so configuration dumping still round-trips.
+- **Declaring URIs:** relative paths in file aliases and redirect targets resolve against the `bicepconfig.json` that declares the entry, and alias errors name that file (a missing alias names the leaf, where it would be added). `BicepConfigurationManager.AnnotateDeclaringFiles` gives the section the chain's `ConfigurationProvenance` (`ArtifactsConfiguration.WithProvenance`); configuration plan PR 3 moves this into binding with the other paths.
+- **Serialization:** `IBicepConfiguration.Artifacts` and `BicepConfigurationExtensions.With`/`ToUtf8Json` are updated. `artifacts` is written only when a file declares it, so existing configuration dumps are unchanged.
 
 ### 5.2 Redirect engine (`PatternRedirectRule`s in `RedirectingArtifactResolver`)
 
@@ -257,14 +257,14 @@ Each PR is complete when it ships: new syntax lands together with its resolution
 | 6 | **Docs, samples and removing the flag**: drop `artifactAliasesAndRedirects` (its schema entry and docs), accept `oci:` in the MCP extension tools, baseline datasets, Learn docs, linter rule docs, changelog. | `Bicep.Core.Samples/Files/baselines/ArtifactAliases_*`, docs | Baselines for alias, redirect and file scenarios. |
 
 Each PR depends on the one before it, except PR 5, which needs only PRs 2 and 4.
-### 5.8 Diagnostics to add (next free BCP codes; BCP461 is currently the highest)
+### 5.8 Diagnostics to add (next free BCP codes; BCP465 is currently the highest)
 
-- Unknown artifact alias.
-- Invalid alias definition (missing or unknown `type`, missing required property).
-- Predefined alias `mar`/`avm` must have type `oci`.
-- Scheme-qualified alias form (`oci/x:`) not supported (BCP460, PR 1).
-- Empty artifact path not allowed for the alias type, or an OCI empty path requires a full repository.
-- A module `file:` reference must be a Bicep file or an ARM template (BCP461, PR 1).
+- Unknown artifact alias (BCP462, PR 2).
+- Artifact alias name reserved for a scheme (BCP465, PR 2; question 8).
+- Invalid alias definition: missing or unknown `type`, a missing or empty required property, a non-relative file `path`, or a predefined `mar`/`avm` overridden with a type other than `oci` (BCP463, PR 2). The message names the invalid property, such as `artifacts.aliases.contoso`.
+- Scheme-qualified alias form (`oci/x:`) not supported (BCP460, PR 1; PR 2 adds the "write `<alias>::`" hint).
+- Empty artifact path after an alias, or an OCI tag or digest after an alias without `repositoryPrefix` (BCP464, PR 2).
+- A module `file:` reference or file alias must be a Bicep file or an ARM template (BCP461, PR 1; PR 2 covers file aliases).
 - Artifact reference type not supported for data-file loading.
 - Invalid redirect key (capture syntax, duplicate or invalid capture names, more than one `{...}`, glob characters).
 - Invalid redirect target (not `./` or `../`, absolute, an artifact reference, an undeclared placeholder, a captured `.` or `..`).
@@ -286,12 +286,12 @@ Each PR depends on the one before it, except PR 5, which needs only PRs 2 and 4.
 
 1. **A temporary experimental flag** *(decided)*: yes, `artifactAliasesAndRedirects`, so the feature can collect feedback before it becomes the default (requested in review of #20580). The REP's rollout plan says "no flag"; update it when the flag is removed.
 2. **`--verbose` doesn't exist.** Add a global option, or use a log level?
-3. **`file:` values in the `extensions` map** *(decided)*: relative to the `bicepconfig.json` that declares the entry, the same as bare paths. Until the configuration plan's PR 3 lands, both use the leaf configuration (bug B2 in `configuration-improvement-plan.md`); `file:` values get the fix with bare paths, not separately.
+3. **`file:` values in the `extensions` map** *(decided)*: relative to the `bicepconfig.json` that declares the entry, the same as bare paths. Not fully implemented yet, for bare paths and `file:` alike: `extension foo` resolves them against the leaf configuration rather than the declaring one (bug B2 in `configuration-improvement-plan.md`), and an entry used through `implicitExtensions` resolves them against the referencing file (question 11). Configuration plan PR 3 fixes both together; `file:` values aren't fixed separately. A file alias (`"foo": "exts::foo.tgz"`) already resolves against the configuration that declares the alias in both cases.
 4. **Absolute `file:` paths** *(decided)*: rejected, with the same error as other absolute paths.
 5. **Ambiguous redirect detection:** an error at resolution time, or static configuration validation?
 6. **Rule granularity:** once per redirected artifact per compilation, or per occurrence (for `#disable-next-line`)?
 7. **Redirecting remote identities for data loads** (an `oci:` key in `loadTextContent`): out of scope, or an error?
-8. **Alias names equal to scheme names** (`br::`, `oci::`, `file::`): allowed (they're unambiguous) or reserved?
+8. **Alias names equal to scheme names** *(decided)*: reserved. `br`, `oci`, `ts`, `file` and `br-mock` can't be artifact alias names, compared case-insensitively, because `br::x` is almost certainly a mistyped `br:x`. Using one gives BCP465, even if `artifacts.aliases` defines it, and the schema rejects defining one.
 9. **Diagnostic display:** in existing restore-failure messages for `oci:` and alias references, show the source spelling or the fully qualified `br:` reference?
 10. **REP wording:** the REP's "Future deprecation of `moduleAliases`" section could state that `br/<alias>:`, `ts/<alias>:` and `br/public:` are permanent and only `moduleAliasesMock` may be deprecated.
 11. **Bare paths for implicit extensions** *(out of scope)*: an `extensions` entry used through `implicitExtensions` resolves its bare path relative to the referencing file instead of `bicepconfig.json` (pinned in `ArtifactReferenceResolutionTests`). It's a configuration bug, fixed separately from REP 0022.

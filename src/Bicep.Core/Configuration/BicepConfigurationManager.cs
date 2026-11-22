@@ -241,6 +241,12 @@ public class BicepConfigurationManager : IBicepConfigurationManager
             configuration = configuration.With(compiler: annotatedCompiler);
         }
 
+        // File alias paths are relative to the file that declared them, and alias errors name it.
+        if (configuration.Artifacts is ArtifactsConfiguration { IsDeclared: true } artifacts)
+        {
+            configuration = configuration.With(artifacts: artifacts.WithProvenance(provenance));
+        }
+
         return configuration;
     }
 

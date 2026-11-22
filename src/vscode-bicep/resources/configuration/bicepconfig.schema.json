@@ -127,6 +127,70 @@
         }
       }
     },
+    "ociArtifactAlias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "registry"],
+      "properties": {
+        "type": {
+          "const": "oci"
+        },
+        "registry": {
+          "title": "Registry",
+          "description": "The registry of the alias, for example \"contoso.azurecr.io\"",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "repositoryPrefix": {
+          "title": "Repository Prefix",
+          "description": "Prepended to the artifact path. If it's the complete repository, a reference can name only the tag or digest, as in \"<alias>:::1.0.0\"",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "templateSpecArtifactAlias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "subscriptionId", "resourceGroup"],
+      "properties": {
+        "type": {
+          "const": "ts"
+        },
+        "subscriptionId": {
+          "title": "Subscription ID",
+          "description": "The subscription ID that contains the Template Specs",
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{8}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{12}$"
+        },
+        "resourceGroup": {
+          "title": "Resource Group Name",
+          "description": "The resource group that contains the Template Specs",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 90,
+          "pattern": "^[-\\w\\.\\(\\)]{0,89}[-\\w\\(\\)]$"
+        }
+      }
+    },
+    "fileArtifactAlias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "path"],
+      "properties": {
+        "type": {
+          "const": "file"
+        },
+        "path": {
+          "title": "Path",
+          "description": "The alias root folder, relative to the bicepconfig.json that declares the alias",
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?![a-zA-Z]:)[^\\\\]*$"
+        }
+      }
+    },
     "bicepRegistryModuleAliasMock": {
       "type": "object",
       "additionalProperties": false,
@@ -280,6 +344,37 @@
           "additionalProperties": {
             "$ref": "#/definitions/bicepRegistryModuleAliasMock",
             "additionalProperties": false
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "title": "Artifacts",
+      "description": "Artifact reference settings. Requires the \"artifactAliasesAndRedirects\" experimental feature.",
+      "type": "object",
+      "properties": {
+        "aliases": {
+          "title": "Artifact Aliases",
+          "description": "Artifact aliases, referenced as \"<alias>::<artifact>\". The predefined \"mar\" and \"avm\" aliases can be overridden by \"oci\" aliases. Scheme names (\"br\", \"oci\", \"ts\", \"file\") are reserved.",
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^(?!([bB][rR]|[oO][cC][iI]|[tT][sS]|[fF][iI][lL][eE]|[bB][rR]-[mM][oO][cC][kK])$)[a-zA-Z0-9-_]+$",
+            "patternErrorMessage": "An artifact alias name can only contain letters, digits, \"-\" and \"_\", and can't be a scheme name (\"br\", \"oci\", \"ts\" or \"file\")."
+          },
+          "properties": {
+            "mar": {
+              "$ref": "#/definitions/ociArtifactAlias"
+            },
+            "avm": {
+              "$ref": "#/definitions/ociArtifactAlias"
+            }
+          },
+          "additionalProperties": {
+            "oneOf": [
+              { "$ref": "#/definitions/ociArtifactAlias" },
+              { "$ref": "#/definitions/templateSpecArtifactAlias" },
+              { "$ref": "#/definitions/fileArtifactAlias" }
+            ]
           }
         }
       }
@@ -1049,7 +1144,7 @@
         },
         "artifactAliasesAndRedirects": {
           "type": "boolean",
-          "description": "Enables the 'oci:' and 'file:' artifact reference schemes from REP 0022 (artifact aliases and redirects). See https://aka.ms/bicep/experimental-features#artifactaliasesandredirects"
+          "description": "Enables the 'oci:' and 'file:' artifact reference schemes and artifact aliases ('artifacts.aliases', '<alias>::') from REP 0022 (artifact aliases and redirects). See https://aka.ms/bicep/experimental-features#artifactaliasesandredirects"
         }
       },
       "additionalProperties": false

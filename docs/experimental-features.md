@@ -17,6 +17,12 @@ Enables the artifact reference features from [REP 0022: artifact aliases and red
 
 - `oci:` is another spelling of `br:`, for example `module storage 'oci:contoso.azurecr.io/bicep/modules/storage:1.0.0'`.
 - `file:` references a local module or extension, for example `module network 'file:../shared/network.bicep'` or `extension 'file:./extensions/foo.tgz' as foo`. In the `extensions` section of `bicepconfig.json`, a `file:` path is relative to the configuration file.
+- `<alias>::` references an artifact through an alias defined in the `artifacts.aliases` section of `bicepconfig.json`. An alias has a `type`:
+  - `oci`: a `registry` and an optional `repositoryPrefix`. `company::storage:1.0.0` with `{ "type": "oci", "registry": "contoso.azurecr.io", "repositoryPrefix": "bicep/modules" }` references `oci:contoso.azurecr.io/bicep/modules/storage:1.0.0`. If `repositoryPrefix` is a complete repository, the reference can name only the tag or digest, as in `storage:::1.0.0`.
+  - `ts`: a `subscriptionId` and `resourceGroup`. `specs::webapp:v1` references `ts:<subscriptionId>/<resourceGroup>/webapp:v1`.
+  - `file`: a `path` relative to the `bicepconfig.json` that declares the alias. `modules::network/vnet.bicep` with `{ "type": "file", "path": "./modules" }` references `modules/network/vnet.bicep` next to that configuration file, from any folder that uses it.
+
+  `mar::` (`mcr.microsoft.com/bicep`) and `avm::` (`mcr.microsoft.com/bicep/avm`) are predefined, for example `module storage 'avm::res/storage/storage-account:0.32.1'`. They can be overridden by `oci` aliases, for example to use a private mirror. Artifact aliases are independent of `moduleAliases`: `br/<alias>:` and `ts/<alias>:` keep using `moduleAliases`, and `<alias>::` only uses `artifacts.aliases`. Scheme names (`br`, `oci`, `ts` and `file`) can't be used as alias names.
 
 ### `assertions`
 
