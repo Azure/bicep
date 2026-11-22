@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.RpcClient;
 using Azure.Deployments.Core.Definitions.Identifiers;
+using Bicep.RpcClient;
 using FluentAssertions;
 
 namespace Bicep.Testing.Framework.Tests;

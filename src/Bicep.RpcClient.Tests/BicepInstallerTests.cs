@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.Json;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.RpcClient.Helpers;
 using FluentAssertions;
