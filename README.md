@@ -81,6 +81,7 @@ You can see the state of the issues in [our GitHub Project](https://github.com/o
 The Bicep Community Call streams live on our YouTube channel, [Azure Bicep (@AzureBicep)](https://www.youtube.com/@AzureBicep). No invite or sign-up is needed to watch.
 
 * **Next call:** [aka.ms/bicepcc](https://aka.ms/bicepcc) takes you to the next livestream.
+* **Upcoming calls:** dates in your time zone and calendar invites are on the [Community Calls page](./docs/community-calls.md).
 * **Past recordings:** [Bicep Community Calls playlist](https://www.youtube.com/playlist?list=PLIIBXt9cyNDmpx9p3W_5NjpXL8ttlFMVJ)
 * **Topics and questions:** each call has a GitHub issue with the [Community Call label](https://github.com/Azure/bicep/issues?q=is%3Aissue%20label%3A%22Community%20Call%22%20sort%3Acreated-desc). Add topics there ahead of time, or ask in the YouTube live chat during the call (you'll need to be signed in to YouTube).
 
