@@ -187,14 +187,14 @@ public class LocalExtensionDispatcher : IAsyncDisposable
         }
     }
 
-    public async Task InitializeExtensions(Compilation compilation)
+    public async Task InitializeExtensions(Compilation compilation, CancellationToken cancellationToken = default)
     {
         var binaryExtensions = GetBinaryExtensions(compilation).DistinctBy(x => x.binaryUri);
 
         foreach (var (namespaceType, binaryUri) in binaryExtensions)
         {
             ExtensionKey extensionKey = new(namespaceType.Settings.TemplateExtensionName, namespaceType.Settings.TemplateExtensionVersion);
-            RegisteredExtensions[extensionKey] = await localExtensionFactory.Start(binaryUri);
+            RegisteredExtensions[extensionKey] = await localExtensionFactory.Start(binaryUri, cancellationToken);
         }
     }
 

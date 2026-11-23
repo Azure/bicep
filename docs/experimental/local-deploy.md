@@ -64,10 +64,28 @@ All extension binaries are expected to meet the following requirements:
     * `--socket <socket_name>`: The path to the domain socket to connect on, used on Linux and macOS
     * `--pipe <pipe_name>`: The named pipe to connect on, used on Windows
     * `--wait-for-debugger`: Signals that you want to debug the extension, and that execution should pause until you are ready. (Note that this feature is not yet implemented.)
-1. Once started (either via domain socket or named pipe), exposes a gRPC endpoint over the relevant channel, adhereing to the [extension gRPC contract](../../src/Bicep.Local.Rpc/extension.proto).
+1. Read the authentication information supplied through redirected standard input before accepting connections. Keep this information private and reserve stdin for startup.
+1. Once started (either via domain socket or named pipe), expose a mutually authenticated TLS HTTP/2 gRPC endpoint, adhering to the [extension gRPC contract](../../src/Bicep.Local.Rpc/extension.proto).
 1. Responds to SIGTERM to request a graceful shutdown.
 
 For .NET applications, there is a [NuGet package](https://www.nuget.org/packages/Azure.Bicep.Local.Extension) available which abstracts most of the above implementation.
+
+See the [extension quickstart](./local-deploy-dotnet-quickstart.md) for compatible SDK builds and setup instructions. Hosts written in other languages must implement the same [authentication bootstrap](../../src/Bicep.Local.Rpc/LocalExtensionAuthentication.cs).
+
+### Authenticated extension hosts
+
+Local Deploy requires authenticated connections between Bicep and extensions. This also applies when Bicep reads types from an extension during publishing. Extensions built with the older, unauthenticated transport are no longer supported.
+
+On Linux and macOS, Bicep places each launch's Unix domain socket in a private `0700` temporary directory and removes the socket and directory during cleanup. The .NET extension host also validates the pinned client certificate for every request, including requests on additional configured listeners and gRPC reflection requests.
+
+To update an existing extension:
+1. **Extension authors:** Follow the [quickstart prerequisites](./local-deploy-dotnet-quickstart.md) to use a compatible SDK, then rebuild and republish the extension. Republishing an unchanged binary is not sufficient. Existing `builder.AddBicepExtensionHost(args)` calls remain supported; no authentication setup is needed in your startup code.
+1. **Extension consumers:** Update your extension reference and restore the updated artifact before deploying.
+1. Run your template with the updated extension to check that deployment succeeds. If you extract types from the binary during publishing, check that publishing succeeds too.
+
+Extensions that already support authenticated connections do not need to be rebuilt just because Bicep was updated.
+
+Only run extensions you trust. Authentication protects against impersonation by other unprivileged user accounts; it does not sandbox extensions or protect against processes running as your user or an administrator.
 
 ### Debugging
 Use [the debugging guide](./local-deploy-dotnet-debugging-guide.md) for helpful tips on debugging your extension during development using Visual Studio or VS Code.

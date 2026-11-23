@@ -16,6 +16,7 @@ using Bicep.Local.Extension;
 using Bicep.Local.Extension.Host.Extensions;
 using Bicep.Local.Extension.Host.Handlers;
 using Bicep.Local.Extension.Types.Attributes;
+using Bicep.Local.Rpc;
 using FluentAssertions;
 using Grpc.Core;
 using Grpc.Net.Client;
@@ -42,23 +43,27 @@ public class ProviderExtensionTests : TestBase
         NamedPipe,
     }
 
-    private async Task RunExtensionTest(string[] processArgs, Func<GrpcChannel> channelBuilder, Action<IBicepExtensionBuilder> registerHandlers, Func<Rpc.BicepExtension.BicepExtensionClient, CancellationToken, Task> testFunc)
+    private async Task RunExtensionTest(string[] processArgs, Func<LocalExtensionAuthentication, GrpcChannel> channelBuilder, Action<IBicepExtensionBuilder> registerHandlers, Func<Rpc.BicepExtension.BicepExtensionClient, CancellationToken, Task> testFunc)
     {
         var testTimeout = TimeSpan.FromMinutes(1);
-        var cts = new CancellationTokenSource(testTimeout);
+        using var cts = new CancellationTokenSource(testTimeout);
+        using var authentication = LocalExtensionAuthentication.Create();
+        using var bootstrap = new MemoryStream();
+        await authentication.WriteBootstrapAsync(bootstrap, cts.Token);
+        bootstrap.Position = 0;
 
         await Task.WhenAll(
             Task.Run(async () =>
             {
                 var builder = WebApplication.CreateBuilder();
 
-                builder.AddBicepExtensionHost(processArgs);
+                await builder.AddBicepExtensionHostAsync(processArgs, bootstrap);
                 registerHandlers(builder.Services
                         .AddBicepExtension()
                         .WithDefaults("MockExtension", "0.0.1", true)
                         .WithTypeAssembly(typeof(ProviderExtensionTests).Assembly));
 
-                var app = builder.Build();
+                await using var app = builder.Build();
 
                 app.MapBicepExtension();
 
@@ -68,7 +73,8 @@ public class ProviderExtensionTests : TestBase
             {
                 try
                 {
-                    var client = new Rpc.BicepExtension.BicepExtensionClient(channelBuilder());
+                    using var channel = channelBuilder(authentication);
+                    var client = new Rpc.BicepExtension.BicepExtensionClient(channel);
 
                     await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
 
@@ -88,7 +94,7 @@ public class ProviderExtensionTests : TestBase
 
         await RunExtensionTest(
             ["--socket", socketPath],
-            () => GrpcChannelHelper.CreateDomainSocketChannel(socketPath),
+            authentication => GrpcChannelHelper.CreateDomainSocketChannel(socketPath, authentication),
             builder => builder.WithResourceHandler(mockHandler),
             (client, token) => testFunc(mockHandler, client, token));
     }
@@ -114,18 +120,18 @@ public class ProviderExtensionTests : TestBase
     public async Task Save_request_works_as_expected(ChannelMode mode)
     {
         string[] processArgs;
-        Func<GrpcChannel> channelBuilder;
+        Func<LocalExtensionAuthentication, GrpcChannel> channelBuilder;
         switch (mode)
         {
             case ChannelMode.UnixDomainSocket:
                 var socketPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.tmp");
                 processArgs = ["--socket", socketPath];
-                channelBuilder = () => GrpcChannelHelper.CreateDomainSocketChannel(socketPath);
+                channelBuilder = authentication => GrpcChannelHelper.CreateDomainSocketChannel(socketPath, authentication);
                 break;
             case ChannelMode.NamedPipe:
                 var pipeName = $"{Guid.NewGuid()}.tmp";
                 processArgs = ["--pipe", pipeName];
-                channelBuilder = () => GrpcChannelHelper.CreateNamedPipeChannel(pipeName);
+                channelBuilder = authentication => GrpcChannelHelper.CreateNamedPipeChannel(pipeName, authentication);
                 break;
             default:
                 throw new NotImplementedException();
