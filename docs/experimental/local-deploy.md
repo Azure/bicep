@@ -76,6 +76,8 @@ See the [extension quickstart](./local-deploy-dotnet-quickstart.md) for compatib
 
 Local Deploy requires authenticated connections between Bicep and extensions. This also applies when Bicep reads types from an extension during publishing. Extensions built with the older, unauthenticated transport are no longer supported.
 
+On Linux and macOS, Bicep places each launch's Unix domain socket in a private `0700` temporary directory and removes the socket and directory during cleanup. The .NET extension host also validates the pinned client certificate for every request, including requests on additional configured listeners and gRPC reflection requests.
+
 To update an existing extension:
 1. **Extension authors:** Follow the [quickstart prerequisites](./local-deploy-dotnet-quickstart.md) to use a compatible SDK, then rebuild and republish the extension. Republishing an unchanged binary is not sufficient. Existing `builder.AddBicepExtensionHost(args)` calls remain supported; no authentication setup is needed in your startup code.
 1. **Extension consumers:** Update your extension reference and restore the updated artifact before deploying.

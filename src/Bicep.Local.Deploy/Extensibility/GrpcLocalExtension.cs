@@ -30,7 +30,8 @@ internal class GrpcLocalExtension(
     IOUri binaryUri,
     LocalExtensionAuthentication authentication,
     Task processExit,
-    string? socketPath) : ILocalExtension
+    string? socketPath,
+    string? socketDirectory) : ILocalExtension
 {
     private bool disposed;
 
@@ -42,29 +43,9 @@ internal class GrpcLocalExtension(
         cancellationToken.ThrowIfCancellationRequested();
         var binaryPath = binaryUri.GetFilePath();
         using var startup = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-        string transportArgument;
-        string endpoint;
         string? socketPath = null;
-        Func<LocalExtensionAuthentication, GrpcChannel> channelBuilder;
+        string? socketDirectory = null;
         GrpcChannel? channel = null;
-
-        // While modern Windows technically supports UDS, many libraries (like Rust's Tokio) do not
-        if (Socket.OSSupportsUnixDomainSockets && !OperatingSystem.IsWindows())
-        {
-            var socketName = $"{Guid.NewGuid()}.tmp";
-            socketPath = Path.Combine(Path.GetTempPath(), socketName);
-            transportArgument = "--socket";
-            endpoint = socketPath;
-            channelBuilder = authentication => GrpcChannelHelper.CreateDomainSocketChannel(endpoint, authentication);
-        }
-        else
-        {
-            var pipeName = $"{Guid.NewGuid()}.tmp";
-
-            transportArgument = "--pipe";
-            endpoint = pipeName;
-            channelBuilder = authentication => GrpcChannelHelper.CreateNamedPipeChannel(endpoint, authentication);
-        }
 
         var process = new Process
         {
@@ -77,14 +58,34 @@ internal class GrpcLocalExtension(
                 RedirectStandardOutput = true,
             },
         };
-        process.StartInfo.ArgumentList.Add(transportArgument);
-        process.StartInfo.ArgumentList.Add(endpoint);
         Task? processExit = null;
         var authentication = LocalExtensionAuthentication.Create();
         var exited = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
         try
         {
+            string transportArgument;
+            string endpoint;
+            Func<LocalExtensionAuthentication, GrpcChannel> channelBuilder;
+            // While modern Windows technically supports UDS, many libraries (like Rust's Tokio) do not
+            if (Socket.OSSupportsUnixDomainSockets && !OperatingSystem.IsWindows())
+            {
+                // CreateTempSubdirectory atomically creates a directory accessible only to the current user (0700).
+                socketDirectory = Directory.CreateTempSubdirectory("bicep-").FullName;
+                socketPath = Path.Combine(socketDirectory, "s.sock");
+                transportArgument = "--socket";
+                endpoint = socketPath;
+                channelBuilder = authentication => GrpcChannelHelper.CreateDomainSocketChannel(endpoint, authentication);
+            }
+            else
+            {
+                transportArgument = "--pipe";
+                endpoint = $"{Guid.NewGuid()}.tmp";
+                channelBuilder = authentication => GrpcChannelHelper.CreateNamedPipeChannel(endpoint, authentication);
+            }
+            process.StartInfo.ArgumentList.Add(transportArgument);
+            process.StartInfo.ArgumentList.Add(endpoint);
+
             process.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
@@ -125,7 +126,7 @@ internal class GrpcLocalExtension(
             var connection = GrpcChannelHelper.WaitForConnectionAsync(client, connectionTimeout.Token);
             await WaitForStartup(connection, processExit, connectionTimeout, binaryUri);
 
-            return new GrpcLocalExtension(client, process, channel, binaryUri, authentication, processExit, socketPath);
+            return new GrpcLocalExtension(client, process, channel, binaryUri, authentication, processExit, socketPath, socketDirectory);
         }
         catch (Exception ex)
         {
@@ -143,7 +144,7 @@ internal class GrpcLocalExtension(
                 message += " Bicep requires an authenticated extension host. If this extension was built with an older SDK, ask its author to upgrade to an extension SDK that supports authenticated launches, rebuild and republish the extension. Then update your extension reference and restore it.";
             }
 
-            await TerminateProcess(binaryUri, process, channel, authentication, processExit, socketPath).ConfigureAwait(false);
+            await TerminateProcess(binaryUri, process, channel, authentication, processExit, socketPath, socketDirectory).ConfigureAwait(false);
             if (cancellationToken.IsCancellationRequested)
             {
                 throw new OperationCanceledException("Local extension launch was cancelled.", ex, cancellationToken);
@@ -295,12 +296,12 @@ internal class GrpcLocalExtension(
         disposed = true;
         // The OS exit signal cannot depend on the disposal caller's synchronization context.
 #pragma warning disable VSTHRD003
-        await TerminateProcess(binaryUri, process, channel, authentication, processExit, socketPath).ConfigureAwait(false);
+        await TerminateProcess(binaryUri, process, channel, authentication, processExit, socketPath, socketDirectory).ConfigureAwait(false);
 #pragma warning restore VSTHRD003
     }
 
     internal static async Task TerminateProcess(IOUri binaryUri, Process process, GrpcChannel? channel,
-        LocalExtensionAuthentication authentication, Task? processExit, string? socketPath,
+        LocalExtensionAuthentication authentication, Task? processExit, string? socketPath, string? socketDirectory,
         Action? terminateProcess = null, TimeSpan? exitTimeout = null)
     {
         if (channel is not null)
@@ -338,7 +339,17 @@ internal class GrpcLocalExtension(
                     WriteTrace(binaryUri, () => $"Failed to remove extension socket: {ex.Message}");
                 }
             }
-
+            if (socketDirectory is not null)
+            {
+                try
+                {
+                    Directory.Delete(socketDirectory, recursive: false);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    WriteTrace(binaryUri, () => $"Failed to remove extension socket directory: {ex.Message}");
+                }
+            }
         }
     }
 

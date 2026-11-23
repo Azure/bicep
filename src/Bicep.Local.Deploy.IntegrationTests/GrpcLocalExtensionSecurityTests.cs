@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Buffers.Binary;
 using System.IO.Pipes;
+using System.Net;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography;
@@ -24,11 +25,19 @@ using Bicep.Local.Deploy.Azure;
 using Bicep.Local.Deploy.Extensibility;
 using Bicep.Local.Deploy.Helpers;
 using Bicep.Local.Deploy.Types;
+using Bicep.Local.Extension.Host;
+using Bicep.Local.Extension.Host.Extensions;
+using Bicep.Local.Extension.Types;
 using LocalExtensionAuthentication = Bicep.Local.Rpc.LocalExtensionAuthentication;
 using FluentAssertions;
 using Grpc.Core;
 using Grpc.Net.Client;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using static Bicep.Core.UnitTests.Utils.CompilationHelper;
@@ -80,6 +89,103 @@ public class GrpcLocalExtensionSecurityTests : TestBase
         endpoint.Arguments.Should().Equal(
             OperatingSystem.IsWindows() ? "--pipe" : "--socket",
             endpoint.Pipe ?? endpoint.Socket);
+        if (!OperatingSystem.IsWindows() && endpoint.Socket is { } socket)
+        {
+            Path.GetFileName(socket).Should().Be("s.sock");
+            var directory = Path.GetDirectoryName(socket)!;
+            Path.GetFileName(directory).Should().StartWith("bicep-");
+            File.GetUnixFileMode(directory).Should().Be(
+                UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        }
+    }
+
+    [TestMethod]
+    [DataRow("http", "missing")]
+    [DataRow("https", "missing")]
+    [DataRow("https", "wrong")]
+    [DataRow("https", "pinned")]
+    public async Task Configured_listeners_require_the_pinned_client_certificate_for_rpc_and_reflection(string scheme, string identity)
+    {
+        using var authentication = LocalExtensionAuthentication.Create();
+        using var other = LocalExtensionAuthentication.Create();
+        using var bootstrap = new MemoryStream();
+        await authentication.WriteBootstrapAsync(bootstrap, TestContext.CancellationTokenSource.Token);
+        bootstrap.Position = 0;
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = Environments.Development });
+        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["Kestrel:Endpoints:Additional:Url"] = $"{scheme}://127.0.0.1:0",
+            ["Kestrel:Endpoints:Additional:Protocols"] = "Http2",
+        });
+        builder.Services.AddGrpc();
+        builder.Services.AddGrpcReflection();
+        builder.Services.AddSingleton(Mock.Of<IResourceHandlerCollection>());
+        builder.Services.AddSingleton(Mock.Of<ITypeDefinitionBuilder>());
+        builder.WebHost.ConfigureKestrel(options => options.ConfigureHttpsDefaults(https =>
+        {
+            https.ServerCertificate = authentication.ServerCertificate;
+            https.ClientCertificateMode = ClientCertificateMode.AllowCertificate;
+            https.CheckCertificateRevocation = false;
+            https.ClientCertificateValidation = (_, _, _) => true;
+        }));
+        var socketDirectory = OperatingSystem.IsWindows() ? null : Directory.CreateTempSubdirectory("bicep-test-").FullName;
+        var socketPath = socketDirectory is null ? null : Path.Combine(socketDirectory, "s.sock");
+        try
+        {
+            await builder.AddBicepExtensionHostAsync(
+                socketPath is null ? ["--pipe", Guid.NewGuid().ToString("N")] : ["--socket", socketPath], bootstrap);
+            await using var app = builder.Build();
+            app.MapBicepExtension();
+            await app.StartAsync(TestContext.CancellationTokenSource.Token);
+            try
+            {
+                using var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (_, certificate, _, _) =>
+                        LocalExtensionAuthentication.MatchesCertificate(certificate, authentication.ServerCertificate),
+                };
+                if (identity != "missing")
+                {
+                    handler.ClientCertificates.Add(identity == "pinned" ? authentication.ClientCertificate : other.ClientCertificate);
+                }
+                using var client = new HttpClient(handler) { BaseAddress = new Uri(app.Urls.Single(url => url.StartsWith($"{scheme}://127.0.0.1:", StringComparison.Ordinal))) };
+                string[] paths = [
+                    "/extension.BicepExtension/Ping",
+                    "/extension.BicepExtension/CreateOrUpdate",
+                    "/grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo",
+                ];
+                foreach (var path in paths)
+                {
+                    using var request = new HttpRequestMessage(HttpMethod.Post, path)
+                    {
+                        Version = HttpVersion.Version20,
+                        VersionPolicy = HttpVersionPolicy.RequestVersionExact,
+                        Content = new ByteArrayContent(path.StartsWith("/grpc.reflection.", StringComparison.Ordinal)
+                            ? [0, 0, 0, 0, 2, 58, 0]
+                            : [0, 0, 0, 0, 0]),
+                    };
+                    request.Content.Headers.ContentType = new("application/grpc");
+                    using var response = await client.SendAsync(request, TestContext.CancellationTokenSource.Token);
+                    response.StatusCode.Should().Be(identity == "pinned" ? HttpStatusCode.OK : HttpStatusCode.Forbidden, path);
+                    if (identity == "pinned")
+                    {
+                        response.TrailingHeaders.GetValues("grpc-status").Should().Equal("0");
+                    }
+                }
+            }
+            finally
+            {
+                await app.StopAsync(TestContext.CancellationTokenSource.Token);
+            }
+        }
+        finally
+        {
+            if (socketDirectory is not null)
+            {
+                File.Delete(socketPath!);
+                Directory.Delete(socketDirectory, recursive: false);
+            }
+        }
     }
 
     [TestMethod]
@@ -371,7 +477,7 @@ public class GrpcLocalExtensionSecurityTests : TestBase
         var exited = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var killAttempted = false;
         var shutdown = GrpcLocalExtension.TerminateProcess(
-            IOUri.FromFilePath(binaryPath), child, null, authentication, exited.Task, null,
+            IOUri.FromFilePath(binaryPath), child, null, authentication, exited.Task, null, null,
             () =>
             {
                 killAttempted = true;
@@ -401,6 +507,45 @@ public class GrpcLocalExtensionSecurityTests : TestBase
             }
             await monitor.WaitForExitAsync(TestContext.CancellationTokenSource.Token);
             await shutdown;
+        }
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task Socket_cleanup_removes_the_launch_directory_only_when_empty(bool nonempty)
+    {
+        var directory = Directory.CreateTempSubdirectory("bicep-test-").FullName;
+        var socketPath = Path.Combine(directory, "s.sock");
+        var otherPath = Path.Combine(directory, "other-file");
+        try
+        {
+            File.WriteAllText(socketPath, "");
+            if (nonempty)
+            {
+                File.WriteAllText(otherPath, "preserve");
+            }
+            using var authentication = LocalExtensionAuthentication.Create();
+            using var process = new Process();
+
+            await GrpcLocalExtension.TerminateProcess(
+                IOUri.FromFilePath(Path.Combine(directory, "extension")), process, null, authentication, null, socketPath, directory);
+
+            File.Exists(socketPath).Should().BeFalse();
+            Directory.Exists(directory).Should().Be(nonempty);
+            if (nonempty)
+            {
+                File.ReadAllText(otherPath).Should().Be("preserve");
+            }
+        }
+        finally
+        {
+            if (Directory.Exists(directory))
+            {
+                File.Delete(socketPath);
+                File.Delete(otherPath);
+                Directory.Delete(directory, recursive: false);
+            }
         }
     }
 
@@ -447,6 +592,7 @@ public class GrpcLocalExtensionSecurityTests : TestBase
         if (endpoint.Socket is { } socket)
         {
             File.Exists(socket).Should().BeFalse();
+            Directory.Exists(Path.GetDirectoryName(socket)).Should().BeFalse();
         }
         Func<Task> call = async () => await extension.GetTypeFiles(TestContext.CancellationTokenSource.Token);
         await call.Should().ThrowAsync<ObjectDisposedException>();
@@ -480,6 +626,10 @@ public class GrpcLocalExtensionSecurityTests : TestBase
         var failure = await connect.Should().ThrowAsync<InvalidOperationException>().WithMessage("*exited with code 0 before becoming ready.*");
         failure.Which.Message.Should().NotContainEquivalentOf("republish");
         var endpoint = await ReadEndpoint(binaryPath);
+        if (endpoint.Socket is { } socket)
+        {
+            Directory.Exists(Path.GetDirectoryName(socket)).Should().BeFalse();
+        }
         Action findChild = () => Process.GetProcessById(endpoint.ProcessId).Dispose();
         findChild.Should().Throw<ArgumentException>();
     }
@@ -499,6 +649,10 @@ public class GrpcLocalExtensionSecurityTests : TestBase
         var failure = await connect.Should().ThrowAsync<InvalidOperationException>().WithMessage("*did not become ready within 30 seconds.*");
         failure.Which.Message.Should().NotContainEquivalentOf("republish");
         var endpoint = await ReadEndpoint(binaryPath);
+        if (endpoint.Socket is { } socket)
+        {
+            Directory.Exists(Path.GetDirectoryName(socket)).Should().BeFalse();
+        }
         Action findChild = () => Process.GetProcessById(endpoint.ProcessId).Dispose();
         findChild.Should().Throw<ArgumentException>();
     }
@@ -545,6 +699,10 @@ public class GrpcLocalExtensionSecurityTests : TestBase
         else
         {
             var endpoint = await ReadEndpoint(binaryPath);
+            if (endpoint.Socket is { } socket)
+            {
+                Directory.Exists(Path.GetDirectoryName(socket)).Should().BeFalse();
+            }
             Action findChild = () => Process.GetProcessById(endpoint.ProcessId).Dispose();
             findChild.Should().Throw<ArgumentException>();
         }

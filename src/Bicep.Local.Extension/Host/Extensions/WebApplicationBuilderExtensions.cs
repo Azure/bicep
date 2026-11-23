@@ -15,6 +15,7 @@ using Bicep.Local.Rpc;
 using CommandLine;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.Configuration;
@@ -80,6 +81,7 @@ public static class WebApplicationBuilderExtensions
 
         var authentication = await LocalExtensionAuthentication.ReadBootstrapAsync(bootstrapInput, CancellationToken.None);
         builder.Services.AddSingleton(_ => authentication);
+        builder.Services.AddTransient<IStartupFilter, ClientCertificateValidationStartupFilter>();
 
         builder.WebHost.ConfigureKestrel((context, options) =>
         {
@@ -141,5 +143,24 @@ public static class WebApplicationBuilderExtensions
         }
 
         return app;
+    }
+
+    private sealed class ClientCertificateValidationStartupFilter(LocalExtensionAuthentication authentication) : IStartupFilter
+    {
+        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
+            => app =>
+            {
+                app.Use(async (context, next) =>
+                {
+                    if (!LocalExtensionAuthentication.MatchesCertificate(context.Connection.ClientCertificate, authentication.ClientCertificate))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        return;
+                    }
+
+                    await next(context);
+                });
+                next(app);
+            };
     }
 }
