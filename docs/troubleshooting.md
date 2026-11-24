@@ -1,7 +1,12 @@
 # Tracing
 
-## Enabling
-To collect troubleshooting information, it can be useful to enable detailed tracing. To do this, run one of the following commands in your console window before invoking Bicep:
+## Tracing the CLI
+
+These instructions apply to the Bicep CLI, whether invoked directly with `bicep` or through Azure CLI commands that invoke Bicep, such as `az bicep build`. For the VS Code extension, see [Tracing the VS Code extension](#tracing-the-vs-code-extension).
+
+### Enabling
+
+To collect troubleshooting information, it can be useful to enable detailed tracing. To do this, run one of the following commands in your console window before invoking Bicep or Azure CLI from the same window:
 
 1. (Mac/Linux) Run the following:
    ```sh
@@ -12,7 +17,7 @@ To collect troubleshooting information, it can be useful to enable detailed trac
    $env:BICEP_TRACING_ENABLED = $true
    ```
 
-## Controlling Verbosity
+### Controlling Verbosity
 
 The default verbosity for tracing is "basic". In addition to [enabling tracing](#enabling), you can also set the verbosity to "full" to capture all tracing details:
 
