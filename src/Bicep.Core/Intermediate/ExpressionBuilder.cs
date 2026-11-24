@@ -528,18 +528,84 @@ public class ExpressionBuilder
 
     private record LoopExpressionContext(string Name, SyntaxBase SourceSyntax, Expression LoopExpression);
 
+    private bool EmitAsDeploymentModule
+        => Context.SemanticModel.Features.DeploymentModulesEnabled && Context.SemanticModel.TargetScope != ResourceScope.Local;
+
     private ObjectPropertyExpression CreateModuleNameExpression(ModuleSymbol symbol, ObjectSyntax objectBody)
     {
-        if (objectBody.TryGetPropertyByName(AzResourceTypeProvider.ResourceNamePropertyName) is { } namePropertySyntax)
-        {
+        var nameProperty = objectBody.TryGetPropertyByName(AzResourceTypeProvider.ResourceNamePropertyName) is { } namePropertySyntax
             // the user has specified an explicit name for the module - use it
-            return ConvertObjectProperty(namePropertySyntax);
+            ? ConvertObjectProperty(namePropertySyntax)
+            : new ObjectPropertyExpression(
+                SourceSyntax: null,
+                Key: new StringLiteralExpression(SourceSyntax: null, Value: AzResourceTypeProvider.ResourceNamePropertyName),
+                Value: ExpressionFactory.CreateGeneratedModuleName(symbol));
+
+        if (!EmitAsDeploymentModule)
+        {
+            return nameProperty;
         }
 
-        return new ObjectPropertyExpression(
+        // A deployment module resource is named '<rootDeploymentName>/<moduleName>'.
+        // Inside a module, deployment().name is '<rootDeploymentName>/<moduleName>'; otherwise it has no '/'.
+        var rootDeploymentName = new ArrayAccessExpression(
             SourceSyntax: null,
-            Key: new StringLiteralExpression(SourceSyntax: null, Value: AzResourceTypeProvider.ResourceNamePropertyName),
-            Value: ExpressionFactory.CreateGeneratedModuleName(symbol));
+            Base: ExpressionFactory.CreateFunctionCall(
+                "split",
+                sourceSyntax: null,
+                ExpressionFactory.CreatePropertyAccess(ExpressionFactory.CreateFunctionCall("deployment"), "name"),
+                ExpressionFactory.CreateStringLiteral("/")),
+            Access: ExpressionFactory.CreateIntegerLiteral(0),
+            Flags: AccessExpressionFlags.None);
+
+        return nameProperty with
+        {
+            Value = ExpressionFactory.CreateFunctionCall(
+                "format",
+                sourceSyntax: nameProperty.Value.SourceSyntax,
+                ExpressionFactory.CreateStringLiteral("{0}/{1}"),
+                rootDeploymentName,
+                nameProperty.Value),
+        };
+    }
+
+    /// <summary>
+    /// Builds the fully-qualified scope ID (e.g. '/subscriptions/{id}/resourceGroups/{name}') a deployment module targets.
+    /// </summary>
+    public LanguageExpression BuildDeploymentModuleScopeId(DeclaredModuleExpression module)
+    {
+        var scopeData = module.ScopeData;
+        var newContext = module.BodySyntax;
+        var converter = new ExpressionConverter(Context);
+
+        LanguageExpression ConvertScopeProperty(SyntaxBase property)
+            => converter.GetConverter(TryGetReplacementContext(property, scopeData.IndexExpression, newContext)).ConvertExpression(property);
+
+        switch (scopeData.RequestedScope)
+        {
+            case ResourceScope.Tenant:
+                return new JTokenExpression("/");
+            case ResourceScope.ManagementGroup:
+                return scopeData.ManagementGroupNameProperty is { } mgName
+                    ? converter.GetConverter(TryGetReplacementContext(mgName, scopeData.IndexExpression, newContext)).GenerateManagementGroupResourceId(mgName, fullyQualified: true)
+                    : ExpressionConverter.GenerateCurrentManagementGroupId();
+            case ResourceScope.Subscription:
+                return scopeData.SubscriptionIdProperty is { } subscriptionId
+                    ? new FunctionExpression("format", [new JTokenExpression("/subscriptions/{0}"), ConvertScopeProperty(subscriptionId)], [])
+                    : new FunctionExpression("subscription", [], [new JTokenExpression("id")]);
+            case ResourceScope.ResourceGroup:
+                if (scopeData.ResourceGroupProperty is not { } resourceGroup)
+                {
+                    return new FunctionExpression("resourceGroup", [], [new JTokenExpression("id")]);
+                }
+
+                var subscriptionIdExpression = scopeData.SubscriptionIdProperty is { } rgSubscriptionId
+                    ? ConvertScopeProperty(rgSubscriptionId)
+                    : new FunctionExpression("subscription", [], [new JTokenExpression("subscriptionId")]);
+                return ExpressionConverter.GenerateResourceGroupScope(subscriptionIdExpression, ConvertScopeProperty(resourceGroup));
+            default:
+                throw new InvalidOperationException($"Cannot format deployment module scope ID for scope {scopeData.RequestedScope}");
+        }
     }
 
     private DeclaredModuleExpression ConvertModule(ModuleDeclarationSyntax syntax)

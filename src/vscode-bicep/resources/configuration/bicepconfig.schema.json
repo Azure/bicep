@@ -1050,6 +1050,10 @@
         "artifactAliasesAndRedirects": {
           "type": "boolean",
           "description": "Enables the 'oci:' and 'file:' artifact reference schemes from REP 0022 (artifact aliases and redirects). See https://aka.ms/bicep/experimental-features#artifactaliasesandredirects"
+        },
+        "deploymentModules": {
+          "type": "boolean",
+          "description": "Emits Bicep modules as deployment modules (Microsoft.Resources/deployments/modules), which are excluded from the 800 deployments per scope limit. Requires service support. See https://aka.ms/bicep/experimental-features#deploymentmodules"
         }
       },
       "additionalProperties": false

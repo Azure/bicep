@@ -45,6 +45,8 @@ public interface IFeatureProvider
 
     bool ArtifactAliasesAndRedirectsEnabled { get; }
 
+    bool DeploymentModulesEnabled { get; }
+
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
         get
@@ -68,6 +70,7 @@ public interface IFeatureProvider
                 (RuntimeValuesInTagsAndSkuEnabled, "Enable runtime values in tags and SKU", true, true),
                 (AzExtensionConfigEnabled, "Enable configuration for the built-in 'az' extension", true, true),
                 (ArtifactAliasesAndRedirectsEnabled, "Enable artifact aliases and redirects", true, false),
+                (DeploymentModulesEnabled, "Enable deployment modules", true, true),
             })
             {
                 if (enabled)

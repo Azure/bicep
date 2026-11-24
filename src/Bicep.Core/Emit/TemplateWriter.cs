@@ -1501,11 +1501,82 @@ namespace Bicep.Core.Emit
             }, module.SourceSyntax);
         }
 
+        private void EmitNestedTemplateOrLink(PositionTrackingJsonTextWriter jsonWriter, ISemanticModel moduleSemanticModel)
+        {
+            // If it is a template spec module, emit templateLink instead of template contents.
+            jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
+
+            var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel);
+            var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
+            var moduleTextWriter = new StringWriter();
+            var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
+
+            moduleWriter.Write(moduleJsonWriter);
+            jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
+
+            var nestedTemplate = moduleTextWriter.ToString().FromJson<JToken>();
+            nestedTemplate.WriteTo(jsonWriter);
+        }
+
+        private void EmitDeploymentModule(PositionTrackingJsonTextWriter jsonWriter, DeclaredModuleExpression module, ExpressionEmitter emitter)
+        {
+            emitter.EmitObject(() =>
+            {
+                var body = module.Body;
+                if (body is ForLoopExpression forLoop)
+                {
+                    body = forLoop.Body;
+                    emitter.EmitCopyProperty(() => emitter.EmitCopyObject(forLoop.Name, forLoop.Expression, input: null, batchSize: forLoop.BatchSize));
+                }
+                if (body is ConditionExpression condition)
+                {
+                    body = condition.Body;
+                    emitter.EmitProperty("condition", condition.Expression);
+                }
+
+                emitter.EmitProperty("type", EmitConstants.DeploymentModuleResourceType);
+                emitter.EmitProperty("apiVersion", EmitConstants.DeploymentModuleResourceApiVersion);
+
+                // emit all properties apart from 'params'; the 'name' has already been converted to '<rootDeploymentName>/<moduleName>'.
+                emitter.EmitObjectProperties((ObjectExpression)body);
+
+                emitter.EmitObjectProperty("properties", () =>
+                {
+                    emitter.EmitObjectProperty("resourceScope", () =>
+                    {
+                        emitter.EmitProperty("id", ExpressionBuilder.BuildDeploymentModuleScopeId(module));
+                    });
+
+                    EmitModuleParameters(emitter, module);
+
+                    if (Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
+                    {
+                        EmitModuleExtensionConfigs(emitter, module);
+                    }
+
+                    EmitNestedTemplateOrLink(jsonWriter, GetModuleSemanticModel(module.Symbol));
+                });
+
+                this.EmitDependsOn(emitter, module.DependsOn);
+
+                foreach (var property in ApplyDescription(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
+                {
+                    emitter.EmitProperty(property);
+                }
+            }, module.SourceSyntax);
+        }
+
         private void EmitModule(PositionTrackingJsonTextWriter jsonWriter, DeclaredModuleExpression module, ExpressionEmitter emitter)
         {
             if (Context.SemanticModel.TargetScope == ResourceScope.Local)
             {
                 EmitModuleForLocalDeploy(jsonWriter, module, emitter);
+                return;
+            }
+
+            if (Context.SemanticModel.Features.DeploymentModulesEnabled)
+            {
+                EmitDeploymentModule(jsonWriter, module, emitter);
                 return;
             }
 
@@ -1574,20 +1645,7 @@ namespace Bicep.Core.Emit
 
                     var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
 
-                    // If it is a template spec module, emit templateLink instead of template contents.
-                    jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
-                    {
-                        var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel);
-                        var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
-                        var moduleTextWriter = new StringWriter();
-                        var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
-
-                        moduleWriter.Write(moduleJsonWriter);
-                        jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
-
-                        var nestedTemplate = moduleTextWriter.ToString().FromJson<JToken>();
-                        nestedTemplate.WriteTo(jsonWriter);
-                    }
+                    EmitNestedTemplateOrLink(jsonWriter, moduleSemanticModel);
                 });
 
                 this.EmitDependsOn(emitter, module.DependsOn);

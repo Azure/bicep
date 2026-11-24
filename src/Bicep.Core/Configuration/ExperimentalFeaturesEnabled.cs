@@ -26,7 +26,8 @@ public record ExperimentalFeaturesEnabled(
     bool Patch,
     bool RuntimeValuesInTagsAndSku,
     bool AzExtensionConfig,
-    bool ArtifactAliasesAndRedirects)
+    bool ArtifactAliasesAndRedirects,
+    bool DeploymentModules)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
@@ -50,5 +51,6 @@ public record ExperimentalFeaturesEnabled(
         Patch: false,
         RuntimeValuesInTagsAndSku: false,
         AzExtensionConfig: false,
-        ArtifactAliasesAndRedirects: false);
+        ArtifactAliasesAndRedirects: false,
+        DeploymentModules: false);
 }
