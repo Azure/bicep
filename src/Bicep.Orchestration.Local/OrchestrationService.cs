@@ -30,9 +30,9 @@ public record SourceLocation(string Uri, int Line);
 public record StackSource(SourceLocation Declaration, SourceLocation? Requires);
 public record StackView(string Name, string Region, string? Stage, int? StageOrder, JsonElement Labels, string[] Dependencies, JsonElement[] Observed, StackSource? Source);
 public record Topology(string Target, string TargetInstance, long TargetRevision, StackView[] Stacks);
-public record StackChanges(string Name, JsonElement[] Changes, string SelectionReason, string[] RequiredBy);
+public record StackChanges(string Name, JsonElement[] Changes, string SelectionReason, string[] RequiredBy, string? PreviousVersion);
 public record DeploymentPlan(string Id, string Fingerprint, string Source, string SourceFingerprint, string ParametersFingerprint,
-    string ObservedFingerprint, string[] Selectors, string Target, string TargetInstance, long TargetRevision, DateTimeOffset Created, StackChanges[] Stacks);
+    string ObservedFingerprint, string[] Selectors, string Target, string TargetInstance, long TargetRevision, DateTimeOffset Created, string Version, StackChanges[] Stacks);
 public record ProgressEvent(long Sequence, DateTimeOffset Time, string? Stack, string Status);
 public record OperationView(string Id, string PlanId, string Target, string TargetInstance, long TargetRevision, string Status, string[] Stacks, ProgressEvent[] Events);
 public record PendingApproval(DeploymentPlan Plan, DateTimeOffset SubmittedAt);
@@ -372,6 +372,7 @@ public sealed class OrchestrationService(
             var prepared = await Prepare(scope.ServiceProvider, selectors, ct);
             await using var session = Session();
             var topology = await Observe(prepared, session.Provider, ct);
+            var version = SimulationVersion.Next(File.Exists(options.StatePath) ? JArray.Parse(await File.ReadAllTextAsync(options.StatePath, ct)) : new JArray());
             var changes = new List<StackChanges>();
             var dependents = prepared.Selection.Dependencies
                 .Where(dependency => prepared.Selection.Selected.Contains(dependency.Key))
@@ -388,11 +389,18 @@ public sealed class OrchestrationService(
                 var name = Symbol(stack);
                 var matched = prepared.Selection.Matched.Contains(name);
                 var requiredBy = dependents[name].Order(StringComparer.Ordinal).ToArray();
-                changes.Add(new(name, resourceChanges, matched ? "Selected" : "Prerequisite", requiredBy));
+                var observedStack = topology.Stacks.Single(view => view.Name == name).Observed.FirstOrDefault(resource =>
+                    resource.TryGetProperty("type", out var type) &&
+                    string.Equals(type.GetString(), "Microsoft.Resources/deploymentStacks", StringComparison.OrdinalIgnoreCase));
+                var previousVersion = observedStack.ValueKind == JsonValueKind.Object &&
+                    observedStack.TryGetProperty("tags", out var tags) && tags.ValueKind == JsonValueKind.Object &&
+                    tags.TryGetProperty("version", out var previous) && previous.ValueKind == JsonValueKind.String
+                    ? previous.GetString() : null;
+                changes.Add(new(name, resourceChanges, matched ? "Selected" : "Prerequisite", requiredBy, previousVersion));
             }
             var plan = new DeploymentPlan(Guid.NewGuid().ToString("N"), Fingerprint(prepared, topology),
                 Path.GetRelativePath(options.Workspace, options.EntryPoint), prepared.Fingerprint, Hash(prepared.Parameters),
-                ObservedFingerprint(topology), selectors, Target, targetInstance, targetRevision, DateTimeOffset.UtcNow, [.. changes]);
+                ObservedFingerprint(topology), selectors, Target, targetInstance, targetRevision, DateTimeOffset.UtcNow, version, [.. changes]);
             // Bounded in-memory plan cache. Plans expire on process restart.
             if (plans.Count >= 100) { plans.Clear(); }
             plans[plan.Id] = plan;
@@ -504,7 +512,7 @@ public sealed class OrchestrationService(
                 {
                     operation.Add(null, "Running");
                     foreach (var name in prepared.Selection.Selected.Order()) { operation.Add(name, "Queued"); }
-                    var progressProvider = new ProgressProvider(ownedSession.Provider, async (locator, status) =>
+                    var progressProvider = new ProgressProvider(ownedSession.Provider, plan.Version, async (locator, status) =>
                     {
                         var name = locator.DeploymentName;
                         foreach (var stack in prepared.Selection.Resources)

@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React from "react";
+import React, { useState } from "react";
 import type { Change } from "./api";
 
 type PropertyChange = { path?: string; propertyChangeType: string; before?: unknown; after?: unknown; children?: PropertyChange[] };
 
-const resourceSymbols: Record<string, string> = { Create: "+", Delete: "-", Modify: "~", Deploy: "!", NoChange: "=", Ignore: "*", Unsupported: "x" };
+const resourceSymbols: Record<string, string> = { Create: "+", Delete: "-", Modify: "~", Deploy: "!", NoChange: "=", NoEffect: "=", Ignore: "*", Unsupported: "x" };
 const propertySymbols: Record<string, string> = { Create: "+", Delete: "-", Modify: "~", Array: "~", NoEffect: "x" };
 const propertyOrder = ["Delete", "Create", "Modify", "Array", "NoEffect"];
-const resourceOrder = ["Delete", "Create", "Modify", "Deploy", "Unsupported", "NoChange", "Ignore"];
-const verbs: Record<string, string> = { Create: "to create", Delete: "to delete", Modify: "to modify", Deploy: "to deploy", NoChange: "no change", Unsupported: "unsupported" };
+const resourceOrder = ["Delete", "Create", "Modify", "Deploy", "Unsupported", "NoChange", "NoEffect", "Ignore"];
+const verbs: Record<string, string> = { Create: "to create", Delete: "to delete", Modify: "to modify", Deploy: "to deploy", NoChange: "no change", NoEffect: "no change", Unsupported: "unsupported" };
 
 // Mirrors `bicep what-if`: show the resource ID relative to its deployment scope.
 const relative = (id: string) => {
@@ -46,11 +46,14 @@ function Property({ change }: { change: PropertyChange }) {
 }
 
 export function WhatIfDiff({ changes }: { changes: Change[] }) {
-  const visible = changes.filter(c => c.changeType !== "Ignore")
+  const [showUnchanged, setShowUnchanged] = useState(false);
+  const reported = changes.filter(c => c.changeType !== "Ignore")
     .sort((a, b) => resourceOrder.indexOf(a.changeType) - resourceOrder.indexOf(b.changeType) || a.resourceId.localeCompare(b.resourceId));
-  if (!visible.length) return <div className="whatif"><span className="wi-NoChange">No resource changes.</span></div>;
-  const counts = Object.entries(visible.reduce<Record<string, number>>((all, c) => ({ ...all, [c.changeType]: (all[c.changeType] ?? 0) + 1 }), {}));
+  const visible = reported.filter(change => showUnchanged || !["NoChange", "NoEffect"].includes(change.changeType));
+  const counts = Object.entries(reported.reduce<Record<string, number>>((all, c) => ({ ...all, [c.changeType]: (all[c.changeType] ?? 0) + 1 }), {}));
   return <div className="whatif" aria-label="What-if changes">
+    <label className="whatif-toggle"><input type="checkbox" checked={showUnchanged} onChange={event => setShowUnchanged(event.target.checked)} />Show unchanged</label>
+    {!visible.length && <span className="wi-NoChange">No resource changes to show.</span>}
     <ul>{visible.map(change => {
       const delta = (change.delta as PropertyChange[] | undefined) ?? [];
       return <li key={change.resourceId} className="wi-resource" title={change.resourceId}>
@@ -60,6 +63,6 @@ export function WhatIfDiff({ changes }: { changes: Change[] }) {
             : delta.length > 0 && <ul className="wi-nested">{sorted(delta).map((property, i) => <Property key={`${property.path}-${i}`} change={property} />)}</ul>}
       </li>;
     })}</ul>
-    <p className="wi-summary">Resource changes: {counts.map(([kind, count]) => `${count} ${verbs[kind] ?? kind}`).join(", ")}.</p>
+    {counts.length > 0 && <p className="wi-summary">Resource changes: {counts.map(([kind, count]) => `${count} ${verbs[kind] ?? kind}`).join(", ")}.</p>}
   </div>;
 }

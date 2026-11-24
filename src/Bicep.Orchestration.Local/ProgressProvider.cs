@@ -11,7 +11,7 @@ using static Bicep.Local.Deploy.Extensibility.NestedDeploymentExtension;
 namespace Bicep.Orchestration.Local;
 
 // Reports stack lifecycle only. Resource-level progress is intentionally not synthesized.
-internal sealed class ProgressProvider(IArmDeploymentProvider inner, Func<DeploymentLocator, string, Task> progress) : IArmDeploymentProvider
+internal sealed class ProgressProvider(IArmDeploymentProvider inner, string version, Func<DeploymentLocator, string, Task> progress) : IArmDeploymentProvider
 {
     public bool SupportsExternalExtensions => inner.SupportsExternalExtensions;
     public Task CreateResourceGroup(IBicepConfiguration c, DeploymentLocator l, string region, CancellationToken ct) => inner.CreateResourceGroup(c, l, region, ct);
@@ -23,7 +23,7 @@ internal sealed class ProgressProvider(IArmDeploymentProvider inner, Func<Deploy
         try
         {
             await Task.Delay(RandomNumberGenerator.GetInt32(5000, 10001), ct);
-            await inner.StartDeploymentStack(c, l, t, p, config, ct);
+            await inner.StartDeploymentStack(c, l, t, p, config with { Version = version }, ct);
         }
         catch (OperationCanceledException) { await progress(l, "Canceled"); throw; }
         catch { await progress(l, "Failed"); throw; }

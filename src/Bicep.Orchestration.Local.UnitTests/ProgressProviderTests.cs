@@ -9,6 +9,7 @@ using Bicep.Local.Deploy.Azure;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Newtonsoft.Json.Linq;
 using static Bicep.Local.Deploy.Extensibility.NestedDeploymentExtension;
 
 namespace Bicep.Orchestration.Local.UnitTests;
@@ -23,7 +24,7 @@ public class ProgressProviderTests
     [DataRow("Canceled", "Canceled", "Canceled")]
     public void Terminal_operations_do_not_leave_stacks_queued_or_running(string terminal, string queued, string running)
     {
-        var operation = new OrchestrationService.Operation("operation", "plan", "JSON SIMULATION", "host", 0);
+        var operation = new OrchestrationService.Operation("operation", "plan", "JSON SIMULATION", "host", 0, []);
         operation.Add("waiting", "Queued");
         operation.Add("running", "Running");
         operation.Add("completed", "Succeeded");
@@ -47,11 +48,12 @@ public class ProgressProviderTests
         var inner = new Mock<IArmDeploymentProvider>(MockBehavior.Strict);
         var timer = new Stopwatch();
         TimeSpan? persistedAt = null;
-        inner.Setup(provider => provider.StartDeploymentStack(configuration, Locator, "template", "parameters", config, It.IsAny<CancellationToken>()))
+        var expectedConfig = config with { Version = "2.0.0" };
+        inner.Setup(provider => provider.StartDeploymentStack(configuration, Locator, "template", "parameters", expectedConfig, It.IsAny<CancellationToken>()))
             .Callback(() => persistedAt = timer.Elapsed)
             .Returns(Task.CompletedTask);
         var progress = new List<string>();
-        var provider = new ProgressProvider(inner.Object, (_, status) => { progress.Add(status); return Task.CompletedTask; });
+        var provider = new ProgressProvider(inner.Object, "2.0.0", (_, status) => { progress.Add(status); return Task.CompletedTask; });
 
         timer.Start();
         var deployment = provider.StartDeploymentStack(configuration, Locator, "template", "parameters", config, CancellationToken.None);
@@ -70,7 +72,7 @@ public class ProgressProviderTests
     {
         var inner = new Mock<IArmDeploymentProvider>(MockBehavior.Strict);
         var progress = new List<string>();
-        var provider = new ProgressProvider(inner.Object, (_, status) => { progress.Add(status); return Task.CompletedTask; });
+        var provider = new ProgressProvider(inner.Object, "2.0.0", (_, status) => { progress.Add(status); return Task.CompletedTask; });
         using var cancellation = new CancellationTokenSource();
 
         await FluentActions.Awaiting(async () =>
@@ -92,11 +94,38 @@ public class ProgressProviderTests
         inner.Setup(provider => provider.CheckDeploymentStack(configuration, Locator, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("Provider unavailable."));
         var progress = new List<string>();
-        var provider = new ProgressProvider(inner.Object, (_, status) => { progress.Add(status); return Task.CompletedTask; });
+        var provider = new ProgressProvider(inner.Object, "2.0.0", (_, status) => { progress.Add(status); return Task.CompletedTask; });
 
         await FluentActions.Awaiting(() => provider.CheckDeploymentStack(configuration, Locator, CancellationToken.None))
             .Should().ThrowAsync<InvalidOperationException>();
 
         progress.Should().Equal("Failed");
+    }
+
+    [TestMethod]
+    public void Next_version_uses_all_deployed_stacks_and_numeric_order()
+    {
+        var state = JArray.Parse("""
+            [
+              { "type": "Microsoft.Resources/deploymentStacks", "tags": { "version": "1.9.99" } },
+              { "type": "microsoft.resources/deploymentstacks", "tags": { "version": "1.10.2" } },
+              { "type": "Microsoft.Resources/deploymentStacks" },
+              { "type": "other", "tags": { "version": "99.0.0" } }
+            ]
+            """);
+
+        SimulationVersion.Next(state).Should().Be("1.10.3");
+        SimulationVersion.Next(new JArray()).Should().Be("0.0.1");
+    }
+
+    [TestMethod]
+    public void Next_version_rejects_non_numeric_deployed_versions()
+    {
+        var state = JArray.Parse("""
+            [{ "type": "Microsoft.Resources/deploymentStacks", "tags": { "version": "preview" } }]
+            """);
+
+        FluentActions.Invoking(() => SimulationVersion.Next(state))
+            .Should().Throw<OrchestrationRequestException>().WithMessage("*non-numeric version*");
     }
 }

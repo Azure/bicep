@@ -9,7 +9,7 @@ import { LabelFilters } from "./labelFilters";
 import { Approvals } from "./approvals";
 import { declaration, TopologyGraph } from "./topologyGraph";
 import { PlanScope, SelectionReason } from "./planScope";
-import { SourceLinks } from "./sourceLinks";
+import { ExampleSourceLink, SourceLinks, VersionChange } from "./sourceLinks";
 import { PredictionSummary } from "./predictionSummary";
 import { operationScope } from "./operationScope";
 import "./style.css";
@@ -38,12 +38,15 @@ function currentVersion(stack: Stack) {
 
 function ManagedResources({ stack }: { stack: Stack }) {
   const resources = managedResources(stack);
-  return resources.length ? <ul className="resource-list" aria-label="Managed resource IDs">
-    {resources.map(resource => <li key={resource.id}>
-      <strong>{resource.type}{resource.name ? ` · ${resource.name}` : ""}</strong>
-      <code className="resource-id" title={resource.id}>{resource.id}</code>
-    </li>)}
-  </ul> : <p className="empty-resources">No managed resources observed.</p>;
+  return resources.length ? <details className="managed-resources" key={stack.name}>
+    <summary>{resources.length} managed {resources.length === 1 ? "resource" : "resources"}</summary>
+    <ul className="resource-list" aria-label="Managed resource IDs">
+      {resources.map(resource => <li key={resource.id}>
+        <strong>{resource.type}{resource.name ? ` · ${resource.name}` : ""}</strong>
+        <code className="resource-id" title={resource.id}>{resource.id}</code>
+      </li>)}
+    </ul>
+  </details> : <p className="empty-resources">No managed resources observed.</p>;
 }
 
 function App() {
@@ -242,6 +245,7 @@ function App() {
           await api.reject(id);
           setPendingApprovals(current => current.filter(item => item.plan.id !== id));
         })} /> : <>
+      <div className={view === "Deploy" ? "deployment-panels" : undefined}>
       <div className={view === "Deploy" ? "deployment-controls" : undefined}>
       {view === "Deploy" && <div className="section-heading">
         <h2>Deployment scope</h2><small>Choose labels, then predict and review changes.</small>
@@ -295,6 +299,7 @@ function App() {
         {view === "Service Health" && <span className="badge">Health not assessed</span>}
       </section>
       {view === "Deploy" && plan && <><PredictionSummary plan={plan} /><PlanScope plan={plan} /></>}
+      </div>
       </div>
       {missingOperationStacks > 0 && <p className="plan-scope">
         {missingOperationStacks} {missingOperationStacks === 1 ? "stack in this deployment is" : "stacks in this deployment are"} absent from the current topology.
@@ -370,28 +375,33 @@ function App() {
             })}</tbody>
           </table>
         </div>}
-        {inspectorOpen && stack && <aside aria-label="Property inspector">
+        {inspectorOpen && stack && <aside className="inspector" aria-label="Property inspector">
           <div className="inspector-heading"><h2>{stack.name}</h2><button aria-label="Close inspector" onClick={() => setInspectorOpen(false)}>Close</button></div>
-          <p>{stack.region} · {status(stack)}</p>
-          <p>Current version: <code>{currentVersion(stack)}</code></p>
-          <SourceLinks source={stack.source} />
+          <div className="inspector-overview">
+            <p>{stack.region} · {status(stack)}</p>
+            <p>Current version: <code>{currentVersion(stack)}</code></p>
+            <div className="inspector-links"><ExampleSourceLink /><SourceLinks source={stack.source} /></div>
             {view === "Deploy" && <div className="chips" aria-label="Stack labels">{Object.entries(stack.labels).map(([key, value]) =>
               <button key={key} disabled={busy || active} onClick={() => addLabel(key, value)} title="Add to label selectors">{key}={value}</button>)}</div>}
-            {(view !== "Service Health" || topologyLayout === "dependencies") && <><h3>Desired dependencies</h3>
+          </div>
+            {(view !== "Service Health" || topologyLayout === "dependencies") && <section className="inspector-section"><h3>Desired dependencies</h3>
             {stack.dependencies.length ? <ul className="chips dependency-badges" aria-label="Desired dependencies">
               {stack.dependencies.map(dependency => <li key={dependency}>
                 <button className="badge" onClick={() => selectStack(dependency)}>{dependency}</button>
               </li>)}
-            </ul> : <p className="empty-dependencies">No prerequisites.</p>}</>}
-            {view === "Deploy" && <><h3>Plan · property changes</h3>{plan
+            </ul> : <p className="empty-dependencies">No prerequisites.</p>}</section>}
+            {view === "Deploy" && <section className="inspector-section"><h3>Plan · property changes</h3>{plan
               ? plannedStack ? <>
                 <SelectionReason stack={plannedStack} selectors={plan.selectors} />
+                <VersionChange previousVersion={plannedStack.previousVersion} version={plan.version} />
                 <WhatIfDiff changes={changes(stack.name)} />
               </>
                 : <p className="empty-dependencies">Not included in the predicted deployment scope. Adjust the label filters and predict again to include this stack.</p>
-              : <pre>Predict to inspect changes.</pre>}</>}
+              : <p className="empty-dependencies">Predict to inspect changes.</p>}</section>}
+            <section className="inspector-section">
             <h3>Managed resources</h3>
             <ManagedResources stack={stack} />
+            </section>
         </aside>}
       </div>
       {view === "Active Deployments" && <section className="timeline"><h2>Execution timeline <span className={`badge ${operation?.status ?? ""}`}>{operation?.status ?? "Idle"}</span></h2>

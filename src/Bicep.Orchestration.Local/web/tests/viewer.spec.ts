@@ -5,7 +5,7 @@ import { test, expect } from "@playwright/test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { spawn, type ChildProcess } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve, join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -20,8 +20,7 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
   const sourcePath = join(folder, "basic/main.bicep");
   writeFileSync(sourcePath, readFileSync(sourcePath, "utf8")
     .replace("version: version", "version: '1.0.${i}'")
-    .replaceAll(/^\s*version: version\s*$/gm, "")
-    .replaceAll(/^\s*deploy:.*$/gm, ""));
+    .replaceAll(/^\s*version: version\s*$/gm, ""));
   const port = await new Promise<number>(done => {
     const socket = createServer();
     socket.listen(0, "127.0.0.1", () => { const p = (socket.address() as { port: number }).port; socket.close(() => done(p)); });
@@ -31,7 +30,7 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
   const errors: string[] = [];
   page.on("pageerror", e => errors.push(e.message));
   try {
-    host = spawn("dotnet", [join(root, "src/Bicep.Orchestration.Local/bin/Debug/net10.0/Bicep.Orchestration.Local.dll"),
+    host = spawn("dotnet", [process.env.BICEP_LOCAL_VIEWER_DLL ?? join(root, "src/Bicep.Orchestration.Local/bin/Debug/net10.0/Bicep.Orchestration.Local.dll"),
       "--workspace", folder, "--entry", "basic/main.bicepparam", "--state", join(folder, "state.json"),
       "--port", String(port)], { stdio: "ignore" });
     await expect.poll(async () => { try { return (await fetch(`http://127.0.0.1:${port}`)).status; } catch { return 0; } }).toBe(200);
@@ -193,6 +192,7 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await expect(inspector).toHaveCount(0);
     await firstCell.click();
     await expect(inspector).toBeVisible();
+    await expect(inspector.getByRole("link", { name: "View in ADO" })).toHaveAttribute("href", "https://example.com/ado/source");
     await inspector.getByRole("button", { name: "Close inspector" }).click();
     await expect(inspector).toHaveCount(0);
     await expect(page.locator(".workspace")).not.toHaveClass(/with-inspector/);
@@ -301,7 +301,28 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await expect(diff.locator(".wi-resource .wi-symbol.wi-Create").first()).toHaveText("+");
     await expect(diff.locator(".wi-summary")).toContainText(/Resource changes: \d+ to create\./);
     await expect(diff).not.toContainText("\"changeType\"");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const wideInspector = await inspector.boundingBox();
+    const wideDiff = await diff.boundingBox();
+    expect(wideInspector?.width).toBeGreaterThan(500);
+    expect(wideDiff?.width).toBeGreaterThan(450);
+    const wideControls = await controls.boundingBox();
+    const wideOverview = await page.locator(".deployment-overview").boundingBox();
+    expect(wideOverview?.x).toBeGreaterThanOrEqual((wideControls?.x ?? 0) + (wideControls?.width ?? 0));
+    expect(wideOverview?.y).toBe(wideControls?.y);
+    await page.setViewportSize({ width: 700, height: 900 });
+    const narrowInspector = await inspector.boundingBox();
+    const narrowMatrix = await matrix.boundingBox();
+    const narrowControls = await controls.boundingBox();
+    const narrowOverview = await page.locator(".deployment-overview").boundingBox();
+    expect(narrowInspector?.y).toBeGreaterThanOrEqual((narrowMatrix?.y ?? 0) + (narrowMatrix?.height ?? 0));
+    expect(narrowOverview?.y).toBeGreaterThanOrEqual((narrowControls?.y ?? 0) + (narrowControls?.height ?? 0));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(700);
+    await page.setViewportSize({ width: 1280, height: 720 });
     const draft = toolValue<Activity>(await mcp.callTool({ name: "get_activity", arguments: {} })).plan!;
+    expect(draft.version).toBe("0.0.1");
+    await expect(inspector).toContainText("Version change: Not deployed or unversioned → 0.0.1");
+    await expect(inspector.getByRole("link", { name: "View diff in ADO" })).toHaveAttribute("href", "https://example.com/ado/diff");
     const unsubmitted = await mcp.callTool({ name: "approve_deployment", arguments: { planId: draft.id, approved: true } });
     expect(unsubmitted.isError).toBe(true);
     expect(JSON.stringify(unsubmitted.content)).toContain("Submit it first");
@@ -310,6 +331,8 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     const approvals = page.getByRole("region", { name: "Pending approvals", exact: true });
     await expect(approvals.locator(".approval-list > li")).toHaveCount(1);
     await expect(approvals.getByRole("region", { name: "Plan review" })).toContainText(draft.id);
+    await expect(approvals.getByRole("region", { name: "Plan review" }).locator(".approval-metadata")).toContainText(/Deployment version:\s*0\.0\.1/);
+    await expect(approvals.getByRole("region", { name: "Plan review" })).not.toContainText("JSON SIMULATION");
     const submitted = toolValue<Activity>(await mcp.callTool({ name: "get_activity", arguments: {} }));
     expect(submitted.pendingApprovals.map(item => item.plan.id)).toEqual([draft.id]);
     expect(submitted.operation ?? null).toBeNull();
@@ -324,8 +347,9 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await expect(approvals.locator(".approval-list > li")).toHaveCount(2);
     await approvals.getByRole("button", { name: `Review plan ${anotherPlan.id.slice(0, 8)}` }).click();
     await expect(approvals.getByRole("region", { name: "Plan review" })).toContainText("1 directly selected · 1 included as a prerequisite");
-    await approvals.locator("details").filter({ hasText: "cluster[0]" }).locator("summary").click();
+    await approvals.locator("details").filter({ hasText: "cluster[0]" }).locator(":scope > summary").click();
     await expect(approvals.locator("details").filter({ hasText: "cluster[0]" })).toContainText("Included as a prerequisite of clusterApp[0].");
+    await expect(approvals.locator("details").filter({ hasText: "cluster[0]" }).getByRole("link", { name: "View diff in ADO" })).toHaveAttribute("href", "https://example.com/ado/diff");
     const originalSource = readFileSync(sourcePath, "utf8");
     writeFileSync(sourcePath, `${originalSource}\n// Changed after submission.\n`);
     await approvals.getByRole("button", { name: "Approve & deploy" }).click();
@@ -380,8 +404,8 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
       expect(Date.parse(events[2].time) - Date.parse(events[1].time)).toBeLessThan(15000);
     }
     await expect(firstCell).toContainText("Succeeded");
-    await expect(firstCell.locator(".stack-version")).toHaveText("Version: 1.0.0");
-    await expect(inspector).toContainText("Current version: 1.0.0");
+    await expect(firstCell.locator(".stack-version")).toHaveText("Version: 0.0.1");
+    await expect(inspector).toContainText("Current version: 0.0.1");
     await expect(matrix.locator("button.stack")).toHaveCount(5);
     await expect(page.getByRole("checkbox", { name: "Changes overlay" })).toHaveCount(0);
     await healthView.click();
@@ -392,13 +416,19 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await expect(page.locator(".timeline")).toHaveCount(0);
     await expect(matrix.locator("button.stack")).toHaveCount(5);
     await expect(firstCell.locator(".stack-status")).toHaveText("1 observed resource");
-    await expect(firstCell.locator(".stack-version")).toHaveText("Version: 1.0.0");
-    await expect(appCell.locator(".stack-version")).toHaveText("Version: Unknown");
+    await expect(firstCell.locator(".stack-version")).toHaveText("Version: 0.0.1");
+    await expect(appCell.locator(".stack-version")).toHaveText("Version: 0.0.1");
     await expect(firstCell).not.toContainText("Succeeded");
     await appCell.focus();
     await page.keyboard.press("Enter");
     await expect(inspector.getByRole("heading", { name: "clusterApp[0]", exact: true })).toBeVisible();
     await firstCell.click();
+    const managedResources = inspector.locator(".managed-resources");
+    await expect(managedResources.locator("summary")).toHaveText("1 managed resource");
+    await expect(managedResources).not.toHaveAttribute("open", "");
+    await expect(page.getByLabel("Managed resource IDs")).toBeHidden();
+    await managedResources.locator("summary").click();
+    await expect(page.getByLabel("Managed resource IDs")).toBeVisible();
     await expect(page.getByLabel("Managed resource IDs").locator("li")).toHaveCount(1);
     await expect(page.getByLabel("Managed resource IDs")).not.toContainText("/deploymentStacks/");
     const regionFilter = matrix.getByRole("textbox", { name: "Filter regions" });
@@ -418,6 +448,8 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await page.locator('button.stack[data-stack="cluster[1]"]').click();
     await checkSelection();
     await firstCell.click();
+    await expect(managedResources).not.toHaveAttribute("open", "");
+    await managedResources.locator("summary").click();
     await expect(page.getByLabel("Managed resource IDs").locator("li")).toHaveCount(1);
     await expect(page.getByLabel("Managed resource IDs")).toContainText("/subscriptions/");
     await expect(page.getByLabel("Managed resource IDs")).not.toContainText('"properties"');
@@ -448,7 +480,19 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await expect(page.locator("button.stack")).toHaveCount(5);
     await expect(page.getByRole("heading", { name: "Bicep Orchestration" })).toBeVisible();
     writeFileSync(sourcePath, readFileSync(sourcePath, "utf8").replace("version: '1.0.${i}'", "version: '2.0.${i}'"));
-    await expect(firstCell.locator(".stack-version")).toHaveText("Version: 1.0.0");
+    await expect(firstCell.locator(".stack-version")).toHaveText("Version: 0.0.1");
+    const observedTopology = toolValue<Topology>(await mcp.callTool({ name: "get_topology", arguments: {} }));
+    const otherStack = observedTopology.stacks.find(stack => stack.name === "cluster[1]")?.observed
+      .find(resource => resource.type.toLowerCase() === "microsoft.resources/deploymentstacks");
+    expect(otherStack).toBeDefined();
+    const statePath = join(folder, "state.json");
+    const state = JSON.parse(readFileSync(statePath, "utf8")) as { id: string; tags?: Record<string, string> }[];
+    const otherResource = state.find(resource => resource.id === otherStack?.id);
+    expect(otherResource).toBeDefined();
+    otherResource!.tags = { ...otherResource!.tags, version: "4.1.9" };
+    writeFileSync(`${statePath}.tmp`, JSON.stringify(state));
+    renameSync(`${statePath}.tmp`, statePath);
+    await expect(page.locator('button.stack[data-stack="cluster[1]"] .stack-version')).toHaveText("Version: 4.1.9");
     // Another actor (e.g. MCP/Copilot) uses the same service; browser picks up its plan and operation.
     await selectors.getByRole("button", { name: "Add filter" }).click();
     const externalPlan = toolValue<Plan>(await mcp!.callTool({
@@ -456,6 +500,8 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
       arguments: { selectors: ["kind=cluster", "region=eastus", "region=eastus"] },
     }));
     expect(externalPlan.stacks).toHaveLength(1);
+    expect(externalPlan.version).toBe("4.1.10");
+    expect(externalPlan.stacks[0].previousVersion).toBe("0.0.1");
     const resourceChanges = externalPlan.stacks[0].changes;
     expect(resourceChanges.length).toBeGreaterThan(0);
     expect(resourceChanges.every(change => change.changeType === "NoChange")).toBe(true);
@@ -465,8 +511,20 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await expect(filterChips).toHaveText(["kind equals cluster", "region equals eastus"]);
     await firstCell.click();
     await expect(page.getByLabel("What-if changes")).not.toContainText("tags.version");
+    const unchangedPreview = inspector.getByLabel("What-if changes");
+    const showUnchanged = unchangedPreview.getByRole("checkbox", { name: "Show unchanged" });
+    await expect(showUnchanged).not.toBeChecked();
+    await expect(unchangedPreview).toContainText("No resource changes to show.");
+    await expect(unchangedPreview.locator(".wi-resource")).toHaveCount(0);
+    await expect(unchangedPreview.locator(".wi-summary")).toContainText("no change");
+    await showUnchanged.check();
+    await expect(unchangedPreview.locator(".wi-resource")).toHaveCount(resourceChanges.length);
+    await showUnchanged.uncheck();
+    await expect(unchangedPreview.locator(".wi-resource")).toHaveCount(0);
     await expect(firstCell).toHaveClass(/unchanged/);
-    await expect(firstCell.locator(".stack-version")).toHaveText("Version: 1.0.0");
+    await expect(firstCell.locator(".stack-version")).toHaveText("Version: 0.0.1");
+    await expect(inspector).toContainText("0.0.1 → 4.1.10");
+    await expect(inspector.getByText("Example source code delta (placeholder)")).toHaveCount(0);
     const versionBeforeApproval = readFileSync(join(folder, "state.json"), "utf8");
     await mcp.callTool({ name: "submit_deployment", arguments: { planId: externalPlan.id } });
     await approvalsView.click();
@@ -495,10 +553,10 @@ test("matrix selects labels, predicts, explicitly applies, monitors, and inspect
     await expect(graph.locator(".graph-node")).toHaveCount(1);
     await layout.getByRole("button", { name: "Regions" }).click();
     await expect(page.locator(".timeline h2")).toContainText("Succeeded", { timeout: 60_000 });
-    await expect(firstCell.locator(".stack-version")).toHaveText("Version: 2.0.0");
+    await expect(firstCell.locator(".stack-version")).toHaveText("Version: 4.1.10");
     await expect(matrix.locator("button.stack")).toHaveCount(1);
     await hideOutsideScope.click();
-    await expect(page.locator('button.stack[data-stack="cluster[1]"] .stack-version')).toHaveText("Version: 1.0.1");
+    await expect(page.locator('button.stack[data-stack="cluster[1]"] .stack-version')).toHaveText("Version: 4.1.9");
     await expect(matrix.locator("button.stack")).toHaveCount(5);
     await page.goto(`http://127.0.0.1:${port}?clawpilotTheme=light`);
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");

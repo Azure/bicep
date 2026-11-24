@@ -63,30 +63,26 @@ The viewer uses local JSON simulation, not Azure deployments. Stage grouping is
 illustrative; batching, health checks, and policy validation are not enforced.
 The inspector is closed initially. Selecting a stack opens it; **Close** reclaims
 the canvas without clearing the selection. **Inspect selected stack** reopens it.
+The inspector grows on wider screens to give the What-If preview more room;
+on narrow screens it appears below the topology.
+Deployment scope and plan panels appear side by side on wide screens and stack
+on narrower screens.
 
 Every matrix cell and the inspector show the current version from the observed
-deployment stack's `version` tag. Add an optional `version` string to a stack
-declaration (1–256 characters) to write this tag during deployment:
+deployment stack's `version` tag. For this viewer only, prediction chooses a
+simulated version greater than every numbered stack version in the state file,
+including stacks outside the selected scope. Numeric dot-separated components
+are compared numerically; the last component is incremented, starting at `0.0.1`
+when no version exists. Non-numeric deployed versions must be corrected before
+predicting.
 
-```bicep
-stack app './app.bicepparam' = {
-  version: '1.2.3'
-  region: 'westus'
-  deploy: 'always'
-  inputs: {}
-}
-```
-
-The tag is stored in both JSON simulation and Azure. Untagged stacks show
-**Unknown**; absent stacks show **Not deployed**. Source edits and predictions
-do not change the displayed current version. What-If reports managed resource
-changes only, not the deployment stack itself or its version tag. A version-only
-edit leaves resource predictions unchanged; approving and deploying still updates the tag.
-Omitting `version` from a later deployment removes the tag.
-
-The basic sample sets every stack's version from a `version` parameter
-(default `1.0.0`). The Deployments RP sample uses `artifacts.version` for every
-stack. Existing untagged simulation state needs a newly approved deployment to record it.
+The plan captures the proposed version and each stack's previous version.
+Approving the exact fresh plan writes the proposed version to each successfully
+deployed stack, overriding its authored version in simulation only. Prediction
+and submission do not change the state; What-If reports managed resource changes,
+not the version tag. Untagged stacks show **Unknown**; absent stacks show
+**Not deployed**. The ADO links are placeholders, not actual source or a real diff.
+CLI and Azure deployment behavior remains unchanged.
 
 When the entry point provides `stageMappings` (directly or under `config`) as
 ordered `{ name, regions }` groups, the matrix groups region rows under those
@@ -130,9 +126,11 @@ viewer displays these stages but does not enforce rollout batching.
    list provides a text alternative to the diagram. Group details and the stack inspector link
    to the `requires` expression in local VS Code when present.
    Links refer to the current source, not a stored copy of an earlier plan.
-   Select cells for prerequisite links, managed resource IDs, and property-level
+   Select cells for prerequisite links, a collapsible managed-resource count and IDs, and property-level
    delta inspection. Create, modify, delete, and no-change are distinct from
-   execution status. Predicted creates, modifications, and deletions use green,
+   execution status. What-If previews hide unchanged resources by default;
+   **Show unchanged** reveals them without changing the prediction.
+   Predicted creates, modifications, and deletions use green,
    amber, and red accents respectively; labels still identify each change. A cell
    with multiple types uses the most prominent accent: delete, then modify, then create.
    Click a stack label in the inspector to add it to the label
@@ -212,7 +210,7 @@ topology observation fails.
 |---|---|---|
 | `get_topology` | `expectedTargetInstance`, `expectedTargetRevision` (optional together) | Desired dependencies + provider observations; reject a changed target when the expected target is supplied |
 | `get_activity` | none | Current target, latest draft plan and operation, and pending approvals with submission timestamps |
-| `plan_deployment` | `selectors: string[]` (optional), `expectedTargetInstance`, `expectedTargetRevision` (optional together) | Read-only plan and ID; reject a changed target when the expected target is supplied |
+| `plan_deployment` | `selectors: string[]` (optional), `expectedTargetInstance`, `expectedTargetRevision` (optional together) | Read-only plan and ID, proposed simulation version, and previous versions; reject a changed target when the expected target is supplied |
 | `submit_deployment` | `planId` | Validate and queue a predicted plan for approval; no deployment |
 | `approve_deployment` | `planId`, `approved: boolean` | Require a submitted plan and explicit user approval; revalidate freshness and return an operation ID |
 | `reject_deployment` | `planId` | Remove a pending plan without deployment |
