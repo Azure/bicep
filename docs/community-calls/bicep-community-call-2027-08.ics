@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Azure Bicep//Bicep Community Calls//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:bicep-community-call-2027-08@github.com-azure-bicep
+DTSTAMP:20261123T194217Z
+SEQUENCE:0
+DTSTART:20270826T160000Z
+DTEND:20270826T170000Z
+SUMMARY:Bicep Community Call
+DESCRIPTION:Join us via https://aka.ms/bicepcc\nAdd topics or questions: ht
+ tps://aka.ms/BicepCCMonthlyTopics
+LOCATION:YouTube - https://aka.ms/bicepcc
+URL:https://aka.ms/bicepcc
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Bicep Community Call
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+END:VCALENDAR
