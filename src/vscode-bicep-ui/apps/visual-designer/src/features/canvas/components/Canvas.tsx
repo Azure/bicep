@@ -20,6 +20,7 @@ import { useNavigationShortcuts } from "../hooks/use-navigation-shortcuts";
 import { useSelectionGestures } from "../hooks/use-selection-gestures";
 import { NodeContextMenu } from "./NodeContextMenu";
 import { NodeContentProvider } from "./nodes/NodeContentProvider";
+import { NodeToolbar } from "./NodeToolbar";
 import { PendingResourceLayer } from "./PendingResourceLayer";
 import { ScopeIndicator } from "./ScopeIndicator";
 
@@ -85,6 +86,7 @@ export function Canvas() {
                 <ExportAreaCover />
               </Graph>
             </Viewport>
+            <NodeToolbar />
             <NodeContextMenu />
           </$CanvasWrapper>
         </ThemeProvider>

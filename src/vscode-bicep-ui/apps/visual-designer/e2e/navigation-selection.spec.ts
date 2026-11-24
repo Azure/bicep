@@ -4,7 +4,13 @@
 import type { Page } from "@playwright/test";
 
 import { expect, test } from "@playwright/test";
-import { getGraphTransform, loadSampleGraph, openVisualDesigner, waitForStableNodePosition } from "./fixtures";
+import {
+  clickNodeToolbarButton,
+  getGraphTransform,
+  loadSampleGraph,
+  openVisualDesigner,
+  waitForStableNodePosition,
+} from "./fixtures";
 
 async function selectedNodeIds(page: Page) {
   return page
@@ -371,7 +377,7 @@ test.describe("Experimental navigation and selection", () => {
     await loadSampleGraph(page, "module");
     await page.locator('[data-node-id="myModule::vmResource"]').click();
     await expect.poll(() => selectedNodeIds(page)).toEqual(["myModule::vmResource"]);
-    await page.getByRole("button", { name: "Collapse module myModule", exact: true }).click();
+    await clickNodeToolbarButton(page, "myModule", "Collapse module myModule");
     await expect.poll(() => selectedNodeIds(page)).toEqual(["myModule"]);
 
     await loadSampleGraph(page, "flat");

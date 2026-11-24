@@ -126,3 +126,22 @@ export async function waitForStableNodePosition(page: Page, nodeId: string): Pro
 
   return { x: settled!.x, y: settled!.y };
 }
+
+/**
+ * Rest the pointer on a node's header, which shows the node's toolbar, and return the toolbar. A container's own
+ * actions, such as collapsing it, are there; hovering its center would rest on one of its children instead.
+ */
+export async function hoverNode(page: Page, nodeId: string) {
+  await page.locator(`[data-node-id="${nodeId}"]`).hover({ position: { x: 60, y: 20 } });
+  const symbolName = nodeId.split("::").pop();
+  const toolbar = page.getByRole("toolbar", { name: `Actions for ${symbolName}`, exact: true });
+  await expect(toolbar).toBeVisible();
+
+  return toolbar;
+}
+
+/** Click a button in a node's toolbar, such as "Collapse module myModule", by hovering the node first. */
+export async function clickNodeToolbarButton(page: Page, nodeId: string, name: string) {
+  const toolbar = await hoverNode(page, nodeId);
+  await toolbar.getByRole("button", { name, exact: true }).click();
+}

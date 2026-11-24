@@ -24,6 +24,8 @@ test.describe("With resource editing disabled", () => {
     await expect(page.getByTestId("control-bar")).toBeVisible();
     await expect(page.getByTestId("status-bar")).toHaveAttribute("data-status", "ready");
 
+    // The graph opens with an animated zoom; start from where it ends.
+    await waitForStableNodePosition(page, "vnet");
     const originalTransform = await getGraphTransform(page);
     await page.getByTestId("control-zoom-in").click();
     await expect.poll(() => getGraphTransform(page)).not.toBe(originalTransform);

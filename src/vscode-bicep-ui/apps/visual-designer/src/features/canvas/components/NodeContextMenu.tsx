@@ -9,13 +9,24 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { styled } from "styled-components";
 import { canvasElementAtom, selectedNodeIdsAtom, shownGraphAtom, useGraphApi } from "@/core";
 import { isExportOverlayOpenAtom } from "@/features/export";
-import { FloatingPanel, ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
+import {
+  ARROW_CURSOR,
+  FLOATING_PANEL_GAP,
+  FloatingPanel,
+  ICON_BUTTON_ICON_SIZE,
+  ICON_BUTTON_SIZE,
+  IconButton,
+} from "@/ui";
 import { isHandModeAtom, nodeMenuAtom } from "../atoms";
+import { useCanvasNodeData } from "../hooks/use-canvas-node-data";
+import { useNodeToggle } from "../hooks/use-node-toggle";
+import { NodeToggleIcon } from "./nodes/NodeToggleIcon";
 
-const $Menu = styled(FloatingPanel).attrs<{ $x: number; $y: number }>(({ $x, $y }) => ({
+const $Menu = styled(FloatingPanel).attrs<{ $x: number; $y: number; $itemCount: number }>(({ $x, $y, $itemCount }) => ({
   style: {
     left: `max(4px, min(${$x}px, calc(100% - 168px)))`,
-    top: `max(4px, min(${$y}px, calc(100% - 42px)))`,
+    // The panel's padding, its items, and the gaps between them, plus the 4px kept from the edge.
+    top: `max(4px, min(${$y}px, calc(100% - ${8 + $itemCount * ICON_BUTTON_SIZE + ($itemCount - 1) * FLOATING_PANEL_GAP + 4}px)))`,
   },
 }))`
   position: absolute;
@@ -31,6 +42,13 @@ const $MenuItem = styled(IconButton)`
   white-space: nowrap;
   font: inherit;
   font-size: 12px;
+
+  &[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: ${ARROW_CURSOR};
+    background-color: transparent;
+    transform: none;
+  }
 `;
 
 /** A node's context menu, in screen space outside the transformed graph and its export subtree. */
@@ -43,6 +61,8 @@ export function NodeContextMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const itemRef = useRef<HTMLButtonElement>(null);
   const node = menu ? graph.nodes.get(menu.nodeId) : undefined;
+  const nodeId = menu?.nodeId ?? null;
+  const { toggle, isRestoring, activate } = useNodeToggle(nodeId ?? "", useCanvasNodeData(nodeId));
 
   const dismiss = useCallback(() => {
     setMenu(null);
@@ -55,6 +75,13 @@ export function NodeContextMenu() {
       dismiss();
     }
   }, [api, dismiss, menu]);
+
+  const toggleNode = useCallback(() => {
+    if (toggle?.isDisabled !== true) {
+      activate();
+      dismiss();
+    }
+  }, [activate, dismiss, toggle]);
 
   useLayoutEffect(() => {
     if (node) itemRef.current?.focus({ preventScroll: true });
@@ -102,7 +129,15 @@ export function NodeContextMenu() {
       } else if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
         event.preventDefault();
         event.stopPropagation();
-        itemRef.current?.focus();
+        const items = [...(menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];
+        const index = items.findIndex((item) => item === document.activeElement);
+        const next =
+          event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? items.length - 1
+              : index + (event.key === "ArrowDown" ? 1 : -1);
+        items[(next + items.length) % items.length]?.focus();
       } else if (event.key === "Tab") {
         dismiss();
       }
@@ -121,12 +156,25 @@ export function NodeContextMenu() {
       aria-label={`Actions for ${node.symbolName}`}
       $x={menu.clientPoint.x - bounds.left}
       $y={menu.clientPoint.y - bounds.top}
+      $itemCount={toggle ? 2 : 1}
       onKeyDown={handleKeyDown}
     >
       <$MenuItem ref={itemRef} role="menuitem" title="Go to Source" aria-label="Go to Source" onClick={goToSource}>
         <Codicon name="go-to-file" size={ICON_BUTTON_ICON_SIZE} />
         Go to Source
       </$MenuItem>
+      {toggle && (
+        <$MenuItem
+          role="menuitem"
+          title={toggle.title}
+          aria-label={toggle.action}
+          aria-disabled={toggle.isDisabled === true}
+          onClick={toggleNode}
+        >
+          <NodeToggleIcon toggle={toggle} isRestoring={isRestoring} />
+          {toggle.action}
+        </$MenuItem>
+      )}
     </$Menu>
   );
 }

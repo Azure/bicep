@@ -105,7 +105,7 @@ A module drag records all atomic descendants as one step, and dragging a collaps
 hidden descendants too. Reset Layout records the positions before and after as one step **only after a
 successful layout**. Positions are targets, so a reset or drag that interrupts an animation records
 where the nodes were heading, and undoing it never stops partway through one. Collapsing or expanding
-a module records one step, replayed as the toggle does, so undo never moves nodes the user cannot
+a module records one step, replayed as the fold button does, so undo never moves nodes the user cannot
 see: a drag inside a module that was collapsed afterwards is undone only after the module is expanded
 again. History never records pan, zoom, focus, chooser opening, cancellation, automatic layout, or
 animation frames.
@@ -119,7 +119,7 @@ not change the camera, issue a layout request, or add extra history steps.
 
 - The graph coordinator serializes source mutations and reconciles the document after both
   successful and failed attempts. While a source action or Reset Layout request is pending,
-  Undo, Redo, and Reset Layout are disabled, and a node drag or module toggle that starts is ignored
+  Undo, Redo, and Reset Layout are disabled, and a node drag or fold that starts is ignored
   because it would record a step above the one in flight; the canvas shows a progress cursor. Focus,
   source reveal, and pan and zoom stay available. Undo and Redo also wait for a node drag to end, so a
   replay never lands mid-gesture.

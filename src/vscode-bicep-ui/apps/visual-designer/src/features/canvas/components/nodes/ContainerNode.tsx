@@ -8,11 +8,11 @@ import type { NodeKind } from "@/lib/graph";
 import { AzureIcon, Codicon } from "@vscode-bicep-ui/components";
 import { animate } from "motion";
 import { motion } from "motion/react";
-import { useCallback, useId, useLayoutEffect, useRef } from "react";
+import { useId, useLayoutEffect, useRef } from "react";
 import { keyframes, styled, useTheme } from "styled-components";
-import { useGraphActions, useIsMotionReduced } from "@/core";
-import { graphInteractiveProps, NODE_MORPH_TRANSITION } from "@/lib/graph";
-import { ARROW_CURSOR, ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
+import { useIsMotionReduced } from "@/core";
+import { NODE_MORPH_TRANSITION } from "@/lib/graph";
+import { ICON_BUTTON_ICON_SIZE } from "@/ui";
 import { camelCaseToWords } from "@/utils";
 import { useIsModuleRestoring } from "../../hooks/use-is-module-restoring";
 import { useIsNodeFocused, useIsNodeSelected } from "../../hooks/use-node-selection";
@@ -21,7 +21,7 @@ import { useIsNodeFocused, useIsNodeSelected } from "../../hooks/use-node-select
 const ATOMIC_HEIGHT = 76;
 const ATOMIC_ICON_SIZE = 36;
 /** The header must fit above a compound node's children, inside its top padding. */
-const HEADER_HEIGHT = 48;
+export const HEADER_HEIGHT = 48;
 const HEADER_ICON_SIZE = 24;
 /** A fixed line height lets the type label animate to an exact height. */
 const TYPE_LABEL_LINE_HEIGHT = 16;
@@ -215,37 +215,14 @@ const $TypeLabel = styled(motion.div)`
 `;
 
 /**
- * Hidden until the module is hovered or selected, so a graph full of modules stays uncluttered. Keyboard
- * focus also reveals it. It is disabled with `aria-disabled` rather than `disabled`, so its tooltip still shows.
+ * A module's background state, which the user should see without pointing at it: progress while it is restored, or an
+ * error when its source could not be loaded. It is not a control; the node's toolbar and context menu expand it.
  */
-const $ToggleButton = styled(IconButton)<{ $isRevealed: boolean; $isError: boolean }>`
+const $Status = styled.div<{ $isError: boolean }>`
+  display: flex;
   flex: 0 0 auto;
   margin-left: auto;
-  opacity: ${({ $isRevealed }) => ($isRevealed ? 1 : 0)};
   color: ${({ $isError, theme }) => ($isError ? theme.error : theme.iconButton.color)};
-  transition:
-    opacity 120ms ease,
-    background-color 150ms ease,
-    transform 150ms ease;
-
-  ${$Frame}:hover &,
-  &:focus-visible {
-    opacity: 1;
-  }
-
-  &[aria-disabled="true"] {
-    cursor: ${ARROW_CURSOR};
-    background-color: transparent;
-    transform: none;
-  }
-
-  &[aria-busy="true"] {
-    cursor: progress;
-  }
-
-  &[aria-disabled="true"]:not([aria-busy="true"]) > * {
-    opacity: 0.45;
-  }
 `;
 
 const spin = keyframes`
@@ -254,53 +231,10 @@ const spin = keyframes`
   }
 `;
 
-/** Replaces the toggle's icon while the module is restored, so the user sees that expanding it is under way. */
 const $ProgressRing = styled.div`
   display: flex;
   animation: ${spin} 1s linear infinite;
 `;
-
-type Toggle = {
-  action: "Expand" | "Collapse";
-  title: string;
-  isDisabled?: boolean;
-  isError?: boolean;
-};
-
-/**
- * The module's one toggle, or null when there is nothing to toggle. It opens or closes the module, and a remote module
- * whose children are not loaded is restored first, showing progress until it opens; when its source cannot be shown,
- * the toggle is disabled and says so.
- */
-function getToggle(data: CanvasNodeData, isRestoring: boolean): Toggle | null {
-  const noun = data.nodeKind === "module" ? "module" : "resource";
-
-  // A restore lasts until the module has opened, so it wins even once the module has children.
-  if (isRestoring) {
-    return { action: "Expand", title: "Restoring module...", isDisabled: true };
-  }
-
-  if (data.canCollapse) {
-    return data.isCollapsed
-      ? { action: "Expand", title: `Expand ${noun}` }
-      : { action: "Collapse", title: `Collapse ${noun}` };
-  }
-
-  switch (data.sourceStatus) {
-    case "unrestored":
-      return { action: "Expand", title: "Expand module" };
-    case "error":
-      return {
-        action: "Expand",
-        title: `${data.sourceError ?? "The module's source could not be loaded."} Expand the module to try again.`,
-        isError: true,
-      };
-    case "unavailable":
-      return { action: "Expand", title: "Bicep source is unavailable for this module.", isDisabled: true };
-    default:
-      return null;
-  }
-}
 
 /** The row's height for each kind of node; the morph animates between them. */
 function getRowHeight(kind: NodeKind, borderWidth: string) {
@@ -317,8 +251,8 @@ export function ContainerNode({ id, kind, data }: ContainerNodeProps) {
     isCollection,
     hasError,
     isCollapsed,
-    canCollapse,
     sourceStatus,
+    sourceError,
     nodeKind,
     resourceType,
     isRemote,
@@ -331,13 +265,11 @@ export function ContainerNode({ id, kind, data }: ContainerNodeProps) {
   const isFocused = useIsNodeFocused(id);
   const isSelected = useIsNodeSelected(id);
   const reduceMotion = useIsMotionReduced();
-  const { toggleModuleCollapsed, restoreModule } = useGraphActions();
   const isRestoring = useIsModuleRestoring(id);
   const isAtomic = kind === "atomic";
   const borderWidth = hasError ? theme.node.errorBorderWidth : theme.node.borderWidth;
   const rowHeight = getRowHeight(kind, borderWidth);
   const iconSize = isAtomic ? ATOMIC_ICON_SIZE : HEADER_ICON_SIZE;
-  const toggle = getToggle(data, isRestoring);
   const transition = reduceMotion ? NO_TRANSITION : NODE_MORPH_TRANSITION;
 
   // The graph morphs the node's box when the module opens or closes; the icon and background change
@@ -373,20 +305,6 @@ export function ContainerNode({ id, kind, data }: ContainerNodeProps) {
     };
   }, [iconSize, isAtomic, kind, reduceMotion, theme]);
 
-  const isToggleDisabled = toggle?.isDisabled === true;
-  const handleToggle = useCallback(() => {
-    if (isToggleDisabled) {
-      return;
-    }
-
-    if (canCollapse) {
-      toggleModuleCollapsed(id);
-      return;
-    }
-
-    void restoreModule(id);
-  }, [canCollapse, id, isToggleDisabled, restoreModule, toggleModuleCollapsed]);
-
   return (
     <$Frame
       ref={frameRef}
@@ -417,29 +335,24 @@ export function ContainerNode({ id, kind, data }: ContainerNodeProps) {
             {typeLabel}
           </$TypeLabel>
         </$Text>
-        {toggle && (
-          <$ToggleButton
-            {...graphInteractiveProps}
-            type="button"
-            aria-label={`${toggle.action} ${isResource ? "resource" : "module"} ${symbolicName}`}
-            aria-expanded={toggle.action === "Collapse"}
-            aria-busy={isRestoring}
-            aria-disabled={isToggleDisabled}
-            title={toggle.title}
-            data-export-exclude=""
-            data-source-status={canCollapse || isRestoring ? undefined : (sourceStatus ?? undefined)}
-            $isRevealed={isSelected || isRestoring || toggle.isError === true}
-            $isError={toggle.isError === true}
-            onClick={handleToggle}
-          >
-            {isRestoring ? (
-              <$ProgressRing data-testid="module-restore-progress">
-                <Codicon name="loading" size={ICON_BUTTON_ICON_SIZE} />
-              </$ProgressRing>
-            ) : (
-              <Codicon name={toggle.action === "Expand" ? "unfold" : "fold"} size={ICON_BUTTON_ICON_SIZE} />
-            )}
-          </$ToggleButton>
+        {isRestoring ? (
+          <$Status $isError={false} title="Restoring module..." data-export-exclude="">
+            <$ProgressRing data-testid="module-restore-status">
+              <Codicon name="loading" size={ICON_BUTTON_ICON_SIZE} />
+            </$ProgressRing>
+          </$Status>
+        ) : (
+          sourceStatus === "error" && (
+            <$Status
+              $isError
+              role="img"
+              aria-label="The module's source could not be loaded"
+              title={sourceError ?? "The module's source could not be loaded."}
+              data-export-exclude=""
+            >
+              <Codicon name="error" size={ICON_BUTTON_ICON_SIZE} />
+            </$Status>
+          )
         )}
       </$Row>
     </$Frame>
