@@ -1053,7 +1053,7 @@
         },
         "deploymentModules": {
           "type": "boolean",
-          "description": "Emits Bicep modules as deployment modules (Microsoft.Resources/deployments/modules) that do not count against the 800 deployments per scope limit. Requires service support. See https://aka.ms/bicep/experimental-features#deploymentmodules"
+          "description": "Emits Bicep modules as deployment modules (Microsoft.Resources/deployments/modules), which are excluded from the 800 deployments per scope limit. Requires service support. See https://aka.ms/bicep/experimental-features#deploymentmodules"
         }
       },
       "additionalProperties": false
