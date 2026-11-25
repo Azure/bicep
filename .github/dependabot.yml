@@ -59,6 +59,8 @@ updates:
           - "*"
   - package-ecosystem: "npm"
     directory: "/src/vscode-bicep"
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
       day: "sunday"
@@ -76,6 +78,8 @@ updates:
           - "*"
   - package-ecosystem: "npm"
     directory: "/src/vscode-bicep-ui"
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
       day: "sunday"
@@ -89,6 +93,8 @@ updates:
           - "*"
   - package-ecosystem: "npm"
     directory: "/src/playground"
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
       day: "sunday"
@@ -102,6 +108,8 @@ updates:
           - "*"
   - package-ecosystem: "npm"
     directory: "/src/Bicep.Cli.E2eTests"
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
       day: "sunday"
@@ -115,6 +123,8 @@ updates:
           - "*"
   - package-ecosystem: "npm"
     directory: "/src/Bicep.MSBuild.E2eTests"
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
       day: "sunday"
@@ -128,6 +138,8 @@ updates:
           - "*"
   - package-ecosystem: "npm"
     directory: "/src/textmate"
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
       day: "sunday"
@@ -141,6 +153,8 @@ updates:
           - "*"
   - package-ecosystem: "npm"
     directory: "/src/highlightjs"
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
       day: "sunday"
@@ -154,6 +168,8 @@ updates:
           - "*"
   - package-ecosystem: "npm"
     directory: "/src/monarch"
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
       day: "sunday"
