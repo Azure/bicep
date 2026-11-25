@@ -47,6 +47,59 @@ namespace Bicep.LangServer.IntegrationTests
         private const string RemoveUnusedImportTitle = "Remove unused import";
 
         [TestMethod]
+        [DataRow(true, "string", "securestring")]
+        [DataRow(true, "object", "secureObject")]
+        [DataRow(false, "string", "securestring")]
+        public async Task Secure_input_fix_edits_only_the_local_source_parameter(bool module, string type, string armType)
+        {
+            var child = $"@secure()\nparam value {type}";
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [InMemoryFileResolver.GetFileUri("/child.bicep")] = child,
+            });
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
+                services => services
+                    .WithNamespaceProvider(BicepTestConstants.NamespaceProvider)
+                    .WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
+            var assignment = module ? """
+                module child '../child.bicep' = {
+                  name: 'child'
+                  params: {
+                    value: |source
+                  }
+                }
+                """ : """
+                    resource server 'Microsoft.DBforMySQL/flexibleServers@2023-12-30' = {
+                      name: 'server'
+                      location: 'westus'
+                      properties: {
+                        administratorLoginPassword: |source
+                      }
+                    }
+                    """;
+
+            var text = $$"""
+                @description('Supplied by the caller')
+                param source {{type}}
+                {{assignment}}
+                """;
+            var (actions, file) = await GetCodeActionsForSyntaxTest(text, server: helper);
+            var action = actions.Single(action => action.Title == "Mark parameter 'source' as secure");
+            action.IsPreferred.Should().BeFalse();
+            action.Kind.Should().Be(CodeActionKind.QuickFix);
+            action.Edit!.Changes!.Keys.Should().Equal(file.Uri);
+            var updated = ApplyCodeAction(file, action);
+            updated.Text.Should().Be("@secure()\n" + file.Text);
+
+            var result = Core.UnitTests.Utils.CompilationHelper.Compile(
+                Services.WithNamespaceProvider(BicepTestConstants.NamespaceProvider),
+                ("main.bicep", updated.Text),
+                ("../child.bicep", child));
+            result.Diagnostics.Should().BeEmpty();
+            result.Template!["parameters"]!["source"]!["type"]!.ToString().Should().Be(armType);
+        }
+
+        [TestMethod]
         [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task RequestingCodeActionWithFixableDiagnosticsShouldProduceQuickFixes(DataSet dataSet)
         {

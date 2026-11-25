@@ -3,7 +3,10 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Linter.Common;
+using Bicep.Core.CodeAction;
+using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -64,9 +67,12 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
         {
             foreach (var mismatch in SecureAssignmentChecker.EnumerateInsecureValuesForSecureParameters(model, assignment))
             {
-                yield return CreateDiagnostic(mismatch.Syntax.Span,
+                var diagnostic = CreateDiagnostic(mismatch.Syntax.Span,
                     string.Format(CoreResources.UseSecureValueForSecureInputsRule_ModuleParameterMessageFormat, mismatch.Path)) with
                 { Level = diagnosticLevel };
+                yield return ReferenceEquals(mismatch.Syntax, assignment.Value)
+                    ? WithSecureParameterFix(model, assignment.Value, diagnostic)
+                    : diagnostic;
             }
         }
 
@@ -82,12 +88,33 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
 
             if (model.GetTypeInfo(property.Value) is { } type && IsPotentiallyInsecure(type))
             {
-                yield return CreateDiagnosticForSpan(
+                var diagnostic = CreateDiagnosticForSpan(
                     diagnosticLevel,
                     property.Value.Span,
                     [string.Join('.', property.TryGetKeyText() ?? string.Empty), type.Name]);
+                yield return WithSecureParameterFix(model, property.Value, diagnostic);
             }
         }
+    }
+
+    private static Diagnostic WithSecureParameterFix(SemanticModel model, SyntaxBase value, Diagnostic diagnostic)
+    {
+        if (value is not VariableAccessSyntax ||
+            model.GetSymbolInfo(value) is not ParameterSymbol
+            {
+                DeclaringParameter: { Type: TypeVariableAccessSyntax typeSyntax, Modifier: null }
+            } parameter ||
+            model.GetSymbolInfo(typeSyntax) is not AmbientTypeSymbol { Name: LanguageConstants.TypeNameString or LanguageConstants.ObjectType } ||
+            parameter.IsSecure())
+        {
+            return diagnostic;
+        }
+
+        var replacement = DecoratorCodeFixProvider.CreateCodeReplacement(model, parameter.DeclaringParameter, SyntaxFactory.CreateDecorator("secure"));
+        return diagnostic with
+        {
+            Fixes = [new CodeFix($"Mark parameter '{parameter.Name}' as secure", isPreferred: false, CodeFixKind.QuickFix, replacement)]
+        };
     }
 
     private static bool IsPotentiallyInsecure(TypeSymbol type)
