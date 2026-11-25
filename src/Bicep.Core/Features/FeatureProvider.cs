@@ -62,6 +62,8 @@ namespace Bicep.Core.Features
 
         public bool ArtifactAliasesAndRedirectsEnabled => configuration.ExperimentalFeaturesEnabled.ArtifactAliasesAndRedirects;
 
+        public bool ConditionalFlowAnalysisEnabled => configuration.ExperimentalFeaturesEnabled.ConditionalFlowAnalysis;
+
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
 

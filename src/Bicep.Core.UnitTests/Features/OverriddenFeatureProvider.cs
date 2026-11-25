@@ -55,4 +55,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool ArtifactAliasesAndRedirectsEnabled => overrides.ArtifactAliasesAndRedirectsEnabled ?? features.ArtifactAliasesAndRedirectsEnabled;
 
+    public bool ConditionalFlowAnalysisEnabled => overrides.ConditionalFlowAnalysisEnabled ?? features.ConditionalFlowAnalysisEnabled;
+
 }
