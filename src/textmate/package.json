@@ -13,7 +13,7 @@
     "eslint-plugin-headers": "^1.3.5",
     "eslint-plugin-prettier": "^5.5.7",
     "html-escaper": "^3.0.3",
-    "plist": "^5.1.2",
+    "plist": "^5.1.1",
     "tmlanguage-generator": "^0.6.8",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
