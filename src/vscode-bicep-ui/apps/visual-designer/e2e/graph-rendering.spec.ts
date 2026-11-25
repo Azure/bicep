@@ -6,6 +6,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 import {
   clickHistoryButton,
+  clickNodeToolbarButton,
   getGraphTransform,
   loadSampleGraph,
   nodeCount,
@@ -157,7 +158,7 @@ test.describe("Graph rendering", () => {
     const childrenBefore = await getNodeBoxes(page, ["myModule::storageAccount", "myModule::vmResource"]);
     const transformBefore = await getGraphTransform(page);
 
-    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await clickNodeToolbarButton(page, "myModule", "Collapse module myModule");
 
     await expect(page.locator('[data-node-id="myModule"]')).toHaveAttribute("data-node-kind", "atomic");
     await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
@@ -167,7 +168,7 @@ test.describe("Graph rendering", () => {
       .poll(async () => (await waitForStableNodePosition(page, "networkInterface")).x)
       .toBeCloseTo(unrelatedBefore.x, 0);
 
-    await page.getByRole("button", { name: "Expand module myModule" }).click();
+    await clickNodeToolbarButton(page, "myModule", "Expand module myModule");
 
     await expect(page.locator('[data-node-id="myModule"]')).toHaveAttribute("data-node-kind", "compound");
     await expect(page.locator('[data-node-id="myModule::storageAccount"]')).toBeVisible();
@@ -197,7 +198,7 @@ test.describe("Graph rendering", () => {
   test("resets layout while a module is collapsed and keeps its children inside it", async ({ page }) => {
     await loadSampleGraph(page, "module");
     await waitForStableNodePosition(page, "myModule::storageAccount");
-    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await clickNodeToolbarButton(page, "myModule", "Collapse module myModule");
     await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
     await dragNode(page, "myModule", 200, 0);
 
@@ -207,7 +208,7 @@ test.describe("Graph rendering", () => {
     await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
     await waitForStableNodePosition(page, "myModule");
 
-    await page.getByRole("button", { name: "Expand module myModule" }).click();
+    await clickNodeToolbarButton(page, "myModule", "Expand module myModule");
 
     await expect
       .poll(async () => followsModuleServerLayout(await getNodeBoxes(page, MODULE_LAYOUT_NODES)), { timeout: 5_000 })
@@ -218,13 +219,13 @@ test.describe("Graph rendering", () => {
     await loadSampleGraph(page, "module");
     await waitForStableNodePosition(page, "myModule::storageAccount");
     const childrenBefore = await getNodeBoxes(page, ["myModule::storageAccount", "myModule::vmResource"]);
-    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await clickNodeToolbarButton(page, "myModule", "Collapse module myModule");
     await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
     const moduleBefore = await waitForStableNodePosition(page, "myModule");
 
     await dragNode(page, "myModule", 150, 40);
     const moduleAfter = await waitForStableNodePosition(page, "myModule");
-    await page.getByRole("button", { name: "Expand module myModule" }).click();
+    await clickNodeToolbarButton(page, "myModule", "Expand module myModule");
 
     await expect
       .poll(() => nodesAreAt(page, childrenBefore, moduleAfter.x - moduleBefore.x, moduleAfter.y - moduleBefore.y))
@@ -240,7 +241,7 @@ test.describe("Graph rendering", () => {
     await waitForStableNodePosition(page, "myModule::storageAccount");
     const storageDragged = await getNodeBoxes(page, ["myModule::storageAccount"]);
     await expect.poll(() => nodesAreAt(page, storageBefore)).toBe(false);
-    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await clickNodeToolbarButton(page, "myModule", "Collapse module myModule");
     await expect(page.locator('[data-node-id^="myModule::"]')).toHaveCount(0);
     await waitForStableNodePosition(page, "myModule");
 
@@ -268,7 +269,7 @@ test.describe("Graph rendering", () => {
     await reset.click();
     await expect(reset).toBeDisabled();
 
-    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await clickNodeToolbarButton(page, "myModule", "Collapse module myModule");
     const unrelatedBefore = await waitForStableNodePosition(page, "networkInterface");
     await dragNode(page, "networkInterface", 200, 0);
     const unrelatedAfter = await page.locator('[data-node-id="networkInterface"]').boundingBox();
@@ -278,13 +279,13 @@ test.describe("Graph rendering", () => {
     expect(unrelatedAfter?.x).toBeCloseTo(unrelatedBefore.x, 0);
 
     await expect(reset).toBeEnabled({ timeout: 15_000 });
-    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await clickNodeToolbarButton(page, "myModule", "Collapse module myModule");
     await expect(page.locator('[data-node-id="myModule"] [data-module-collapsed="true"]')).toBeVisible();
   });
 
   test("preserves collapsed state across graph refreshes", async ({ page }) => {
     await loadSampleGraph(page, "module");
-    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await clickNodeToolbarButton(page, "myModule", "Collapse module myModule");
 
     await page.getByTestId("dev-graph-module-graph").click();
     await page.waitForTimeout(350);
@@ -364,7 +365,7 @@ test.describe("Graph rendering", () => {
 
     await waitForStableNodePosition(page, "myModule::vmResource");
     const frame = await boxOf("myModule");
-    await page.getByRole("button", { name: "Collapse module myModule" }).click();
+    await clickNodeToolbarButton(page, "myModule", "Collapse module myModule");
     await expect(page.locator('[data-node-id="myModule"]')).toHaveAttribute("data-node-kind", "atomic");
     await waitForStableNodePosition(page, "myModule");
     const card = await boxOf("myModule");
@@ -384,7 +385,7 @@ test.describe("Graph rendering", () => {
     expect(overlap(publicIp, card)).toBe(false);
 
     // Opened, the module grows over publicIp and comes to the front with its children.
-    await page.getByRole("button", { name: "Expand module myModule" }).click();
+    await clickNodeToolbarButton(page, "myModule", "Expand module myModule");
     await expect(page.locator('[data-node-id="myModule"]')).toHaveAttribute("data-node-kind", "compound");
     await expect.poll(isModuleAbovePublicIp).toBe(true);
 

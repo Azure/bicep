@@ -105,7 +105,7 @@ The language server expands a module whose Bicep source it can read:
   not the user's to fix, so its nodes never report errors.
 - Any other remote module is a leaf whose `sourceStatus` says why it shows no children:
 
-  | `sourceStatus` | Meaning                                                              | Module toggle                   |
+  | `sourceStatus` | Meaning                                                              | Fold button (toolbar and menu)  |
   | -------------- | -------------------------------------------------------------------- | ------------------------------- |
   | `unrestored`   | A registry module not in the cache yet                               | Expand: restores, then opens    |
   | `error`        | Its restore failed, or its archive cannot be read; see `sourceError` | Error color; expand tries again |
@@ -121,8 +121,9 @@ restores anything, and nothing in the designer restores a module in the backgrou
 retry after an error forces the restore, so it does not report the failure the module dispatcher
 remembers; a forced restore now clears that memory. The restore does not recompile the document, whose
 compilation does not depend on the module. When it settles the webview fetches the graph, and opens the
-module if its children arrived; otherwise the toggle shows the new status. Until the module has opened
-(its children laid out) or shows its new status, its toggle shows a progress ring and is disabled; the
+module if its children arrived; otherwise the fold button shows the new status, and an error also shows as
+an icon in the module's header. Until the module has opened (its children laid out) or shows its new
+status, its header and fold button show a progress ring and the button is disabled; the
 restoring modules are core view state, so a restore already running is not started again.
 
 Children can also arrive without the user asking: the language server restores the registry modules a
@@ -206,8 +207,8 @@ the module was. The module then opens around them with the same single morph and
 module. If that layout fails they are placed at the module's center rather than left hidden. The opened
 module may overlap its neighbors until the user runs Reset Layout.
 The camera and unrelated nodes stay fixed. Under reduced motion the frame snaps and nothing fades.
-Collapsing or expanding is an undo step that replays as the toggle does, so a step is always undone in the
-collapse state it was recorded in. Like a drag, the toggle is ignored while a source edit or Reset Layout is
+Collapsing or expanding is an undo step that replays as the fold button does, so a step is always undone in
+the collapse state it was recorded in. Like a drag, folding is ignored while a source edit or Reset Layout is
 in flight.
 
 ### Positions and drawing
@@ -579,7 +580,7 @@ through the canvas's `useCanvasDropTarget`.
 | Source step can no longer replay exactly    | Disable it until a graph update confirms it |
 | Workspace edit rejected                     | Remove pending state and log the failure    |
 | Required values are unresolved              | Emit empty values for later source editing  |
-| Remote module source cannot be shown        | Explain it on the module's toggle           |
+| Remote module source cannot be shown        | Explain it on the module's fold button      |
 
 Graph reconciliation silently discards stale history entries when resources disappear. Failed
 designer actions are logged to the webview console, without an in-canvas notification.

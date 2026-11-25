@@ -16,7 +16,7 @@ import { ViewportBackground } from "./ViewportBackground";
 const CURSOR_SIZE = 32;
 
 /** Total pointer travel, in pixels, at which a press stops being a click and becomes a drag. */
-const DRAG_DISTANCE_THRESHOLD = 4;
+export const DRAG_DISTANCE_THRESHOLD = 4;
 
 const PRIMARY_BUTTON = 0;
 const SECONDARY_BUTTON = 2;

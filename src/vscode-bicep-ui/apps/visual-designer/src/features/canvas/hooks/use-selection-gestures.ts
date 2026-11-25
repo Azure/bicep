@@ -17,6 +17,7 @@ import { isExportOverlayOpenAtom } from "@/features/export";
 import { getNodeTargetBox } from "@/lib/graph";
 import { isInTextInput } from "@/utils";
 import { isHandModeAtom, nodeMenuAtom } from "../atoms";
+import { NODE_TOOLBAR_SELECTOR } from "../components/NodeToolbar";
 
 export interface SelectionGestures {
   onNodeClick: (nodeId: string | null, modifiers: NodeClickModifiers) => void;
@@ -98,7 +99,8 @@ export function useSelectionGestures(): SelectionGestures {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.defaultPrevented || isInTextInput(event.target) || store.get(isHandModeAtom)) return;
-      if (event.target instanceof Element && event.target.closest('[role="menu"]')) return;
+      // The context menu and the node toolbar handle their own keys, such as Escape, which must not clear the selection.
+      if (event.target instanceof Element && event.target.closest(`[role="menu"], ${NODE_TOOLBAR_SELECTOR}`)) return;
 
       const selected = store.get(selectedNodeIdsAtom);
       if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {

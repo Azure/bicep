@@ -27,7 +27,12 @@ criteria. Uncompleted stages are not a commitment to a particular release. See
   browsing views; search covers the whole catalog.
 - The dock also offers Select (`V`) and Hand (`H`), whatever the setting: click, modifier-click,
   and marquee multi-selection, moving a selection together, right-drag and hold-Space panning, and
-  a node context menu with Go to Source. Hand pans from nodes without moving or selecting them.
+  a node context menu with Go to Source and Collapse/Expand. Hand pans from nodes without moving or
+  selecting them.
+- A node toolbar floats above the node the pointer rests on, or else the one selected node, with
+  Go to Source and, for containers, Collapse/Expand, at screen size whatever the zoom. It replaces
+  the fold toggle containers used to draw in their headers, which keep only restore progress and
+  error status icons.
 - The visualizer follows the VS Code theme **kind** (light, dark, high contrast) using curated graph
   palettes by default. The optional `bicep.visualizer.matchColorTheme` setting instead derives the
   colors from the active color theme, falling back to the curated palette where a theme color is
@@ -42,13 +47,13 @@ criteria. Uncompleted stages are not a commitment to a particular release. See
   and Reset Layout share a session-local **Undo/Redo** timeline through the history-bar buttons
   and shortcuts while the designer has focus.
   Source replay validates document version and contents; visual layout is not persisted.
-- Graph nodes do not currently distinguish deployed from `existing` resources. Node IDs contain
-  symbolic names; a rename can look like removal and addition to the graph.
+- Graph nodes do not currently distinguish deployed from `existing` resources (stage 7 adds this).
+  Node IDs contain symbolic names; a rename can look like removal and addition to the graph.
 - Local modules, and registry modules whose published Bicep source is in the local module cache,
   expand as containers with child resources and can be collapsed manually to look like resource
   nodes. Collapse state is session-local, survives graph refreshes while IDs remain stable,
   and does not edit Bicep source or move the camera and unrelated nodes. A remote module whose source
-  cannot be shown has a disabled toggle that says why, and one whose restore failed can be retried.
+  cannot be shown has a disabled fold button that says why, and one whose restore failed can be retried.
 
 These details are documented in [Architecture](./architecture.md), the
 [dock](../src/features/dock/components/Dock.tsx),
@@ -59,7 +64,7 @@ These details are documented in [Architecture](./architecture.md), the
 
 ## Recommended delivery order
 
-Stages 0 through 5 are complete. Dependencies, not calendar dates, gate the remaining stages. Stage 4
+Stages 0 through 5, and the node toolbar that starts stage 6 (6a), are complete. Dependencies, not calendar dates, gate the remaining stages. Stage 4
 is viewer-only: it makes no source edits, does not depend on the editing setting, and benefits
 everyone who views a graph, so it comes first.
 
@@ -82,8 +87,8 @@ proceed alongside stages 5 and 6; module references also build on stage 2. The o
 | 3. Remote-module expansion (complete) | Linked-source remote modules with child resources                           | 2          | Remote children and source links work; unavailable source is explicit                             |
 | 4. Resource containers (complete)     | Source-defined RG/MG/VNet/subnet containers                                 | 2          | Agreed containment rules yield readable nested containers in themes and exports                   |
 | 5. Interaction model (complete)       | Select/Hand, multi-selection, and node context menu                         | 0          | Gestures and shortcuts are predictable, and every viewing action keeps a gesture                  |
-| 6. Focused source edits               | LSP-backed rename, then Convert to existing                                 | 5          | Edits preview/validate correctly, preserve graph context, and undo/redo in the editor             |
-| 7. Drag-first creation                | Placeholder-first resources; references to existing local modules           | 0, 2       | Cancel does not edit or lay out the graph; commit honors the placement/layout contract            |
+| 6. Node actions and rename            | Node toolbar (complete), then LSP-backed rename                             | 5          | Explicit edits validate correctly, preserve graph context, and undo/redo in the editor            |
+| 7. Drag-first creation                | Placeholder-first new or `existing` resources; existing local modules       | 0, 2       | Cancel does not edit or lay out the graph; commit honors the placement/layout contract            |
 | 8. Module authoring                   | New local module files                                                      | 7          | The new file and parent declaration are one previewed, undoable operation                         |
 | 9. Module refactoring                 | Extract to Module from a multiple selection                                 | 5, 8       | A language-server refactoring safely rewrites files and references in one operation               |
 
@@ -142,7 +147,8 @@ the smaller folder icon, the name, and the same `MODULE` label inline, the patte
 header follows (see [stage 4](#stage-4-resource-containers-complete)). An expanded frame is a region rather
 than an object, so it casts no shadow: only nodes and collapsed containers stand above the canvas.
 A trailing toggle uses VS Code's `unfold` (expand) and `fold` (collapse) codicons, the same vocabulary as
-editor folding. The toggle appears while the module is hovered or selected, or when it has keyboard focus, so
+editor folding. (Stage 6 replaced this toggle with the node toolbar's fold button; see
+[stage 6](#stage-6-node-actions-and-rename).) The toggle appears while the module is hovered or selected, or when it has keyboard focus, so
 graphs with many modules stay uncluttered. The same focus, error, collection, theme, and export
 treatment applies in either state, and exports omit the toggle.
 
@@ -272,7 +278,8 @@ headers, so the distinction holds in every theme, in high contrast, and in grays
   not told apart by border style, tint, or accent: those fight the theme and vanish in high
   contrast.
 - **Collapsed:** a collapsed resource container is its resource node. Like a collapsed module, it
-  reveals the expand toggle on hover, selection, or keyboard focus rather than always.
+  reveals the expand toggle on hover, selection, or keyboard focus rather than always. Stage 6
+  moved this toggle into the node toolbar.
 - **Shared treatment:** focus, error, collection, theme matching, and export behave as for
   modules, and exports omit the toggle.
 
@@ -331,42 +338,145 @@ high-contrast themes, theme matching, and exports.
   Source; right-clicking an unselected node selects it first, and no menu opens while several
   nodes are selected. Shift+F10 or the Context Menu key opens the menu for a single selected node,
   Escape dismisses it without clearing selection, and keyboard focus returns to the canvas. There
-  is no floating node toolbar until there are actions beyond Go to Source.
+  is no floating node toolbar until there are actions beyond Go to Source; stage 6 adds one.
 - Double-click still reveals source in Select; Hand does not reveal source.
-  Stage 6 will replace double-click and a second click on an already selected node with inline rename
-  in editing mode, retaining Go to Source in the context menu. A second click that becomes a drag
-  must continue to move the node rather than rename it, using the stage 0 total-travel threshold.
+  The stage 6 proposal keeps this gesture in both viewing and editing mode, and introduces explicit
+  rename actions instead of making a second click on a selected node start editing.
 
-### Stage 6: focused Bicep edits
+### Stage 6: node actions and rename
 
-**Rename symbolic name.** Double-click a node or click an already selected node to edit its name
-inline. Resolve the node's current source location on demand, invoke the existing Bicep LSP rename
-instead of replacing text, validate the document version, and apply the result as a normal VS Code
-edit. Enter commits; Escape cancels; a failed blur commit keeps the draft and explains the error.
-Preserve selection and placement across the graph ID change, including descendants and collapsed
-state when a module's symbolic name changes and edges whose IDs embed the renamed node, so a rename is not treated as a
-topology change. Go to Source from the context menu must still work.
+Stage 6 is delivered in two steps. **6a**, the node toolbar (complete), is viewer-only: it makes no source
+edits and does not depend on the editing setting. **6b** adds rename to it. Keep selection,
+navigation, source editing, and container presentation as separate intentions: a familiar gesture
+must not change meaning when the editing setting changes.
 
-**Convert a resource to `existing`.** Offer an explicit selected-resource action, not a change of
-node appearance alone: `existing` stops this declaration from deploying the resource. Show a
-preview of the source diff and any deployment properties that would be removed. Preserve the
-symbolic name and type; require a valid `name` and, where necessary, `scope`. Validate dependent
-declarations and limit the initial version to straightforward resources rather than silently
-rewriting complex nested cases. Add an `isExisting`-style field through server graph, diff,
-client protocol, and node rendering so deployed and referenced resources are distinguishable.
-Keep an unchanged node at its position when only this metadata changes; re-evaluate layout only
-if topology or measured size actually changes. Undo must restore the original declaration.
+| Intention            | Mouse entry point                                    | Keyboard or alternate entry point                 |
+| -------------------- | ---------------------------------------------------- | ------------------------------------------------- |
+| Select               | Click a node; clicking it again keeps it selected    | Existing selection and context-menu controls      |
+| Go to Source         | Double-click a node, or use its toolbar              | Toolbar button or context menu                    |
+| Collapse/expand      | The container's toolbar, shown on hover or selection | Toolbar button or context menu                    |
+| Rename symbolic name | Rename in the node's toolbar (6b)                    | `F2` on the canvas, or Rename in the context menu |
+
+Double-click continues to reveal the declaration in Select with editing on or off. It does not
+rename, expand a container, or reveal source in Hand. A second click on a selected node does not
+open an input; a second click that becomes a drag continues to move the node using the stage 0
+total-travel threshold. Rename is therefore intentional, not a side effect of selecting or moving.
+
+**Node toolbar (6a, complete).** One compact floating bar of actions for a node, in Select. It shows for the
+node the pointer rests on, and otherwise for the one selected node, so a node's actions are a hover
+away without changing the selection. One bar shows at a time: hovering another node moves the bar
+there, and it returns to the selected node afterwards. No bar is shown for an empty or multiple
+selection unless the pointer rests on a node; batch actions remain a later concern.
+
+- **Hover.** The bar follows the pointer only once it settles on a node (150 ms), so sweeping across
+  a dense graph does not flash bars, and outlasts the pointer leaving the node (300 ms), so the
+  pointer can cross the gap into it. The bar keeps its node while the pointer is over it. The bar is opaque and fades in
+  quickly (120 ms, none under reduced motion); translucency would cost its icons contrast just as the
+  pointer aims at them, read as disabled, and is not allowed in high-contrast themes. Hovering a container's header targets the container; hovering a node
+  inside it targets that node. Touch has no hover: selecting a node shows its bar.
+- The icon buttons are **Go to Source**, then **Collapse** or **Expand** for a node that has (or can
+  restore) children, then, once 6b ships, **Rename** after a separator, so viewing and editing actions
+  stay apart. Tooltips name the actions. Reuse the dock and control bars' floating surface, icon
+  buttons, theme, and high-contrast treatment.
+- The fold button has every state of a container's fold control: a pair of diagonal arrows drawn
+  in the codicon style, pointing out to expand and in to collapse (the `fold` chevrons read as a
+  close icon at toolbar size), a
+  progress ring while a registry module is restored, the error color and message when its restore
+  failed (expanding retries), and a disabled button whose tooltip says why when the module has no
+  source to show. Folding is one undo step and is ignored while a source edit or Reset Layout is in
+  flight. The context menu offers the same **Collapse** or **Expand** beside Go to Source.
+- Right-align the bar just above the node, which for an expanded container is its header, with a
+  twelve-pixel gap; over a container wider than the view, align it with the part in view. While it
+  holds only a few buttons, this keeps it out of the way of the node's name. It is in screen space,
+  so its buttons keep their size at any zoom, outside the measured graph and the export subtree. It
+  follows the node through camera, drag, and layout changes without affecting any of them.
+- Keep it inside the canvas: when there is no room above, place it below the node, or below an
+  expanded container's header. Hide it when its node is out of view rather than pinning it to the
+  viewport. Never move the camera to fit it.
+- Hide it in Hand, during a node drag, marquee, or pan, while a context menu or export is open, and
+  while renaming. It returns afterwards. Presses on it never select, drag, or double-click a node, or
+  pan the canvas.
+- It is a `toolbar` named for its node, with Left/Right/Home/End moving between its buttons. Showing
+  it never takes focus. Escape from it returns focus to the canvas without clearing the selection.
+
+**No fold control inside containers.** The toolbar replaces the toggle that stages 2 to 4 drew in
+container headers. That toggle zoomed with the graph, so zoomed out it became too small to hit, and
+beside the toolbar there would be two fold controls for one container. The toolbar's button keeps
+its size at any zoom. What the user should see without pointing at a container stays in its header,
+as a status icon rather than a control: a progress ring while a module is restored, and an error icon,
+with the message as its tooltip, when its source could not be loaded. Exports omit both. A container
+is recognizable as one without the toggle: an expanded one is a frame around its children, and a
+collapsed one is a module folder or a resource with a type label.
+
+**Rename symbolic name (6b).** The toolbar, the context menu, and `F2` open the same inline editor in
+the node's symbolic-name label, including an expanded container's header. Focus the input and select
+the current name. Keep the node's size while drafting so typing does not trigger layout. Enter
+commits; Escape cancels. Clicking away cancels an uncommitted draft; blur never changes source.
+Invalid input or a failed commit keeps the draft, focus, and an inline error so the user can correct
+it. A pending commit cannot be submitted twice.
+
+Show Rename only when the relevant editing opt-in is enabled and the declaration is in writable
+source. Do not show a permanently disabled editing button to viewers or for nodes declared inside
+published module source. Availability comes from the declaring document, not the node's cloud
+icon: a registry-module declaration in a local file is different from a declaration inside its
+published source.
+
+Resolve the node's current source location on demand and use the existing Bicep LSP prepare-rename
+and rename operations, not text replacement or a synthetic graph rename. Recheck eligibility at the
+host, validate every affected document's version and writability, and apply the result as a normal
+VS Code workspace edit. Preview edits that span files before applying them. `F2` is scoped to a
+single eligible selection with canvas focus in Select; it does not intercept typing, focused
+controls, composition, or modified shortcuts.
+
+Preserve selection, placement, and collapse state across the graph ID change. Reconcile every
+visible instance of a declaration when a local module file is referenced more than once, not just
+the node that started the rename. A module rename must also remap its descendants and edges whose
+IDs embed the module path. Carry those mappings into layout and history state, including hidden
+descendants, so a rename is not mistaken for a removal and addition or an excuse to reflow the
+graph. Undo/redo must reverse the source edit and identity mapping together; multi-file rename needs
+the typed reversible transaction described in [Undo and redo](#undo-and-redo).
+
+**Click-to-rename, later.** A click on the name of an already selected node could later become a
+faster way into rename, as in file explorers, but not as the first or only one: it is
+undiscoverable, a press on the name still drags the node, and it competes with double-click. If
+users ask for it, it applies only in Select with editing on, to a single selected node whose name
+was clicked without travel past the drag threshold, and enters rename only once the double-click
+interval passes without a second click. A subtle highlight of the name, not a text cursor after a
+hover delay, would hint at it, since the press still moves the node.
+
+**Delivery boundary.** Ship 6a for everyone. Then add resource rename under the existing
+resource-editing opt-in, including resources declared in writable local module files. Module
+symbolic-name editing waits for an explicitly chosen broader opt-in; do not silently extend the
+resource-only setting. Complete rename's identity reconciliation and undo contract before adding
+another source mutation.
+
+Converting a resource to `existing` is not planned for now. It stops a declaration from deploying,
+must strip properties `existing` does not allow, and must check whatever depends on it, which is a
+risky edit for a rare need; editing the source is a fine fallback. Referencing a resource that
+already exists is what users need, and stage 7 creates `existing` resources directly.
 
 ### Stage 7: drag-first creation and its layout contract
 
 **Resource placeholder.** Drag a generic resource placeholder onto the canvas, then open the
-existing searchable type/API-version picker anchored to the drop point. The placeholder is a
+existing searchable type/API-version picker anchored to the drop point. The picker also asks whether
+to create a new resource or reference an **existing** one. The placeholder is a
 temporary overlay outside the authoritative graph: dragging, choosing, Escape, and cancellation
 neither modify Bicep nor request graph layout. After a valid choice, reuse the existing
 version-checked creation flow and correlate the returned node with the original graph coordinate.
 Do not add click-to-create. The post-choice pending node remains distinct from the pre-choice
 placeholder. If resource containers (stage 4) are present, dropping inside one is visual placement
 only; it must not set a parent, scope, or network relationship.
+
+**Existing resources.** Choosing existing generates
+`resource <name> '<type>@<version>' existing = { name: ... }` through the same version-checked
+creation, correlated placement, and undo as a new resource. It needs input a new resource does
+not: the resource's `name`, which the picker asks for (a parameter reference or a literal), and a
+`scope` when the resource lives outside the file's target scope. Validate both before inserting.
+Graph nodes then need to tell deployed from referenced resources, which no node does today: add
+an `isExisting` field through the server graph, graph comparison, client protocol, and node
+rendering, drawn as a subtle badge that stays legible in every theme and export. It is metadata,
+not topology, so it never invalidates layout. It benefits every viewer, so it can ship ahead of the
+placeholder, for `existing` resources already in source.
 
 **Module reference.** Start with dragging a module affordance and choosing an existing local
 `.bicep` file. Validate the relative path, required parameters, scope, and generated symbolic
@@ -435,12 +545,19 @@ refactoring.
   selection, graph interactions, export, and double-click-to-source still work.
 - **Gestures:** one-pixel pointer moves accumulating past the threshold do not select; true
   clicks select; cancelled drags do not; Hand never moves nodes; V/H do not fire while typing.
-  Once stage 6 ships, double-click and a second click on a selected node enter rename, while a second
-  click that becomes a drag only moves the node.
+  Stage 6 must retain double-click-to-source in Select with editing on or off; a second click on a
+  selected node does not rename, and a second click that becomes a drag only moves it. Toolbar
+  buttons and inline inputs do not initiate graph gestures.
+- **Node actions (stage 6):** one bar follows the hovered node or a single selection without changing layout or
+  camera, remains usable under zoom and near viewport edges, and is absent from exports, Hand,
+  active gestures, and a multiple selection the pointer is not on, and a hovered node's bar settles before it shows, and outlasts the trip into it. Its fold button and the context menu share one action and
+  its states, and containers keep only their status icons. Rename entry points
+  share eligibility checks; Enter commits, Escape/click-away cancel without edits, and failures
+  preserve an editable draft with an explicit error. Keyboard focus and text-entry undo remain local.
 - **Creation/layout:** a placeholder cancelled under pan/zoom creates no file edit, graph node, or
   layout request. An independent placed resource does not move the camera; module children and
   edge changes follow the documented structural-layout policy.
-- **Mutations:** rename, `existing` conversion, and module insertion handle stale documents
+- **Mutations:** rename, `existing` creation, and module insertion handle stale documents
   and invalid input explicitly, preserve correct graph metadata, and undo/redo through VS Code.
   Check interleaving with visual drags and direct edits in the source editor.
 - **Presentation:** light/dark custom themes, both high-contrast modes, export overrides, and

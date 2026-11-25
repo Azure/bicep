@@ -6,7 +6,9 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 import {
   clickHistoryButton,
+  clickNodeToolbarButton,
   getGraphTransform,
+  hoverNode,
   loadSampleGraph,
   openVisualDesigner,
   waitForStableNodePosition,
@@ -37,12 +39,12 @@ test.describe("Remote modules", () => {
     await expect(page.locator('[data-node-id="storage"] [data-testid="remote-module-icon"]')).toBeVisible();
     await expect(page.locator('[data-node-id="storage::blobs"] [data-testid="remote-module-icon"]')).toHaveCount(0);
 
-    await page.getByRole("button", { name: "Collapse module storage" }).click();
+    await clickNodeToolbarButton(page, "storage", "Collapse module storage");
 
     await expect(page.locator('[data-node-id="storage"]')).toHaveAttribute("data-node-kind", "atomic");
     await expect(page.locator('[data-node-id^="storage::"]')).toHaveCount(0);
 
-    await page.getByRole("button", { name: "Expand module storage" }).click();
+    await clickNodeToolbarButton(page, "storage", "Expand module storage");
 
     await expect(page.locator('[data-node-id="storage"]')).toHaveAttribute("data-node-kind", "compound");
     await expect(page.locator('[data-node-id="storage::blobs::container"]')).toBeVisible();
@@ -51,7 +53,7 @@ test.describe("Remote modules", () => {
   test("disables expanding a module whose source is unavailable, and says why", async ({ page }) => {
     await openVisualDesigner(page);
     await loadSampleGraph(page, "remote");
-    const toggle = page.getByRole("button", { name: "Expand module network" });
+    const toggle = (await hoverNode(page, "network")).getByRole("button", { name: "Expand module network" });
 
     await expect(toggle).toBeDisabled();
     await expect(toggle).toHaveAttribute("title", "Bicep source is unavailable for this module.");
@@ -63,29 +65,34 @@ test.describe("Remote modules", () => {
     await expect(page.locator('[data-node-id="network"] [data-module-collapsed="true"]')).toHaveCount(0);
 
     // A module that can be restored is not disabled.
-    await expect(page.getByRole("button", { name: "Expand module monitoring" })).toBeEnabled();
+    await expect(
+      (await hoverNode(page, "monitoring")).getByRole("button", { name: "Expand module monitoring" }),
+    ).toBeEnabled();
   });
 
   test("restores a module when it is expanded and opens it in place", async ({ page }) => {
-    await openVisualDesigner(page, { restoreDelay: "500" });
+    await openVisualDesigner(page, { restoreDelay: "1500" });
     await loadSampleGraph(page, "remote");
     const unrelated = ["storage::account", "network"];
     const before = await Promise.all(unrelated.map((nodeId) => waitForStableNodePosition(page, nodeId)));
     const moduleBefore = await getBox(page, "monitoring");
     const transformBefore = await getGraphTransform(page);
-    const toggle = page.getByRole("button", { name: "Expand module monitoring" });
+    const toggle = (await hoverNode(page, "monitoring")).getByRole("button", { name: "Expand module monitoring" });
 
     await toggle.click();
 
-    // The toggle shows that the restore is running.
+    // The toggle shows that the restore is running, and so does the module, for when the pointer moves away.
+    await expect(page.locator('[data-node-id="monitoring"]').getByTestId("module-restore-status")).toBeVisible();
     await expect(toggle).toBeDisabled();
     await expect(toggle).toHaveAttribute("aria-busy", "true");
     await expect(toggle.getByTestId("module-restore-progress")).toBeVisible();
-    await expect(toggle.getByTestId("unfold-codicon")).toHaveCount(0);
+    await expect(toggle.getByTestId("expand-node-icon")).toHaveCount(0);
 
     await expect(page.locator('[data-node-id="monitoring"]')).toHaveAttribute("data-node-kind", "compound");
+    // The pointer has not moved, so the bar stays, now offering to collapse the module.
     await expect(page.getByRole("button", { name: "Collapse module monitoring" })).toBeEnabled();
     await expect(page.getByTestId("module-restore-progress")).toHaveCount(0);
+    await expect(page.getByTestId("module-restore-status")).toHaveCount(0);
     // A module among the children opens with them, around its own children.
     await expect(page.locator('[data-node-id="monitoring::diagnostics"]')).toHaveAttribute(
       "data-node-kind",
@@ -141,7 +148,7 @@ test.describe("Remote modules", () => {
     expect(await getGraphTransform(page)).toBe(transformBefore);
 
     // Expanding it shows the children without a restore.
-    await page.getByRole("button", { name: "Expand module monitoring" }).click();
+    await clickNodeToolbarButton(page, "monitoring", "Expand module monitoring");
     await expect(page.locator('[data-node-id="monitoring::workspace"]')).toBeVisible();
     expect(await getGraphTransform(page)).toBe(transformBefore);
   });
@@ -149,18 +156,21 @@ test.describe("Remote modules", () => {
   test("reports a failed restore on the toggle, which tries again", async ({ page }) => {
     await openVisualDesigner(page, { restoreFailures: "1" });
     await loadSampleGraph(page, "remote");
-    const toggle = page.getByRole("button", { name: "Expand module monitoring" });
+    const toggle = (await hoverNode(page, "monitoring")).getByRole("button", { name: "Expand module monitoring" });
 
     await toggle.click();
 
-    // One toggle: it shows the error and stays enabled to retry.
+    // The toolbar's toggle shows the error and stays enabled to retry; the module shows it without being pointed at.
     await expect(toggle).toHaveAttribute("data-source-status", "error");
     await expect(toggle).toHaveAttribute(
       "title",
       'Unable to restore the module "monitoring". Expand the module to try again.',
     );
     await expect(toggle).toBeEnabled();
-    await expect(page.locator('[data-node-id="monitoring"] button')).toHaveCount(1);
+    await expect(page.locator('[data-node-id="monitoring"] button')).toHaveCount(0);
+    await expect(
+      page.locator('[data-node-id="monitoring"]').getByRole("img", { name: /could not be loaded/ }),
+    ).toHaveAttribute("title", 'Unable to restore the module "monitoring".');
     await expect(page.locator('[data-node-id="monitoring"]')).toHaveAttribute("data-node-kind", "atomic");
 
     await toggle.click();

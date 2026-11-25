@@ -68,11 +68,16 @@ fields keep the text cursor. Select shows no grab indicator when a node is press
 tool is shown without an accent color. Shortcuts ignore text fields,
 composition, and modifier keys, and Space keeps its normal behavior on buttons and other controls.
 Selection is independent of focus and paint order. Clicking blank canvas or pressing Escape clears it.
-A right click on a node opens its context menu with **Go to Source** when it leaves exactly one node
-selected; there is no menu while several nodes are selected. Shift+F10 or the Context Menu key opens
-the menu for a single selected node; Escape dismisses it and returns focus to the canvas without
-clearing selection. Double-click still opens source in Select until inline rename is implemented;
-Hand does not reveal source.
+A toolbar floats above the node the pointer rests on, or otherwise above the one selected node, at
+screen size whatever the zoom: **Go to Source**, and for a container **Collapse** or **Expand**, which
+restores a registry module first and shows its progress or error. It shows after the pointer settles
+on a node, outlasts the trip into it, and hides in Hand, during drags, pans, and marquees, and while a
+menu or export is open. Containers have no fold control of their own; their headers show only restore
+progress and error icons. A right click on a node opens its context menu with the same actions when
+it leaves exactly one node selected; there is no menu while several nodes are selected. Shift+F10 or
+the Context Menu key opens the menu for a single selected node; Escape dismisses it, or leaves the
+toolbar, and returns focus to the canvas without clearing selection. Double-click opens source in
+Select; Hand does not reveal source.
 
 Each resource shows its API version as a pill: quiet text at rest, with pill chrome revealed on row
 hover or focus, and kept when the selection differs from the host default. Clicking it (or pressing

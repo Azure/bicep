@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { expect, test } from "@playwright/test";
-import { loadSampleGraph, openVisualDesigner, waitForStableNodePosition } from "./fixtures";
+import { clickNodeToolbarButton, loadSampleGraph, openVisualDesigner, waitForStableNodePosition } from "./fixtures";
 
 test.describe("Resource containers", () => {
   test("draws a resource around its child resources, with its type in the header", async ({ page }) => {
@@ -26,13 +26,13 @@ test.describe("Resource containers", () => {
     await waitForStableNodePosition(page, "subnetApp");
 
     await page.locator('[data-node-id="vnet"]').hover();
-    await page.getByRole("button", { name: "Collapse resource vnet" }).click();
+    await clickNodeToolbarButton(page, "vnet", "Collapse resource vnet");
 
     await expect(page.locator('[data-node-id="vnet"]')).toHaveAttribute("data-node-kind", "atomic");
     await expect(page.locator('[data-node-id="subnetApp"]')).toHaveCount(0);
     await expect(page.locator('[data-edge-id="nic->vnet"] path')).toHaveAttribute("d", /^M /);
 
-    await page.getByRole("button", { name: "Expand resource vnet" }).click();
+    await clickNodeToolbarButton(page, "vnet", "Expand resource vnet");
 
     await expect(page.locator('[data-node-id="vnet"]')).toHaveAttribute("data-node-kind", "compound");
     await expect(page.locator('[data-node-id="subnetApp"]')).toBeVisible();
