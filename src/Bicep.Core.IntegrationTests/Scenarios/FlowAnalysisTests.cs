@@ -15,10 +15,49 @@ namespace Bicep.Core.IntegrationTests.Scenarios;
 [TestClass]
 public class FlowAnalysisTests
 {
+    private static ServiceBuilder Services => new ServiceBuilder()
+        .WithFeatureOverrides(BicepTestConstants.FeatureOverrides with { ConditionalFlowAnalysisEnabled = true });
+
+    [TestMethod]
+    [DataRow("", false)]
+    [DataRow("\"conditionalFlowAnalysis\": false", false)]
+    [DataRow("\"conditionalFlowAnalysis\": true", true)]
+    public void Flow_analysis_requires_explicit_opt_in(string setting, bool enabled)
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides),
+            ("bicepconfig.json", $$"""
+                {
+                  "experimentalFeaturesEnabled": { {{setting}} }
+                }
+                """),
+            ("main.bicep", """
+                param enabled bool
+                param input { value: int }?
+                param config { value: { count: int }? }
+                resource storage 'Microsoft.Storage/storageAccounts@2021-04-01' = if (enabled) {
+                  name: 'storage'
+                  location: 'eastus'
+                  kind: 'StorageV2'
+                  sku: { name: 'Standard_LRS' }
+                }
+                module child './child.bicep' = if (enabled) {
+                  name: 'child'
+                }
+                output resourceLocation string = enabled ? storage.location : ''
+                output moduleValue string = enabled ? child.outputs.value : ''
+                output referenceValue int = input != null ? input.value : 0
+                output propertyValue int = config.value != null ? config.value.count : 0
+                """),
+            ("child.bicep", "output value string = 'value'"));
+
+        AssertNullableAccessWarnings(result, enabled ? 0 : 4);
+    }
+
     [TestMethod]
     public void Issue_20355_matching_resource_conditions_are_safe_but_unguarded_access_is_not()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param enablePublicIp bool = true
 
             resource lbIP 'Microsoft.Network/publicIPAddresses@2018-08-01' = if (enablePublicIp) {
@@ -94,7 +133,7 @@ public class FlowAnalysisTests
     [DataRow("config.value == null", "config.value != null", 1)]
     public void Resource_conditions_match_only_supported_symbol_predicates(string resourceCondition, string guard, int warnings)
     {
-        var result = CompilationHelper.Compile($$"""
+        var result = CompilationHelper.Compile(Services, $$"""
             param enabled bool
             param other bool
             param mode string
@@ -128,7 +167,7 @@ public class FlowAnalysisTests
     [DataRow("enabled == false", "enabled == null", 1)]
     public void Nullable_boolean_comparisons_do_not_assume_two_valued_logic(string resourceCondition, string guard, int warnings)
     {
-        var result = CompilationHelper.Compile($$"""
+        var result = CompilationHelper.Compile(Services, $$"""
             param enabled bool?
             resource storage 'Microsoft.Storage/storageAccounts@2021-04-01' = if ({{resourceCondition}}) {
               name: 'storage'
@@ -163,7 +202,7 @@ public class FlowAnalysisTests
             }
             output location string = enabled != false ? storage.location : ''
             """;
-        var compilation = new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides).BuildCompilation(source);
+        var compilation = Services.BuildCompilation(source);
         var model = compilation.GetEntrypointSemanticModel();
         var accesses = SyntaxAggregator.AggregateByType<VariableAccessSyntax>(model.SourceFile.ProgramSyntax).ToArray();
 
@@ -175,7 +214,7 @@ public class FlowAnalysisTests
         var result = CompilationHelper.GetCompilationResult(compilation);
         AssertNullableAccessWarnings(result, warnings);
         result.Template.Should().NotBeNull();
-        result.Template.Should().DeepEqual(CompilationHelper.Compile(source).Template!);
+        result.Template.Should().DeepEqual(CompilationHelper.Compile(Services, source).Template!);
     }
 
     [TestMethod]
@@ -183,7 +222,7 @@ public class FlowAnalysisTests
     [DataRow("var first = first == true ? first : false", "BCP079")]
     public void Boolean_comparison_guards_preserve_cycle_diagnostics(string source, string code)
     {
-        var result = CompilationHelper.Compile(source);
+        var result = CompilationHelper.Compile(Services, source);
 
         result.Template.Should().BeNull();
         result.Diagnostics.Should().Contain(d => d.Code == code && d.Level == DiagnosticLevel.Error);
@@ -192,7 +231,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Boolean_comparison_type_queries_support_loop_and_lambda_locals()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param input string?
             output loop array = [for enabled in [true, false]: enabled == true && input != null ? length(input) : 0]
             output lambda array = map([true, false], enabled => enabled == true && input != null ? length(input) : 0)
@@ -206,7 +245,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Logical_flow_proves_only_the_implications_of_and_and_or()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param enabled bool
             param other bool
             resource storage 'Microsoft.Storage/storageAccounts@2021-04-01' = if (enabled) {
@@ -250,8 +289,8 @@ public class FlowAnalysisTests
             output method object = enabled ? storage.listKeys() : {}
             output unsafeMethod object = storage.listKeys()
             """;
-        var result = CompilationHelper.Compile(source);
-        var control = CompilationHelper.Compile(source.Replace("storage[", "storage![", StringComparison.Ordinal)
+        var result = CompilationHelper.Compile(Services, source);
+        var control = CompilationHelper.Compile(Services, source.Replace("storage[", "storage![", StringComparison.Ordinal)
             .Replace("storage.", "storage!.", StringComparison.Ordinal));
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
@@ -266,7 +305,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Module_conditions_apply_to_bodies_and_ternaries_without_leaking_to_other_declarations()
     {
-        var result = CompilationHelper.Compile(
+        var result = CompilationHelper.Compile(Services,
             ("main.bicep", """
                 param enabled bool
                 param include bool
@@ -292,7 +331,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Nested_resources_require_both_parent_and_child_conditions()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param parentEnabled bool
             param childEnabled bool
             resource storage 'Microsoft.Storage/storageAccounts@2021-04-01' = if (parentEnabled) {
@@ -314,7 +353,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void A_matching_deployment_condition_does_not_prove_a_nullable_existing_resource_exists()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param enabled bool
             @nullIfNotFound()
             resource storage 'Microsoft.Storage/storageAccounts@2021-04-01' existing = if (enabled) {
@@ -329,7 +368,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Matching_collection_filters_do_not_prove_an_indexed_resource_exists()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param enabled bool
             resource storage 'Microsoft.Storage/storageAccounts@2021-04-01' = [for i in range(0, 2): if (enabled) {
               name: 'storage${i}'
@@ -346,7 +385,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void A_shadowed_boolean_does_not_prove_a_resource_condition()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param enabled bool
             resource storage 'Microsoft.Storage/storageAccounts@2021-04-01' = if (enabled) {
               name: 'storage'
@@ -369,7 +408,7 @@ public class FlowAnalysisTests
     [DataRow("!((input != null))", "''", "input")]
     public void Explicit_null_checks_narrow_parameter_references(string condition, string trueBranch, string falseBranch)
     {
-        var result = CompilationHelper.Compile($$"""
+        var result = CompilationHelper.Compile(Services, $$"""
             param input string?
             output result string = {{condition}} ? {{trueBranch}} : {{falseBranch}}
             """);
@@ -381,7 +420,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Null_checks_narrow_variables_for_properties_arguments_and_indices()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param objects object[]
             param indices int[]
             var objectValue = first(objects)
@@ -398,7 +437,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Null_checks_flow_into_short_circuited_and_or_operands()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param name string?
             output hasName bool = name != null && length(name) > 0
             output emptyOrNull bool = name == null || length(name) == 0
@@ -419,8 +458,8 @@ public class FlowAnalysisTests
         string Source(string body) => $$"""
             func evaluate(input {{inputType}}?) {{outputType}} => input == null ? {{defaultValue}} : {{body}}
             """;
-        var result = CompilationHelper.Compile(Source(expression));
-        var control = CompilationHelper.Compile(Source(expression.Replace("input", "input!", StringComparison.Ordinal)));
+        var result = CompilationHelper.Compile(Services, Source(expression));
+        var control = CompilationHelper.Compile(Services, Source(expression.Replace("input", "input!", StringComparison.Ordinal)));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
@@ -431,7 +470,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Null_checks_do_not_narrow_aliases_or_unrelated_parameters()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param input object?
             param other object?
             var alias = input
@@ -456,7 +495,7 @@ public class FlowAnalysisTests
     [DataRow("config['a.b'] != null", "config['a.b']", "''")]
     public void Repeated_nullable_property_paths_are_narrowed(string condition, string trueBranch, string falseBranch)
     {
-        var result = CompilationHelper.Compile($$"""
+        var result = CompilationHelper.Compile(Services, $$"""
             param config {
               value: string?
               nested: { value: string? }
@@ -484,8 +523,8 @@ public class FlowAnalysisTests
             output orResult bool = config.name == null || length(config.name) == 0
             output compound string = config.name != null && config.index != null ? config.name : ''
             """;
-        var result = CompilationHelper.Compile(source);
-        var control = CompilationHelper.Compile(source
+        var result = CompilationHelper.Compile(Services, source);
+        var control = CompilationHelper.Compile(Services, source
             .Replace("config.value.count", "config.value!.count", StringComparison.Ordinal)
             .Replace("config['value']['count']", "config['value']!['count']", StringComparison.Ordinal)
             .Replace("length(config.name)", "length(config.name!)", StringComparison.Ordinal)
@@ -501,7 +540,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Property_path_facts_apply_to_conditional_resource_and_module_bodies()
     {
-        var result = CompilationHelper.Compile(
+        var result = CompilationHelper.Compile(Services,
             ("main.bicep", """
                 param config { name: string? }
                 resource storage 'Microsoft.Storage/storageAccounts@2021-04-01' = if (config.name != null) {
@@ -527,7 +566,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Property_path_guards_prove_matching_resource_conditions()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param config { name: string? }
             resource storage 'Microsoft.Storage/storageAccounts@2021-04-01' existing = if (config.name != null) {
               name: config.name
@@ -542,7 +581,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Null_checked_parameter_is_non_null_in_existing_resource_body()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param vnet { name: string, resourceGroupName: string }?
             resource vnetResource 'Microsoft.Network/virtualNetworks@2024-01-01' existing = if (vnet != null) {
               name: vnet.name
@@ -556,7 +595,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Property_path_facts_do_not_leak_to_aliases_other_paths_or_sibling_branches()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param config { value: { count: int }?, other: { count: int }? }
             param other { value: { count: int }? }
             var alias = config
@@ -578,7 +617,7 @@ public class FlowAnalysisTests
     [DataRow("first([config]).value != null", "first([config]).value.count")]
     public void Unsupported_path_guards_retain_nullable_access_warnings(string guard, string access)
     {
-        var result = CompilationHelper.Compile($$"""
+        var result = CompilationHelper.Compile(Services, $$"""
             param config { value: { count: int }? }
             param key 'value'
             param items ({ count: int }?)[]
@@ -591,7 +630,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Successful_safe_access_null_check_proves_parent_and_property_non_null()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param config { value: { name: string }? }?
             output name string = config.?value != null
               ? config.value.name
@@ -605,7 +644,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Null_safe_access_branch_does_not_assume_parent_or_property_exists()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param config { value: { name: string }? }?
             output name string = config.?value == null
               ? config.value.name
@@ -618,7 +657,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Child_path_checks_do_not_remove_nullable_parent_diagnostics()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param config { value: { count: int }? }?
             output count int = config.value != null ? config.value.count : 0
             """);
@@ -629,7 +668,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Parent_and_child_checks_narrow_each_path_without_erasing_other_nullability()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param config { value: { count: int, nested: { count: int }? }? }?
             output count int = config != null && config.value != null ? config.value.count : 0
             output safeCount int? = config != null && config.value != null ? config.value.nested.?count : null
@@ -649,7 +688,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Property_path_guards_do_not_hide_cyclic_reference_errors()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             var first = second.value != null ? second.value : {}
             var second = first
             """);
@@ -668,7 +707,7 @@ public class FlowAnalysisTests
             var result = config.value != null ? config.value.count : 0
             """;
         var uri = new Uri("file:///main.bicep");
-        var compilation = new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides)
+        var compilation = Services
             .BuildCompilation(new Dictionary<Uri, string> { [uri] = source }, uri);
         var model = compilation.GetEntrypointSemanticModel();
         var accesses = SyntaxAggregator.AggregateByType<PropertyAccessSyntax>(
@@ -684,13 +723,13 @@ public class FlowAnalysisTests
         model.GetDeclaredType(guarded.BaseExpression)!.Name.Should().Contain("null");
         var result = CompilationHelper.GetCompilationResult(compilation);
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().DeepEqual(CompilationHelper.Compile(source).Template!);
+        result.Template.Should().DeepEqual(CompilationHelper.Compile(Services, source).Template!);
     }
 
     [TestMethod]
     public void Optional_properties_and_local_variable_paths_can_be_narrowed()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param config { value: string? } = {}
             output optional string = config.value != null ? config.value : ''
             func lengthOrZero(arg { value: string? }) int => arg.value == null ? 0 : length(arg.value)
@@ -704,7 +743,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Guarding_a_reference_does_not_guard_the_referenced_variables_initializer()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             param input object?
             var value = input.value
             output result object = input != null ? value : {}
@@ -716,7 +755,7 @@ public class FlowAnalysisTests
     [TestMethod]
     public void Null_guarded_cyclic_references_still_report_cycle_errors()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(Services, """
             var first = second != null ? second : ''
             var second = first
             """);
@@ -737,7 +776,7 @@ public class FlowAnalysisTests
             output result int = result
             """;
         var uri = new Uri("file:///main.bicep");
-        var compilation = new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides)
+        var compilation = Services
             .BuildCompilation(new Dictionary<Uri, string> { [uri] = source }, uri);
         var model = compilation.GetEntrypointSemanticModel();
         var accesses = SyntaxAggregator.AggregateByType<VariableAccessSyntax>(
@@ -750,7 +789,7 @@ public class FlowAnalysisTests
 
         var result = CompilationHelper.GetCompilationResult(compilation);
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().DeepEqual(CompilationHelper.Compile(source).Template!);
+        result.Template.Should().DeepEqual(CompilationHelper.Compile(Services, source).Template!);
         model.Root.ParameterDeclarations.Single(x => x.Name == "input").Type.Name.Should().Be("int | null");
     }
 

@@ -126,7 +126,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "patch": false,
           "runtimeValuesInTagsAndSku": false,
           "azExtensionConfig": false,
-          "artifactAliasesAndRedirects": false
+          "artifactAliasesAndRedirects": false,
+          "conditionalFlowAnalysis": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -239,7 +240,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "patch": false,
           "runtimeValuesInTagsAndSku": false,
           "azExtensionConfig": false,
-          "artifactAliasesAndRedirects": false
+          "artifactAliasesAndRedirects": false,
+          "conditionalFlowAnalysis": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -374,7 +376,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "patch": false,
           "runtimeValuesInTagsAndSku": false,
           "azExtensionConfig": false,
-          "artifactAliasesAndRedirects": false
+          "artifactAliasesAndRedirects": false,
+          "conditionalFlowAnalysis": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -483,7 +486,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 Patch: false,
                 RuntimeValuesInTagsAndSku: false,
                 AzExtensionConfig: false,
-                ArtifactAliasesAndRedirects: false);
+                ArtifactAliasesAndRedirects: false,
+                ConditionalFlowAnalysis: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -577,7 +581,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "patch": false,
                 "runtimeValuesInTagsAndSku": false,
                 "azExtensionConfig": false,
-                "artifactAliasesAndRedirects": false
+                "artifactAliasesAndRedirects": false,
+                "conditionalFlowAnalysis": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -966,7 +971,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "patch": false,
                     "runtimeValuesInTagsAndSku": false,
                     "azExtensionConfig": false,
-                    "artifactAliasesAndRedirects": false
+                    "artifactAliasesAndRedirects": false,
+                    "conditionalFlowAnalysis": false
                   },
                   "formatting": {
                     "indentKind": "Space",

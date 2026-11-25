@@ -1043,6 +1043,10 @@
           "type": "boolean",
           "description": "Allows the use of runtime values (such as references to resources or this.existingResource()) in tags and sku properties. See https://aka.ms/bicep/experimental-features#runtimevaluesintagsandsku"
         },
+        "conditionalFlowAnalysis": {
+          "type": "boolean",
+          "description": "Enables conditional flow analysis to narrow nullable references and recognize guarded resource and module accesses, including narrowed types in hover. See https://aka.ms/bicep/experimental-features#conditionalflowanalysis"
+        },
         "azExtensionConfig": {
           "type": "boolean",
           "description": "Enables configuration for the built-in 'az' extension to register additional resource providers at the start of a deployment. (Note: This feature will not work until the backend service support has been deployed) See https://aka.ms/bicep/experimental-features#azextensionconfig"

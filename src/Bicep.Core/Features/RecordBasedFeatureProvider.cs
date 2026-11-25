@@ -29,5 +29,6 @@ namespace Bicep.Core.Features
         public bool RuntimeValuesInTagsAndSkuEnabled => features.RuntimeValuesInTagsAndSku;
         public bool AzExtensionConfigEnabled => features.AzExtensionConfig;
         public bool ArtifactAliasesAndRedirectsEnabled => features.ArtifactAliasesAndRedirects;
+        public bool ConditionalFlowAnalysisEnabled => features.ConditionalFlowAnalysis;
     }
 }

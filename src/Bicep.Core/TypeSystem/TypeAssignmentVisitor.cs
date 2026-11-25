@@ -2066,7 +2066,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         private TypeSymbol NarrowTypeByFlow(SyntaxBase syntax, TypeSymbol type)
-            => flowAnalyzer.IsKnownNonNull(syntax)
+            => features.ConditionalFlowAnalysisEnabled && flowAnalyzer.IsKnownNonNull(syntax)
                 ? TypeHelper.TryRemoveNullability(type) ?? type
                 : type;
 
@@ -2138,7 +2138,7 @@ namespace Bicep.Core.TypeSystem
             {
                 BooleanLiteralType { Value: true } => false,
                 BooleanLiteralType { Value: false } => true,
-                _ => isCollection || flowAnalyzer.TryGetKnownValue(condition, context) is not true,
+                _ => !features.ConditionalFlowAnalysisEnabled || isCollection || flowAnalyzer.TryGetKnownValue(condition, context) is not true,
             };
 
         private bool? IsResourceEnabled(ResourceSymbol resource, SyntaxBase context)

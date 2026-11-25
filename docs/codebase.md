@@ -27,6 +27,8 @@ The type manager ([TypeManager.cs](../src/TypeSystem/TypeManager.cs)) is able to
 
 ##### Conditional flow analysis
 
+Conditional flow analysis is opt-in via the `experimentalFeaturesEnabled.conditionalFlowAnalysis` configuration flag, which is disabled by default. The flag also controls flow-narrowed hover types.
+
 [FlowAnalyzer.cs](../src/Bicep.Core/TypeSystem/FlowAnalyzer.cs) derives immutable flow facts from each reference's syntax location, separately from lexical name-binding scopes. Conditional resource/module bodies assume their condition is true, and ternary branches assume their condition is true or false. Facts are cached lazily and use bound symbol identity, so they do not depend on type-query order or leak between sibling branches or shadowed identifiers.
 
 A resource or module can be safely accessed where flow facts prove its deployment condition. This includes the same boolean parameter/variable, matching `==`/`!=` comparisons against literals, and identical compound conditions; parentheses and boolean negation are supported. A true `&&` condition proves both operands, a false `||` condition proves both operands false, and the right operand of `&&` is analyzed assuming its left operand is true while the right operand of `||` assumes its left operand is false. Nested resources require their ancestor conditions as well. This does not prove existence for `@nullIfNotFound()` resources or indexed elements of conditionally filtered collections.

@@ -39,6 +39,18 @@ extension az with {
 
 (Note: This feature will not work until the backend service support has been deployed.)
 
+### `conditionalFlowAnalysis`
+
+Enables flow-sensitive type analysis in conditional resource and module bodies, ternary branches, and logical expressions. Null checks narrow nullable references and property paths, and matching deployment conditions allow safe resource and module access without nullability warnings. Hover displays the narrowed type at guarded references while declaration types remain unchanged. Disabled by default.
+
+```json
+{
+  "experimentalFeaturesEnabled": {
+    "conditionalFlowAnalysis": true
+  }
+}
+```
+
 ### `deployCommands`
 
 Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).

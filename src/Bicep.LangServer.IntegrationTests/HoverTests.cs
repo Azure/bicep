@@ -38,6 +38,7 @@ namespace Bicep.LangServer.IntegrationTests
     public class HoverTests : TestBase
     {
         private static readonly SharedLanguageHelperManager DefaultServer = new();
+        private static readonly SharedLanguageHelperManager ServerWithFlowAnalysis = new();
         private static readonly SharedLanguageHelperManager ServerWithBuiltInTypes = new();
         private static readonly SharedLanguageHelperManager ServerWithTestNamespaceProvider = new();
 
@@ -45,6 +46,8 @@ namespace Bicep.LangServer.IntegrationTests
         public static void ClassInitialize(TestContext testContext)
         {
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
+            ServerWithFlowAnalysis.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext,
+                services => services.WithFeatureOverrides(new(ConditionalFlowAnalysisEnabled: true))));
             ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BuiltInTestTypes.Create())));
             ServerWithTestNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
         }
@@ -53,6 +56,7 @@ namespace Bicep.LangServer.IntegrationTests
         public static async Task ClassCleanup()
         {
             await DefaultServer.DisposeAsync();
+            await ServerWithFlowAnalysis.DisposeAsync();
             await ServerWithBuiltInTypes.DisposeAsync();
             await ServerWithTestNamespaceProvider.DisposeAsync();
         }
@@ -337,7 +341,9 @@ resource test|Output string = 'str'
         }
 
         [TestMethod]
-        public async Task Hovers_show_narrowed_reference_types_without_changing_declaration_types()
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task Hovers_show_narrowed_reference_types_without_changing_declaration_types(bool enabled)
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors("""
                 param in|put int?
@@ -348,7 +354,7 @@ resource test|Output string = 'str'
                 func evaluate(arg int?) int => arg != null ? ar|g : 0
                 """, '|');
             var bicepFile = new LanguageClientFile($"file:///{TestContext.TestName}/main.bicep", file);
-            var helper = await DefaultServer.GetAsync();
+            var helper = await (enabled ? ServerWithFlowAnalysis : DefaultServer).GetAsync();
             await helper.OpenFileOnceAsync(TestContext, file, bicepFile.Uri);
 
             var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
@@ -356,14 +362,16 @@ resource test|Output string = 'str'
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Contain("param input: int | null"),
                 h => h!.Contents.MarkupContent!.Value.Should().Contain("var value: int | null"),
-                h => h!.Contents.MarkupContent!.Value.Should().Contain("var value: int\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain(enabled ? "var value: int\n" : "var value: int | null"),
                 h => h!.Contents.MarkupContent!.Value.Should().Contain("var value: int | null"),
-                h => h!.Contents.MarkupContent!.Value.Should().Contain("param input: int\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Contain("arg: int\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Contain(enabled ? "param input: int\n" : "param input: int | null"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain(enabled ? "arg: int\n" : "arg: int | null"));
         }
 
         [TestMethod]
-        public async Task Hovers_show_non_nullable_property_paths_only_in_guarded_branches()
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task Hovers_show_non_nullable_property_paths_only_in_guarded_branches(bool enabled)
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors("""
                 param config { val|ue: int?, nested: { name: string? } }
@@ -374,17 +382,17 @@ resource test|Output string = 'str'
                 output safe int? = config.?val|ue
                 """, '|');
             var bicepFile = new LanguageClientFile($"file:///{TestContext.TestName}/main.bicep", file);
-            var helper = await DefaultServer.GetAsync();
+            var helper = await (enabled ? ServerWithFlowAnalysis : DefaultServer).GetAsync();
             await helper.OpenFileOnceAsync(TestContext, file, bicepFile.Uri);
 
             var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Contain("value: int | null"),
-                h => h!.Contents.MarkupContent!.Value.Should().Contain("value: int\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain(enabled ? "value: int\n" : "value: int | null"),
                 h => h!.Contents.MarkupContent!.Value.Should().Contain("value: int | null"),
-                h => h!.Contents.MarkupContent!.Value.Should().Contain("name: string\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Contain("value: int\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain(enabled ? "name: string\n" : "name: null | string"),
+                h => h!.Contents.MarkupContent!.Value.Should().Contain(enabled ? "value: int\n" : "value: int | null"),
                 h => h!.Contents.MarkupContent!.Value.Should().Contain("value: int | null"));
         }
 

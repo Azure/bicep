@@ -63,9 +63,10 @@ public class FlowAnalyzer(IBinder binder, ITypeManager typeManager)
                 => AddCondition(state, ternary.ConditionExpression, true),
             TernaryOperationSyntax ternary when ReferenceEquals(syntax, ternary.FalseExpression)
                 => AddCondition(state, ternary.ConditionExpression, false),
-            BinaryOperationSyntax binary when ReferenceEquals(syntax, binary.RightExpression) &&
-                binary.Operator is BinaryOperator.LogicalAnd or BinaryOperator.LogicalOr
-                => AddCondition(state, binary.LeftExpression, binary.Operator == BinaryOperator.LogicalAnd),
+            BinaryOperationSyntax binary when ReferenceEquals(syntax, binary.RightExpression) && binary.Operator is BinaryOperator.LogicalAnd
+                => AddCondition(state, binary.LeftExpression, true),
+            BinaryOperationSyntax binary when ReferenceEquals(syntax, binary.RightExpression) && binary.Operator is BinaryOperator.LogicalOr
+                => AddCondition(state, binary.LeftExpression, false),
             _ => state,
         };
     }
@@ -257,12 +258,12 @@ public class FlowAnalyzer(IBinder binder, ITypeManager typeManager)
             return new SymbolFlowReference(symbol);
         }
 
-        if (syntax is not (PropertyAccessSyntax { PropertyName.IsValid: true } or ArrayAccessSyntax { FromEndMarker: null }))
+        if (syntax is not AccessExpressionSyntax access ||
+            access is not (PropertyAccessSyntax { PropertyName.IsValid: true } or ArrayAccessSyntax { FromEndMarker: null }))
         {
             return null;
         }
 
-        var access = (AccessExpressionSyntax)syntax;
         var propertyName = access is ArrayAccessSyntax arrayAccess
             ? (UnwrapParentheses(arrayAccess.IndexExpression) as StringSyntax)?.TryGetLiteralValue()
             : access.TryGetPropertyName();

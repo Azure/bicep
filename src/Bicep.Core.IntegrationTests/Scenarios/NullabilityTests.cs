@@ -243,14 +243,26 @@ output out array = split(first(input), 21)
 
     // https://github.com/Azure/bicep/issues/17284
     [TestMethod]
-    public void Issue_17284_null_guarded_operand_in_binary_operator_needs_no_assertion()
+    [DataRow(false)]
+    [DataRow(true)]
+    public void Issue_17284_null_guarded_operand_in_binary_operator_needs_no_assertion_with_flow_analysis(bool enabled)
     {
-        var result = CompilationHelper.Compile(@"
+        var services = new ServiceBuilder().WithFeatureOverrides(new(ConditionalFlowAnalysisEnabled: enabled));
+        var result = CompilationHelper.Compile(services, @"
 func hello(input int?) string? => input == null ? null : input > 60 ? 'Hello world ${input}' : 'Value is lower than 60'
 ");
 
         result.Template.Should().NotBeNull();
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        if (enabled)
+        {
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+        else
+        {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+                ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""input"" is of type ""int | null""."),
+            ]);
+        }
 
         // ensure the emitted ARM expression is what the user actually intended (same as writing `input!` explicitly)
         result.Template.Should().HaveValueAtPath(

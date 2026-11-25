@@ -316,6 +316,11 @@ namespace Bicep.LanguageServer.Features.Language.Hover
         private static TypeSymbol GetTypeAtOrigin(SymbolResolutionResult result, TypeSymbol declaredType)
         {
             var model = result.Context.Compilation.GetEntrypointSemanticModel();
+            if (!model.Features.ConditionalFlowAnalysisEnabled)
+            {
+                return declaredType;
+            }
+
             if (result.Origin is VariableAccessSyntax reference &&
                 model.GetTypeInfo(reference) is not ErrorType and var referenceType)
             {
