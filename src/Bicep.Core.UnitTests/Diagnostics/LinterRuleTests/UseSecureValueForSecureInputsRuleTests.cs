@@ -3,16 +3,165 @@
 
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 
 [TestClass]
 public class UseSecureValueForSecureInputsRuleTests : SecureAssignmentCheckerTestsBase
 {
+    [TestMethod]
+    [DataRow("string", "securestring")]
+    [DataRow("object", "secureObject")]
+    public void Direct_module_parameter_fix_marks_the_source_secure(string type, string armType)
+    {
+        var parent = $$"""
+            @description('Supplied by the caller')
+            param source {{type}}
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                value: source
+              }
+            }
+            """;
+        var child = $"@secure()\nparam value {type}";
+        var result = CompileModule(parent, child);
+        result.Diagnostics.Where(diagnostic => diagnostic.Level == DiagnosticLevel.Error).Should().BeEmpty();
+        var diagnostic = result.Diagnostics.Single(diagnostic => diagnostic.Code == UseSecureValueForSecureInputsRule.Code);
+        diagnostic.Message.Should().Be(InputWarning(type == "object" ? "value.*" : "value"));
+        diagnostic.Level.Should().Be(DiagnosticLevel.Warning);
+        var fix = ((IFixable)diagnostic).Fixes.Single();
+        fix.Title.Should().Be("Mark parameter 'source' as secure");
+        fix.IsPreferred.Should().BeFalse();
+        fix.Kind.Should().Be(CodeFixKind.QuickFix);
+
+        var updated = result.ApplyCodeFix(fix);
+        updated.Should().Be("@secure()\n" + parent);
+        var fixedResult = CompileModule(updated, child);
+        fixedResult.Diagnostics.Should().BeEmpty();
+        fixedResult.Template!["parameters"]!["source"]!["type"]!.Value<string>().Should().Be(armType);
+    }
+
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public void Secure_parameter_fix_preserves_configured_severity_and_formatting(bool module)
+    {
+        var assignment = module
+            ? """
+                module child 'child.bicep' = {
+                  name: 'child'
+                  params: { value: source }
+                }
+                """
+            : """
+                resource server 'Microsoft.DBforMySQL/flexibleServers@2023-12-30' = {
+                  name: 'server'
+                  location: 'westus'
+                  properties: {
+                    administratorLoginPassword: source
+                  }
+                }
+                """;
+        var parent = "  @description('Supplied by the caller')\r\n  param source string\r\n" + assignment;
+        var child = "@secure()\nparam value string";
+        var config = """
+            {
+              "formatting": { "newlineKind": "CRLF" },
+              "analyzers": { "core": { "rules": { "use-secure-value-for-secure-inputs": { "level": "error" } } } }
+            }
+            """;
+        var result = CompilationHelper.Compile(("main.bicep", parent), ("child.bicep", child), ("bicepconfig.json", config));
+        var diagnostic = result.Diagnostics.Single(diagnostic => diagnostic.Code == UseSecureValueForSecureInputsRule.Code);
+        diagnostic.Level.Should().Be(DiagnosticLevel.Error);
+        var updated = result.ApplyCodeFix(diagnostic);
+        updated.Should().Be("  @secure()\r\n" + parent);
+        var fixedResult = CompilationHelper.Compile(("main.bicep", updated), ("child.bicep", child), ("bicepconfig.json", config));
+        fixedResult.Diagnostics.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    [DataRow("param source string = 'default'", "source", "string")]
+    [DataRow("param source object = {}", "source", "object")]
+    [DataRow("param source string?", "source", "string?")]
+    [DataRow("type text = string\nparam source text", "source", "string")]
+    [DataRow("param source { value: string }", "source.value", "string")]
+    [DataRow("param source string\nvar alias = source", "alias", "string")]
+    [DataRow("param source string", "'prefix-${source}'", "string")]
+    [DataRow("param source string", "toLower(source)", "string")]
+    [DataRow("param source string\nparam condition bool", "condition ? source : 'fallback'", "string")]
+    [DataRow("param source string?", "source ?? 'fallback'", "string")]
+    [DataRow("param source bool", "string(source)", "string")]
+    [DataRow("", "'literal'", "string")]
+    public void Other_module_input_sources_have_no_corrective_fix(string declaration, string expression, string type)
+    {
+        var result = CompileModule($$"""
+            {{declaration}}
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                value: {{expression}}
+              }
+            }
+            """, $"@secure()\nparam value {type}");
+        result.Diagnostics.Where(diagnostic => diagnostic.Level == DiagnosticLevel.Error).Should().BeEmpty();
+        var diagnostics = result.Diagnostics.Where(diagnostic => diagnostic.Code == UseSecureValueForSecureInputsRule.Code).ToArray();
+        diagnostics.Should().NotBeEmpty();
+        diagnostics.OfType<IFixable>().SelectMany(diagnostic => diagnostic.Fixes).Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public void Nested_module_input_leaves_have_no_corrective_fix()
+    {
+        var result = CompileModule("""
+            param source string
+            module child 'child.bicep' = {
+              name: 'child'
+              params: {
+                config: { value: source }
+              }
+            }
+            """, """
+            param config {
+              @secure()
+              value: string
+            }
+            """);
+        var diagnostic = result.Diagnostics.Single(diagnostic => diagnostic.Code == UseSecureValueForSecureInputsRule.Code);
+        ((IFixable)diagnostic).Fixes.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public void Securing_a_source_does_not_change_other_module_contracts()
+    {
+        var parent = """
+            param source string
+            module secureChild 'child.bicep' = {
+              name: 'secureChild'
+              params: { value: source }
+            }
+            module publicChild 'public.bicep' = {
+              name: 'publicChild'
+              params: { value: source }
+            }
+            """;
+        var child = "@secure()\nparam value string";
+        var publicChild = "param value string";
+        var result = CompilationHelper.Compile(("main.bicep", parent), ("child.bicep", child), ("public.bicep", publicChild));
+        var diagnostic = result.Diagnostics.Single(diagnostic => diagnostic.Code == UseSecureValueForSecureInputsRule.Code);
+        var fixedResult = CompilationHelper.Compile(("main.bicep", result.ApplyCodeFix(diagnostic)), ("child.bicep", child), ("public.bicep", publicChild));
+        fixedResult.Diagnostics.Where(diagnostic => diagnostic.Level == DiagnosticLevel.Error).Should().BeEmpty();
+        fixedResult.Diagnostics.Should().NotContain(diagnostic => diagnostic.Code == UseSecureValueForSecureInputsRule.Code);
+        var leak = fixedResult.Diagnostics.Single(diagnostic => diagnostic.Code == NoSecureValuesInInsecureInputsRule.Code);
+        ((IFixable)leak).Fixes.Should().BeEmpty();
+    }
+
     [TestMethod]
     [DataRow(8)]
     [DataRow(22)]

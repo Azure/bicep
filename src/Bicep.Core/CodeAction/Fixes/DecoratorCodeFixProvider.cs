@@ -78,7 +78,7 @@ public class DecoratorCodeFixProvider : ICodeFixProvider
         _ => null,
     };
 
-    private static CodeReplacement CreateCodeReplacement(SemanticModel model, DecorableSyntax syntax, DecoratorSyntax decorator)
+    public static CodeReplacement CreateCodeReplacement(SemanticModel model, DecorableSyntax syntax, DecoratorSyntax decorator)
     {
         var formatting = model.Configuration.Formatting.Data;
         var newline = formatting.NewlineKind.ToEscapeSequence();
