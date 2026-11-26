@@ -18,6 +18,7 @@ using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -197,6 +198,9 @@ namespace Bicep.Cli
 
         private static IServiceCollection ConfigureServices(IOContext io)
             => new ServiceCollection()
+                // Registered before AddBicepCore, which keeps the first registration. The CLI compiles on request,
+                // so files read by load*() functions aren't cached between compilations (see NonCachingAuxiliaryFileCache).
+                .AddSingleton<IAuxiliaryFileCache, NonCachingAuxiliaryFileCache>()
                 .AddBicepCore()
                 .AddBicepDecompiler()
                 .AddBicepLocalDeploy()

@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.McpServer.Core;
 using Bicep.McpServer.UnitTests.Helpers;
 using FluentAssertions;
@@ -74,6 +75,34 @@ public class ServerTests
             .Which.Text.Should().Be("Error: File path must be absolute.");
     }
 
+    [TestMethod]
+    public async Task Build_bicep_after_files_are_edited_uses_new_content()
+    {
+        var outputFolder = FileHelper.SaveResultFiles(TestContext, [
+            new("main.bicep", """
+                param unused string = ''
+                output content string = loadTextContent('data.txt')
+                """),
+            new("data.txt", "before"),
+            new("bicepconfig.json", """{ "analyzers": { "core": { "rules": { "no-unused-params": { "level": "off" } } } } }"""),
+        ]);
+        await using var helper = await McpServerHelper.StartServer(TestContext);
+
+        async Task<string> BuildBicep() => JsonSerializer.Serialize((await helper.Client.CallToolAsync("build_bicep", new Dictionary<string, object?>
+        {
+            ["filePath"] = Path.Combine(outputFolder, "main.bicep"),
+        })).StructuredContent);
+
+        var before = await BuildBicep();
+        before.Should().Contain("before").And.NotContain("no-unused-params");
+
+        // The server is long-running, so each tool call must see edits made since the last one.
+        File.WriteAllText(Path.Combine(outputFolder, "data.txt"), "after");
+        File.WriteAllText(Path.Combine(outputFolder, "bicepconfig.json"), """{ "analyzers": { "core": { "rules": { "no-unused-params": { "level": "warning" } } } } }""");
+
+        var after = await BuildBicep();
+        after.Should().Contain("after").And.Contain("no-unused-params");
+    }
     [TestMethod]
     public void McpServer_does_not_require_aspnetcore_runtime()
     {

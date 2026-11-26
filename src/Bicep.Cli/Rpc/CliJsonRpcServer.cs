@@ -37,7 +37,8 @@ public class CliJsonRpcServer(
     IEnvironment environment,
     IBicepDocumentationGenerator documentationGenerator,
     DocsGenerationOptionsResolver docsOptionsResolver,
-    ExplicitConfigurationScopeFactory explicitConfigurationScopeFactory) : ICliJsonRpcProtocol
+    ExplicitConfigurationScopeFactory explicitConfigurationScopeFactory,
+    IBicepConfigurationManager configurationManager) : ICliJsonRpcProtocol
 {
     public static IJsonRpcMessageHandler CreateMessageHandler(Stream inputStream, Stream outputStream)
     {
@@ -58,7 +59,7 @@ public class CliJsonRpcServer(
     /// <inheritdoc/>
     public async Task<CompileResponse> Compile(CompileRequest request, CancellationToken cancellationToken)
     {
-        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+        using var configurationScope = BeginRequest(request.ConfigPath);
 
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
@@ -76,7 +77,7 @@ public class CliJsonRpcServer(
     /// <inheritdoc/>
     public async Task<CompileParamsResponse> CompileParams(CompileParamsRequest request, CancellationToken cancellationToken)
     {
-        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+        using var configurationScope = BeginRequest(request.ConfigPath);
 
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
@@ -103,7 +104,7 @@ public class CliJsonRpcServer(
     /// <inheritdoc/>
     public async Task<GetFileReferencesResponse> GetFileReferences(GetFileReferencesRequest request, CancellationToken cancellationToken)
     {
-        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+        using var configurationScope = BeginRequest(request.ConfigPath);
 
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
@@ -127,7 +128,7 @@ public class CliJsonRpcServer(
     /// <inheritdoc/>
     public async Task<GetMetadataResponse> GetMetadata(GetMetadataRequest request, CancellationToken cancellationToken)
     {
-        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+        using var configurationScope = BeginRequest(request.ConfigPath);
 
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
@@ -184,7 +185,7 @@ public class CliJsonRpcServer(
 
     public async Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken)
     {
-        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+        using var configurationScope = BeginRequest(request.ConfigPath);
 
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
@@ -230,7 +231,7 @@ public class CliJsonRpcServer(
 
     public async Task<GetSnapshotResponse> GetSnapshot(GetSnapshotRequest request, CancellationToken cancellationToken)
     {
-        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+        using var configurationScope = BeginRequest(request.ConfigPath);
 
         var compilation = await GetCompilation(compiler, request.Path);
         if (compilation.Emitter.Parameters() is not { } result ||
@@ -261,7 +262,7 @@ public class CliJsonRpcServer(
     /// <inheritdoc/>
     public async Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken)
     {
-        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+        using var configurationScope = BeginRequest(request.ConfigPath);
 
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
@@ -295,7 +296,7 @@ public class CliJsonRpcServer(
     /// <inheritdoc/>
     public async Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken)
     {
-        using var configurationScope = explicitConfigurationScopeFactory.CreateScope(request.ConfigPath);
+        using var configurationScope = BeginRequest(request.ConfigPath);
 
         var compilation = await GetCompilation(compiler, request.Path);
         var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
@@ -316,6 +317,17 @@ public class CliJsonRpcServer(
         return new(diagnostics, result);
     }
 
+    /// <summary>
+    /// Starts handling a request that compiles files. The server is long-running and doesn't watch the file system,
+    /// so configuration cached by an earlier request may be stale and is loaded again.
+    /// </summary>
+    /// <returns>The explicit configuration scope for the request, if <paramref name="configPath"/> is specified.</returns>
+    private IDisposable? BeginRequest(string? configPath)
+    {
+        configurationManager.InvalidateAll();
+
+        return explicitConfigurationScopeFactory.CreateScope(configPath);
+    }
 
     private async Task<Compilation> GetCompilation(BicepCompiler compiler, string filePath)
     {
