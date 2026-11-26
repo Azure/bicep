@@ -30,7 +30,7 @@ PRs that change user-visible behavior are marked **(behavior change)**. Everythi
 | 10 | One configuration snapshot per file | – | – | Handed off to the source graph redesign |
 | 11 | Explicit config path passed in; `ExplicitConfigurationContext` removed | – | – | Handed off to the source graph redesign |
 | 12 | *(later release)* Remove the `cacheRootDirectory` property | ~3 + ~3 | 4 | Later |
-| 13 | `bicep jsonrpc` and the MCP server clear cached configuration per request; `load*()` files aren't cached outside the language server | ~5 + ~2 | 1 | In review |
+| 13 | `bicep jsonrpc` and the MCP server clear cached configuration per request; `load*()` files aren't cached outside the language server | ~5 + ~2 | 1 | In review (#20604) |
 | 14 | *(dropped)* Auxiliary file cache checks its own dependencies | – | – | Folded into PR 13 |
 
 File counts are estimates from today's call sites. PR 5 is larger, but most of its edits are the same change repeated (noted in the PR). PR 13 was added after PR 1 showed that the CLI JSON-RPC and MCP servers never see file changes (B6). Its first version (#20587) made each cache check its own file dependencies; it was closed in favor of per-request lifetimes, which are much smaller and match where the redesign is heading (3.2).
