@@ -207,10 +207,13 @@ How a snapshot learns that configuration changed depends on the host:
 | Host | Model | How it works |
 |---|---|---|
 | Language server | Push | A batch of watched-file events becomes `WithChangedFiles(uris)`. A changed URI that is a configuration file node, or a missing lookup path (or a folder containing either), selects the source nodes to rebuild, and their dependents are recreated. Nothing is checked against the file system and nothing else is rebuilt. This is how Roslyn (analyzer config documents in the `Solution`) and gopls (snapshots invalidated by watched files) handle it. |
-| `bicep jsonrpc`, MCP server | Pull | No watcher and no workspace root, so nothing pushes changes. Reusing the previous request's graph goes through `Revalidate()`, which checks each node's recorded files once (`FileDependencies` from configuration plan PR 13) and rebuilds the stale ones. Until these hosts reuse graphs, they build one per request, and the configuration manager's per-request checks keep configuration current. |
+| `bicep jsonrpc`, MCP server | Fresh graph per request | No watcher and no workspace root, so nothing pushes changes. Each request builds a new graph whose caches live for that build only, so every request sees the current files. Reusing a graph across requests would need a pull check of each node's recorded files; that's only worth adding if profiling shows per-request builds are too slow. |
 | One-shot CLI | Neither | The graph is built once. |
 
-**Until then (configuration plan PR 13).** The configuration manager keeps its caches current by itself: each cached chain records the files it read and their versions, and is checked against them once per `FileChangeEpoch`. Hosts start a new epoch when files may have changed: the language server for each batch of watched-file events, `bicep jsonrpc` and the MCP server for each request; one-shot CLI commands never do. The manager returns the same configuration instance until a file it was loaded from changes, so the language server finds changed configuration by comparing each file's semantic model's configuration with the manager's. Migration step 6 replaces that comparison, and the language server's epoch, with `WithChangedFiles`. `FileDependencies` stays for `Revalidate()`.
+**Caches have explicit lifetimes.** The graph builder owns the configuration and `load*()` caches for one build, instead of the DI singletons they are today; the language server's long-lived snapshot carries them across updates. Nothing has to be told what to invalidate, and it's the place to converge the two into one cache of file contents (suggested in Azure/bicep#20587's review).
+
+**Until then (configuration plan PR 13).** `bicep jsonrpc` and the MCP server clear the configuration manager at the start of each request and don't cache files read by `load*()` functions. The language server invalidates configuration on watched-file events (`InvalidateFile`) and trims `AuxiliaryFileCache` by hand. Migration step 6 replaces both.
+
 ### Snapshot and compilation
 
 ```csharp
@@ -223,7 +226,6 @@ public sealed class SourceGraph
 
     public SourceGraph WithFile(IOUri uri, string text);
     public SourceGraph WithChangedFiles(IEnumerable<IOUri> uris);    // files or folders changed on disk (watched-file events): push
-    public SourceGraph Revalidate();                                 // check each node's recorded files: pull, for hosts without a watcher
     public SourceGraph WithRestoredArtifacts(IEnumerable<RemoteArtifactReference> restored);
     public SourceGraph WithRoots(IEnumerable<IOUri> roots);          // documents opened or closed
 }
@@ -425,7 +427,6 @@ sequenceDiagram
 - `WithFile(uri, text)`: a new node for `uri` (reparsed, dependencies re-resolved); dependents recreated with their trees passed through.
 - `WithRestoredArtifacts(references)`: nodes with matching `NotRestored` dependencies re-resolved; dependents recreated.
 - `WithChangedFiles(uris)`: nodes whose file, configuration file nodes, or missing lookup paths match a URI (a folder covers everything under it) are rebuilt and re-resolved; changed configuration file nodes are reread; dependents recreated.
-- `Revalidate()`: like `WithChangedFiles`, for every node whose recorded files are no longer current (section 3, Configuration).
 - `WithRoots(roots)`: nodes added for newly opened documents; unreachable nodes dropped.
 
 ## 6. Migration (R4)
@@ -437,16 +438,16 @@ Each step leaves a working build.
 3. **Unreadable targets become `Failed`.** `SourceFileLookup` maps URIs to nodes.
 4. **Built-in implicit extensions leave the graph.** `ImplicitExtension` is deleted.
 5. **Nodes own their models.** `node.GetSemanticModel()`; `SemanticModel` reaches dependencies through nodes instead of `SourceFileGrouping` and `ModelLookup`; `referencedAuxiliaryFileUris` moves from `BicepSourceFile` to `SemanticModel.GetReferencedAuxiliaryFiles()`; `Compilation` thins out and takes the entry-point-only rules.
-6. **Workspace-wide snapshot in the language server.** One `SourceGraph` with the update operations; `modelLookup` and `ShallowClone()` retire. Watched-file events call `WithChangedFiles(uris)`, which replaces `BicepCompilationManager.HandleFileChanges` comparing each file's configuration, and the language server stops using `FileChangeEpoch`. Configuration file nodes and `ConfigurationInputs` arrive in this step (until then, nodes capture `Configuration` from the configuration manager).
+6. **Workspace-wide snapshot in the language server.** One `SourceGraph` with the update operations; `modelLookup` and `ShallowClone()` retire. Watched-file events call `WithChangedFiles(uris)`, which replaces `InvalidateFile`, the hand-trimmed `AuxiliaryFileCache` and `BicepCompilationManager`'s own file-change handling. Configuration file nodes and `ConfigurationInputs` arrive in this step (until then, nodes capture `Configuration` from the configuration manager).
 7. **Split the parse layer.** `BicepSourceFile` becomes `BicepSyntaxTree` plus node members; JSON parsing moves into the JSON semantic models; the `ISourceFile` family retires. Mechanical but wide (`BicepFile` alone is on about 660 lines).
 
 ## 7. Open questions
 
 - Which error does an unconfigured implicit `microsoftGraph` report: BCP397, or the retired message with its code fix, as the explicit declaration does?
 - Does namespace order (declared, implicit, built-in) affect diagnostics or the emitted `imports`? The node's ordered `Dependencies` should preserve it.
-- REP 0022 PR 6 sends data-file loads through the resolver. If those become graph edges, they need their own edge type (for example `AuxiliaryFileDependency`); they aren't artifacts, and their freshness is the graph's. Otherwise `AuxiliaryFileCache` keeps itself current the way the configuration manager does (configuration plan PR 14).
+- REP 0022 PR 6 sends data-file loads through the resolver. If those become graph edges, they need their own edge type (for example `AuxiliaryFileDependency`); they aren't artifacts, and their freshness is the graph's. Otherwise the builder's `load*()` cache still lives for one build, and the language server keeps invalidating it on file events.
 - How services reach nodes and models without a graph back-reference: passed when the builder creates the node, or held by a small shared context object.
-- Pushing changes only works if every file a node depends on is recorded: its own file, its configuration chain, its missing lookup paths, and (depending on the data-file question above) files read by `load*()`. Anything read outside the graph needs a pull check, as the configuration manager has today.
+- Pushing changes only works if every file a node depends on is recorded: its own file, its configuration chain, its missing lookup paths, and (depending on the data-file question above) files read by `load*()`. Anything read outside the graph has to be invalidated by hand, as the language server does today.
 - How diagnostics for restore failures are reported per node (today `BicepCompiler` uses `ReferencingFile` and `Syntax`; after step 2, the node plus `DependencyOrigin`).
 
 ## 8. Already done (REP 0022 Phase 0.9c, #20575)
