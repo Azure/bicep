@@ -142,6 +142,15 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fix all occurrences of {0} in this file.
+        /// </summary>
+        public static string FixAllOccurrencesOfRule {
+            get {
+                return ResourceManager.GetString("FixAllOccurrencesOfRule", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit {0} in bicepconfig.json.
         /// </summary>
         public static string EditLinterRuleActionTitle {

@@ -146,6 +146,9 @@
   <data name="DisableDiagnosticForThisLine" xml:space="preserve">
     <value>Disable {0} for this line</value>
   </data>
+  <data name="FixAllOccurrencesOfRule" xml:space="preserve">
+    <value>Fix all occurrences of {0} in this file</value>
+  </data>
   <data name="EditLinterRuleActionTitle" xml:space="preserve">
     <value>Edit {0} in bicepconfig.json</value>
     <comment>{0} = programmatic name of a linter rule</comment>
