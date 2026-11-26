@@ -45,6 +45,7 @@ namespace Bicep.LangServer.IntegrationTests
         private const string RemoveUnusedParameterTitle = "Remove unused parameter";
         private const string RemoveUnusedVariableTitle = "Remove unused variable";
         private const string RemoveUnusedImportTitle = "Remove unused import";
+        private const string FixAllOccurrencesTitlePrefix = "Fix all occurrences of ";
 
         [TestMethod]
         [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
@@ -90,7 +91,8 @@ namespace Bicep.LangServer.IntegrationTests
                         }
 
                         var bicepFixes = allFixables.Where(SpansOverlapOrAbut).SelectMany(f => f.Fixes).ToHashSet();
-                        var quickFixList = quickFixes!.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
+                        // "Fix all occurrences" actions aggregate several diagnostics and are covered by their own tests
+                        var quickFixList = quickFixes!.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix && x.CodeAction.Title?.StartsWith(FixAllOccurrencesTitlePrefix) != true).ToList();
 
                         var bicepFixTitles = bicepFixes.Select(f => f.Title);
                         var quickFixTitles = quickFixList.Select(f => f.CodeAction?.Title);

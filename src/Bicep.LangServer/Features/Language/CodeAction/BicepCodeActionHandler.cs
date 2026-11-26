@@ -77,6 +77,10 @@ namespace Bicep.LanguageServer.Features.Language.CodeAction
 
             commandOrCodeActions.AddRange(quickFixes);
 
+            var fixAllActions = CreateFixAllActions(diagnostics, requestStartOffset, requestEndOffset)
+                .Select(fix => CreateCodeActionFromFix(request.TextDocument.Uri, compilationContext, fix));
+            commandOrCodeActions.AddRange(fixAllActions);
+
             var coreCompilerErrors = diagnostics
                 .Where(diagnostic => !diagnostic.CanBeSuppressed());
             var diagnosticsThatCanBeSuppressed = diagnostics
@@ -119,6 +123,51 @@ namespace Bicep.LanguageServer.Features.Language.CodeAction
             commandOrCodeActions.AddRange(codeFixes.Select(fix => CreateCodeActionFromFix(documentUri, compilationContext, fix)));
 
             return new(commandOrCodeActions);
+        }
+
+        // Offers one "fix all" action per linter rule that has an unambiguous quick fix on at least two
+        // diagnostics in the file, as long as the request range touches one of them.
+        private static IEnumerable<CodeFix> CreateFixAllActions(IEnumerable<IDiagnostic> diagnostics, int requestStartOffset, int requestEndOffset)
+        {
+            var singleFixDiagnostics = diagnostics
+                .Where(diagnostic => diagnostic.Source == DiagnosticSource.CoreLinter && diagnostic.Code is { Length: > 0 })
+                .OfType<IFixable>()
+                .Select(fixable => (Diagnostic: (IDiagnostic)fixable, Fixes: fixable.Fixes.ToArray()))
+                .Where(x => x.Fixes.Length == 1 && x.Fixes[0].Kind == CodeFixKind.QuickFix && x.Fixes[0].IsPreferred)
+                .ToArray();
+
+            foreach (var group in singleFixDiagnostics.GroupBy(x => x.Diagnostic.Code))
+            {
+                var members = group.ToArray();
+                var touchesRequest = members.Any(x =>
+                    x.Diagnostic.Span.ContainsInclusive(requestStartOffset) ||
+                    x.Diagnostic.Span.ContainsInclusive(requestEndOffset) ||
+                    (requestStartOffset <= x.Diagnostic.Span.Position && x.Diagnostic.GetEndPosition() <= requestEndOffset));
+
+                if (members.Length < 2 || !touchesRequest)
+                {
+                    continue;
+                }
+
+                var replacements = members
+                    .SelectMany(x => x.Fixes[0].Replacements)
+                    .OrderBy(replacement => replacement.Span.Position)
+                    .ToArray();
+
+                // LSP text edits in one workspace edit must not overlap
+                var overlaps = replacements.Zip(replacements.Skip(1)).Any(pair => pair.First.GetEndPosition() > pair.Second.Span.Position);
+                if (overlaps)
+                {
+                    continue;
+                }
+
+                yield return new CodeFix(
+                    string.Format(LangServerResources.FixAllOccurrencesOfRule, group.Key),
+                    false,
+                    CodeFixKind.QuickFix,
+                    replacements[0],
+                    replacements.Skip(1).ToArray());
+            }
         }
 
         private static IEnumerable<CodeFix> GetCodeFixes(SemanticModel model, IReadOnlyList<SyntaxBase> matchingNodes)

@@ -232,6 +232,48 @@ var foo = 'i am just a |normal string!'
                 """);
         }
 
+        [TestMethod]
+        public async Task Fix_all_action_removes_every_unused_parameter_in_the_file()
+        {
+            var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("""
+param fir|st string
+param second int
+param third bool = true
+output result string = 'x'
+""");
+            var bicepFile = GetBicepFile(contents);
+            var title = string.Format(LangServerResources.FixAllOccurrencesOfRule, NoUnusedParametersRule.Code);
+            var codeAction = await GetSingleCodeAction(bicepFile, cursor, title);
+
+            codeAction.Kind.Should().Be(CodeActionKind.QuickFix);
+            LspRefactoringHelper.ApplyCodeAction(bicepFile, codeAction).Text.Should().Be("output result string = 'x'");
+        }
+
+        [TestMethod]
+        public async Task Fix_all_action_is_not_offered_when_the_rule_is_reported_once()
+        {
+            var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("""
+param fir|st string
+output result string = 'x'
+""");
+            var codeActions = await GetCodeActions(GetBicepFile(contents), cursor);
+
+            codeActions.Should().NotContain(x => x.Title == string.Format(LangServerResources.FixAllOccurrencesOfRule, NoUnusedParametersRule.Code));
+        }
+
+        [TestMethod]
+        public async Task Fix_all_action_is_not_offered_away_from_the_reported_diagnostics()
+        {
+            var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("""
+param first string
+param second int
+output res|ult string = 'x'
+""");
+            var codeActions = await GetCodeActions(GetBicepFile(contents), cursor);
+
+            codeActions.Should().NotContain(x => x.Title == string.Format(LangServerResources.FixAllOccurrencesOfRule, NoUnusedParametersRule.Code));
+        }
+
         private static LanguageClientFile GetBicepFile(string contents)
             => new(new Uri("file:///main.bicep"), contents);
 
