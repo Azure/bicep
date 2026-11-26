@@ -31,9 +31,8 @@ PRs that change user-visible behavior are marked **(behavior change)**. Everythi
 | 11 | Explicit config path passed in; `ExplicitConfigurationContext` removed | – | – | Handed off to the source graph redesign |
 | 12 | *(later release)* Remove the `cacheRootDirectory` property | ~3 + ~3 | 4 | Later |
 | 13 | `bicep jsonrpc` and the MCP server clear cached configuration per request; `load*()` files aren't cached outside the language server | ~5 + ~2 | 1 | In review (#20604) |
-| 14 | *(dropped)* Auxiliary file cache checks its own dependencies | – | – | Folded into PR 13 |
 
-File counts are estimates from today's call sites. PR 5 is larger, but most of its edits are the same change repeated (noted in the PR). PR 13 was added after PR 1 showed that the CLI JSON-RPC and MCP servers never see file changes (B6). Its first version (#20587) made each cache check its own file dependencies; it was closed in favor of per-request lifetimes, which are much smaller and match where the redesign is heading (3.2).
+File counts are estimates from today's call sites. PR 5 is larger, but most of its edits are the same change repeated (noted in the PR).
 
 ```
 1 ─┬─> 2 ─┬─> 3 -> 5 ─┬─> 6
@@ -52,7 +51,7 @@ Handed off to the redesign:
 
 - **PR 10, one configuration snapshot per file.** The redesign's `SourceNode` captures `Configuration` and `Features` when the node is built, replacing `BicepSourceFile.LoadConfiguration()` and `LoadFeatures()`. Its immutable nodes are recreated on configuration changes, which removes the reason a snapshot couldn't live with the file (3.6). Until then, the call sites keep querying the manager; in the language server a purge in the middle of a compile can still give one compilation two configs, as it can today.
 - **PR 11, the explicit config path.** The graph build takes the config path as an input, replacing `ExplicitConfigurationContext`.
-- **Cache lifetimes and how the language server reacts to file changes.** The graph builder owns the configuration and `load*()` caches for one build. Request hosts build a fresh graph per request, and the language server pushes changed files into its long-lived graph (`WithChangedFiles`), which recreates the affected nodes. That replaces PR 1's `InvalidateFile`, the language server's hand-trimmed `AuxiliaryFileCache` and PR 13's per-request clear, and it's where the two caches can converge into one (suggested in #20587's review).
+- **Cache lifetimes and how the language server reacts to file changes.** The graph builder owns the configuration and `load*()` caches for one build. Request hosts build a fresh graph per request, and the language server pushes changed files into its long-lived graph (`WithChangedFiles`), which recreates the affected nodes. That replaces PR 1's `InvalidateFile`, the language server's hand-trimmed `AuxiliaryFileCache` and PR 13's per-request clear, and it's where the two caches can converge into one.
 - **A shared "diagnostics by file" type.** The redesign's `FileDiagnostics` replaces `GetAllDiagnosticsByBicepFile()`'s dictionary; the configuration chain follows it later (see the follow-ups).
 
 Coordinate with the redesign:
@@ -170,11 +169,8 @@ Types:
 - **Why configuration is still cached within a request.** `BicepSourceFile.LoadConfiguration()` and `LoadFeatures()` query the manager many times per file per compile. Loading a chain takes about 1.3 ms, so clearing per request costs a few milliseconds.
 - **Why `load*()` files aren't cached at all.** Within a compilation, each `load*()` call reads its file once while it's type checked, and emit reuses that result. A cache only saves a read when two files load the same file in one request.
 - **Why not a scoped DI registration.** The configuration manager and `AuxiliaryFileCache` are injected into singletons such as `SourceFileFactory`, which would capture the first scope's instance.
-- **Concurrent requests.** A request that starts while another is compiling clears the configuration under it. The running compile reloads the same files, so it only sees a different config if a file changed in between, as can already happen in the language server.
 
 **Target (source graph redesign).** Caches get explicit lifetimes instead of being told what to invalidate. The graph builder owns the configuration and `load*()` caches for one build. Request hosts build a fresh graph per request, and the language server pushes changed files into its long-lived graph (`WithChangedFiles`). This replaces PR 1's `InvalidateFile`, the language server's hand-trimmed `AuxiliaryFileCache` and PR 13's clear.
-
-**Why not caches that check their own dependencies?** That was PR 13's first version (#20587): each cache entry recorded the files it read with version stamps, the language server pushed file events through a shared notifier, and other hosts checked the stamps on read (after a change epoch, so a request with no edits cost nothing). It worked without measurable cost on a 401-file build, but needed a notifier, a dependency type and a file-versioning API to fix what per-request lifetimes fix with a few lines, and the redesign makes it unnecessary.
 
 ### 3.3 Merge rules
 
@@ -382,6 +378,7 @@ Tests: an invalid section next to a valid one keeps the valid one; an invalid cl
 ### PR 10 – One configuration snapshot per file *(handed off)*
 
 Done by the source graph redesign: `SourceNode` captures `Configuration` and `Features` when it's built, and `BicepSourceFile.LoadConfiguration()` and `LoadFeatures()` are deleted, so a missed call site fails to compile. Carry over this test: in the language server, changing the config during a compile still gives each compilation one config.
+
 ### PR 11 – Explicit config path passed in *(handed off)*
 
 Done by the source graph redesign: the graph build takes the explicit config path (the `--config` CLI option and the JSON-RPC requests that accept a config path) as an input, and `ExplicitConfigurationContext` is removed. Carry over the existing `--config` CLI and JSON-RPC tests.
@@ -402,10 +399,6 @@ Tests:
 
 - CLI JSON-RPC: compile, edit `bicepconfig.json`, compile again and see the new setting; the same for a file read by `loadTextContent`.
 - MCP server: `build_bicep`, edit `bicepconfig.json` and a file read by `loadTextContent`, then `build_bicep` again and see both edits.
-
-### PR 14 – *(dropped)* Auxiliary file cache checks its own dependencies
-
-Folded into PR 13: outside the language server, files read by `load*()` functions are no longer cached, and the redesign gives the cache an explicit lifetime.
 
 ### Optional follow-ups
 
