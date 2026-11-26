@@ -4,6 +4,8 @@
 using System.Net;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
+using Bicep.Core.Configuration;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.McpServer.Core.Extensions;
 using Bicep.McpServer.Core.ResourceProperties;
@@ -24,6 +26,9 @@ public static class IServiceCollectionExtensions
             .AddSingleton<AzResourceTypeLoader>(provider => new(provider.GetRequiredService<ITypeLoader>()))
             .AddSingleton<ResourceVisitor>()
             .AddSingleton<ExtensionTypeLoaderProvider>()
+            // Registered before AddBicepCore, which keeps the first registration. The server compiles on request,
+            // so files read by load*() functions aren't cached between tool calls (see NonCachingAuxiliaryFileCache).
+            .AddSingleton<IAuxiliaryFileCache, NonCachingAuxiliaryFileCache>()
             .AddBicepCore()
             .AddBicepDecompiler();
 
@@ -45,6 +50,9 @@ public static class IServiceCollectionExtensions
         {
             filters.AddCallToolFilter(next => async (context, cancellationToken) =>
             {
+                // The server is long-running and doesn't watch the file system, so configuration cached by an earlier call may be stale.
+                context.Services?.GetService<IBicepConfigurationManager>()?.InvalidateAll();
+
                 try
                 {
                     return await next(context, cancellationToken);

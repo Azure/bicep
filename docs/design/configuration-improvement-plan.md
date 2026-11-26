@@ -2,13 +2,13 @@
 
 Scope: everything under `src/Bicep.Core/Configuration`, plus the code that loads, caches and reads `bicepconfig.json`: the language server's config lifecycle, `BicepSourceFile.LoadConfiguration`, `FeatureProvider`, linter rules, and artifact and extension resolution.
 
-The work is 12 PRs, plus one in a later release. Anything the [source graph redesign](https://github.com/Azure/bicep/blob/shenglol/source-graph-redesign/docs/design/source-graph-redesign.md) covers is left to it (see the end of section 1):
+The work is 10 PRs, plus one in a later release. Anything the [source graph redesign](https://github.com/Azure/bicep/blob/shenglol/source-graph-redesign/docs/design/source-graph-redesign.md) covers is left to it (see the end of section 1):
 
 - **Fixes (PR 1)**: crashes and cache invalidation. Merged (#20561).
 - **Loading (PRs 2–4)**: a loader pipeline that records which file set each value, so errors and relative paths use that file; the cache root moves to an environment variable.
-- **Cache freshness (PRs 13–14)**: caches record the files they read and check them themselves, so every host (language server, `bicep jsonrpc`, MCP server) sees file changes; the language server pushes file events through a shared notifier.
+- **Cache lifetimes (PR 13)**: `bicep jsonrpc` and the MCP server clear cached configuration at the start of each request and don't cache files read by `load*()` functions, so they see file edits. Longer term, the source graph redesign gives the caches explicit per-build lifetimes.
 - **Models and validation (PRs 5–9)**: plain records, typed sections, warnings for unknown and ignored settings, per-section fallback.
-- **Access (PR 11)**: the explicit config path passed in instead of ambient state. One configuration snapshot per file (PR 10) is handed off to the source graph redesign.
+- **Handed off to the source graph redesign**: one configuration snapshot per file (PR 10) and the explicit config path (PR 11).
 
 PRs that change user-visible behavior are marked **(behavior change)**. Everything else keeps behavior.
 
@@ -19,7 +19,7 @@ PRs that change user-visible behavior are marked **(behavior change)**. Everythi
 | PR | Summary | Files (product + test) | After | Status |
 |---|---|---|---|---|
 | 1 | Config errors become diagnostics; correct cache invalidation | ~9 + ~11 | – | Merged (#20561) |
-| 2 | Loader pipeline: parse cache, one merge that records the declaring file, per-file diagnostics | ~13 + ~7 | 1 | In review (#20582) |
+| 2 | Loader pipeline: parse cache, one merge that records the declaring file, per-file diagnostics | ~13 + ~7 | 1 | Merged (#20582) |
 | 3 | The declaring file is used everywhere: `bicep.version`, aliases, mocks, relative paths | ~12 + ~8 | 2 | Planned |
 | 4 | `BICEP_ARTIFACT_CACHE_DIR`; `cacheRootDirectory` deprecated | ~5 + ~5 | 2 | Planned |
 | 5 | Sections and `BicepConfiguration` become records; one source of defaults | ~18 + ~6 | 3 | Planned |
@@ -28,31 +28,30 @@ PRs that change user-visible behavior are marked **(behavior change)**. Everythi
 | 8 | Typed extension sources and cloud profiles | ~13 + ~7 | 5 | Planned |
 | 9 | Per-section fallback | ~5 + ~3 | 5 | Planned |
 | 10 | One configuration snapshot per file | – | – | Handed off to the source graph redesign |
-| 11 | Explicit config path passed in; `ExplicitConfigurationContext` removed | ~6 + ~2 | 2 | Planned |
+| 11 | Explicit config path passed in; `ExplicitConfigurationContext` removed | – | – | Handed off to the source graph redesign |
 | 12 | *(later release)* Remove the `cacheRootDirectory` property | ~3 + ~3 | 4 | Later |
-| 13 | Configuration cache checks its own dependencies; shared file-change notifier | ~10 + ~6 | 2 | Planned |
-| 14 | Auxiliary file cache (`load*()` files) uses the same mechanism | ~5 + ~4 | 13 | Waiting on the source graph redesign |
+| 13 | `bicep jsonrpc` and the MCP server clear cached configuration per request; `load*()` files aren't cached outside the language server | ~5 + ~2 | 1 | In review (#20604) |
 
-File counts are estimates from today's call sites. PR 5 is larger, but most of its edits are the same change repeated (noted in the PR). PRs 13 and 14 were added after PR 1 showed that the CLI JSON-RPC and MCP servers never see file changes (B6).
+File counts are estimates from today's call sites. PR 5 is larger, but most of its edits are the same change repeated (noted in the PR).
 
 ```
-1 -> 2 ─┬─> 3 -> 5 ─┬─> 6
-        │           ├─> 7
-        │           ├─> 8
-        │           └─> 9
-        ├─> 4 ··· (one release later) ··· 12
-        ├─> 11
-        └─> 13 -> 14
+1 ─┬─> 2 ─┬─> 3 -> 5 ─┬─> 6
+   │      │           ├─> 7
+   │      │           ├─> 8
+   │      │           └─> 9
+   │      └─> 4 ··· (one release later) ··· 12
+   └─> 13
 ```
 
-After PR 2, four tracks can run side by side: PRs 3, 5 and 6–9 in order, PR 4, PR 11, and PRs 13–14. PRs 6, 7, 8 and 9 only depend on PR 5.
+After PR 2, two tracks can run side by side: PRs 3, 5 and 6–9 in order, and PR 4. PR 13 only depends on PR 1. PRs 6, 7, 8 and 9 only depend on PR 5.
 
 **Related work: the [source graph redesign](https://github.com/Azure/bicep/blob/shenglol/source-graph-redesign/docs/design/source-graph-redesign.md)** (draft, not scheduled). What the redesign does as part of its own design is left to it; this plan doesn't build an interim version.
 
 Handed off to the redesign:
 
 - **PR 10, one configuration snapshot per file.** The redesign's `SourceNode` captures `Configuration` and `Features` when the node is built, replacing `BicepSourceFile.LoadConfiguration()` and `LoadFeatures()`. Its immutable nodes are recreated on configuration changes, which removes the reason a snapshot couldn't live with the file (3.6). Until then, the call sites keep querying the manager; in the language server a purge in the middle of a compile can still give one compilation two configs, as it can today.
-- **How the language server reacts to configuration changes.** After redesign step 6, `SourceGraph.WithConfiguration` recreates the affected nodes. PR 13 only provides the event.
+- **PR 11, the explicit config path.** The graph build takes the config path as an input, replacing `ExplicitConfigurationContext`.
+- **Cache lifetimes and how the language server reacts to file changes.** The graph builder owns the configuration and `load*()` caches for one build. Request hosts build a fresh graph per request, and the language server pushes changed files into its long-lived graph (`WithChangedFiles`), which recreates the affected nodes. That replaces PR 1's `InvalidateFile`, the language server's hand-trimmed `AuxiliaryFileCache` and PR 13's per-request clear, and it's where the two caches can converge into one.
 - **A shared "diagnostics by file" type.** The redesign's `FileDiagnostics` replaces `GetAllDiagnosticsByBicepFile()`'s dictionary; the configuration chain follows it later (see the follow-ups).
 
 Coordinate with the redesign:
@@ -60,8 +59,6 @@ Coordinate with the redesign:
 | PR | What to agree on |
 |---|---|
 | 8 | Redesign step 4 takes built-in implicit extensions out of the graph, so `NamespaceProvider` reads them from configuration. Both edit `SourceFileGroupingBuilder` and `NamespaceProvider`; `ExtensionSource.BuiltIn` is the check step 4 needs. Whichever lands second adapts. |
-| 13 | `ConfigurationChanged` must carry what `WithConfiguration` needs: every leaf whose chain read a changed file (a base edit affects all of them), and the folders where config discovery must run again (a new `bicepconfig.json` changes which config the files under it use). |
-| 14 | Waits on the redesign's open question about data-file loads. If they become graph edges, their freshness is the redesign's and PR 14 is dropped; otherwise it goes ahead as written. |
 ---
 
 ## 2. Problems
@@ -77,7 +74,7 @@ Each item was confirmed with the Debug CLI built from `main`, or by reading the 
 | B3 | Errors are blamed on the wrong file | An invalid `currentProfile` in a base config reports BCP273 against the child's `bicepconfig.json`. Module alias errors (`ModuleAliasesConfiguration.configFileUri`) also always name the leaf. | PRs 2, 3 |
 | B4 | Per-file config diagnostics are always empty (code reading) | `BicepConfiguration.Bind` passes `diagnostics: null`, so every layer has none. `EnumerateDiagnosticsPerFile` only ever returns empty arrays. The doc comments on `IBicepConfiguration.GetDiagnostics` and `BicepConfigurationChain.GetEffectiveConfiguration` describe aggregation that doesn't happen. | PR 2 |
 | B5 | A failed chain stays cached after the file is fixed (code reading) | `LoadChain` records a chain's files only when loading succeeds. After a parse error or a missing base file, `PurgeCacheForAffectedChains(base)` finds nothing to purge. In the language server this is hidden because the change event purges everything. | PR 1 |
-| B6 | Long-running hosts other than the language server never see file changes (code reading) | `bicep jsonrpc` and the MCP server use the same singleton `BicepConfigurationManager` and `AuxiliaryFileCache`, and nothing in `Bicep.Cli` or `Bicep.McpServer*` ever invalidates or trims them. An edited `bicepconfig.json`, or a file read by a `load*()` function, isn't picked up until the process restarts, and `AuxiliaryFileCache` grows without limit. | PRs 13, 14 |
+| B6 | Long-running hosts other than the language server never see file changes (code reading) | `bicep jsonrpc` and the MCP server use the same singleton `BicepConfigurationManager` and `AuxiliaryFileCache`, and nothing in `Bicep.Cli` or `Bicep.McpServer*` ever invalidates or trims them. An edited `bicepconfig.json`, or a file read by a `load*()` function, isn't picked up until the process restarts, and `AuxiliaryFileCache` grows without limit. The configuration cache has been a singleton since #8301; `AuxiliaryFileCache` became one in #16557 (before that, `BicepCompiler` created one per compilation). | PR 13 |
 | B7 | Config changes the language server missed | The watched-files handler only reacted to files named exactly `bicepconfig.json`, so editing an extended base config such as `bicepconfig.base.json` never refreshed anything. Clients may also report only the folder when a folder is deleted, which exact URI matching misses. | PR 1 |
 
 ### 2.2 Silent misconfiguration
@@ -157,87 +154,23 @@ Types:
 |---|---|---|
 | Located leaf | directory | leaf `IOUri?` |
 | Parsed file | file `IOUri` | `ConfigurationFile` |
-| Chain | leaf `IOUri` | `BicepConfigurationChain` and its dependencies (one entry, so they can't get out of step); the dependencies become `FileDependencies` in PR 13 |
+| Chain | leaf `IOUri` | `BicepConfigurationChain` and its dependencies (one entry, so they can't get out of step) |
 
 **After PR 1 (interim).** The configuration manager records which files each chain read, including failed chains (fixes B5). The language server forwards every watched-file event to `InvalidateFile(uri)`, which drops each chain that read the file or anything under it (a folder event covers its contents). An event on any `bicepconfig.json` also resets discovery, because clients don't reliably say whether a file was created or changed. This works for the language server only; other hosts never call it (B6).
 
-**Target (PRs 13–14).** Each cache owns its freshness. Callers don't tell it what to invalidate.
+**After PR 13 (interim).** Each host gives the caches a lifetime that matches how it compiles:
 
-1. **Recorded dependencies.** A shared `FileDependencies` type in `Bicep.IO` records, for one cache entry, every file it read with a version stamp (last-write time and size), and every path it checked that didn't exist. For configuration, that's each file in the chain plus every directory searched for a `bicepconfig.json` without finding one. That second list is what catches a config file created closer to the source file.
-2. **Version checks.** `FileDependencies.IsCurrent()` compares the recorded stamps with the file system: a file changed or was deleted, or a missing path now exists. `IFileHandle` gets a version API for this; the in-memory file system returns a counter that increases on every write.
-3. **An optional notifier.** `IFileChangeNotifier` in `Bicep.IO.Abstraction` publishes batches of changed URIs. Only the language server provides one, fed by `didChangeWatchedFiles`. Caches subscribe, find entries whose dependencies match (a folder covers everything under it), check those entries' version stamps right away, and drop the ones that changed. The configuration manager raises `ConfigurationChanged` only if it dropped something, and the compilation manager refreshes compilations from that event, not from raw file events. That way it never recompiles before the configuration cache has been updated, or for events that didn't change anything (some watchers report a folder as "changed" when files inside it change).
-4. **Re-checking depends on the host.** With a notifier, entries are checked only when an event matches them, so steady-state requests cost nothing. Without one (CLI commands, `bicep jsonrpc`, MCP server), entries are checked against their version stamps when they're read: a few file-status calls, once per request.
+| Host | Configuration | Files read by `load*()` |
+|---|---|---|
+| Language server | Long-lived; `InvalidateFile` on watched-file events (PR 1) | Long-lived `AuxiliaryFileCache`, trimmed by `BicepCompilationManager` on file events |
+| `bicep jsonrpc`, MCP server | Cleared with `InvalidateAll()` at the start of each request | Not cached (`NonCachingAuxiliaryFileCache`) |
+| CLI commands | One process per command | Not cached |
 
-With this, `InvalidateFile` and the invalidation part of `BicepConfigLifecycleManager` go away; the lifecycle manager only publishes diagnostics for open config files. `InvalidateAll()` stays as an explicit command.
+- **Why configuration is still cached within a request.** `BicepSourceFile.LoadConfiguration()` and `LoadFeatures()` query the manager many times per file per compile. Loading a chain takes about 1.3 ms, so clearing per request costs a few milliseconds.
+- **Why `load*()` files aren't cached at all.** Within a compilation, each `load*()` call reads its file once while it's type checked, and emit reuses that result. A cache only saves a read when two files load the same file in one request.
+- **Why not a scoped DI registration.** The configuration manager and `AuxiliaryFileCache` are injected into singletons such as `SourceFileFactory`, which would capture the first scope's instance.
 
-```mermaid
-flowchart LR
-    subgraph LSP["Language server"]
-        W["didChangeWatchedFiles handler"]
-        N["LanguageServerFileChangeNotifier"]
-        CM["BicepCompilationManager"]
-    end
-
-    subgraph Core["Bicep.Core / Bicep.IO"]
-        BCM["BicepConfigurationManager"]
-        AUX["AuxiliaryFileCache"]
-        FD["FileDependencies<br/>(files read + version stamps,<br/>paths checked but missing)"]
-    end
-
-    FS[("File system")]
-
-    W -- "changed URIs" --> N
-    N -- "FilesChanged" --> BCM
-    N -- "FilesChanged" --> AUX
-    BCM -- "ConfigurationChanged<br/>(only if entries were dropped)" --> CM
-    AUX -- "AuxiliaryFilesChanged" --> CM
-    BCM -- "one per chain" --> FD
-    AUX -- "one per entry" --> FD
-    FD -- "IsCurrent(): file-status checks" --> FS
-```
-
-How each host sees an edit to a base config:
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Client as Editor / caller
-    participant Host as Host
-    participant BCM as BicepConfigurationManager
-    participant FS as File system
-
-    rect rgb(235, 245, 255)
-    Note over Client,FS: Language server (notifier present)
-    Client->>Host: didChangeWatchedFiles(base/bicepconfig.base.json)
-    Host->>BCM: FilesChanged([...]) via IFileChangeNotifier
-    BCM->>FS: IsCurrent() for chains whose dependencies match
-    BCM->>BCM: drop the chains that changed
-    BCM-->>Host: ConfigurationChanged (only if something was dropped)
-    Host->>BCM: GetConfigurationChain(main.bicep) while recompiling
-    BCM-->>Host: reloaded chain
-    end
-
-    rect rgb(245, 245, 235)
-    Note over Client,FS: bicep jsonrpc / MCP (no notifier)
-    Client->>Host: compile request
-    Host->>BCM: GetConfigurationChain(main.bicep)
-    BCM->>FS: IsCurrent(): status of each recorded file and missing path
-    alt something changed
-        BCM->>BCM: reload chain
-    end
-    BCM-->>Host: current chain
-    end
-```
-
-**Why not a file watcher for `bicep jsonrpc` and the MCP server?** The interface allows one later, but it isn't needed now:
-
-- These servers have no workspace root. Each request brings arbitrary paths, so a watcher implementation would have to start and stop directory watchers for every file read, count references, and dispose of them when cache entries are dropped.
-- `FileSystemWatcher` is least reliable in the places that matter:
-  - Editors often save by writing a temp file and renaming it, so a save shows up as a rename.
-  - Its buffer can overflow and drop events; the only signal is its `Error` event, which then has to clear everything.
-  - Linux limits how many watches a user can have.
-  - Network shares, WSL and container mounts are unreliable.
-- These servers compile once per request, so checking a few file versions per request costs microseconds and is deterministic.
+**Target (source graph redesign).** Caches get explicit lifetimes instead of being told what to invalidate. The graph builder owns the configuration and `load*()` caches for one build. Request hosts build a fresh graph per request, and the language server pushes changed files into its long-lived graph (`WithChangedFiles`). This replaces PR 1's `InvalidateFile`, the language server's hand-trimmed `AuxiliaryFileCache` and PR 13's clear.
 
 ### 3.3 Merge rules
 
@@ -445,48 +378,27 @@ Tests: an invalid section next to a valid one keeps the valid one; an invalid cl
 ### PR 10 – One configuration snapshot per file *(handed off)*
 
 Done by the source graph redesign: `SourceNode` captures `Configuration` and `Features` when it's built, and `BicepSourceFile.LoadConfiguration()` and `LoadFeatures()` are deleted, so a missed call site fails to compile. Carry over this test: in the language server, changing the config during a compile still gives each compilation one config.
-### PR 11 – Explicit config path passed in
 
-No behavior change.
+### PR 11 – Explicit config path passed in *(handed off)*
 
-1. Replace `ExplicitConfigurationContext` with an explicit config path passed in (3.6). The `--config` CLI option and the JSON-RPC requests that accept a config path create a manager for that operation.
-
-Tests: the existing `--config` CLI and JSON-RPC tests.
+Done by the source graph redesign: the graph build takes the explicit config path (the `--config` CLI option and the JSON-RPC requests that accept a config path) as an input, and `ExplicitConfigurationContext` is removed. Carry over the existing `--config` CLI and JSON-RPC tests.
 
 ### PR 12 – *(later release)* Remove `cacheRootDirectory`
 
 At least one release after PR 4. Remove the property from `BicepConfiguration`, the binder and the schema. A leftover key then gets the "unknown setting" warning.
 
-### PR 13 – Configuration cache checks its own dependencies **(behavior change: `bicep jsonrpc` and the MCP server see config edits)**
+### PR 13 – Request-scoped caches for `bicep jsonrpc` and the MCP server **(behavior change: they see config and `load*()` edits)**
 
-Fixes B6 for configuration and replaces PR 1's interim `InvalidateFile` (3.2).
+Fixes B6 (3.2).
 
-1. Add `IFileHandle.GetVersion()` (or similar) returning last-write time and size, with an in-memory implementation that returns a counter increased on every write.
-2. Add `FileDependencies` to `Bicep.IO`: files read, with their versions, plus paths checked but missing; `IsCurrent()`; `Matches(IOUri)`, where a folder covers everything under it.
-3. `BicepConfigurationManager` records `FileDependencies` for each chain (built from PR 2's parsed files) and for each located-leaf lookup (the found file plus every directory searched without finding one).
-4. Add `IFileChangeNotifier` to `Bicep.IO.Abstraction`. When a notifier is registered, the manager subscribes: on `FilesChanged` it checks matching entries, drops the stale ones, and raises `ConfigurationChanged` if any were dropped. When none is registered, `GetConfigurationChain` checks an entry's `IsCurrent()` before returning it.
-5. Language server: add `LanguageServerFileChangeNotifier`, fed by the watched-files handler. `BicepCompilationManager` refreshes compilations on `ConfigurationChanged`. The event says which leaf configs were dropped and which folders need config discovery again (section 1). After redesign step 6, the redesign's `WithConfiguration` consumes it instead of `BicepCompilationManager`. Delete `InvalidateFile` and the invalidation in `BicepConfigLifecycleManager`, which keeps only diagnostics publishing.
+1. Add `NonCachingAuxiliaryFileCache`, which reads the file on every call. The CLI (including `bicep jsonrpc`) and the MCP server register it before `AddBicepCore()`, which keeps the first registration. The language server, the WebAssembly host and the library keep the caching `AuxiliaryFileCache`.
+2. `CliJsonRpcServer` calls `IBicepConfigurationManager.InvalidateAll()` at the start of each request.
+3. The MCP server's call-tool filter calls `InvalidateAll()` before each tool call.
 
 Tests:
 
-- `FileDependencies`: changed, deleted and created files; a folder covers its contents.
-- Without a notifier: editing a base config, creating a closer `bicepconfig.json`, and deleting the leaf are all seen on the next `GetConfigurationChain`.
-- With a test notifier: an event that doesn't change anything raises nothing; an event that does raises `ConfigurationChanged` once.
-- A CLI JSON-RPC test: compile, edit `bicepconfig.json`, compile again, and see the new setting.
-- The LangServer `BicepConfigTests` keep passing unchanged.
-
-Before turning on the version checks for CLI commands, measure them on a large repo with the `bicep-perf-profiling` skill. Once the redesign captures configuration on each node, that's about one check per source file per graph build.
-
-### PR 14 – Auxiliary file cache uses the same mechanism **(behavior change: `bicep jsonrpc` and the MCP server see `load*()` edits)**
-
-Fixes B6 for files read by `load*()` functions. Waits on the source graph redesign's open question about data-file loads (section 1): if they become graph edges, the redesign handles their freshness and this PR is dropped.
-
-1. `AuxiliaryFileCache` entries record `FileDependencies` (one file each).
-2. It subscribes to the notifier when one is registered; otherwise it checks the version when an entry is read and drops entries that changed or were deleted.
-3. `BicepCompilationManager` stops trimming the cache by hand on file events (keeping the trim for files no open compilation uses) and refreshes on the cache's change event instead.
-4. Long-running hosts without a notifier trim entries that haven't been read for a while, so the cache stops growing without limit.
-
-Tests: a CLI JSON-RPC test that edits a `loadTextContent` file between two requests; the existing LangServer tests for files read by `load*()` functions.
+- CLI JSON-RPC: compile, edit `bicepconfig.json`, compile again and see the new setting; the same for a file read by `loadTextContent`.
+- MCP server: `build_bicep`, edit `bicepconfig.json` and a file read by `loadTextContent`, then `build_bicep` again and see both edits.
 
 ### Optional follow-ups
 
@@ -509,7 +421,7 @@ Tests: a CLI JSON-RPC test that edits a `loadTextContent` file between two reque
 3. **Cache root**: moves to `BICEP_ARTIFACT_CACHE_DIR`, which accepts an absolute path or `~`. The config property is deprecated with a warning (PR 4) and removed a release later (PR 12).
 4. **Diagnostic codes**: one code per category (3.4).
 5. **Unknown rule names**: checked in every analyzer namespace, and unknown namespaces are reported too (PR 6).
-6. **Cache freshness**: caches record the files they read and check them themselves (`FileDependencies`). The language server pushes file events through a shared `IFileChangeNotifier`, so the configuration manager decides what's stale instead of being told what to invalidate. Hosts without a notifier check version stamps on read. A `FileSystemWatcher`-based notifier is deferred (3.2). PR 1's `InvalidateFile` is an interim API that PR 13 removes.
+6. **Cache freshness**: caches get explicit lifetimes instead of checking file versions. Until the source graph redesign, `bicep jsonrpc` and the MCP server clear configuration per request and don't cache `load*()` files (PR 13); the language server keeps PR 1's `InvalidateFile`. In the redesign, the graph builder owns both caches for one build (3.2).
 
 ### Still open
 
@@ -526,9 +438,7 @@ Tests: a CLI JSON-RPC test that edits a `loadTextContent` file between two reque
 | Per-section fallback (PR 9) could restore artifacts with the built-in cloud when the user's cloud config is invalid | Cloud stays strict: an invalid or untrusted cloud is an error, and restore doesn't run while it's present |
 | Removing `cacheRootDirectory` (PR 12) moves caches for users who set it | At least one release with a deprecation warning naming the variable; the variable takes precedence as soon as PR 4 ships |
 | PRs 5 and 10 are large | Most files only swap a type name or a call; `With(...)` kept in `Bicep.Testing` so test files don't churn; baselines and `ToUtf8Json` output checked |
-| Version checks miss an edit (PR 13) | Compare size as well as last-write time; some file systems record times only to the second. Config files are small enough to hash if this turns out to matter |
-| Version checks cost too much in CLI commands or large repos (PR 13) | Only hosts without a notifier check on read; once the redesign captures configuration per node, about one check per source file per graph build; measure before turning them on |
-| A file changes between being read and its version being recorded (PR 13) | Record the version before reading the file, so a change in between shows up as stale on the next check |
+| Concurrent `bicep jsonrpc` requests: one request clears the configuration while another compiles (PR 13) | The running compile reloads the same files, so its result only changes if a file was edited in between, as can already happen in the language server |
 
 ---
 
@@ -537,6 +447,6 @@ Tests: a CLI JSON-RPC test that edits a `loadTextContent` file between two reque
 - **Unit** (`Bicep.Core.UnitTests/Configuration`): reader, chain resolver, merger and provenance, each section's binder, cache invalidation, and the "no exception for bad input" test.
 - **Integration** (`Bicep.Core.IntegrationTests/ConfigurationInheritanceTests`): an inheritance scenario for each section that has paths or errors (PRs 2–3).
 - **Language server** (`Bicep.LangServer.IntegrationTests/BicepConfigTests`, `Bicep.LangServer.UnitTests/Configuration`): per-file squiggles and invalidation on file events. (One configuration per compilation is tested by the source graph redesign.)
-- **CLI JSON-RPC** (`Bicep.Cli.IntegrationTests`): edits to `bicepconfig.json` and to files read by `load*()` functions are seen between requests (PRs 13–14).
+- **CLI JSON-RPC and MCP** (`Bicep.Cli.IntegrationTests`, `Bicep.McpServer.UnitTests`): edits to `bicepconfig.json` and to files read by `load*()` functions are seen between requests (PR 13).
 - **Schema** (`BicepConfigSchemaTests`): defaults and properties match the schema (PR 5).
 - **Baselines**: PRs 1, 2, 6 and 7 change diagnostic text. Update the baselines and review every diff.

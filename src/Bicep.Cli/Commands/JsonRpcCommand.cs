@@ -11,6 +11,7 @@ using Bicep.Cli.Constants;
 using Bicep.Cli.Rpc;
 using Bicep.Cli.Services;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Documentation;
 using Bicep.Core.Features;
 using Bicep.Core.Utils;
@@ -25,7 +26,8 @@ public class JsonRpcCommand(
     IEnvironment environment,
     IBicepDocumentationGenerator documentationGenerator,
     DocsGenerationOptionsResolver docsOptionsResolver,
-    ExplicitConfigurationScopeFactory explicitConfigurationScopeFactory) : ICommand
+    ExplicitConfigurationScopeFactory explicitConfigurationScopeFactory,
+    IBicepConfigurationManager configurationManager) : ICommand
 {
     public async Task<int> RunAsync(JsonRpcArguments args, CancellationToken cancellationToken)
     {
@@ -72,7 +74,8 @@ public class JsonRpcCommand(
             environment,
             documentationGenerator,
             docsOptionsResolver,
-            explicitConfigurationScopeFactory);
+            explicitConfigurationScopeFactory,
+            configurationManager);
         jsonRpc.AddLocalRpcTarget<ICliJsonRpcProtocol>(server, null);
 
         jsonRpc.StartListening();
