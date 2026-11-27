@@ -138,6 +138,24 @@ namespace Bicep.Core.UnitTests.Semantics
         }
 
         [TestMethod]
+        public void Multi_document_YAML_returns_dedicated_diagnostic()
+        {
+            var multiDocYml = "abc: 'def'\n---\nghi: 'jkl'\n";
+
+            var span = new TextSpan(0, 10);
+            new YamlObjectParser().TryExtractFromObject(multiDocYml, null, [span]).IsSuccess(out _, out var errorDiagnostic);
+            Assert.AreEqual("BCP462", errorDiagnostic!.Code);
+        }
+
+        [TestMethod]
+        public void Single_document_YAML_with_leading_separator_still_parses()
+        {
+            var span = new TextSpan(0, 10);
+            Assert.IsTrue(new YamlObjectParser().TryExtractFromObject("---\nabc: 'def'\n", null, [span]).IsSuccess(out var jToken));
+            Assert.AreEqual("def", (string?)jToken["abc"]);
+        }
+
+        [TestMethod]
         public void Unparsable_JSON()
         {
             var invalidJson = @"

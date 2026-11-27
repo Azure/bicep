@@ -1622,6 +1622,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP340",
                 $"Unable to parse literal YAML value. Please ensure that it is well-formed.");
 
+            public Diagnostic MultiDocumentYamlNotSupported() => CoreError(
+                "BCP462",
+                "Unable to parse literal YAML value. Multi-document YAML (documents separated by \"---\") is not supported; provide a single YAML document.");
+
             public Diagnostic RuntimeValueNotAllowedInFunctionDeclaration(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
