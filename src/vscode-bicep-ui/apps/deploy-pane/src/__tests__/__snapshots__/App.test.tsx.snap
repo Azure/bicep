@@ -352,7 +352,7 @@ exports[`App > handles synchronous deployment failures correctly 1`] = `
               
       
             </div>
-          Pick JSON Parameters File
+          Pick Parameters File
         </vscode-button>
         <span
           class="input-row"
@@ -1349,7 +1349,7 @@ exports[`App > renders the App component with deployment state 1`] = `
               
       
             </div>
-          Pick JSON Parameters File
+          Pick Parameters File
         </vscode-button>
         <span
           class="input-row"
@@ -1893,7 +1893,7 @@ exports[`App > runs a deployment 1`] = `
               
       
             </div>
-          Pick JSON Parameters File
+          Pick Parameters File
         </vscode-button>
         <span
           class="input-row"
@@ -3225,7 +3225,7 @@ exports[`App > supports the scope picker 1`] = `
               
       
             </div>
-          Pick JSON Parameters File
+          Pick Parameters File
         </vscode-button>
         <span
           class="input-row"
@@ -3757,7 +3757,7 @@ exports[`App > validates a deployment 1`] = `
               
       
             </div>
-          Pick JSON Parameters File
+          Pick Parameters File
         </vscode-button>
         <span
           class="input-row"
@@ -4732,7 +4732,7 @@ exports[`App > what-ifs a deployment 1`] = `
               
       
             </div>
-          Pick JSON Parameters File
+          Pick Parameters File
         </vscode-button>
         <span
           class="input-row"
