@@ -583,6 +583,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A file loaded with a load*() function should not be the default build output of the Bicep file that loads it..
+        /// </summary>
+        internal static string NoLoadOfBuildOutputRule_Description {
+            get {
+                return ResourceManager.GetString("NoLoadOfBuildOutputRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The file &apos;{0}&apos; has the same name as this Bicep file, so building this file with the default output location would overwrite it. Rename one of the files or build with --outfile..
+        /// </summary>
+        internal static string NoLoadOfBuildOutputRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("NoLoadOfBuildOutputRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter..
         /// </summary>
         internal static string NoLocExprOutsideParamsRuleDescription {

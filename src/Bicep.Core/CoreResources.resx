@@ -563,6 +563,12 @@
   <data name="NoIncompatibleEntrypointVersionRule_MessageFormat" xml:space="preserve">
     <value>The entrypoint's 'bicep.version' constraint ({0}) allows versions that do not satisfy the constraint '{1}' required by referenced file '{2}'. Tools that select a Bicep version using only the entrypoint's constraint may select an incompatible version.</value>
   </data>
+  <data name="NoLoadOfBuildOutputRule_Description" xml:space="preserve">
+    <value>A file loaded with a load*() function should not be the default build output of the Bicep file that loads it.</value>
+  </data>
+  <data name="NoLoadOfBuildOutputRule_MessageFormat" xml:space="preserve">
+    <value>The file '{0}' has the same name as this Bicep file, so building this file with the default output location would overwrite it. Rename one of the files or build with --outfile.</value>
+  </data>
   <data name="ExperimentalFeatureNames_Asserts" xml:space="preserve">
     <value>Asserts</value>
   </data>
