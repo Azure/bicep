@@ -48,7 +48,7 @@ public class SnapshotCommand(
     {
         var snapshotMode = args.Mode ?? SnapshotArguments.SnapshotMode.Overwrite;
 
-        var inputUri = inputOutputArgumentsResolver.ResolveInputArguments(args);
+        var (inputUri, outputUri) = inputOutputArgumentsResolver.ResolveInputOutputArguments(args);
         ArgumentHelper.ValidateBicepParamFile(inputUri);
 
         var newSnapshot = await GetSnapshot(args, inputUri, noRestore: false, cancellationToken)
@@ -63,7 +63,6 @@ public class SnapshotCommand(
             }
         }
 
-        var outputUri = inputUri.WithExtension(".snapshot.json");
         switch (snapshotMode)
         {
             case SnapshotArguments.SnapshotMode.Overwrite:
@@ -151,6 +150,8 @@ public class SnapshotCommand(
     internal static Command CreateCommand(CommandLineBuilderContext context)
     {
         var inputFileArgument = CommonArguments.ParametersFile();
+        var outDirOption = CommonOptions.OutDir("The directory containing the snapshot file to generate or validate.");
+        var outFileOption = CommonOptions.OutFile("The snapshot file path to use for generation or validation.");
         var modeOption = new Option<SnapshotArguments.SnapshotMode?>(OptionNames.Mode)
         {
             Description = "Sets the snapshot mode. Valid values are (overwrite, validate).",
@@ -184,6 +185,8 @@ public class SnapshotCommand(
         var command = new Command(CommandNames.Snapshot, "Generates or validates a deployment snapshot from a .bicepparam file.")
         {
             inputFileArgument,
+            outDirOption,
+            outFileOption,
             modeOption,
             tenantIdOption,
             subscriptionIdOption,
@@ -197,6 +200,10 @@ public class SnapshotCommand(
 
         command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
         {
+            var outputDir = result.GetValue(outDirOption);
+            var outputFile = result.GetValue(outFileOption);
+            ArgumentHelper.ValidateOutputOptions(outputToStdOut: false, outputDir, outputFile);
+
             var args = new SnapshotArguments(
                 result.GetRequiredValue(inputFileArgument),
                 result.GetValue(modeOption),
@@ -205,7 +212,9 @@ public class SnapshotCommand(
                 result.GetValue(managementGroupIdOption),
                 result.GetValue(locationOption),
                 result.GetValue(resourceGroupOption),
-                result.GetValue(deploymentNameOption));
+                result.GetValue(deploymentNameOption),
+                outputDir,
+                outputFile);
 
             return await context.GetCommand<SnapshotCommand>().RunAsync(args, ct);
         }));
