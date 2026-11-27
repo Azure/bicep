@@ -86,18 +86,62 @@ namespace Bicep.Core.Semantics.Namespaces
                     return false;
                 }
 
-                var resourceType = ResourceTypeReference.TryParse(stringLiteral.RawStringValue);
-                var isResourceType = resourceType is not null &&
-                    resourceType.TypeSegments.Length > 1 &&
-                    resourceType.TypeSegments[0].Contains('.');
-
-                if (isResourceType)
+                if (TryGetResourceIdTypeReference(stringLiteral.RawStringValue) is not null)
                 {
                     return index == requiredScopeArgumentCount;
                 }
             }
 
             return false;
+        }
+
+        private static ResourceTypeReference? TryGetResourceIdTypeReference(string value)
+        {
+            var resourceType = ResourceTypeReference.TryParse(value);
+            return resourceType is not null &&
+                resourceType.TypeSegments.Length > 1 &&
+                resourceType.TypeSegments[0].Contains('.')
+                ? resourceType
+                : null;
+        }
+
+        private static FunctionResult GetResourceIdReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            // The overload resolver cannot distinguish the optional leading string arguments.
+            // ARM expects a single multi-segment argument representing the resource type.
+            // Defer to ARM if multiple literal arguments contain slashes or the type is not known.
+            var typeIndex = -1;
+            ResourceTypeReference? resourceType = null;
+
+            for (var index = 0; index < argumentTypes.Length; index++)
+            {
+                if (argumentTypes[index] is not StringLiteralType literal || !literal.RawStringValue.Contains('/'))
+                {
+                    continue;
+                }
+
+                if (typeIndex >= 0 || index > 2 ||
+                    TryGetResourceIdTypeReference(literal.RawStringValue) is not { ApiVersion: null } parsedType)
+                {
+                    return new(LanguageConstants.String);
+                }
+
+                typeIndex = index;
+                resourceType = parsedType;
+            }
+
+            if (resourceType is not null)
+            {
+                var requiredNameCount = resourceType.TypeSegments.Length - 1;
+                var suppliedNameCount = argumentTypes.Length - typeIndex - 1;
+
+                if (suppliedNameCount < requiredNameCount)
+                {
+                    diagnostics.Write(functionCall.Name, x => x.InsufficientResourceIdNameArguments(resourceType.Type, requiredNameCount, suppliedNameCount));
+                }
+            }
+
+            return new(LanguageConstants.String);
         }
 
         private static FunctionResult GetTenantReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
@@ -477,7 +521,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 // modeling this as multiple overload with all possible permutations of the leading parameters
                 const string resourceIdDescription = "Returns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.";
                 yield return new FunctionOverloadBuilder(ResourceIdFunctionName)
-                    .WithReturnType(LanguageConstants.String)
+                    .WithReturnResultBuilder(GetResourceIdReturnResult, LanguageConstants.String)
                     .WithGenericDescription(resourceIdDescription)
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
@@ -485,7 +529,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
 
                 yield return new FunctionOverloadBuilder(ResourceIdFunctionName)
-                    .WithReturnType(LanguageConstants.String)
+                    .WithReturnResultBuilder(GetResourceIdReturnResult, LanguageConstants.String)
                     .WithGenericDescription(resourceIdDescription)
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
@@ -494,7 +538,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
 
                 yield return new FunctionOverloadBuilder(ResourceIdFunctionName)
-                    .WithReturnType(LanguageConstants.String)
+                    .WithReturnResultBuilder(GetResourceIdReturnResult, LanguageConstants.String)
                     .WithGenericDescription(resourceIdDescription)
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
@@ -503,7 +547,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
 
                 yield return new FunctionOverloadBuilder(ResourceIdFunctionName)
-                    .WithReturnType(LanguageConstants.String)
+                    .WithReturnResultBuilder(GetResourceIdReturnResult, LanguageConstants.String)
                     .WithGenericDescription(resourceIdDescription)
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
