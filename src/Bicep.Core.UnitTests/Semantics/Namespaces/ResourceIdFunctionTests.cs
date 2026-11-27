@@ -53,7 +53,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
         {
             var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore($"{Parameters}\noutput testId string = {expression}");
 
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
         {
             var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore($"{Parameters}\noutput testId string = {expression}");
 
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
         }
     }
 }
