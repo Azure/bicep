@@ -2101,6 +2101,11 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic LocalModuleFileExtensionNotSupported(string reference) => CoreError(
                 "BCP461",
                 $"The reference \"{reference}\" is not valid. A file referenced with the \"{ArtifactSchemes.File}\" scheme must be a Bicep file (\"{LanguageConstants.LanguageFileExtension}\" or \"{LanguageConstants.ParamsFileExtension}\") or an ARM template (\"{LanguageConstants.JsonFileExtension}\", \"{LanguageConstants.JsoncFileExtension}\" or \"{LanguageConstants.ArmTemplateFileExtension}\").");
+
+            public Diagnostic InsufficientResourceIdNameArguments(string resourceType, int requiredNameCount, int suppliedNameCount) => CoreError(
+                "BCP462",
+                $"The resource type \"{resourceType}\" requires {requiredNameCount} resource name segments, but the \"resourceId\" function was supplied with {suppliedNameCount}.");
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
