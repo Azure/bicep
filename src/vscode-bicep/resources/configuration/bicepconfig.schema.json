@@ -545,6 +545,16 @@
                     }
                   ]
                 },
+                "no-load-of-build-output": {
+                  "allOf": [
+                    {
+                      "description": "A file loaded with a load*() function should not be the default build output of the Bicep file that loads it. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-load-of-build-output"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "no-loc-expr-outside-params": {
                   "allOf": [
                     {
