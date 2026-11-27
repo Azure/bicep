@@ -27,6 +27,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
         [DataRow("resourceId(subscriptionId, groupName, 'Microsoft.Network/virtualNetworks/subnets', parentName)", "Microsoft.Network/virtualNetworks/subnets", 2, 1)]
         [DataRow("resourceId('myGroup', 'Microsoft.Network/virtualNetworks/subnets', parentName)", "Microsoft.Network/virtualNetworks/subnets", 2, 1)]
         [DataRow("resourceId(groupName, 'Microsoft.Storage/storageAccounts')", "Microsoft.Storage/storageAccounts", 1, 0)]
+        [DataRow("resourceId(dynamicType, 'Microsoft.Network/virtualNetworks/subnets')", "Microsoft.Network/virtualNetworks/subnets", 2, 0)]
         [DataRow("resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', parentName, childName)", "Microsoft.Storage/storageAccounts/blobServices/containers", 3, 2)]
         public void ResourceId_with_insufficient_names_reports_error(string expression, string resourceType, int required, int supplied)
         {
